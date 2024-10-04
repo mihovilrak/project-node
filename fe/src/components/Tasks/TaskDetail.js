@@ -1,35 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import CommentList from '../Comments/CommentList';
-import AddComment from '../Comments/AddComment';
+// src/components/Tasks/TaskDetail.js
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import Layout from '../Layout/Layout';
 
-const TaskDetail = ({ match }) => {
-  const [task, setTask] = useState(null);
-  const taskId = match.params.id;
-
-  useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const response = await axios.get(`/api/tasks/${taskId}`);
-        setTask(response.data);
-      } catch (error) {
-        console.error('Error fetching task:', error);
-      }
-    };
-
-    fetchTask();
-  }, [taskId]);
-
-  if (!task) return <p>Loading...</p>;
-
+const TaskDetail = () => {
+  const { id } = useParams();
   return (
-    <div>
-      <h2>{task.name}</h2>
-      <p>{task.description}</p>
-      <h3>Comments</h3>
-      <CommentList taskId={taskId} />
-      <AddComment taskId={taskId} userId={1} /> {/* Assuming logged-in user ID is 1 */}
-    </div>
+    <Layout>
+      <div className="bg-white p-8 shadow-md rounded-md">
+        <h2 className="text-2xl font-bold mb-6">Task Details for Task {id}</h2>
+        {/* Example task detail content */}
+        <p>This is the detail view for task {id}.</p>
+      </div>
+    </Layout>
   );
 };
 

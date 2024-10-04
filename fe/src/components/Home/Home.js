@@ -1,19 +1,15 @@
+// src/components/Home/Home.js
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import Layout from '../Layout/Layout';
 
 const Home = () => {
-  const { isAuthenticated } = useAuth();
-
   return (
-    <div>
-      <h1>Welcome to the Project Management App!</h1>
-      {isAuthenticated ? (
-        <p>You are logged in!</p>
-      ) : (
-        <p>Please <Link to="/login">log in</Link> to access your projects.</p>
-      )}
-    </div>
+    <Layout>
+      <div className="bg-white p-8 shadow-md rounded-md">
+        <h1 className="text-3xl font-bold mb-6">Welcome to the Project Management App!</h1>
+        <p>This is a simple project management tool to help you manage your tasks and projects efficiently.</p>
+      </div>
+    </Layout>
   );
 };
 

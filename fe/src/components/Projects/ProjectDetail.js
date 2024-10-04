@@ -1,33 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import TaskList from '../Tasks/TaskList';
+// src/components/Projects/ProjectDetail.js
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import Layout from '../Layout/Layout';
 
-const ProjectDetail = ({ match }) => {
-  const [project, setProject] = useState(null);
-  const projectId = match.params.id;
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await axios.get(`/api/projects/${projectId}`);
-        setProject(response.data);
-      } catch (error) {
-        console.error('Error fetching project:', error);
-      }
-    };
-
-    fetchProject();
-  }, [projectId]);
-
-  if (!project) return <p>Loading...</p>;
-
+const ProjectDetail = () => {
+  const { id } = useParams();
   return (
-    <div>
-      <h2>{project.name}</h2>
-      <p>{project.description}</p>
-      <h3>Tasks</h3>
-      <TaskList projectId={projectId} />
-    </div>
+    <Layout>
+      <div className="bg-white p-8 shadow-md rounded-md">
+        <h2 className="text-2xl font-bold mb-6">Project Details for Project {id}</h2>
+        {/* Example project detail content */}
+        <p>This is the detail view for project {id}.</p>
+      </div>
+    </Layout>
   );
 };
 
