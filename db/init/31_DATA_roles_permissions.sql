@@ -14,4 +14,4 @@ insert into roles_permissions (role_id, permission_id) values (1, 1),
                                                                 (3, 8),
                                                                 (3, 9),
                                                                 (3, 10),
-                                                                (4, 8),
+                                                                (4, 8);

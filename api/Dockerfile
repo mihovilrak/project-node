@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the app source code
-COPY . .
+COPY ./src/ .
 
 # Expose port 5000 for the API
 EXPOSE 5000

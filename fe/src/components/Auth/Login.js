@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { login } from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+//import { login } from '../../api/auth';
 
-const Login = ({ history }) => {
+const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -9,7 +13,7 @@ const Login = ({ history }) => {
     e.preventDefault();
     try {
       await login(email, password);
-      history.push('/dashboard'); // Redirect after successful login
+      navigate('/'); // Redirect after successful login
     } catch (error) {
       console.error('Login error:', error);
     }
