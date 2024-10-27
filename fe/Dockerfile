@@ -1,25 +1,35 @@
-# fe/Dockerfile
-FROM node:16 as build
+# Build the React frontend
+FROM node:23-alpine3.19 AS build
 
 WORKDIR /app
 
 # Copy package.json and install dependencies
 COPY package*.json ./
-RUN npm install
-RUN npm install --save-dev @babel/plugin-proposal-private-property-in-object
+RUN apk update && \
+    apk add --no-cache yarn && \
+    mkdir node_modules && \
+    yarn install --production=true --link-duplicates --ignore-optional
 
-# Copy the rest of the application
+# Copy the rest of the React application
 COPY . .
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Build the application
-RUN npm run build
+RUN yarn run build && \
+    yarn cache clean --all && \
+    yarn autoclean
 
-# Serve the application using a simple server
-FROM nginx:alpine
+# Serve the built app with NGINX
+FROM nginx:1.27.2-alpine-slim
 
+# Copy React build files to NGINX HTML directory
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port
+# Copy NGINX configuration file (for reverse proxy)
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80 for NGINX
 EXPOSE 80
 
 # Start NGINX

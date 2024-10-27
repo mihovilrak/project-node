@@ -1,4 +1,5 @@
-create or replace function delete_project(project_id integer) returns table(message text) as $$
+create or replace function delete_project(project_id integer) 
+returns table(message text) as $$
     begin
 
         -- Update the active status of the given project 

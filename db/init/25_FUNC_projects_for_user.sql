@@ -1,7 +1,15 @@
 create or replace function projects_for_users(user_id integer) 
-returns table(id integer, name character varying, description text,
-start_date date, end_date date, due_date date, status_id integer,
-created_by integer, created_on timestamptz) as $$
+returns table(
+    id integer, 
+    name character varying, 
+    description text,
+    start_date date, 
+    end_date date, 
+    due_date date, 
+    status_id integer,
+    created_by integer, 
+    created_on timestamptz
+) as $$
 
 begin
     return query 

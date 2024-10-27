@@ -1,65 +1,85 @@
-// components/Auth/Login.js
-
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper
+} from '@mui/material';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const { login } = useAuth();
+  const [loginDetails, setLoginDetails] = useState({ login: '', password: '' });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginDetails((prevState) => ({ ...prevState, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await login(email, password);
+      await login(loginDetails.login, loginDetails.password);
       navigate('/');
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error(error);
+      setError('Login error. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-lg">
-        <h2 className="text-3xl font-semibold text-center mb-6">Login</h2>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
+        <Typography variant="h4" component="h1" align="center" gutterBottom>
+          Login
+        </Typography>
+        {error && (
+          <Typography variant="body2" color="error" align="center">
+            {error}
+          </Typography>
+        )}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+          <Box mb={3}>
+            <TextField
+              label="Username"
+              name="login"
+              fullWidth
+              value={loginDetails.login}
+              onChange={handleInputChange}
               required
             />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
+          </Box>
+          <Box mb={3}>
+            <TextField
+              label="Password"
               type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1"
+              name="password"
+              fullWidth
+              value={loginDetails.password}
+              onChange={handleInputChange}
               required
             />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300"
-          >
-            Log In
-          </button>
+          </Box>
+          <Box mb={2} textAlign="center">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ padding: 1.5 }}
+            >
+              Login
+            </Button>
+          </Box>
         </form>
-      </div>
-    </div>
+      </Paper>
+    </Container>
   );
 };
 

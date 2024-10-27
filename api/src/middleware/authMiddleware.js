@@ -1,20 +1,12 @@
-const jwt = require('jsonwebtoken');
-const config = require('../config');
-
 const authMiddleware = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(403).json({ error: 'Access denied, token missing' });
-  }
 
-  jwt.verify(token, config.jwtSecret, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    req.user = user; // attach user info to request
+  if (req.session && req.session.user) {
+    console.log("Authenticated user:", req.session.user);
     next();
-  });
+  } else {
+    console.log("No session or user found");
+    res.status(403).json({ error: 'Access denied' })
+  }
 };
 
 module.exports = authMiddleware;

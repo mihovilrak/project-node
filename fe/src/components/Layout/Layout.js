@@ -1,22 +1,14 @@
 // src/components/Layout/Layout.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Sidebar from '../Sidebar/Sidebar';
 
 const Layout = ({ children }) => {
   return (
     <div className="flex">
-      <nav className="w-1/4 bg-gray-200 p-4">
-        <h1 className="text-xl font-bold mb-4">Project Management</h1>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/projects">Projects</Link></li>
-          <li><Link to="/tasks">Tasks</Link></li>
-          <li><Link to="/calendar">Calendar</Link></li>
-          <li><Link to="/users">Users</Link></li>
-          <li><Link to="/settings">Settings</Link></li>
-        </ul>
-      </nav>
-      <main className="w-3/4 p-4">{children}</main>
+      <Sidebar />
+      <main className="ml-64 p-6 bg-gray-100 min-h-screen w-full">
+        {children}
+      </main>
     </div>
   );
 };

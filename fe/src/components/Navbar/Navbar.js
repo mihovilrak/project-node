@@ -1,4 +1,4 @@
-// src/components/Navbar.js
+// src/components/Navbar/Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -9,13 +9,21 @@ const Navbar = () => {
         <Link to="/" className="text-white text-lg font-semibold">
           Project Management App
         </Link>
-        <div className="flex space-x-4">
-          <Link to="/tasks" className="text-gray-300 hover:text-white">Tasks</Link>
-          <Link to="/projects" className="text-gray-300 hover:text-white">Projects</Link>
-          <Link to="/calendar" className="text-gray-300 hover:text-white">Calendar</Link>
-          <Link to="/users" className="text-gray-300 hover:text-white">Users</Link>
-          <Link to="/settings" className="text-gray-300 hover:text-white">Settings</Link>
-          <Link to="/login" className="text-gray-300 hover:text-white">Login</Link>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="px-4 py-2 rounded bg-gray-700 text-white placeholder-gray-400"
+          />
+          <Link to="/profile" className="text-gray-300 hover:text-white">
+            Profile
+          </Link>
+          <Link to="/notifications" className="text-gray-300 hover:text-white">
+            Notifications
+          </Link>
+          <Link to="/login" className="text-gray-300 hover:text-white">
+            Login
+          </Link>
         </div>
       </div>
     </nav>

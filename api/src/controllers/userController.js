@@ -1,9 +1,9 @@
 const userModel = require('../models/userModel');
 
-exports.getAllUsers = async (req, res, pool) => {
+exports.getUsers = async (req, res, pool) => {
   try {
-    const { status } = req.query;
-    const users = await userModel.getUsers(pool, status);
+    const { whereParams } = req.query;
+    const users = await userModel.getUsers(pool, whereParams);
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
@@ -26,9 +26,9 @@ exports.getUserById = async (req, res, pool) => {
 };
 
 exports.createUser = async (req, res, pool) => {
-  const { name, email, password } = req.body;
+  const { login, name, surname, email, password, role_id } = req.body;
   try {
-    const user = await userModel.createUser(pool, name, email, password);
+    const user = await userModel.createUser(pool, login, name, surname, email, password, role_id);
     res.status(201).json(user);
   } catch (error) {
     console.error(error);
@@ -38,9 +38,9 @@ exports.createUser = async (req, res, pool) => {
 
 exports.updateUser = async (req, res, pool) => {
   const { id } = req.params;
-  const { name, email, password } = req.body;
+  const { updates } = req.body;
   try {
-    const user = await userModel.updateUser(pool, id, name, email, password);
+    const user = await userModel.updateUser(pool, updates, id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

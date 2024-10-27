@@ -1,9 +1,12 @@
 const projectModel = require('../models/projectModel');
 
-exports.getAllProjects = async (req, res, pool) => {
+exports.getProjects = async (req, res, pool) => {
   try {
-    const { status } = req.query;
-    const projects = await projectModel.getProjects(pool, status);
+    const { whereParams } = req.query;
+    const projects = await projectModel.getProjects(pool, whereParams);
+    if (projects.length === 0) {
+      return res.status(200).json([])
+    }
     res.status(200).json(projects);
   } catch (error) {
     console.error(error);
@@ -11,10 +14,10 @@ exports.getAllProjects = async (req, res, pool) => {
   }
 };
 
-exports.getOneProject = async (req, res, pool) => {
+exports.getProjectById = async (req, res, pool) => {
   try {
     const { id } = req.params;
-    const project = await projectModel.getProject(pool, id);
+    const project = await projectModel.getProjectById(pool, id);
     res.status(200).json(project);
   } catch (error) {
     console.error(error);
@@ -23,9 +26,19 @@ exports.getOneProject = async (req, res, pool) => {
 }
 
 exports.createProject = async (req, res, pool) => {
-  const { name, description, start_date, due_date, created_by } = req.body;
+  const { name, 
+    description, 
+    start_date, 
+    due_date, 
+    created_by } = req.body;
   try {
-    const result = await projectModel.createProject(pool, name, description, start_date, due_date, created_by);
+    const result = await projectModel.createProject(
+      pool, 
+      name, 
+      description, 
+      start_date, 
+      due_date, 
+      created_by);
     res.status(201).json(result);
   } catch (error) {
     console.error(error);
@@ -37,6 +50,17 @@ exports.changeProjectStatus = async (req, res, pool) => {
   const { id } = req.params;
   try {
     const result = await projectModel.changeProjectStatus(pool, id);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.updateProject = async (req, res, pool) => {
+  const { id, updates } = req.params;
+  try {
+    const result = await projectModel.updateProject(pool, updates, id);
     res.status(200).json(result);
   } catch (error) {
     console.error(error);

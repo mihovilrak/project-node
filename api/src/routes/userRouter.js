@@ -4,8 +4,8 @@ const userController = require('../controllers/userController');
 module.exports = (pool) => {
   const router = express.Router();
 
-  // Get all users (with optional status filter)
-  router.get('/', (req, res) => userController.getAllUsers(req, res, pool));
+  // Get all users with optional filters
+  router.get('/', (req, res) => userController.getUsers(req, res, pool));
 
   // Get user by ID
   router.get('/:id', (req, res) => userController.getUserById(req, res, pool));

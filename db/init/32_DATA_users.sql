@@ -1,1 +1,0 @@
-insert into users (name, email, password, role_id) values ('Admin', 'admin@admin.com', crypt('password', gen_salt('bf', 12)), 1);
