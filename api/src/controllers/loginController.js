@@ -27,6 +27,9 @@ exports.login = async (req, res, pool) => {
       role: user.role_id,
     };
 
+    // Log login to table app_logins
+    loginModel.app_logins(pool, user.id);
+
     // Put cookie on HTTP response
     res.status(200).json({
       message: 'Login successful',

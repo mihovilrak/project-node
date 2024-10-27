@@ -1,34 +1,73 @@
-// src/components/Users/Users.js
-import React from 'react';
-import Layout from '../Layout/Layout';
-import { Link } from 'react-router-dom';
+// src/components/Users/UserList.js
+
+import React, { useEffect, useState } from 'react';
+import { getUsers, deleteUser } from '../../api/users';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  CircularProgress
+} from '@mui/material';
 
 const Users = () => {
-  // Sample user data
-  const users = [
-    { id: 1, name: 'User A' },
-    { id: 2, name: 'User B' },
-    { id: 3, name: 'User C' },
-  ];
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userList = await getUsers();
+        setUsers(userList);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await deleteUser(id);
+        setUsers(users.filter(user => user.id !== id));
+      } catch (error) {
+        console.error('Failed to delete user', error);
+      }
+    }
+  };
+
+  if (loading) return <CircularProgress />;
 
   return (
-    <Layout>
-      <div className="bg-white p-8 shadow-md rounded-md">
-        <h2 className="text-2xl font-bold mb-6">Users</h2>
-        <Link to="/users/create" className="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-md">
-          Add New User
-        </Link>
-        <ul>
-          {users.map((user) => (
-            <li key={user.id} className="p-4 border-b hover:bg-gray-100">
-              <Link to={`/users/${user.id}`} className="text-blue-600">
-                {user.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </Layout>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>User Management</Typography>
+      <Button variant="contained" color="primary" onClick={() => navigate('/users/new')}>Add New User</Button>
+      <Grid container spacing={2} marginTop={2}>
+        {users.map(user => (
+          <Grid item xs={12} sm={6} md={4} key={user.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{user.name} {user.surname}</Typography>
+                <Typography variant="body2">Email: {user.email}</Typography>
+                <Typography variant="body2">Role: {user.role_id}</Typography>
+                <Box marginTop={2}>
+                  <Button variant="contained" color="primary" onClick={() => navigate(`/users/${user.id}`)}>View</Button>
+                  <Button variant="contained" color="warning" onClick={() => navigate(`/users/${user.id}/edit`)} sx={{ ml: 1 }}>Edit</Button>
+                  <Button variant="contained" color="error" onClick={() => handleDelete(user.id)} sx={{ ml: 1 }}>Delete</Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 };
 

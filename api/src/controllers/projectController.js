@@ -29,8 +29,14 @@ exports.createProject = async (req, res, pool) => {
   const { name, 
     description, 
     start_date, 
-    due_date, 
-    created_by } = req.body;
+    due_date } = req.body;
+  
+  const created_by = req.session.user?.id;
+
+  if (!created_by) {
+    return res.status(401).json({ error: 'User not authenticated' });
+  }
+
   try {
     const result = await projectModel.createProject(
       pool, 
