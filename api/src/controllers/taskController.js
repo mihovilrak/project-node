@@ -54,9 +54,29 @@ exports.getTaskByHolder = async (req, res, pool) => {
 };
 
 exports.createTask = async (req, res, pool) => {
-  const { name, project_id, holder_id, assignee_id, description, priority_id, start_date, due_date, created_by } = req.body;
+  const { name,
+    project_id,
+    holder_id,
+    assignee_id,
+    description,
+    priority_id,
+    start_date,
+    due_date,
+    created_by
+  } = req.body;
   try {
-    const task = await taskModel.createTask(pool, name, project_id, holder_id, assignee_id, description, priority_id, start_date, due_date, created_by);
+    const task = await taskModel.createTask(
+      pool,
+      name,
+      project_id,
+      holder_id,
+      assignee_id,
+      description,
+      priority_id,
+      start_date,
+      due_date,
+      created_by
+    );
     res.status(201).json(task);
   } catch (error) {
     console.error(error);
@@ -66,9 +86,32 @@ exports.createTask = async (req, res, pool) => {
 
 exports.updateTask = async (req, res, pool) => {
   const { id } = req.params;
-  const { name, project_id, holder_id, assignee_id, description, status_id, priority_id, start_date, due_date, end_date } = req.body;
+  const { name,
+    project_id,
+    holder_id,
+    assignee_id,
+    description,
+    status_id,
+    priority_id,
+    start_date,
+    due_date,
+    end_date    
+  } = req.body;
   try {
-    const task = await taskModel.updateTask(pool, id, name, project_id, holder_id, assignee_id, description, status_id, priority_id, start_date, due_date, end_date);
+    const task = await taskModel.updateTask(
+      pool,
+      id,
+      name,
+      project_id,
+      holder_id,
+      assignee_id,
+      description,
+      status_id,
+      priority_id,
+      start_date,
+      due_date,
+      end_date      
+    );
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -107,3 +150,23 @@ exports.deleteTask = async (req, res, pool) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getTaskStatuses = async (req, res, pool) => {
+  try {
+    const statuses = await taskModel.getTaskStatuses(pool);
+    return res.status(200).json(statuses);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+exports.getPriorities = async (req, res, pool) => {
+  try {
+    const priorities = await taskModel.getPriorities(pool);
+    return res.status(200).json(priorities);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

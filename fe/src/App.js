@@ -11,6 +11,9 @@ import UserDetails from './components/Users/UserDetails';
 import Projects from './components/Projects/Projects';
 import ProjectDetail from './components/Projects/ProjectDetail';
 import ProjectForm from './components/Projects/ProjectForm';
+import Tasks from './components/Tasks/Tasks';
+import TaskDetails from './components/Tasks/TaskDetails';
+import TaskForm from './components/Tasks/TaskForm';
 
 const App = () => (
   <AuthProvider>
@@ -27,6 +30,10 @@ const App = () => (
           <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
           <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
           <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetail />} />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/tasks/new" element={<TaskForm />} />
+          <Route path="/tasks/:id" element={<TaskDetails />} />
+          <Route path="/tasks/:id/edit" element={<TaskForm />} />
         </Route>
       </Routes>
     </Router>

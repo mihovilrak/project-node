@@ -77,3 +77,16 @@ exports.getTasks = async (pool, whereParams) => {
     return result.rows[0];
   };
   
+  exports.getTaskStatuses = async (pool) => {
+    const result = await pool.query(
+      'SELECT id, status FROM task_statuses'
+    );
+    return result.rows;
+  };
+
+  exports.getPriorities = async (pool) => {
+    const result = await pool.query(
+      'SELECT id, priority FROM priorities'
+    );
+    return result.rows;
+  }

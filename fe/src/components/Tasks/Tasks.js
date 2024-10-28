@@ -1,37 +1,76 @@
-// src/components/Tasks/Tasks.js
-import React from 'react';
-import Layout from '../Layout/Layout';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getTasks, deleteTask } from '../../api/tasks';
+import { Grid, Button, Card, CardContent, Typography, Box } from '@mui/material';
 
 const Tasks = () => {
-  // Sample task data
-  const tasks = [
-    { id: 1, title: 'Task 1', status: 'In Progress' },
-    { id: 2, title: 'Task 2', status: 'Completed' },
-    { id: 3, title: 'Task 3', status: 'Pending' },
-  ];
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const taskList = await getTasks();
+      setTasks(taskList);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch tasks', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await deleteTask(id);
+        fetchTasks();
+      } catch (error) {
+        console.error('Failed to delete task', error);
+      }
+    }
+  };
 
   return (
-    <Layout>
-      <div className="bg-white p-8 shadow-md rounded-md">
-        <h2 className="text-2xl font-bold mb-6">Tasks</h2>
-        <Link to="/tasks/create" className="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-md">
-          Create New Task
-        </Link>
-        <ul>
-          {tasks.map((task) => (
-            <li key={task.id} className="p-4 border-b hover:bg-gray-100 flex justify-between">
-              <Link to={`/tasks/${task.id}`} className="text-blue-600">
-                {task.title}
-              </Link>
-              <span className={`text-${task.status === 'Completed' ? 'green' : 'yellow'}-500`}>
-                {task.status}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </Layout>
+    <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}>
+      <Typography variant="h4" gutterBottom>Tasks</Typography>
+      <Button variant="contained" color="primary" onClick={() => navigate('/tasks/new')}>
+        Create New Task
+      </Button>
+      {loading ? (
+        <p>Loading tasks...</p>
+      ) : (
+        <>
+          {tasks.length === 0 ? (
+            <Typography variant="body1" sx={{ marginTop: 4 }}>
+              No tasks yet.
+            </Typography>
+          ) : (
+            <Grid container spacing={2} marginTop={4}>
+              {tasks.map((task) => (
+                <Grid item xs={12} sm={6} md={4} key={task.id}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6">{task.name}</Typography>
+                      <Typography variant="body2">Project: {task.project}</Typography>
+                      <Typography variant="body2">Status: {task.status}</Typography>
+                      <Typography variant="body2">Priority: {task.priority}</Typography>
+                      <Box marginTop={2}>
+                        <Button onClick={() => navigate(`/tasks/${task.id}`)}>Details</Button>
+                        <Button color="warning" onClick={() => navigate(`/tasks/edit/${task.id}`)}>Edit</Button>
+                        <Button color="error" onClick={() => handleDelete(task.id)}>Delete</Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </>
+      )}
+    </Box>
   );
 };
 

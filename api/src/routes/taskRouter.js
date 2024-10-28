@@ -22,5 +22,11 @@ module.exports = (pool) => {
   // Soft delete a task (change status to 'Deleted')
   router.delete('/:id', (req, res) => taskController.deleteTask(req, res, pool));
 
+  // Get task statuses
+  router.get('/statuses', (req, res) => taskController.getTaskStatuses(req, res, pool));
+
+  // Get task priorities
+  router.get('/priorities', (req, res) => taskController.getPriorities(req, res, pool));
+
   return router;
 };
