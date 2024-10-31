@@ -84,3 +84,56 @@ exports.deleteProject = async (req, res, pool) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getProjectMembers = async (req, res, pool) => {
+  try {
+    const { id } = req.params;
+    const members = await projectModel.getProjectMembers(pool, id);
+    res.status(200).json(members);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getSubprojects = async (req, res, pool) => {
+  try {
+    const { id } = req.params;
+    const subprojects = await projectModel.getSubprojects(pool, id);
+    res.status(200).json(subprojects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.createSubproject = async (req, res, pool) => {
+  const { 
+    name, 
+    description, 
+    start_date, 
+    due_date 
+  } = req.body;
+  const { id: parent_id } = req.params;
+  const created_by = req.session.user?.id;
+
+  if (!created_by) {
+    return res.status(401).json({ error: 'User not authenticated' });
+  }
+
+  try {
+    const result = await projectModel.createSubproject(
+      pool,
+      name,
+      description,
+      start_date,
+      due_date,
+      parent_id,
+      created_by
+    );
+    res.status(201).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

@@ -15,6 +15,9 @@ import { getTaskById,
 } from '../../api/tasks';
 import { getProjects } from '../../api/projects';
 import { getUsers } from '../../api/users';
+import TaskTypeSelect from './TaskTypeSelect';
+import TagSelect from './TagSelect';
+import { getTags } from '../../api/tags';
 
 const TaskForm = ({ taskId }) => {
   const navigate = useNavigate();
@@ -27,11 +30,14 @@ const TaskForm = ({ taskId }) => {
     priority_id: '',
     start_date: '',
     due_date: '',
+    type_id: '',
+    tags: []
   });
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [priorities, setPriorities] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +53,18 @@ const TaskForm = ({ taskId }) => {
     }
   }, [taskId]);
 
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const tags = await getTags();
+        setAvailableTags(tags);
+      } catch (error) {
+        console.error('Failed to fetch tags:', error);
+      }
+    };
+    fetchTags();
+  }, []);
+
   const fetchTaskData = async (id) => {
     const task = await getTaskById(id);
     setFormValues(task);
@@ -60,14 +78,14 @@ const TaskForm = ({ taskId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (taskId) {
-        await updateTask(taskId, formValues);
-      } else {
-        await createTask(formValues);
-      }
+      const taskData = {
+        ...formValues,
+        tag_ids: formValues.tags.map(tag => tag.id)
+      };
+      const newTask = await createTask(taskData);
       navigate('/tasks');
     } catch (error) {
-      console.error('Failed to save task', error);
+      console.error('Failed to create task:', error);
     }
   };
 
@@ -100,6 +118,16 @@ const TaskForm = ({ taskId }) => {
           </TextField>
           <TextField fullWidth label="Start Date" type="date" name="start_date" value={formValues.start_date} onChange={handleChange} required InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
           <TextField fullWidth label="Due Date" type="date" name="due_date" value={formValues.due_date} onChange={handleChange} required InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
+          <TaskTypeSelect
+            value={formValues.type_id}
+            onChange={(e) => setFormValues(prev => ({ ...prev, type_id: e.target.value }))}
+            required
+          />
+          <TagSelect
+            value={formValues.tags}
+            onChange={(_, newValue) => setFormValues(prev => ({ ...prev, tags: newValue }))}
+            tags={availableTags}
+          />
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>{taskId ? 'Update Task' : 'Create Task'}</Button>
         </form>
       </Paper>

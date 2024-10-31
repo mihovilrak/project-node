@@ -73,3 +73,43 @@ exports.getProjects = async (pool, whereParams) => {
     return result.rows[0];
   };
   
+  exports.getProjectMembers = async (pool, projectId) => {
+    const result = await pool.query(
+      'SELECT * FROM v_project_members WHERE project_id = $1',
+      [projectId]
+    );
+    return result.rows;
+  };
+  
+  exports.getSubprojects = async (pool, parentId) => {
+    const result = await pool.query(
+      'SELECT * FROM v_subprojects WHERE parent_id = $1',
+      [parentId]
+    );
+    return result.rows;
+  };
+  
+  exports.createSubproject = async (
+    pool, 
+    name, 
+    description, 
+    start_date, 
+    due_date, 
+    parent_id,
+    created_by
+  ) => {
+    const result = await pool.query(
+      `INSERT INTO projects (
+        name, 
+        description, 
+        start_date, 
+        due_date, 
+        parent_id, 
+        created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING *`,
+      [name, description, start_date, due_date, parent_id, created_by]
+    );
+    return result.rows[0];
+  };
+  

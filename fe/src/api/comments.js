@@ -1,19 +1,21 @@
-import axios from 'axios';
+import api from './api';
 
-export const getCommentsByTask = async (taskId) => {
+export const getTaskComments = async (taskId) => {
   try {
-    const response = await axios.get(`localhost:5000/api/comments/task/${taskId}`);
+    const response = await api.get(`/tasks/${taskId}/comments`);
     return response.data;
   } catch (error) {
+    console.error('Failed to fetch comments', error);
     throw error;
   }
 };
 
-export const addComment = async (commentData) => {
+export const createComment = async (taskId, data) => {
   try {
-    const response = await axios.post('/api/comments', commentData);
+    const response = await api.post(`/tasks/${taskId}/comments`, data);
     return response.data;
   } catch (error) {
+    console.error('Failed to create comment', error);
     throw error;
   }
 };

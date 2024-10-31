@@ -13,12 +13,12 @@ export const fetchRoles = async () => {
 };
 
 // Fetch all users
-export const getUsers = async () => {
+export const getAllUsers = async () => {
   try {
     const response = await api.get('/users');
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to fetch users', error);
     throw error;
   }
 };
@@ -40,29 +40,28 @@ export const createUser = async (userData) => {
     const response = await api.post('/users', userData);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to create user', error);
     throw error;
   }
 };
 
 // Update an existing user
-export const updateUser = async (id, userData) => {
+export const updateUser = async (userId, userData) => {
   try {
-    const response = await api.put(`/users/${id}`, userData);
+    const response = await api.put(`/users/${userId}`, userData);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to update user', error);
     throw error;
   }
 };
 
 // Delete a user
-export const deleteUser = async (id) => {
+export const deleteUser = async (userId) => {
   try {
-    const response = await api.delete(`/users/${id}`);
-    return response.data;
+    await api.delete(`/users/${userId}`);
   } catch (error) {
-    console.error(error);
+    console.error('Failed to delete user', error);
     throw error;
   }
 };

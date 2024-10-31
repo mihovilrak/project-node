@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Task Due Soon</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{userName}},</p>
+            <p>Your task "{{taskName}}" is due {{dueText}}.</p>
+            <p>Task Details:</p>
+            <ul>
+                <li>Project: {{projectName}}</li>
+                <li>Priority: {{priority}}</li>
+                <li>Status: {{status}}</li>
+            </ul>
+            <p>
+                <a href="{{taskUrl}}" class="button">View Task</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

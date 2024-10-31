@@ -22,5 +22,16 @@ module.exports = (pool) => {
   // Delete project route
   router.delete('/:id', (req, res) => projectController.deleteProject(req, res, pool));
 
+  // Get project members route
+  router.get('/:id/members', (req, res) => projectController.getProjectMembers(req, res, pool));
+
+  // Get subprojects
+  router.get('/:id/subprojects', (req, res) => 
+    projectController.getSubprojects(req, res, pool));
+
+  // Create subproject
+  router.post('/:id/subprojects', (req, res) => 
+    projectController.createSubproject(req, res, pool));
+
   return router;
 };

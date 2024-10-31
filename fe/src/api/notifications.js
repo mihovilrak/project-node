@@ -1,19 +1,38 @@
-import axios from 'axios';
+import api from './api';
 
-export const getUserNotifications = async (userId) => {
+export const getNotifications = async () => {
   try {
-    const response = await axios.get(`localhost:5000/api/notifications/user/${userId}`);
+    const response = await api.get('/notifications');
     return response.data;
   } catch (error) {
+    console.error('Failed to fetch notifications', error);
     throw error;
   }
 };
 
 export const markAsRead = async (notificationId) => {
   try {
-    const response = await axios.put(`localhost:5000/api/notifications/${notificationId}`, { is_read: true });
-    return response.data;
+    await api.patch(`/notifications/${notificationId}/read`);
   } catch (error) {
+    console.error('Failed to mark notification as read', error);
+    throw error;
+  }
+};
+
+export const markAllAsRead = async () => {
+  try {
+    await api.patch('/notifications/read-all');
+  } catch (error) {
+    console.error('Failed to mark all notifications as read', error);
+    throw error;
+  }
+};
+
+export const deleteNotification = async (notificationId) => {
+  try {
+    await api.delete(`/notifications/${notificationId}`);
+  } catch (error) {
+    console.error('Failed to delete notification', error);
     throw error;
   }
 };

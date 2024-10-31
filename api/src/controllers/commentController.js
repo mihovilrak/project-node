@@ -1,9 +1,9 @@
 const commentModel = require('../models/commentModel');
 
 exports.getTaskComments = async (req, res, pool) => {
-  const { task_id } = req.params;
   try {
-    const comments = await commentModel.getCommentsByTaskId(pool, task_id);
+    const { taskId } = req.params;
+    const comments = await commentModel.getTaskComments(pool, taskId);
     res.status(200).json(comments);
   } catch (error) {
     console.error(error);
@@ -11,12 +11,22 @@ exports.getTaskComments = async (req, res, pool) => {
   }
 };
 
-exports.addComment = async (req, res, pool) => {
-  const { task_id } = req.params;
-  const { user_id, comment } = req.body;
-  
+exports.createComment = async (req, res, pool) => {
   try {
-    const newComment = await commentModel.addComment(pool, task_id, user_id, comment);
+    const { taskId } = req.params;
+    const { comment } = req.body;
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const newComment = await commentModel.createComment(
+      pool,
+      taskId,
+      userId,
+      comment
+    );
     res.status(201).json(newComment);
   } catch (error) {
     console.error(error);

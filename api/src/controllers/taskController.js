@@ -1,16 +1,5 @@
 const taskModel = require('../models/taskModel');
 
-exports.getAllTasks = async (req, res, pool) => {
-  try {
-    const { status, projectId } = req.query;
-    const tasks = await taskModel.getTasks(pool, status, projectId);
-    res.status(200).json(tasks);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
 exports.getTaskById = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -159,7 +148,7 @@ exports.getTaskStatuses = async (req, res, pool) => {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 exports.getPriorities = async (req, res, pool) => {
   try {
@@ -169,4 +158,75 @@ exports.getPriorities = async (req, res, pool) => {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
+
+exports.getActiveTasks = async (req, res, pool) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+    
+    const tasks = await taskModel.getActiveTasks(pool, userId);
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getTasks = async (req, res, pool) => {
+  const { project_id } = req.query;
+  try {
+    let tasks;
+    if (project_id) {
+      tasks = await taskModel.getTasksByProject(pool, project_id);
+    } else {
+      tasks = await taskModel.getAllTasks(pool);
+    }
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.createSubtask = async (req, res, pool) => {
+  try {
+    const { parentId } = req.params;
+    const userId = req.session.user?.id;
+    const { name, description, start_date, due_date, priority, status } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    const subtask = await taskModel.createSubtask(
+      pool,
+      parentId,
+      name,
+      description,
+      start_date,
+      due_date,
+      priority,
+      status,
+      userId
+    );
+
+    res.status(201).json(subtask);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getSubtasks = async (req, res, pool) => {
+  try {
+    const { parentId } = req.params;
+    const subtasks = await taskModel.getSubtasks(pool, parentId);
+    res.status(200).json(subtasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

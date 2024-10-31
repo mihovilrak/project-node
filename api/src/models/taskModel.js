@@ -89,4 +89,71 @@ exports.getTasks = async (pool, whereParams) => {
       'SELECT id, priority FROM priorities'
     );
     return result.rows;
-  }
+  };
+
+  exports.getActiveTasks = async (pool, userId) => {
+    const result = await pool.query(
+      'SELECT * FROM active_tasks WHERE assignee_id = $1',
+      [userId]
+    );
+    return result.rows;
+  };
+
+  exports.getAllTasks = async (pool) => {
+    const result = await pool.query(
+      'SELECT * FROM v_tasks ORDER BY created_on DESC'
+    );
+    return result.rows;
+  };
+
+  exports.getTasksByProject = async (pool, project_id) => {
+    const result = await pool.query(
+      'SELECT * FROM v_tasks WHERE project_id = $1 ORDER BY created_on DESC',
+      [project_id]
+    );
+    return result.rows;
+  };
+
+  exports.getTaskById = async (pool, id) => {
+    const result = await pool.query(
+      'SELECT * FROM v_tasks WHERE task_id = $1',
+      [id]
+    );
+    return result.rows[0];
+  };
+
+  exports.createSubtask = async (
+    pool,
+    parentId,
+    name,
+    description,
+    startDate,
+    dueDate,
+    priority,
+    status,
+    userId
+  ) => {
+    const result = await pool.query(
+      `INSERT INTO tasks (
+        parent_id,
+        name,
+        description,
+        start_date,
+        due_date,
+        priority,
+        status,
+        created_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING *`,
+      [parentId, name, description, startDate, dueDate, priority, status, userId]
+    );
+    return result.rows[0];
+  };
+
+  exports.getSubtasks = async (pool, parentId) => {
+    const result = await pool.query(
+      'SELECT * FROM tasks WHERE parent_id = $1 ORDER BY created_on ASC',
+      [parentId]
+    );
+    return result.rows;
+  };

@@ -18,7 +18,7 @@ const getProjectById = async (id) => {
     const response = await api.get(`projects/${id}`);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching project:', error);
     throw error;
   }
 };
@@ -75,3 +75,36 @@ const deleteProject = async (id) => {
   }
 };
 export { deleteProject };
+
+// Fetch project members
+export const getProjectMembers = async (id) => {
+  try {
+    const response = await api.get(`/projects/${id}/members`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch project members', error);
+    throw error;
+  }
+};
+
+// Fetch subprojects
+export const getSubprojects = async (projectId) => {
+  try {
+    const response = await api.get(`/projects/${projectId}/subprojects`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch subprojects', error);
+    throw error;
+  }
+};
+
+// Create a new subproject
+export const createSubproject = async (projectId, subprojectData) => {
+  try {
+    const response = await api.post(`/projects/${projectId}/subprojects`, subprojectData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to create subproject', error);
+    throw error;
+  }
+};

@@ -40,3 +40,27 @@ services:
     ports:
       - "3000:80"
     restart: always
+
+  notification-service:
+    build:
+      context: ./be/notification-service
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgres
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=5432
+      - EMAIL_ENABLED=true
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_SECURE=${EMAIL_SECURE}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - app-network

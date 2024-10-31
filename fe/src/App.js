@@ -14,6 +14,7 @@ import ProjectForm from './components/Projects/ProjectForm';
 import Tasks from './components/Tasks/Tasks';
 import TaskDetails from './components/Tasks/TaskDetails';
 import TaskForm from './components/Tasks/TaskForm';
+import ActiveTasks from './components/Tasks/ActiveTasks';
 
 const App = () => (
   <AuthProvider>
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetails />} />
           <Route path="/tasks/:id/edit" element={<TaskForm />} />
+          <Route path="/tasks/active" element={<ActiveTasks />} />
         </Route>
       </Routes>
     </Router>

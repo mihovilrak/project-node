@@ -28,5 +28,16 @@ module.exports = (pool) => {
   // Get task priorities
   router.get('/priorities', (req, res) => taskController.getPriorities(req, res, pool));
 
+  // Get active tasks
+  router.get('/active', (req, res) => taskController.getActiveTasks(req, res, pool));
+
+  // Create a new subtask
+  router.post('/:parentId/subtasks', (req, res) => 
+    taskController.createSubtask(req, res, pool));
+
+  // Get subtasks
+  router.get('/:parentId/subtasks', (req, res) => 
+    taskController.getSubtasks(req, res, pool));
+
   return router;
 };
