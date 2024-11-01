@@ -9,7 +9,7 @@ import Users from './components/Users/Users';
 import UserForm from './components/Users/UserForm';
 import UserDetails from './components/Users/UserDetails';
 import Projects from './components/Projects/Projects';
-import ProjectDetail from './components/Projects/ProjectDetail';
+import ProjectDetails from './components/Projects/ProjectDetails';
 import ProjectForm from './components/Projects/ProjectForm';
 import Tasks from './components/Tasks/Tasks';
 import TaskDetails from './components/Tasks/TaskDetails';
@@ -30,7 +30,7 @@ const App = () => (
           <Route path="/users/:id/edit" element={<UserForm />} />
           <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
           <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
-          <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetail />} />} />
+          <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/tasks/new" element={<TaskForm />} />
           <Route path="/tasks/:id" element={<TaskDetails />} />

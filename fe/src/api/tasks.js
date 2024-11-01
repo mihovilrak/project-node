@@ -21,7 +21,7 @@ export const getTasks = async (filters = {}) => {
 };
 
 // Get a single task by ID
-const getTaskById = async (id) => {
+export const getTaskById = async (id) => {
   try {
     const response = await api.get(`tasks/${id}`);
     return response.data;
@@ -32,7 +32,7 @@ const getTaskById = async (id) => {
 };
 
 // Create a new task
-const createTask = async (taskData) => {
+export const createTask = async (taskData) => {
   try {
     const response = await api.post('tasks', taskData);
     return response.data;
@@ -43,7 +43,7 @@ const createTask = async (taskData) => {
 };
 
 // Update a task
-const updateTask = async (id, taskData) => {
+export const updateTask = async (id, taskData) => {
   try {
     const response = await api.put(`tasks/${id}`, taskData);
     return response.data;
@@ -54,7 +54,7 @@ const updateTask = async (id, taskData) => {
 };
 
 // Delete a task
-const deleteTask = async (id) => {
+export const deleteTask = async (id) => {
   try {
     const response = await api.delete(`tasks/${id}`);
     return response.data;
@@ -129,4 +129,44 @@ export const updateTaskDates = async (taskId, dates) => {
   }
 };
 
-export { getTasks, getTaskById, createTask, updateTask, deleteTask, getTasksByProject };
+export const getActiveTasks = async () => {
+  try {
+    const response = await api.get('/tasks/active');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch active tasks:', error);
+    throw error;
+  }
+};
+
+export const changeTaskStatus = async (taskId, status) => {
+  try {
+    const response = await api.patch(`/tasks/${taskId}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to change task status:', error);
+    throw error;
+  }
+};
+
+// Get all task statuses
+export const getTaskStatuses = async () => {
+  try {
+    const response = await api.get('/tasks/statuses');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch task statuses:', error);
+    throw error;
+  }
+};
+
+// Get all task priorities
+export const getPriorities = async () => {
+  try {
+    const response = await api.get('/tasks/priorities');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch task priorities:', error);
+    throw error;
+  }
+};

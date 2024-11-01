@@ -3,10 +3,6 @@ import {
   Paper,
   Box,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   CircularProgress,
   Alert,
   useTheme
@@ -14,7 +10,7 @@ import {
 import {
   ViewState,
   EditingState,
-  IntegratedEditing,
+  IntegratedEditing
 } from '@devexpress/dx-react-scheduler';
 import {
   Scheduler,
@@ -25,11 +21,10 @@ import {
   Appointments,
   AppointmentTooltip,
   ViewSwitcher,
-  DragDropProvider,
-  Resources,
+  DragDropProvider
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { getProjectTasks, updateTaskDates } from '../../api/tasks';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const ProjectGantt = ({ projectId }) => {
   const [tasks, setTasks] = useState([]);

@@ -13,7 +13,7 @@ export const fetchRoles = async () => {
 };
 
 // Fetch all users
-export const getAllUsers = async () => {
+export const getUsers = async () => {
   try {
     const response = await api.get('/users');
     return response.data;

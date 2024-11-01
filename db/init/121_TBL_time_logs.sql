@@ -5,7 +5,7 @@ create table if not exists time_logs (
     start_time timestamptz not null,
     end_time timestamptz not null,
     description text not null,
-    activity_type int references activity_types(id) not null,
+    activity_type_id int references activity_types(id) not null,
     created_on timestamptz default current_timestamp not null
 );
 

@@ -18,7 +18,7 @@ import {
   RadioButtonUnchecked as TodoIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { deleteTask, updateTaskStatus } from '../../api/tasks';
+import { deleteTask, changeTaskStatus } from '../../api/tasks';
 
 const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDeleted }) => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
   const handleStatusToggle = async (subtask) => {
     try {
       const newStatus = subtask.status === 'Done' ? 'In Progress' : 'Done';
-      await updateTaskStatus(subtask.id, newStatus);
+      await changeTaskStatus(subtask.id, newStatus);
       onSubtaskUpdated(subtask.id, { ...subtask, status: newStatus });
     } catch (error) {
       console.error('Failed to update subtask status:', error);

@@ -2,30 +2,38 @@ const express = require('express');
 const config = require('./config');
 const { Pool } = require('pg');
 const path = require('path');
+const cors = require('cors');
+
+// Import routes
 const sessionRoute = require('./routes/sessionRouter');
 const loginRoute = require('./routes/loginRouter');
 const logoutRoute = require('./routes/logoutRouter');
 const projectRoutes = require('./routes/projectRouter');
-const taskRoutes = require('./routes/taskRouter');
+const taskRoutes = require('./routes/taskRoutes');  // Consolidated task routes
 const roleRouter = require('./routes/roleRouter');
 const userRoutes = require('./routes/userRouter');
 const commentRoutes = require('./routes/commentRouter');
 const notificationRoutes = require('./routes/notificationRouter');
 const fileRoutes = require('./routes/fileRoutes');
+
+// Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
 const sessionMiddleware = require('./middleware/sessionMiddleware');
-const cors = require('cors');
+const errorHandler = require('./middleware/errorHandler');
 
 // Create Express app
 const app = express();
 
+// CORS configuration
 app.use(cors({
   credentials: true,
   origin: config.feUrl,
   optionsSuccessStatus: 200
 }));
 
+// Body parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // PostgreSQL connection pool
 const pool = new Pool({
@@ -33,9 +41,7 @@ const pool = new Pool({
 });
 
 // Session cookie middleware
-app.use(
-  sessionMiddleware(pool, config.sessionSecret)
-);
+app.use(sessionMiddleware(pool, config.sessionSecret));
 
 // Test database connection
 pool.connect(err => {
@@ -46,26 +52,40 @@ pool.connect(err => {
   }
 });
 
-// Define routes
-app.use('/api/login', loginRoute(pool));
-app.use('/api/logout', logoutRoute());
-app.use('/api/projects', authMiddleware, projectRoutes(pool));
-app.use('/api/tasks', authMiddleware, taskRoutes(pool));
-app.use('/api/users', authMiddleware, userRoutes(pool));
-app.use('/api/roles', roleRouter(pool));
-app.use('/api/comments', authMiddleware, commentRoutes(pool));
-app.use('/api/notifications', authMiddleware, notificationRoutes(pool));
-app.use('/api/files', authMiddleware, fileRoutes(pool));
-app.use('/api/check-session', sessionRoute());
+// API Routes
+const apiRouter = express.Router();
 
-// Serve React build files for production
-app.use(express.static(path.join(__dirname, 'client/build')));
+// Public routes (no auth required)
+apiRouter.use('/login', loginRoute(pool));
+apiRouter.use('/logout', logoutRoute());
+apiRouter.use('/check-session', sessionRoute());
 
-// Handle React routing, return all requests to `index.html`
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-});
+// Protected routes (auth required)
+apiRouter.use('/projects', authMiddleware, projectRoutes(pool));
+apiRouter.use('/tasks', authMiddleware, taskRoutes(pool));  // Includes task types
+apiRouter.use('/users', authMiddleware, userRoutes(pool));
+apiRouter.use('/roles', authMiddleware, roleRouter(pool));
+apiRouter.use('/comments', authMiddleware, commentRoutes(pool));
+apiRouter.use('/notifications', authMiddleware, notificationRoutes(pool));
+apiRouter.use('/files', authMiddleware, fileRoutes(pool));
+
+// Mount API router
+app.use('/api', apiRouter);
+
+// Serve static files in production
+if (config.nodeEnv === 'production') {
+  // Serve React build files
+  app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+}
+
+// Error handling middleware
+app.use(errorHandler);
 
 // Start the server
-const PORT = config.port;
+const PORT = config.port || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

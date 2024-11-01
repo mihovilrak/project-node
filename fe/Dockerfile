@@ -4,21 +4,21 @@ FROM node:23-alpine3.19 AS build
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY package*.json ./
-RUN apk update && \
-    apk add --no-cache yarn && \
-    mkdir node_modules && \
-    yarn install --production=true --link-duplicates --ignore-optional
+COPY package*.json yarn.lock ./
+RUN apk add --no-cache yarn && \
+    yarn config set cache-folder /tmp/yarn-cache && \
+    yarn install --frozen-lockfile --prefer-offline \
+    --production=true --link-duplicates --ignore-optional && \
+    yarn cache clean --all
 
 # Copy the rest of the React application
-COPY . .
+COPY ./src/ ./src/
+COPY ./public/ ./public/
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 # Build the application
-RUN yarn run build && \
-    yarn cache clean --all && \
-    yarn autoclean
+RUN yarn run build --verbose
 
 # Serve the built app with NGINX
 FROM nginx:1.27.2-alpine-slim

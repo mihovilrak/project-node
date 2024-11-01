@@ -9,7 +9,6 @@ import { TextField,
 } from '@mui/material';
 import { getTaskById,
     createTask,
-    updateTask,
     getTaskStatuses,
     getPriorities
 } from '../../api/tasks';
