@@ -7,6 +7,6 @@ create table if not exists time_entries (
     spent_on date not null,
     created_on timestamptz default current_timestamp not null
 );
-create index time_entries_user_idx on time_entries(user_id);
-create index time_entries_task_idx on time_entries(task_id);
-create index time_entries_spent_on_idx on time_entries(spent_on);
+create index if not exists time_entries_user_idx on time_entries(user_id);
+create index if not exists time_entries_task_idx on time_entries(task_id);
+create index if not exists time_entries_spent_on_idx on time_entries(spent_on);

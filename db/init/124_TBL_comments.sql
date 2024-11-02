@@ -6,5 +6,5 @@ create table if not exists comments (
     comment text not null,
     created_on timestamptz default current_timestamp not null
 );
-create index comment_task_idx on comments(task_id);
-create index comment_user_idx on comments(user_id);
+create index if not exists comment_task_idx on comments(task_id);
+create index if not exists comment_user_idx on comments(user_id);

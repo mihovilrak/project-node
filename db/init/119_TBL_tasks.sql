@@ -16,11 +16,11 @@ create table if not exists tasks (
     created_on timestamptz default current_timestamp not null
 );
 
-create index task_status_idx on tasks(status_id);
-create index task_project_idx on tasks(project_id);
-create index task_holder_idx on tasks(holder_id);
-create index task_assignee_idx on tasks(assignee_id);
-create index task_parent_idx on tasks(parent_id);
-create index task_type_idx on tasks(type_id);
-create index task_priority_idx on tasks(priority_id);
-create index task_created_by_idx on tasks(created_by);
+create index if not exists task_status_idx on tasks(status_id);
+create index if not exists task_project_idx on tasks(project_id);
+create index if not exists task_holder_idx on tasks(holder_id);
+create index if not exists task_assignee_idx on tasks(assignee_id);
+create index if not exists task_parent_idx on tasks(parent_id);
+create index if not exists task_type_idx on tasks(type_id);
+create index if not exists task_priority_idx on tasks(priority_id);
+create index if not exists task_created_by_idx on tasks(created_by);

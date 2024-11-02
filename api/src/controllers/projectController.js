@@ -1,5 +1,6 @@
 const projectModel = require('../models/projectModel');
 
+// Get all projects
 exports.getProjects = async (req, res, pool) => {
   try {
     const { whereParams } = req.query;
@@ -14,6 +15,7 @@ exports.getProjects = async (req, res, pool) => {
   }
 };
 
+// Get a project by ID
 exports.getProjectById = async (req, res, pool) => {
   try {
     const { id } = req.params;
@@ -25,6 +27,7 @@ exports.getProjectById = async (req, res, pool) => {
   }
 }
 
+// Create a project
 exports.createProject = async (req, res, pool) => {
   const { name, 
     description, 
@@ -52,6 +55,7 @@ exports.createProject = async (req, res, pool) => {
   }
 };
 
+// Change project status
 exports.changeProjectStatus = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -63,6 +67,7 @@ exports.changeProjectStatus = async (req, res, pool) => {
   }
 };
 
+// Update a project
 exports.updateProject = async (req, res, pool) => {
   const { id, updates } = req.params;
   try {
@@ -74,6 +79,7 @@ exports.updateProject = async (req, res, pool) => {
   }
 };
 
+// Delete a project
 exports.deleteProject = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -85,6 +91,7 @@ exports.deleteProject = async (req, res, pool) => {
   }
 };
 
+// Get project members
 exports.getProjectMembers = async (req, res, pool) => {
   try {
     const { id } = req.params;
@@ -96,6 +103,7 @@ exports.getProjectMembers = async (req, res, pool) => {
   }
 };
 
+// Get subprojects
 exports.getSubprojects = async (req, res, pool) => {
   try {
     const { id } = req.params;
@@ -107,6 +115,7 @@ exports.getSubprojects = async (req, res, pool) => {
   }
 };
 
+// Create a subproject
 exports.createSubproject = async (req, res, pool) => {
   const { 
     name, 

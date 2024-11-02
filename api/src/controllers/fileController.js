@@ -2,6 +2,7 @@ const fileModel = require('../models/fileModel');
 const path = require('path');
 const fs = require('fs').promises;
 
+// Get task files
 exports.getTaskFiles = async (req, res, pool) => {
   try {
     const { taskId } = req.params;
@@ -13,6 +14,7 @@ exports.getTaskFiles = async (req, res, pool) => {
   }
 };
 
+// Upload a file
 exports.uploadFile = async (req, res, pool) => {
   try {
     const { taskId } = req.params;
@@ -44,6 +46,7 @@ exports.uploadFile = async (req, res, pool) => {
   }
 };
 
+// Download a file
 exports.downloadFile = async (req, res, pool) => {
   try {
     const { taskId, fileId } = req.params;
@@ -61,6 +64,7 @@ exports.downloadFile = async (req, res, pool) => {
   }
 };
 
+// Delete a file
 exports.deleteFile = async (req, res, pool) => {
   try {
     const { taskId, fileId } = req.params;

@@ -1,11 +1,15 @@
+// Get all files for a task
 exports.getTaskFiles = async (pool, taskId) => {
   const result = await pool.query(
-    'SELECT * FROM files WHERE task_id = $1 ORDER BY created_on DESC',
+    `SELECT * FROM files 
+    WHERE task_id = $1 
+    ORDER BY created_on DESC`,
     [taskId]
   );
   return result.rows;
 };
 
+// Create a new file for a task
 exports.createFile = async (
   pool,
   taskId,
@@ -30,18 +34,21 @@ exports.createFile = async (
   return result.rows[0];
 };
 
+// Get a file by ID
 exports.getFileById = async (pool, fileId) => {
   const result = await pool.query(
-    'SELECT * FROM files WHERE id = $1',
+    `SELECT * FROM files 
+    WHERE id = $1`,
     [fileId]
   );
   return result.rows[0];
 };
 
+// Delete a file
 exports.deleteFile = async (pool, fileId) => {
   await pool.query(
-    'DELETE FROM files WHERE id = $1',
+    `DELETE FROM files 
+    WHERE id = $1`,
     [fileId]
   );
 };
-  

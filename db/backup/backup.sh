@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Export PostgreSQL password
 export PGPASSWORD=${POSTGRES_PASSWORD}
 
 # Formatt date

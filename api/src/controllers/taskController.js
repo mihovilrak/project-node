@@ -1,6 +1,7 @@
 const taskModel = require('../models/taskModel');
-const taskTypeQueries = require('../models/taskType');
+const taskTypeModel = require('../models/taskTypeModel');
 
+// Get Task by ID
 exports.getTaskById = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -15,6 +16,7 @@ exports.getTaskById = async (req, res, pool) => {
   }
 };
 
+// Get tasks by assignee
 exports.getTaskByAssignee = async (req, res, pool) => {
   try {
     const { assignee_id } = req.params;
@@ -29,6 +31,7 @@ exports.getTaskByAssignee = async (req, res, pool) => {
   }
 };
 
+// Get tasks by holder
 exports.getTaskByHolder = async (req, res, pool) => {
   try {
     const { holder_id } = req.params;
@@ -43,6 +46,7 @@ exports.getTaskByHolder = async (req, res, pool) => {
   }
 };
 
+// Create a task
 exports.createTask = async (req, res, pool) => {
   const { name,
     project_id,
@@ -74,6 +78,7 @@ exports.createTask = async (req, res, pool) => {
   }
 };
 
+// Update a task
 exports.updateTask = async (req, res, pool) => {
   const { id } = req.params;
   const { name,
@@ -112,6 +117,7 @@ exports.updateTask = async (req, res, pool) => {
   }
 };
 
+// Change task status
 exports.changeTaskStatus = async (req, res, pool) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -127,6 +133,7 @@ exports.changeTaskStatus = async (req, res, pool) => {
   }
 };
 
+// Delete a task
 exports.deleteTask = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -141,6 +148,7 @@ exports.deleteTask = async (req, res, pool) => {
   }
 };
 
+// Get task statuses
 exports.getTaskStatuses = async (req, res, pool) => {
   try {
     const statuses = await taskModel.getTaskStatuses(pool);
@@ -151,6 +159,7 @@ exports.getTaskStatuses = async (req, res, pool) => {
   }
 };
 
+// Get task priorities
 exports.getPriorities = async (req, res, pool) => {
   try {
     const priorities = await taskModel.getPriorities(pool);
@@ -161,6 +170,7 @@ exports.getPriorities = async (req, res, pool) => {
   }
 };
 
+// Get active tasks
 exports.getActiveTasks = async (req, res, pool) => {
   try {
     const userId = req.session.user?.id;
@@ -176,6 +186,7 @@ exports.getActiveTasks = async (req, res, pool) => {
   }
 };
 
+// Get tasks
 exports.getTasks = async (req, res, pool) => {
   const { project_id } = req.query;
   try {
@@ -192,6 +203,7 @@ exports.getTasks = async (req, res, pool) => {
   }
 };
 
+// Create a subtask
 exports.createSubtask = async (req, res, pool) => {
   try {
     const { parentId } = req.params;
@@ -221,6 +233,7 @@ exports.createSubtask = async (req, res, pool) => {
   }
 };
 
+// Get subtasks
 exports.getSubtasks = async (req, res, pool) => {
   try {
     const { parentId } = req.params;
@@ -233,75 +246,90 @@ exports.getSubtasks = async (req, res, pool) => {
 };
 
 // Task Type Controllers
-const getTaskTypes = async (req, res, pool) => {
+exports.getTaskTypes = async (req, res, pool) => {
   try {
-    const result = await pool.query(taskTypeQueries.getAllTaskTypes);
-    res.json(result.rows);
+    const result = await taskTypeModel.getTaskTypes(pool);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching task types:', error);
     res.status(500).json({ error: 'Failed to fetch task types' });
   }
 };
 
-const getTaskTypeById = async (req, res, pool) => {
+// Get task type by ID
+exports.getTaskTypeById = async (req, res, pool) => {
   try {
     const { id } = req.params;
-    const result = await pool.query(taskTypeQueries.getTaskTypeById, [id]);
-    
-    if (result.rows.length === 0) {
+    const result = await taskTypeModel.getTaskTypeById(pool, id);
+
+    if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
     
-    res.json(result.rows[0]);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching task type:', error);
     res.status(500).json({ error: 'Failed to fetch task type' });
   }
 };
 
-const createTaskType = async (req, res, pool) => {
+// Create a task type
+exports.createTaskType = async (req, res, pool) => {
   try {
     const { name, description, color, icon, is_active = true } = req.body;
     
-    const result = await pool.query(
-      taskTypeQueries.createTaskType,
-      [name, description, color, icon, is_active]
+    const result = await taskTypeModel.createTaskType(
+      pool,
+      name,
+      description,
+      color,
+      icon,
+      is_active
     );
     
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(result);
   } catch (error) {
     console.error('Error creating task type:', error);
     res.status(500).json({ error: 'Failed to create task type' });
   }
 };
 
-const updateTaskType = async (req, res, pool) => {
+// Update a task type
+exports.updateTaskType = async (req, res, pool) => {
   try {
     const { id } = req.params;
     const { name, description, color, icon, is_active } = req.body;
     
     const result = await pool.query(
-      taskTypeQueries.updateTaskType,
-      [name, description, color, icon, is_active, id]
+      taskTypeModel.updateTaskType(
+        pool,
+        id,
+        name,
+        description,
+        color,
+        icon,
+        is_active
+      )
     );
     
-    if (result.rows.length === 0) {
+    if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
     
-    res.json(result.rows[0]);
+    res.json(result);
   } catch (error) {
     console.error('Error updating task type:', error);
     res.status(500).json({ error: 'Failed to update task type' });
   }
 };
 
-const deleteTaskType = async (req, res, pool) => {
+// Delete a task type
+exports.deleteTaskType = async (req, res, pool) => {
   try {
     const { id } = req.params;
-    const result = await pool.query(taskTypeQueries.deleteTaskType, [id]);
+    const result = await taskTypeModel.deleteTaskType(pool, id);
     
-    if (result.rows.length === 0) {
+    if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
     
@@ -310,13 +338,4 @@ const deleteTaskType = async (req, res, pool) => {
     console.error('Error deleting task type:', error);
     res.status(500).json({ error: 'Failed to delete task type' });
   }
-};
-
-module.exports = {
-  // ... existing exports ...
-  getTaskTypes,
-  getTaskTypeById,
-  createTaskType,
-  updateTaskType,
-  deleteTaskType
 };

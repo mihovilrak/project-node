@@ -1,5 +1,6 @@
 const commentModel = require('../models/commentModel');
 
+// Get task comments
 exports.getTaskComments = async (req, res, pool) => {
   try {
     const { taskId } = req.params;
@@ -11,6 +12,7 @@ exports.getTaskComments = async (req, res, pool) => {
   }
 };
 
+// Create a comment
 exports.createComment = async (req, res, pool) => {
   try {
     const { taskId } = req.params;
@@ -34,27 +36,29 @@ exports.createComment = async (req, res, pool) => {
   }
 };
 
+// Edit a comment
 exports.editComment = async (req, res, pool) => {
-    const { id } = req.params;
-    const { comment } = req.body;
+  const { id } = req.params;
+  const { comment } = req.body;
 
-    try {
-        const editedComment = await commentModel.editComment(pool, id, comment);
-        res.status(200).json(editedComment);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+      const editedComment = await commentModel.editComment(pool, id, comment);
+      res.status(200).json(editedComment);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
+// Delete a comment
 exports.deleteComment = async (req, res, pool) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const deletedComment = await commentModel.deleteComment(pool, id);
-        res.status(200).json(deletedComment);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+      const deletedComment = await commentModel.deleteComment(pool, id);
+      res.status(200).json(deletedComment);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
 };

@@ -1,10 +1,13 @@
 const express = require('express');
 const sessionController = require('../controllers/sessionController');
 
+// Session routes
 module.exports = () => {
   const router = express.Router();
 
-  router.get('/', (req, res) => sessionController.session(req, res));
+  // Get session
+  router.get('/', (req, res) =>
+    sessionController.session(req, res));
 
   return router;
 };

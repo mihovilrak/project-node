@@ -10,6 +10,6 @@ create table if not exists projects (
     created_by int references users(id) not null,
     created_on timestamptz default current_timestamp not null
 );
-create index project_created_by_idx on projects(created_by);
-create index project_status_idx on projects(status_id);
-create index project_parent_idx on projects(parent_id);
+create index if not exists project_created_by_idx on projects(created_by);
+create index if not exists project_status_idx on projects(status_id);
+create index if not exists project_parent_idx on projects(parent_id);

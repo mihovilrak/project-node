@@ -9,12 +9,14 @@ const sessionRoute = require('./routes/sessionRouter');
 const loginRoute = require('./routes/loginRouter');
 const logoutRoute = require('./routes/logoutRouter');
 const projectRoutes = require('./routes/projectRouter');
-const taskRoutes = require('./routes/taskRoutes');  // Consolidated task routes
+const taskRoutes = require('./routes/taskRouter');
 const roleRouter = require('./routes/roleRouter');
 const userRoutes = require('./routes/userRouter');
 const commentRoutes = require('./routes/commentRouter');
 const notificationRoutes = require('./routes/notificationRouter');
 const fileRoutes = require('./routes/fileRoutes');
+const tagRoutes = require('./routes/tagRouter');
+const timeLogRoutes = require('./routes/timeLogRouter');
 
 // Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
@@ -62,7 +64,9 @@ apiRouter.use('/check-session', sessionRoute());
 
 // Protected routes (auth required)
 apiRouter.use('/projects', authMiddleware, projectRoutes(pool));
-apiRouter.use('/tasks', authMiddleware, taskRoutes(pool));  // Includes task types
+apiRouter.use('/tasks', authMiddleware, taskRoutes(pool));
+apiRouter.use('/tags', authMiddleware, tagRoutes(pool));
+apiRouter.use('/time-logs', authMiddleware, timeLogRoutes(pool));
 apiRouter.use('/users', authMiddleware, userRoutes(pool));
 apiRouter.use('/roles', authMiddleware, roleRouter(pool));
 apiRouter.use('/comments', authMiddleware, commentRoutes(pool));

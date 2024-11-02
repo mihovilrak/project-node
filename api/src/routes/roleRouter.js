@@ -1,10 +1,13 @@
 const express = require('express');
-const { getRoles } = require('../controllers/roleController');
+const roleController = require('../controllers/roleController');
 
+// Role routes
 module.exports = (pool) => {
   const router = express.Router();
 
-  router.get('/', (req, res) => getRoles(req, res, pool));
+  // Get roles
+  router.get('/', (req, res) =>
+    roleController.getRoles(req, res, pool));
 
   return router;
 };

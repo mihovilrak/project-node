@@ -1,10 +1,8 @@
-CREATE TABLE "session" (
-  "sid" varchar NOT NULL COLLATE "default",
-  "sess" json NOT NULL,
-  "expire" timestamp(6) NOT NULL
+create table if not exists session (
+  sid varchar primary key not null collate "default",
+  sess json not null,
+  expire timestamp(6) not null
 )
-WITH (OIDS=FALSE);
+with (OIDS=FALSE);
 
-ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid");
-
-CREATE INDEX "IDX_session_expire" ON "session" ("expire");
+create index if not exists session_expire_idx on session (expire);

@@ -1,3 +1,4 @@
+// Get session user
 exports.session = async (req, res) => {
   try {
     if (req.session.user) {

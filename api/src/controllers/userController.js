@@ -1,5 +1,6 @@
 const userModel = require('../models/userModel');
 
+// Get users
 exports.getUsers = async (req, res, pool) => {
   try {
     const { whereParams } = req.query;
@@ -11,6 +12,7 @@ exports.getUsers = async (req, res, pool) => {
   }
 };
 
+// Get user by ID
 exports.getUserById = async (req, res, pool) => {
   const { id } = req.params;
   try {
@@ -25,10 +27,25 @@ exports.getUserById = async (req, res, pool) => {
   }
 };
 
+// Create a user
 exports.createUser = async (req, res, pool) => {
-  const { login, name, surname, email, password, role_id } = req.body;
+  const { login,
+    name,
+    surname,
+    email,
+    password,
+    role_id
+  } = req.body;
   try {
-    const user = await userModel.createUser(pool, login, name, surname, email, password, role_id);
+    const user = await userModel.createUser(
+      pool,
+      login,
+      name,
+      surname,
+      email,
+      password,
+      role_id
+    );
     res.status(201).json(user);
   } catch (error) {
     console.error(error);
@@ -36,6 +53,7 @@ exports.createUser = async (req, res, pool) => {
   }
 };
 
+// Update a user
 exports.updateUser = async (req, res, pool) => {
   const { id } = req.params;
   const { updates } = req.body;
@@ -51,6 +69,7 @@ exports.updateUser = async (req, res, pool) => {
   }
 };
 
+// Change user status
 exports.changeUserStatus = async (req, res, pool) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -66,6 +85,7 @@ exports.changeUserStatus = async (req, res, pool) => {
   }
 };
 
+// Delete a user
 exports.deleteUser = async (req, res, pool) => {
   const { id } = req.params;
   try {

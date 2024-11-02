@@ -1,5 +1,6 @@
 const roleModel = require('../models/roleModel');
 
+// Get all roles
 exports.getRoles = async (req, res, pool) => {
   try {
     const result = await roleModel.roles(pool);
@@ -7,7 +8,7 @@ exports.getRoles = async (req, res, pool) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-        error: 'Internal server error'
+      error: 'Internal server error'
     });
   }
 };

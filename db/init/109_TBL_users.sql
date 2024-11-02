@@ -10,5 +10,5 @@ create table if not exists users (
     created_on timestamptz default current_timestamp not null,
     updated_on timestamptz null
 );
-create index user_status_idx on users(status_id);
-create index user_roles_idx on users(role_id);
+create index if not exists user_status_idx on users(status_id);
+create index if not exists user_roles_idx on users(role_id);

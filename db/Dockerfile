@@ -1,7 +1,7 @@
-# Use the official PostgreSQL image as the base image
+# Use the official PostgreSQL alpine image as the base image
 FROM postgres:17.0-alpine3.20
 
-# Install cron, tzdata and postgresql packages for bcrypt, crypt and gen_salt
+# Install cron, tzdata and postgresql packages for crypt and gen_salt
 RUN apk update && \
     apk add --no-cache dcron \
     tzdata \

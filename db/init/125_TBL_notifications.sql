@@ -9,6 +9,6 @@ create table if not exists notifications (
     created_on timestamptz default current_timestamp not null
 );
 
-create index notifications_user_idx on notifications(user_id);
-create index notifications_type_idx on notifications(type_id);
-create index notifications_created_idx on notifications(created_on);
+create index if not exists notifications_user_idx on notifications(user_id);
+create index if not exists notifications_type_idx on notifications(type_id);
+create index if not exists notifications_created_idx on notifications(created_on);

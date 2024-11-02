@@ -1,5 +1,6 @@
 const notificationModel = require('../models/notificationModel');
 
+// Get user notifications
 exports.getUserNotifications = async (req, res, pool) => {
   const { user_id } = req.params;
   try {
@@ -11,6 +12,7 @@ exports.getUserNotifications = async (req, res, pool) => {
   }
 };
 
+// Mark notifications as read
 exports.markAsRead = async (req, res, pool) => {
   const { user_id } = req.params;
   try {
