@@ -15,6 +15,8 @@ import Tasks from './components/Tasks/Tasks';
 import TaskDetails from './components/Tasks/TaskDetails';
 import TaskForm from './components/Tasks/TaskForm';
 import ActiveTasks from './components/Tasks/ActiveTasks';
+import Settings from './components/Settings/Settings';
+import Profile from './components/Profile/Profile';
 
 const App = () => (
   <AuthProvider>
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/tasks/:id" element={<TaskDetails />} />
           <Route path="/tasks/:id/edit" element={<TaskForm />} />
           <Route path="/tasks/active" element={<ActiveTasks />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </Router>
