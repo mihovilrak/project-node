@@ -4,11 +4,13 @@ FROM node:23-alpine3.19 AS build
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY package*.json yarn.lock ./
+COPY package*.json ./
+COPY yarn.lock ./
 RUN apk add --no-cache yarn && \
     yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
     --production=true --link-duplicates --ignore-optional && \
+    yarn add -D @babel/plugin-proposal-private-property-in-object && \
     yarn cache clean --all
 
 # Copy the rest of the React application

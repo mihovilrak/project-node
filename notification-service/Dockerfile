@@ -6,13 +6,16 @@ WORKDIR /usr/src
 
 # Copy package.json and install dependencies
 COPY package*.json ./
+COPY yarn.lock ./
 COPY ./src/ ./
 RUN apk update && \
     apk add --no-cache yarn && \
     mkdir node_modules && \
-    yarn install --production=true --link-duplicates --ignore-optional && \
+    yarn install --frozen-lockfile --prefer-offline \
+    --production=true --link-duplicates --ignore-optional && \
     npm install -g @vercel/ncc && \
-    ncc build index.js -o dist --no-cache -q
+    ncc build index.js -o dist --no-cache -q && \
+    yarn cache clean --all
 
 FROM node:23-alpine3.19
 

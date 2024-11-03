@@ -14,9 +14,12 @@ const roleRouter = require('./routes/roleRouter');
 const userRoutes = require('./routes/userRouter');
 const commentRoutes = require('./routes/commentRouter');
 const notificationRoutes = require('./routes/notificationRouter');
-const fileRoutes = require('./routes/fileRoutes');
+const fileRoutes = require('./routes/fileRouter');
 const tagRoutes = require('./routes/tagRouter');
 const timeLogRoutes = require('./routes/timeLogRouter');
+const profileRoutes = require('./routes/profileRouter');
+const adminRoutes = require('./routes/adminRouter');
+const activityTypeRoutes = require('./routes/activityTypeRouter');
 
 // Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
@@ -72,6 +75,9 @@ apiRouter.use('/roles', authMiddleware, roleRouter(pool));
 apiRouter.use('/comments', authMiddleware, commentRoutes(pool));
 apiRouter.use('/notifications', authMiddleware, notificationRoutes(pool));
 apiRouter.use('/files', authMiddleware, fileRoutes(pool));
+apiRouter.use('/profile', authMiddleware, profileRoutes(pool));
+apiRouter.use('/admin', authMiddleware, adminRoutes(pool));
+apiRouter.use('/activity-types', authMiddleware, activityTypeRoutes(pool));
 
 // Mount API router
 app.use('/api', apiRouter);

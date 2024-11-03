@@ -1,5 +1,4 @@
 const profileModel = require('../models/profileModel');
-const bcrypt = require('bcrypt');
 
 exports.getProfile = async (req, res, pool) => {
   try {
@@ -43,16 +42,26 @@ exports.changePassword = async (req, res, pool) => {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const result = await profileModel.changePassword(
-      pool, 
-      userId, 
-      currentPassword, 
-      newPassword
+    // Using the database's authentication function to verify the current password
+    const verifyResult = await pool.query(
+      `SELECT id FROM users 
+       WHERE id = $1 
+       AND password = crypt($2, password)`,
+      [userId, currentPassword]
     );
 
-    if (!result) {
+    if (verifyResult.rows.length === 0) {
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
+
+    // Update password using pgcrypto
+    await pool.query(
+      `UPDATE users 
+       SET password = crypt($1, gen_salt('bf', 12)),
+           updated_on = CURRENT_TIMESTAMP 
+       WHERE id = $2`,
+      [newPassword, userId]
+    );
 
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {

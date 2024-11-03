@@ -27,31 +27,27 @@ exports.getProfile = async (pool, userId) => {
   };
   
   exports.changePassword = async (pool, userId, currentPassword, newPassword) => {
-    // First verify current password
-    const user = await pool.query(
-      'SELECT password FROM users WHERE id = $1',
-      [userId]
+    // Verify current password using pgcrypto
+    const result = await pool.query(
+      `SELECT id FROM users 
+       WHERE id = $1 
+       AND password = crypt($2, password)`,
+      [userId, currentPassword]
     );
-  
-    const isValid = await bcrypt.compare(currentPassword, user.rows[0].password);
-    
-    if (!isValid) {
+
+    if (result.rows.length === 0) {
       return null;
     }
-  
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-  
-    // Update password
-    const result = await pool.query(
+
+    // Update password using pgcrypto
+    const updateResult = await pool.query(
       `UPDATE users 
-       SET password = $1, 
+       SET password = crypt($1, gen_salt('bf', 12)), 
            updated_at = CURRENT_TIMESTAMP 
        WHERE id = $2 
        RETURNING id`,
-      [hashedPassword, userId]
+      [newPassword, userId]
     );
     
-    return result.rows[0];
+    return updateResult.rows[0];
   };

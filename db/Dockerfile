@@ -6,7 +6,8 @@ RUN apk update && \
     apk add --no-cache dcron \
     tzdata \
     postgresql-contrib \
-    libpq-dev
+    libpq-dev && \
+    rm -rf /var/cache/apk/*
 
 # Set timezone
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \

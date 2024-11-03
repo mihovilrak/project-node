@@ -27,7 +27,7 @@ const Layout = () => {
         navigate('/settings');
         break;
       case 5:
-        navigate('/account');
+        navigate('/profile');
         break;
       default:
         break;

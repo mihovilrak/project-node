@@ -9,10 +9,6 @@ import {
   FormControlLabel,
   Switch,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Alert
 } from '@mui/material';
 import { createUser, updateUser } from '../../api/users';

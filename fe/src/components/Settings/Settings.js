@@ -8,13 +8,13 @@ import {
   Alert
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import UserTable from './UserTable';
 import UserDialog from './UserDialog';
-import { getAllUsers } from '../../api/users';
+import { getUsers } from '../../api/users';
 import ActivityTypeDialog from './ActivityTypeDialog';
-import ActivityTypeList from './ActivityTypeList';
-import { getAllActivityTypes } from '../../api/activityTypes';
+import ActivityTypesTable from './ActivityTypesTable';
+import { getActivityTypes } from '../../api/admin';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -30,9 +30,10 @@ const Settings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [usersData, activityTypesData] = await Promise.all([
-          getAllUsers(),
-          getAllActivityTypes()
+          getUsers(),
+          getActivityTypes()
         ]);
         setUsers(usersData);
         setActivityTypes(activityTypesData);
@@ -63,7 +64,7 @@ const Settings = () => {
 
   const handleUserSaved = () => {
     handleDialogClose();
-    fetchUsers();
+    getUsers();
   };
 
   const handleCreateActivityType = () => {
@@ -79,7 +80,7 @@ const Settings = () => {
   const handleActivityTypeSaved = () => {
     setActivityTypeDialogOpen(false);
     setSelectedActivityType(null);
-    fetchActivityTypes();
+    getActivityTypes();
   };
 
   if (!user?.is_admin) {
@@ -125,7 +126,7 @@ const Settings = () => {
           <UserTable 
             users={users} 
             onEditUser={handleEditUser}
-            onUserDeleted={fetchUsers}
+            onUserDeleted={handleUserSaved}
           />
         )}
       </Paper>
@@ -154,11 +155,11 @@ const Settings = () => {
           </Button>
         </Box>
 
-        <ActivityTypeList
+        <ActivityTypesTable
           activityTypes={activityTypes}
           onEdit={handleEditActivityType}
-          onActivityTypeUpdated={() => fetchActivityTypes()}
-        />
+          loading={loading}
+        /> 
 
         <ActivityTypeDialog
           open={activityTypeDialogOpen}
@@ -167,15 +168,11 @@ const Settings = () => {
             setActivityTypeDialogOpen(false);
             setSelectedActivityType(null);
           }}
-          onSaved={() => {
-            setActivityTypeDialogOpen(false);
-            setSelectedActivityType(null);
-            fetchActivityTypes();
-          }}
+          onSaved={handleActivityTypeSaved}
         />
       </Paper>
     </Box>
   );
 };
 
-export default Settings; 
+export default Settings;
