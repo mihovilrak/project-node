@@ -39,7 +39,8 @@ exports.createProject = async (
   created_by
 ) => {
   const result = await pool.query(
-    `INSERT INTO projects (name, description, start_date, due_date, created_by) 
+    `INSERT INTO projects 
+    (name, description, start_date, due_date, created_by) 
     VALUES ($1, $2, $3, $4, $5) 
     RETURNING *`,
     [name, description, start_date, due_date, created_by]
@@ -125,4 +126,16 @@ exports.createSubproject = async (
     );
     return result.rows[0];
   };
+
+// Get project tasks
+exports.getProjectTasks = async (pool, id) => {
+  const query = `
+    SELECT * FROM v_tasks 
+    WHERE project_id = $1 
+    ORDER BY created_on DESC
+  `;
+  
+  const result = await pool.query(query, [id]);
+  return result.rows;
+};
   

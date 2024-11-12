@@ -65,13 +65,13 @@ const SubprojectForm = ({ open, onClose, parentId, onSubprojectCreated }) => {
               label="Start Date"
               value={formData.start_date}
               onChange={(date) => setFormData(prev => ({ ...prev, start_date: date }))}
-              renderInput={(params) => <TextField {...params} fullWidth />}
+              renderInput={(params) => <TextField {...params} fullWidth id="start-date" name="start_date" />}
             />
             <DatePicker
               label="Due Date"
               value={formData.due_date}
               onChange={(date) => setFormData(prev => ({ ...prev, due_date: date }))}
-              renderInput={(params) => <TextField {...params} fullWidth />}
+              renderInput={(params) => <TextField {...params} fullWidth id="due-date" name="due_date" />}
             />
           </Box>
         </DialogContent>

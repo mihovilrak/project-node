@@ -3,8 +3,7 @@ import {
   List, 
   ListItem, 
   ListItemIcon, 
-  ListItemText, 
-  ListItemSecondary,
+  ListItemText,
   IconButton, 
   Typography,
   Box,
@@ -15,12 +14,12 @@ import {
   Download as DownloadIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
-import { deleteTaskFile, downloadTaskFile } from '../../api/files';
+import { deleteFile, downloadFile } from '../../api/files';
 
 const FileList = ({ files, taskId, onFileDeleted }) => {
   const handleDownload = async (fileId, fileName) => {
     try {
-      const blob = await downloadTaskFile(taskId, fileId);
+      const blob = await downloadFile(taskId, fileId);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -37,7 +36,7 @@ const FileList = ({ files, taskId, onFileDeleted }) => {
   const handleDelete = async (fileId) => {
     if (window.confirm('Are you sure you want to delete this file?')) {
       try {
-        await deleteTaskFile(taskId, fileId);
+        await deleteFile(taskId, fileId);
         onFileDeleted(fileId);
       } catch (error) {
         console.error('Failed to delete file:', error);

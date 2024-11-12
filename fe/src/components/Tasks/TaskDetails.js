@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { getTaskById, deleteTask, changeTaskStatus } from '../../api/tasks';
-import { getTaskComments } from '../../api/comments';
+import { getTaskComments, editComment, deleteComment } from '../../api/comments';
 import CommentForm from '../Comments/CommentForm';
 import CommentList from '../Comments/CommentList';
 import FileUpload from '../Files/FileUpload';
@@ -23,6 +23,8 @@ import SubtaskList from './SubtaskList';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogList from '../TimeLog/TimeLogList';
 import { getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogs';
+import TimeLogStats from '../TimeLog/TimeLogStats';
+import CommentEditDialog from '../Comments/CommentEditDialog';
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -36,6 +38,8 @@ const TaskDetails = () => {
   const [timeLogs, setTimeLogs] = useState([]);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
+  const { user } = useAuth(); 
 
   useEffect(() => {
     const fetchTaskData = async () => {
@@ -75,7 +79,7 @@ const TaskDetails = () => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await changeTaskStatus(id, { status: newStatus });
+      await changeTaskStatus(id, { statusId: newStatus.id });
       const updatedTask = await getTaskById(id);
       setTask(updatedTask);
     } catch (error) {
@@ -83,8 +87,21 @@ const TaskDetails = () => {
     }
   };
 
-  const handleCommentAdded = (newComment) => {
-    setComments(prevComments => [newComment, ...prevComments]);
+  const fetchComments = async () => {
+    try {
+      const commentsData = await getTaskComments(id);
+      setComments(commentsData);
+    } catch (error) {
+      console.error('Failed to fetch comments:', error);
+    }
+  };
+
+  const handleCommentAdded = async (newComment) => {
+    try {
+      await fetchComments(); // Refresh the complete comments list
+    } catch (error) {
+      console.error('Error refreshing comments:', error);
+    }
   };
 
   const handleFileUploaded = (newFile) => {
@@ -133,6 +150,53 @@ const TaskDetails = () => {
     }
   };
 
+  const handleEditComment = (comment) => {
+    setEditingComment(comment);
+  };
+
+  const handleSaveComment = async (commentId, newText) => {
+    try {
+      await editComment(id, commentId, { comment: newText });
+      await fetchComments(); // Refresh comments after edit
+      setEditingComment(null);
+    } catch (error) {
+      console.error('Failed to edit comment:', error);
+      // You might want to add a snackbar/toast notification here
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      try {
+        await deleteComment(id, commentId);
+        await fetchComments(); // Refresh comments after delete
+      } catch (error) {
+        console.error('Failed to delete comment:', error);
+        // You might want to add a snackbar/toast notification here
+      }
+    }
+  };
+
+  const handleCommentUpdate = async (commentId, newText) => {
+    try {
+      await editComment(id, commentId, { comment: newText });
+      const updatedComments = await getTaskComments(id);
+      setComments(updatedComments);
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await deleteComment(id, commentId);
+      const updatedComments = await getTaskComments(id);
+      setComments(updatedComments);
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -168,29 +232,35 @@ const TaskDetails = () => {
         </Grid>
         <Typography variant="body1" sx={{ mt: 2 }}>Description: {task.description}</Typography>
         <Box sx={{ mt: 2 }}>
-          <Button 
+          <PermissionButton 
+            requiredPermission="Update task status"
             variant="contained" 
             color="primary" 
             onClick={() => handleStatusChange('Completed')} 
             sx={{ mr: 1 }}
+            tooltipText="You don't have permission to update task status"
           >
             Mark as Completed
-          </Button>
-          <Button 
+          </PermissionButton>
+          <PermissionButton 
+            requiredPermission="Edit tasks"
             variant="contained" 
             color="secondary" 
             onClick={() => navigate(`/tasks/${id}/edit`)} 
             sx={{ mr: 1 }}
+            tooltipText="You don't have permission to edit tasks"
           >
             Edit Task
-          </Button>
-          <Button 
+          </PermissionButton>
+          <PermissionButton 
+            requiredPermission="Delete tasks"
             variant="contained" 
             color="error" 
             onClick={handleDelete}
+            tooltipText="You don't have permission to delete tasks"
           >
             Delete Task
-          </Button>
+          </PermissionButton>
         </Box>
       </Paper>
 
@@ -237,7 +307,12 @@ const TaskDetails = () => {
         
         {comments.length > 0 ? (
           <Box sx={{ mt: 3 }}>
-            <CommentList comments={comments} />
+            <CommentList 
+              comments={comments}
+              onCommentUpdated={handleCommentUpdate}
+              onCommentDeleted={handleCommentDelete}
+              currentUserId={user?.id}
+            />
           </Box>
         ) : (
           <Typography 
@@ -249,6 +324,13 @@ const TaskDetails = () => {
           </Typography>
         )}
       </Paper>
+
+      <CommentEditDialog
+        open={Boolean(editingComment)}
+        comment={editingComment}
+        onClose={() => setEditingComment(null)}
+        onSave={handleSaveComment}
+      />
 
       {/* Files Section */}
       <Paper sx={{ mt: 3, p: 3 }}>
@@ -319,6 +401,7 @@ const TaskDetails = () => {
           </Button>
         </Box>
 
+        <TimeLogStats timeLogs={timeLogs} />
         <TimeLogList
           timeLogs={timeLogs}
           onEdit={handleTimeLogEdit}

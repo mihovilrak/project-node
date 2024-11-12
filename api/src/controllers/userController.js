@@ -99,3 +99,18 @@ exports.deleteUser = async (req, res, pool) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.getUserPermissions = async (req, res, pool) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const permissions = await getUserPermissions(pool, userId);
+    res.json(permissions);
+  } catch (error) {
+    console.error('Failed to fetch permissions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

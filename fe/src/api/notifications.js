@@ -1,8 +1,8 @@
 import api from './api';
 
-export const getNotifications = async () => {
+export const getNotifications = async (userId) => {
   try {
-    const response = await api.get('/notifications');
+    const response = await api.get(`/notifications/${userId}`);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch notifications', error);
@@ -10,20 +10,11 @@ export const getNotifications = async () => {
   }
 };
 
-export const markAsRead = async (notificationId) => {
+export const markAsRead = async (userId) => {
   try {
-    await api.patch(`/notifications/${notificationId}/read`);
+    await api.patch(`/notifications/${userId}`);
   } catch (error) {
-    console.error('Failed to mark notification as read', error);
-    throw error;
-  }
-};
-
-export const markAllAsRead = async () => {
-  try {
-    await api.patch('/notifications/read-all');
-  } catch (error) {
-    console.error('Failed to mark all notifications as read', error);
+    console.error('Failed to mark notifications as read', error);
     throw error;
   }
 };

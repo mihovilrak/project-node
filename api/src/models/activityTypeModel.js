@@ -1,7 +1,7 @@
 exports.getActivityTypes = async (pool) => {
   const result = await pool.query(
     `SELECT * FROM activity_types 
-    WHERE is_active = true 
+    WHERE active = true 
     ORDER BY name ASC`
   );
   return result.rows;
@@ -12,15 +12,14 @@ exports.createActivityType = async (
   name,
   description,
   color,
-  icon,
-  created_by
+  icon
 ) => {
   const result = await pool.query(
     `INSERT INTO activity_types 
-    (name, description, color, icon, created_by) 
-    VALUES ($1, $2, $3, $4, $5) 
+    (name, description, color, icon) 
+    VALUES ($1, $2, $3, $4) 
     RETURNING *`,
-    [name, description, color, icon, created_by]
+    [name, description, color, icon]
   );
   return result.rows[0];
 };
@@ -35,12 +34,8 @@ exports.updateActivityType = async (
 ) => {
   const result = await pool.query(
     `UPDATE activity_types 
-    SET name = $1, 
-        description = $2, 
-        color = $3, 
-        icon = $4, 
-        updated_at = CURRENT_TIMESTAMP 
-    WHERE id = $5 AND is_active = true 
+    SET (name, description, color, icon, updated_on) = ($1, $2, $3, $4, CURRENT_TIMESTAMP) 
+    WHERE id = $5 AND active = true 
     RETURNING *`,
     [name, description, color, icon, id]
   );
@@ -50,8 +45,7 @@ exports.updateActivityType = async (
 exports.deleteActivityType = async (pool, id) => {
   const result = await pool.query(
     `UPDATE activity_types 
-    SET is_active = false, 
-        updated_at = CURRENT_TIMESTAMP 
+    SET (active, updated_on) = (false, CURRENT_TIMESTAMP) 
     WHERE id = $1 
     RETURNING *`,
     [id]

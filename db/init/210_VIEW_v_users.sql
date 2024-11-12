@@ -6,9 +6,9 @@ create or replace view v_users as
             u.email,
             s.status,
             r.role,
-            u.created_on,
-            u.updated_on,
-            l.logged_on as last_login
+            u.created_on::timestamp(0),
+            u.updated_on::timestamp(0),
+            l.logged_on::timestamp(0) as last_login
     from users u
     left join user_statuses s on s.id = u.status_id
     left join roles r on r.id = u.role_id

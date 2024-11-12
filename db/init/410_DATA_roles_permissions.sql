@@ -9,6 +9,7 @@ insert into roles_permissions (role_id, permission_id) values
     (2, 8),
     (2, 9),
     (2, 10),
+    (2, 11),
     (3, 5),
     (3, 6),
     (3, 7),

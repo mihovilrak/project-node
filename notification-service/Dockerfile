@@ -5,12 +5,11 @@ FROM node:23-alpine3.19 AS builder
 WORKDIR /usr/src
 
 # Copy package.json and install dependencies
-COPY package*.json ./
-COPY yarn.lock ./
+COPY package*.json yarn.lock ./
 COPY ./src/ ./
-RUN apk update && \
-    apk add --no-cache yarn && \
-    mkdir node_modules && \
+
+RUN mkdir node_modules && \
+    yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
     --production=true --link-duplicates --ignore-optional && \
     npm install -g @vercel/ncc && \

@@ -64,22 +64,14 @@ export const deleteTask = async (id) => {
   }
 };
 
-export const getTasksByProject = async (projectId) => {
+export const getProjectTasks = async (projectId, filters = {}) => {
   try {
-    const response = await api.get(`/tasks?project_id=${projectId}`);
+    const queryParams = new URLSearchParams(filters).toString();
+    const url = `/projects/${projectId}/tasks${queryParams ? `?${queryParams}` : ''}`;
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch project tasks', error);
-    throw error;
-  }
-};
-
-export const createSubtask = async (parentTaskId, data) => {
-  try {
-    const response = await api.post(`/tasks/${parentTaskId}/subtasks`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to create subtask', error);
+    console.error('Failed to fetch project tasks:', error);
     throw error;
   }
 };
@@ -109,16 +101,6 @@ export const getTasksByDateRange = async (startDate, endDate) => {
   }
 };
 
-export const getProjectTasks = async (projectId) => {
-  try {
-    const response = await api.get(`/projects/${projectId}/tasks`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch project tasks', error);
-    throw error;
-  }
-};
-
 export const updateTaskDates = async (taskId, dates) => {
   try {
     const response = await api.patch(`/tasks/${taskId}/dates`, dates);
@@ -139,9 +121,9 @@ export const getActiveTasks = async () => {
   }
 };
 
-export const changeTaskStatus = async (taskId, status) => {
+export const changeTaskStatus = async (taskId, statusId) => {
   try {
-    const response = await api.patch(`/tasks/${taskId}/status`, { status });
+    const response = await api.patch(`/tasks/${taskId}/status`, { statusId });
     return response.data;
   } catch (error) {
     console.error('Failed to change task status:', error);
@@ -167,6 +149,28 @@ export const getPriorities = async () => {
     return response.data;
   } catch (error) {
     console.error('Failed to fetch task priorities:', error);
+    throw error;
+  }
+};
+
+// Get tasks by assignee
+export const getTasksByAssignee = async (assigneeId) => {
+  try {
+    const response = await api.get(`/tasks?assignee=${assigneeId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch tasks by assignee:', error);
+    throw error;
+  }
+};
+
+// Get tasks by holder
+export const getTasksByHolder = async (holderId) => {
+  try {
+    const response = await api.get(`/tasks?holder=${holderId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch tasks by holder:', error);
     throw error;
   }
 };

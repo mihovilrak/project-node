@@ -1,8 +1,8 @@
 import api from './api';
 
-export const getAllActivityTypes = async () => {
+export const getActivityTypes = async () => {
   try {
-    const response = await api.get('/activity-types');
+    const response = await api.get('/admin/activity-types');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch activity types', error);
@@ -12,7 +12,7 @@ export const getAllActivityTypes = async () => {
 
 export const createActivityType = async (data) => {
   try {
-    const response = await api.post('/activity-types', data);
+    const response = await api.post('/admin/activity-types', data);
     return response.data;
   } catch (error) {
     console.error('Failed to create activity type', error);
@@ -22,7 +22,7 @@ export const createActivityType = async (data) => {
 
 export const updateActivityType = async (id, data) => {
   try {
-    const response = await api.put(`/activity-types/${id}`, data);
+    const response = await api.put(`/admin/activity-types/${id}`, data);
     return response.data;
   } catch (error) {
     console.error('Failed to update activity type', error);
@@ -32,9 +32,19 @@ export const updateActivityType = async (id, data) => {
 
 export const deleteActivityType = async (id) => {
   try {
-    await api.delete(`/activity-types/${id}`);
+    await api.delete(`/admin/activity-types/${id}`);
   } catch (error) {
     console.error('Failed to delete activity type', error);
+    throw error;
+  }
+};
+
+export const getAvailableIcons = async () => {
+  try {
+    const response = await api.get('/admin/activity-types/icons');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch icons', error);
     throw error;
   }
 }; 

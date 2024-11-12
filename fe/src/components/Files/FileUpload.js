@@ -11,7 +11,7 @@ import {
   CloudUpload as UploadIcon,
   Close as CloseIcon 
 } from '@mui/icons-material';
-import { uploadTaskFile } from '../../api/files';
+import { uploadFile } from '../../api/files';
 
 const FileUpload = ({ taskId, onFileUploaded }) => {
   const [uploading, setUploading] = useState(false);
@@ -30,7 +30,7 @@ const FileUpload = ({ taskId, onFileUploaded }) => {
     formData.append('file', file);
 
     try {
-      const uploadedFile = await uploadTaskFile(taskId, formData, (progressEvent) => {
+      const uploadedFile = await uploadFile(taskId, formData, (progressEvent) => {
         const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         setProgress(progress);
       });

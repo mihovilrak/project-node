@@ -52,7 +52,44 @@ class EmailService {
       logger.error('Failed to send email:', error);
       throw error;
     }
-  }
-}
+  };
+
+  // Add these methods to the EmailService class
+  async sendEmailWithRetry(to, subject, templateName, data, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await this.sendEmail(to, subject, templateName, data);
+      } catch (error) {
+        logger.warn(`Email attempt ${attempt} failed:`, error);
+        if (attempt === retries) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  };
+
+  async validateTemplate(name) {
+    try {
+      const template = await this.loadTemplate(name);
+      // Test compilation with empty data
+      template({});
+      return true;
+    } catch (error) {
+      logger.error(`Template validation failed for ${name}:`, error);
+      return false;
+    }
+  };
+
+  async sendEmailWithRetry(to, subject, templateName, data, retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await this.sendEmail(to, subject, templateName, data);
+      } catch (error) {
+        logger.warn(`Email attempt ${attempt} failed:`, error);
+        if (attempt === retries) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  };
+};
 
 module.exports = new EmailService(); 

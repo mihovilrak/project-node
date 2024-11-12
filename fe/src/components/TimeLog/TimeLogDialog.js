@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { createTimeLog } from '../../api/timeLogs';
-import { getAllActivityTypes } from '../../api/activityTypes';
+import { getActivityTypes } from '../../api/activityTypes';
 
 const TimeLogDialog = ({ open, onClose, taskId, onTimeLogCreated }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const TimeLogDialog = ({ open, onClose, taskId, onTimeLogCreated }) => {
   useEffect(() => {
     const fetchActivityTypes = async () => {
       try {
-        const types = await getAllActivityTypes();
+        const types = await getActivityTypes();
         setActivityTypes(types.filter(type => type.is_active));
       } catch (error) {
         console.error('Failed to fetch activity types:', error);

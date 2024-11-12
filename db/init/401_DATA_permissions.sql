@@ -8,4 +8,5 @@ insert into permissions (permission) values
     ('Delete tasks'),
     ('Log time'),
     ('Edit log'),
-    ('Delete log');
+    ('Delete log'),
+    ('Delete files');

@@ -9,17 +9,84 @@ import {
   Grid,
   Alert,
   FormControlLabel,
-  Switch
+  Switch,
+  IconButton,
+  Box,
+  FormControl,
+  InputLabel
 } from '@mui/material';
+import { Icon } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
-import { createActivityType, updateActivityType } from '../../api/activityTypes';
+import { createActivityType, updateActivityType, getAvailableIcons } from '../../api/activityTypes';
+
+// IconSelector component
+function IconSelector({ value, onChange }) {
+  const [icons, setIcons] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const loadIcons = async () => {
+      try {
+        const availableIcons = await getAvailableIcons();
+        setIcons(availableIcons);
+      } catch (error) {
+        console.error('Failed to load icons:', error);
+      }
+    };
+    loadIcons();
+  }, []);
+
+  return (
+    <FormControl fullWidth margin="normal">
+      <InputLabel shrink>Icon</InputLabel>
+      <Box mt={2}>
+        <IconButton 
+          onClick={() => setOpen(true)}
+          sx={{ 
+            border: '1px dashed grey',
+            borderRadius: 1,
+            width: '100%',
+            height: '56px'
+          }}
+        >
+          {value ? <Icon>{value}</Icon> : 'Select Icon'}
+        </IconButton>
+      </Box>
+
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Select an Icon</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={1} sx={{ p: 2 }}>
+            {icons.map((iconName) => (
+              <Grid item key={iconName}>
+                <IconButton
+                  onClick={() => {
+                    onChange(iconName);
+                    setOpen(false);
+                  }}
+                  sx={{ 
+                    border: value === iconName ? '2px solid primary.main' : 'none',
+                    borderRadius: 1
+                  }}
+                >
+                  <Icon>{iconName}</Icon>
+                </IconButton>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+      </Dialog>
+    </FormControl>
+  );
+}
 
 const ActivityTypeDialog = ({ open, activityType, onClose, onSaved }) => {
   const [formData, setFormData] = useState({
     name: '',
     color: '#2196f3',
     description: '',
-    is_active: true
+    active: true,
+    icon: null
   });
   const [error, setError] = useState(null);
 
@@ -31,7 +98,8 @@ const ActivityTypeDialog = ({ open, activityType, onClose, onSaved }) => {
         name: '',
         color: '#2196f3',
         description: '',
-        is_active: true
+        active: true,
+        icon: null
       });
     }
   }, [activityType]);
@@ -93,6 +161,12 @@ const ActivityTypeDialog = ({ open, activityType, onClose, onSaved }) => {
               />
             </Grid>
             <Grid item xs={12}>
+              <IconSelector
+                value={formData.icon}
+                onChange={(icon) => handleChange('icon', icon)}
+              />
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 label="Description"
                 value={formData.description}
@@ -106,8 +180,8 @@ const ActivityTypeDialog = ({ open, activityType, onClose, onSaved }) => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={formData.is_active}
-                    onChange={(e) => handleChange('is_active', e.target.checked)}
+                    checked={formData.active}
+                    onChange={(e) => handleChange('active', e.target.checked)}
                   />
                 }
                 label="Active"

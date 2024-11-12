@@ -1,7 +1,6 @@
 const express = require('express');
 const config = require('./config');
 const { Pool } = require('pg');
-const path = require('path');
 const cors = require('cors');
 
 // Import routes
@@ -12,14 +11,11 @@ const projectRoutes = require('./routes/projectRouter');
 const taskRoutes = require('./routes/taskRouter');
 const roleRouter = require('./routes/roleRouter');
 const userRoutes = require('./routes/userRouter');
-const commentRoutes = require('./routes/commentRouter');
 const notificationRoutes = require('./routes/notificationRouter');
 const fileRoutes = require('./routes/fileRouter');
 const tagRoutes = require('./routes/tagRouter');
-const timeLogRoutes = require('./routes/timeLogRouter');
 const profileRoutes = require('./routes/profileRouter');
 const adminRoutes = require('./routes/adminRouter');
-const activityTypeRoutes = require('./routes/activityTypeRouter');
 
 // Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
@@ -69,29 +65,15 @@ apiRouter.use('/check-session', sessionRoute());
 apiRouter.use('/projects', authMiddleware, projectRoutes(pool));
 apiRouter.use('/tasks', authMiddleware, taskRoutes(pool));
 apiRouter.use('/tags', authMiddleware, tagRoutes(pool));
-apiRouter.use('/time-logs', authMiddleware, timeLogRoutes(pool));
 apiRouter.use('/users', authMiddleware, userRoutes(pool));
 apiRouter.use('/roles', authMiddleware, roleRouter(pool));
-apiRouter.use('/comments', authMiddleware, commentRoutes(pool));
 apiRouter.use('/notifications', authMiddleware, notificationRoutes(pool));
 apiRouter.use('/files', authMiddleware, fileRoutes(pool));
 apiRouter.use('/profile', authMiddleware, profileRoutes(pool));
 apiRouter.use('/admin', authMiddleware, adminRoutes(pool));
-apiRouter.use('/activity-types', authMiddleware, activityTypeRoutes(pool));
 
 // Mount API router
 app.use('/api', apiRouter);
-
-// Serve static files in production
-if (config.nodeEnv === 'production') {
-  // Serve React build files
-  app.use(express.static(path.join(__dirname, '../client/build')));
-
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-}
 
 // Error handling middleware
 app.use(errorHandler);

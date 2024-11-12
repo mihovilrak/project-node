@@ -18,6 +18,9 @@ import ActiveTasks from './components/Tasks/ActiveTasks';
 import Settings from './components/Settings/Settings';
 import Profile from './components/Profile/Profile';
 import Calendar from './components/Calendar/Calendar';
+import TaskFiles from './components/Tasks/TaskFiles';
+import TaskTimeLogs from './components/Tasks/TaskTimeLogs';
+import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
 
 const App = () => (
   <AuthProvider>
@@ -42,6 +45,9 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
+          <Route path="/tasks/:id/files" element={<TaskFiles />} />
+          <Route path="/tasks/:id/time-logs" element={<TaskTimeLogs />} />
+          <Route path="/time-logs/calendar" element={<TimeLogCalendar />} />
         </Route>
       </Routes>
     </Router>

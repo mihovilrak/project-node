@@ -10,7 +10,8 @@ import {
   IconButton,
   Chip,
   CircularProgress,
-  Box
+  Box,
+  Icon
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 
@@ -28,6 +29,7 @@ const ActivityTypesTable = ({ activityTypes, onEdit, loading }) => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Icon</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Color</TableCell>
@@ -38,6 +40,9 @@ const ActivityTypesTable = ({ activityTypes, onEdit, loading }) => {
         <TableBody>
           {activityTypes.map((activityType) => (
             <TableRow key={activityType.id}>
+              <TableCell>
+                {activityType.icon && <Icon>{activityType.icon}</Icon>}
+              </TableCell>
               <TableCell>{activityType.name}</TableCell>
               <TableCell>{activityType.description}</TableCell>
               <TableCell>
@@ -50,8 +55,8 @@ const ActivityTypesTable = ({ activityTypes, onEdit, loading }) => {
               </TableCell>
               <TableCell>
                 <Chip
-                  label={activityType.is_active ? 'Active' : 'Inactive'}
-                  color={activityType.is_active ? 'success' : 'error'}
+                  label={activityType.active ? 'Active' : 'Inactive'}
+                  color={activityType.active ? 'success' : 'error'}
                   size="small"
                 />
               </TableCell>

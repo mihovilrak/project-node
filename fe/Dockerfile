@@ -4,9 +4,9 @@ FROM node:23-alpine3.19 AS build
 WORKDIR /app
 
 # Copy package.json and install dependencies
-COPY package*.json ./
-COPY yarn.lock ./
-RUN apk add --no-cache yarn && \
+COPY package*.json yarn.lock ./
+
+RUN mkdir node_modules && \
     yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
     --production=true --link-duplicates --ignore-optional && \
@@ -18,6 +18,7 @@ COPY ./src/ ./src/
 COPY ./public/ ./public/
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV BABEL_ENV=production
 
 # Build the application
 RUN yarn run build --verbose
@@ -27,9 +28,6 @@ FROM nginx:1.27.2-alpine-slim
 
 # Copy React build files to NGINX HTML directory
 COPY --from=build /app/build /usr/share/nginx/html
-
-# Copy NGINX configuration file (for reverse proxy)
-COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80 for NGINX
 EXPOSE 80

@@ -13,5 +13,9 @@ module.exports = (pool) => {
   router.patch('/:user_id', (req, res) => 
     notificationController.markAsRead(req, res, pool));
 
+  // Delete notification
+  router.delete('/:id', (req, res) => 
+    notificationController.deleteNotification(req, res, pool));
+
   return router;
 };

@@ -10,7 +10,7 @@ export const getTaskFiles = async (taskId) => {
   }
 };
 
-export const uploadTaskFile = async (taskId, formData, onProgress) => {
+export const uploadFile = async (taskId, formData, onProgress) => {
   try {
     const response = await api.post(`/tasks/${taskId}/files`, formData, {
       headers: {
@@ -25,7 +25,7 @@ export const uploadTaskFile = async (taskId, formData, onProgress) => {
   }
 };
 
-export const downloadTaskFile = async (taskId, fileId) => {
+export const downloadFile = async (taskId, fileId) => {
   try {
     const response = await api.get(`/tasks/${taskId}/files/${fileId}/download`, {
       responseType: 'blob'

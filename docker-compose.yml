@@ -7,14 +7,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       TZ: ${TZ}
-      SHARED_BUFF: ${SHARED_BUFF}
-      WORK_MEM: ${WORK_MEM}
-      MAINTENANCE_WORK_MEM: ${MAINTENANCE_WORK_MEM}
-      EFF_CACHE_SIZE: ${EFF_CACHE_SIZE}
 
     volumes:
       - ./db/db_data:/var/lib/postgresql/data
       - ./db/backup:/backups
+      - ./db/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./db/pg_dump_cron:/etc/cron.d/pg_dump_cron
+      - ./db/backup.sh:/usr/local/bin/backup.sh
     ports:
       - "5432:5432"
     restart: always
@@ -39,6 +38,8 @@ services:
       - backend
     ports:
       - "3000:80"
+    volumes:
+      - ./fe/nginx.conf:/etc/nginx/nginx.conf
     restart: always
 
   notification-service:
@@ -56,6 +57,9 @@ services:
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - EMAIL_FROM=${EMAIL_FROM}
+      - NOTIFICATION_RATE_LIMIT=${NOTIFICATION_RATE_LIMIT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - NODE_ENV=${NODE_ENV}
     depends_on:
       - db
     restart: always

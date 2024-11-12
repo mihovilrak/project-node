@@ -87,15 +87,15 @@ const UserTable = ({ users, onEditUser, onUserDeleted }) => {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <Chip 
-                      label={user.is_admin ? 'Admin' : 'User'}
-                      color={user.is_admin ? 'primary' : 'default'}
+                      label={user.role}
+                      color={user.role?.toLowerCase() === 'admin' ? 'primary' : 'default'}
                       size="small"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip 
-                      label={user.is_active ? 'Active' : 'Inactive'}
-                      color={user.is_active ? 'success' : 'error'}
+                      label={user.status}
+                      color={user.status?.toLowerCase() === 'active' ? 'success' : 'error'}
                       size="small"
                     />
                   </TableCell>

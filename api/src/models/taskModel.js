@@ -22,7 +22,8 @@ exports.getTasks = async (pool, whereParams) => {
 // Get a task by ID
 exports.getTaskById = async (pool, id) => {
   const result = await pool.query(
-    'SELECT * FROM v_tasks WHERE id = $1',
+    `SELECT * FROM v_tasks 
+    WHERE task_id = $1`,
     [id]
   );
   return result.rows[0];
@@ -30,50 +31,89 @@ exports.getTaskById = async (pool, id) => {
 
 // Create a task
 exports.createTask = async (
-  pool, 
-  name, 
-  project_id, 
-  holder_id, 
-  assignee_id, 
-  description, 
-  priority_id, 
-  start_date, 
-  due_date, 
-  created_by
+  pool,
+  name,
+  description,
+  startDate,
+  dueDate,
+  priorityId,
+  statusId,
+  typeId,
+  parentId,
+  projectId,
+  holderId,
+  assigneeId,
+  createdBy, 
+  tagIds
 ) => {
   const result = await pool.query(
-    `INSERT INTO tasks (name, project_id, holder_id, assignee_id, 
-    description, priority_id, start_date, due_date, created_by) VALUES 
-    ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-    [name, project_id, holder_id, assignee_id, description, 
-      priority_id, start_date, due_date, created_by]
+    `SELECT * FROM create_task (
+      $1,
+      $2,
+      $3,
+      $4,
+      $5,
+      $6,
+      $7,
+      $8,
+      $9,
+      $10,
+      $11,
+      $12,
+      $13
+    )`,
+    [name, description, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
   );
   return result.rows[0];
 };
 
-// Update a task
-exports.updateTask = async (pool, updates, id) => {
-  const columns = Object.keys(updates);
-  const values = Object.values(updates);
+// Define standard task update interface
+exports.updateTask = async (pool, taskId, taskData) => {
+  const allowedFields = [
+    'name',
+    'project_id',
+    'holder_id',
+    'assignee_id',
+    'description',
+    'status_id',
+    'priority_id',
+    'start_date',
+    'due_date',
+    'end_date'
+  ];
 
-  let query = `UPDATE tasks SET (${columns.join(', ')}) = 
-    (${columns.map((_, index) => `$${index + 1}`).join(', ')})`;
+  // Filter out undefined values and invalid fields
+  const updates = Object.entries(taskData)
+    .filter(([key, value]) => allowedFields.includes(key) && value !== undefined)
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
-  query += ` WHERE id = $${columns.length + 1}`;
+  if (Object.keys(updates).length === 0) {
+    return null;
+  }
 
-  values.push(id);
+  const setClause = Object.keys(updates)
+    .map((key, index) => `${key} = $${index + 1}`)
+    .join(', ');
 
-  const result = await pool.query(query, values);
-    
-  return result.rowCount;
+  const result = await pool.query(
+    `UPDATE tasks 
+     SET ${setClause}
+     WHERE id = $${Object.keys(updates).length + 1}
+     RETURNING *`,
+    [...Object.values(updates), taskId]
+  );
+
+  return result.rows[0];
 };
 
 // Change a task status
-exports.changeTaskStatus = async (pool, id, status) => {
+exports.changeTaskStatus = async (pool, id, statusId) => {
   const result = await pool.query(
-    `UPDATE tasks SET status_id = $1 
-    WHERE id = $2 RETURNING *`,
-    [status, id]
+    `UPDATE tasks 
+    SET status_id = $1 
+    WHERE id = $2 
+    RETURNING *`,
+    [statusId, id]
   );
   return result.rows[0];
 };
@@ -81,7 +121,10 @@ exports.changeTaskStatus = async (pool, id, status) => {
 // Delete a task
 exports.deleteTask = async (pool, id) => {
   const result = await pool.query(
-    'UPDATE tasks SET status_id = 3 WHERE id = $1 RETURNING *',
+    `UPDATE tasks 
+    SET status_id = 3 
+    WHERE id = $1 
+    RETURNING *`,
     [id]
   );
   return result.rows[0];
@@ -90,7 +133,8 @@ exports.deleteTask = async (pool, id) => {
 // Get task statuses
 exports.getTaskStatuses = async (pool) => {
   const result = await pool.query(
-    'SELECT id, status FROM task_statuses'
+    `SELECT id, status 
+    FROM task_statuses`
   );
   return result.rows;
 };
@@ -98,7 +142,8 @@ exports.getTaskStatuses = async (pool) => {
 // Get priorities
 exports.getPriorities = async (pool) => {
   const result = await pool.query(
-    'SELECT id, priority FROM priorities'
+    `SELECT id, priority 
+    FROM priorities`
   );
   return result.rows;
 };
@@ -106,18 +151,10 @@ exports.getPriorities = async (pool) => {
 // Get active tasks
 exports.getActiveTasks = async (pool, userId) => {
   const result = await pool.query(
-    `SELECT * FROM active_tasks 
-    WHERE assignee_id = $1`,
-    [userId]
-  );
-  return result.rows;
-};
-
-// Get all tasks
-exports.getAllTasks = async (pool) => {
-  const result = await pool.query(
     `SELECT * FROM v_tasks 
-    ORDER BY created_on DESC`
+    WHERE assignee_id = $1
+    AND status NOT IN ('Done', 'Cancelled', 'Deleted')`,
+    [userId]
   );
   return result.rows;
 };
@@ -133,45 +170,6 @@ exports.getTasksByProject = async (pool, project_id) => {
   return result.rows;
 };
 
-// Get a task by ID
-exports.getTaskById = async (pool, id) => {
-  const result = await pool.query(
-    `SELECT * FROM v_tasks 
-    WHERE task_id = $1`,
-    [id]
-  );
-  return result.rows[0];
-};
-
-// Create a subtask
-exports.createSubtask = async (
-    pool,
-    parentId,
-    name,
-    description,
-    startDate,
-    dueDate,
-    priority,
-    status,
-    userId
-  ) => {
-    const result = await pool.query(
-      `INSERT INTO tasks (
-        parent_id,
-        name,
-        description,
-        start_date,
-        due_date,
-        priority,
-        status,
-        created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *`,
-      [parentId, name, description, startDate, dueDate, priority, status, userId]
-    );
-    return result.rows[0];
-  };
-
 // Get subtasks
 exports.getSubtasks = async (pool, parentId) => {
   const result = await pool.query(
@@ -182,3 +180,41 @@ exports.getSubtasks = async (pool, parentId) => {
   );
   return result.rows;
 };
+
+// Create a subtask
+exports.createSubtask = async (
+    pool,
+    name,
+    description,
+    startDate,
+    dueDate,
+    priorityId,
+    statusId,
+    typeId,
+    parentId,
+    projectId,
+    holderId,
+    assigneeId,
+    createdBy, 
+    tagIds
+  ) => {
+    const result = await pool.query(
+      `SELECT * FROM create_task (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13
+      )`,
+      [name, description, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
+    );
+    return result.rows[0];
+  };

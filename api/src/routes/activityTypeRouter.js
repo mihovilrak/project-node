@@ -12,6 +12,10 @@ module.exports = (pool) => {
   router.post('/', (req, res) => 
     activityTypeController.createActivityType(req, res, pool));
 
+  // Get available icons
+  router.get('/icons', (req, res) => 
+    activityTypeController.getAvailableIcons(req, res));
+
   // Update activity type
   router.put('/:id', (req, res) => 
     activityTypeController.updateActivityType(req, res, pool));

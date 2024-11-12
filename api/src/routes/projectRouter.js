@@ -1,5 +1,7 @@
 const express = require('express');
+const { checkPermission } = require('../middleware/permissionMiddleware');
 const projectController = require('../controllers/projectController');
+const timeLogController = require('../controllers/timeLogController');
 
 // Project routes
 module.exports = (pool) => {
@@ -14,20 +16,28 @@ module.exports = (pool) => {
     projectController.getProjectById(req, res, pool));
 
   // Create project route
-  router.post('/', (req, res) =>
+  router.post('/', checkPermission(pool, 'Create projects'), (req, res) =>
     projectController.createProject(req, res, pool));
 
   // Change project status route
-  router.patch('/:id/status', (req, res) =>
+  router.patch('/:id/status', checkPermission(pool, 'Edit projects'), (req, res) =>
     projectController.changeProjectStatus(req, res, pool));
 
   // Update project route
-  router.put('/:id', (req, res) =>
+  router.put('/:id', checkPermission(pool, 'Edit projects'), (req, res) =>
     projectController.updateProject(req, res, pool));
 
   // Delete project route
-  router.delete('/:id', (req, res) =>
+  router.delete('/:id', checkPermission(pool, 'Delete projects'), (req, res) =>
     projectController.deleteProject(req, res, pool));
+
+  // Get tasks by project ID
+  router.get('/:id/tasks', (req, res) =>
+    projectController.getProjectTasks(req, res, pool));
+
+  // Create task route
+  router.post('/:id/tasks', checkPermission(pool, 'Create tasks'), (req, res) =>
+    projectController.createTask(req, res, pool));
 
   // Get project members route
   router.get('/:id/members', (req, res) =>
@@ -40,6 +50,13 @@ module.exports = (pool) => {
   // Create subproject
   router.post('/:id/subprojects', (req, res) => 
     projectController.createSubproject(req, res, pool));
+
+  // Time log related routes
+  router.get('/:id/time-logs', (req, res) =>
+    timeLogController.getProjectTimeLogs(req, res, pool));
+
+  router.get('/:id/spent-time', (req, res) =>
+    timeLogController.getProjectSpentTime(req, res, pool));
 
   return router;
 };

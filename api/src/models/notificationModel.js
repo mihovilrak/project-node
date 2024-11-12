@@ -13,7 +13,7 @@ exports.getNotificationsByUserId = async (pool, user_id) => {
 exports.markNotificationsAsRead = async (pool, user_id) => {
   const result = await pool.query(
     `UPDATE notifications 
-    SET is_read = true 
+    SET (is_read, read_on) = (true, current_timestamp) 
     WHERE user_id = $1 
     AND is_read = false 
     RETURNING *`,
@@ -21,3 +21,13 @@ exports.markNotificationsAsRead = async (pool, user_id) => {
   );
   return result.rows;
 };
+
+// Delete notification
+exports.deleteNotification = async (pool, id) => {
+  const result = await pool.query(
+    `UPDATE notifications SET active = false WHERE id = $1`,
+    [id]
+  );
+  return result.rows;
+};
+

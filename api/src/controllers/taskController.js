@@ -1,6 +1,23 @@
 const taskModel = require('../models/taskModel');
 const taskTypeModel = require('../models/taskTypeModel');
 
+// Get tasks
+exports.getTasks = async (req, res, pool) => {
+  const { project_id } = req.query;
+  try {
+    let tasks;
+    if (project_id) {
+      tasks = await taskModel.getTasksByProject(pool, project_id);
+    } else {
+      tasks = await taskModel.getAllTasks(pool);
+    }
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Get Task by ID
 exports.getTaskById = async (req, res, pool) => {
   const { id } = req.params;
@@ -19,8 +36,8 @@ exports.getTaskById = async (req, res, pool) => {
 // Get tasks by assignee
 exports.getTaskByAssignee = async (req, res, pool) => {
   try {
-    const { assignee_id } = req.params;
-    const result = await taskModel.getTasksByAssignee(pool, assignee_id);
+    const { assignee_id } = req.query;
+    const result = await taskModel.getTasks(pool, { assignee_id });
     if (!result) {
       return res.status(404).json({ message: 'No tasks assigned' });
     }
@@ -34,8 +51,8 @@ exports.getTaskByAssignee = async (req, res, pool) => {
 // Get tasks by holder
 exports.getTaskByHolder = async (req, res, pool) => {
   try {
-    const { holder_id } = req.params;
-    const result = await taskModel.getTasksByHolder(pool, holder_id);
+    const { holder_id } = req.query;
+    const result = await taskModel.getTasks(pool, { holder_id });
     if (!result) {
       return res.status(404).json({ message: 'No tasks assigned' });
     }
@@ -48,28 +65,37 @@ exports.getTaskByHolder = async (req, res, pool) => {
 
 // Create a task
 exports.createTask = async (req, res, pool) => {
-  const { name,
-    project_id,
-    holder_id,
-    assignee_id,
+  const { 
+    name,
     description,
-    priority_id,
-    start_date,
-    due_date,
-    created_by
+    startDate,
+    dueDate,
+    priorityId,
+    statusId,
+    typeId,
+    parentId,
+    projectId,
+    holderId,
+    assigneeId,
+    createdBy,
+    tagIds
   } = req.body;
   try {
     const task = await taskModel.createTask(
       pool,
       name,
-      project_id,
-      holder_id,
-      assignee_id,
       description,
-      priority_id,
-      start_date,
-      due_date,
-      created_by
+      startDate,
+      dueDate,
+      priorityId,
+      statusId,
+      typeId,
+      parentId,
+      projectId,
+      holderId,
+      assigneeId,
+      createdBy,
+      tagIds
     );
     res.status(201).json(task);
   } catch (error) {
@@ -120,9 +146,9 @@ exports.updateTask = async (req, res, pool) => {
 // Change task status
 exports.changeTaskStatus = async (req, res, pool) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { statusId } = req.body;
   try {
-    const task = await taskModel.changeTaskStatus(pool, id, status);
+    const task = await taskModel.changeTaskStatus(pool, id, statusId);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -186,53 +212,6 @@ exports.getActiveTasks = async (req, res, pool) => {
   }
 };
 
-// Get tasks
-exports.getTasks = async (req, res, pool) => {
-  const { project_id } = req.query;
-  try {
-    let tasks;
-    if (project_id) {
-      tasks = await taskModel.getTasksByProject(pool, project_id);
-    } else {
-      tasks = await taskModel.getAllTasks(pool);
-    }
-    res.status(200).json(tasks);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-// Create a subtask
-exports.createSubtask = async (req, res, pool) => {
-  try {
-    const { parentId } = req.params;
-    const userId = req.session.user?.id;
-    const { name, description, start_date, due_date, priority, status } = req.body;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    const subtask = await taskModel.createSubtask(
-      pool,
-      parentId,
-      name,
-      description,
-      start_date,
-      due_date,
-      priority,
-      status,
-      userId
-    );
-
-    res.status(201).json(subtask);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
 // Get subtasks
 exports.getSubtasks = async (req, res, pool) => {
   try {
@@ -278,6 +257,16 @@ exports.createTaskType = async (req, res, pool) => {
   try {
     const { name, description, color, icon, is_active = true } = req.body;
     
+    // Validate required fields
+    if (!name || !color) {
+      return res.status(400).json({ error: 'Name and color are required' });
+    }
+
+    // Validate color format
+    if (!color.match(/^#[0-9A-Fa-f]{6}$/)) {
+      return res.status(400).json({ error: 'Invalid color format' });
+    }
+
     const result = await taskTypeModel.createTaskType(
       pool,
       name,

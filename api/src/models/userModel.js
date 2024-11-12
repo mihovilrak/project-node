@@ -1,6 +1,6 @@
 // Get all users
 exports.getUsers = async (pool, whereParams) => {
-  let query = 'SELECT * FROM users';
+  let query = 'SELECT * FROM v_users';
   let values = [];
 
   if (whereParams && Object.keys(whereParams).length > 0) {
@@ -31,7 +31,7 @@ exports.getUserById = async (pool, id) => {
 exports.createUser = async (pool, login, name, surname, email, password, role_id) => {
   const result = await pool.query(
     `INSERT INTO users (login, name, surname, email, password, role_id) 
-      VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12))), $6 RETURNING *`,
+      VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6) RETURNING *`,
       [login, name, surname, email, password, role_id]
   );
   return result.rows[0];

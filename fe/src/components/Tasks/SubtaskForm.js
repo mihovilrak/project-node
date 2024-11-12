@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,16 +14,44 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { createSubtask } from '../../api/tasks';
+import { getTaskStatuses, getPriorities } from '../../api/tasks';
 
 const SubtaskForm = ({ open, onClose, parentTaskId, onSubtaskCreated }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    parent_id: parentTaskId,
     start_date: null,
     due_date: null,
-    priority: 'Normal',
-    status: 'New'
+    priority_id: 2,
+    status_id: 1
   });
+
+  const [statuses, setStatuses] = useState([]);
+  const [priorities, setPriorities] = useState([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [statusesData, prioritiesData] = await Promise.all([
+          getTaskStatuses(),
+          getPriorities()
+        ]);
+        setStatuses(statusesData);
+        setPriorities(prioritiesData);
+        
+        // Set default values
+        setFormData(prev => ({
+          ...prev,
+          status_id: statusesData.find(s => s.status === 'New')?.id,
+          priority_id: prioritiesData.find(p => p.priority === 'Normal')?.id
+        }));
+      } catch (error) {
+        console.error('Failed to fetch options:', error);
+      }
+    };
+    fetchOptions();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,16 +64,20 @@ const SubtaskForm = ({ open, onClose, parentTaskId, onSubtaskCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newSubtask = await createSubtask(parentTaskId, formData);
+      const newSubtask = await createSubtask(parentTaskId, {
+        ...formData,
+        parent_id: parentTaskId
+      });
       onSubtaskCreated(newSubtask);
       onClose();
       setFormData({
         name: '',
         description: '',
+        parent_id: parentTaskId,
         start_date: null,
         due_date: null,
-        priority: 'Normal',
-        status: 'New'
+        priority_id: 2,
+        status_id: 1
       });
     } catch (error) {
       console.error('Failed to create subtask:', error);
@@ -94,30 +126,28 @@ const SubtaskForm = ({ open, onClose, parentTaskId, onSubtaskCreated }) => {
             <FormControl fullWidth>
               <InputLabel>Priority</InputLabel>
               <Select
-                name="priority"
-                value={formData.priority}
+                name="priority_id"
+                value={formData.priority_id}
                 onChange={handleChange}
                 label="Priority"
               >
-                <MenuItem value="Low">Low</MenuItem>
-                <MenuItem value="Normal">Normal</MenuItem>
-                <MenuItem value="High">High</MenuItem>
-                <MenuItem value="Urgent">Urgent</MenuItem>
+                {priorities.map(p => (
+                  <MenuItem key={p.id} value={p.id}>{p.priority}</MenuItem>
+                ))}
               </Select>
             </FormControl>
 
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select
-                name="status"
-                value={formData.status}
+                name="status_id"
+                value={formData.status_id}
                 onChange={handleChange}
                 label="Status"
               >
-                <MenuItem value="New">New</MenuItem>
-                <MenuItem value="In Progress">In Progress</MenuItem>
-                <MenuItem value="Review">Review</MenuItem>
-                <MenuItem value="Done">Done</MenuItem>
+                {statuses.map(s => (
+                  <MenuItem key={s.id} value={s.id}>{s.status}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -133,4 +163,4 @@ const SubtaskForm = ({ open, onClose, parentTaskId, onSubtaskCreated }) => {
   );
 };
 
-export default SubtaskForm; 
+export default SubtaskForm;

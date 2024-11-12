@@ -54,6 +54,11 @@ You will be using docker compose, PostgreSQL, express.js, React.js and nginx.
 13. the user can also see a Gantt chart for the project.
 14. the user should also have a calendar for the time he logged.
 15. The user should also be able to filter the tasks and projects by name, description, due date, status, priority, type, assignee, created by, created on, updated on, etc.
+16. On the project details page, the user has a new layout with tabs for overview, tasks, activity, gantt
+17. The user has also an activity tab on the home navigation bar.
+18. On the settings page, the user can change the Application name, logo, add custom css and js and html.
+19. The user can change app mode to dark or light.
+20. The user has an avatar.
 
 # Doc
 Example of how a SQL file looks like:

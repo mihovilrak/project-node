@@ -6,6 +6,8 @@ create table if not exists notifications (
     message text not null,
     link varchar(255) null,
     is_read boolean default false not null,
+    active boolean default true not null,
+    read_on timestamptz null,
     created_on timestamptz default current_timestamp not null
 );
 

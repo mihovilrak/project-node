@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+const timeLogController = require('../controllers/timeLogController');
 
 // User routes
 module.exports = (pool) => {
@@ -8,6 +9,10 @@ module.exports = (pool) => {
   // Get all users with optional filters
   router.get('/', (req, res) =>
     userController.getUsers(req, res, pool));
+
+  // Get user permissions
+  router.get('/permissions', (req, res) =>
+    userController.getUserPermissions(req, res, pool));
 
   // Get user by ID
   router.get('/:id', (req, res) =>
@@ -28,6 +33,10 @@ module.exports = (pool) => {
   // Delete a user
   router.delete('/:id', (req, res) =>
     userController.deleteUser(req, res, pool));
+
+  // Time log related routes
+  router.get('/time-logs', (req, res) =>
+    timeLogController.getUserTimeLogs(req, res, pool));
 
   return router;
 };

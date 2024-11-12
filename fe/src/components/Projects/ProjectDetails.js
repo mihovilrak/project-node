@@ -20,7 +20,7 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
-import { getProjectById, deleteProject } from '../../api/projects';
+import { getProjectById, deleteProject, getProjectMembers } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
 import TaskList from '../Tasks/TaskList';
 import ProjectGantt from './ProjectGantt';
@@ -28,11 +28,17 @@ import ProjectMembers from './ProjectMembers';
 import ProjectEditDialog from './ProjectEditDialog';
 import TaskForm from '../Tasks/TaskForm';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
+import PermissionIconButton from '../common/PermissionIconButton';
+import PermissionButton from '../common/PermissionButton';
 
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user, hasPermission } = useAuth();
+    if (!hasPermission) {
+      console.error('hasPermission is not available in AuthContext');
+      return null;
+    }
     
     const [project, setProject] = useState(null);
     const [tasks, setTasks] = useState([]);
@@ -43,6 +49,7 @@ const ProjectDetails = () => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [members, setMembers] = useState([]);
   
     useEffect(() => {
       fetchProjectData();
@@ -51,22 +58,32 @@ const ProjectDetails = () => {
     const fetchProjectData = async () => {
       try {
         setLoading(true);
-        const [projectData, tasksData] = await Promise.all([
+        const [projectData, tasksData, membersData] = await Promise.all([
           getProjectById(id),
-          getProjectTasks(id)
+          getProjectTasks(id),
+          getProjectMembers(id)
         ]);
+        
+        if (!projectData) {
+          setError('Project not found');
+          return;
+        }
+        
         setProject(projectData);
-        setTasks(tasksData);
+        setTasks(tasksData || []);
+        setMembers(membersData || []);
       } catch (error) {
         console.error('Failed to fetch project details:', error);
-        setError('Failed to load project details');
+        setError(error.message || 'Failed to load project details');
       } finally {
         setLoading(false);
       }
     };
   
     const handleTabChange = (event, newValue) => {
-      setActiveTab(newValue);
+      if (typeof newValue === 'number') {
+        setActiveTab(newValue);
+      }
     };
   
     const handleEditClick = () => {
@@ -143,16 +160,22 @@ const ProjectDetails = () => {
               {project.name}
             </Typography>
             <Box>
-              {hasPermission('update_projects') && (
-                <IconButton onClick={handleEditClick} sx={{ mr: 1 }}>
-                  <EditIcon />
-                </IconButton>
-              )}
-              {hasPermission('delete_projects') && (
-                <IconButton onClick={handleDeleteClick} color="error">
-                  <DeleteIcon />
-                </IconButton>
-              )}
+              <PermissionIconButton
+                requiredPermission="Edit projects"
+                onClick={handleEditClick}
+                sx={{ mr: 1 }}
+                tooltipText="You don't have permission to edit this project"
+              >
+                <EditIcon />
+              </PermissionIconButton>
+              <PermissionIconButton
+                requiredPermission="Delete projects"
+                onClick={handleDeleteClick}
+                color="error"
+                tooltipText="You don't have permission to delete this project"
+              >
+                <DeleteIcon />
+              </PermissionIconButton>
             </Box>
           </Box>
   
@@ -165,8 +188,8 @@ const ProjectDetails = () => {
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip 
-                  label={`Status: ${project.status}`}
-                  color={project.status === 'Active' ? 'success' : 'default'}
+                  label={`Status: ${project.status_id === 1 ? 'Active' : 'Inactive'}`}
+                  color={project.status_id === 1 ? 'success' : 'default'}
                 />
                 <Chip 
                   label={`Tasks: ${tasks.length}`}
@@ -179,11 +202,15 @@ const ProjectDetails = () => {
   
         {/* Tabs and Content */}
         <Box sx={{ mb: 2 }}>
-          <Tabs value={activeTab} onChange={handleTabChange}>
-            <Tab label="Overview" />
-            <Tab label="Tasks" />
-            <Tab label="Timeline" />
-            <Tab label="Members" />
+          <Tabs 
+            value={activeTab} 
+            onChange={handleTabChange}
+            aria-label="project tabs"
+          >
+            <Tab label="Overview" id="tab-0" aria-controls="tabpanel-0" />
+            <Tab label="Tasks" id="tab-1" aria-controls="tabpanel-1" />
+            <Tab label="Timeline" id="tab-2" aria-controls="tabpanel-2" />
+            <Tab label="Members" id="tab-3" aria-controls="tabpanel-3" />
           </Tabs>
         </Box>
   
@@ -211,32 +238,58 @@ const ProjectDetails = () => {
   
         {activeTab === 1 && (
           <Box>
-            {hasPermission('create_tasks') && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleCreateTask}
-                sx={{ mb: 2 }}
-              >
-                Create Task
-              </Button>
+            <PermissionButton
+              requiredPermission="Create tasks"
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreateTask}
+              sx={{ mb: 2 }}
+              tooltipText="You don't have permission to create tasks"
+            >
+              Create Task
+            </PermissionButton>
+            {tasks.length === 0 ? (
+              <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="h6" color="textSecondary" gutterBottom>
+                  No Tasks Yet
+                </Typography>
+                <Typography color="textSecondary" paragraph>
+                  This project doesn't have any tasks. 
+                  {hasPermission('Create tasks') && " Click the 'Create Task' button above to get started."}
+                </Typography>
+              </Paper>
+            ) : (
+              <TaskList 
+                tasks={tasks}
+                onTaskUpdated={fetchProjectData}
+                projectId={id}
+              />
             )}
-            <TaskList 
-              tasks={tasks}
-              onTaskUpdated={fetchProjectData}
-              projectId={id}
-            />
           </Box>
         )}
   
         {activeTab === 2 && (
-          <ProjectGantt projectId={id} />
+          tasks.length === 0 ? (
+            <Paper sx={{ p: 3, textAlign: 'center' }}>
+              <Typography variant="h6" color="textSecondary" gutterBottom>
+                No Timeline Data
+              </Typography>
+              <Typography color="textSecondary">
+                Add tasks to the project to see them on the timeline.
+              </Typography>
+            </Paper>
+          ) : (
+            <ProjectGantt 
+              projectId={id} 
+              tasks={tasks}
+            />
+          )
         )}
   
         {activeTab === 3 && (
           <ProjectMembers 
             projectId={id}
-            members={project.members || []}
+            members={members}
             onMembersUpdated={fetchProjectData}
           />
         )}

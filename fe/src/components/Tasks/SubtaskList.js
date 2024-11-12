@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   List,
   ListItem,
@@ -18,16 +18,39 @@ import {
   RadioButtonUnchecked as TodoIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { deleteTask, changeTaskStatus } from '../../api/tasks';
+import { deleteTask, changeTaskStatus, getTaskStatuses } from '../../api/tasks';
 
 const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDeleted }) => {
   const navigate = useNavigate();
+  const [statuses, setStatuses] = useState([]);
+
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      try {
+        const statusData = await getTaskStatuses();
+        setStatuses(statusData);
+      } catch (error) {
+        console.error('Failed to fetch statuses:', error);
+      }
+    };
+    fetchStatuses();
+  }, []);
 
   const handleStatusToggle = async (subtask) => {
     try {
-      const newStatus = subtask.status === 'Done' ? 'In Progress' : 'Done';
-      await changeTaskStatus(subtask.id, newStatus);
-      onSubtaskUpdated(subtask.id, { ...subtask, status: newStatus });
+      const doneStatus = statuses.find(s => s.status === 'Done');
+      const inProgressStatus = statuses.find(s => s.status === 'In Progress');
+      
+      const newStatusId = subtask.status_id === doneStatus?.id 
+        ? inProgressStatus?.id 
+        : doneStatus?.id;
+
+      await changeTaskStatus(subtask.task_id, { statusId: newStatusId });
+      onSubtaskUpdated(subtask.task_id, { 
+        ...subtask, 
+        status_id: newStatusId,
+        status: newStatusId === doneStatus?.id ? 'Done' : 'In Progress'
+      });
     } catch (error) {
       console.error('Failed to update subtask status:', error);
     }
@@ -46,19 +69,32 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
-      case 'urgent': return 'error';
-      case 'high': return 'warning';
-      case 'normal': return 'info';
-      case 'low': return 'success';
+      case 'very high/must': return 'error';
+      case 'high/should': return 'warning';
+      case 'normal/could': return 'info';
+      case 'low/would': return 'success';
       default: return 'default';
     }
   };
 
   const calculateProgress = () => {
     if (subtasks.length === 0) return 0;
-    const completed = subtasks.filter(task => task.status === 'Done').length;
+    const doneStatus = statuses.find(s => s.status === 'Done');
+    const completed = subtasks.filter(task => task.status_id === doneStatus?.id).length;
     return (completed / subtasks.length) * 100;
   };
+
+  const getTaskStatus = (statusId) => {
+    const status = statuses.find(s => s.id === statusId);
+    return {
+      isDone: status?.status === 'Done',
+      isInProgress: status?.status === 'In Progress',
+      isDeleted: status?.status === 'Deleted',
+      isCancelled: status?.status === 'Cancelled'
+    };
+  };
+
+  const isDone = (subtask) => getTaskStatus(subtask.status_id).isDone;
 
   return (
     <Box>
@@ -76,9 +112,9 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
       <List>
         {subtasks.map((subtask) => (
           <Paper 
-            key={subtask.id} 
+            key={subtask.task_id} 
             variant="outlined" 
-            sx={{ mb: 1, backgroundColor: subtask.status === 'Done' ? 'action.hover' : 'inherit' }}
+            sx={{ mb: 1, backgroundColor: isDone(subtask) ? 'action.hover' : 'inherit' }}
           >
             <ListItem
               secondaryAction={
@@ -87,15 +123,15 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
                     <IconButton 
                       edge="end" 
                       onClick={() => handleStatusToggle(subtask)}
-                      color={subtask.status === 'Done' ? 'success' : 'default'}
+                      color={isDone(subtask) ? 'success' : 'default'}
                     >
-                      {subtask.status === 'Done' ? <DoneIcon /> : <TodoIcon />}
+                      {isDone(subtask) ? <DoneIcon /> : <TodoIcon />}
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Edit">
                     <IconButton 
                       edge="end" 
-                      onClick={() => navigate(`/tasks/${subtask.id}`)}
+                      onClick={() => navigate(`/tasks/${subtask.task_id}`)}
                     >
                       <EditIcon />
                     </IconButton>
@@ -103,7 +139,7 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
                   <Tooltip title="Delete">
                     <IconButton 
                       edge="end" 
-                      onClick={() => handleDelete(subtask.id)}
+                      onClick={() => handleDelete(subtask.task_id)}
                       color="error"
                     >
                       <DeleteIcon />
@@ -118,8 +154,8 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
                     <Typography
                       variant="body1"
                       sx={{
-                        textDecoration: subtask.status === 'Done' ? 'line-through' : 'none',
-                        color: subtask.status === 'Done' ? 'text.secondary' : 'text.primary'
+                        textDecoration: isDone(subtask) ? 'line-through' : 'none',
+                        color: isDone(subtask) ? 'text.secondary' : 'text.primary'
                       }}
                     >
                       {subtask.name}
@@ -150,4 +186,4 @@ const SubtaskList = ({ subtasks, parentTaskId, onSubtaskUpdated, onSubtaskDelete
   );
 };
 
-export default SubtaskList; 
+export default SubtaskList;

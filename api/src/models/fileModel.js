@@ -17,19 +17,21 @@ exports.createFile = async (
   originalName,
   storedName,
   size,
-  mimeType
+  mimeType,
+  filePath
 ) => {
   const result = await pool.query(
     `INSERT INTO files (
-      task_id, 
-      user_id, 
-      original_name, 
-      stored_name, 
-      size, 
-      mime_type
-    ) VALUES ($1, $2, $3, $4, $5, $6) 
+      task_id,
+      user_id,
+      original_name,
+      stored_name,
+      size,
+      mime_type,
+      file_path
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
     RETURNING *`,
-    [taskId, userId, originalName, storedName, size, mimeType]
+    [taskId, userId, originalName, storedName, size, mimeType, filePath]
   );
   return result.rows[0];
 };

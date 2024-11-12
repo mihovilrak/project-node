@@ -6,6 +6,8 @@
 **/*.log
 **/node_modules
 
-**/tmp
+**/tmp*
 
 .vscode
+
+**/*.md

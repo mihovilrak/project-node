@@ -2,7 +2,7 @@
 exports.getTaskTypes = async (pool) => {
   const result = await pool.query(
     `SELECT * FROM task_types 
-    WHERE is_active = true 
+    WHERE active = true 
     ORDER BY name ASC`
   );
   return result.rows;
@@ -25,31 +25,26 @@ exports.createTaskType = async (
   description,
   color,
   icon,
-  is_active
+  active
 ) => {
   const result = await pool.query(
     `INSERT INTO task_types 
-    (name, description, color, icon, is_active) 
+    (name, description, color, icon, active) 
     VALUES ($1, $2, $3, $4, $5) 
     RETURNING *`,
-    [name, description, color, icon, is_active]
+    [name, description, color, icon, active]
   );
   return result.rows[0];
 };
 
 // Update a task type
-exports.updateTaskType = async (pool, id, name, description, color, icon, is_active) => {
+exports.updateTaskType = async (pool, id, name, description, color, icon, active) => {
   const result = await pool.query(
     `UPDATE task_types 
-    SET name = $1, 
-        description = $2, 
-        color = $3, 
-        icon = $4, 
-        is_active = $5, 
-        updated_at = CURRENT_TIMESTAMP 
+    SET (name, description, color, icon, active, updated_on) = ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
     WHERE id = $6 
     RETURNING *`,
-    [name, description, color, icon, is_active, id]
+    [name, description, color, icon, active, id]
   );
   return result.rows[0];
 };
@@ -58,8 +53,7 @@ exports.updateTaskType = async (pool, id, name, description, color, icon, is_act
 exports.deleteTaskType = async (pool, id) => {
   const result = await pool.query(
     `UPDATE task_types 
-    SET is_active = false, 
-    updated_at = CURRENT_TIMESTAMP 
+    SET (active, updated_on) = (false, CURRENT_TIMESTAMP) 
     WHERE id = $1 
     RETURNING *`,
     [id]

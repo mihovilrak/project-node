@@ -6,12 +6,20 @@ module.exports = (pool) => {
   const router = express.Router();
 
   // Get task comments
-  router.get('/tasks/:taskId/comments', (req, res) => 
+  router.get('/', (req, res) => 
     commentController.getTaskComments(req, res, pool));
 
   // Create a comment
-  router.post('/tasks/:taskId/comments', (req, res) => 
+  router.post('/', (req, res) => 
     commentController.createComment(req, res, pool));
+
+  // Edit a comment
+  router.put('/:id', (req, res) => 
+    commentController.editComment(req, res, pool));
+
+  // Delete a comment
+  router.delete('/:id', (req, res) => 
+    commentController.deleteComment(req, res, pool));
 
   return router;
 };

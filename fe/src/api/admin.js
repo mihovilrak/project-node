@@ -14,7 +14,7 @@ export const getAllPermissions = async () => {
 // Roles with permissions
 export const getRoles = async () => {
   try {
-    const response = await api.get('/admin/roles');
+    const response = await api.get('/roles');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch roles', error);
@@ -22,14 +22,10 @@ export const getRoles = async () => {
   }
 };
 
-export const createRole = async (data) => {
+// Create role
+export const createRole = async (roleData) => {
   try {
-    const response = await api.post('/admin/roles', {
-      name: data.name,
-      description: data.description,
-      is_active: data.is_active,
-      permission_ids: data.permissions // Array of permission IDs
-    });
+    const response = await api.post('/roles', roleData);
     return response.data;
   } catch (error) {
     console.error('Failed to create role', error);
@@ -37,14 +33,10 @@ export const createRole = async (data) => {
   }
 };
 
-export const updateRole = async (id, data) => {
+// Update role
+export const updateRole = async (id, roleData) => {
   try {
-    const response = await api.put(`/admin/roles/${id}`, {
-      name: data.name,
-      description: data.description,
-      is_active: data.is_active,
-      permission_ids: data.permissions // Array of permission IDs
-    });
+    const response = await api.put(`/roles/${id}`, roleData);
     return response.data;
   } catch (error) {
     console.error('Failed to update role', error);
@@ -63,6 +55,7 @@ export const getTaskTypes = async () => {
   }
 };
 
+// Create task type
 export const createTaskType = async (data) => {
   try {
     const response = await api.post('/admin/task-types', data);
@@ -73,6 +66,7 @@ export const createTaskType = async (data) => {
   }
 };
 
+// Update task type
 export const updateTaskType = async (id, data) => {
   try {
     const response = await api.put(`/admin/task-types/${id}`, data);
@@ -94,6 +88,7 @@ export const getActivityTypes = async () => {
   }
 };
 
+// Create activity type
 export const createActivityType = async (data) => {
   try {
     const response = await api.post('/admin/activity-types', data);

@@ -38,9 +38,9 @@ const createProject = async (values) => {
 export { createProject };
 
 // Change project status
-const changeProjectStatus = async (id, status) => {
+const changeProjectStatus = async (id) => {
   try {
-    const response = await api.patch(`projects/${id}/status`, { status });
+    const response = await api.patch(`projects/${id}/status`);
     console.log('Project status changed!');
     return response.data;
   } catch (error) {

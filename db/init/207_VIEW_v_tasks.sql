@@ -13,7 +13,7 @@ create or replace view v_tasks as
             t.due_date,
             t.end_date,
             c.name as created_by,
-            t.created_on
+            t.created_on::timestamp(0)
     from tasks t 
     left join projects po on po.id = t.project_id
     left join v_task_holders h on h.holder_id = t.holder_id

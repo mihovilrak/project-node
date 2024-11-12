@@ -23,3 +23,15 @@ exports.markAsRead = async (req, res, pool) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Delete notification
+exports.deleteNotification = async (req, res, pool) => {
+  const { id } = req.params;
+  try {
+    await notificationModel.deleteNotification(pool, id);
+    res.status(200).json({ message: 'Notification deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

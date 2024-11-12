@@ -10,26 +10,33 @@ import { TextField,
 import { getTaskById,
     createTask,
     getTaskStatuses,
-    getPriorities
+    getPriorities,
+    getTasks
 } from '../../api/tasks';
+import { useAuth } from '../../context/AuthContext';
 import { getProjects } from '../../api/projects';
 import { getUsers } from '../../api/users';
 import TaskTypeSelect from './TaskTypeSelect';
 import TagSelect from './TagSelect';
-import { getTags } from '../../api/tags';
+import { getTags, getTaskTags } from '../../api/tags';
 
 const TaskForm = ({ taskId }) => {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
   const [formValues, setFormValues] = useState({
     name: '',
+    description: '',
+    start_date: '',
+    due_date: '',
+    priority_id: 2,
+    status_id: 1,
+    type_id: 1,
+    parent_id: null,
     project_id: '',
     holder_id: '',
     assignee_id: '',
-    description: '',
-    priority_id: '',
-    start_date: '',
-    due_date: '',
-    type_id: '',
+    created_by: currentUser?.id,
     tags: []
   });
   const [projects, setProjects] = useState([]);
@@ -37,6 +44,7 @@ const TaskForm = ({ taskId }) => {
   const [statuses, setStatuses] = useState([]);
   const [priorities, setPriorities] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +52,8 @@ const TaskForm = ({ taskId }) => {
       setUsers(await getUsers());
       setStatuses(await getTaskStatuses());
       setPriorities(await getPriorities());
+      const allTasks = await getTasks();
+      setTasks(allTasks.filter(task => task.task_id !== taskId));
     };
     fetchData();
 
@@ -65,22 +75,36 @@ const TaskForm = ({ taskId }) => {
   }, []);
 
   const fetchTaskData = async (id) => {
-    const task = await getTaskById(id);
-    setFormValues(task);
+    try {
+      const task = await getTaskById(id);
+      const taskTags = await getTaskTags(id);
+      setFormValues({
+        ...task,
+        tags: taskTags || []
+      });
+    } catch (error) {
+      console.error('Failed to fetch task data:', error);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const { tags, ...restFormValues } = formValues;
+      
       const taskData = {
-        ...formValues,
-        tag_ids: formValues.tags.map(tag => tag.id)
+        ...restFormValues,
+        tagIds: Array.isArray(tags) ? tags.map(tag => tag.id) : []
       };
+      
       const newTask = await createTask(taskData);
       navigate('/tasks');
     } catch (error) {
@@ -115,19 +139,48 @@ const TaskForm = ({ taskId }) => {
               <MenuItem key={priority.id} value={priority.id}>{priority.priority}</MenuItem>
             ))}
           </TextField>
+          <TextField select fullWidth label="Status" name="status_id" value={formValues.status_id} onChange={handleChange} required sx={{ mb: 2 }}>
+            {statuses.map((status) => (
+              <MenuItem key={status.id} value={status.id}>{status.status}</MenuItem>
+            ))}
+          </TextField>
           <TextField fullWidth label="Start Date" type="date" name="start_date" value={formValues.start_date} onChange={handleChange} required InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
           <TextField fullWidth label="Due Date" type="date" name="due_date" value={formValues.due_date} onChange={handleChange} required InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
-          <TaskTypeSelect
-            value={formValues.type_id}
-            onChange={(e) => setFormValues(prev => ({ ...prev, type_id: e.target.value }))}
-            required
-          />
-          <TagSelect
-            value={formValues.tags}
-            onChange={(_, newValue) => setFormValues(prev => ({ ...prev, tags: newValue }))}
-            tags={availableTags}
-          />
-          <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>{taskId ? 'Update Task' : 'Create Task'}</Button>
+          <TextField 
+            select 
+            fullWidth 
+            label="Parent Task (Optional)" 
+            name="parent_id" 
+            value={formValues.parent_id || ''} 
+            onChange={handleChange} 
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {tasks.map((task) => (
+              <MenuItem key={task.task_id} value={task.task_id}>{task.name}</MenuItem>
+            ))}
+          </TextField>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Task Type</Typography>
+            <TaskTypeSelect
+              value={formValues.type_id}
+              onChange={(e) => setFormValues(prev => ({ ...prev, type_id: e.target.value }))}
+              required
+            />
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Tags</Typography>
+            <TagSelect
+              value={formValues.tags}
+              onChange={(_, newValue) => setFormValues(prev => ({ ...prev, tags: newValue }))}
+              tags={availableTags}
+            />
+          </Box>
+          <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+            {taskId ? 'Update Task' : 'Create Task'}
+          </Button>
         </form>
       </Paper>
     </Box>

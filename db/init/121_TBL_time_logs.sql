@@ -2,10 +2,10 @@ create table if not exists time_logs (
     id serial primary key not null,
     task_id int references tasks(id) on delete cascade not null,
     user_id int references users(id) not null,
-    start_time timestamptz not null,
-    end_time timestamptz not null,
+    spent_time int not null,
     description text not null,
     activity_type_id int references activity_types(id) not null,
+    updated_on timestamptz default current_timestamp null,
     created_on timestamptz default current_timestamp not null
 );
 

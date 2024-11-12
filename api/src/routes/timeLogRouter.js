@@ -1,29 +1,25 @@
 const express = require('express');
 const timeLogController = require('../controllers/timeLogController');
+const checkPermission = require('../middleware/checkPermission');
 
-// Time log routes
 module.exports = (pool) => {
   const router = express.Router();
 
-  // Get task time logs
-  router.get('/tasks/:taskId/time-logs', (req, res) => 
-    timeLogController.getTaskTimeLogs(req, res, pool));
-
-  // Create time log
-  router.post('/tasks/:taskId/time-logs', (req, res) => 
-    timeLogController.createTimeLog(req, res, pool));
+  // Get all time logs (admin only?)
+  router.get('/', (req, res) =>
+    timeLogController.getAllTimeLogs(req, res, pool));
 
   // Update time log
-  router.put('/tasks/:taskId/time-logs/:timeLogId', (req, res) => 
+  router.put('/:timeLogId', 
+    checkPermission(pool, 'Edit log'), 
+    (req, res) =>
     timeLogController.updateTimeLog(req, res, pool));
 
   // Delete time log
-  router.delete('/tasks/:taskId/time-logs/:timeLogId', (req, res) => 
+  router.delete('/:timeLogId', 
+    checkPermission(pool, 'Delete log'), 
+    (req, res) =>
     timeLogController.deleteTimeLog(req, res, pool));
-
-  // Get user time logs
-  router.get('/time-logs', (req, res) => 
-    timeLogController.getUserTimeLogs(req, res, pool));
 
   return router;
 }; 

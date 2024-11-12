@@ -1,26 +1,15 @@
 // Check if user is admin
 exports.isUserAdmin = async (pool, userId) => {
   const result = await pool.query(
-    `SELECT EXISTS (
-      SELECT 1 FROM users u
-      JOIN roles r ON u.role_id = r.id
-      WHERE u.id = $1 AND r.name = 'admin'
-    )`,
+    `SELECT is_admin($1)`,
     [userId]
   );
-  return result.rows[0].exists;
+  return result.rows[0].is_admin;
 };
 
 // Get system statistics
 exports.getSystemStats = async (pool) => {
-  const result = await pool.query(`
-    SELECT 
-      (SELECT COUNT(*) FROM users WHERE status_id != 3) as active_users,
-      (SELECT COUNT(*) FROM projects WHERE status_id != 3) as active_projects,
-      (SELECT COUNT(*) FROM tasks WHERE status_id != 3) as active_tasks,
-      (SELECT COUNT(*) FROM time_logs 
-       WHERE created_on >= NOW() - INTERVAL '30 days') as time_logs_30d
-  `);
+  const result = await pool.query(`SELECT * FROM v_system_stats`);
   return result.rows[0];
 };
 

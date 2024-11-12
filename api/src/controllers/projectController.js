@@ -69,9 +69,13 @@ exports.changeProjectStatus = async (req, res, pool) => {
 
 // Update a project
 exports.updateProject = async (req, res, pool) => {
-  const { id, updates } = req.params;
+  const { id } = req.params;
+  const updates = req.body;
   try {
     const result = await projectModel.updateProject(pool, updates, id);
+    if (!result) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
@@ -143,6 +147,24 @@ exports.createSubproject = async (req, res, pool) => {
     res.status(201).json(result);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get tasks by project ID
+exports.getProjectTasks = async (req, res, pool) => {
+  try {
+    const { id: projectId } = req.params;
+    const { status, priority, assignee } = req.query;
+
+    const tasks = await projectModel.getProjectTasks(pool, {
+      projectId,
+      filters: { status, priority, assignee }
+    });
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error('Error fetching project tasks:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

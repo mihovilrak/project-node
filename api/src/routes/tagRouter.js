@@ -13,13 +13,13 @@ module.exports = (pool) => {
   router.post('/', (req, res) => 
     tagController.createTag(req, res, pool));
 
-  // Add tags to task
-  router.post('/tasks/:taskId/tags', (req, res) => 
-    tagController.addTaskTags(req, res, pool));
+  // Update tag
+  router.put('/:id', (req, res) => 
+    tagController.updateTag(req, res, pool)); 
 
-  // Remove tag from task
-  router.delete('/tasks/:taskId/tags/:tagId', (req, res) => 
-    tagController.removeTaskTag(req, res, pool));
+  // Delete tag
+  router.delete('/:id', (req, res) => 
+    tagController.deleteTag(req, res, pool));
 
   return router;
 }; 
