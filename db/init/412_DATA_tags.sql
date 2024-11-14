@@ -6,4 +6,5 @@ insert into tags (name, color) values
     ('API', '#4caf50'),
     ('Security', '#f44336'),
     ('Performance', '#ff5722'),
-    ('DevOps', '#795548'); 
+    ('DevOps', '#795548')
+    on conflict (name) do nothing;

@@ -1,22 +1,21 @@
 const express = require('express');
 const emailService = require('./services/emailService');
-const { Pool } = require('pg');
+const pool = require('./db');
 const config = require('./config');
 const rateLimiter = require('./middleware/rateLimiter');
-const { validateNotification } = require('./middleware/validation');
+const notificationRoutes = require('./routes/notifications');
 const metrics = require('./metrics');
+const logger = require('./utils/logger');
 
 const app = express();
-const pool = new Pool(config.db);
 
 app.use(express.json());
-app.use('/api/notifications', rateLimiter);
+app.use('/api/notifications', rateLimiter, notificationRoutes);
 
+// Health check endpoint
 app.get('/health', async (req, res) => {
   try {
-    // Check database connection
     await pool.query('SELECT 1');
-    // Check email service
     await emailService.transporter.verify();
     
     res.json({
@@ -31,6 +30,7 @@ app.get('/health', async (req, res) => {
       timestamp: new Date()
     });
   } catch (error) {
+    logger.error('Health check failed:', error);
     res.status(503).json({
       status: 'unhealthy',
       error: error.message
@@ -38,7 +38,24 @@ app.get('/health', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// Error handling middleware
+app.use((err, req, res, next) => {
+  logger.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
-module.exports = app;
+const port = config.app.port || 5001;
+const server = app.listen(port, () => {
+  logger.info(`Server running on port ${port}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});
+
+module.exports = server;

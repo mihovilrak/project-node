@@ -5,8 +5,8 @@ dotenv.config();
 
 module.exports = {
   port: process.env.PORT || 5000,
-  databaseUrl: process.env.DATABASE_URL,
+  databaseUrl: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:5432/${process.env.POSTGRES_DB}`,
   sessionSecret: process.env.SESSION_SECRET,
-  feUrl: process.env.FE_URL,
+  feUrl: 'http://localhost',
   nodeEnv: process.env.NODE_ENV
 };

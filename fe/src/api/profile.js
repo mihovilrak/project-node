@@ -53,4 +53,29 @@ export const getRecentProjects = async () => {
     console.error('Failed to fetch recent projects', error);
     throw error;
   }
-}; 
+};
+
+// Get profile statistics
+export const getProfileStats = async () => {
+  try {
+    const response = await api.get('/profile/stats');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch profile statistics', error);
+    throw error;
+  }
+};
+
+// Get profile activities
+export const getProfileActivities = async () => {
+  try {
+    const response = await api.get('/profile/activities');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch profile activities', error);
+    throw error;
+  }
+};
+
+// Export getProfile as getUserProfile for backward compatibility
+export const getUserProfile = getProfile;

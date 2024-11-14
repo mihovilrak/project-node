@@ -37,7 +37,7 @@ export const downloadFile = async (taskId, fileId) => {
   }
 };
 
-export const deleteTaskFile = async (taskId, fileId) => {
+export const deleteFile = async (taskId, fileId) => {
   try {
     await api.delete(`/tasks/${taskId}/files/${fileId}`);
   } catch (error) {

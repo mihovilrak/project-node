@@ -4,9 +4,9 @@ select
     t.project_id,
     p.name as project_name,
     tl.task_id,
-    t.title as task_title,
+    t.name as task_title,
     tl.user_id,
-    u.name || ' ' || u.last_name as user,
+    u.name || ' ' || u.surname as user,
     tl.spent_time,
     tl.description,
     tl.activity_type_id 

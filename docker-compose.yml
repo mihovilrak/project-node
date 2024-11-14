@@ -1,65 +1,51 @@
+x-db: &db 
+  POSTGRES_DB: pm_db
+  POSTGRES_USER: pm_user
+  POSTGRES_PASSWORD: pm_password
+
+x-defaults: &defaults
+  networks:
+    - pm_network
+  restart: always
+
 services:
   db:
-    build: ./db
+    <<: *defaults
+    image: postgres:17.0-alpine3.20
     container_name: pm_db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      TZ: ${TZ}
-
+      <<: *db
+      PGTZ: Europe/Zagreb
     volumes:
       - ./db/db_data:/var/lib/postgresql/data
       - ./db/backup:/backups
-      - ./db/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      - ./db/pg_dump_cron:/etc/cron.d/pg_dump_cron
-      - ./db/backup.sh:/usr/local/bin/backup.sh
     ports:
       - "5432:5432"
-    restart: always
 
-  backend:
-    build: ./api
-    container_name: pm_api
+  app:
+    <<: *defaults
+    image: pm:alpine
+    container_name: pm_app
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      SESSION_SECRET: ${SESSION_SECRET}
-      NODE_ENV: ${NODE_ENV}
-    depends_on:
-      - db
-    ports:
-      - "5000:5000"
-    restart: always
-
-  frontend:
-    build: ./fe
-    container_name: pm_fe
-    depends_on:
-      - backend
+      <<: *db
+      POSTGRES_HOST: db
+      NODE_ENV: production
+      SESSION_SECRET: lj6QgwWYYn/w18qduVrZij73+0SdYBqSyrg15lLKKDs=
+      EMAIL_ENABLED: true
+      EMAIL_HOST: smtp-mail.outlook.com
+      EMAIL_PORT: 587
+      EMAIL_SECURE: false
+      EMAIL_USER: mihovil.1978@hotmail.com
+      EMAIL_PASSWORD: mihoviLraK
+      EMAIL_FROM: Projekt Manager <mihovil.1978@hotmail.com>
+      NOTIFICATION_RATE_LIMIT: 100
+      LOG_LEVEL: info
     ports:
       - "3000:80"
-    volumes:
-      - ./fe/nginx.conf:/etc/nginx/nginx.conf
-    restart: always
-
-  notification-service:
-    build: ./notification-service
-
-    environment:
-      - NODE_ENV=development
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - EMAIL_ENABLED=true
-      - EMAIL_HOST=${EMAIL_HOST}
-      - EMAIL_PORT=${EMAIL_PORT}
-      - EMAIL_SECURE=${EMAIL_SECURE}
-      - EMAIL_USER=${EMAIL_USER}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - NOTIFICATION_RATE_LIMIT=${NOTIFICATION_RATE_LIMIT}
-      - LOG_LEVEL=${LOG_LEVEL}
-      - NODE_ENV=${NODE_ENV}
+      - "5000:5000"
     depends_on:
       - db
-    restart: always
+
+networks:
+  pm_network:
+    driver: bridge

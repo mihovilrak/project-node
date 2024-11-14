@@ -1,10 +1,10 @@
 module.exports = {
   db: {
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: parseInt(process.env.DB_PORT || '5432'),
+    user: process.env.POSTGRES_USER,
+    host: process.env.POSTGRES_HOST,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    port: parseInt(process.env.POSTGRES_PORT || '5432'),
   },
   email: {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -19,5 +19,6 @@ module.exports = {
   app: {
     nodeEnv: process.env.NODE_ENV || 'development',
     emailEnabled: process.env.EMAIL_ENABLED === 'true',
+    baseUrl: `http://localhost:${process.env.PORT || '5001'}`
   }
 }; 

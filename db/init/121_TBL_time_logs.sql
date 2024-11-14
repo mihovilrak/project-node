@@ -11,5 +11,4 @@ create table if not exists time_logs (
 
 create index if not exists time_logs_task_idx on time_logs(task_id);
 create index if not exists time_logs_user_idx on time_logs(user_id);
-create index if not exists time_logs_start_time_idx on time_logs(start_time);
 create index if not exists time_logs_activity_type_idx on time_logs(activity_type_id);

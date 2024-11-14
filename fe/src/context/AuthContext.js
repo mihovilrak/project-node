@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         setUserPermissions(permissionsResponse.data);
         setPermissionCache({}); // Clear cache on login
       } else {
-        throw new Error('Login failed');
+        console.error('Login failed:', response.data);
       }
     } catch (error) {
       console.error('Login failed:', error);

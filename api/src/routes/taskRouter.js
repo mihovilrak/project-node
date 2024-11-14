@@ -2,7 +2,8 @@ const express = require('express');
 const { checkPermission } = require('../middleware/permissionMiddleware');
 const taskController = require('../controllers/taskController');
 const commentRouter = require('./commentRouter');
-const { getTaskTags, addTaskTags, removeTaskTag } = require('./tagController');
+const fileRouter = require('./fileRouter');
+const { getTaskTags, addTaskTags, removeTaskTag } = require('./../controllers/tagController');
 const timeLogController = require('../controllers/timeLogController');
 const router = express.Router();
 

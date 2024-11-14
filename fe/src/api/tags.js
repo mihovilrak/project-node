@@ -37,4 +37,14 @@ export const removeTaskTag = async (taskId, tagId) => {
     console.error('Failed to remove tag from task', error);
     throw error;
   }
+};
+
+export const getTaskTags = async (taskId) => {
+  try {
+    const response = await api.get(`/tasks/${taskId}/tags`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch task tags', error);
+    throw error;
+  }
 }; 

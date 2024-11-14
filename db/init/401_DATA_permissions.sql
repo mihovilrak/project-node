@@ -9,4 +9,5 @@ insert into permissions (permission) values
     ('Log time'),
     ('Edit log'),
     ('Delete log'),
-    ('Delete files');
+    ('Delete files')
+    on conflict (permission) do nothing;

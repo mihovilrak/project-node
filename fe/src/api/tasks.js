@@ -174,3 +174,13 @@ export const getTasksByHolder = async (holderId) => {
     throw error;
   }
 };
+
+export const createSubtask = async (subtaskData) => {
+  try {
+    const response = await api.post(`/tasks`, subtaskData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to create subtask:', error);
+    throw error;
+  }
+};

@@ -11,19 +11,25 @@ module.exports = (pool) => {
     roleController.getRoles(req, res, pool));
 
   // Create role
-  router.post('/', async (req, res, next) => {
-    const isAdmin = await checkAdminAccess(req, res, pool);
-    if (isAdmin) {
-      roleController.createRole(req, res, pool);
-    }
+  router.post('/', (req, res, next) => {
+    checkAdminAccess(req, res, pool)
+      .then(isAdmin => {
+        if (isAdmin) {
+          roleController.createRole(req, res, pool);
+        }
+      })
+      .catch(next);
   });
 
   // Update role
-  router.put('/:id', async (req, res, next) => {
-    const isAdmin = await checkAdminAccess(req, res, pool);
-    if (isAdmin) {
-      roleController.updateRole(req, res, pool);
-    }
+  router.put('/:id', (req, res, next) => {
+    checkAdminAccess(req, res, pool)
+      .then(isAdmin => {
+        if (isAdmin) {
+          roleController.updateRole(req, res, pool);
+        }
+      })
+      .catch(next);
   });
 
   return router;

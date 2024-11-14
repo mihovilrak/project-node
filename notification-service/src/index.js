@@ -1,112 +1,46 @@
-const { Pool } = require('pg');
 const schedule = require('node-schedule');
 const config = require('./config');
-const emailService = require('./services/emailService');
-const metrics = require('./metrics');
+const pool = require('./db');
 const server = require('./server');
+const notificationService = require('./services/notificationService');
 const logger = require('./utils/logger');
+const metrics = require('./metrics');
+require('./jobs/cleanup');
 
-const pool = new Pool({
-  user: config.db.user,
-  host: config.db.host,
-  database: config.db.database,
-  password: config.db.password,
-  port: config.db.port,
-});
-
-const sendNotificationEmail = async (userId, notification, taskDetails) => {
+const initializeService = async () => {
   try {
-    // Get user email
-    const userResult = await pool.query(
-      'SELECT email, name FROM users WHERE id = $1',
-      [userId]
-    );
-    
-    if (userResult.rows.length === 0) {
-      return;
-    }
+    await pool.query('SELECT 1');
+    logger.info('Database connection established');
 
-    const user = userResult.rows[0];
-    const baseUrl = config.app.baseUrl || 'http://localhost:3000';
-    
-    await emailService.sendEmail(
-      user.email,
-      notification.title,
-      'taskDueSoon',
-      {
-        userName: user.name,
-        taskName: taskDetails.name,
-        dueText: notification.message.split('is due ')[1],
-        projectName: taskDetails.project_name,
-        priority: taskDetails.priority,
-        status: taskDetails.status,
-        taskUrl: `${baseUrl}/tasks/${taskDetails.id}`
-      }
-    );
-    metrics.increment('notificationsSent');
+    // Schedule email processing
+    schedule.scheduleJob('*/1 * * * *', async () => {
+      await notificationService.processNewNotifications();
+    });
+    logger.info('Email processing scheduled');
+
   } catch (error) {
-    logger.error('Failed to send notification email:', error);
+    logger.error('Service initialization failed:', error);
+    process.exit(1);
   }
 };
-
-const notificationTypes = {
-  TASK_DUE_SOON: 'Task Due Soon',
-  TASK_ASSIGNED: 'Task Assigned',
-  TASK_UPDATED: 'Task Updated',
-  TASK_COMMENT: 'Task Comment',
-  TASK_COMPLETED: 'Task Completed',
-  PROJECT_UPDATE: 'Project Update'
-};
-
-const generateNotification = async (pool, type, userId, data) => {
-  const typeId = await pool.query(
-    'SELECT id FROM notification_types WHERE name = $1',
-    [type]
-  );
-
-  const notification = {
-    user_id: userId,
-    type_id: typeId.rows[0].id,
-    title: type,
-    message: generateMessage(type, data),
-    link: generateLink(type, data)
-  };
-
-  return pool.query(`
-    INSERT INTO notifications (user_id, type_id, title, message, link)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING *
-  `, [notification.user_id, notification.type_id, notification.title, 
-      notification.message, notification.link]);
-};
-
-const generateTaskNotifications = async () => {
-  try {
-    await generateDueSoonNotifications();
-    await generateAssignedNotifications();
-    await generateTaskUpdatedNotifications();
-    await generateTaskCompletedNotifications();
-    await generateProjectUpdateNotifications();
-  } catch (error) {
-    console.error('Error generating notifications:', error);
-    metrics.increment('notificationErrors');
-  }
-};
-
-// Run every 5 minutes
-schedule.scheduleJob('*/5 * * * *', generateTaskNotifications);
-
-console.log('Notification service started');
 
 // Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received. Shutting down gracefully...');
+const shutdown = async (signal) => {
+  logger.info(`${signal} received. Shutting down gracefully...`);
   try {
-    await pool.end();
     server.close();
+    await pool.end();
     process.exit(0);
   } catch (error) {
     logger.error('Error during shutdown:', error);
     process.exit(1);
   }
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+initializeService().catch((error) => {
+  logger.error('Failed to start service:', error);
+  process.exit(1);
 });

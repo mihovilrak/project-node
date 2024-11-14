@@ -5,4 +5,5 @@ insert into task_statuses (status) values
     ('Review'),
     ('Done'),
     ('Cancelled'),
-    ('Deleted');
+    ('Deleted')
+    on conflict (status) do nothing;

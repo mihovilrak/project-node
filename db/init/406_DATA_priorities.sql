@@ -3,4 +3,5 @@ insert into priorities (priority) values
     ('Normal/Could'),
     ('High/Should'),
     ('Very high/Must'),
-    ('Urgent/ASAP');
+    ('Urgent/ASAP')
+    on conflict (priority) do nothing;

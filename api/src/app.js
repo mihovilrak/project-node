@@ -16,6 +16,7 @@ const fileRoutes = require('./routes/fileRouter');
 const tagRoutes = require('./routes/tagRouter');
 const profileRoutes = require('./routes/profileRouter');
 const adminRoutes = require('./routes/adminRouter');
+const settingsRoutes = require('./routes/settingsRouter');
 
 // Import middleware
 const authMiddleware = require('./middleware/authMiddleware');
@@ -71,6 +72,7 @@ apiRouter.use('/notifications', authMiddleware, notificationRoutes(pool));
 apiRouter.use('/files', authMiddleware, fileRoutes(pool));
 apiRouter.use('/profile', authMiddleware, profileRoutes(pool));
 apiRouter.use('/admin', authMiddleware, adminRoutes(pool));
+apiRouter.use('/settings', authMiddleware, settingsRoutes(pool));
 
 // Mount API router
 app.use('/api', apiRouter);

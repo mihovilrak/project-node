@@ -11,3 +11,5 @@
 .vscode
 
 **/*.md
+
+.obsolete

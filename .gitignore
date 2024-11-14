@@ -1,5 +1,5 @@
-!/db/db_data
-/db/db_data/*
-*/node_modules/*
+/db/db_data/
+*/node_modules/
 instructions.md
-db/backup/*
+db/backup/
+.obsolete
