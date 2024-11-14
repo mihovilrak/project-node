@@ -4,7 +4,7 @@ returns table (
     name character varying,
     description text,
     is_active boolean,
-    permissions jsonb
+    permissions json
 ) as $$
 begin
     return query 
@@ -17,8 +17,7 @@ begin
         json_agg(
           json_build_object(
             'id', p.id,
-            'name', p.name,
-            'description', p.description
+            'name', p.permission
           )
         ) filter (where p.id is not null),
         '[]'

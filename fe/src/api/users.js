@@ -9,6 +9,7 @@ export const fetchRoles = async () => {
     return response.data;
   } catch (error) {
     console.error('Failed to fetch roles', error);
+    throw error;
   }
 };
 

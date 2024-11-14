@@ -5,23 +5,34 @@ import { fetchRoles, createUser, getUserById, updateUser } from '../../api/users
 
 const UserForm = ({ userId }) => {
   const navigate = useNavigate();
-  const [roles, setRoles] = useState([]); // State for storing roles
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [roles, setRoles] = useState([]);
   const [formValues, setFormValues] = useState({
     login: '',
     name: '',
     surname: '',
     email: '',
     password: '',
-    role_id: 4, // default role ID if needed
+    role_id: 4,
   });
 
   useEffect(() => {
     const loadRoles = async () => {
       try {
+        setLoading(true);
         const roleData = await fetchRoles();
-        setRoles(roleData);
+        const transformedRoles = roleData.map(role => ({
+          id: role.id,
+          role: role.name
+        }));
+        setRoles(transformedRoles);
+        setError(null);
       } catch (error) {
         console.error('Failed to fetch roles', error);
+        setError('Failed to load roles');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -61,7 +72,7 @@ const UserForm = ({ userId }) => {
         await createUser(formValues);
         console.log('User created successfully');
       }
-      navigate('/users'); // Redirect after submission
+      navigate('/users');
     } catch (error) {
       console.error('Failed to save user', error);
     }
@@ -73,6 +84,11 @@ const UserForm = ({ userId }) => {
         <Typography variant="h4" gutterBottom>
           {userId ? 'Edit User' : 'Add New User'}
         </Typography>
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -118,7 +134,7 @@ const UserForm = ({ userId }) => {
             type="password"
             value={formValues.password}
             onChange={handleInputChange}
-            required={!userId} // Password only required when creating a new user
+            required={!userId}
             sx={{ marginBottom: 2 }}
           />
           <TextField
@@ -129,16 +145,29 @@ const UserForm = ({ userId }) => {
             value={formValues.role_id}
             onChange={handleInputChange}
             required
+            disabled={loading}
+            error={!!error}
             sx={{ marginBottom: 2 }}
           >
-            {roles.map((role) => (
-              <MenuItem key={role.id} value={role.id}>
-                {role.role}
-              </MenuItem>
-            ))}
+            {loading ? (
+              <MenuItem disabled>Loading roles...</MenuItem>
+            ) : roles.length === 0 ? (
+              <MenuItem disabled>No roles available</MenuItem>
+            ) : (
+              roles.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.role}
+                </MenuItem>
+              ))
+            )}
           </TextField>
           <Box sx={{ textAlign: 'center', marginTop: 3 }}>
-            <Button type="submit" variant="contained" color="primary">
+            <Button 
+              type="submit" 
+              variant="contained" 
+              color="primary"
+              disabled={loading}
+            >
               {userId ? 'Update User' : 'Create User'}
             </Button>
           </Box>

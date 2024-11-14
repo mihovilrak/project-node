@@ -13,7 +13,7 @@ returns table(
 ) as $$
 begin
     return query
-        select t.id, 
+        select t.task_id as id, 
                t.name,
                t.project,
                t.holder,

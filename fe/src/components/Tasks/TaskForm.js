@@ -174,7 +174,7 @@ const TaskForm = ({ taskId }) => {
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Tags</Typography>
             <TagSelect
               value={formValues.tags}
-              onChange={(_, newValue) => setFormValues(prev => ({ ...prev, tags: newValue }))}
+              onChange={(newValue) => setFormValues(prev => ({ ...prev, tags: newValue }))}
               tags={availableTags}
             />
           </Box>

@@ -4,9 +4,6 @@ const roleModel = require('../models/roleModel');
 exports.getRoles = async (req, res, pool) => {
   try {
     const roles = await roleModel.getRoles(pool);
-    if (!roles || roles.length === 0) {
-      return res.status(200).json([]);
-    }
     res.status(200).json(roles);
   } catch (error) {
     console.error('Error getting roles:', error);

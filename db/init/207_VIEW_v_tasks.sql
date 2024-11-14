@@ -1,5 +1,6 @@
 create or replace view v_tasks as 
     select  t.id as task_id,
+            t.name,
             t.project_id,
             po.name as project,
             t.holder_id,

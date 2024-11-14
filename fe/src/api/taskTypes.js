@@ -2,7 +2,7 @@ import api from './api';
 
 export const getTaskTypes = async () => {
   try {
-    const response = await api.get('/admin/task-types');
+    const response = await api.get('/tasks/types');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch task types:', error);

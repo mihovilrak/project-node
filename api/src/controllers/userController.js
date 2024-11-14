@@ -1,4 +1,5 @@
 const userModel = require('../models/userModel');
+const { getUserPermissions } = require('../models/permissionModel');
 
 // Get users
 exports.getUsers = async (req, res, pool) => {

@@ -6,8 +6,10 @@ import {
   DialogActions,
   Button,
   TextField,
-  FormControlLabel,
-  Switch,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Grid,
   Alert
 } from '@mui/material';
@@ -15,13 +17,12 @@ import { createUser, updateUser } from '../../api/users';
 
 const UserDialog = ({ open, user, onClose, onSaved }) => {
   const [formData, setFormData] = useState({
+    login: '',
     name: '',
+    surname: '',
     email: '',
     password: '',
-    department: '',
-    job_title: '',
-    is_admin: false,
-    is_active: true
+    role_id: 4
   });
   const [error, setError] = useState(null);
 
@@ -33,22 +34,21 @@ const UserDialog = ({ open, user, onClose, onSaved }) => {
       });
     } else {
       setFormData({
+        login: '',
         name: '',
+        surname: '',
         email: '',
         password: '',
-        department: '',
-        job_title: '',
-        is_admin: false,
-        is_active: true
+        role_id: ''
       });
     }
   }, [user]);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: e.target.type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
@@ -83,9 +83,29 @@ const UserDialog = ({ open, user, onClose, onSaved }) => {
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
+                name="login"
+                label="Login"
+                value={formData.login}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
                 name="name"
-                label="Name"
+                label="First Name"
                 value={formData.name}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="surname"
+                label="Last Name"
+                value={formData.surname}
                 onChange={handleChange}
                 fullWidth
                 required
@@ -113,47 +133,20 @@ const UserDialog = ({ open, user, onClose, onSaved }) => {
                 required={!user}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="department"
-                label="Department"
-                value={formData.department}
-                onChange={handleChange}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="job_title"
-                label="Job Title"
-                value={formData.job_title}
-                onChange={handleChange}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    name="is_admin"
-                    checked={formData.is_admin}
-                    onChange={handleChange}
-                  />
-                }
-                label="Admin Access"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                  />
-                }
-                label="Active Account"
-              />
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  name="role_id"
+                  value={formData.role_id}
+                  onChange={handleChange}
+                  label="Role"
+                >
+                  <MenuItem value={1}>Admin</MenuItem>
+                  <MenuItem value={2}>Manager</MenuItem>
+                  <MenuItem value={3}>User</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
         </DialogContent>
@@ -168,4 +161,4 @@ const UserDialog = ({ open, user, onClose, onSaved }) => {
   );
 };
 
-export default UserDialog; 
+export default UserDialog;

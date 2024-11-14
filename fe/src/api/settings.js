@@ -3,7 +3,7 @@ import api from './api';
 // Using existing profile routes for user settings
 export const getSystemSettings = async () => {
   try {
-    const response = await api.get('/settings/system');
+    const response = await api.get('/settings/app_settings');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch system settings:', error);

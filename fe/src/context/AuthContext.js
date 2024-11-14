@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data) {
         setCurrentUser(response.data.user);
         // Fetch permissions after login
-        const permissionsResponse = await api.get('/user/permissions');
+        const permissionsResponse = await api.get('/users/permissions');
         setUserPermissions(permissionsResponse.data);
         setPermissionCache({}); // Clear cache on login
       } else {

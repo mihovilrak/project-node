@@ -9,7 +9,7 @@ exports.getTasks = async (req, res, pool) => {
     if (project_id) {
       tasks = await taskModel.getTasksByProject(pool, project_id);
     } else {
-      tasks = await taskModel.getAllTasks(pool);
+      tasks = await taskModel.getTasks(pool);
     }
     res.status(200).json(tasks);
   } catch (error) {

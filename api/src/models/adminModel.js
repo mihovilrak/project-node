@@ -35,3 +35,13 @@ exports.getSystemLogs = async (pool, startDate, endDate, type) => {
   const result = await pool.query(query, params);
   return result.rows;
 };
+
+exports.getAllPermissions = async (pool) => {
+  const result = await pool.query(
+    `SELECT id, name 
+     FROM permissions 
+     WHERE active = true 
+     ORDER BY name ASC`
+  );
+  return result.rows;
+};

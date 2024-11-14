@@ -46,3 +46,14 @@ exports.getSystemLogs = async (req, res, pool) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Get all permissions
+exports.getAllPermissions = async (req, res, pool) => {
+  try {
+    const permissions = await adminModel.getAllPermissions(pool);
+    res.status(200).json(permissions);
+  } catch (error) {
+    console.error('Error fetching permissions:', error);
+    res.status(500).json({ error: 'Failed to fetch permissions' });
+  }
+};

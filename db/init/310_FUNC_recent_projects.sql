@@ -10,7 +10,7 @@ begin
         select p.id,
                p.name,
                p.due_date,
-               vp.progress
+               vp.progress::integer
         from projects p
         join project_users pu on p.id = pu.project_id
         join v_project_progress vp on p.id = vp.id
