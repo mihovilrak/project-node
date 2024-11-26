@@ -13,3 +13,6 @@
 **/*.md
 
 .obsolete
+
+fe/**/*.js
+fe/**/*.bak

@@ -16,7 +16,9 @@ exports.getSystemStats = async (pool) => {
 // Get system logs
 exports.getSystemLogs = async (pool, startDate, endDate, type) => {
   let query = `
-    SELECT tl.*, u.login as user_login, at.name as activity_name
+    SELECT tl.*, 
+    u.login as user_login, 
+    at.name as activity_name
     FROM time_logs tl
     JOIN users u ON tl.user_id = u.id
     JOIN activity_types at ON tl.activity_type_id = at.id
@@ -36,9 +38,11 @@ exports.getSystemLogs = async (pool, startDate, endDate, type) => {
   return result.rows;
 };
 
+// Get all permissions
 exports.getAllPermissions = async (pool) => {
   const result = await pool.query(
-    `SELECT id, name 
+    `SELECT id,
+     name 
      FROM permissions 
      WHERE active = true 
      ORDER BY name ASC`

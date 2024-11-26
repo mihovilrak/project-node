@@ -13,7 +13,8 @@ create table if not exists tasks (
     holder_id int references users(id) null,
     assignee_id int references users(id) null,
     created_by int references users(id) not null,
-    created_on timestamptz default current_timestamp not null
+    created_on timestamptz default current_timestamp not null,
+    updated_on timestamptz null default current_timestamp
 );
 
 create index if not exists task_status_idx on tasks(status_id);

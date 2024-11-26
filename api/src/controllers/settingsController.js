@@ -1,5 +1,6 @@
 const settingsModel = require('../models/settingsModel');
 
+// Get System Settings
 exports.getSystemSettings = async (req, res, pool) => {
   try {
     const settings = await settingsModel.getSystemSettings(pool);
@@ -10,6 +11,7 @@ exports.getSystemSettings = async (req, res, pool) => {
   }
 };
 
+// Update System Settings
 exports.updateSystemSettings = async (req, res, pool) => {
   try {
     const settings = await settingsModel.updateSystemSettings(pool, req.body);
@@ -20,6 +22,7 @@ exports.updateSystemSettings = async (req, res, pool) => {
   }
 };
 
+// Get User Settings
 exports.getUserSettings = async (req, res, pool) => {
   try {
     const userId = req.session.user?.id;
@@ -34,6 +37,7 @@ exports.getUserSettings = async (req, res, pool) => {
   }
 };
 
+// Update User Settings
 exports.updateUserSettings = async (req, res, pool) => {
   try {
     const userId = req.session.user?.id;

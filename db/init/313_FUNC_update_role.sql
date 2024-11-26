@@ -2,7 +2,7 @@ create or replace function update_role(
     p_id integer,
     p_name character varying,
     p_description text,
-    p_is_active boolean,
+    p_active boolean,
     p_permissions integer[]
 ) returns void as $$
 
@@ -13,8 +13,8 @@ begin
 
     -- Update role
     update roles 
-    set (role, description, is_active) 
-        = (p_name, p_description, p_is_active)
+    set (name, description, active) 
+        = (p_name, p_description, p_active)
     where id = p_id;
 
     -- Delete existing permissions

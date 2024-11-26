@@ -101,6 +101,7 @@ exports.deleteUser = async (req, res, pool) => {
   }
 };
 
+// Get user permissions
 exports.getUserPermissions = async (req, res, pool) => {
   try {
     const userId = req.session.user?.id;

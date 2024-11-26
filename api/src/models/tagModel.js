@@ -53,7 +53,7 @@ exports.getTaskTags = async (pool, taskId) => {
 exports.updateTag = async (pool, id, name, color) => {
   const result = await pool.query(
     `UPDATE tags 
-    SET (name, color, updated_at) = ($1, $2, CURRENT_TIMESTAMP)
+    SET (name, color, updated_on) = ($1, $2, CURRENT_TIMESTAMP)
     WHERE id = $3
     RETURNING *`,
     [name, color, id]
@@ -65,7 +65,7 @@ exports.updateTag = async (pool, id, name, color) => {
 exports.deleteTag = async (pool, id) => {
   const result = await pool.query(
     `UPDATE tags 
-    SET (active, updated_at) = (false, CURRENT_TIMESTAMP)
+    SET (active, updated_on) = (false, CURRENT_TIMESTAMP)
     WHERE id = $1 
     RETURNING *`,
     [id]

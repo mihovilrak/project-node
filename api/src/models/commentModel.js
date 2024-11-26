@@ -35,7 +35,7 @@ exports.commentWithUser = async (pool, id) => {
 exports.editComment = async (pool, id, comment) => {
   const result = await pool.query(
     `UPDATE comments 
-    SET comment = $2 
+    SET (comment, updated_on) = ($2, current_timestamp) 
     WHERE id = $1`,
     [id, comment]
   );
@@ -46,7 +46,7 @@ exports.editComment = async (pool, id, comment) => {
 exports.deleteComment = async (pool, id) => {
   const result = await pool.query(
     `UPDATE comments 
-    SET active = false 
+    SET (active, updated_on) = (false, current_timestamp) 
     WHERE id = $1`,
     [id]
   );

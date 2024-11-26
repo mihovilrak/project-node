@@ -1,4 +1,4 @@
-insert into task_statuses (status) values
+insert into task_statuses (name) values
     ('New'),
     ('In Progress'),
     ('On Hold'),
@@ -6,4 +6,4 @@ insert into task_statuses (status) values
     ('Done'),
     ('Cancelled'),
     ('Deleted')
-    on conflict (status) do nothing;
+    on conflict (name) do nothing;

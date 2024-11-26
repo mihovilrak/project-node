@@ -1,4 +1,4 @@
-insert into permissions (permission) values 
+insert into permissions (name) values 
     ('Admin'),
     ('Create projects'),
     ('Edit projects'),
@@ -10,4 +10,4 @@ insert into permissions (permission) values
     ('Edit log'),
     ('Delete log'),
     ('Delete files')
-    on conflict (permission) do nothing;
+    on conflict (name) do nothing;

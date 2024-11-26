@@ -1,7 +1,7 @@
 create or replace view v_subprojects as
 select 
     p.*,
-    ps.status,
+    ps.name as status,
     u.name as created_by_name,
     parent.name as parent_name
 from projects p

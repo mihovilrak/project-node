@@ -4,7 +4,7 @@ select
     u.id as user_id,
     u.name,
     u.surname,
-    r.role
+    r.name as role
 from project_users pu
 join users u on u.id = pu.user_id
 join roles r on r.id = u.role_id; 

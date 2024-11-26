@@ -20,9 +20,13 @@ create or replace function create_task(
         v_task_id integer;
 
     begin
-        -- Basic validation
-        if p_name is null then
-            return query select 'Task name cannot be null'::text;
+        -- Validate required fields
+        if p_name is null or p_start_date is null or p_due_date is null 
+           or p_priority_id is null or p_status_id is null or p_type_id is null 
+           or p_project_id is null or p_holder_id is null or p_assignee_id is null then
+            return query select 
+                null::text as message,
+                'Required fields cannot be null'::text as error;
             return;
         end if;
 
@@ -66,9 +70,6 @@ create or replace function create_task(
         select 'Task '
         || p_name 
         || ' created successfully' as message;
-    exception
-        when others then
-            return query select 'Could not create task' as message;
     end;
 
 $$ language plpgsql;

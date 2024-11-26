@@ -5,13 +5,13 @@ FROM node:23-alpine3.19 AS frontend-builder
 WORKDIR /app/fe
 
 # Copy package and lock files
-COPY fe/package*.json fe/yarn.lock ./
+COPY fe/package*.json fe/yarn.lock fe/tsconfig.json ./
 
 # Install dependencies
 RUN mkdir node_modules && \
     yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
-    --production=true --link-duplicates --ignore-optional && \
+    --production=false && \
     yarn add -D @babel/plugin-proposal-private-property-in-object && \
     yarn cache clean --all
 
@@ -23,8 +23,9 @@ COPY fe/public/ ./public/
 ENV NODE_OPTIONS=--openssl-legacy-provider
 ENV BABEL_ENV=production
 
-# Build the frontend
-RUN yarn run build --verbose
+# Type check and build the frontend
+RUN yarn run type-check && \
+    yarn run build --verbose
 
 # Build backend
 FROM node:23-alpine3.19 AS backend-builder

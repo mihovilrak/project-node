@@ -7,11 +7,11 @@ exports.getRoles = async (pool) => {
 };
 
 exports.createRole = async (pool, roleData) => {
-  const { name, description, is_active, permissions } = roleData;
+  const { name, description, active, permissions } = roleData;
   try {
     const roleResult = await pool.query(
       'SELECT create_role($1, $2, $3, $4) as id',
-      [name, description, is_active, permissions]
+      [name, description, active, permissions]
     );
     return roleResult.rows[0].id;
   } catch (error) {
@@ -21,11 +21,11 @@ exports.createRole = async (pool, roleData) => {
 };
 
 exports.updateRole = async (pool, id, roleData) => {
-  const { name, description, is_active, permissions } = roleData;
+  const { name, description, active, permissions } = roleData;
   try {
     await pool.query(
       'SELECT update_role($1, $2, $3, $4, $5)',
-      [id, name, description, is_active, permissions]
+      [id, name, description, active, permissions]
     );
   } catch (error) {
     console.error('Error updating role:', error);

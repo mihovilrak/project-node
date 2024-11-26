@@ -1,6 +1,6 @@
-insert into roles (role) values
+insert into roles (name) values
     ('Admin'),
     ('Project manager'),
     ('Developer'),
     ('Reporter')
-    on conflict (role) do nothing;
+    on conflict (name) do nothing;

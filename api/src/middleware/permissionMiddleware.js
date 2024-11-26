@@ -1,6 +1,6 @@
 const { hasPermission } = require('../models/permissionModel');
 
-const checkPermission = (pool, requiredPermission) => {
+exports.checkPermission = (pool, requiredPermission) => {
   return async (req, res, next) => {
     try {
       const userId = req.session.user?.id;
@@ -22,5 +22,3 @@ const checkPermission = (pool, requiredPermission) => {
     }
   };
 };
-
-module.exports = { checkPermission }; 

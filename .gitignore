@@ -3,3 +3,6 @@
 instructions.md
 db/backup/
 .obsolete
+
+fe/**/*.js
+fe/**/*.bak

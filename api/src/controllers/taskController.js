@@ -65,42 +65,62 @@ exports.getTaskByHolder = async (req, res, pool) => {
 
 // Create a task
 exports.createTask = async (req, res, pool) => {
-  const { 
-    name,
-    description,
-    startDate,
-    dueDate,
-    priorityId,
-    statusId,
-    typeId,
-    parentId,
-    projectId,
-    holderId,
-    assigneeId,
-    createdBy,
-    tagIds
-  } = req.body;
   try {
-    const task = await taskModel.createTask(
+    const {
+      name,
+      description,
+      start_date,
+      due_date,
+      priority_id,
+      status_id,
+      type_id,
+      parent_id,
+      project_id,
+      holder_id,
+      assignee_id,
+      created_by,
+      tagIds
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !start_date || !due_date || !priority_id || !status_id || !type_id || !project_id || !holder_id || !assignee_id) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        requiredFields: {
+          name,
+          start_date,
+          due_date,
+          priority_id,
+          status_id,
+          type_id,
+          project_id,
+          holder_id,
+          assignee_id
+        }
+      });
+    }
+
+    const result = await taskModel.createTask(
       pool,
       name,
       description,
-      startDate,
-      dueDate,
-      priorityId,
-      statusId,
-      typeId,
-      parentId,
-      projectId,
-      holderId,
-      assigneeId,
-      createdBy,
+      start_date,
+      due_date,
+      priority_id,
+      status_id,
+      type_id,
+      parent_id,
+      project_id,
+      holder_id,
+      assignee_id,
+      created_by,
       tagIds
     );
-    res.status(201).json(task);
+
+    res.status(201).json(result);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error creating task:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -255,7 +275,7 @@ exports.getTaskTypeById = async (req, res, pool) => {
 // Create a task type
 exports.createTaskType = async (req, res, pool) => {
   try {
-    const { name, description, color, icon, is_active = true } = req.body;
+    const { name, description, color, icon, active = true } = req.body;
     
     // Validate required fields
     if (!name || !color) {
@@ -273,7 +293,7 @@ exports.createTaskType = async (req, res, pool) => {
       description,
       color,
       icon,
-      is_active
+      active
     );
     
     res.status(201).json(result);
@@ -287,7 +307,7 @@ exports.createTaskType = async (req, res, pool) => {
 exports.updateTaskType = async (req, res, pool) => {
   try {
     const { id } = req.params;
-    const { name, description, color, icon, is_active } = req.body;
+    const { name, description, color, icon, active } = req.body;
     
     const result = await pool.query(
       taskTypeModel.updateTaskType(
@@ -297,7 +317,7 @@ exports.updateTaskType = async (req, res, pool) => {
         description,
         color,
         icon,
-        is_active
+        active
       )
     );
     

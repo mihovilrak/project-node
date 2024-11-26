@@ -13,10 +13,10 @@ returns table(
 ) as $$
 begin
     return query
-        select t.task_id as id, 
+        select t.id, 
                t.name,
-               t.project,
-               t.holder,
+               t.project_name,
+               t.holder_name,
                t.start_date,
                t.due_date, 
                t.status, 

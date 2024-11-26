@@ -1,3 +1,4 @@
+// Activity Type Model
 exports.getActivityTypes = async (pool) => {
   const result = await pool.query(
     `SELECT * FROM activity_types 
@@ -7,6 +8,7 @@ exports.getActivityTypes = async (pool) => {
   return result.rows;
 };
 
+// Create Activity Type
 exports.createActivityType = async (
   pool,
   name,
@@ -24,6 +26,7 @@ exports.createActivityType = async (
   return result.rows[0];
 };
 
+// Update Activity Type
 exports.updateActivityType = async (
   pool,
   id,
@@ -42,6 +45,7 @@ exports.updateActivityType = async (
   return result.rows[0];
 };
 
+// Delete Activity Type
 exports.deleteActivityType = async (pool, id) => {
   const result = await pool.query(
     `UPDATE activity_types 

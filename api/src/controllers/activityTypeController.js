@@ -1,5 +1,6 @@
 const activityTypeModel = require('../models/activityTypeModel');
 
+// Get all activity types
 exports.getActivityTypes = async (req, res, pool) => {
   try {
     const activityTypes = await activityTypeModel.getActivityTypes(pool);
@@ -10,6 +11,7 @@ exports.getActivityTypes = async (req, res, pool) => {
   }
 };
 
+// Create a new activity type
 exports.createActivityType = async (req, res, pool) => {
   try {
     const { name, description, color, icon = null } = req.body;
@@ -37,6 +39,7 @@ exports.createActivityType = async (req, res, pool) => {
   }
 };
 
+// Update an activity type
 exports.updateActivityType = async (req, res, pool) => {
   try {
     const { id } = req.params;
@@ -62,6 +65,7 @@ exports.updateActivityType = async (req, res, pool) => {
   }
 };
 
+// Delete an activity type
 exports.deleteActivityType = async (req, res, pool) => {
   try {
     const { id } = req.params;
@@ -78,6 +82,7 @@ exports.deleteActivityType = async (req, res, pool) => {
   }
 };
 
+// Get available icons
 exports.getAvailableIcons = async (req, res) => {
   try {
     // You can customize this list based on your icon library

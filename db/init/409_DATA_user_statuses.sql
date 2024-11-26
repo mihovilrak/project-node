@@ -1,5 +1,5 @@
-insert into user_statuses(status) values 
+insert into user_statuses(name) values 
     ('Active'),
     ('Inactive'),
     ('Deleted')
-    on conflict (status) do nothing;
+    on conflict (name) do nothing;

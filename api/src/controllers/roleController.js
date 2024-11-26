@@ -27,9 +27,13 @@ exports.createRole = async (req, res, pool) => {
   } catch (error) {
     console.error('Error creating role:', error);
     if (error.code === '23505') { // Unique violation
-      return res.status(409).json({ error: 'Role with this name already exists' });
+      return res.status(409).json({ 
+        error: 'Role with this name already exists' 
+      });
     }
-    res.status(500).json({ error: 'Failed to create role' });
+    res.status(500).json({ 
+      error: 'Failed to create role' 
+    });
   }
 };
 
@@ -54,7 +58,9 @@ exports.updateRole = async (req, res, pool) => {
   } catch (error) {
     console.error('Error updating role:', error);
     if (error.code === '23505') {
-      return res.status(409).json({ error: 'Role with this name already exists' });
+      return res.status(409).json({ 
+        error: 'Role with this name already exists' 
+      });
     }
     if (error.code === '404') {
       return res.status(404).json({ error: 'Role not found' });

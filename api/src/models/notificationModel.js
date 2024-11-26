@@ -25,7 +25,9 @@ exports.markNotificationsAsRead = async (pool, user_id) => {
 // Delete notification
 exports.deleteNotification = async (pool, id) => {
   const result = await pool.query(
-    `UPDATE notifications SET active = false WHERE id = $1`,
+    `UPDATE notifications 
+    SET active = false
+    WHERE id = $1`,
     [id]
   );
   return result.rows;

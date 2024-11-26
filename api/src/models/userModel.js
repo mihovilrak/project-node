@@ -65,7 +65,10 @@ exports.updateUser = async (pool, updates, id) => {
 // Change user status
 exports.changeUserStatus = async (pool, id, status) => {
   const result = await pool.query(
-    'UPDATE users SET status_id = $1 WHERE id = $2 RETURNING *',
+    `UPDATE users 
+    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP) 
+    WHERE id = $2 
+    RETURNING *`,
     [status, id]
   );
   return result.rows[0];
@@ -74,7 +77,10 @@ exports.changeUserStatus = async (pool, id, status) => {
 // Delete a user
 exports.deleteUser = async (pool, id) => {
     const result = await pool.query(
-      'UPDATE users SET status_id = 3 WHERE id = $1 RETURNING *',
+      `UPDATE users 
+      SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP) 
+      WHERE id = $1 
+      RETURNING *`,
       [id]
     );
     return result.rows[0];

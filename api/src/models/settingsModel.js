@@ -1,11 +1,13 @@
-const getSystemSettings = async (pool) => {
+// Get System Settings
+exports.getSystemSettings = async (pool) => {
   const result = await pool.query(
     `SELECT * FROM app_settings WHERE id = 1`
   );
   return result.rows[0];
 };
 
-const updateSystemSettings = async (pool, settings) => {
+// Update System Settings
+exports.updateSystemSettings = async (pool, settings) => {
   const { company_name, sender_email, time_zone, theme } = settings;
   const result = await pool.query(
     `UPDATE app_settings 
@@ -18,7 +20,8 @@ const updateSystemSettings = async (pool, settings) => {
   return result.rows[0];
 };
 
-const getUserSettings = async (pool, userId) => {
+// Get User Settings
+exports.getUserSettings = async (pool, userId) => {
   const result = await pool.query(
     `SELECT * FROM user_settings WHERE user_id = $1`,
     [userId]
@@ -26,7 +29,8 @@ const getUserSettings = async (pool, userId) => {
   return result.rows[0];
 };
 
-const updateUserSettings = async (pool, userId, settings) => {
+// Update User Settings
+exports.updateUserSettings = async (pool, userId, settings) => {
   const { theme, language, notifications_enabled, email_notifications_enabled } = settings;
   const result = await pool.query(
     `INSERT INTO user_settings (user_id, theme, language, notifications_enabled, email_notifications_enabled)
@@ -39,10 +43,3 @@ const updateUserSettings = async (pool, userId, settings) => {
   );
   return result.rows[0];
 };
-
-module.exports = {
-  getSystemSettings,
-  updateSystemSettings,
-  getUserSettings,
-  updateUserSettings
-}; 

@@ -4,7 +4,7 @@ returns table(message text) as $$
 
         -- Update the active status of the given project 
         update projects 
-        set active = 3 
+        set status_id = 3 
         where id = $1;
 
         -- Return message query

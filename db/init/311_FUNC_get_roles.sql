@@ -3,21 +3,21 @@ returns table (
     id integer,
     name character varying,
     description text,
-    is_active boolean,
+    active boolean,
     permissions json
 ) as $$
 begin
     return query 
     select 
       r.id,
-      r.role as name,
+      r.name,
       r.description,
-      r.is_active,
+      r.active,
       coalesce(
         json_agg(
           json_build_object(
             'id', p.id,
-            'name', p.permission
+            'name', p.name
           )
         ) filter (where p.id is not null),
         '[]'
@@ -26,6 +26,6 @@ begin
     left join roles_permissions rp on r.id = rp.role_id
     left join permissions p on rp.permission_id = p.id
     group by r.id
-    order by r.role;
+    order by r.name;
 end;
 $$ language plpgsql;

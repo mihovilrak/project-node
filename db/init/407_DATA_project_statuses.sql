@@ -1,5 +1,5 @@
-insert into project_statuses(status) values 
+insert into project_statuses(name) values 
     ('Active'),
     ('Inactive'),
     ('Deleted')
-    on conflict (status) do nothing;
+    on conflict (name) do nothing;

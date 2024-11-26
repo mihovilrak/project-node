@@ -1,7 +1,7 @@
 create or replace function create_role(
     p_name character varying,
     p_description text,
-    p_is_active boolean,
+    p_active boolean,
     p_permissions integer[]
 ) returns integer as $$
 
@@ -10,8 +10,8 @@ create or replace function create_role(
 
     begin
         -- Insert role
-        insert into roles (role, description, is_active)
-        values (p_name, p_description, p_is_active)
+        insert into roles (name, description, active)
+        values (p_name, p_description, p_active)
         returning id into v_role_id;
 
         -- Insert permissions

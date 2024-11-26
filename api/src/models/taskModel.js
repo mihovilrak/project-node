@@ -110,7 +110,7 @@ exports.updateTask = async (pool, taskId, taskData) => {
 exports.changeTaskStatus = async (pool, id, statusId) => {
   const result = await pool.query(
     `UPDATE tasks 
-    SET status_id = $1 
+    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
     WHERE id = $2 
     RETURNING *`,
     [statusId, id]
@@ -122,7 +122,7 @@ exports.changeTaskStatus = async (pool, id, statusId) => {
 exports.deleteTask = async (pool, id) => {
   const result = await pool.query(
     `UPDATE tasks 
-    SET status_id = 3 
+    SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
     WHERE id = $1 
     RETURNING *`,
     [id]
@@ -133,7 +133,7 @@ exports.deleteTask = async (pool, id) => {
 // Get task statuses
 exports.getTaskStatuses = async (pool) => {
   const result = await pool.query(
-    `SELECT id, status 
+    `SELECT id, name 
     FROM task_statuses`
   );
   return result.rows;
@@ -142,7 +142,7 @@ exports.getTaskStatuses = async (pool) => {
 // Get priorities
 exports.getPriorities = async (pool) => {
   const result = await pool.query(
-    `SELECT id, priority 
+    `SELECT id, name 
     FROM priorities`
   );
   return result.rows;
@@ -212,7 +212,7 @@ exports.createSubtask = async (
         $10,
         $11,
         $12,
-        $13
+        $13::integer[]
       )`,
       [name, description, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
     );
