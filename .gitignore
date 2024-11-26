@@ -6,3 +6,7 @@ db/backup/
 
 fe/**/*.js
 fe/**/*.bak
+
+fe/src/api/*.js
+fe/src/api/*.bak
+
