@@ -1,4 +1,5 @@
 import { Task } from "./task";
+import { Dayjs } from 'dayjs';
 
 export interface Project {
   id: number;
@@ -21,16 +22,6 @@ export interface Project {
   completed_tasks?: number;
 }
 
-export interface ProjectStatus {
-  id: number;
-  name: string;
-  color: string;
-  description: string | null;
-  active: boolean;
-  created_on: string;
-  updated_on: string | null;
-}
-
 export interface ProjectMember {
   project_id: number;
   user_id: number;
@@ -41,51 +32,6 @@ export interface ProjectMember {
   user_email?: string;
   role_name?: string;
 }
-
-export interface ProjectCreate {
-  name: string;
-  description?: string;
-  parent_id?: number;
-  status_id: number;
-  start_date: string;
-  due_date: string;
-}
-
-export interface ProjectUpdate extends Partial<ProjectCreate> {
-  id: number;
-}
-
-export interface ProjectFilters {
-  status_id?: number;
-  created_by?: number;
-  start_date?: string;
-  due_date?: string;
-  search?: string;
-}
-
-export interface ProjectStats {
-  total_projects: number;
-  active_projects: number;
-  completed_projects: number;
-  overdue_projects: number;
-  total_tasks: number;
-  completed_tasks: number;
-  total_members: number;
-  total_time_spent: number;
-}
-
-export interface ProjectDetailsState {
-  project: Project | null;
-  tasks: Task[];
-  loading: boolean;
-  error: string | null;
-  activeTab: number;
-  editDialogOpen: boolean;
-  createTaskDialogOpen: boolean;
-  deleteDialogOpen: boolean;
-  members: ProjectMember[];
-}
-
 export interface ProjectEditDialogProps {
   open: boolean;
   project: Project;
@@ -98,16 +44,6 @@ export interface ProjectGanttProps {
   tasks: Task[];
 }
 
-export interface ProjectMembersProps {
-  projectId: number;
-  members: ProjectMember[];
-  onMembersUpdated: () => void;
-}
-
-export interface ProjectsProps {
-  // Empty for now as it doesn't take any props
-}
-
 export interface SubprojectFormProps {
   projectId: number;
   onSubmit: (data: {
@@ -117,12 +53,6 @@ export interface SubprojectFormProps {
     due_date: string;
   }) => Promise<void>;
   onClose: () => void;
-}
-
-export interface ProjectTab {
-  id: number;
-  label: string;
-  ariaControls: string;
 }
 
 export interface ProjectFormProps {
@@ -146,6 +76,6 @@ export interface FormattedTask {
 export interface SubprojectFormData {
   name: string;
   description: string;
-  start_date: Date | null;
-  due_date: Date | null;
+  start_date: Dayjs | null;
+  due_date: Dayjs | null;
 }

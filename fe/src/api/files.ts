@@ -1,5 +1,5 @@
 import { api } from './api';
-import { TaskFile } from '../types/task';
+import { TaskFile } from '../types/files';
 import { FileUploadOptions } from '../types/api';
 import { AxiosProgressEvent } from 'axios';
 
@@ -27,7 +27,13 @@ export const uploadFile = async (
       },
       onUploadProgress: onProgress,
     };
-    const response = await api.post(`/tasks/${taskId}/files`, formData, options);
+
+    const response = await api.post(
+      `/tasks/${taskId}/files`, 
+      formData,
+      options
+    );
+    
     return response.data;
   } catch (error) {
     console.error('Failed to upload file', error);

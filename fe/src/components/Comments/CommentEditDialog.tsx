@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,6 +10,7 @@ import {
   Box
 } from '@mui/material';
 import { CommentEditDialogProps } from '../../types/comment';
+import { useCommentEdit } from '../../hooks/useCommentEdit';
 
 const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   open,
@@ -17,34 +18,18 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   onClose,
   onSave
 }) => {
-  const [editedText, setEditedText] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    if (comment) {
-      setEditedText(comment.comment);
-    }
-  }, [comment]);
+  const {
+    editedText,
+    setEditedText,
+    isSubmitting,
+    error,
+    handleSave,
+    resetForm
+  } = useCommentEdit(comment, onSave);
 
   const handleClose = (): void => {
-    setEditedText('');
-    setError('');
+    resetForm();
     onClose();
-  };
-
-  const handleSave = async (): Promise<void> => {
-    if (!comment) return;
-    
-    try {
-      setIsSubmitting(true);
-      await onSave(comment.id, editedText);
-      handleClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update comment');
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {

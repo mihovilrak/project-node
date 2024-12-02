@@ -1,5 +1,9 @@
 import React from 'react';
-import { IconButton, Tooltip, CircularProgress } from '@mui/material';
+import {
+  IconButton,
+  Tooltip,
+  CircularProgress
+} from '@mui/material';
 import { usePermission } from '../../hooks/usePermission';
 import { PermissionIconButtonProps } from '../../types/common';
 

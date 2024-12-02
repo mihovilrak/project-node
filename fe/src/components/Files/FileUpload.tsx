@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import {
   Button,
   Box,
@@ -7,54 +7,21 @@ import {
   Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { FileUploadProps, TaskFile } from '../../types/files';
-import { uploadFile } from '../../api/files';
-import { AxiosProgressEvent } from 'axios';
+import { FileUploadProps } from '../../types/files';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 const FileUpload: React.FC<FileUploadProps> = ({
   taskId,
   onFileUploaded
 }) => {
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploading(true);
-      setError(null);
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('task_id', taskId.toString());
-
-      const progressCallback = (progressEvent: AxiosProgressEvent) => {
-        if (progressEvent.total) {
-          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percentage);
-        }
-      };
-
-      const response = await uploadFile(taskId, formData, progressCallback);
-
-      if (response.data) {
-        onFileUploaded(response.data as TaskFile);
-      }
-      setProgress(0);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload file');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
+  const {
+    uploading,
+    progress,
+    error,
+    fileInputRef,
+    handleFileChange,
+    setError
+  } = useFileUpload(taskId, onFileUploaded);
 
   return (
     <Box>

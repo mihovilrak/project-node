@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Tag } from '../types/task';
+import { Tag } from '../types/tags';
 
 // Get all tags
 export const getTags = async (): Promise<Tag[]> => {

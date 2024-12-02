@@ -1,6 +1,6 @@
 const express = require('express');
 const roleController = require('../controllers/roleController');
-const { checkAdminAccess } = require('../controllers/adminController');
+const { checkPermission } = require('../middleware/permissionMiddleware');
 
 // Role routes
 module.exports = (pool) => {
@@ -11,26 +11,12 @@ module.exports = (pool) => {
     roleController.getRoles(req, res, pool));
 
   // Create role
-  router.post('/', (req, res, next) => {
-    checkAdminAccess(req, res, pool)
-      .then(isAdmin => {
-        if (isAdmin) {
-          roleController.createRole(req, res, pool);
-        }
-      })
-      .catch(next);
-  });
+  router.post('/', checkPermission(pool, 'Admin'), (req, res) =>
+    roleController.createRole(req, res, pool));
 
   // Update role
-  router.put('/:id', (req, res, next) => {
-    checkAdminAccess(req, res, pool)
-      .then(isAdmin => {
-        if (isAdmin) {
-          roleController.updateRole(req, res, pool);
-        }
-      })
-      .catch(next);
-  });
+  router.put('/:id', checkPermission(pool, 'Admin'), (req, res) =>
+    roleController.updateRole(req, res, pool));
 
   return router;
 };

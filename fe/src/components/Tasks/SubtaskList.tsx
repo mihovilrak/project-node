@@ -18,14 +18,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { deleteTask, changeTaskStatus } from '../../api/tasks';
-import { Task } from '../../types/task';
-
-interface SubtaskListProps {
-  subtasks: Task[];
-  parentTaskId: number;
-  onSubtaskUpdated: (subtaskId: number, updatedSubtask: Task) => void;
-  onSubtaskDeleted: (subtaskId: number) => void;
-}
+import { Task, SubtaskListProps } from '../../types/task';
 
 const SubtaskList: React.FC<SubtaskListProps> = ({ 
   subtasks, 

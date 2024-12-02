@@ -18,12 +18,11 @@ import {
 import { Icon } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
 import { getActivityTypes } from '../../api/admin';
-import { ActivityTypeDialogProps } from '../../types/settings';
-
-interface IconSelectorProps {
-  value: string | undefined;
-  onChange: (icon: string) => void;
-}
+import {
+  ActivityTypeDialogProps,
+  IconSelectorProps
+} from '../../types/settings';
+import { ActivityType } from '../../types/timeLog';
 
 function IconSelector({ value, onChange }: IconSelectorProps) {
   const [icons, setIcons] = useState<string[]>([]);
@@ -32,7 +31,7 @@ function IconSelector({ value, onChange }: IconSelectorProps) {
   useEffect(() => {
     const loadIcons = async () => {
       try {
-        const response = await getActivityTypes();
+        const response: ActivityType[] = await getActivityTypes();
         setIcons(response.map(type => type.icon).filter(Boolean) as string[]);
       } catch (error) {
         console.error('Failed to load icons:', error);

@@ -17,13 +17,12 @@ import { SystemSettingsState } from '../../types/settings';
 const SystemSettings: React.FC = () => {
   const [state, setState] = useState<SystemSettingsState>({
     settings: {
+      id: 1,
+      app_name: '',
       company_name: '',
-      email: '',
-      timezone: '',
-      language: '',
-      date_format: '',
-      time_format: '',
-      currency: ''
+      sender_email: '',
+      time_zone: '',
+      theme: ''
     },
     loading: true,
     error: null,
@@ -94,6 +93,14 @@ const SystemSettings: React.FC = () => {
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
           fullWidth
+          name="app_name"
+          label="App Name"
+          value={state.settings.app_name}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
           name="company_name"
           label="Company Name"
           value={state.settings.company_name}
@@ -102,17 +109,25 @@ const SystemSettings: React.FC = () => {
         />
         <TextField
           fullWidth
-          name="email"
-          label="Email"
-          value={state.settings.email}
+          name="sender_email"
+          label="Sender Email"
+          value={state.settings.sender_email}
           onChange={handleChange}
           margin="normal"
         />
         <TextField
           fullWidth
-          name="timezone"
-          label="Default Time Zone"
-          value={state.settings.timezone}
+          name="time_zone"
+          label="Time Zone"
+          value={state.settings.time_zone}
+          onChange={handleChange}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          name="theme"
+          label="Theme"
+          value={state.settings.theme}
           onChange={handleChange}
           margin="normal"
         />

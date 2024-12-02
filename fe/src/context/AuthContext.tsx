@@ -6,20 +6,10 @@ import React, {
 } from 'react';
 import { api } from '../api/api';
 import { User } from '../types/user';
-
-interface AuthContextType {
-  currentUser: User | null;
-  userPermissions: string[];
-  permissionsLoading: boolean;
-  error: string | null;
-  login: (login: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  hasPermission: (permission: string) => boolean;
-}
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
+import {
+  AuthContextType, 
+  AuthProviderProps 
+} from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -49,9 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
         
         const response = await api.get('/check-session');
+        console.log('Session response:', response.data);
+        
         if (response.status === 200) {
           setCurrentUser(response.data.user);
-          const permissionsResponse = await api.get('/user/permissions');
+          const permissionsResponse = await api.get('/users/permissions');
+          console.log('Permissions response:', permissionsResponse.data);
           setUserPermissions(permissionsResponse.data);
         }
       } catch (error) {
@@ -72,11 +65,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     if (permissionCache[requiredPermission] !== undefined) {
       return permissionCache[requiredPermission];
-    }
-    
-    if (currentUser?.role_id === 1) {
-      setPermissionCache(prev => ({...prev, [requiredPermission]: true}));
-      return true;
     }
     
     const hasAccess = userPermissions.includes(requiredPermission);
@@ -140,4 +128,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-export default AuthProvider; 
+export default AuthProvider;

@@ -11,10 +11,9 @@ import TimeLogTable from './TimeLogTable';
 import TimeLogChart from './TimeLogChart';
 import TimeLogSummary from './TimeLogSummary';
 import {
-  getTimeLogsByTask,
   deleteTimeLog,
+  getTaskTimeLogs,
 } from '../../api/timeLogService';
-import { getActivityTypes } from '../../api/admin';
 import { useAuth } from '../../context/AuthContext';
 
 const TimeLogDashboard: React.FC<TimeLogDashboardProps> = ({ taskId }) => {
@@ -30,12 +29,8 @@ const TimeLogDashboard: React.FC<TimeLogDashboardProps> = ({ taskId }) => {
 
   const loadData = async () => {
     try {
-      const [logsData, typesData] = await Promise.all([
-        getTimeLogsByTask(taskId),
-        getActivityTypes()
-      ]);
+      const logsData = await getTaskTimeLogs(taskId);
       setTimeLogs(logsData);
-      setActivityTypes(typesData);
     } catch (error) {
       console.error('Error loading time log data:', error);
     }

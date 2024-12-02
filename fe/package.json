@@ -1,6 +1,7 @@
 {
     "name": "project-management-app",
     "version": "1.0.0",
+    "license": "UNLICENSED",
     "description": "A Project Management Web App",
     "main": "src/index.ts",
     "scripts": {

@@ -4,8 +4,8 @@ create or replace view v_users as
             u.name,
             u.surname,
             u.email,
-            s.status,
-            r.role,
+            s.name as status,
+            r.name as role,
             u.created_on::timestamp(0),
             u.updated_on::timestamp(0),
             l.logged_on::timestamp(0) as last_login

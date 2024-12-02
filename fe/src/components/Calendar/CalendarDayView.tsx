@@ -6,10 +6,9 @@ import {
   Typography,
   Chip
 } from '@mui/material';
-import { Task } from '../../types/task';
-import { TimeLog } from '../../types/timeLog';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
+import { useTasksByHour } from '../../hooks/useTasksByHour';
 
 const CalendarDayView: React.FC<CalendarViewProps> = ({ 
   view,
@@ -22,21 +21,7 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
   onTimeLogClick 
 }) => {
   const navigate = useNavigate();
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-
-  const getTasksForHour = (hour: number): Task[] => {
-    return tasks.filter(task => {
-      const taskDate = new Date(task.start_date);
-      return taskDate.getHours() === hour;
-    });
-  };
-
-  const getTimeLogsForHour = (hour: number): TimeLog[] => {
-    return timeLogs.filter(timeLog => {
-      const logDate = new Date(timeLog.created_on);
-      return logDate.getHours() === hour;
-    });
-  };
+  const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(tasks, timeLogs);
 
   return (
     <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }}>

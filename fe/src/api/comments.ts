@@ -13,7 +13,7 @@ export const getTaskComments = async (taskId: number): Promise<Comment[]> => {
 };
 
 // Create comment
-export const createComment = async (taskId: number, data: { content: string }): Promise<Comment> => {
+export const createComment = async (taskId: number, data: { comment: string }): Promise<Comment> => {
   try {
     const response = await api.post(`/tasks/${taskId}/comments`, data);
     return response.data;
@@ -24,7 +24,7 @@ export const createComment = async (taskId: number, data: { content: string }): 
 };
 
 // Edit comment
-export const editComment = async (id: number, taskId: number, data: { content: string }): Promise<Comment> => {
+export const editComment = async (id: number, taskId: number, data: { comment: string }): Promise<Comment> => {
   try {
     const response = await api.put(`/tasks/${taskId}/comments/${id}`, data);
     return response.data;

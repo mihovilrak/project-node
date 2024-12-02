@@ -29,6 +29,9 @@ exports.uploadFile = async (req, res, pool) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Construct the file path relative to the uploads directory
+    const filePath = path.join('uploads', file.filename);
+
     const fileData = await fileModel.createFile(
       pool,
       taskId,
@@ -36,7 +39,8 @@ exports.uploadFile = async (req, res, pool) => {
       file.originalname,
       file.filename,
       file.size,
-      file.mimetype
+      file.mimetype,
+      filePath
     );
 
     res.status(201).json(fileData);

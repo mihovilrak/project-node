@@ -1,43 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Box, 
   TextField, 
   Button, 
   CircularProgress 
 } from '@mui/material';
-import { createComment } from '../../api/comments';
-import {
-  CommentFormProps,
-  CommentError
-} from '../../types/comment';
+import { useCommentForm } from '../../hooks/useCommentForm';
+import { CommentFormProps } from '../../types/comment';
 
 const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => {
-  const [comment, setComment] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const newComment = await createComment(taskId, {
-        content: comment.trim()
-      });
-      
-      onCommentAdded(newComment);
-      setComment('');
-    } catch (err) {
-      const error = err as CommentError;
-      setError(error.error || 'Failed to add comment');
-      console.error('Error adding comment:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    comment,
+    setComment,
+    loading,
+    error,
+    handleSubmit
+  } = useCommentForm(taskId, onCommentAdded);
 
   return (
     <Box 
@@ -56,7 +34,9 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
         helperText={error}
         disabled={loading}
       />
-      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+      <Box
+        sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}
+      >
         <Button 
           type="submit" 
           variant="contained" 

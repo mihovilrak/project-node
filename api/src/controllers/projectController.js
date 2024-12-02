@@ -156,12 +156,14 @@ exports.getProjectTasks = async (req, res, pool) => {
   try {
     const { id: projectId } = req.params;
     const { status, priority, assignee } = req.query;
+    
+    // Create filters object only if values exist
+    const filters = {};
+    if (status) filters.status = status;
+    if (priority) filters.priority = priority;
+    if (assignee) filters.assignee = assignee;
 
-    const tasks = await projectModel.getProjectTasks(pool, {
-      projectId,
-      filters: { status, priority, assignee }
-    });
-
+    const tasks = await projectModel.getProjectTasks(pool, projectId, filters);
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Error fetching project tasks:', error);

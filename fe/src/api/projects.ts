@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Project, ProjectMember } from '../types/projects';
+import { Project, ProjectMember } from '../types/project';
 
 // Get all projects
 export const getProjects = async (): Promise<Project[]> => {

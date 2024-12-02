@@ -16,8 +16,7 @@ import {
   ViewWeek, 
   ViewModule 
 } from '@mui/icons-material';
-import { getTasksByDateRange } from '../../api/tasks';
-import { Task } from '../../types/task';
+import { useCalendar } from '../../hooks/useCalendar';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarView } from '../../types/calendar';
 import CalendarDayView from './CalendarDayView';
@@ -26,24 +25,11 @@ import CalendarMonthView from './CalendarMonthView';
 import { useNavigate } from 'react-router-dom';
 
 const Calendar: React.FC = () => {
+  const { tasks, loading, fetchTasks } = useCalendar();
   const [view, setView] = useState<CalendarView>('month');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const navigate = useNavigate();
-
-  const fetchTasks = async (start: Date, end: Date): Promise<void> => {
-    try {
-      setLoading(true);
-      const tasksData = await getTasksByDateRange(start, end);
-      setTasks(tasksData);
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDateChange = (newDate: Date): void => {
     setSelectedDate(newDate);

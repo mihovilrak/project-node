@@ -1,5 +1,6 @@
 import { SelectChangeEvent } from '@mui/material';
 import { User } from './user';
+import { Tag } from './tags';
 
 export interface Task {
   id: number;
@@ -32,22 +33,6 @@ export interface Task {
   tags?: Tag[];
 }
 
-export interface TaskFormValues {
-  name: string;
-  description: string;
-  start_date: string;
-  due_date: string;
-  priority_id: number;
-  status_id: number;
-  type_id: number;
-  parent_id: number | null;
-  project_id: string | number;
-  holder_id: string | number;
-  assignee_id: string | number;
-  created_by?: number;
-  tags: Tag[];
-}
-
 export interface TaskFilters {
   status?: number;
   priority?: number;
@@ -57,13 +42,6 @@ export interface TaskFilters {
   project?: number;
   search?: string;
   [key: string]: any;
-}
-
-export interface Tag {
-  id: number;
-  name: string;
-  color: string;
-  is_active?: boolean;
 }
 
 export interface TaskType {
@@ -93,14 +71,6 @@ export interface TaskPriority {
   updated_on: string | null;
 }
 
-export interface ActiveTask {
-  task_id: number;
-  name: string;
-  project: string;
-  priority: string;
-  due_date: string;
-}
-
 export interface TaskTableProps {
   tasks: Task[];
   loading: boolean;
@@ -116,67 +86,6 @@ export interface TaskListProps {
   projectId: number;
 }
 
-export interface TaskDetails {
-  task_id: number;
-  name: string;
-  description: string;
-  project: string;
-  project_id: number;
-  holder: string;
-  holder_id: number;
-  assignee: string;
-  assignee_id: number;
-  priority: string;
-  priority_id: number;
-  status: string;
-  status_id: number;
-  start_date: string;
-  due_date: string;
-  type_icon?: string;
-  type_color: string;
-  type_name: string;
-  tags?: Tag[];
-  status_name?: string;
-  status_color?: string;
-}
-
-export interface Subtask {
-  id: number;
-  name: string;
-  status: string;
-  due_date: string;
-}
-
-export interface TaskCreate {
-  name: string;
-  description?: string;
-  project_id: number;
-  type_id: number;
-  priority_id: number;
-  status_id: number;
-  parent_id?: number;
-  holder_id: number;
-  assignee_id?: number;
-  start_date: string;
-  due_date: string;
-  estimated_time?: number;
-  tags?: Tag[];
-}
-
-export interface TaskUpdate extends Partial<TaskCreate> {
-  id: number;
-  tags?: Tag[];
-}
-
-export interface TaskStats {
-  total: number;
-  completed: number;
-  in_progress: number;
-  overdue: number;
-  total_time_spent: number;
-  estimated_time: number;
-}
-
 export interface TaskFormProps {
   taskId?: string;
   open: boolean;
@@ -184,7 +93,6 @@ export interface TaskFormProps {
   onClose: () => void;
   onCreated: () => void;
 }
-
 export interface TaskTypeSelectProps {
   value: number;
   onChange: (event: SelectChangeEvent<number>) => void;
@@ -193,8 +101,24 @@ export interface TaskTypeSelectProps {
 }
 
 export interface SubtaskListProps {
-  subtasks: Subtask[];
+  subtasks: Task[];
   parentTaskId: number;
-  onSubtaskUpdated: (subtaskId: number, updatedSubtask: Subtask) => void;
+  onSubtaskUpdated: (subtaskId: number, updatedSubtask: Task) => void;
   onSubtaskDeleted: (subtaskId: number) => void;
+}
+
+export interface TaskFormState {
+  name: string;
+  description: string | null;
+  start_date: string;
+  due_date: string;
+  priority_id: number;
+  status_id: number;
+  type_id: number;
+  parent_id: number | null;
+  project_id: number;
+  holder_id: number;
+  assignee_id: number | null;
+  created_by?: number;
+  tags: Tag[];
 }

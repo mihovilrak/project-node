@@ -1,7 +1,6 @@
 import { api } from './api';
 import { TaskType } from '../types/task';
 import { ActivityType } from '../types/timeLog';
-import { SystemSettings } from '../types/settings';
 import { Permission, Role } from '../types/admin';
 
 // Get all permissions
@@ -132,21 +131,4 @@ export const deleteActivityType = async (id: number): Promise<void> => {
     console.error('Failed to delete activity type', error);
     throw error;
   }
-};
-
-// Get System Settings
-export const getSystemSettings = async (): Promise<SystemSettings> => {
-  const response = await fetch('/api/admin/settings');
-  if (!response.ok) throw new Error('Failed to fetch settings');
-  return response.json();
-};
-
-// Update System Settings
-export const updateSystemSettings = async (settings: SystemSettings): Promise<void> => {
-  const response = await fetch('/api/admin/settings', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(settings)
-  });
-  if (!response.ok) throw new Error('Failed to update settings');
 };

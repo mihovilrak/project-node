@@ -11,7 +11,10 @@ import {
   Tooltip,
   Chip
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon
+} from '@mui/icons-material';
 import { TimeLog, ActivityType } from '../../types/timeLog';
 
 interface TimeLogTableProps {

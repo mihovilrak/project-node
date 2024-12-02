@@ -23,12 +23,7 @@ import {
 } from '@mui/icons-material';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
-
-interface UserTableProps {
-  users: User[];
-  onEditUser: (user: User) => void;
-  onUserDeleted: () => void;
-}
+import { UserTableProps } from '../../types/settings';
 
 const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted }) => {
   const [page, setPage] = useState<number>(0);

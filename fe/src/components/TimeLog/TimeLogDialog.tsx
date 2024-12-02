@@ -12,7 +12,10 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { createTimeLog, updateTimeLog } from '../../api/timeLogs';
+import {
+  createTimeLog,
+  updateTimeLog
+} from '../../api/timeLogService';
 import { TimeLog } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
 import { getActivityTypes } from '../../api/admin';

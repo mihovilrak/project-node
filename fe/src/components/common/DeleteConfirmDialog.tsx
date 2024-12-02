@@ -5,9 +5,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Button
+  Button,
+  CircularProgress
 } from '@mui/material';
 import { DeleteConfirmDialogProps } from '../../types/common';
+import { useDeleteConfirm } from '../../hooks/useDeleteConfirm';
 
 const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ 
   open, 
@@ -16,6 +18,8 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   onClose,
   onConfirm
 }) => {
+  const { isDeleting, handleConfirm } = useDeleteConfirm(onConfirm, onClose);
+
   return (
     <Dialog
       open={open}
@@ -32,10 +36,15 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onClose} disabled={isDeleting}>
           Cancel
         </Button>
-        <Button onClick={onConfirm} color="error" autoFocus>
+        <Button 
+          onClick={handleConfirm} 
+          color="error" 
+          disabled={isDeleting}
+          startIcon={isDeleting ? <CircularProgress size={20} /> : null}
+        >
           Delete
         </Button>
       </DialogActions>

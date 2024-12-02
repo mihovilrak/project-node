@@ -1,7 +1,6 @@
 import { User } from './user';
 import { Task } from './task';
 import { Project } from './project';
-import { TimeLog } from './timeLog';
 
 // Main profile data interface - matches actual API response
 export interface ProfileData extends User {
@@ -32,20 +31,6 @@ export interface StatCardProps {
   loading: boolean;
 }
 
-// System log entry - matches system_logs table
-export interface SystemLogEntry {
-  id: number;
-  user_id: number;
-  action: string;
-  entity_type: 'task' | 'project' | 'comment' | 'time_log';
-  entity_id: number;
-  details: Record<string, any>;
-  created_on: string;
-  // Virtual fields from joins
-  entity_name?: string;
-  project_name?: string;
-}
-
 // Profile update payload - matches API endpoint
 export interface ProfileUpdate {
   name?: string;
@@ -60,16 +45,6 @@ export interface PasswordChange {
   current_password: string;
   new_password: string;
   confirm_password: string;
-}
-
-// Profile API response - matches actual API response
-export interface ProfileResponse {
-  user: ProfileData;
-  stats: ProfileStats;
-  recent_logs: SystemLogEntry[];
-  recent_tasks: Task[];
-  recent_projects: Project[];
-  recent_time_logs: TimeLog[];
 }
 
 // Add this interface after the existing interfaces

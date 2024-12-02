@@ -2,10 +2,10 @@
   "name": "project-management-backend",
   "version": "1.0.0",
   "description": "Backend for Project management application",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

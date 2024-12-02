@@ -128,14 +128,18 @@ exports.createSubproject = async (
   };
 
 // Get project tasks
-exports.getProjectTasks = async (pool, id) => {
+exports.getProjectTasks = async (pool, id, filters = {}) => {
   const query = `
     SELECT * FROM v_tasks 
     WHERE project_id = $1 
+    ${Object.keys(filters).length > 0 
+      ? `AND ${Object.keys(filters).map((key, index) => `${key} = $${index + 2}`).join(' AND ')}` 
+      : ''}
     ORDER BY created_on DESC
   `;
   
-  const result = await pool.query(query, [id]);
+  const values = [id, ...Object.values(filters)];
+  const result = await pool.query(query, values);
   return result.rows;
 };
   

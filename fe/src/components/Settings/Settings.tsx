@@ -5,7 +5,7 @@ import {
   Typography,
   Tabs,
   Tab,
-  Alert
+  CircularProgress
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import UserManager from './UserManager';
@@ -13,15 +13,13 @@ import TypesAndRolesManager from './TypesAndRolesManager';
 import SystemSettings from './SystemSettings';
 
 const Settings: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { hasPermission, permissionsLoading } = useAuth();
   const [activeTab, setActiveTab] = React.useState<number>(0);
 
-  if (currentUser?.role_id !== 1) {
+  if (permissionsLoading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity="error">
-          You don't have permission to access this page.
-        </Alert>
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
       </Box>
     );
   }

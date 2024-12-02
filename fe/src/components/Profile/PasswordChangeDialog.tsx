@@ -57,9 +57,9 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
     setLoading(true);
     try {
       await changePassword({
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword,
-        confirmPassword: formData.confirmPassword
+        current_password: formData.currentPassword,
+        new_password: formData.newPassword,
+        confirm_password: formData.confirmPassword
       });
       onClose();
       setFormData((prev: PasswordForm) => ({

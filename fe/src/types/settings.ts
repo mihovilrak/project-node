@@ -74,7 +74,7 @@ export interface RolesTableProps {
 }
 
 export interface SystemSettingsState {
-  settings: SystemSettings;
+  settings: AppSettings;
   loading: boolean;
   error: string | null;
   success: boolean;
@@ -91,23 +91,15 @@ export interface TypesAndRolesState {
   selectedItem: TaskType | ActivityType | Role | null;
 }
 
-export interface SystemSettings {
+export interface AppSettings {
+  id: number;
+  app_name: string;
   company_name: string;
-  email: string;
-  timezone: string;
-  language: string;
-  date_format: string;
-  time_format: string;
-  currency: string;
-  logo_url?: string;
-}
-
-export interface NotificationSettings {
-  email_notifications: boolean;
-  push_notifications: boolean;
-  task_reminders: boolean;
-  project_updates: boolean;
-  team_mentions: boolean;
+  sender_email: string;
+  time_zone: string;
+  theme: string;
+  created_on?: string;
+  updated_on?: string;
 }
 
 export interface Notification {
@@ -121,25 +113,6 @@ export interface Notification {
   metadata?: Record<string, any>;
 }
 
-export interface SystemSettingsFormData {
-  company_name: string;
-  email: string;
-  timezone: string;
-  language: string;
-  date_format: string;
-  time_format: string;
-  currency: string;
-  logo_url?: string;
-}
-
-export interface TaskTypeFormData {
-  name: string;
-  color: string;
-  description: string;
-  active: boolean;
-  icon?: string;
-}
-
 export interface TaskTypeSelectProps {
   value: number | string;
   onChange: (event: React.ChangeEvent<{ value: unknown }>) => void;
@@ -149,28 +122,13 @@ export interface TaskTypeSelectProps {
 
 export interface UserTableProps {
   users: User[];
-  onEdit: (user: User) => void;
-  onDelete: (id: number) => Promise<void>;
-  loading?: boolean;
+  onEditUser: (user: User) => void;
+  onUserDeleted: () => void;
 }
 
 export interface IconSelectorProps {
-  value?: string;
+  value: string | undefined;
   onChange: (icon: string) => void;
-}
-
-export interface AppSettings {
-  id: number;
-  company_name: string;
-  company_email: string | null;
-  default_timezone: string;
-  default_language: string;
-  date_format: string;
-  time_format: string;
-  currency: string;
-  logo_url: string | null;
-  created_on: string;
-  updated_on: string | null;
 }
 
 export interface UserSettings {
@@ -189,50 +147,3 @@ export interface UserSettings {
   created_on: string;
   updated_on: string | null;
 }
-
-export interface NotificationPreferences {
-  email_notifications: boolean;
-  push_notifications: boolean;
-  task_reminders: boolean;
-  project_updates: boolean;
-  team_mentions: boolean;
-}
-
-export interface SystemOptions {
-  timezones: string[];
-  languages: LanguageOption[];
-  dateFormats: string[];
-  timeFormats: string[];
-  currencies: CurrencyOption[];
-}
-
-interface LanguageOption {
-  code: string;
-  name: string;
-  native_name: string;
-}
-
-interface CurrencyOption {
-  code: string;
-  name: string;
-  symbol: string;
-}
-
-export interface AppSettingsUpdate extends Partial<Omit<AppSettings, 'id' | 'created_on' | 'updated_on'>> {}
-
-export interface UserSettingsUpdate extends Partial<Omit<UserSettings, 'user_id' | 'created_on' | 'updated_on'>> {}
-
-export interface LogoUploadResponse {
-  logo_url: string;
-}
-
-export interface SettingsValidationError {
-  field: string;
-  message: string;
-}
-
-export interface SettingsResponse {
-  app: AppSettings;
-  user: UserSettings | null;
-  options: SystemOptions;
-} 

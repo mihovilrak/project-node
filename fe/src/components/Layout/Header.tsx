@@ -1,18 +1,19 @@
 import React from 'react';
 import { AppBar, Toolbar, Box } from '@mui/material';
 import NotificationCenter from '../Notifications/NotificationCenter';
-import { useAuth } from '../../context/AuthContext';
+import { useHeader } from '../../hooks/useHeader';
 
-const Header: React.FC = (): JSX.Element => {
-  const { currentUser } = useAuth();
+const Header: React.FC = () => {
+  const { currentUser, isScrolled } = useHeader();
   
   return (
-    <AppBar position="fixed">
+    <AppBar 
+      position="fixed"
+      elevation={isScrolled ? 4 : 0}
+    >
       <Toolbar>
-        {/* ... other header content ... */}
         <Box sx={{ flexGrow: 1 }} />
-        <NotificationCenter userId={currentUser?.id || 0} />
-        {/* ... other header content ... */}
+        <NotificationCenter userId={currentUser?.id} />
       </Toolbar>
     </AppBar>
   );

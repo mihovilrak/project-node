@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Notification } from '../types/notifications';
+import { Notification } from '../types/notification';
 
 // Get notifications
 export const getNotifications = async (userId: number): Promise<Notification[]> => {

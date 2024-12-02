@@ -8,8 +8,8 @@ returns table(
     due_date date,
     status character varying,
     priority character varying,
-    priority_color character varying,
-    created_by character varying
+    created_by character varying,
+    priority_color text
 ) as $$
 begin
     return query

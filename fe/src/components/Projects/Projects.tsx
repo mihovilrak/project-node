@@ -14,9 +14,8 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import { Project } from '../../types/project';
-import { ProjectsProps } from '../../types/project';
 
-const Projects: React.FC<ProjectsProps> = () => {
+const Projects: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filter, setFilter] = useState<string>('');

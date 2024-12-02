@@ -2,10 +2,14 @@ import { api } from './api';
 import { User } from '../types/user';
 import { Task } from '../types/task';
 import { Project } from '../types/project';
-import { ProfileUpdateData, PasswordChangeData, ProfileApiResponse } from '../types/api';
+import {
+  ProfileData,
+  ProfileUpdateData,
+  PasswordChange
+} from '../types/profile';
 
 // Get user profile
-export const getProfile = async (): Promise<ProfileApiResponse> => {
+export const getProfile = async (): Promise<ProfileData> => {
   try {
     const response = await api.get('/profile');
     return response.data;
@@ -27,7 +31,7 @@ export const updateProfile = async (profileData: ProfileUpdateData): Promise<Use
 };
 
 // Change user password
-export const changePassword = async (passwordData: PasswordChangeData): Promise<void> => {
+export const changePassword = async (passwordData: PasswordChange): Promise<void> => {
   try {
     await api.put('/profile/password', passwordData);
   } catch (error) {

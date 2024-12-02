@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -14,278 +14,118 @@ import {
 } from '@mui/material';
 import PermissionButton from '../common/PermissionButton';
 import * as Icons from '@mui/icons-material';
-import {
-  getTaskById,
-  deleteTask,
-  changeTaskStatus,
-  getSubtasks,
-  getTaskStatuses
-} from '../../api/tasks';
-import {
-  getTaskComments,
-  editComment,
-  deleteComment,
-  createComment
-} from '../../api/comments';
 import CommentForm from '../Comments/CommentForm';
 import CommentList from '../Comments/CommentList';
 import FileUpload from '../Files/FileUpload';
 import FileList from '../Files/FileList';
-import { getTaskFiles } from '../../api/files';
-import SubtaskForm from './SubtaskForm';
 import SubtaskList from './SubtaskList';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogList from '../TimeLog/TimeLogList';
-import {
-  getTaskTimeLogs,
-  deleteTimeLog,
-  createTimeLog
-} from '../../api/timeLogs';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import CommentEditDialog from '../Comments/CommentEditDialog';
 import { useAuth } from '../../context/AuthContext';
-import {
-    Task,
-    TaskStatus
-} from '../../types/task';
+import { useTaskDetails } from '../../hooks/useTaskDetails';
+import { editComment, deleteComment } from '../../api/comments';
+import { deleteTimeLog } from '../../api/timeLogService';
+import { Task } from '../../types/task';
 import { Comment } from '../../types/comment';
-import {
-  TimeLog,
-  TimeLogUpdate,
-  TimeLogCreate
-} from '../../types/timeLog';
+import { TimeLog } from '../../types/timeLog';
 import { TaskFile } from '../../types/files';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  
-  const [task, setTask] = useState<Task | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [files, setFiles] = useState<TaskFile[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [subtasks, setSubtasks] = useState<Task[]>([]);
-  const [subtaskFormOpen, setSubtaskFormOpen] = useState<boolean>(false);
-  const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
-  const [timeLogDialogOpen, setTimeLogDialogOpen] = useState<boolean>(false);
-  const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
-  const [editingComment, setEditingComment] = useState<Comment | null>(null);
-  const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
+  const [editingComment, setEditingComment] = useState<Comment | null>(null);
+  const [subtaskFormOpen, setSubtaskFormOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchTaskData = async (): Promise<void> => {
-      if (!id) return;
-      
-      try {
-        const [taskData,
-          commentsData,
-          filesData,
-          subtasksData,
-          timeLogsData
-        ] = await Promise.all([
-          getTaskById(parseInt(id)),
-          getTaskComments(parseInt(id)),
-          getTaskFiles(parseInt(id)),
-          getSubtasks(parseInt(id)),
-          getTaskTimeLogs(parseInt(id))
-        ]);
-        
-        setTask(taskData);
-        setComments(commentsData);
-        setFiles(filesData);
-        setSubtasks(subtasksData);
-        setTimeLogs(timeLogsData);
-      } catch (error) {
-        console.error('Failed to fetch task details', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTaskData();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchStatuses = async () => {
-      try {
-        const statusList = await getTaskStatuses();
-        setStatuses(statusList);
-      } catch (error) {
-        console.error('Failed to fetch statuses:', error);
-      }
-    };
-    fetchStatuses();
-  }, []);
-
-  const handleDelete = async (): Promise<void> => {
-    if (!id || !window.confirm('Are you sure you want to delete this task?')) return;
-    
-    try {
-      await deleteTask(parseInt(id));
-      navigate('/tasks');
-    } catch (error) {
-      console.error('Failed to delete task', error);
-    }
-  };
-
-  const handleStatusChange = async (statusId: number): Promise<void> => {
-    if (!id) return;
-    
-    try {
-      await changeTaskStatus(parseInt(id), statusId);
-      const updatedTask = await getTaskById(parseInt(id));
-      setTask(updatedTask);
-      setStatusMenuAnchor(null);
-    } catch (error) {
-      console.error('Failed to update task status', error);
-    }
-  };
+  const {
+    task,
+    subtasks,
+    comments,
+    timeLogs,
+    files,
+    statuses,
+    loading,
+    error,
+    timeLogDialogOpen,
+    selectedTimeLog,
+    handleStatusChange,
+    handleDelete,
+    handleTimeLogSubmit,
+    handleCommentSubmit,
+    setTimeLogDialogOpen,
+    setSelectedTimeLog,
+    setComments,
+    setFiles,
+    setTimeLogs,
+    setSubtasks,
+    canEdit,
+    canDelete
+  } = useTaskDetails(id!);
 
   const handleStatusClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusMenuAnchor(event.currentTarget);
   };
 
-  const fetchComments = async (): Promise<void> => {
-    if (!id) return;
-    
+  const handleCommentUpdate = async (commentId: number, newText: string) => {
     try {
-      const commentsData = await getTaskComments(parseInt(id));
-      setComments(commentsData);
-    } catch (error) {
-      console.error('Failed to fetch comments:', error);
-    }
-  };
-
-  const handleCommentAdded = async (): Promise<void> => {
-    try {
-      await fetchComments();
-    } catch (error) {
-      console.error('Failed to fetch comments:', error);
-    }
-  };
-
-  const handleFileUploaded = (newFile: TaskFile): void => {
-    setFiles(prevFiles => [...prevFiles, newFile]);
-  };
-
-  const handleFileDeleted = (fileId: number): void => {
-    setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
-  };
-
-  const handleSubtaskCreated = (newSubtask: Task): void => {
-    setSubtasks(prevSubtasks => [...prevSubtasks, newSubtask]);
-  };
-
-  const handleSubtaskUpdated = (subtaskId: number, updatedSubtask: Task): void => {
-    setSubtasks(prevSubtasks =>
-      prevSubtasks.map(subtask =>
-        subtask.id === subtaskId ? updatedSubtask : subtask
-      )
-    );
-  };
-
-  const handleSubtaskDeleted = (subtaskId: number): void => {
-    setSubtasks(prevSubtasks =>
-      prevSubtasks.filter(subtask => subtask.id !== subtaskId)
-    );
-  };
-
-  const handleTimeLogCreated = async (): Promise<void> => {
-    if (!id) return;
-    
-    const updatedTimeLogs = await getTaskTimeLogs(parseInt(id));
-    setTimeLogs(updatedTimeLogs);
-  };
-
-  const handleTimeLogEdit = (timeLog: TimeLog): void => {
-    setSelectedTimeLog(timeLog);
-    setTimeLogDialogOpen(true);
-  };
-
-  const handleTimeLogDelete = async (timeLogId: number): Promise<void> => {
-    if (!id) return;
-    
-    try {
-      await deleteTimeLog(timeLogId);
-      const updatedTimeLogs = await getTaskTimeLogs(parseInt(id));
-      setTimeLogs(updatedTimeLogs);
-    } catch (error) {
-      console.error('Failed to delete time log:', error);
-    }
-  };
-
-  const handleSaveComment = async (commentId: number, newText: string): Promise<void> => {
-    if (!id) return;
-    
-    try {
-      await editComment(parseInt(id), commentId, { content: newText });
-      await fetchComments();
-      setEditingComment(null);
-    } catch (error) {
-      console.error('Failed to edit comment:', error);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: number): Promise<void> => {
-    if (!id || !window.confirm('Are you sure you want to delete this comment?')) return;
-    
-    try {
-      await deleteComment(parseInt(id), commentId);
-      await fetchComments();
-    } catch (error) {
-      console.error('Failed to delete comment:', error);
-    }
-  };
-
-  const handleCommentUpdate = async (commentId: number, newText: string): Promise<void> => {
-    if (!id) return;
-    
-    try {
-      await editComment(parseInt(id), commentId, { content: newText });
-      const updatedComments = await getTaskComments(parseInt(id));
+      await editComment(commentId, Number(id), { comment: newText });
+      const updatedComments = comments.map(comment =>
+        comment.id === commentId ? { ...comment, comment: newText } : comment
+      );
       setComments(updatedComments);
+      setEditingComment(null);
     } catch (error) {
       console.error('Failed to update comment:', error);
     }
   };
 
-  const handleCommentDelete = async (commentId: number): Promise<void> => {
-    if (!id) return;
-    
+  const handleCommentDelete = async (commentId: number) => {
     try {
-      await deleteComment(parseInt(id), commentId);
-      const updatedComments = await getTaskComments(parseInt(id));
+      await deleteComment(commentId, Number(id));
+      const updatedComments = comments.filter(comment => comment.id !== commentId);
       setComments(updatedComments);
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
   };
 
-  const handleCommentSubmit = async (comment: Comment): Promise<void> => {
+  const handleSaveComment = async (commentId: number, newText: string) => {
+    await handleCommentUpdate(commentId, newText);
+  };
+
+  const handleFileUploaded = (file: TaskFile) => {
+    setFiles([...files, file]);
+  };
+
+  const handleFileDeleted = (fileId: number) => {
+    setFiles(files.filter(file => file.id !== fileId));
+  };
+
+  const handleTimeLogEdit = (timeLog: TimeLog) => {
+    setSelectedTimeLog(timeLog);
+    setTimeLogDialogOpen(true);
+  };
+
+  const handleTimeLogDelete = async (timeLogId: number) => {
     try {
-      const response = await createComment(Number(id), { content: comment.comment });
-      setComments(prev => [...prev, response]);
+      await deleteTimeLog(timeLogId);
+      setTimeLogs(timeLogs.filter(log => log.id !== timeLogId));
     } catch (error) {
-      console.error('Failed to create comment:', error);
+      console.error('Failed to delete time log:', error);
     }
   };
 
-  const handleTimeLogSubmit = async (data: TimeLogUpdate): Promise<void> => {
-    try {
-      const timeLogData: TimeLogCreate = {
-        task_id: Number(id),
-        activity_type_id: data.activity_type_id!,
-        spent_time: data.spent_time!,
-        description: data.description
-      };
-      const response = await createTimeLog(Number(id), timeLogData);
-      setTimeLogs(prev => [...prev, response]);
-      setTimeLogDialogOpen(false);
-    } catch (error) {
-      console.error('Failed to create time log:', error);
-    }
+  const handleSubtaskUpdated = async (subtaskId: number, updatedSubtask: Task) => {
+    setSubtasks(subtasks.map(subtask =>
+      subtask.id === subtaskId ? updatedSubtask : subtask
+    ));
+  };
+
+  const handleSubtaskDeleted = async (subtaskId: number) => {
+    setSubtasks(subtasks.filter(subtask => subtask.id !== subtaskId));
   };
 
   if (loading) {
@@ -310,23 +150,56 @@ const TaskDetails: React.FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}>
-      <Paper elevation={3} sx={{ padding: 4 }}>
+    <Box sx={{
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '16px'
+    }}>
+      <Paper
+        elevation={3} 
+        sx={{ padding: 4 }}
+      >
         <Typography variant="h4">{task.name}</Typography>
         <Grid container spacing={2} sx={{ mt: 2 }}>
           <Grid item xs={12} sm={6}>
-            <Typography variant="body1">Project: {task.project_name}</Typography>
-            <Typography variant="body1">Holder: {task.holder_name}</Typography>
-            <Typography variant="body1">Assignee: {task.assignee_name}</Typography>
+            <Typography
+              variant="body1">
+              Project: {task.project_name}
+            </Typography>
+            <Typography
+              variant="body1">
+              Holder: {task.holder_name}
+            </Typography>
+            <Typography
+              variant="body1">
+              Assignee: {task.assignee_name}
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="body1">Priority: {task.priority_name}</Typography>
-            <Typography variant="body1">Status: {task.status_name}</Typography>
-            <Typography variant="body1">Start Date: {new Date(task.start_date).toLocaleDateString()}</Typography>
-            <Typography variant="body1">Due Date: {new Date(task.due_date).toLocaleDateString()}</Typography>
+            <Typography
+              variant="body1">
+              Priority: {task.priority_name}
+            </Typography>
+            <Typography
+              variant="body1">
+              Status: {task.status_name}
+            </Typography>
+            <Typography
+              variant="body1">
+              Start Date: {new Date(task.start_date).toLocaleDateString()}
+            </Typography>
+            <Typography
+              variant="body1">
+              Due Date: {new Date(task.due_date).toLocaleDateString()}
+            </Typography>
           </Grid>
         </Grid>
-        <Typography variant="body1" sx={{ mt: 2 }}>Description: {task.description}</Typography>
+        <Typography
+          variant="body1"
+          sx={{ mt: 2 }}
+        >
+          Description: {task.description}
+        </Typography>
         <Box sx={{ mt: 2 }}>
         <PermissionButton
             requiredPermission="Update task status"
@@ -345,13 +218,13 @@ const TaskDetails: React.FC = () => {
             {statuses.map((status) => (
             <MenuItem
                 key={status.id}
-                onClick={() => handleStatusChange(status.id)}
-                selected={task.status_name === status.name}
-            >
-              {status.name}
-            </MenuItem>
-          ))}
-        </Menu>
+                onClick={() => handleStatusChange(status)}
+                selected={task.status_id === status.id}
+              >
+                {status.name}
+              </MenuItem>
+            ))}
+          </Menu>
           <PermissionButton 
             requiredPermission="Edit tasks"
             variant="contained" 
@@ -374,7 +247,6 @@ const TaskDetails: React.FC = () => {
         </Box>
       </Paper>
 
-      {/* Subtasks Section */}
       <Paper sx={{ mt: 3, p: 3 }}>
         <Box sx={{
           display: 'flex',
@@ -400,16 +272,8 @@ const TaskDetails: React.FC = () => {
           onSubtaskUpdated={handleSubtaskUpdated}
           onSubtaskDeleted={handleSubtaskDeleted}
         />
-
-        <SubtaskForm
-          open={subtaskFormOpen}
-          onClose={() => setSubtaskFormOpen(false)}
-          parentTaskId={id}
-          onSubtaskCreated={handleSubtaskCreated}
-        />
       </Paper>
 
-      {/* Comments Section */}
       <Paper sx={{ mt: 3, p: 3 }}>
         <Typography variant="h6" gutterBottom>
           Comments ({comments.length})
@@ -447,27 +311,25 @@ const TaskDetails: React.FC = () => {
         onSave={handleSaveComment}
       />
 
-      {/* Files Section */}
       <Paper sx={{ mt: 3, p: 3 }}>
         <Typography variant="h6" gutterBottom>
           Files ({files.length})
         </Typography>
         
         <FileUpload 
-          taskId={parseInt(id || '0')} 
+          taskId={Number(id)} 
           onFileUploaded={handleFileUploaded} 
         />
         
         <Box sx={{ mt: 2 }}>
           <FileList 
             files={files} 
-            taskId={parseInt(id || '0')}
+            taskId={Number(id)}
             onFileDeleted={handleFileDeleted}
           />
         </Box>
       </Paper>
 
-      {/* Task Type */}
       <Box sx={{
         display: 'flex',
         alignItems: 'center',
@@ -485,7 +347,6 @@ const TaskDetails: React.FC = () => {
         </Typography>
       </Box>
 
-      {/* Tags */}
       <Box sx={{ mb: 2 }}>
         <Typography variant="body1" gutterBottom>
           Tags:
@@ -508,7 +369,6 @@ const TaskDetails: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Time Logs Section */}
       <Paper sx={{ p: 3, mt: 3 }}>
         <Box sx={{ 
           display: 'flex', 
@@ -543,4 +403,4 @@ const TaskDetails: React.FC = () => {
   );
 };
 
-export default TaskDetails; 
+export default TaskDetails;

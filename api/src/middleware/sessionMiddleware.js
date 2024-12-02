@@ -1,7 +1,7 @@
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 
-exports.sessionMiddleware = (pool, sessionSecret) => {
+module.exports = (pool, sessionSecret) => {
   return session({
     store: new pgSession({
       pool: pool,

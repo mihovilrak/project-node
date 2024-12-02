@@ -26,18 +26,20 @@ import {
   Task,
   TaskStatus,
   TaskPriority,
-  TaskFormValues,
-  Tag,
+  TaskFormState,
   TaskFormProps
 } from '../../types/task';
 import { Project } from '../../types/project';
 import { User } from '../../types/user';
+import { Tag } from '../../types/tags';
+import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
-const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, onCreated }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  const [formValues, setFormValues] = useState<TaskFormValues>({
+  const [formData, setFormData] = useState<TaskFormState>({
     name: '',
     description: '',
     start_date: '',
@@ -46,9 +48,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
     status_id: 1,
     type_id: 1,
     parent_id: null,
-    project_id: '',
-    holder_id: '',
-    assignee_id: '',
+    project_id: 0,
+    holder_id: 0,
+    assignee_id: null,
     created_by: currentUser?.id,
     tags: []
   });
@@ -82,7 +84,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
         if (taskId) {
           const taskData = await getTaskById(Number(taskId));
           const taskTags = await getTaskTags(Number(taskId));
-          setFormValues({
+          setFormData({
             name: taskData.name,
             description: taskData.description || '',
             start_date: taskData.start_date,
@@ -93,7 +95,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             parent_id: taskData.parent_id || null,
             project_id: taskData.project_id,
             holder_id: taskData.holder_id,
-            assignee_id: taskData.assignee_id || '',
+            assignee_id: taskData.assignee_id || null,
             created_by: taskData.created_by,
             tags: taskTags || []
           });
@@ -106,24 +108,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
     fetchData();
   }, [taskId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value === '' ? null : value
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { tags, ...restFormValues } = formValues;
+      const { tags, ...restFormValues } = formData;
       
       const taskData: Partial<Task> = {
         ...restFormValues,
-        project_id: Number(restFormValues.project_id),
-        holder_id: Number(restFormValues.holder_id),
-        assignee_id: Number(restFormValues.assignee_id),
+        project_id: Number(restFormValues.project_id) || undefined,
+        holder_id: Number(restFormValues.holder_id) || undefined,
+        assignee_id: Number(restFormValues.assignee_id) || undefined,
         parent_id: restFormValues.parent_id || undefined,
         tags: tags
       };
@@ -148,7 +150,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Task Name" 
             name="name" 
-            value={formValues.name} 
+            value={formData.name} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }} 
@@ -159,7 +161,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Project" 
             name="project_id" 
-            value={formValues.project_id} 
+            value={formData.project_id} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
@@ -176,7 +178,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Holder" 
             name="holder_id" 
-            value={formValues.holder_id} 
+            value={formData.holder_id} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
@@ -193,7 +195,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Assignee" 
             name="assignee_id" 
-            value={formValues.assignee_id} 
+            value={formData.assignee_id} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
@@ -209,7 +211,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Description" 
             name="description" 
-            value={formValues.description} 
+            value={formData.description} 
             onChange={handleChange} 
             required 
             multiline 
@@ -222,7 +224,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Priority" 
             name="priority_id" 
-            value={formValues.priority_id} 
+            value={formData.priority_id} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
@@ -239,7 +241,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Status" 
             name="status_id" 
-            value={formValues.status_id} 
+            value={formData.status_id} 
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
@@ -256,23 +258,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             label="Start Date" 
             type="date" 
             name="start_date" 
-            value={formValues.start_date} 
+            value={formData.start_date} 
             onChange={handleChange} 
             required 
             InputLabelProps={{ shrink: true }} 
             sx={{ mb: 2 }} 
           />
           
-          <TextField 
-            fullWidth 
-            label="Due Date" 
-            type="date" 
-            name="due_date" 
-            value={formValues.due_date} 
-            onChange={handleChange} 
-            required 
-            InputLabelProps={{ shrink: true }} 
-            sx={{ mb: 2 }} 
+          <DatePicker
+            label="Due Date"
+            value={formData.due_date ? dayjs(formData.due_date) : null}
+            onChange={(newValue) => setFormData(prev => ({ 
+              ...prev, 
+              due_date: newValue ? newValue.format('YYYY-MM-DD') : '' 
+            }))}
           />
           
           <TextField 
@@ -280,7 +279,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
             fullWidth 
             label="Parent Task (Optional)" 
             name="parent_id" 
-            value={formValues.parent_id || ''} 
+            value={formData.parent_id || ''} 
             onChange={handleChange} 
             sx={{ mb: 2 }}
           >
@@ -297,8 +296,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Task Type</Typography>
             <TaskTypeSelect
-              value={formValues.type_id}
-              onChange={(e) => setFormValues(prev => ({ ...prev, type_id: Number(e.target.value) }))}
+              value={formData.type_id}
+              onChange={(e) => setFormData(prev => ({ ...prev, type_id: Number(e.target.value) }))}
               required
             />
           </Box>
@@ -306,8 +305,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId }) => {
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Tags</Typography>
             <TagSelect
-              value={formValues.tags}
-              onChange={(newValue: Tag[]) => setFormValues(prev => ({ ...prev, tags: newValue }))}
+              selectedTags={formData.tags}
+              onTagsChange={(newTags: Tag[]) => {
+                setFormData(prev => ({
+                  ...prev,
+                  tags: newTags
+                }));
+              }}
             />
           </Box>
           

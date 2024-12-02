@@ -14,6 +14,7 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 import { createProject } from '../../api/projects';
 import { ProjectFormProps, Project } from '../../types/project';
 
@@ -138,8 +139,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
           <Grid item xs={12} sm={6}>
             <DatePicker
               label="Start Date"
-              value={new Date(formData.start_date || '')}
-              onChange={(date) => handleDateChange('start_date', date)}
+              value={formData.start_date ? dayjs(formData.start_date) : null}
+              onChange={(newValue) => handleDateChange('start_date', newValue ? newValue.toDate() : null)}
               slotProps={{
                 textField: {
                   fullWidth: true,
@@ -153,8 +154,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
           <Grid item xs={12} sm={6}>
             <DatePicker
               label="Due Date"
-              value={new Date(formData.due_date || '')}
-              onChange={(date) => handleDateChange('due_date', date)}
+              value={formData.due_date ? dayjs(formData.due_date) : null}
+              onChange={(newValue) => handleDateChange('due_date', newValue ? newValue.toDate() : null)}
               slotProps={{
                 textField: {
                   fullWidth: true,

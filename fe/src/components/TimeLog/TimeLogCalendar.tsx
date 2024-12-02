@@ -24,7 +24,7 @@ import {
   eachDayOfInterval,
   isToday,
 } from 'date-fns';
-import { getTimeLogsByProject } from '../../api/timeLogService';
+import { getProjectTimeLogs } from '../../api/timeLogService';
 import { TimeLog, TimeLogCalendarProps } from '../../types/timeLog';
 
 const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
@@ -41,7 +41,7 @@ const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
   const fetchTimeLogs = async (): Promise<void> => {
     try {
       setLoading(true);
-      const logs = await getTimeLogsByProject(projectId);
+      const logs = await getProjectTimeLogs(projectId);
       setTimeLogs(logs);
     } catch (error) {
       console.error('Failed to fetch time logs:', error);

@@ -1,4 +1,4 @@
-exports.errorHandler = (err, req, res, next) => {
+module.exports = (err, req, res, next) => {
   console.error(err.stack);
 
   // Default error status and message

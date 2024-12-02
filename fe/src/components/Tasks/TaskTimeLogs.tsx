@@ -9,7 +9,10 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { TimeLog } from '../../types/timeLog';
-import { getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogs';
+import {
+  getTaskTimeLogs,
+  deleteTimeLog
+} from '../../api/timeLogService';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';

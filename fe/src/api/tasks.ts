@@ -2,8 +2,11 @@ import { api } from './api';
 import { Task, 
   TaskStatus,
   TaskPriority, 
-  TaskFilters 
+  TaskFilters,
+  TaskFormState
 } from '../types/task';
+import { Tag } from '../types/tags';
+import { ApiResponse } from '../types/api';
 
 // Get all tasks
 export const getTasks = async (filters: TaskFilters = {}): Promise<Task[]> => {
@@ -47,9 +50,9 @@ export const createTask = async (taskData: Partial<Task>): Promise<Task> => {
 };
 
 // Update task
-export const updateTask = async (id: number, taskData: Partial<Task>): Promise<Task> => {
+export const updateTask = async (taskId: number, data: Partial<TaskFormState>): Promise<ApiResponse<Task>> => {
   try {
-    const response = await api.put(`tasks/${id}`, taskData);
+    const response = await api.put(`tasks/${taskId}`, data);
     return response.data;
   } catch (error) {
     console.error('Error updating task:', error);
@@ -158,6 +161,17 @@ export const getPriorities = async (): Promise<TaskPriority[]> => {
     return response.data;
   } catch (error) {
     console.error('Failed to fetch task priorities:', error);
+    throw error;
+  }
+};
+
+// Update task tags
+export const updateTaskTags = async (taskId: number, tags: Tag[]): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put(`tasks/${taskId}/tags`, { tags });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating task tags:', error);
     throw error;
   }
 }; 

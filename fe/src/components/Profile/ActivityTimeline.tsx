@@ -8,37 +8,17 @@ import {
   TimelineConnector,
   TimelineContent
 } from '@mui/lab';
+import { Activity } from '../../types/profile';
 import { Box, Typography } from '@mui/material';
-import {
-  Task as TaskIcon,
-  Comment as CommentIcon,
-  InsertDriveFile as FileIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
-import { ActivityTimelineProps, Activity } from '../../types/profile';
+import { ActivityTimelineProps } from '../../types/profile';
+import { useActivityTimeline } from '../../hooks/useActivityTimeline';
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
-  const getActivityIcon = (type: Activity['type']) => {
-    switch (type) {
-      case 'task': return <TaskIcon />;
-      case 'comment': return <CommentIcon />;
-      case 'file': return <FileIcon />;
-      case 'edit': return <EditIcon />;
-      default: return <TaskIcon />;
-    }
-  };
-
-  const getActivityColor = (type: Activity['type']): 'primary' | 'success' | 'info' | 'warning' => {
-    switch (type) {
-      case 'task': return 'primary';
-      case 'comment': return 'success';
-      case 'file': return 'info';
-      case 'edit': return 'warning';
-      default: return 'primary';
-    }
-  };
+  const { getActivityIcon, getActivityColor } = useActivityTimeline();
 
   const renderTimelineItem = (activity: Activity, index: number) => {
+    const Icon = getActivityIcon(activity.type);
+    
     return (
       <TimelineItem key={activity.id}>
         <TimelineOppositeContent sx={{ flex: 0.2 }}>
@@ -48,7 +28,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
         </TimelineOppositeContent>
         <TimelineSeparator>
           <TimelineDot color={getActivityColor(activity.type)}>
-            {getActivityIcon(activity.type)}
+            <Icon />
           </TimelineDot>
           {index < activities.length - 1 && <TimelineConnector />}
         </TimelineSeparator>

@@ -29,28 +29,6 @@ export interface CommentEditDialogProps {
   onSave: (commentId: number, newText: string) => Promise<void>;
 }
 
-export interface CommentCreate {
-  task_id: number;
-  comment: string;
-}
-
-export interface CommentUpdate {
-  id: number;
-  comment: string;
-}
-
-export interface CommentResponse {
-  id: number;
-  task_id: number;
-  user_id: number;
-  comment: string;
-  active: boolean;
-  created_on: string;
-  updated_on: string | null;
-  user_name: string;
-  user_avatar: string | null;
-}
-
 export interface CommentError {
   error: string;
   details?: string;

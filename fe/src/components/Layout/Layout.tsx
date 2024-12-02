@@ -1,38 +1,21 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Tabs, Tab, Box, Button } from '@mui/material';
-import { useNavigate, Outlet } from 'react-router-dom';
+import React from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Tabs,
+  Tab,
+  Box,
+  Button
+} from '@mui/material';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '../../hooks/useNavigation';
 
 const Layout: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [value, setValue] = useState<number>(0);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-    switch (newValue) {
-      case 0:
-        navigate('/');
-        break;
-      case 1:
-        navigate('/projects');
-        break;
-      case 2:
-        navigate('/users');
-        break;
-      case 3:
-        navigate('/tasks');
-        break;
-      case 4:
-        navigate('/settings');
-        break;
-      case 5:
-        navigate('/profile');
-        break;
-      default:
-        break;
-    }
-  };
+  const { activeTab, handleTabChange } = useNavigation();
 
   const handleLogout = () => {
     logout();
@@ -43,7 +26,7 @@ const Layout: React.FC = () => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Tabs value={value} onChange={handleTabChange} textColor="inherit" indicatorColor="secondary">
+          <Tabs value={activeTab} onChange={handleTabChange} textColor="inherit" indicatorColor="secondary">
             <Tab label="Home" />
             <Tab label="Projects" />
             <Tab label="Users" />

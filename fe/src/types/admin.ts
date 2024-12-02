@@ -17,14 +17,3 @@ export interface Role {
   // Virtual fields from joins
   permissions?: Permission[];
 }
-
-export interface RolePermission {
-  role_id: number;
-  permission_id: number;
-  created_on: string;
-}
-
-// Admin check response
-export interface AdminCheckResponse {
-  is_admin: boolean;
-}

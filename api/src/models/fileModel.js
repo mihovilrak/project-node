@@ -3,7 +3,7 @@ exports.getTaskFiles = async (pool, taskId) => {
   const result = await pool.query(
     `SELECT * FROM files 
     WHERE task_id = $1 
-    ORDER BY created_on DESC`,
+    ORDER BY uploaded_on DESC`,
     [taskId]
   );
   return result.rows;

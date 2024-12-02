@@ -23,7 +23,7 @@ exports.getTasks = async (pool, whereParams) => {
 exports.getTaskById = async (pool, id) => {
   const result = await pool.query(
     `SELECT * FROM v_tasks 
-    WHERE task_id = $1`,
+    WHERE id = $1`,
     [id]
   );
   return result.rows[0];

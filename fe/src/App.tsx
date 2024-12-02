@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
@@ -21,36 +21,82 @@ import Calendar from './components/Calendar/Calendar';
 import TaskFiles from './components/Tasks/TaskFiles';
 import TaskTimeLogs from './components/Tasks/TaskTimeLogs';
 import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
+import { TaskFile } from './types/files';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-const App: React.FC = () => (
-  <AuthProvider>
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route element={<PrivateRoute element={<Layout />} />}>
-          <Route path="/" element={<PrivateRoute element={<Home />} />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/users/new" element={<UserForm />} />
-          <Route path="/users/:id" element={<UserDetails />} />
-          <Route path="/users/:id/edit" element={<UserForm />} />
-          <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
-          <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
-          <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/tasks/new" element={<TaskForm />} />
-          <Route path="/tasks/:id" element={<TaskDetails />} />
-          <Route path="/tasks/:id/edit" element={<TaskForm />} />
-          <Route path="/tasks/active" element={<ActiveTasks />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
-          <Route path="/tasks/:id/files" element={<TaskFiles />} />
-          <Route path="/tasks/:id/time-logs" element={<TaskTimeLogs />} />
-          <Route path="/time-logs/calendar" element={<TimeLogCalendar />} />
-        </Route>
-      </Routes>
-    </Router>
-  </AuthProvider>
-);
+// Wrapper component for TaskFiles with proper types
+const TaskFileWrapper: React.FC = () => {
+  const handleFileUploaded = (file: TaskFile) => {
+    // Handle file upload success
+    console.log('File uploaded:', file);
+  };
+
+  const handleFileDeleted = (fileId: number) => {
+    // Handle file deletion
+    console.log('File deleted:', fileId);
+  };
+
+  return (
+    <TaskFiles
+      taskId={parseInt(window.location.pathname.split('/')[2])}
+      onFileUploaded={handleFileUploaded}
+      onFileDeleted={handleFileDeleted}
+    />
+  );
+};
+
+// Wrapper component for TimeLogCalendar with proper types
+const TimeLogCalendarWrapper: React.FC = () => {
+  const projectId = parseInt(window.location.pathname.split('/')[2]);
+  return <TimeLogCalendar projectId={projectId} />;
+};
+
+const App: React.FC = () => {
+  const [taskFormOpen, setTaskFormOpen] = useState(false);
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route element={<PrivateRoute element={<Layout />} />}>
+              <Route path="/" element={<PrivateRoute element={<Home />} />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/users/new" element={<UserForm />} />
+              <Route path="/users/:id" element={<UserDetails />} />
+              <Route path="/users/:id/edit" element={<UserForm />} />
+              <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
+              <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
+              <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route 
+                path="/tasks/new" 
+                element={<PrivateRoute element={
+                  <TaskForm 
+                    open={taskFormOpen}
+                    onClose={() => setTaskFormOpen(false)}
+                    onCreated={() => {
+                      setTaskFormOpen(false);
+                    }}
+                    />
+                  } />
+                } />
+              <Route path="/tasks/:id" element={<TaskDetails />} />
+              <Route path="/tasks/active" element={<ActiveTasks />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
+              <Route path="/tasks/:id/files" element={<TaskFileWrapper />} />
+              <Route path="/tasks/:id/time-logs" element={<TaskTimeLogs />} />
+              <Route path="/projects/:projectId/time-logs/calendar" element={<TimeLogCalendarWrapper />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </LocalizationProvider>
+  );
+};
 
 export default App; 

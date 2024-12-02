@@ -17,8 +17,8 @@ create or replace view v_tasks as
             t.created_on::timestamp(0)
     from tasks t 
     left join projects po on po.id = t.project_id
-    left join v_task_holders h on h.holder_id = t.holder_id
-    left join v_task_assignees a on a.assignee_id = t.assignee_id
-    left join v_task_created_by c on c.created_by = t.created_by
+    left join users h on h.id = t.holder_id
+    left join users a on a.id = t.assignee_id
+    left join users c on c.id = t.created_by
     left join task_statuses ts on ts.id = t.status_id
     left join priorities pi on pi.id = t.priority_id;

@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import React from 'react';
 import {
   Container,
   Box,
@@ -9,30 +7,15 @@ import {
   Typography,
   Paper
 } from '@mui/material';
-import { LoginRequest } from '../../types/auth';
+import { useLogin } from '../../hooks/useLogin';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
-  const [loginDetails, setLoginDetails] = useState<LoginRequest>({ login: '', password: '' });
-  const [error, setError] = useState<string>('');
-  const navigate = useNavigate();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value } = e.target;
-    setLoginDetails((prevState) => ({ ...prevState, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-
-    try {
-      await login(loginDetails.login, loginDetails.password);
-      navigate('/');
-    } catch (error) {
-      console.error(error);
-      setError('Login error. Please try again.');
-    }
-  };
+  const {
+    loginDetails,
+    error,
+    handleInputChange,
+    handleSubmit
+  } = useLogin();
 
   return (
     <Container maxWidth="sm">

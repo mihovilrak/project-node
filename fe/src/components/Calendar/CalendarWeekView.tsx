@@ -7,10 +7,9 @@ import {
   Typography,
   Chip
 } from '@mui/material';
-import { Task } from '../../types/task';
-import { TimeLog } from '../../types/timeLog';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
+import { useCalendarWeek } from '../../hooks/useCalendarWeek';
 
 const CalendarWeekView: React.FC<CalendarViewProps> = ({ 
   view,
@@ -23,25 +22,8 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
   onTimeLogClick 
 }) => {
   const navigate = useNavigate();
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const day = new Date(date);
-    day.setDate(day.getDate() - day.getDay() + i);
-    return day;
-  });
-
-  const getTasksForDay = (day: Date): Task[] => {
-    return tasks.filter(task => {
-      const taskDate = new Date(task.start_date);
-      return taskDate.toDateString() === day.toDateString();
-    });
-  };
-
-  const getTimeLogsForDay = (day: Date): TimeLog[] => {
-    return timeLogs.filter(timeLog => {
-      const logDate = new Date(timeLog.created_on);
-      return logDate.toDateString() === day.toDateString();
-    });
-  };
+  const { getWeekDays, getTasksForDay, getTimeLogsForDay } = useCalendarWeek(date, tasks, timeLogs);
+  const days = getWeekDays();
 
   return (
     <Grid container spacing={2}>

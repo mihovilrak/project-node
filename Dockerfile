@@ -5,7 +5,7 @@ FROM node:23-alpine3.19 AS frontend-builder
 WORKDIR /app/fe
 
 # Copy package and lock files
-COPY fe/package*.json fe/yarn.lock fe/tsconfig.json ./
+COPY fe/package*.json fe/yarn.lock fe/tsconfig.json fe/.yarnrc ./
 
 # Install dependencies
 RUN mkdir node_modules && \

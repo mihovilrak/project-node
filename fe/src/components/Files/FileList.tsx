@@ -9,24 +9,19 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
-import { FileListProps, TaskFile } from '../../types/files';
+import { FileListProps } from '../../types/files';
+import { useFileList } from '../../hooks/useFileList';
 
 const FileList: React.FC<FileListProps> = ({
   files,
   taskId,
   onFileDeleted
 }) => {
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+  const { formatFileSize } = useFileList(onFileDeleted);
 
   return (
     <List>
-      {files.map((file: TaskFile) => (
+      {files.map((file) => (
         <ListItem
           key={file.id}
           secondaryAction={
