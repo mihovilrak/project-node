@@ -7,6 +7,8 @@ create or replace view v_tasks as
             h.name as holder_name,
             t.assignee_id,
             a.name as assignee_name,
+            t.parent_id,
+            pt.name as parent_name,
             t.description,
             ts.name as status,
             pi.name as priority,
@@ -21,4 +23,5 @@ create or replace view v_tasks as
     left join users a on a.id = t.assignee_id
     left join users c on c.id = t.created_by
     left join task_statuses ts on ts.id = t.status_id
-    left join priorities pi on pi.id = t.priority_id;
+    left join priorities pi on pi.id = t.priority_id
+    left join v_parent_tasks pt on pt.id = t.parent_id;

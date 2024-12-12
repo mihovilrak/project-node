@@ -19,6 +19,7 @@ export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) =
       
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('taskId', taskId.toString());
 
       const progressCallback = (progressEvent: AxiosProgressEvent) => {
         if (progressEvent.total) {

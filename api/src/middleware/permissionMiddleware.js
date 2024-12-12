@@ -13,12 +13,6 @@ exports.checkPermission = (pool, requiredPermission) => {
         return res.status(401).json({ error: 'Not authenticated' });
       }
 
-      /*const isAdmin = await isUserAdmin(pool, userId);
-      
-      if (isAdmin) {
-        return next();
-      }*/
-
       const hasAccess = await hasPermission(pool, userId, requiredPermission);
       
       if (!hasAccess) {

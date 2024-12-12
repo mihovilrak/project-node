@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 // Get task files
 exports.getTaskFiles = async (req, res, pool) => {
   try {
-    const { taskId } = req.params;
+    const taskId = req.taskId;
     const files = await fileModel.getTaskFiles(pool, taskId);
     res.status(200).json(files);
   } catch (error) {
@@ -17,7 +17,7 @@ exports.getTaskFiles = async (req, res, pool) => {
 // Upload a file
 exports.uploadFile = async (req, res, pool) => {
   try {
-    const { taskId } = req.params;
+    const taskId = req.taskId;
     const userId = req.session.user?.id;
     const file = req.file;
 
@@ -27,6 +27,11 @@ exports.uploadFile = async (req, res, pool) => {
 
     if (!file) {
       return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Add validation for taskId
+    if (!taskId || isNaN(taskId)) {
+      return res.status(400).json({ error: 'Invalid task ID' });
     }
 
     // Construct the file path relative to the uploads directory
@@ -45,7 +50,7 @@ exports.uploadFile = async (req, res, pool) => {
 
     res.status(201).json(fileData);
   } catch (error) {
-    console.error(error);
+    console.error('Error in uploadFile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

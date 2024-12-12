@@ -27,6 +27,12 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
     resetForm
   } = useCommentEdit(comment, onSave);
 
+  React.useEffect(() => {
+    if (comment) {
+      setEditedText(comment.comment);
+    }
+  }, [comment, setEditedText]);
+
   const handleClose = (): void => {
     resetForm();
     onClose();

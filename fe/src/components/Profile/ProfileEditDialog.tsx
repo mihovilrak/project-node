@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+  useEffect
+} from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,7 +12,10 @@ import {
   Alert
 } from '@mui/material';
 import { updateProfile } from '../../api/profile';
-import { ProfileEditDialogProps, FormData } from '../../types/profile';
+import {
+  ProfileEditDialogProps,
+  FormData
+} from '../../types/profile';
 
 
 const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ 
@@ -27,6 +33,18 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        surname: profile.surname || '',
+        email: profile.email || '',
+        timezone: profile.timezone || '',
+        language: profile.language || ''
+      });
+    }
+  }, [profile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

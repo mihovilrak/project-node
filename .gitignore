@@ -11,3 +11,6 @@ fe/src/api/*.js
 fe/src/api/*.bak
 
 import.py
+
+.cursorignore
+.cursorrules

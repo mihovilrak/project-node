@@ -37,22 +37,37 @@ const SystemSettings: React.FC = () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
       const data = await getSystemSettings();
-      setState(prev => ({ ...prev, settings: data }));
+      setState(prev => ({ 
+        ...prev, 
+        settings: data,
+        loading: false 
+      }));
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'Failed to fetch system settings' }));
-    } finally {
-      setState(prev => ({ ...prev, loading: false }));
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Failed to fetch system settings',
+        loading: false 
+      }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     try {
+      setState(prev => ({ ...prev, loading: true }));
       await updateSystemSettings(state.settings);
-      setState(prev => ({ ...prev, success: true }));
+      setState(prev => ({ 
+        ...prev, 
+        success: true,
+        loading: false 
+      }));
       setTimeout(() => setState(prev => ({ ...prev, success: false })), 3000);
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'Failed to update settings' }));
+      setState(prev => ({ 
+        ...prev, 
+        error: 'Failed to update settings',
+        loading: false 
+      }));
     }
   };
 

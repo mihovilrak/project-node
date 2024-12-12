@@ -3,6 +3,7 @@ export interface TimeLog {
   task_id: number;
   user_id: number;
   activity_type_id: number;
+  log_date: string;
   spent_time: number;
   description: string | null;
   created_on: string;
@@ -18,7 +19,9 @@ export interface TimeLog {
 
 export interface TimeLogCreate {
   task_id: number;
+  user_id?: number;
   activity_type_id: number;
+  log_date: string;
   spent_time: number;
   description?: string;
 }
@@ -40,13 +43,19 @@ export interface TimeSpent {
 }
 
 export interface TimeLogFormProps {
-  spentTime: number;
-  description: string;
-  activityTypeId: number;
-  activityTypes: ActivityType[];
-  onSpentTimeChange: (value: number) => void;
-  onDescriptionChange: (value: string) => void;
-  onActivityTypeChange: (value: number) => void;
+  projectId?: number;
+  taskId?: number;
+  onClose: () => void;
+  onSubmit: (timeLog: TimeLogCreate) => Promise<void>;
+}
+
+export interface TimeLogDialogProps {
+  open: boolean;
+  projectId?: number;
+  taskId?: number;
+  timeLog: TimeLog | null;
+  onClose: () => void;
+  onSubmit: (timeLog: TimeLogCreate) => Promise<void>;
 }
 
 export interface TimeLogDashboardProps {

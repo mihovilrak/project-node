@@ -3,7 +3,7 @@ const commentModel = require('../models/commentModel');
 // Get task comments
 exports.getTaskComments = async (req, res, pool) => {
   try {
-    const { taskId } = req.params;
+    const taskId = req.taskId;
     const comments = await commentModel.getTaskComments(pool, taskId);
     res.status(200).json(comments);
   } catch (error) {
@@ -15,7 +15,7 @@ exports.getTaskComments = async (req, res, pool) => {
 // Create a comment
 exports.createComment = async (req, res, pool) => {
   try {
-    const { taskId } = req.params;
+    const taskId = req.taskId;
     const { comment } = req.body;
     const userId = req.session.user?.id;
 

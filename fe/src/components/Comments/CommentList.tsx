@@ -42,22 +42,35 @@ const CommentList: React.FC<CommentListProps> = ({
             elevation={0} 
             sx={{ mb: 2, p: 2, backgroundColor: 'background.default' }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              mb: 1
+            }}>
               <Avatar 
                 src={comment.user_avatar || undefined}
                 alt={comment.user_name}
                 sx={{ width: 32, height: 32, mr: 2 }}
               />
               <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
                   <Typography variant="subtitle2">
                     {comment.user_name}
                   </Typography>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
                       {new Date(comment.created_on).toLocaleString()}
                     </Typography>
-                    <IconButton 
+                    <IconButton
                       size="small" 
                       onClick={(e) => handleMenuOpen(e, comment)}
                       sx={{ ml: 1 }}
@@ -72,7 +85,11 @@ const CommentList: React.FC<CommentListProps> = ({
               </Box>
             </Box>
             {comment.updated_on && (
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 1, display: 'block' }}
+              >
                 Edited {new Date(comment.updated_on).toLocaleString()}
               </Typography>
             )}
@@ -89,7 +106,10 @@ const CommentList: React.FC<CommentListProps> = ({
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
           Edit
         </MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+        <MenuItem
+          onClick={handleDeleteClick}
+          sx={{ color: 'error.main' }}
+        >
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           Delete
         </MenuItem>

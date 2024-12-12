@@ -78,9 +78,9 @@ export const getProjectMembers = async (id: number): Promise<ProjectMember[]> =>
 };
 
 // Add project member
-export const addProjectMember = async (projectId: number, userId: number, role: string): Promise<ProjectMember> => {
+export const addProjectMember = async (projectId: number, userId: number): Promise<ProjectMember> => {
   try {
-    const response = await api.post(`projects/${projectId}/members`, { user_id: userId, role });
+    const response = await api.post(`projects/${projectId}/members`, { userId });
     return response.data;
   } catch (error) {
     console.error('Error adding project member:', error);
@@ -91,7 +91,7 @@ export const addProjectMember = async (projectId: number, userId: number, role: 
 // Remove project member
 export const removeProjectMember = async (projectId: number, userId: number): Promise<void> => {
   try {
-    await api.delete(`projects/${projectId}/members/${userId}`);
+    await api.delete(`projects/${projectId}/members`, { data: { userId } });
   } catch (error) {
     console.error('Error removing project member:', error);
     throw error;
@@ -127,6 +127,17 @@ export const createSubproject = async (projectId: number, subprojectData: Partia
     return response.data;
   } catch (error) {
     console.error('Failed to create subproject', error);
+    throw error;
+  }
+};
+
+// Get project spent time
+export const getProjectSpentTime = async (projectId: number): Promise<number> => {
+  try {
+    const response = await api.get(`/projects/${projectId}/spent-time`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get project spent time', error);
     throw error;
   }
 };

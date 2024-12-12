@@ -43,6 +43,14 @@ module.exports = (pool) => {
   router.get('/:id/members', (req, res) =>
     projectController.getProjectMembers(req, res, pool));
 
+  // Add project member
+  router.post('/:id/members', checkPermission(pool, 'Create projects'), (req, res) =>
+    projectController.addProjectMember(req, res, pool));
+
+  // Delete project member
+  router.delete('/:id/members', checkPermission(pool, 'Edit projects'), (req, res) =>
+    projectController.deleteProjectMember(req, res, pool));
+
   // Get subprojects
   router.get('/:id/subprojects', (req, res) => 
     projectController.getSubprojects(req, res, pool));

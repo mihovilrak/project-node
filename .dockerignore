@@ -9,6 +9,8 @@
 **/tmp*
 
 .vscode
+.cursorignore
+.cursorrules
 
 **/*.md
 

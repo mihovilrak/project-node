@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import Home from './components/Home/Home';
@@ -24,6 +24,10 @@ import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
 import { TaskFile } from './types/files';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Task } from './types/task';
+import { getTaskById } from './api/tasks';
+import { ThemeProvider } from './context/ThemeContext';
+import CssBaseline from '@mui/material/CssBaseline';
 
 // Wrapper component for TaskFiles with proper types
 const TaskFileWrapper: React.FC = () => {
@@ -52,50 +56,79 @@ const TimeLogCalendarWrapper: React.FC = () => {
   return <TimeLogCalendar projectId={projectId} />;
 };
 
+// Update the TaskTimeLogsWrapper component
+const TaskTimeLogsWrapper: React.FC = () => {
+  const [task, setTask] = useState<Task | null>(null);
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const fetchTask = async () => {
+      if (id) {
+        try {
+          const taskData = await getTaskById(parseInt(id));
+          setTask(taskData);
+        } catch (error) {
+          console.error('Failed to fetch task:', error);
+        }
+      }
+    };
+    fetchTask();
+  }, [id]);
+
+  if (!task) {
+    return null; // or a loading spinner
+  }
+
+  return <TaskTimeLogs task={task} />;
+};
+
 const App: React.FC = () => {
   const [taskFormOpen, setTaskFormOpen] = useState(false);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<PrivateRoute element={<Layout />} />}>
-              <Route path="/" element={<PrivateRoute element={<Home />} />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/users/new" element={<UserForm />} />
-              <Route path="/users/:id" element={<UserDetails />} />
-              <Route path="/users/:id/edit" element={<UserForm />} />
-              <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
-              <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
-              <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route 
-                path="/tasks/new" 
-                element={<PrivateRoute element={
-                  <TaskForm 
-                    open={taskFormOpen}
-                    onClose={() => setTaskFormOpen(false)}
-                    onCreated={() => {
-                      setTaskFormOpen(false);
-                    }}
-                    />
+    <ThemeProvider>
+      <CssBaseline />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route element={<PrivateRoute element={<Layout />} />}>
+                <Route path="/" element={<PrivateRoute element={<Home />} />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/new" element={<UserForm />} />
+                <Route path="/users/:id" element={<UserDetails />} />
+                <Route path="/users/:id/edit" element={<UserForm />} />
+                <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
+                <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
+                <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
+                <Route path="/tasks" element={<Tasks />} />
+                <Route 
+                  path="/tasks/new" 
+                  element={<PrivateRoute element={
+                    <TaskForm 
+                      open={taskFormOpen}
+                      onClose={() => setTaskFormOpen(false)}
+                      onCreated={() => {
+                        setTaskFormOpen(false);
+                      }}
+                      />
+                    } />
                   } />
-                } />
-              <Route path="/tasks/:id" element={<TaskDetails />} />
-              <Route path="/tasks/active" element={<ActiveTasks />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
-              <Route path="/tasks/:id/files" element={<TaskFileWrapper />} />
-              <Route path="/tasks/:id/time-logs" element={<TaskTimeLogs />} />
-              <Route path="/projects/:projectId/time-logs/calendar" element={<TimeLogCalendarWrapper />} />
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </LocalizationProvider>
+                <Route path="/tasks/:id" element={<TaskDetails />} />
+                <Route path="/tasks/active" element={<ActiveTasks />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
+                <Route path="/tasks/:id/files" element={<TaskFileWrapper />} />
+                <Route path="/tasks/:id/time-logs" element={<TaskTimeLogsWrapper />} />
+                <Route path="/projects/:projectId/time-logs/calendar" element={<TimeLogCalendarWrapper />} />
+              </Route>
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 };
 

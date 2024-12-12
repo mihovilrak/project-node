@@ -101,7 +101,30 @@ exports.getSubprojects = async (pool, parentId) => {
     );
     return result.rows;
   };
-  
+
+// Add project member
+exports.addProjectMember = async (pool, projectId, userId) => {
+  const result = await pool.query(
+    `INSERT INTO project_users 
+    (project_id, user_id) 
+    VALUES ($1, $2) 
+    RETURNING *`,
+      [projectId, userId]
+    );
+    return result.rows[0];
+  };
+
+// Delete project member
+exports.deleteProjectMember = async (pool, projectId, userId) => {
+  const result = await pool.query(
+    `DELETE FROM project_users 
+    WHERE project_id = $1 
+    AND user_id = $2`,
+      [projectId, userId]
+    );
+    return result.rowCount;
+  };
+
 // Create a subproject
 exports.createSubproject = async (
   pool, 

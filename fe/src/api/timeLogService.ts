@@ -64,6 +64,7 @@ export const getProjectSpentTime = async (projectId: number): Promise<TimeSpent>
 export const createTimeLog = async (taskId: number, timeLog: TimeLogCreate): Promise<TimeLog> => {
   try {
     const response = await api.post(`/time-logs/tasks/${taskId}/logs`, {
+      log_date: timeLog.log_date,
       spent_time: timeLog.spent_time,
       description: timeLog.description,
       activity_type_id: timeLog.activity_type_id
@@ -90,6 +91,7 @@ export const getUserTimeLogs = async (params?: Record<string, any>): Promise<Tim
 export const updateTimeLog = async (timeLogId: number, timeLog: TimeLogCreate): Promise<TimeLog> => {
   try {
     const response = await api.put(`/time-logs/${timeLogId}`, {
+      log_date: timeLog.log_date,
       spent_time: timeLog.spent_time,
       description: timeLog.description,
       activity_type_id: timeLog.activity_type_id

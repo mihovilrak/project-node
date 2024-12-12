@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Comment } from '../types/comment';
-import { TimeLog } from '../types/timeLog';
+import { TimeLog, TimeLogCreate } from '../types/timeLog';
 import { TaskFile } from '../types/files';
 import { Task, TaskStatus } from '../types/task';
 import {
@@ -12,9 +12,19 @@ import {
     changeTaskStatus,
     deleteTask
 } from '../api/tasks';
-import { getTaskComments } from '../api/comments';
+import {
+  getTaskComments,
+  createComment,
+  editComment,
+  deleteComment
+} from '../api/comments';
 import { getTaskTimeLogs } from '../api/timeLogService';
-import { getTaskFiles } from '../api/files';
+import {
+  getTaskFiles,
+  uploadFile,
+  downloadFile,
+  deleteFile
+} from '../api/files';
 
 export const useTaskDetails = (taskId: string) => {
     const [state, setState] = useState({
@@ -30,11 +40,12 @@ export const useTaskDetails = (taskId: string) => {
       selectedTimeLog: null as TimeLog | null,
       commentDialogOpen: false,
       selectedComment: null as Comment | null,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      editingComment: null as Comment | null,
     });
   
     const navigate = useNavigate();
-    const { hasPermission } = useAuth();
+    const { hasPermission, currentUser } = useAuth();
   
     useEffect(() => {
       const fetchTaskData = async () => {
@@ -103,9 +114,22 @@ export const useTaskDetails = (taskId: string) => {
       }
     };
   
-    const handleTimeLogSubmit = async (timeLog: TimeLog) => {
+    const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
       try {
-        const updatedTimeLogs = [...state.timeLogs, timeLog];
+        if (!currentUser?.id) {
+          throw new Error('User not authenticated');
+        }
+
+        const newTimeLog: TimeLog = {
+          id: Date.now(),
+          user_id: currentUser.id,
+          created_on: new Date().toISOString(),
+          updated_on: new Date().toISOString(),
+          description: timeLogData.description || null,
+          ...timeLogData
+        };
+        
+        const updatedTimeLogs = [...state.timeLogs, newTimeLog];
         setState(prev => ({
           ...prev,
           timeLogs: updatedTimeLogs,
@@ -117,18 +141,103 @@ export const useTaskDetails = (taskId: string) => {
       }
     };
   
-    const handleCommentSubmit = async (comment: Comment) => {
+    const handleCommentSubmit = async (content: string) => {
       try {
-        const updatedComments = [...state.comments, comment];
+        if (!currentUser?.id) throw new Error('User not authenticated');
+        
+        const newComment = await createComment(Number(taskId), {
+          comment: content
+        });
+
         setState(prev => ({
           ...prev,
-          comments: updatedComments,
-          commentDialogOpen: false,
-          selectedComment: null
+          comments: [...prev.comments, newComment],
+          commentDialogOpen: false
         }));
       } catch (error) {
         console.error('Failed to add comment:', error);
       }
+    };
+  
+    const handleCommentUpdate = async (commentId: number, newText: string) => {
+      try {
+        const updatedComment = await editComment(commentId, Number(taskId), { 
+          comment: newText 
+        });
+
+        setState(prev => ({
+          ...prev,
+          comments: prev.comments.map(c => 
+            c.id === commentId ? updatedComment : c
+          )
+        }));
+      } catch (error) {
+        console.error('Failed to update comment:', error);
+      }
+    };
+  
+    const handleCommentDelete = async (commentId: number) => {
+      try {
+        await deleteComment(Number(taskId), commentId);
+        setState(prev => ({
+          ...prev,
+          comments: prev.comments.filter(c => c.id !== commentId)
+        }));
+      } catch (error) {
+        console.error('Failed to delete comment:', error);
+      }
+    };
+  
+    const handleFileUpload = async (file: File) => {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('task_id', taskId);
+        
+        const uploadedFile = await uploadFile(Number(taskId), formData);
+        
+        setState(prev => ({
+          ...prev,
+          files: [...prev.files, uploadedFile]
+        }));
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+      }
+    };
+  
+    const handleFileDownload = async (fileId: number) => {
+      try {
+        const blob = await downloadFile(Number(taskId), fileId);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = state.files.find(f => f.id === fileId)?.original_name || 'download';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error('Failed to download file:', error);
+      }
+    };
+  
+    const handleFileDelete = async (fileId: number) => {
+      try {
+        await deleteFile(Number(taskId), fileId);
+        setState(prev => ({
+          ...prev,
+          files: prev.files.filter(f => f.id !== fileId)
+        }));
+      } catch (error) {
+        console.error('Failed to delete file:', error);
+      }
+    };
+  
+    const handleSubtasksUpdate = (newSubtasks: Task[]) => {
+      setState(prev => ({
+        ...prev,
+        subtasks: newSubtasks
+      }));
     };
   
     return {
@@ -137,6 +246,12 @@ export const useTaskDetails = (taskId: string) => {
       handleDelete,
       handleTimeLogSubmit,
       handleCommentSubmit,
+      handleCommentUpdate,
+      handleCommentDelete,
+      handleFileUpload,
+      handleFileDownload,
+      handleFileDelete,
+      handleSubtasksUpdate,
       setTimeLogDialogOpen: (open: boolean) => 
         setState(prev => ({ ...prev, timeLogDialogOpen: open })),
       setCommentDialogOpen: (open: boolean) => 
@@ -154,6 +269,8 @@ export const useTaskDetails = (taskId: string) => {
       setSubtasks: (subtasks: Task[]) =>
         setState(prev => ({ ...prev, subtasks })),
       canEdit: hasPermission('Edit tasks'),
-      canDelete: hasPermission('Delete tasks')
+      canDelete: hasPermission('Delete tasks'),
+      setEditingComment: (comment: Comment | null) =>
+        setState(prev => ({ ...prev, editingComment: comment })),
     };
   };

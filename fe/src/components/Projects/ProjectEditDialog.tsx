@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -19,20 +19,31 @@ interface FormData extends Partial<Project> {
   due_date: string;
 }
 
-const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({ 
-  open, 
-  project, 
-  onClose, 
-  onSaved 
+const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
+  open,
+  project,
+  onClose,
+  onSaved
 }) => {
   const [formData, setFormData] = useState<FormData>({
-    name: project.name,
-    description: project.description,
-    start_date: project.start_date,
-    due_date: project.due_date
+    name: '',
+    description: null,
+    start_date: '',
+    due_date: ''
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (project) {
+      setFormData({
+        name: project.name,
+        description: project.description,
+        start_date: project.start_date,
+        due_date: project.due_date
+      });
+    }
+  }, [project]);
 
   const handleChange = (field: keyof FormData) => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -45,20 +56,24 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
 
   const handleSubmit = async () => {
     try {
-      setLoading(true);
       setError(null);
+      setLoading(true);
+      
+      if (!project) return;
+
       await updateProject(project.id, formData);
       onSaved();
-    } catch (error) {
-      console.error('Failed to update project:', error);
-      setError('Failed to update project. Please try again.');
+      onClose();
+    } catch (err) {
+      setError('Failed to update project');
+      console.error('Error updating project:', err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Edit Project</DialogTitle>
       <DialogContent>
         {error && (
@@ -114,12 +129,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
         <Button onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
-          color="primary"
-          disabled={loading}
-        >
+        <Button onClick={handleSubmit} disabled={loading}>
           Save Changes
         </Button>
       </DialogActions>

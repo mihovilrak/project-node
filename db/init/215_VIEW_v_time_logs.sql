@@ -7,6 +7,7 @@ select
     t.name as task_name,
     tl.user_id,
     u.name || ' ' || u.surname as user,
+    tl.log_date,
     tl.spent_time,
     tl.description,
     tl.activity_type_id 

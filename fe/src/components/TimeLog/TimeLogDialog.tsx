@@ -6,102 +6,205 @@ import {
   DialogActions,
   Button,
   TextField,
-  Box,
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Box
 } from '@mui/material';
-import {
-  createTimeLog,
-  updateTimeLog
-} from '../../api/timeLogService';
-import { TimeLog } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
+import { getProjects } from '../../api/projects';
+import { getProjectTasks } from '../../api/tasks';
+import { getUsers } from '../../api/users';
 import { getActivityTypes } from '../../api/admin';
+import { Project } from '../../types/project';
+import { Task } from '../../types/task';
+import { User } from '../../types/user';
+import {
+  ActivityType,
+  TimeLogDialogProps,
+  TimeLogCreate
+} from '../../types/timeLog';
+import dayjs, { Dayjs } from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 
-export interface TimeLogDialogProps {
-  open: boolean;
-  onClose: (refreshData?: boolean) => void;
-  taskId: number;
-  timeLog: TimeLog | null;
-}
 
-const TimeLogDialog = ({
+const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   open,
-  onClose,
+  projectId,
   taskId,
-  timeLog
-}: TimeLogDialogProps): JSX.Element => {
-  const { currentUser } = useAuth();
-  const [spentTime, setSpentTime] = useState<number>(0);
+  timeLog,
+  onClose,
+  onSubmit
+}) => {
+  const { currentUser, hasPermission } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
+  
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(projectId || null);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(taskId || null);
+  const [selectedUserId, setSelectedUserId] = useState<number>(currentUser?.id || 0);
+  const [selectedActivityTypeId, setSelectedActivityTypeId] = useState<number>(0);
+  const [spentTime, setSpentTime] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [activityTypeId, setActivityTypeId] = useState<number>(0);
-  const [activityTypes, setActivityTypes] = useState<Array<{ id: number; name: string }>>([]);
+  const [logDate, setLogDate] = useState<Dayjs>(
+    timeLog ? dayjs(timeLog.log_date) : dayjs()
+  );
 
   useEffect(() => {
-    const fetchActivityTypes = async () => {
-      const types = await getActivityTypes();
-      setActivityTypes(types);
-      if (types.length > 0 && !activityTypeId) {
-        setActivityTypeId(types[0].id);
+    const loadInitialData = async () => {
+      const [projectsData, activityTypesData] = await Promise.all([
+        getProjects(),
+        getActivityTypes()
+      ]);
+      setProjects(projectsData);
+      setActivityTypes(activityTypesData);
+
+      if (hasPermission('Admin') || hasPermission('Project Manager')) {
+        const usersData = await getUsers();
+        setUsers(usersData);
+      }
+
+      if (projectId) {
+        const projectTasks = await getProjectTasks(projectId);
+        setTasks(projectTasks);
       }
     };
-    fetchActivityTypes();
-  }, []);
+
+    loadInitialData();
+  }, [projectId, hasPermission]);
 
   useEffect(() => {
-    if (timeLog) {
-      setSpentTime(timeLog.spent_time);
+    if (open && timeLog) {
+      setSelectedProjectId(projectId || null);
+      setSelectedTaskId(timeLog.task_id);
+      setSelectedUserId(timeLog.user_id);
+      setSelectedActivityTypeId(timeLog.activity_type_id);
+      setSpentTime(String(timeLog.spent_time / 60));
       setDescription(timeLog.description || '');
-      setActivityTypeId(timeLog.activity_type_id);
-    } else {
-      setSpentTime(0);
+      setLogDate(dayjs(timeLog.log_date));
+    } else if (open) {
+      setSelectedProjectId(projectId || null);
+      setSelectedTaskId(taskId || null);
+      setSelectedUserId(currentUser?.id || 0);
+      setSelectedActivityTypeId(0);
+      setSpentTime('');
       setDescription('');
-      setActivityTypeId(activityTypes[0]?.id || 0);
+      setLogDate(dayjs());
     }
-  }, [timeLog, activityTypes]);
+  }, [open, timeLog, projectId, taskId, currentUser]);
 
-  const handleSubmit = async () => {
-    if (!taskId || !currentUser?.id) return;
-
-    try {
-      const timeLogData = {
-        task_id: taskId,
-        user_id: currentUser.id,
-        spent_time: spentTime,
-        description,
-        activity_type_id: activityTypeId
-      };
-
-      if (timeLog) {
-        await updateTimeLog(timeLog.id, timeLogData);
-      } else {
-        await createTimeLog(taskId, timeLogData);
-      }
-
-      onClose();
-    } catch (error) {
-      console.error('Failed to save time log:', error);
+  const handleProjectChange = async (projectId: number) => {
+    setSelectedProjectId(projectId);
+    const projectTasks = await getProjectTasks(projectId);
+    setTasks(projectTasks);
+    if (!selectedTaskId || !projectTasks.find(t => t.id === selectedTaskId)) {
+      setSelectedTaskId(null);
     }
   };
 
+  const handleTaskChange = (taskId: number) => {
+    setSelectedTaskId(taskId);
+    const task = tasks.find(t => t.id === taskId);
+    if (task && !selectedProjectId) {
+      setSelectedProjectId(task.project_id);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!selectedTaskId) return;
+
+    const timeLogData: TimeLogCreate = {
+      task_id: selectedTaskId,
+      user_id: selectedUserId,
+      activity_type_id: selectedActivityTypeId,
+      spent_time: parseFloat(spentTime.replace(',', '.')) * 60,
+      description: description || undefined,
+      log_date: logDate.format('YYYY-MM-DD')
+    };
+
+    onSubmit(timeLogData);
+  };
+
   return (
-    <Dialog open={open} onClose={() => onClose(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>{timeLog ? 'Edit Time Log' : 'New Time Log'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{timeLog ? 'Edit Time Log' : 'Log Time'}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-          <TextField
-            label="Time Spent (minutes)"
-            type="number"
-            value={spentTime}
-            onChange={(e) => setSpentTime(parseInt(e.target.value) || 0)}
+          <DatePicker
+            label="Log Date"
+            value={logDate}
+            onChange={(newValue) => setLogDate(newValue || dayjs())}
+            slotProps={{ 
+              textField: { 
+                fullWidth: true,
+                required: true
+              } 
+            }}
           />
+
+          {(hasPermission('Admin') || hasPermission('Project Manager')) && (
+            <FormControl fullWidth>
+              <InputLabel>User</InputLabel>
+              <Select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value as number)}
+              >
+                {users.map(user => (
+                  <MenuItem key={user.id} value={user.id}>
+                    {user.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
+          <FormControl fullWidth>
+            <InputLabel>Project</InputLabel>
+            <Select
+              value={selectedProjectId || ''}
+              onChange={(e) => handleProjectChange(e.target.value as number)}
+            >
+              {projects.map(project => (
+                <MenuItem key={project.id} value={project.id}>
+                  {project.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel>Task</InputLabel>
+            <Select
+              value={selectedTaskId || ''}
+              onChange={(e) => handleTaskChange(e.target.value as number)}
+            >
+              {tasks.map(task => (
+                <MenuItem key={task.id} value={task.id}>
+                  {task.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Time Spent (hours)"
+            type="text"
+            value={spentTime}
+            onChange={(e) => setSpentTime(e.target.value)}
+            inputProps={{ 
+              step: "0.25",
+              pattern: "^\\d*[,.]?\\d{0,2}$"
+            }}
+          />
+
           <FormControl fullWidth>
             <InputLabel>Activity Type</InputLabel>
             <Select
-              value={activityTypeId}
-              onChange={(e) => setActivityTypeId(e.target.value as number)}
+              value={selectedActivityTypeId}
+              onChange={(e) => setSelectedActivityTypeId(e.target.value as number)}
             >
               {activityTypes.map(type => (
                 <MenuItem key={type.id} value={type.id}>
@@ -110,6 +213,7 @@ const TimeLogDialog = ({
               ))}
             </Select>
           </FormControl>
+
           <TextField
             label="Description"
             multiline
@@ -120,9 +224,13 @@ const TimeLogDialog = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(false)}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          {timeLog ? 'Update' : 'Create'}
+        <Button onClick={onClose}>Cancel</Button>
+        <Button 
+          onClick={handleSubmit}
+          variant="contained" 
+          disabled={!selectedTaskId || !selectedActivityTypeId || !spentTime || !logDate}
+        >
+          {timeLog ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>

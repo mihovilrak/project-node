@@ -39,12 +39,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
         
         const response = await api.get('/check-session');
-        console.log('Session response:', response.data);
         
         if (response.status === 200) {
           setCurrentUser(response.data.user);
           const permissionsResponse = await api.get('/users/permissions');
-          console.log('Permissions response:', permissionsResponse.data);
           setUserPermissions(permissionsResponse.data);
         }
       } catch (error) {

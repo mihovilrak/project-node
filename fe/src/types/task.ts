@@ -11,6 +11,7 @@ export interface Task {
   priority_id: number;
   status_id: number;
   parent_id: number | null;
+  parent_name?: string | null;
   holder_id: number;
   assignee_id: number | null;
   start_date: string;

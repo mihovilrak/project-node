@@ -15,7 +15,8 @@ import {
   DialogActions,
   Button,
   Typography,
-  Tooltip
+  Tooltip,
+  Chip
 } from '@mui/material';
 import { 
   Edit as EditIcon,
@@ -80,7 +81,13 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                   <TableCell>{user.login}</TableCell>
                   <TableCell>{`${user.name} ${user.surname}`}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role_name}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={user.role_name || 'No Role'} 
+                      size="small"
+                      color={user.role_name === 'Admin' ? 'primary' : 'default'}
+                    />
+                  </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit">
                       <IconButton onClick={() => onEditUser(user)}>

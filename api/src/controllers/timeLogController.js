@@ -65,7 +65,12 @@ exports.createTimeLog = async (req, res, pool) => {
   try {
     const { taskId } = req.params;
     const userId = req.session.user?.id;
-    const { spent_time, description, activity_type_id } = req.body;
+    const {
+      log_date,
+      spent_time,
+      description,
+      activity_type_id
+    } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -76,6 +81,7 @@ exports.createTimeLog = async (req, res, pool) => {
     }
 
     const timeLog = await timeLogModel.createTimeLog(pool, taskId, userId, {
+      log_date,
       spent_time,
       description,
       activity_type_id
@@ -91,9 +97,15 @@ exports.createTimeLog = async (req, res, pool) => {
 exports.updateTimeLog = async (req, res, pool) => {
   try {
     const { timeLogId } = req.params;
-    const { spent_time, description, activity_type_id } = req.body;
+    const {
+      log_date,
+      spent_time,
+      description,
+      activity_type_id
+    } = req.body;
     
     const timeLog = await timeLogModel.updateTimeLog(pool, timeLogId, {
+      log_date,
       spent_time,
       description,
       activity_type_id

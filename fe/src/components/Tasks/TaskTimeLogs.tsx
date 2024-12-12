@@ -8,7 +8,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { TimeLog } from '../../types/timeLog';
+import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
   getTaskTimeLogs,
   deleteTimeLog
@@ -16,8 +16,22 @@ import {
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
+import { Task } from '../../types/task';
 
-const TaskTimeLogs: React.FC = () => {
+interface TimeLogDialogProps {
+  open: boolean;
+  onClose: () => void;
+  taskId: number;
+  projectId: number;
+  timeLog: TimeLog | null;
+  onSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
+}
+
+interface TaskTimeLogsProps {
+  task: Task;
+}
+
+const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   const { id } = useParams<{ id: string }>();
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -60,6 +74,17 @@ const TaskTimeLogs: React.FC = () => {
     } catch (error) {
       console.error('Failed to delete time log:', error);
       setError('Failed to delete time log');
+    }
+  };
+
+  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate): Promise<void> => {
+    try {
+      // Handle time log submission logic here
+      await fetchTimeLogs(); // Refresh the list after submission
+      setTimeLogDialogOpen(false);
+      setSelectedTimeLog(null);
+    } catch (error) {
+      console.error('Failed to submit time log:', error);
     }
   };
 
@@ -111,7 +136,9 @@ const TaskTimeLogs: React.FC = () => {
             setSelectedTimeLog(null);
           }}
           taskId={parseInt(id!)}
+          projectId={task.project_id}
           timeLog={selectedTimeLog}
+          onSubmit={handleTimeLogSubmit}
         />
       </Paper>
     </Box>

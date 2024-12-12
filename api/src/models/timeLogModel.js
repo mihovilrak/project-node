@@ -9,26 +9,26 @@ exports.getAllTimeLogs = async (pool) => {
 
 // Create time log
 exports.createTimeLog = async (pool, taskId, userId, timeLogData) => {
-  const { spent_time, description, activity_type_id } = timeLogData;
+  const { log_date, spent_time, description, activity_type_id } = timeLogData;
   const result = await pool.query(
     `INSERT INTO time_logs 
-    (task_id, user_id, spent_time, description, activity_type_id)
-    VALUES ($1, $2, $3, $4, $5)
+    (task_id, user_id, log_date, spent_time, description, activity_type_id)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *`,
-    [taskId, userId, spent_time, description, activity_type_id]
+    [taskId, userId, log_date, spent_time, description, activity_type_id]
   );
   return result.rows[0];
 };
 
 // Update time log
 exports.updateTimeLog = async (pool, timeLogId, timeLogData) => {
-  const { spent_time, description, activity_type_id } = timeLogData;
+  const { log_date, spent_time, description, activity_type_id } = timeLogData;
   const result = await pool.query(
     `UPDATE time_logs 
-    SET (spent_time, description, activity_type_id) = ($1, $2, $3)
-    WHERE id = $4
+    SET (log_date, spent_time, description, activity_type_id) = ($1, $2, $3, $4)
+    WHERE id = $5
     RETURNING *`,
-    [spent_time, description, activity_type_id, timeLogId]
+    [log_date, spent_time, description, activity_type_id, timeLogId]
   );
   return result.rows[0];
 };

@@ -107,6 +107,32 @@ exports.getProjectMembers = async (req, res, pool) => {
   }
 };
 
+// Add project member
+exports.addProjectMember = async (req, res, pool) => {
+  const { id } = req.params;
+  const { userId } = req.body;
+  try {
+    const result = await projectModel.addProjectMember(pool, id, userId);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Delete project member
+exports.deleteProjectMember = async (req, res, pool) => {
+  const { id } = req.params;
+  const { userId } = req.body;
+  try {
+    const result = await projectModel.deleteProjectMember(pool, id, userId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Get subprojects
 exports.getSubprojects = async (req, res, pool) => {
   try {

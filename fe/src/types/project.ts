@@ -20,6 +20,8 @@ export interface Project {
   progress?: number;
   total_tasks?: number;
   completed_tasks?: number;
+  spent_time?: number;
+  subprojects?: Project[];
 }
 
 export interface ProjectMember {
@@ -28,9 +30,9 @@ export interface ProjectMember {
   role_id: number;
   created_on: string;
   // Virtual fields from joins
-  user_name?: string;
-  user_email?: string;
-  role_name?: string;
+  name?: string;
+  surname?: string;
+  role?: string;
 }
 export interface ProjectEditDialogProps {
   open: boolean;

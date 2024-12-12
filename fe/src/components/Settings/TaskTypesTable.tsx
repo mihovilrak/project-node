@@ -30,37 +30,8 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
     if (propTaskTypes) {
       setTaskTypes(propTaskTypes);
       setLoading(false);
-      return;
     }
-
-    const fetchTaskTypes = async (): Promise<void> => {
-      try {
-        const response = await getTaskTypes();
-        if (response) {
-          setTaskTypes(response.map((type: any) => ({
-            ...type,
-            is_active: type.active || type.is_active || false
-          })));
-        } else {
-          setError('No task types data received');
-        }
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to fetch task types');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTaskTypes();
   }, [propTaskTypes]);
-
-  if (error) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3, color: 'error.main' }}>
-        Error: {error}
-      </Box>
-    );
-  }
 
   if (loading || propLoading) {
     return (
@@ -77,6 +48,7 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
+            <TableCell>Color</TableCell>
             <TableCell>Status</TableCell>
             <TableCell align="right">Actions</TableCell>
           </TableRow>
@@ -86,6 +58,16 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
             <TableRow key={type.id}>
               <TableCell>{type.name}</TableCell>
               <TableCell>{type.description}</TableCell>
+              <TableCell>
+                <Box
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: type.color,
+                    borderRadius: 1
+                  }}
+                />
+              </TableCell>
               <TableCell>
                 <Chip
                   label={type.active ? 'Active' : 'Inactive'}

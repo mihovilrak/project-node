@@ -13,7 +13,7 @@ import TypesAndRolesManager from './TypesAndRolesManager';
 import SystemSettings from './SystemSettings';
 
 const Settings: React.FC = () => {
-  const { hasPermission, permissionsLoading } = useAuth();
+  const { permissionsLoading } = useAuth();
   const [activeTab, setActiveTab] = React.useState<number>(0);
 
   if (permissionsLoading) {
