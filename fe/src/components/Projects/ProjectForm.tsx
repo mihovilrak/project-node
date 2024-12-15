@@ -108,165 +108,151 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      if (step === 'details') {
+    if (step === 'details') {
+      if (validateForm()) {
         setStep('members');
-      } else {
-        try {
-          const projectData = await createProject(formData);
-
-          // Add members one by one
-          for (const userId of selectedUsers) {
-            await addProjectMember(projectData.id, userId);
-          }
-
-          if (onSubmit) {
-            await onSubmit(formData);
-            navigate(`/projects/${projectData.id}`);
-          }
-          
-          if (onClose) {
-            onClose();
-          }
-        } catch (error) {
-          console.error('Error in form submission:', error);
-          setErrors(prev => ({
-            ...prev,
-            submit: 'Failed to create project'
-          }));
-        }
       }
+      return;
+    }
+
+    try {
+      const projectData = { ...formData };
+      const response = await createProject(projectData);
+      
+      // Add selected members to the project
+      await Promise.all(
+        selectedUsers.map(userId => addProjectMember(response.id, userId))
+      );
+
+      if (onSubmit) {
+        onSubmit(response);
+      }
+      navigate(`/projects/${response.id}`);
+    } catch (error) {
+      console.error('Failed to create project:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/projects');
     }
   };
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        {project ? 'Edit Project' : 'Create New Project'}
-      </Typography>
-
-      <Box component="form" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         {step === 'details' ? (
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Project Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                error={!!errors.name}
-                helperText={errors.name}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description"
-                name="description"
-                multiline
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <DatePicker
-                label="Start Date"
-                value={formData.start_date ? dayjs(formData.start_date) : null}
-                onChange={(newValue) => handleDateChange('start_date', newValue ? newValue.toDate() : null)}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.start_date,
-                    helperText: errors.start_date
-                  }
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <DatePicker
-                label="Due Date"
-                value={formData.due_date ? dayjs(formData.due_date) : null}
-                onChange={(newValue) => handleDateChange('due_date', newValue ? newValue.toDate() : null)}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.due_date,
-                    helperText: errors.due_date
-                  }
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={formData.status_id}
-                  label="Status"
-                  onChange={handleStatusChange}
-                >
-                  <MenuItem value={1}>Active</MenuItem>
-                  <MenuItem value={2}>On Hold</MenuItem>
-                  <MenuItem value={3}>Completed</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {errors.submit && (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Project Details
+            </Typography>
+            <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography color="error">{errors.submit}</Typography>
+                <TextField
+                  fullWidth
+                  label="Project Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={!!errors.name}
+                  helperText={errors.name}
+                  required
+                />
               </Grid>
-            )}
 
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                <Button onClick={onClose}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  multiline
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <DatePicker
+                  label="Start Date"
+                  value={formData.start_date ? dayjs(formData.start_date) : null}
+                  onChange={(newValue) => handleDateChange('start_date', newValue ? newValue.toDate() : null)}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.start_date,
+                      helperText: errors.start_date
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <DatePicker
+                  label="Due Date"
+                  value={formData.due_date ? dayjs(formData.due_date) : null}
+                  onChange={(newValue) => handleDateChange('due_date', newValue ? newValue.toDate() : null)}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.due_date,
+                      helperText: errors.due_date
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={formData.status_id}
+                    label="Status"
+                    onChange={handleStatusChange}
+                  >
+                    <MenuItem value={1}>Active</MenuItem>
+                    <MenuItem value={2}>On Hold</MenuItem>
+                    <MenuItem value={3}>Completed</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Button onClick={handleCancel} color="inherit">
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                >
-                  {project ? 'Save Changes' : 'Create Project'}
+                <Button type="submit" variant="contained" color="primary">
+                  Next
                 </Button>
               </Box>
             </Grid>
-          </Grid>
+          </>
         ) : (
-          <ProjectMemberSelect
-            users={users}
-            selectedUsers={selectedUsers}
-            onUserSelect={handleUserSelect}
-          />
+          <>
+            <Typography variant="h6" gutterBottom>
+              Project Members
+            </Typography>
+            <ProjectMemberSelect
+              users={users}
+              selectedUsers={selectedUsers}
+              onUserSelect={handleUserSelect}
+            />
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Button onClick={() => setStep('details')} color="inherit">
+                Back
+              </Button>
+              <Button type="submit" variant="contained" color="primary">
+                Create Project
+              </Button>
+            </Box>
+          </>
         )}
-        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-          {step === 'members' && (
-            <Button
-              type="button"
-              onClick={() => setStep('details')}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-          )}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-          >
-            {step === 'details' ? 'Next' : 'Create Project'}
-          </Button>
-        </Box>
-      </Box>
+      </form>
     </Paper>
   );
 };
 
-export default ProjectForm; 
+export default ProjectForm;

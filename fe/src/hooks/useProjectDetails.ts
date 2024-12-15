@@ -12,6 +12,8 @@ import {
     removeProjectMember
 } from '../api/projects';
 import { getProjectTasks, createTask } from '../api/tasks';
+import { getTaskTimeLogs } from '../api/timeLogService';
+import { TimeLog } from '../types/timeLog';
 
 export const useProjectDetails = (projectId: string) => {
     const [state, setState] = useState({
@@ -23,7 +25,8 @@ export const useProjectDetails = (projectId: string) => {
         editDialogOpen: false,
         deleteDialogOpen: false,
         createTaskDialogOpen: false,
-        membersDialogOpen: false
+        membersDialogOpen: false,
+        timeLogs: [] as TimeLog[]
     });
 
     const navigate = useNavigate();
@@ -34,10 +37,11 @@ export const useProjectDetails = (projectId: string) => {
             try {
                 setState(prev => ({ ...prev, loading: true, error: null }));
 
-                const [projectData, membersData, tasksData] = await Promise.all([
+                const [projectData, membersData, tasksData, timeLogsData] = await Promise.all([
                     getProjectById(Number(projectId)),
                     getProjectMembers(Number(projectId)),
-                    getProjectTasks(Number(projectId))
+                    getProjectTasks(Number(projectId)),
+                    getTaskTimeLogs(Number(projectId))
                 ]);
 
                 setState(prev => ({
@@ -45,6 +49,7 @@ export const useProjectDetails = (projectId: string) => {
                     project: projectData,
                     members: membersData,
                     tasks: tasksData,
+                    timeLogs: timeLogsData,
                     loading: false
                 }));
             } catch (error) {

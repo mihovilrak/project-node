@@ -52,52 +52,53 @@ const Projects: React.FC = () => {
   if (loading) return <Typography>Loading projects...</Typography>;
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>Projects</Typography>
-      
-      <Box display="flex" alignItems="center" mb={2}>
-        <TextField
-          label="Filter by Name"
-          variant="outlined"
-          size="small"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          sx={{ mr: 2 }}
-        />
-        <Select value={sortOrder} onChange={handleSortChange} displayEmpty>
-          <MenuItem value="asc">Ascending</MenuItem>
-          <MenuItem value="desc">Descending</MenuItem>
-        </Select>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={handleCreateProject} 
-          sx={{ ml: 'auto' }}
-        >
-          Create New Project
-        </Button>
+    <Box sx={{ width: '100%', p: 3 }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" gutterBottom>Projects</Typography>
+        <Box display="flex" alignItems="center" gap={2} mb={2}>
+          <TextField
+            label="Filter by Name"
+            variant="outlined"
+            size="small"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+          <Select 
+            value={sortOrder} 
+            onChange={handleSortChange} 
+            size="small"
+          >
+            <MenuItem value="asc">Ascending</MenuItem>
+            <MenuItem value="desc">Descending</MenuItem>
+          </Select>
+          <Box sx={{ flexGrow: 1 }} />
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleCreateProject}
+          >
+            Create New Project
+          </Button>
+        </Box>
       </Box>
 
       {filteredProjects.length === 0 ? (
         <Typography>No projects yet.</Typography>
       ) : (
-        <Grid container spacing={3}>
-          {filteredProjects.map((project) => (
-            <Grid item xs={12} sm={6} md={4} key={project.id}>
-              <Card 
-                onClick={() => navigate(`/projects/${project.id}`)} 
-                sx={{ cursor: 'pointer' }}
-              >
-                <CardContent>
-                  <Typography variant="h6">{project.name}</Typography>
-                  <Typography variant="body2">{project.description}</Typography>
-                  <Typography variant="caption">
-                    Due: {new Date(project.due_date).toLocaleDateString()}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+      <Grid container spacing={3}>
+        {filteredProjects.map((project) => (
+          <Grid item xs={12} sm={6} lg={4} key={project.id}>
+            <Card onClick={() => navigate(`/projects/${project.id}`)}>
+              <CardContent>
+                <Typography variant="h6">{project.name}</Typography>
+                <Typography variant="body2">{project.description}</Typography>
+                <Typography variant="caption">
+                  Due: {new Date(project.due_date).toLocaleDateString()}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
         </Grid>
       )}
     </Box>

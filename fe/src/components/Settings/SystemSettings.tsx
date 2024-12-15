@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -12,9 +12,13 @@ import {
   getSystemSettings,
   updateSystemSettings
 } from '../../api/settings';
-import { SystemSettingsState } from '../../types/settings';
+import {
+  SystemSettingsState,
+  AppSettings
+} from '../../types/settings';
 
 const SystemSettings: React.FC = () => {
+  const [initialized, setInitialized] = useState(false);
   const [state, setState] = useState<SystemSettingsState>({
     settings: {
       id: 1,
@@ -29,27 +33,29 @@ const SystemSettings: React.FC = () => {
     success: false
   });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async (): Promise<void> => {
-    try {
-      setState(prev => ({ ...prev, loading: true }));
-      const data = await getSystemSettings();
-      setState(prev => ({ 
-        ...prev, 
-        settings: data,
-        loading: false 
-      }));
-    } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
-        error: 'Failed to fetch system settings',
-        loading: false 
-      }));
+  const initialSettings = useMemo(async () => {
+    if (!initialized) {
+      try {
+        const data = await getSystemSettings();
+        setState(prev => ({ 
+          ...prev, 
+          settings: data,
+          loading: false 
+        }));
+        setInitialized(true);
+      } catch (error) {
+        setState(prev => ({ 
+          ...prev, 
+          error: 'Failed to fetch system settings',
+          loading: false 
+        }));
+      }
     }
-  };
+  }, [initialized]);
+
+  useEffect(() => {
+    initialSettings;
+  }, [initialSettings]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -105,59 +111,57 @@ const SystemSettings: React.FC = () => {
         </Alert>
       )}
 
-      <Box component="form" onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          name="app_name"
-          label="App Name"
-          value={state.settings.app_name}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          name="company_name"
-          label="Company Name"
-          value={state.settings.company_name}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          name="sender_email"
-          label="Sender Email"
-          value={state.settings.sender_email}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          name="time_zone"
-          label="Time Zone"
-          value={state.settings.time_zone}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          name="theme"
-          label="Theme"
-          value={state.settings.theme}
-          onChange={handleChange}
-          margin="normal"
-        />
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3 }}
-        >
-          Save Changes
-        </Button>
-      </Box>
+      <form onSubmit={handleSubmit}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="App Name"
+            name="app_name"
+            value={state.settings.app_name || ''}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            label="Company Name"
+            name="company_name"
+            value={state.settings.company_name || ''}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            label="Sender Email"
+            name="sender_email"
+            value={state.settings.sender_email || ''}
+            onChange={handleChange}
+            fullWidth
+            type="email"
+          />
+          <TextField
+            label="Time Zone"
+            name="time_zone"
+            value={state.settings.time_zone || ''}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            label="Theme"
+            name="theme"
+            value={state.settings.theme || ''}
+            onChange={handleChange}
+            fullWidth
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={state.loading}
+            sx={{ mt: 2 }}
+          >
+            {state.loading ? 'Saving...' : 'Save Settings'}
+          </Button>
+        </Box>
+      </form>
     </Paper>
   );
 };
 
-export default SystemSettings; 
+export default SystemSettings;

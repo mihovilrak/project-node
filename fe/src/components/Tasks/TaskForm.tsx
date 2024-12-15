@@ -48,7 +48,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
     status_id: 1,
     type_id: 1,
     parent_id: null,
-    project_id: 0,
+    project_id: projectId || 0,
     holder_id: 0,
     assignee_id: null,
     created_by: currentUser?.id,
@@ -324,4 +324,4 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
   );
 };
 
-export default TaskForm; 
+export default TaskForm;

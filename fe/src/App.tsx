@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useParams,
+  Outlet
+} from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import Home from './components/Home/Home';
@@ -93,8 +99,8 @@ const App: React.FC = () => {
           <Router>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route element={<PrivateRoute element={<Layout />} />}>
-                <Route path="/" element={<PrivateRoute element={<Home />} />} />
+              <Route path="/" element={<Layout><Outlet /></Layout>}>
+                <Route index element={<PrivateRoute element={<Home />} />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/new" element={<UserForm />} />
                 <Route path="/users/:id" element={<UserDetails />} />
@@ -112,9 +118,9 @@ const App: React.FC = () => {
                       onCreated={() => {
                         setTaskFormOpen(false);
                       }}
-                      />
-                    } />
-                  } />
+                    />
+                  } />}
+                />
                 <Route path="/tasks/:id" element={<TaskDetails />} />
                 <Route path="/tasks/active" element={<ActiveTasks />} />
                 <Route path="/settings" element={<Settings />} />

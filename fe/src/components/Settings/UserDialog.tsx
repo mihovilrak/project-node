@@ -30,19 +30,21 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
     surname: '',
     email: '',
     password: '',
-    role_id: 3
+    role_id: 3,
+    status_id: 1
   });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       setFormData({
-        login: user.login,
-        name: user.name,
-        surname: user.surname,
-        email: user.email,
+        login: user.login || '',
+        name: user.name || '',
+        surname: user.surname || '',
+        email: user.email || '',
         password: '',
-        role_id: user.role_id || 3
+        role_id: user.role_id || 3,
+        status_id: user.status_id
       });
     } else {
       setFormData({
@@ -51,10 +53,11 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
         surname: '',
         email: '',
         password: '',
-        role_id: 3
+        role_id: 3,
+        status_id: 1
       });
     }
-  }, [user]);
+  }, [user, open]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -76,12 +79,23 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
     setError(null);
 
     try {
+      let savedUser;
       if (user) {
-        await updateUser(user.id, formData as UserUpdate);
+        // For update, only send changed fields
+        const updates: UserUpdate = {
+          id: user.id
+        };
+        if (formData.name !== user.name) updates.name = formData.name;
+        if (formData.surname !== user.surname) updates.surname = formData.surname;
+        if (formData.email !== user.email) updates.email = formData.email;
+        if (formData.password) updates.password = formData.password;
+        if (formData.role_id !== user.role_id) updates.role_id = formData.role_id;
+        
+        savedUser = await updateUser(user.id, updates);
       } else {
-        await createUser(formData as UserCreate);
+        savedUser = await createUser(formData as UserCreate);
       }
-      onUserSaved(formData as User);
+      onUserSaved(savedUser);
       onClose();
     } catch (error: any) {
       setError(error.message || 'Failed to save user');
@@ -92,7 +106,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          {user ? 'Edit User' : 'Create New User'}
+          {user ? `Edit user ${user.name} ${user.surname}` : 'Create New User'}
         </DialogTitle>
         <DialogContent>
           {error && (
@@ -100,7 +114,6 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
               {error}
             </Alert>
           )}
-
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
               <TextField
@@ -110,6 +123,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 onChange={handleTextChange}
                 fullWidth
                 required
+                disabled={!!user}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -146,7 +160,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
             <Grid item xs={12}>
               <TextField
                 name="password"
-                label={user ? "New Password (leave blank to keep current)" : "Password"}
+                label={user ? "New Password (leave empty to keep current)" : "Password"}
                 type="password"
                 value={formData.password}
                 onChange={handleTextChange}
@@ -155,13 +169,14 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth required>
-                <InputLabel>Role</InputLabel>
+              <FormControl fullWidth>
+                <InputLabel id="role-label">Role</InputLabel>
                 <Select
-                  name="role_id"
+                  labelId="role-label"
                   value={formData.role_id}
                   onChange={handleRoleChange}
                   label="Role"
+                  required
                 >
                   <MenuItem value={1}>Admin</MenuItem>
                   <MenuItem value={2}>Manager</MenuItem>
@@ -182,4 +197,4 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
   );
 };
 
-export default UserDialog; 
+export default UserDialog;

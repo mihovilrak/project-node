@@ -1,4 +1,9 @@
-import { createTheme, ThemeOptions, Components, Theme } from '@mui/material/styles';
+import {
+  createTheme,
+  ThemeOptions,
+  Components,
+  Theme
+} from '@mui/material/styles';
 
 const components: Components<Theme> = {
   MuiGrid: {
@@ -6,15 +11,11 @@ const components: Components<Theme> = {
       root: {
         '&.MuiGrid-container': {
           width: '100%',
-          margin: '0 !important',
-          padding: '8px'
+          margin: 0,
+          padding: 0
         },
         '&.MuiGrid-item': {
-          padding: '8px !important',
-          display: 'flex',
-          '& > *': {
-            width: '100%'
-          }
+          padding: '12px'
         }
       }
     }
@@ -22,9 +23,9 @@ const components: Components<Theme> = {
   MuiCard: {
     styleOverrides: {
       root: {
+        height: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        height: '100%'
+        flexDirection: 'column'
       }
     }
   },
@@ -32,7 +33,6 @@ const components: Components<Theme> = {
     styleOverrides: {
       root: {
         flexGrow: 1,
-        height: '100%',
         padding: '16px !important',
         '&:last-child': {
           paddingBottom: '16px !important'

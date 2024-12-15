@@ -21,14 +21,14 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
 
-const Layout: React.FC = () => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { logout, currentUser } = useAuth();
   const { activeTab, handleTabChange } = useNavigation();
   const { mode, toggleTheme } = useTheme();
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar position="fixed">
         <Toolbar>
           <Tabs value={activeTab} onChange={handleTabChange} textColor="inherit" indicatorColor="secondary">
@@ -66,29 +66,19 @@ const Layout: React.FC = () => {
           )}
         </Toolbar>
       </AppBar>
-      <Toolbar />
+      
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          mt: 8,
           width: '100%',
-          minHeight: 'calc(100vh - 64px)',
-          display: 'flex',
-          justifyContent: 'flex-start',
+          minHeight: '100vh',
+          pt: '64px', // AppBar height
+          px: 3,
+          backgroundColor: 'background.default'
         }}
       >
-        <Box sx={{ 
-          width: '100%', 
-          maxWidth: 1200,
-          mx: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-        }}>
-          <Outlet />
-        </Box>
+        {children}
       </Box>
     </Box>
   );

@@ -13,7 +13,9 @@ export interface User {
   created_on: string;
   updated_on: string | null;
   last_login: string | null;
+  role?: string;
   role_name?: string;
+  status?: string;
   status_name?: string;
   status_color?: string;
   full_name?: string;
@@ -77,6 +79,7 @@ export interface FormData {
   email: string;
   password: string;
   role_id: number;
+  status_id?: number;  
 }
 
 export interface UserDialogProps {

@@ -4,7 +4,7 @@ import { TaskType } from '../types/task';
 // Get all task types
 export const getTaskTypes = async (): Promise<TaskType[]> => {
   try {
-    const response = await api.get('/tasks/types');
+    const response = await api.get('/admin/task-types');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch task types:', error);

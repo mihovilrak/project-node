@@ -80,8 +80,8 @@ const UserDetails: React.FC = () => {
       <Typography variant="body1">Name: {state.user.name}</Typography>
       <Typography variant="body1">Surname: {state.user.surname}</Typography>
       <Typography variant="body1">Email: {state.user.email}</Typography>
-      <Typography variant="body1">Status: {state.user.status_name || '-'}</Typography>
-      <Typography variant="body1">Role: {state.user.role_name || '-'}</Typography>
+      <Typography variant="body1">Status: {state.user.status || '-'}</Typography>
+      <Typography variant="body1">Role: {state.user.role || '-'}</Typography>
       <Typography variant="body1">Created on: {formatDate(state.user.created_on)}</Typography>
       <Typography variant="body1">Last updated: {formatDate(state.user.updated_on)}</Typography>
       <Typography variant="body1">Last login: {formatDate(state.user.last_login)}</Typography>

@@ -31,6 +31,7 @@ export interface Task {
   holder_name?: string;
   assignee_name?: string;
   creator_name?: string;
+  spent_time?: number;
   tags?: Tag[];
 }
 
