@@ -14,7 +14,8 @@ import {
     DialogActions,
     Checkbox,
     FormControlLabel,
-    Typography
+    Typography,
+    Alert
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -25,18 +26,24 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ProjectMember } from '../../../types/project';
 import { User } from '../../../types/user';
 import { getUsers } from '../../../api/users';
+import {
+  addProjectMember,
+  removeProjectMember
+} from '../../../api/projects';
 
 interface ProjectMembersListProps {
+  projectId: number;
   members: ProjectMember[];
   canManageMembers: boolean;
   onMemberRemove: (userId: number) => void;
   onMemberUpdate?: (memberId: number, role: string) => Promise<void>;
-  onAddMember?: () => void;
+  onMembersChange?: () => void;
 }
 
 interface EditMembersDialogProps {
   open: boolean;
   onClose: () => void;
+  projectId: number;
   currentMembers: ProjectMember[];
   onSave: (selectedUsers: number[]) => void;
 }
@@ -44,6 +51,7 @@ interface EditMembersDialogProps {
 const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
   onClose,
+  projectId,
   currentMembers,
   onSave
 }) => {
@@ -51,6 +59,7 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   const [selectedUsers, setSelectedUsers] = useState<number[]>(
     currentMembers.map(m => m.user_id)
   );
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -59,10 +68,15 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
         setUsers(fetchedUsers);
       } catch (error) {
         console.error('Failed to fetch users:', error);
+        setError('Failed to load users');
       }
     };
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    setSelectedUsers(currentMembers.map(m => m.user_id));
+  }, [currentMembers]);
 
   const handleToggleUser = (userId: number) => {
     setSelectedUsers(prev =>
@@ -72,10 +86,21 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
     );
   };
 
+  const handleSave = async () => {
+    try {
+      onSave(selectedUsers);
+      onClose();
+    } catch (error) {
+      console.error('Failed to save members:', error);
+      setError('Failed to save changes');
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Edit Project Members</DialogTitle>
       <DialogContent>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <List>
           {users.map(user => (
             <ListItem key={user.id}>
@@ -94,7 +119,7 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={() => onSave(selectedUsers)} color="primary">
+        <Button onClick={handleSave} color="primary">
           Save Changes
         </Button>
       </DialogActions>
@@ -103,46 +128,66 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
 };
 
 const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
+  projectId,
   members,
   canManageMembers,
   onMemberRemove,
   onMemberUpdate,
-  onAddMember
+  onMembersChange
 }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [error, setError] = useState<string>('');
 
-  const handleSaveMembers = (selectedUsers: number[]) => {
-    // Remove users that are no longer selected
-    const removedUsers = members
-      .filter(member => !selectedUsers.includes(member.user_id))
-      .forEach(member => onMemberRemove(member.user_id));
+  const handleSaveMembers = async (selectedUsers: number[]) => {
+    try {
+      // Remove users that are no longer selected
+      const removedUsers = members
+        .filter(member => !selectedUsers.includes(member.user_id));
+      
+      // Add new users
+      const newUsers = selectedUsers
+        .filter(userId => !members.find(member => member.user_id === userId));
 
-    // Add new users
-    const newUsers = selectedUsers
-      .filter(userId => !members.find(member => member.user_id === userId))
-      .forEach(userId => onAddMember && onAddMember());
+      // Process removals
+      await Promise.all(
+        removedUsers.map(member => 
+          removeProjectMember(projectId, member.user_id)
+          .then(() => onMemberRemove(member.user_id))
+        )
+      );
 
-    setEditDialogOpen(false);
+      // Process additions
+      await Promise.all(
+        newUsers.map(userId => 
+          addProjectMember(projectId, userId)
+        )
+      );
+
+      // Notify parent of changes
+      if (onMembersChange) {
+        onMembersChange();
+      }
+
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to update members:', error);
+      setError('Failed to update project members');
+    }
   };
 
   return (
     <>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      
       {canManageMembers && (
         <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-          <Button 
-            startIcon={<AddIcon />}
-            onClick={onAddMember}
-            variant="contained"
-            color="primary"
-          >
-            Add Member
-          </Button>
           <Button
             startIcon={<EditIcon />}
             onClick={() => setEditDialogOpen(true)}
-            variant="outlined"
+            variant="contained"
+            color="primary"
           >
-            Edit Members
+            Manage Members
           </Button>
         </Box>
       )}
@@ -178,11 +223,23 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
             />
           </ListItem>
         ))}
+        {members.length === 0 && (
+          <ListItem>
+            <ListItemText
+              primary={
+                <Typography color="text.secondary">
+                  No members in this project
+                </Typography>
+              }
+            />
+          </ListItem>
+        )}
       </List>
 
       <EditMembersDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
+        projectId={projectId}
         currentMembers={members}
         onSave={handleSaveMembers}
       />

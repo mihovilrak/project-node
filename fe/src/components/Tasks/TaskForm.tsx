@@ -17,7 +17,10 @@ import {
   getTasks
 } from '../../api/tasks';
 import { useAuth } from '../../context/AuthContext';
-import { getProjects } from '../../api/projects';
+import { 
+  getProjects, 
+  getProjectMembers 
+} from '../../api/projects';
 import { getUsers } from '../../api/users';
 import TaskTypeSelect from './TaskTypeSelect';
 import TagSelect from './TagSelect';
@@ -29,7 +32,7 @@ import {
   TaskFormState,
   TaskFormProps
 } from '../../types/task';
-import { Project } from '../../types/project';
+import { Project, ProjectMember } from '../../types/project';
 import { User } from '../../types/user';
 import { Tag } from '../../types/tags';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -38,11 +41,12 @@ import dayjs from 'dayjs';
 const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, onCreated }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const today = dayjs();
 
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
     description: '',
-    start_date: '',
+    start_date: today.toISOString(),
     due_date: '',
     priority_id: 2,
     status_id: 1,
@@ -57,20 +61,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [projectTasks, setProjectTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projectsData, usersData, statusesData, prioritiesData, allTasks, tagsData] = await Promise.all([
+        const [projectsData, usersData, statusesData, prioritiesData, tagsData] = await Promise.all([
           getProjects(),
           getUsers(),
           getTaskStatuses(),
           getPriorities(),
-          getTasks(),
           getTags()
         ]);
 
@@ -78,7 +82,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
         setUsers(usersData);
         setStatuses(statusesData);
         setPriorities(prioritiesData);
-        setTasks(allTasks.filter(task => task.id !== Number(taskId)));
         setAvailableTags(tagsData);
 
         if (taskId) {
@@ -99,6 +102,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             created_by: taskData.created_by,
             tags: taskTags || []
           });
+          
+          // Load project members and tasks for the task's project
+          if (taskData.project_id) {
+            const projectMembersData = await getProjectMembers(taskData.project_id);
+            const projectTasksData = await getTasks({ project_id: taskData.project_id });
+            setProjectMembers(projectMembersData);
+            setProjectTasks(projectTasksData.filter(task => task.id !== Number(taskId)));
+          }
+        } else if (projectId) {
+          // If creating new task from project page
+          const projectMembersData = await getProjectMembers(projectId);
+          const projectTasksData = await getTasks({ project_id: projectId });
+          setProjectMembers(projectMembersData);
+          setProjectTasks(projectTasksData);
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -106,7 +123,36 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
     };
 
     fetchData();
-  }, [taskId]);
+  }, [taskId, projectId]);
+
+  // Update project members and tasks when project changes
+  useEffect(() => {
+    const updateProjectData = async () => {
+      if (formData.project_id) {
+        try {
+          const [projectMembersData, projectTasksData] = await Promise.all([
+            getProjectMembers(formData.project_id),
+            getTasks({ project_id: formData.project_id })
+          ]);
+          setProjectMembers(projectMembersData);
+          setProjectTasks(projectTasksData.filter(task => task.id !== Number(taskId)));
+          
+          // Reset holder and assignee if they're not project members
+          const memberIds = projectMembersData.map(member => member.user_id);
+          if (formData.holder_id && !memberIds.includes(formData.holder_id)) {
+            setFormData(prev => ({ ...prev, holder_id: 0 }));
+          }
+          if (formData.assignee_id && !memberIds.includes(formData.assignee_id)) {
+            setFormData(prev => ({ ...prev, assignee_id: null }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch project data:', error);
+        }
+      }
+    };
+
+    updateProjectData();
+  }, [formData.project_id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -141,6 +187,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
     }
   };
 
+  const datePickerStyle = {
+    width: '100%',
+    marginBottom: 2
+  };
+
   return (
     <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
       <Paper elevation={3} sx={{ padding: 4 }}>
@@ -165,6 +216,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }}
+            disabled={!!projectId}
           >
             {projects.map((project) => (
               <MenuItem key={project.id} value={project.id}>
@@ -183,9 +235,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             required 
             sx={{ mb: 2 }}
           >
-            {users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
+            {projectMembers.map((member) => (
+              <MenuItem key={member.user_id} value={member.user_id}>
+                {member.name} {member.surname}
               </MenuItem>
             ))}
           </TextField>
@@ -197,15 +249,66 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             name="assignee_id" 
             value={formData.assignee_id} 
             onChange={handleChange} 
-            required 
             sx={{ mb: 2 }}
           >
-            {users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
+            <MenuItem value="">None</MenuItem>
+            {projectMembers.map((member) => (
+              <MenuItem key={member.user_id} value={member.user_id}>
+                {member.name} {member.surname}
               </MenuItem>
             ))}
           </TextField>
+
+          {formData.project_id && (
+            <TextField 
+              select 
+              fullWidth 
+              label="Parent Task" 
+              name="parent_id" 
+              value={formData.parent_id || ''} 
+              onChange={handleChange} 
+              sx={{ mb: 2 }}
+            >
+              <MenuItem value="">None</MenuItem>
+              {projectTasks.map((task) => (
+                <MenuItem key={task.id} value={task.id}>
+                  {task.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          
+          <DatePicker
+            label="Start Date"
+            value={dayjs(formData.start_date)}
+            onChange={(newValue) => handleChange({
+              target: { name: 'start_date', value: newValue ? newValue.toISOString() : '' }
+            } as any)}
+            sx={datePickerStyle}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                required: true,
+                sx: { mb: 2 }
+              }
+            }}
+          />
+          
+          <DatePicker
+            label="Due Date"
+            value={formData.due_date ? dayjs(formData.due_date) : null}
+            onChange={(newValue) => handleChange({
+              target: { name: 'due_date', value: newValue ? newValue.toISOString() : '' }
+            } as any)}
+            sx={datePickerStyle}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                required: true,
+                sx: { mb: 2 }
+              }
+            }}
+          />
           
           <TextField 
             fullWidth 
@@ -253,46 +356,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             ))}
           </TextField>
           
-          <TextField 
-            fullWidth 
-            label="Start Date" 
-            type="date" 
-            name="start_date" 
-            value={formData.start_date} 
-            onChange={handleChange} 
-            required 
-            InputLabelProps={{ shrink: true }} 
-            sx={{ mb: 2 }} 
-          />
-          
-          <DatePicker
-            label="Due Date"
-            value={formData.due_date ? dayjs(formData.due_date) : null}
-            onChange={(newValue) => setFormData(prev => ({ 
-              ...prev, 
-              due_date: newValue ? newValue.format('YYYY-MM-DD') : '' 
-            }))}
-          />
-          
-          <TextField 
-            select 
-            fullWidth 
-            label="Parent Task (Optional)" 
-            name="parent_id" 
-            value={formData.parent_id || ''} 
-            onChange={handleChange} 
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {tasks.map((task) => (
-              <MenuItem key={task.id} value={task.id}>
-                {task.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Task Type</Typography>
             <TaskTypeSelect
@@ -315,9 +378,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ taskId, open, projectId, onClose, o
             />
           </Box>
           
-          <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-            {taskId ? 'Update Task' : 'Create Task'}
-          </Button>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Button onClick={onClose} color="inherit">
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              {taskId ? 'Update Task' : 'Create Task'}
+            </Button>
+          </Box>
         </form>
       </Paper>
     </Box>

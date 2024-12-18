@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -25,10 +25,10 @@ import TimeLogStats from '../TimeLog/TimeLogStats';
 import CommentEditDialog from '../Comments/CommentEditDialog';
 import { useAuth } from '../../context/AuthContext';
 import { useTaskDetails } from '../../hooks/useTaskDetails';
-import { deleteTimeLog } from '../../api/timeLogService';
+import { deleteTimeLog, getTaskTimeLogs, createTimeLog } from '../../api/timeLogService';
 import { Task } from '../../types/task';
 import { Comment } from '../../types/comment';
-import { TimeLog } from '../../types/timeLog';
+import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { TaskFile } from '../../types/files';
 import TaskForm from './TaskForm';
 import { getSubtasks } from '../../api/tasks';
@@ -41,35 +41,38 @@ const TaskDetails: React.FC = () => {
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [subtaskFormOpen, setSubtaskFormOpen] = useState(false);
   const [formData, setFormData] = useState<any>({});
+  const [task, setTask] = useState<Task | null>(null);
+  const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
+  const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
+  const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
 
   const {
-    task,
+    task: taskFromHook,
     subtasks,
     comments,
-    timeLogs,
     files,
     statuses,
     loading,
     error,
-    timeLogDialogOpen,
-    selectedTimeLog,
     handleStatusChange,
     handleDelete,
-    handleTimeLogSubmit,
     handleCommentSubmit,
     handleCommentUpdate,
     handleCommentDelete,
     handleFileDelete,
-    setTimeLogDialogOpen,
-    setSelectedTimeLog,
     setComments,
     setFiles,
-    setTimeLogs,
     setSubtasks,
     canEdit,
     canDelete,
     handleSubtasksUpdate
   } = useTaskDetails(id!);
+
+  useEffect(() => {
+    if (taskFromHook) {
+      setTask(taskFromHook);
+    }
+  }, [taskFromHook]);
 
   const handleStatusMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusMenuAnchor(event.currentTarget);
@@ -91,19 +94,46 @@ const TaskDetails: React.FC = () => {
     setFiles(files.filter(file => file.id !== fileId));
   };
 
-  const handleTimeLogEdit = (timeLog: TimeLog) => {
-    setSelectedTimeLog(timeLog);
-    setTimeLogDialogOpen(true);
+  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
+    try {
+      await createTimeLog(Number(id), timeLogData);
+      const updatedLogs = await getTaskTimeLogs(Number(id));
+      setTimeLogs(updatedLogs);
+      setTimeLogDialogOpen(false);
+      setSelectedTimeLog(null);
+    } catch (error) {
+      console.error('Failed to submit time log:', error);
+    }
   };
 
   const handleTimeLogDelete = async (timeLogId: number) => {
     try {
       await deleteTimeLog(timeLogId);
-      setTimeLogs(timeLogs.filter(log => log.id !== timeLogId));
+      const updatedLogs = await getTaskTimeLogs(Number(id));
+      setTimeLogs(updatedLogs);
     } catch (error) {
       console.error('Failed to delete time log:', error);
     }
   };
+
+  const handleTimeLogEdit = (timeLog: TimeLog) => {
+    setSelectedTimeLog(timeLog);
+    setTimeLogDialogOpen(true);
+  };
+
+  useEffect(() => {
+    const loadTimeLogs = async () => {
+      if (id) {
+        try {
+          const logs = await getTaskTimeLogs(Number(id));
+          setTimeLogs(logs);
+        } catch (error) {
+          console.error('Failed to load time logs:', error);
+        }
+      }
+    };
+    loadTimeLogs();
+  }, [id]);
 
   const handleSubtaskUpdated = async (subtaskId: number, updatedSubtask: Task) => {
     setSubtasks(subtasks.map(subtask =>
@@ -434,7 +464,10 @@ const TaskDetails: React.FC = () => {
           <Typography variant="h6">Time Logs</Typography>
           <Button
             variant="contained"
-            onClick={() => setTimeLogDialogOpen(true)}
+            onClick={() => {
+              setSelectedTimeLog(null);
+              setTimeLogDialogOpen(true);
+            }}
           >
             Log Time
           </Button>

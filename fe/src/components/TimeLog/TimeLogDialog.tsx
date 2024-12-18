@@ -10,7 +10,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Box
+  Box,
+  FormHelperText
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { getProjects } from '../../api/projects';
@@ -27,7 +28,6 @@ import {
 } from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
-
 
 const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   open,
@@ -49,9 +49,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   const [selectedActivityTypeId, setSelectedActivityTypeId] = useState<number>(0);
   const [spentTime, setSpentTime] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [logDate, setLogDate] = useState<Dayjs>(
-    timeLog ? dayjs(timeLog.log_date) : dayjs()
-  );
+  const [logDate, setLogDate] = useState<Dayjs>(timeLog ? dayjs(timeLog.log_date) : dayjs());
+  const [timeError, setTimeError] = useState<string>('');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -113,128 +112,158 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
     }
   };
 
-  const handleSubmit = () => {
-    if (!selectedTaskId) return;
+  const validateAndFormatTime = (timeStr: string): number | null => {
+    // Clear previous error
+    setTimeError('');
 
-    const timeLogData: TimeLogCreate = {
-      task_id: selectedTaskId,
-      user_id: selectedUserId,
-      activity_type_id: selectedActivityTypeId,
-      spent_time: parseFloat(spentTime.replace(',', '.')) * 60,
-      description: description || undefined,
-      log_date: logDate.format('YYYY-MM-DD')
-    };
+    // Check HH:MM or HH:MM:SS format
+    const timePattern = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
+    if (timePattern.test(timeStr)) {
+      const [hours, minutes] = timeStr.split(':');
+      // Convert to total minutes
+      return parseInt(hours) * 60 + parseInt(minutes);
+    }
 
-    onSubmit(timeLogData);
+    // Check decimal hours (e.g., 1.5)
+    const decimalHours = parseFloat(timeStr);
+    if (!isNaN(decimalHours) && decimalHours > 0) {
+      // Convert hours to minutes
+      return Math.round(decimalHours * 60);
+    }
+
+    setTimeError('Invalid time format. Use HH:MM or decimal hours (e.g., 1.5)');
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTaskId || !selectedActivityTypeId) return;
+
+    const timeInMinutes = validateAndFormatTime(spentTime);
+    if (timeInMinutes === null) return; // Invalid time format
+
+    try {
+      const timeLogData: TimeLogCreate = {
+        task_id: selectedTaskId,
+        user_id: selectedUserId,
+        activity_type_id: selectedActivityTypeId,
+        log_date: logDate.format('YYYY-MM-DD'),
+        spent_time: timeInMinutes,
+        description: description || undefined
+      };
+
+      await onSubmit(timeLogData);
+      onClose();
+    } catch (error) {
+      console.error('Failed to submit time log:', error);
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{timeLog ? 'Edit Time Log' : 'Log Time'}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-          <DatePicker
-            label="Log Date"
-            value={logDate}
-            onChange={(newValue) => setLogDate(newValue || dayjs())}
-            slotProps={{ 
-              textField: { 
-                fullWidth: true,
-                required: true
-              } 
-            }}
-          />
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <DatePicker
+              label="Log Date"
+              value={logDate}
+              onChange={(newValue) => setLogDate(newValue || dayjs())}
+              slotProps={{ 
+                textField: { 
+                  fullWidth: true,
+                  required: true
+                } 
+              }}
+            />
 
-          {(hasPermission('Admin') || hasPermission('Project Manager')) && (
+            {(hasPermission('Admin') || hasPermission('Project Manager')) && (
+              <FormControl fullWidth>
+                <InputLabel>User</InputLabel>
+                <Select
+                  value={selectedUserId}
+                  onChange={(e) => setSelectedUserId(e.target.value as number)}
+                >
+                  {users.map(user => (
+                    <MenuItem key={user.id} value={user.id}>
+                      {user.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
             <FormControl fullWidth>
-              <InputLabel>User</InputLabel>
+              <InputLabel>Project</InputLabel>
               <Select
-                value={selectedUserId}
-                onChange={(e) => setSelectedUserId(e.target.value as number)}
+                value={selectedProjectId || ''}
+                onChange={(e) => handleProjectChange(e.target.value as number)}
               >
-                {users.map(user => (
-                  <MenuItem key={user.id} value={user.id}>
-                    {user.name}
+                {projects.map(project => (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-          )}
 
-          <FormControl fullWidth>
-            <InputLabel>Project</InputLabel>
-            <Select
-              value={selectedProjectId || ''}
-              onChange={(e) => handleProjectChange(e.target.value as number)}
-            >
-              {projects.map(project => (
-                <MenuItem key={project.id} value={project.id}>
-                  {project.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Task</InputLabel>
+              <Select
+                value={selectedTaskId || ''}
+                onChange={(e) => handleTaskChange(e.target.value as number)}
+              >
+                {tasks.map(task => (
+                  <MenuItem key={task.id} value={task.id}>
+                    {task.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          <FormControl fullWidth>
-            <InputLabel>Task</InputLabel>
-            <Select
-              value={selectedTaskId || ''}
-              onChange={(e) => handleTaskChange(e.target.value as number)}
-            >
-              {tasks.map(task => (
-                <MenuItem key={task.id} value={task.id}>
-                  {task.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <TextField
+              label="Time Spent"
+              value={spentTime}
+              onChange={(e) => setSpentTime(e.target.value)}
+              fullWidth
+              required
+              error={!!timeError}
+              helperText={timeError || 'Enter time as HH:MM or decimal hours (e.g., 1:30 or 1.5)'}
+              sx={{ mt: 2 }}
+            />
 
-          <TextField
-            label="Time Spent (hours)"
-            type="text"
-            value={spentTime}
-            onChange={(e) => setSpentTime(e.target.value)}
-            inputProps={{ 
-              step: "0.25",
-              pattern: "^\\d*[,.]?\\d{0,2}$"
-            }}
-          />
+            <FormControl fullWidth>
+              <InputLabel>Activity Type</InputLabel>
+              <Select
+                value={selectedActivityTypeId}
+                onChange={(e) => setSelectedActivityTypeId(e.target.value as number)}
+              >
+                {activityTypes.map(type => (
+                  <MenuItem key={type.id} value={type.id}>
+                    {type.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          <FormControl fullWidth>
-            <InputLabel>Activity Type</InputLabel>
-            <Select
-              value={selectedActivityTypeId}
-              onChange={(e) => setSelectedActivityTypeId(e.target.value as number)}
-            >
-              {activityTypes.map(type => (
-                <MenuItem key={type.id} value={type.id}>
-                  {type.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            label="Description"
-            multiline
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button 
-          onClick={handleSubmit}
-          variant="contained" 
-          disabled={!selectedTaskId || !selectedActivityTypeId || !spentTime || !logDate}
-        >
-          {timeLog ? 'Update' : 'Save'}
-        </Button>
-      </DialogActions>
+            <TextField
+              label="Description"
+              multiline
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="contained" color="primary">
+            {timeLog ? 'Update' : 'Save'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };
 
-export default TimeLogDialog; 
+export default TimeLogDialog;

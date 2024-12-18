@@ -32,6 +32,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [memberError, setMemberError] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [step, setStep] = useState<'details' | 'members'>('details');
@@ -114,6 +115,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       }
       return;
     }
+
+    // Validate that at least one member is selected
+    if (selectedUsers.length === 0) {
+      setMemberError('Please select at least one project member');
+      return;
+    }
+    setMemberError('');
 
     try {
       const projectData = { ...formData };
@@ -240,6 +248,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
               selectedUsers={selectedUsers}
               onUserSelect={handleUserSelect}
             />
+            {memberError && (
+              <Typography color="error" sx={{ mt: 1 }}>
+                {memberError}
+              </Typography>
+            )}
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
               <Button onClick={() => setStep('details')} color="inherit">
                 Back

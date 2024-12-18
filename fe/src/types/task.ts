@@ -24,8 +24,10 @@ export interface Task {
   type_name?: string;
   type_color?: string;
   type_icon?: string;
+  priority?: string;
   priority_name?: string;
   priority_color?: string;
+  status?: string;  
   status_name?: string;
   status_color?: string;
   holder_name?: string;

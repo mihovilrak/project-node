@@ -16,17 +16,30 @@ import { getTaskTimeLogs } from '../api/timeLogService';
 import { TimeLog } from '../types/timeLog';
 
 export const useProjectDetails = (projectId: string) => {
-    const [state, setState] = useState({
-        project: null as Project | null,
-        members: [] as ProjectMember[],
-        tasks: [] as Task[],
+    interface ProjectDetailsState {
+        project: Project | null;
+        members: ProjectMember[];
+        tasks: Task[];
+        loading: boolean;
+        error: string | null;
+        editDialogOpen: boolean;
+        deleteDialogOpen: boolean;
+        createTaskDialogOpen: boolean;
+        membersDialogOpen: boolean;
+        timeLogs: TimeLog[];
+    }
+
+    const [state, setState] = useState<ProjectDetailsState>({
+        project: null,
+        members: [],
+        tasks: [],
         loading: true,
-        error: null as string | null,
+        error: null,
         editDialogOpen: false,
         deleteDialogOpen: false,
         createTaskDialogOpen: false,
         membersDialogOpen: false,
-        timeLogs: [] as TimeLog[]
+        timeLogs: []
     });
 
     const navigate = useNavigate();
@@ -135,6 +148,7 @@ export const useProjectDetails = (projectId: string) => {
 
     return {
         ...state,
+        setState,
         handleProjectUpdate,
         handleProjectDelete,
         handleMemberUpdate,
@@ -153,4 +167,4 @@ export const useProjectDetails = (projectId: string) => {
         canDelete: hasPermission('Delete projects'),
         canManageMembers: hasPermission('Manage project members')
     };
-}; 
+};

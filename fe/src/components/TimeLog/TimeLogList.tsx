@@ -1,13 +1,12 @@
 import React from 'react';
-import { 
-  List, 
-  ListItem, 
-  ListItemText, 
-  IconButton, 
-  Typography,
+import {
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
   Box,
-  Grid,
-  Link
+  Typography,
+  Chip
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -21,94 +20,108 @@ import { format } from 'date-fns';
 
 interface TimeLogListProps {
   timeLogs: TimeLog[];
-  onEdit: (timeLog: TimeLog) => void;
-  onDelete: (timeLogId: number) => void;
+  onEdit?: (timeLog: TimeLog) => void;
+  onDelete?: (timeLogId: number) => void;
 }
 
-const TimeLogList: React.FC<TimeLogListProps> = ({ timeLogs, onEdit, onDelete }) => {
+const TimeLogList: React.FC<TimeLogListProps> = ({
+  timeLogs,
+  onEdit,
+  onDelete
+}) => {
   const { currentUser } = useAuth();
 
   const formatTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+    const remainingMinutes = minutes % 60;
+    return `${hours}:${remainingMinutes.toString().padStart(2, '0')}`;
   };
 
   return (
     <List>
-      {timeLogs.map((log) => (
-        <ListItem
-          key={log.id}
-          sx={{
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            mb: 1,
-            p: 2
-          }}
-          secondaryAction={
-            log.user_id === currentUser?.id && (
+      {timeLogs && timeLogs.length > 0 ? (
+        timeLogs.map((log) => (
+          <ListItem
+            key={log.id}
+            sx={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '4px',
+              mb: 1,
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            <Box sx={{ flexGrow: 1 }}>
+              <ListItemText
+                primary={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography>
+                      {formatTime(log.spent_time)} hours
+                    </Typography>
+                    <Chip
+                      label={log.activity_type_name}
+                      size="small"
+                      sx={{
+                        backgroundColor: log.activity_type_color,
+                        color: 'white'
+                      }}
+                    />
+                  </Box>
+                }
+                secondary={
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(log.log_date).toLocaleDateString()}
+                    </Typography>
+                    {log.description && (
+                      <Typography variant="body2">
+                        {log.description}
+                      </Typography>
+                    )}
+                  </Box>
+                }
+              />
+            </Box>
+            {(onEdit || onDelete) && (
               <Box>
-                <PermissionButton
-                  requiredPermission="Edit log"
-                  component={IconButton}
-                  onClick={() => onEdit(log)}
-                  tooltipText="Edit time log"
-                >
-                  <EditIcon />
-                </PermissionButton>
-                <PermissionButton
-                  requiredPermission="Delete log"
-                  component={IconButton}
-                  onClick={() => onDelete(log.id)}
-                  tooltipText="Delete time log"
-                >
-                  <DeleteIcon />
-                </PermissionButton>
+                {onEdit && (
+                  <PermissionButton
+                    requiredPermission="Edit log"
+                    component={IconButton}
+                    onClick={() => onEdit(log)}
+                    tooltipText="Edit time log"
+                    size="small"
+                    sx={{ mr: 1 }}
+                  >
+                    <EditIcon />
+                  </PermissionButton>
+                )}
+                {onDelete && (
+                  <PermissionButton
+                    requiredPermission="Delete log"
+                    component={IconButton}
+                    onClick={() => onDelete(log.id)}
+                    tooltipText="Delete time log"
+                    size="small"
+                    color="error"
+                  >
+                    <DeleteIcon />
+                  </PermissionButton>
+                )}
               </Box>
-            )
-          }
+            )}
+          </ListItem>
+        ))
+      ) : (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ textAlign: 'center', mt: 2 }}
         >
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" gutterBottom>
-                <Link component={RouterLink} to={`/tasks/${log.task_id}`}>
-                  {log.task_name}
-                </Link>
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                {log.description}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                User
-              </Typography>
-              <Typography>
-                <Link component={RouterLink} to={`/users/${log.user_id}`}>
-                  {log.user_name}
-                </Link>
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                Date
-              </Typography>
-              <Typography>
-                {format(new Date(log.created_on), 'dd/MM/yyyy HH:mm')}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                Time Spent
-              </Typography>
-              <Typography>
-                {formatTime(log.spent_time)}
-              </Typography>
-            </Grid>
-          </Grid>
-        </ListItem>
-      ))}
+          No time logs found
+        </Typography>
+      )}
     </List>
   );
 };

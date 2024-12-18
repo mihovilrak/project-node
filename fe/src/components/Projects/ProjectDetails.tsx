@@ -1,36 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
   Paper,
   Typography,
-  CircularProgress,
-  Alert,
   Button,
+  Tab,
   Tabs,
-  Tab
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Add as AddIcon,
+  Group as GroupIcon
 } from '@mui/icons-material';
-import ProjectEditDialog from './ProjectEditDialog';
-import TaskForm from '../Tasks/TaskForm';
-import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import { useProjectDetails } from '../../hooks/useProjectDetails';
-import { getProjectTasks } from '../../api/tasks';
-import TimeLogDialog from '../TimeLog/TimeLogDialog';
-import { TimeLogCreate, TimeLog } from '../../types/timeLog';
-import { createTimeLog } from '../../api/timeLogService';
-import { addProjectMember } from '../../api/projects';
-import { getTaskTimeLogs } from '../../api/timeLogService';
-import { deleteTimeLog } from '../../api/timeLogService';
-import { getProjectSpentTime } from '../../api/projects';
-import { Task } from '../../types/task';
-import ProjectOverview from './tabs/ProjectOverview';
-import ProjectMembersList from './tabs/ProjectMembersList';
 import ProjectTaskList from './tabs/ProjectTaskList';
 import ProjectGantt from './ProjectGantt';
+import ProjectMembersList from './tabs/ProjectMembersList';
+import ProjectEditDialog from './ProjectEditDialog';
+import TaskForm from '../Tasks/TaskForm';
+import TimeLogList from '../TimeLog/TimeLogList';
+import ProjectOverview from './tabs/ProjectOverview';
+import TimeLogDialog from '../TimeLog/TimeLogDialog';
+import { getProjectMembers, addProjectMember, removeProjectMember } from '../../api/projects';
+import { getProjectTasks } from '../../api/tasks';
+import { createTimeLog, getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogService';
+import { TimeLog, TimeLogCreate } from '../../types/timeLog';
+import { Task } from '../../types/task';
+import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
+import EditMembersDialog from './EditMembersDialog';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,66 +52,34 @@ const ProjectDetails: React.FC = () => {
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
-  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
   const [spentTime, setSpentTime] = useState<number>(0);
+  const [manageMembersOpen, setManageMembersOpen] = useState(false);
 
   const {
     project,
     members,
-    tasks,
     loading,
     error,
     editDialogOpen,
     deleteDialogOpen,
     createTaskDialogOpen,
-    handleProjectUpdate,
-    handleProjectDelete,
-    handleTaskCreate,
-    handleMemberRemove,
-    handleMemberUpdate,
+    setState,
     setEditDialogOpen,
     setDeleteDialogOpen,
     setCreateTaskDialogOpen,
+    handleProjectUpdate,
+    handleProjectDelete,
     canManageMembers
-  } = useProjectDetails(id!);
-
-  useEffect(() => {
-    const fetchTimeLogs = async () => {
-      if (id) {
-        try {
-          const logs = await getTaskTimeLogs(Number(id));
-          setTimeLogs(logs);
-        } catch (error) {
-          console.error('Failed to fetch time logs:', error);
-        }
-      }
-    };
-    fetchTimeLogs();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchSpentTime = async () => {
-      if (project?.id) {
-        try {
-          const response = await getProjectSpentTime(project.id);
-          setSpentTime(response || 0);
-        } catch (error) {
-          console.error('Failed to fetch spent time:', error);
-        }
-      }
-    };
-    fetchSpentTime();
-  }, [project]);
+  } = useProjectDetails(id || '');
 
   useEffect(() => {
     const fetchTasks = async () => {
-      if (id) {
-        try {
-          const tasks = await getProjectTasks(Number(id));
-          setProjectTasks(tasks);
-        } catch (error) {
-          console.error('Failed to fetch tasks:', error);
-        }
+      if (!id) return;
+      try {
+        const tasks = await getProjectTasks(Number(id));
+        setProjectTasks(tasks);
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error);
       }
     };
     fetchTasks();
@@ -118,6 +87,7 @@ const ProjectDetails: React.FC = () => {
 
   const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
     try {
+      if (!id) return;
       await createTimeLog(timeLogData.task_id, timeLogData);
       const updatedLogs = await getTaskTimeLogs(Number(id));
       setTimeLogs(updatedLogs);
@@ -136,20 +106,68 @@ const ProjectDetails: React.FC = () => {
   const handleTimeLogDelete = async (timeLogId: number) => {
     try {
       await deleteTimeLog(timeLogId);
-      setTimeLogs(timeLogs.filter(log => log.id !== timeLogId));
+      const updatedLogs = await getTaskTimeLogs(Number(id));
+      setTimeLogs(updatedLogs);
     } catch (error) {
       console.error('Failed to delete time log:', error);
     }
   };
 
-  const handleAddMember = async (userId: number) => {
+  const handleMemberAdd = async (userId: number) => {
     try {
-      const newMember = await addProjectMember(Number(id), userId);
-      // Update members state with the new member
-      members.push(newMember);
-      setAddMemberDialogOpen(false);
+      if (!id) return;
+      await addProjectMember(Number(id), userId);
+      const updatedMembers = await getProjectMembers(Number(id));
+      setState(prev => ({ ...prev, members: updatedMembers }));
     } catch (error) {
       console.error('Failed to add member:', error);
+    }
+  };
+
+  const handleMemberRemove = async (userId: number) => {
+    try {
+      if (!id) return;
+      await removeProjectMember(Number(id), userId);
+      const updatedMembers = await getProjectMembers(Number(id));
+      setState(prev => ({ ...prev, members: updatedMembers }));
+    } catch (error) {
+      console.error('Failed to remove member:', error);
+    }
+  };
+
+  const handleManageMembers = () => {
+    setManageMembersOpen(true);
+  };
+
+  const handleMembersDialogClose = () => {
+    setManageMembersOpen(false);
+  };
+
+  const handleMembersUpdate = async (selectedUsers: number[]) => {
+    try {
+      // Remove members that are no longer selected
+      const membersToRemove = members
+        .filter(member => !selectedUsers.includes(member.user_id))
+        .map(member => member.user_id);
+
+      // Add new members
+      const membersToAdd = selectedUsers.filter(
+        userId => !members.some(member => member.user_id === userId)
+      );
+
+      for (const userId of membersToRemove) {
+        await removeProjectMember(Number(id), userId);
+      }
+
+      for (const userId of membersToAdd) {
+        await addProjectMember(Number(id), userId);
+      }
+
+      // Refresh members list
+      const updatedMembers = await getProjectMembers(Number(id));
+      setState(prev => ({ ...prev, members: updatedMembers }));
+    } catch (error) {
+      console.error('Failed to update members:', error);
     }
   };
 
@@ -158,40 +176,40 @@ const ProjectDetails: React.FC = () => {
   };
 
   if (loading) return <CircularProgress />;
-  if (error || !project) return <Alert severity="error">{error || 'Project not found'}</Alert>;
+  if (error) return <Alert severity="error">{error}</Alert>;
+  if (!project) return <Alert severity="error">Project not found</Alert>;
 
   return (
-    <Box>
+    <Box sx={{ width: '100%' }}>
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5">{project.name}</Typography>
+          <Typography variant="h5" component="h1">
+            {project.name}
+          </Typography>
           <Box>
-            {canManageMembers && (
-              <>
-                <Button
-                  startIcon={<EditIcon />}
-                  onClick={() => setEditDialogOpen(true)}
-                  sx={{ mr: 1 }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setDeleteDialogOpen(true)}
-                  color="error"
-                >
-                  Delete
-                </Button>
-              </>
-            )}
+            <Button
+              startIcon={<EditIcon />}
+              onClick={() => setEditDialogOpen(true)}
+              sx={{ mr: 1 }}
+            >
+              Edit
+            </Button>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Delete
+            </Button>
           </Box>
         </Box>
 
-        <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
+        <Tabs value={activeTab} onChange={handleTabChange}>
           <Tab label="Overview" />
-          <Tab label="Members" />
           <Tab label="Tasks" />
-          <Tab label="Timeline" />
+          <Tab label="Members" />
+          <Tab label="Time Log" />
+          <Tab label="Gantt" />
         </Tabs>
 
         <TabPanel value={activeTab} index={0}>
@@ -199,31 +217,54 @@ const ProjectDetails: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>
-          <ProjectMembersList
-            members={members}
-            canManageMembers={canManageMembers}
-            onMemberRemove={handleMemberRemove}
-            onMemberUpdate={handleMemberUpdate}
-            onAddMember={() => setAddMemberDialogOpen(true)}
-          />
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={2}>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateTaskDialogOpen(true)}
+            >
+              Create Task
+            </Button>
+          </Box>
           <ProjectTaskList
-            tasks={tasks}
+            tasks={projectTasks}
             onCreateTask={() => setCreateTaskDialogOpen(true)}
-            onTimeLogCreate={(taskId) => {
+            onTimeLogCreate={(taskId: number) => {
               setSelectedTimeLog(null);
               setTimeLogDialogOpen(true);
             }}
           />
         </TabPanel>
 
-        <TabPanel value={activeTab} index={3}>
-          <ProjectGantt 
+        <TabPanel value={activeTab} index={2}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleManageMembers}
+              startIcon={<GroupIcon />}
+            >
+              Manage Members
+            </Button>
+          </Box>
+          <ProjectMembersList
             projectId={Number(id)}
-            tasks={tasks}
+            members={members}
+            canManageMembers={canManageMembers}
+            onMemberRemove={handleMemberRemove}
+            onMembersChange={() => {}}
           />
+        </TabPanel>
+
+        <TabPanel value={activeTab} index={3}>
+          <TimeLogList
+            timeLogs={timeLogs}
+            onEdit={handleTimeLogEdit}
+            onDelete={handleTimeLogDelete}
+          />
+        </TabPanel>
+
+        <TabPanel value={activeTab} index={4}>
+          <ProjectGantt projectId={project.id} tasks={projectTasks} />
         </TabPanel>
       </Paper>
 
@@ -240,29 +281,37 @@ const ProjectDetails: React.FC = () => {
           projectId={project.id}
           onClose={() => setCreateTaskDialogOpen(false)}
           onCreated={() => {
-            handleTaskCreate({ project_id: project.id } as any);
+            getProjectTasks(project.id).then(setProjectTasks);
             setCreateTaskDialogOpen(false);
           }}
         />
       )}
 
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Project"
+        content="Are you sure you want to delete this project? This action cannot be undone."
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleProjectDelete}
+      />
+
       <TimeLogDialog
         open={timeLogDialogOpen}
-        projectId={Number(id)}
-        timeLog={selectedTimeLog}
         onClose={() => {
           setTimeLogDialogOpen(false);
           setSelectedTimeLog(null);
         }}
         onSubmit={handleTimeLogSubmit}
+        timeLog={selectedTimeLog}
+        projectId={Number(id)}
       />
 
-      <DeleteConfirmDialog
-        open={deleteDialogOpen}
-        title="Delete Project"
-        content="Are you sure you want to delete this project?"
-        onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleProjectDelete}
+      <EditMembersDialog
+        open={manageMembersOpen}
+        onClose={handleMembersDialogClose}
+        projectId={Number(id)}
+        currentMembers={members}
+        onSave={handleMembersUpdate}
       />
     </Box>
   );
