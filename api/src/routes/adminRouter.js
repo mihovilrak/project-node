@@ -1,24 +1,23 @@
 const express = require('express');
-const taskRouter = require('./taskRouter');
+const taskTypeRouter = require('./taskTypesRouter');
 const activityTypeRouter = require('./activityTypeRouter');
 const adminController = require('../controllers/adminController');
-const { checkPermission } = require('../middleware/permissionMiddleware');
 
 module.exports = (pool) => {
   const router = express.Router();
 
   // Mount task types routes under /admin/task-types
-  router.use('/task-types', checkPermission(pool, 'Admin'), (req, res, next) => {
+  router.use('/task-types', (req, res, next) => {
     next();
-  }, taskRouter(pool));
+  }, taskTypeRouter(pool));
 
   // Mount activity types routes under /admin/activity-types
-  router.use('/activity-types', checkPermission(pool, 'Admin'), (req, res, next) => {
+  router.use('/activity-types', (req, res, next) => {
     next();
   }, activityTypeRouter(pool));
 
   // Get all permissions
-  router.get('/permissions', checkPermission(pool, 'Admin'), (req, res) => {
+  router.get('/permissions', (req, res) => {
     adminController.getAllPermissions(req, res, pool);
   });
 

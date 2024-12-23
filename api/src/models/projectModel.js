@@ -29,6 +29,15 @@ exports.getProjectById = async (pool, id) => {
   return result.rows[0];
 };
 
+// Get project details
+exports.getProjectDetails = async (pool, id) => {
+  const result = await pool.query(
+    `SELECT * FROM project_details($1)`,
+    [id]
+  );
+  return result.rows[0];
+};
+
 // Create a new project
 exports.createProject = async (
   pool, 

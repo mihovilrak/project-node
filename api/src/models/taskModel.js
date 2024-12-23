@@ -34,6 +34,7 @@ exports.createTask = async (
   pool,
   name,
   description,
+  estimatedTime,
   startDate,
   dueDate,
   priorityId,
@@ -60,9 +61,10 @@ exports.createTask = async (
       $10,
       $11,
       $12,
-      $13
+      $13,
+      $14
     )`,
-    [name, description, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
+    [name, description, estimatedTime, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
   );
   return result.rows[0];
 };
@@ -75,6 +77,7 @@ exports.updateTask = async (pool, taskId, taskData) => {
     'holder_id',
     'assignee_id',
     'description',
+    'estimated_time',
     'status_id',
     'priority_id',
     'start_date',
@@ -180,41 +183,3 @@ exports.getSubtasks = async (pool, parentId) => {
   );
   return result.rows;
 };
-
-// Create a subtask
-exports.createSubtask = async (
-    pool,
-    name,
-    description,
-    startDate,
-    dueDate,
-    priorityId,
-    statusId,
-    typeId,
-    parentId,
-    projectId,
-    holderId,
-    assigneeId,
-    createdBy, 
-    tagIds
-  ) => {
-    const result = await pool.query(
-      `SELECT * FROM create_task (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11,
-        $12,
-        $13::integer[]
-      )`,
-      [name, description, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
-    );
-    return result.rows[0];
-  };

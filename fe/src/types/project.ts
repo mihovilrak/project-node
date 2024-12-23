@@ -6,21 +6,17 @@ export interface Project {
   name: string;
   description: string | null;
   parent_id: number | null;
+  parent_name: string | null;
   status_id: number;
+  status: string;
   start_date: string;
   due_date: string;
   created_by: number;
+  created_by_name: string;
   created_on: string;
-  updated_on: string | null;
-  // Virtual fields
-  status_name?: string;
-  status_color?: string;
-  creator_name?: string;
-  parent_name?: string;
-  progress?: number;
-  total_tasks?: number;
-  completed_tasks?: number;
-  spent_time?: number;
+  estimated_time: number;
+  spent_time: number;
+  progress: number;
   subprojects?: Project[];
 }
 
@@ -34,6 +30,7 @@ export interface ProjectMember {
   surname?: string;
   role?: string;
 }
+
 export interface ProjectEditDialogProps {
   open: boolean;
   project: Project;

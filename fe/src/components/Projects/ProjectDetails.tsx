@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -47,43 +47,79 @@ const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
 
 const ProjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
-  const [spentTime, setSpentTime] = useState<number>(0);
   const [manageMembersOpen, setManageMembersOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [taskFormOpen, setTaskFormOpen] = useState(false);
 
   const {
     project,
+    projectDetails,
     members,
     loading,
     error,
-    editDialogOpen,
-    deleteDialogOpen,
-    createTaskDialogOpen,
+    canManageMembers,
     setState,
-    setEditDialogOpen,
-    setDeleteDialogOpen,
-    setCreateTaskDialogOpen,
     handleProjectUpdate,
-    handleProjectDelete,
-    canManageMembers
-  } = useProjectDetails(id || '');
+    handleProjectDelete
+  } = useProjectDetails(id!);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      if (!id) return;
-      try {
-        const tasks = await getProjectTasks(Number(id));
-        setProjectTasks(tasks);
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+    const loadTimeLogs = async () => {
+      if (id && activeTab === 3) {
+        try {
+          const tasks = await getProjectTasks(Number(id));
+          let allLogs: TimeLog[] = [];
+          for (const task of tasks) {
+            const taskLogs = await getTaskTimeLogs(task.id);
+            allLogs = [...allLogs, ...taskLogs];
+          }
+          setTimeLogs(allLogs);
+        } catch (error) {
+          console.error('Failed to load time logs:', error);
+        }
       }
     };
-    fetchTasks();
+    loadTimeLogs();
+  }, [id, activeTab]);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      if (id) {
+        try {
+          const tasks = await getProjectTasks(Number(id));
+          setProjectTasks(tasks);
+        } catch (error) {
+          console.error('Failed to load tasks:', error);
+        }
+      }
+    };
+    loadTasks();
   }, [id]);
+
+  const handleCreateTask = () => {
+    navigate(`/tasks/new?projectId=${id}`);
+  };
+
+  const handleTaskFormClose = () => {
+    setTaskFormOpen(false);
+  };
+
+  const handleTaskCreated = async () => {
+    setTaskFormOpen(false);
+    try {
+      const tasks = await getProjectTasks(Number(id));
+      setProjectTasks(tasks);
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+    }
+  };
 
   const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
     try {
@@ -213,7 +249,8 @@ const ProjectDetails: React.FC = () => {
         </Tabs>
 
         <TabPanel value={activeTab} index={0}>
-          <ProjectOverview {...project} />
+          <ProjectOverview project={project} 
+          projectDetails={projectDetails} />
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>
@@ -221,14 +258,13 @@ const ProjectDetails: React.FC = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setCreateTaskDialogOpen(true)}
+              onClick={handleCreateTask}
             >
               Create Task
             </Button>
           </Box>
           <ProjectTaskList
             tasks={projectTasks}
-            onCreateTask={() => setCreateTaskDialogOpen(true)}
             onTimeLogCreate={(taskId: number) => {
               setSelectedTimeLog(null);
               setTimeLogDialogOpen(true);
@@ -256,6 +292,23 @@ const ProjectDetails: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={activeTab} index={3}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            mb: 2 
+          }}>
+            <Typography variant="h6">Time Logs</Typography>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setSelectedTimeLog(null);
+                setTimeLogDialogOpen(true);
+              }}
+            >
+              Log Time
+            </Button>
+          </Box>
           <TimeLogList
             timeLogs={timeLogs}
             onEdit={handleTimeLogEdit}
@@ -274,18 +327,6 @@ const ProjectDetails: React.FC = () => {
         onClose={() => setEditDialogOpen(false)}
         onSaved={() => handleProjectUpdate(project)}
       />
-
-      {createTaskDialogOpen && (
-        <TaskForm
-          open={createTaskDialogOpen}
-          projectId={project.id}
-          onClose={() => setCreateTaskDialogOpen(false)}
-          onCreated={() => {
-            getProjectTasks(project.id).then(setProjectTasks);
-            setCreateTaskDialogOpen(false);
-          }}
-        />
-      )}
 
       <DeleteConfirmDialog
         open={deleteDialogOpen}
@@ -313,6 +354,15 @@ const ProjectDetails: React.FC = () => {
         currentMembers={members}
         onSave={handleMembersUpdate}
       />
+
+      {taskFormOpen && (
+        <TaskForm
+          projectId={Number(id)}
+          onClose={handleTaskFormClose}
+          onCreated={handleTaskCreated}
+          open={taskFormOpen}
+        />
+      )}
     </Box>
   );
 };

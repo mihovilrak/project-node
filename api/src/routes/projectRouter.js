@@ -15,6 +15,10 @@ module.exports = (pool) => {
   router.get('/:id', (req, res) =>
     projectController.getProjectById(req, res, pool));
 
+  // Get project details route
+  router.get('/:id/details', (req, res) =>
+    projectController.getProjectDetails(req, res, pool));
+
   // Create project route
   router.post('/', checkPermission(pool, 'Create projects'), (req, res) =>
     projectController.createProject(req, res, pool));

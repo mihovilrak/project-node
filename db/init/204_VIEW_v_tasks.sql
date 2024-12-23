@@ -15,8 +15,10 @@ create or replace view v_tasks as
             t.start_date,
             t.due_date,
             t.end_date,
+            t.progress,
             c.name as created_by,
-            t.created_on::timestamp(0)
+            t.created_on::timestamp(0),
+            t.estimated_time
     from tasks t 
     left join projects po on po.id = t.project_id
     left join users h on h.id = t.holder_id

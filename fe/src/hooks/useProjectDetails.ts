@@ -5,6 +5,7 @@ import { Project, ProjectMember } from '../types/project';
 import { Task } from '../types/task';
 import {
     getProjectById,
+    getProjectDetails,
     getProjectMembers,
     updateProject,
     deleteProject,
@@ -18,6 +19,7 @@ import { TimeLog } from '../types/timeLog';
 export const useProjectDetails = (projectId: string) => {
     interface ProjectDetailsState {
         project: Project | null;
+        projectDetails: Project | null;
         members: ProjectMember[];
         tasks: Task[];
         loading: boolean;
@@ -31,6 +33,7 @@ export const useProjectDetails = (projectId: string) => {
 
     const [state, setState] = useState<ProjectDetailsState>({
         project: null,
+        projectDetails: null,
         members: [],
         tasks: [],
         loading: true,
@@ -50,8 +53,9 @@ export const useProjectDetails = (projectId: string) => {
             try {
                 setState(prev => ({ ...prev, loading: true, error: null }));
 
-                const [projectData, membersData, tasksData, timeLogsData] = await Promise.all([
+                const [projectData, projectDetails, membersData, tasksData, timeLogsData] = await Promise.all([
                     getProjectById(Number(projectId)),
+                    getProjectDetails(Number(projectId)),
                     getProjectMembers(Number(projectId)),
                     getProjectTasks(Number(projectId)),
                     getTaskTimeLogs(Number(projectId))
@@ -60,6 +64,7 @@ export const useProjectDetails = (projectId: string) => {
                 setState(prev => ({
                     ...prev,
                     project: projectData,
+                    projectDetails: projectDetails,
                     members: membersData,
                     tasks: tasksData,
                     timeLogs: timeLogsData,

@@ -26,28 +26,6 @@ module.exports = (pool) => {
   router.get('/active', (req, res) =>
     taskController.getActiveTasks(req, res, pool));
 
-  // Task Type Routes
-
-  // Get task types
-  router.get('/types', (req, res) =>
-    taskController.getTaskTypes(req, res, pool));
-
-  // Get task type by ID
-  router.get('/types/:id', (req, res) =>
-    taskController.getTaskTypeById(req, res, pool));
-
-  // Create a new task type
-  router.post('/types', (req, res) =>
-    taskController.createTaskType(req, res, pool));
-
-  // Update a task type
-  router.put('/types/:id', (req, res) =>
-    taskController.updateTaskType(req, res, pool));
-
-  // Delete a task type
-  router.delete('/types/:id', (req, res) =>
-    taskController.deleteTaskType(req, res, pool));
-
   // Get task by assignee
   router.get('/?assignee=:assignee_id', (req, res) =>
     taskController.getTaskByAssignee(req, res, pool));

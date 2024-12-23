@@ -92,11 +92,12 @@ export interface TaskListProps {
 
 export interface TaskFormProps {
   taskId?: string;
-  open: boolean;
   projectId?: number;
-  onClose: () => void;
-  onCreated: () => void;
+  open?: boolean;
+  onClose?: () => void;
+  onCreated?: () => void;
 }
+
 export interface TaskTypeSelectProps {
   value: number;
   onChange: (event: SelectChangeEvent<number>) => void;
@@ -125,4 +126,5 @@ export interface TaskFormState {
   assignee_id: number | null;
   created_by?: number;
   tags: Tag[];
+  estimated_time: number | null;
 }

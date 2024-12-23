@@ -43,8 +43,7 @@ exports.getAllPermissions = async (pool) => {
   const result = await pool.query(
     `SELECT id,
      name 
-     FROM permissions 
-     WHERE active = true 
+     FROM permissions
      ORDER BY name ASC`
   );
   return result.rows;

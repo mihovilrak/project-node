@@ -23,6 +23,17 @@ export const getProjectById = async (id: number): Promise<Project> => {
   }
 };
 
+// Get project details
+export const getProjectDetails = async (id: number): Promise<Project> => {
+  try {
+    const response = await api.get(`projects/${id}/details`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching project details:', error);
+    throw error;
+  }
+};
+
 // Create project
 export const createProject = async (values: Partial<Project>): Promise<Project> => {
   try {

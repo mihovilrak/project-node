@@ -1,5 +1,6 @@
 const express = require('express');
 const activityTypeController = require('../controllers/activityTypeController');
+const { checkPermission } = require('../middleware/permissionMiddleware');
 
 module.exports = (pool) => {
   const router = express.Router();
@@ -9,7 +10,7 @@ module.exports = (pool) => {
     activityTypeController.getActivityTypes(req, res, pool));
 
   // Create activity type
-  router.post('/', (req, res) => 
+  router.post('/', checkPermission(pool, 'Admin'), (req, res) => 
     activityTypeController.createActivityType(req, res, pool));
 
   // Get available icons
@@ -17,11 +18,11 @@ module.exports = (pool) => {
     activityTypeController.getAvailableIcons(req, res));
 
   // Update activity type
-  router.put('/:id', (req, res) => 
+  router.put('/:id', checkPermission(pool, 'Admin'), (req, res) => 
     activityTypeController.updateActivityType(req, res, pool));
 
   // Delete activity type
-  router.delete('/:id', (req, res) => 
+  router.delete('/:id', checkPermission(pool, 'Admin'), (req, res) => 
     activityTypeController.deleteActivityType(req, res, pool));
 
   return router;

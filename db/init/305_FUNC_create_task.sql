@@ -1,6 +1,7 @@
 create or replace function create_task(
     p_name character varying,
     p_description text,
+    p_estimated_time numeric,
     p_start_date date,
     p_due_date date,
     p_priority_id integer,
@@ -34,6 +35,7 @@ create or replace function create_task(
         insert into tasks (
             name,
             description,
+            estimated_time,
             start_date,
             due_date,
             priority_id,
@@ -47,6 +49,7 @@ create or replace function create_task(
         ) values (
             p_name,
             p_description,
+            p_estimated_time,
             p_start_date,
             p_due_date,
             p_priority_id,

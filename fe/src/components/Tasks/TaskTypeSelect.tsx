@@ -52,8 +52,9 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
 
   return (
     <FormControl fullWidth error={error} required={required}>
-      <InputLabel>Task Type</InputLabel>
+      <InputLabel id="task-type-select-label">Task Type</InputLabel>
       <Select
+        labelId="task-type-select-label"
         value={value || ''}
         onChange={handleChange}
         label="Task Type"
@@ -64,7 +65,7 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
             <MenuItem key={type.id} value={type.id}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 {Icon && <Icon sx={{ color: type.color }} />}
-                {type.name}
+                <span style={{ color: type.color }}>{type.name}</span>
               </Box>
             </MenuItem>
           );
@@ -74,4 +75,4 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
   );
 };
 
-export default TaskTypeSelect; 
+export default TaskTypeSelect;

@@ -25,7 +25,19 @@ exports.getProjectById = async (req, res, pool) => {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
+
+// Get project details
+exports.getProjectDetails = async (req, res, pool) => {
+  try {
+    const { id } = req.params;
+    const project = await projectModel.getProjectDetails(pool, id);
+    res.status(200).json(project);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 // Create a project
 exports.createProject = async (req, res, pool) => {
