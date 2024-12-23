@@ -4,8 +4,6 @@ import {
   ListItem,
   IconButton,
   Typography,
-  Box,
-  Tooltip,
   ListItemText,
   ListItemSecondaryAction
 } from '@mui/material';
@@ -33,7 +31,7 @@ const FileList: React.FC<FileListProps> = ({
           }}
         >
           <ListItemText
-            primary={file.original_name}
+            primary={decodeURIComponent(escape(file.original_name))}
             secondary={
               <>
                 <Typography variant="caption" display="block">
@@ -68,13 +66,4 @@ const FileList: React.FC<FileListProps> = ({
   );
 };
 
-// Helper function to format file size
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-export default FileList; 
+export default FileList;

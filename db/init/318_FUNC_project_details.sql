@@ -44,7 +44,7 @@ begin
                p.created_by,
                u.name as created_by_name,
                p.created_on,
-               proj_estimated_time as estimated_time,
+               coalesce(proj_estimated_time, 0) as estimated_time,
                coalesce(pst.spent_time, 0) as spent_time,
                coalesce(pp.progress, 0) as progress
           from projects p

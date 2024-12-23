@@ -235,7 +235,7 @@ const TaskDetails: React.FC = () => {
             <Typography variant="body1">
               Type: {task.type_name}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1"> 
               Priority: {task.priority_name}
             </Typography>
             <Typography variant="body1">
@@ -256,7 +256,7 @@ const TaskDetails: React.FC = () => {
               Estimated Time: {task.estimated_time || 'Not set'} hours
             </Typography>
             <Typography variant="body1">
-              Created By: {task.creator_name}
+              Created By: {task.created_by_name}
             </Typography>
             <Typography variant="body1">
               Created On: {new Date(task.created_on).toLocaleString()}

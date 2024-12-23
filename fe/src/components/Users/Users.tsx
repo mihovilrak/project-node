@@ -55,7 +55,7 @@ const Users: React.FC = () => {
               <CardContent>
                 <Typography variant="h6">{user.name} {user.surname}</Typography>
                 <Typography variant="body2">Email: {user.email}</Typography>
-                <Typography variant="body2">Role: {user.role_name}</Typography>
+                <Typography variant="body2">Role: {user.role}</Typography>
                 <Box marginTop={2}>
                   <Button variant="contained" color="primary" onClick={() => navigate(`/users/${user.id}`)}>View</Button>
                   <Button variant="contained" color="warning" onClick={() => navigate(`/users/${user.id}/edit`)} sx={{ ml: 1 }}>Edit</Button>

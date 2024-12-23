@@ -1,14 +1,7 @@
 // Get all files for a task
 exports.getTaskFiles = async (pool, taskId) => {
   const result = await pool.query(
-    `SELECT 
-      f.*,
-      u.name || ' ' || u.surname as uploaded_by,
-      f.uploaded_on as created_on
-    FROM files f
-    LEFT JOIN users u ON f.user_id = u.id
-    WHERE f.task_id = $1 
-    ORDER BY f.uploaded_on DESC`,
+    `SELECT * FROM get_task_files($1)`,
     [taskId]
   );
   return result.rows;

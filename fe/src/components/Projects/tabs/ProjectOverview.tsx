@@ -47,7 +47,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
             <Grid item xs={12} sm={6}>
                 <Typography>
                     <strong>Status:</strong>{' '}
-                    {projectDetails.status}
+                    {projectDetails.status_name}
                 </Typography>
             </Grid>
             

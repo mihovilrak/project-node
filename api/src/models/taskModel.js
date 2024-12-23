@@ -156,7 +156,7 @@ exports.getActiveTasks = async (pool, userId) => {
   const result = await pool.query(
     `SELECT * FROM v_tasks 
     WHERE assignee_id = $1
-    AND status NOT IN ('Done', 'Cancelled', 'Deleted')`,
+    AND status_name NOT IN ('Done', 'Cancelled', 'Deleted')`,
     [userId]
   );
   return result.rows;

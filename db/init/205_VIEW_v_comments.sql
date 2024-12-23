@@ -2,7 +2,7 @@ create or replace view v_comments as
     select  c.id,
             c.task_id,
             c.user_id,
-            u.name,
+            u.name || ' ' || u.surname as user_name,
             c.comment,
             c.created_on
     from comments c 

@@ -48,7 +48,7 @@ const ActiveTasks: React.FC = () => {
                 <CardContent>
                   <Typography variant="h6">{task.name}</Typography>
                   <Typography variant="body2">Project: {task.project_name}</Typography>
-                  <Typography variant="body2">Priority: {task.priority}</Typography>
+                  <Typography variant="body2">Priority: {task.priority_name}</Typography>
                   <Typography variant="caption">
                     Due: {new Date(task.due_date).toLocaleDateString()}
                   </Typography>

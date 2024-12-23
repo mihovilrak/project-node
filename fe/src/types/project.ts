@@ -8,7 +8,7 @@ export interface Project {
   parent_id: number | null;
   parent_name: string | null;
   status_id: number;
-  status: string;
+  status_name: string;
   start_date: string;
   due_date: string;
   created_by: number;
