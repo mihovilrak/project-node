@@ -19,6 +19,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { deleteTask, changeTaskStatus } from '../../api/tasks';
 import { Task, SubtaskListProps } from '../../types/task';
+import { getPriorityColor } from '../../utils/taskUtils';
 
 const SubtaskList: React.FC<SubtaskListProps> = ({ 
   subtasks, 
@@ -43,16 +44,6 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
       onSubtaskUpdated(subtask.id, subtask);
     } catch (error) {
       console.error('Failed to update subtask status:', error);
-    }
-  };
-
-  const getPriorityColor = (priority: string | undefined): "error" | "warning" | "info" | "success" | "default" => {
-    switch (priority?.toLowerCase()) {
-      case 'very high/must': return 'error';
-      case 'high/should': return 'warning';
-      case 'normal/could': return 'info';
-      case 'low/would': return 'success';
-      default: return 'default';
     }
   };
 

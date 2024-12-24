@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import PermissionButton from '../common/PermissionButton';
 import { Task } from '../../types/task';
+import { getPriorityColor } from '../../utils/taskUtils';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -46,16 +47,6 @@ const Tasks: React.FC = () => {
         console.error('Failed to delete task', error);
         setError('Failed to delete task. Please try again.');
       }
-    }
-  };
-
-  const getPriorityColor = (priority: string | undefined): "error" | "warning" | "info" | "success" | "default" => {
-    switch (priority?.toLowerCase()) {
-      case 'very high/must': return 'error';
-      case 'high/should': return 'warning';
-      case 'normal/could': return 'info';
-      case 'low/would': return 'success';
-      default: return 'default';
     }
   };
 

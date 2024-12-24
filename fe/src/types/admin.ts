@@ -18,7 +18,12 @@ export interface Role {
   permissions?: Permission[];
 }
 
+export interface PrivateRouteProps {
+  element?: React.ReactElement;
+  requiredPermission?: string;
+}
+
 export type ThemeContextType = {
   mode: 'light' | 'dark';
   toggleTheme: () => void;
-};
+}

@@ -2,11 +2,7 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
-
-interface PrivateRouteProps {
-  element?: React.ReactElement;
-  requiredPermission?: string;
-}
+import { PrivateRouteProps } from '../types/admin';
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ element: Component, requiredPermission }) => {
   const { currentUser, hasPermission, permissionsLoading } = useAuth();
@@ -34,4 +30,4 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ element: Component, require
   return Component ? Component : <Outlet />;
 };
 
-export default PrivateRoute; 
+export default PrivateRoute;

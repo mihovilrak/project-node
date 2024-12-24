@@ -16,16 +16,7 @@ import {
 import { Edit as EditIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TaskTableProps } from '../../types/task';
-
-const getPriorityColor = (priority: string): "error" | "warning" | "info" | "success" | "default" => {
-  switch (priority?.toLowerCase()) {
-    case 'very high/must': return 'error';
-    case 'high/should': return 'warning';
-    case 'normal/could': return 'info';
-    case 'low/would': return 'success';
-    default: return 'default';
-  }
-};
+import { getPriorityColor } from '../../utils/taskUtils';
 
 const TaskTable: React.FC<TaskTableProps> = ({ 
   tasks, 
