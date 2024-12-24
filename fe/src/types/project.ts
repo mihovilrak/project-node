@@ -27,6 +27,7 @@ export interface Project {
   spent_time: number;
   progress: number;
   subprojects?: Project[];
+  can_create_project?: boolean;
 }
 
 export interface ProjectMember {
@@ -135,12 +136,18 @@ export interface FormData extends Partial<Project> {
   description: string | null;
   start_date: string;
   due_date: string;
+  status_id: number;
 }
 
 export interface ProjectMemberSelectProps {
   users: User[];
   selectedUsers: number[];
   onUserSelect: (userId: number) => void;
+}
+
+export interface ProjectStatus {
+  id: number;
+  name: string;
 }
 
 export interface ProjectDetailsState {

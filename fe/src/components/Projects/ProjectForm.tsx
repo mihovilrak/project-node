@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   TextField,
@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { createProject, addProjectMember } from '../../api/projects';
+import { createProject, addProjectMember, getProjects } from '../../api/projects';
 import { getUsers } from '../../api/users';
 import { ProjectFormProps, Project } from '../../types/project';
 import ProjectMemberSelect from './ProjectMemberSelect';
@@ -23,12 +23,31 @@ import { User } from '../../types/user';
 
 const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const parentId = searchParams.get('parentId');
+  const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
+  const [dateError, setDateError] = useState<string>('');
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const projects = await getProjects();
+        setAvailableProjects(projects);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+    };
+    fetchProjects();
+  }, []);
+
   const [formData, setFormData] = useState<Partial<Project>>({
     name: project?.name || '',
     description: project?.description || '',
     start_date: project?.start_date || new Date().toISOString(),
-    due_date: project?.due_date || new Date().toISOString(),
-    status_id: project?.status_id || 1
+    due_date: project?.due_date || undefined,
+    status_id: project?.status_id || 1,
+    parent_id: project?.parent_id || (parentId ? parseInt(parentId) : null)
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -71,13 +90,30 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     }));
   };
 
-  const handleDateChange = (field: 'start_date' | 'due_date', date: Date | null) => {
-    if (date) {
+  const handleDateChange = (field: 'start_date' | 'due_date', newValue: dayjs.Dayjs | null) => {
+    if (!newValue) {
       setFormData(prev => ({
         ...prev,
-        [field]: date.toISOString()
+        [field]: ''
       }));
+      return;
     }
+
+    const value = newValue.format('YYYY-MM-DD');
+    const startDate = field === 'start_date' ? new Date(value) : new Date(formData.start_date || '');
+    const dueDate = field === 'due_date' ? new Date(value) : new Date(formData.due_date || '');
+
+    if (field === 'due_date' && startDate > dueDate) {
+      setDateError('Due date must be after start date');
+      setTimeout(() => setDateError(''), 3000); // Message disappears after 3 seconds
+      return;
+    }
+    
+    setDateError('');
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const validateForm = (): boolean => {
@@ -187,12 +223,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
                 <DatePicker
                   label="Start Date"
                   value={formData.start_date ? dayjs(formData.start_date) : null}
-                  onChange={(newValue) => handleDateChange('start_date', newValue ? newValue.toDate() : null)}
+                  onChange={(newValue) => handleDateChange('start_date', newValue)}
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      error: !!errors.start_date,
-                      helperText: errors.start_date
+                      required: true
                     }
                   }}
                 />
@@ -202,12 +237,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
                 <DatePicker
                   label="Due Date"
                   value={formData.due_date ? dayjs(formData.due_date) : null}
-                  onChange={(newValue) => handleDateChange('due_date', newValue ? newValue.toDate() : null)}
+                  onChange={(newValue) => handleDateChange('due_date', newValue)}
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      error: !!errors.due_date,
-                      helperText: errors.due_date
+                      required: true
                     }
                   }}
                 />
@@ -227,6 +261,48 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
                   </Select>
                 </FormControl>
               </Grid>
+
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Parent Project</InputLabel>
+                  <Select
+                    value={formData.parent_id || ''}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : null;
+                      setFormData(prev => ({
+                        ...prev,
+                        parent_id: value
+                      }));
+                    }}
+                    label="Parent Project"
+                    disabled={!!parentId}
+                  >
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {availableProjects.map(p => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {p.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {dateError && (
+                <Grid item xs={12}>
+                  <Typography 
+                    color="error" 
+                    sx={{ 
+                      mt: 1,
+                      position: 'relative',
+                      animation: 'fadeIn 0.3s ease-in'
+                    }}
+                  >
+                    {dateError}
+                  </Typography>
+                </Grid>
+              )}
 
               <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button onClick={handleCancel} color="inherit">

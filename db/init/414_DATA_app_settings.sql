@@ -1,0 +1,1 @@
+insert into app_settings (id) values (1);

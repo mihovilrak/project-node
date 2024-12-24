@@ -45,14 +45,15 @@ exports.createProject = async (
   description, 
   start_date, 
   due_date, 
-  created_by
+  created_by,
+  parent_id
 ) => {
   const result = await pool.query(
     `INSERT INTO projects 
-    (name, description, start_date, due_date, created_by) 
-    VALUES ($1, $2, $3, $4, $5) 
+    (name, description, start_date, due_date, created_by, parent_id) 
+    VALUES ($1, $2, $3, $4, $5, $6) 
     RETURNING *`,
-    [name, description, start_date, due_date, created_by]
+    [name, description, start_date, due_date, created_by, parent_id]
   );
   return result.rows[0];
 };
@@ -134,31 +135,6 @@ exports.deleteProjectMember = async (pool, projectId, userId) => {
     return result.rowCount;
   };
 
-// Create a subproject
-exports.createSubproject = async (
-  pool, 
-  name, 
-  description, 
-  start_date, 
-  due_date, 
-  parent_id,
-  created_by
-) => {
-  const result = await pool.query(
-    `INSERT INTO projects (
-      name, 
-      description, 
-      start_date, 
-      due_date, 
-      parent_id, 
-      created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6) 
-      RETURNING *`,
-      [name, description, start_date, due_date, parent_id, created_by]
-    );
-    return result.rows[0];
-  };
-
 // Get project tasks
 exports.getProjectTasks = async (pool, id, filters = {}) => {
   const query = `
@@ -174,4 +150,12 @@ exports.getProjectTasks = async (pool, id, filters = {}) => {
   const result = await pool.query(query, values);
   return result.rows;
 };
-  
+
+// Get project statuses
+exports.getProjectStatuses = async (pool) => {
+  const result = await pool.query(
+    `SELECT id, name FROM project_statuses 
+    ORDER BY id`
+  );
+  return result.rows;
+};

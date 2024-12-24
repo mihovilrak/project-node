@@ -7,6 +7,10 @@ const timeLogController = require('../controllers/timeLogController');
 module.exports = (pool) => {
   const router = express.Router();
 
+  // Get project statuses route
+  router.get('/statuses', (req, res) =>
+    projectController.getProjectStatuses(req, res, pool));
+
   // Get projects route
   router.get('/', (req, res) =>
     projectController.getProjects(req, res, pool));
@@ -58,10 +62,6 @@ module.exports = (pool) => {
   // Get subprojects
   router.get('/:id/subprojects', (req, res) => 
     projectController.getSubprojects(req, res, pool));
-
-  // Create subproject
-  router.post('/:id/subprojects', (req, res) => 
-    projectController.createSubproject(req, res, pool));
 
   // Time log related routes
   router.get('/:id/time-logs', (req, res) =>

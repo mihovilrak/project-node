@@ -41,10 +41,13 @@ exports.getProjectDetails = async (req, res, pool) => {
 
 // Create a project
 exports.createProject = async (req, res, pool) => {
-  const { name, 
+  const { 
+    name, 
     description, 
     start_date, 
-    due_date } = req.body;
+    due_date,
+    parent_id 
+  } = req.body;
   
   const created_by = req.session.user?.id;
 
@@ -59,7 +62,9 @@ exports.createProject = async (req, res, pool) => {
       description, 
       start_date, 
       due_date, 
-      created_by);
+      created_by,
+      parent_id
+    );
     res.status(201).json(result);
   } catch (error) {
     console.error(error);
@@ -157,38 +162,6 @@ exports.getSubprojects = async (req, res, pool) => {
   }
 };
 
-// Create a subproject
-exports.createSubproject = async (req, res, pool) => {
-  const { 
-    name, 
-    description, 
-    start_date, 
-    due_date 
-  } = req.body;
-  const { id: parent_id } = req.params;
-  const created_by = req.session.user?.id;
-
-  if (!created_by) {
-    return res.status(401).json({ error: 'User not authenticated' });
-  }
-
-  try {
-    const result = await projectModel.createSubproject(
-      pool,
-      name,
-      description,
-      start_date,
-      due_date,
-      parent_id,
-      created_by
-    );
-    res.status(201).json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
 // Get tasks by project ID
 exports.getProjectTasks = async (req, res, pool) => {
   try {
@@ -205,6 +178,17 @@ exports.getProjectTasks = async (req, res, pool) => {
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Error fetching project tasks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get project statuses
+exports.getProjectStatuses = async (req, res, pool) => {
+  try {
+    const statuses = await projectModel.getProjectStatuses(pool);
+    res.status(200).json(statuses);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

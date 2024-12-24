@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Project, ProjectMember } from '../types/project';
+import { Project, ProjectMember, ProjectStatus } from '../types/project';
 
 // Get all projects
 export const getProjects = async (): Promise<Project[]> => {
@@ -122,22 +122,11 @@ export const updateProjectMember = async (projectId: number, userId: number, rol
 
 // Get subprojects
 export const getSubprojects = async (projectId: number): Promise<Project[]> => {
-    try {
-      const response = await api.get(`/projects/${projectId}/subprojects`);
-      return response.data;
-    } catch (error) {
-      console.error('Failed to fetch subprojects', error);
-      throw error;
-    }
-  };
-  
-// Create subproject
-export const createSubproject = async (projectId: number, subprojectData: Partial<Project>): Promise<Project> => {
   try {
-    const response = await api.post(`/projects/${projectId}/subprojects`, subprojectData);
+    const response = await api.get(`/projects/${projectId}/subprojects`);
     return response.data;
   } catch (error) {
-    console.error('Failed to create subproject', error);
+    console.error('Failed to fetch subprojects', error);
     throw error;
   }
 };
@@ -149,6 +138,17 @@ export const getProjectSpentTime = async (projectId: number): Promise<number> =>
     return response.data;
   } catch (error) {
     console.error('Failed to get project spent time', error);
+    throw error;
+  }
+};
+
+// Get project statuses
+export const getProjectStatuses = async (): Promise<ProjectStatus[]> => {
+  try {
+    const response = await api.get('/projects/statuses');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch project statuses', error);
     throw error;
   }
 };

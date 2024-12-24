@@ -152,17 +152,6 @@ const ProjectDetails: React.FC = () => {
     }
   };
 
-  const handleMemberAdd = async (userId: number) => {
-    try {
-      if (!id) return;
-      await addProjectMember(Number(id), userId);
-      const updatedMembers = await getProjectMembers(Number(id));
-      setState(prev => ({ ...prev, members: updatedMembers }));
-    } catch (error) {
-      console.error('Failed to add member:', error);
-    }
-  };
-
   const handleMemberRemove = async (userId: number) => {
     try {
       if (!id) return;

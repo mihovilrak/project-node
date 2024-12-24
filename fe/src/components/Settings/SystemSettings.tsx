@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -15,7 +15,6 @@ import {
 import { SystemSettingsState } from '../../types/settings';
 
 const SystemSettings: React.FC = () => {
-  const [initialized, setInitialized] = useState(false);
   const [state, setState] = useState<SystemSettingsState>({
     settings: {
       id: 1,
@@ -30,8 +29,8 @@ const SystemSettings: React.FC = () => {
     success: false
   });
 
-  const initialSettings = useMemo(async () => {
-    if (!initialized) {
+  useEffect(() => {
+    const fetchSettings = async () => {
       try {
         const data = await getSystemSettings();
         setState(prev => ({ 
@@ -39,7 +38,6 @@ const SystemSettings: React.FC = () => {
           settings: data,
           loading: false 
         }));
-        setInitialized(true);
       } catch (error) {
         setState(prev => ({ 
           ...prev, 
@@ -47,12 +45,10 @@ const SystemSettings: React.FC = () => {
           loading: false 
         }));
       }
-    }
-  }, [initialized]);
+    };
 
-  useEffect(() => {
-    initialSettings;
-  }, [initialSettings]);
+    fetchSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

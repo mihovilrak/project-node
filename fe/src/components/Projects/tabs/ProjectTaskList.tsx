@@ -40,12 +40,12 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
               <Grid item xs={12} md={3}>
                 <Box>
                   <Typography variant="body1">
-                    Status: {task.status || 'Not set'}
+                    Status: {task.status_name || 'Not set'}
                   </Typography>
                 </Box>
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="body1">
-                    Priority: {task.priority || 'Not set'}
+                    Priority: {task.priority_name || 'Not set'}
                   </Typography>
                 </Box>
               </Grid>
