@@ -32,12 +32,12 @@ services:
       NODE_ENV: production
       SESSION_SECRET: lj6QgwWYYn/w18qduVrZij73+0SdYBqSyrg15lLKKDs=
       EMAIL_ENABLED: true
-      EMAIL_HOST: smtp-mail.outlook.com
+      EMAIL_HOST: smtp.gmail.com
       EMAIL_PORT: 587
       EMAIL_SECURE: false
-      EMAIL_USER: mihovil.1978@hotmail.com
-      EMAIL_PASSWORD: mihoviLraK
-      EMAIL_FROM: Projekt Manager <mihovil.1978@hotmail.com>
+      EMAIL_USER: mihovil.1978@gmail.com
+      EMAIL_PASSWORD: hpdhinentplivqaj
+      EMAIL_FROM: Project Management <mihovil.1978@gmail.com>
       NOTIFICATION_RATE_LIMIT: 100
       LOG_LEVEL: info
     ports:
