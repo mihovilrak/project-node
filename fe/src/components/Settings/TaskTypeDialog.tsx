@@ -126,4 +126,4 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
   );
 };
 
-export default TaskTypeDialog; 
+export default TaskTypeDialog;

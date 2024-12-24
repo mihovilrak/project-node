@@ -1,10 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import { TimeLog } from '../../types/timeLog';
-
-interface TimeLogStatsProps {
-  timeLogs: TimeLog[];
-}
+import { TimeLogStatsProps } from '../../types/timeLog';
 
 const TimeLogStats: React.FC<TimeLogStatsProps> = ({ timeLogs }) => {
   const totalTime = timeLogs.reduce((sum, log) => sum + log.spent_time, 0);
@@ -23,4 +19,4 @@ const TimeLogStats: React.FC<TimeLogStatsProps> = ({ timeLogs }) => {
   );
 };
 
-export default TimeLogStats; 
+export default TimeLogStats;

@@ -76,3 +76,17 @@ export interface ChartData {
 export interface TimeLogCalendarProps {
   projectId: number;
 }
+
+export interface ExtendedTimeLogFormProps extends TimeLogFormProps {
+  activityTypes: ActivityType[];
+}
+
+export interface TimeLogListProps {
+  timeLogs: TimeLog[];
+  onEdit?: (timeLog: TimeLog) => void;
+  onDelete?: (timeLogId: number) => void;
+}
+
+export interface TimeLogStatsProps {
+  timeLogs: TimeLog[];
+}

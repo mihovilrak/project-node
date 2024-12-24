@@ -86,3 +86,13 @@ export interface UserDialogProps {
   user?: User | null;
   onUserSaved: (user: User) => void;
 }
+
+export interface UserDetailsState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface UserFormProps {
+  userId?: string;
+}

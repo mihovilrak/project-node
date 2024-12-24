@@ -17,3 +17,8 @@ export interface Role {
   // Virtual fields from joins
   permissions?: Permission[];
 }
+
+export type ThemeContextType = {
+  mode: 'light' | 'dark';
+  toggleTheme: () => void;
+};

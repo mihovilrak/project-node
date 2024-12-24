@@ -49,4 +49,4 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loadi
   );
 };
 
-export default ProfileProjectList; 
+export default ProfileProjectList;

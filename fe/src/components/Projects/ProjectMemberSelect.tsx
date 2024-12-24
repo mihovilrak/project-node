@@ -8,13 +8,7 @@ import {
   Paper,
   Typography
 } from '@mui/material';
-import { User } from '../../types/user';
-
-interface ProjectMemberSelectProps {
-  users: User[];
-  selectedUsers: number[];
-  onUserSelect: (userId: number) => void;
-}
+import { ProjectMemberSelectProps } from '../../types/project';
 
 const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
   users,
@@ -48,4 +42,4 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
   );
 };
 
-export default ProjectMemberSelect; 
+export default ProjectMemberSelect;

@@ -8,13 +8,7 @@ import {
   Alert
 } from '@mui/material';
 import { getUserById } from '../../api/users';
-import { User } from '../../types/user';
-
-interface UserDetailsState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
+import { UserDetailsState } from '../../types/user';
 
 const UserDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,4 +83,4 @@ const UserDetails: React.FC = () => {
   );
 };
 
-export default UserDetails; 
+export default UserDetails;

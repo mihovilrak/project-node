@@ -7,17 +7,22 @@ import {
   Typography, 
   Paper,
   Grid,
-  CircularProgress,
   Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { fetchRoles, createUser, getUserById, updateUser } from '../../api/users';
+import {
+  fetchRoles,
+  createUser,
+  getUserById,
+  updateUser,
+} from '../../api/users';
 import { Role } from '../../types/admin';
-import { FormData, UserCreate, UserUpdate } from '../../types/user';
-
-interface UserFormProps {
-  userId?: string;
-}
+import {
+  FormData,
+  UserCreate,
+  UserUpdate,
+  UserFormProps,
+} from '../../types/user';
 
 const UserForm: React.FC<UserFormProps> = ({ userId }) => {
   const navigate = useNavigate();
@@ -206,4 +211,4 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
   );
 };
 
-export default UserForm; 
+export default UserForm;

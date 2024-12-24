@@ -13,13 +13,11 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
-import { getTaskTypes } from '../../api/taskTypes';
 import { TaskType, TaskTypesTableProps } from '../../types/settings';
 
 const TaskTypesTable: React.FC<TaskTypesTableProps> = ({ 
   taskTypes: propTaskTypes,
   onEdit,
-  onDelete,
   loading: propLoading 
 }) => {
   const [taskTypes, setTaskTypes] = useState<TaskType[]>([]);
@@ -88,4 +86,4 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
   );
 };
 
-export default TaskTypesTable; 
+export default TaskTypesTable;

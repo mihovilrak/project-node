@@ -9,7 +9,6 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '../../hooks/useNavigation';
@@ -84,4 +83,4 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-export default Layout; 
+export default Layout;

@@ -24,7 +24,7 @@ import {
 } from '../../types/settings';
 import { ActivityType } from '../../types/timeLog';
 
-function IconSelector({ value, onChange }: IconSelectorProps) {
+const IconSelector =({ value, onChange }: IconSelectorProps) => {
   const [icons, setIcons] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -205,4 +205,4 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
   );
 };
 
-export default ActivityTypeDialog; 
+export default ActivityTypeDialog;

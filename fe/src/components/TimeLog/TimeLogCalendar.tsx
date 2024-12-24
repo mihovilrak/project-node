@@ -198,4 +198,4 @@ const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
   );
 };
 
-export default TimeLogCalendar; 
+export default TimeLogCalendar;

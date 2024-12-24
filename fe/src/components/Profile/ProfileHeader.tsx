@@ -30,4 +30,4 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
   );
 };
 
-export default ProfileHeader; 
+export default ProfileHeader;

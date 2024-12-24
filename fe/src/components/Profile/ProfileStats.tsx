@@ -76,4 +76,4 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, loading }) => {
   );
 };
 
-export default ProfileStats; 
+export default ProfileStats;

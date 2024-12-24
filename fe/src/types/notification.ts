@@ -1,4 +1,3 @@
-// Main Notification interface matching database schema and API responses
 export interface Notification {
   id: number;
   user_id: number;

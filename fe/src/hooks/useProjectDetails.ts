@@ -14,22 +14,9 @@ import {
 } from '../api/projects';
 import { getProjectTasks, createTask } from '../api/tasks';
 import { getTaskTimeLogs } from '../api/timeLogService';
-import { TimeLog } from '../types/timeLog';
+import { ProjectDetailsState } from '../types/project';
 
 export const useProjectDetails = (projectId: string) => {
-    interface ProjectDetailsState {
-        project: Project | null;
-        projectDetails: Project | null;
-        members: ProjectMember[];
-        tasks: Task[];
-        loading: boolean;
-        error: string | null;
-        editDialogOpen: boolean;
-        deleteDialogOpen: boolean;
-        createTaskDialogOpen: boolean;
-        membersDialogOpen: boolean;
-        timeLogs: TimeLog[];
-    }
 
     const [state, setState] = useState<ProjectDetailsState>({
         project: null,

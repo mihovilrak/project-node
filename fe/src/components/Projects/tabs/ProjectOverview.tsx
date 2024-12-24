@@ -10,12 +10,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Project } from '../../../types/project';
-
-interface ProjectOverviewProps {
-    project: Project | null;
-    projectDetails: Project | null;
-}
+import { ProjectOverviewProps } from '../../../types/project';
 
 const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetails }) => {
     if (!project || !projectDetails) {

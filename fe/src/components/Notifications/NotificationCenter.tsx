@@ -119,4 +119,4 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ userId, classNa
   );
 };
 
-export default NotificationCenter; 
+export default NotificationCenter;

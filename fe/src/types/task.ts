@@ -128,3 +128,7 @@ export interface TaskFormState {
   tags: Tag[];
   estimated_time: number | null;
 }
+
+export interface TaskTimeLogsProps {
+  task: Task;
+}

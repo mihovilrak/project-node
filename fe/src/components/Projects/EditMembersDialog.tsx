@@ -12,21 +12,12 @@ import {
   Box
 } from '@mui/material';
 import { User } from '../../types/user';
-import { ProjectMember } from '../../types/project';
+import { EditMembersDialogProps } from '../../types/project';
 import { getUsers } from '../../api/users';
-
-interface EditMembersDialogProps {
-  open: boolean;
-  onClose: () => void;
-  projectId: number;
-  currentMembers: ProjectMember[];
-  onSave: (selectedUsers: number[]) => void;
-}
 
 const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
   onClose,
-  projectId,
   currentMembers,
   onSave
 }) => {

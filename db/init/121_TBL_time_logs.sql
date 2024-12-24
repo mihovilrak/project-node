@@ -7,7 +7,8 @@ create table if not exists time_logs (
     description text not null,
     activity_type_id int references activity_types(id) not null,
     updated_on timestamptz default current_timestamp null,
-    created_on timestamptz default current_timestamp not null
+    created_on timestamptz default current_timestamp not null,
+    check (spent_time >= 0)
 );
 
 create index if not exists time_logs_task_idx on time_logs(task_id);

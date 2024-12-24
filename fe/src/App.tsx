@@ -122,6 +122,7 @@ const App: React.FC = () => {
                   } />}
                 />
                 <Route path="/tasks/:id" element={<TaskDetails />} />
+                <Route path="/tasks/:id/edit" element={<TaskForm />} />
                 <Route path="/tasks/active" element={<ActiveTasks />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />

@@ -12,10 +12,7 @@ import {
   getSystemSettings,
   updateSystemSettings
 } from '../../api/settings';
-import {
-  SystemSettingsState,
-  AppSettings
-} from '../../types/settings';
+import { SystemSettingsState } from '../../types/settings';
 
 const SystemSettings: React.FC = () => {
   const [initialized, setInitialized] = useState(false);

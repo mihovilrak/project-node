@@ -132,4 +132,4 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
   );
 };
 
-export default UserTable; 
+export default UserTable;

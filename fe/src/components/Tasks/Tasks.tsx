@@ -134,4 +134,4 @@ const Tasks: React.FC = () => {
   );
 };
 
-export default Tasks; 
+export default Tasks;

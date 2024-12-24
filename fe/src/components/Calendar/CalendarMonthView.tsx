@@ -11,14 +11,12 @@ import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarDays } from '../../hooks/useCalendarDays';
 
 const CalendarMonthView: React.FC<CalendarViewProps> = ({ 
-  view,
   date,
   tasks,
   timeLogs,
   onDateChange,
   onViewChange,
-  onTaskClick,
-  onTimeLogClick 
+  onTaskClick
 }) => {
   const { getDaysInMonth } = useCalendarDays(date, tasks, timeLogs);
 

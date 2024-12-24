@@ -121,4 +121,4 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   );
 };
 
-export default ProfileEditDialog; 
+export default ProfileEditDialog;

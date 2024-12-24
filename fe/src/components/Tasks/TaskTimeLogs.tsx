@@ -16,20 +16,7 @@ import {
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
-import { Task } from '../../types/task';
-
-interface TimeLogDialogProps {
-  open: boolean;
-  onClose: () => void;
-  taskId: number;
-  projectId: number;
-  timeLog: TimeLog | null;
-  onSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
-}
-
-interface TaskTimeLogsProps {
-  task: Task;
-}
+import { TaskTimeLogsProps } from '../../types/task';
 
 const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   const { id } = useParams<{ id: string }>();
@@ -145,4 +132,4 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   );
 };
 
-export default TaskTimeLogs; 
+export default TaskTimeLogs;

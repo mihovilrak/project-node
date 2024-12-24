@@ -9,11 +9,7 @@ import {
     as MuiThemeProvider
 } from '@mui/material/styles';
 import { createAppTheme } from '../theme/theme';
-
-type ThemeContextType = {
-  mode: 'light' | 'dark';
-  toggleTheme: () => void;
-};
+import { ThemeContextType } from '../types/admin';
 
 const ThemeContext = createContext<ThemeContextType>({
   mode: 'light',

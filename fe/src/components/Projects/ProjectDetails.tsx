@@ -25,19 +25,22 @@ import TaskForm from '../Tasks/TaskForm';
 import TimeLogList from '../TimeLog/TimeLogList';
 import ProjectOverview from './tabs/ProjectOverview';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
-import { getProjectMembers, addProjectMember, removeProjectMember } from '../../api/projects';
+import {
+  getProjectMembers,
+  addProjectMember,
+  removeProjectMember
+} from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
-import { createTimeLog, getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogService';
+import {
+  createTimeLog,
+  getTaskTimeLogs,
+  deleteTimeLog
+} from '../../api/timeLogService';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { Task } from '../../types/task';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import EditMembersDialog from './EditMembersDialog';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+import { TabPanelProps } from '../../types/project';
 
 const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
   <div role="tabpanel" hidden={value !== index}>

@@ -10,14 +10,7 @@ import {
   Alert
 } from '@mui/material';
 import { updateProject } from '../../api/projects';
-import { ProjectEditDialogProps, Project } from '../../types/project';
-
-interface FormData extends Partial<Project> {
-  name: string;
-  description: string | null;
-  start_date: string;
-  due_date: string;
-}
+import { ProjectEditDialogProps, FormData } from '../../types/project';
 
 const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
   open,
@@ -137,4 +130,4 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
   );
 };
 
-export default ProjectEditDialog; 
+export default ProjectEditDialog;

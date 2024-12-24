@@ -183,4 +183,4 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
   );
 };
 
-export default RoleDialog; 
+export default RoleDialog;

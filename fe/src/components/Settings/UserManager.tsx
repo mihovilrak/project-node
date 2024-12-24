@@ -102,4 +102,4 @@ const UserManager: React.FC = () => {
   );
 };
 
-export default UserManager; 
+export default UserManager;

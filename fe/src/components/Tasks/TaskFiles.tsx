@@ -11,18 +11,12 @@ import {
 } from '@mui/material';
 import FileUpload from '../Files/FileUpload';
 import FileList from '../Files/FileList';
-import { TaskFile } from '../../types/files';
+import { TaskFile, TaskFilesProps } from '../../types/files';
 import {
   getTaskFiles,
   deleteFile,
   downloadFile
 } from '../../api/files';
-
-interface TaskFilesProps {
-  taskId: number;
-  onFileUploaded: (file: TaskFile) => void;
-  onFileDeleted: (fileId: number) => void;
-}
 
 const TaskFiles: React.FC<TaskFilesProps> = ({ taskId, onFileUploaded, onFileDeleted }) => {
   const [files, setFiles] = useState<TaskFile[]>([]);
@@ -105,4 +99,4 @@ const TaskFiles: React.FC<TaskFilesProps> = ({ taskId, onFileUploaded, onFileDel
   );
 };
 
-export default TaskFiles; 
+export default TaskFiles;

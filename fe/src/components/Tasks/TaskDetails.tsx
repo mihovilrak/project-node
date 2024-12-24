@@ -8,12 +8,10 @@ import {
   CircularProgress,
   Grid,
   Chip,
-  Icon,
   Menu,
   MenuItem
 } from '@mui/material';
 import PermissionButton from '../common/PermissionButton';
-import * as Icons from '@mui/icons-material';
 import CommentForm from '../Comments/CommentForm';
 import CommentList from '../Comments/CommentList';
 import FileUpload from '../Files/FileUpload';
@@ -30,8 +28,6 @@ import { Task } from '../../types/task';
 import { Comment } from '../../types/comment';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { TaskFile } from '../../types/files';
-import TaskForm from './TaskForm';
-import { getSubtasks } from '../../api/tasks';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,8 +35,6 @@ const TaskDetails: React.FC = () => {
   const { currentUser } = useAuth();
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
-  const [subtaskFormOpen, setSubtaskFormOpen] = useState(false);
-  const [formData, setFormData] = useState<any>({});
   const [task, setTask] = useState<Task | null>(null);
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);

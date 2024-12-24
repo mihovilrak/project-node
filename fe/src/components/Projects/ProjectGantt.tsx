@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Box, Typography, Paper, CircularProgress, Alert } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  CircularProgress,
+  Alert
+} from '@mui/material';
 import {
   ViewState,
   EditingState,
   IntegratedEditing,
-  ChangeSet,
-  AppointmentModel,
-  ValidResourceInstance,
-  FormatterFn,
-  SchedulerDateTime
+  ChangeSet
 } from '@devexpress/dx-react-scheduler';
 import {
   Scheduler,
@@ -26,32 +28,12 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { updateTaskDates } from '../../api/tasks';
 import { ProjectGanttProps } from '../../types/project';
-import { FormattedTask } from '../../types/project';
-
-type AppointmentComponentProps = {
-  children?: React.ReactNode;
-  style?: React.CSSProperties;
-  data: FormattedTask;
-  draggable: boolean;
-  resources: ValidResourceInstance[];
-  [key: string]: any;
-}
-
-type AppointmentContentComponentProps = {
-  children?: React.ReactNode;
-  style?: React.CSSProperties;
-  data: FormattedTask;
-  formatDate: FormatterFn;
-  type: 'horizontal' | 'vertical';
-  durationType: 'long' | 'short' | 'middle';
-  recurringIconComponent: React.ComponentType<object>;
-  resources: ValidResourceInstance[];
-  [key: string]: any;
-}
-
-type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
-  appointmentData: FormattedTask;
-}
+import {
+  FormattedTask,
+  AppointmentComponentProps,
+  AppointmentContentComponentProps,
+  TooltipContentComponentProps
+ } from '../../types/project';
 
 const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTasks }) => {
   const [tasks, setTasks] = useState<FormattedTask[]>([]);

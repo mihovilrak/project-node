@@ -33,11 +33,6 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
     }
   }, [comment, setEditedText]);
 
-  const handleClose = (): void => {
-    resetForm();
-    onClose();
-  };
-
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter' && event.ctrlKey) {
       handleSave();

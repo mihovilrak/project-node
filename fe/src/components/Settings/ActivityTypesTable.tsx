@@ -19,7 +19,6 @@ import { ActivityTypesTableProps } from '../../types/settings';
 const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
   activityTypes,
   onEdit,
-  onDelete,
   loading
 }) => {
   if (loading) {
@@ -79,4 +78,4 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
   );
 };
 
-export default ActivityTypesTable; 
+export default ActivityTypesTable;

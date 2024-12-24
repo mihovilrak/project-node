@@ -105,4 +105,4 @@ const TaskTable: React.FC<TaskTableProps> = ({
   );
 };
 
-export default TaskTable; 
+export default TaskTable;

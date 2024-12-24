@@ -18,8 +18,7 @@ import { RolesTableProps } from '../../types/settings';
 
 const RolesTable: React.FC<RolesTableProps> = ({ 
   roles, 
-  onEdit, 
-  onDelete, 
+  onEdit,
   loading 
 }) => {
   if (loading) {
@@ -76,4 +75,4 @@ const RolesTable: React.FC<RolesTableProps> = ({
   );
 };
 
-export default RolesTable; 
+export default RolesTable;

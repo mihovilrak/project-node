@@ -6,21 +6,13 @@ import {
   Grid,
   Typography,
   Link,
-  Button,
   Box
 } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Task } from '../../../types/task';
-
-interface ProjectTaskListProps {
-  tasks: Task[];
-  onCreateTask?: () => void;
-  onTimeLogCreate?: (taskId: number) => void;
-}
+import { ProjectTaskListProps } from '../../../types/project';
 
 const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }) => {
-  const navigate = useNavigate();
 
   return (
     <>

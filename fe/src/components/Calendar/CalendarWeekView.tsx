@@ -12,7 +12,6 @@ import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarWeek } from '../../hooks/useCalendarWeek';
 
 const CalendarWeekView: React.FC<CalendarViewProps> = ({ 
-  view,
   date,
   tasks,
   timeLogs,

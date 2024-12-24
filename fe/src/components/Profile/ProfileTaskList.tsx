@@ -70,4 +70,4 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
   );
 };
 
-export default ProfileTaskList; 
+export default ProfileTaskList;

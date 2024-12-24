@@ -11,16 +11,11 @@ import { getPriorityColor } from '../../utils/taskUtils';
 import { useTasksByHour } from '../../hooks/useTasksByHour';
 
 const CalendarDayView: React.FC<CalendarViewProps> = ({ 
-  view,
-  date,
   tasks,
   timeLogs,
-  onDateChange,
-  onViewChange,
   onTaskClick,
   onTimeLogClick 
 }) => {
-  const navigate = useNavigate();
   const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(tasks, timeLogs);
 
   return (

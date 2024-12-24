@@ -1,5 +1,14 @@
 import { Task } from "./task";
+import { User } from "./user";
 import { Dayjs } from 'dayjs';
+import {
+  ValidResourceInstance,
+  FormatterFn
+} from '@devexpress/dx-react-scheduler';
+import {
+  AppointmentTooltip
+} from '@devexpress/dx-react-scheduler-material-ui';
+import { TimeLog } from "./timeLog";
 
 export interface Project {
   id: number;
@@ -77,4 +86,98 @@ export interface SubprojectFormData {
   description: string;
   start_date: Dayjs | null;
   due_date: Dayjs | null;
+}
+
+export interface ProjectMembersListProps {
+  projectId: number;
+  members: ProjectMember[];
+  canManageMembers: boolean;
+  onMemberRemove: (userId: number) => void;
+  onMemberUpdate?: (memberId: number, role: string) => Promise<void>;
+  onMembersChange?: () => void;
+}
+
+export interface EditMembersDialogProps {
+  open: boolean;
+  onClose: () => void;
+  projectId: number;
+  currentMembers: ProjectMember[];
+  onSave: (selectedUsers: number[]) => void;
+}
+
+export interface ProjectOverviewProps {
+  project: Project | null;
+  projectDetails: Project | null;
+}
+
+export interface ProjectTaskListProps {
+  tasks: Task[];
+  onCreateTask?: () => void;
+  onTimeLogCreate?: (taskId: number) => void;
+}
+
+export interface EditMembersDialogProps {
+  open: boolean;
+  onClose: () => void;
+  projectId: number;
+  currentMembers: ProjectMember[];
+  onSave: (selectedUsers: number[]) => void;
+}
+
+export interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+export interface FormData extends Partial<Project> {
+  name: string;
+  description: string | null;
+  start_date: string;
+  due_date: string;
+}
+
+export interface ProjectMemberSelectProps {
+  users: User[];
+  selectedUsers: number[];
+  onUserSelect: (userId: number) => void;
+}
+
+export interface ProjectDetailsState {
+  project: Project | null;
+  projectDetails: Project | null;
+  members: ProjectMember[];
+  tasks: Task[];
+  loading: boolean;
+  error: string | null;
+  editDialogOpen: boolean;
+  deleteDialogOpen: boolean;
+  createTaskDialogOpen: boolean;
+  membersDialogOpen: boolean;
+  timeLogs: TimeLog[];
+}
+
+export type AppointmentComponentProps = {
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+  data: FormattedTask;
+  draggable: boolean;
+  resources: ValidResourceInstance[];
+  [key: string]: any;
+}
+
+export type AppointmentContentComponentProps = {
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+  data: FormattedTask;
+  formatDate: FormatterFn;
+  type: 'horizontal' | 'vertical';
+  durationType: 'long' | 'short' | 'middle';
+  recurringIconComponent: React.ComponentType<object>;
+  resources: ValidResourceInstance[];
+  [key: string]: any;
+}
+
+export type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
+  appointmentData: FormattedTask;
 }

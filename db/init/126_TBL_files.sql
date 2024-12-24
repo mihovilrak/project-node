@@ -7,7 +7,8 @@ create table if not exists files (
     size bigint not null,
     mime_type varchar(255) not null,
     file_path text not null,
-    uploaded_on timestamptz default current_timestamp not null
+    uploaded_on timestamptz default current_timestamp not null,
+    check (size >= 0)
 );
 create index if not exists file_tasks_idx on files(task_id);
 create index if not exists uploaded_idx on files(user_id);

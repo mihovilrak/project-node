@@ -19,11 +19,13 @@ import {
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Add as AddIcon,
   Edit as EditIcon
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
-import { ProjectMember } from '../../../types/project';
+import {
+  ProjectMembersListProps,
+  EditMembersDialogProps
+} from '../../../types/project';
 import { User } from '../../../types/user';
 import { getUsers } from '../../../api/users';
 import {
@@ -31,27 +33,9 @@ import {
   removeProjectMember
 } from '../../../api/projects';
 
-interface ProjectMembersListProps {
-  projectId: number;
-  members: ProjectMember[];
-  canManageMembers: boolean;
-  onMemberRemove: (userId: number) => void;
-  onMemberUpdate?: (memberId: number, role: string) => Promise<void>;
-  onMembersChange?: () => void;
-}
-
-interface EditMembersDialogProps {
-  open: boolean;
-  onClose: () => void;
-  projectId: number;
-  currentMembers: ProjectMember[];
-  onSave: (selectedUsers: number[]) => void;
-}
-
 const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
   onClose,
-  projectId,
   currentMembers,
   onSave
 }) => {
@@ -132,7 +116,6 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
   members,
   canManageMembers,
   onMemberRemove,
-  onMemberUpdate,
   onMembersChange
 }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);

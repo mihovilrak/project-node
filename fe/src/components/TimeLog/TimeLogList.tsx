@@ -12,22 +12,15 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
-import { TimeLog } from '../../types/timeLog';
+import { TimeLogListProps } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
 import PermissionButton from '../common/PermissionButton';
-
-interface TimeLogListProps {
-  timeLogs: TimeLog[];
-  onEdit?: (timeLog: TimeLog) => void;
-  onDelete?: (timeLogId: number) => void;
-}
 
 const TimeLogList: React.FC<TimeLogListProps> = ({
   timeLogs,
   onEdit,
   onDelete
 }) => {
-  const { currentUser } = useAuth();
 
   const formatTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);

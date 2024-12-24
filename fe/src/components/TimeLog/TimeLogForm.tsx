@@ -8,15 +8,13 @@ import {
   MenuItem,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { TimeLogFormProps, ActivityType } from '../../types/timeLog';
+import {
+  ExtendedTimeLogFormProps,
+  ActivityType,
+} from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
 
-interface ExtendedTimeLogFormProps extends TimeLogFormProps {
-  activityTypes: ActivityType[];
-}
-
 const TimeLogForm: React.FC<ExtendedTimeLogFormProps> = ({
-  projectId,
   taskId,
   onClose,
   onSubmit,
@@ -80,4 +78,4 @@ const TimeLogForm: React.FC<ExtendedTimeLogFormProps> = ({
   );
 };
 
-export default TimeLogForm; 
+export default TimeLogForm;
