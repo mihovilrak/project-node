@@ -17,6 +17,7 @@ create or replace view v_tasks as
             t.start_date,
             t.due_date,
             t.end_date,
+            tst.spent_time,
             t.progress,
             c.name as created_by_name,
             t.created_on::timestamp(0),
@@ -29,4 +30,5 @@ create or replace view v_tasks as
     left join task_types tt on tt.id = t.type_id
     left join task_statuses ts on ts.id = t.status_id
     left join priorities pi on pi.id = t.priority_id
-    left join v_parent_tasks pt on pt.id = t.parent_id;
+    left join v_parent_tasks pt on pt.id = t.parent_id
+    left join v_task_spent_time tst on tst.task_id = t.id;

@@ -23,7 +23,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
           {user.email}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {user.role_name}
+          {user.role}
         </Typography>
       </Box>
     </Box>

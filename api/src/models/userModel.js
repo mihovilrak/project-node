@@ -30,8 +30,10 @@ exports.getUserById = async (pool, id) => {
 // Create a user
 exports.createUser = async (pool, login, name, surname, email, password, role_id) => {
   const result = await pool.query(
-    `INSERT INTO users (login, name, surname, email, password, role_id) 
-      VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6) RETURNING *`,
+    `INSERT INTO users 
+    (login, name, surname, email, password, role_id) 
+    VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6) 
+    RETURNING *`,
       [login, name, surname, email, password, role_id]
   );
   return result.rows[0];

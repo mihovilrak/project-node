@@ -56,7 +56,6 @@ const TaskDetails: React.FC = () => {
     error,
     handleStatusChange,
     handleDelete,
-    handleCommentSubmit,
     handleCommentUpdate,
     handleCommentDelete,
     handleFileDelete,
@@ -84,6 +83,12 @@ const TaskDetails: React.FC = () => {
 
   const handleSaveComment = async (commentId: number, newText: string) => {
     await handleCommentUpdate(commentId, newText);
+  };
+
+  const handleAddSubtask = () => {
+    if (task) {
+      navigate(`/tasks/new?projectId=${task.project_id}&parentTaskId=${task.id}`);
+    }
   };
 
   const handleFileUploaded = (file: TaskFile) => {
@@ -304,33 +309,16 @@ const TaskDetails: React.FC = () => {
           <Typography variant="h6">
             Subtasks ({subtasks.length})
           </Typography>
-          <Button 
-            variant="contained" 
+          <PermissionButton
+            requiredPermission="Create tasks"
+            onClick={handleAddSubtask}
+            variant="contained"
             color="primary"
-            onClick={() => {
-              setSubtaskFormOpen(true);
-              if (task) {
-                const newSubtaskData = {
-                  name: '',
-                  description: '',
-                  start_date: '',
-                  due_date: '',
-                  priority_id: 2,
-                  status_id: 1,
-                  type_id: 1,
-                  parent_id: task.id,
-                  project_id: task.project_id,
-                  holder_id: task.holder_id,
-                  assignee_id: null,
-                  created_by: currentUser?.id,
-                  tags: []
-                };
-                setFormData(newSubtaskData);
-              }
-            }}
+            sx={{ mb: 2 }}
+            tooltipText="You don't have permission to create tasks"
           >
             Add Subtask
-          </Button>
+          </PermissionButton>
         </Box>
 
         <SubtaskList
@@ -338,24 +326,6 @@ const TaskDetails: React.FC = () => {
           parentTaskId={Number(id)}
           onSubtaskUpdated={handleSubtaskUpdated}
           onSubtaskDeleted={handleSubtaskDeleted}
-        />
-
-        <TaskForm
-          open={subtaskFormOpen}
-          projectId={task?.project_id}
-          onClose={() => setSubtaskFormOpen(false)}
-          onCreated={() => {
-            setSubtaskFormOpen(false);
-            const fetchSubtasks = async () => {
-              try {
-                const newSubtasks = await getSubtasks(Number(id));
-                handleSubtasksUpdate(newSubtasks);
-              } catch (error) {
-                console.error('Failed to fetch updated subtasks:', error);
-              }
-            };
-            fetchSubtasks();
-          }}
         />
       </Paper>
 
@@ -414,46 +384,6 @@ const TaskDetails: React.FC = () => {
           />
         </Box>
       </Paper>
-
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        mb: 2
-      }}>
-        {task.type_icon && (
-          <Icon 
-            component={Icons[task.type_icon as keyof typeof Icons]} 
-            sx={{ color: task.type_color }} 
-          />
-        )}
-        <Typography variant="body1">
-          Type: {task.type_name}
-        </Typography>
-      </Box>
-
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="body1" gutterBottom>
-          Tags:
-        </Typography>
-        <Box sx={{
-          display: 'flex',
-          gap: 1,
-          flexWrap: 'wrap'
-        }}>
-          {task.tags?.map(tag => (
-            <Chip
-              key={tag.id}
-              label={tag.name}
-              sx={{
-                backgroundColor: tag.color,
-                color: 'white'
-              }}
-            />
-          ))}
-        </Box>
-      </Box>
-
       <Paper sx={{ p: 3, mt: 3 }}>
         <Box sx={{ 
           display: 'flex', 

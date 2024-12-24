@@ -17,7 +17,7 @@ export interface TaskFile {
   original_name: string;
   mime_type: string;
   size: number;
-  created_on: string;
+  uploaded_on: string;
   // Virtual fields
   uploaded_by?: string;
   user_avatar?: string;

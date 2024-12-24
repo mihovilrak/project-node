@@ -67,7 +67,7 @@ export const useTaskDetails = (taskId: string) => {
             getTaskFiles(Number(taskId)),
             getTaskStatuses()
           ]);
-  
+
           setState(prev => ({
             ...prev,
             task: taskData,
@@ -207,15 +207,7 @@ export const useTaskDetails = (taskId: string) => {
   
     const handleFileDownload = async (fileId: number) => {
       try {
-        const blob = await downloadFile(Number(taskId), fileId);
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = state.files.find(f => f.id === fileId)?.original_name || 'download';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        await downloadFile(Number(taskId), fileId);
       } catch (error) {
         console.error('Failed to download file:', error);
       }
@@ -273,4 +265,4 @@ export const useTaskDetails = (taskId: string) => {
       setEditingComment: (comment: Comment | null) =>
         setState(prev => ({ ...prev, editingComment: comment })),
     };
-  };
+};

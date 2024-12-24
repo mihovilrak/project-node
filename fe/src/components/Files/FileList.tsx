@@ -38,7 +38,7 @@ const FileList: React.FC<FileListProps> = ({
                   Uploaded by: {file.uploaded_by || 'Unknown'}
                 </Typography>
                 <Typography variant="caption" display="block">
-                  Uploaded on: {new Date(file.created_on).toLocaleString()}
+                  Uploaded on: {new Date(file.uploaded_on).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" display="block">
                   Size: {formatFileSize(file.size)}

@@ -14,9 +14,7 @@ export interface User {
   updated_on: string | null;
   last_login: string | null;
   role?: string;
-  role_name?: string;
   status?: string;
-  status_name?: string;
   status_color?: string;
   full_name?: string;
   permissions?: string[];

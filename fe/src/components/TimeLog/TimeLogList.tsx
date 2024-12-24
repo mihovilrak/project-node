@@ -15,8 +15,6 @@ import {
 import { TimeLog } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
 import PermissionButton from '../common/PermissionButton';
-import { Link as RouterLink } from 'react-router-dom';
-import { format } from 'date-fns';
 
 interface TimeLogListProps {
   timeLogs: TimeLog[];

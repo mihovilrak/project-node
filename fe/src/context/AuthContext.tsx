@@ -7,8 +7,9 @@ import React, {
 import { api } from '../api/api';
 import { User } from '../types/user';
 import {
-  AuthContextType, 
-  AuthProviderProps 
+  AuthContextType,
+  AuthProviderProps,
+  Permission
 } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,7 +24,7 @@ export const useAuth = (): AuthContextType => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userPermissions, setUserPermissions] = useState<string[]>([]);
+  const [userPermissions, setUserPermissions] = useState<Permission[]>([]);
   const [permissionCache, setPermissionCache] = useState<Record<string, boolean>>({});
   const [permissionsLoading, setPermissionsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return permissionCache[requiredPermission];
     }
     
-    const hasAccess = userPermissions.includes(requiredPermission);
+    const hasAccess = userPermissions.some(p => p.permission === requiredPermission);
     setPermissionCache(prev => ({...prev, [requiredPermission]: hasAccess}));
     return hasAccess;
   };

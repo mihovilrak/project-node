@@ -42,12 +42,28 @@ export const uploadFile = async (
 };
 
 // Download file
-export const downloadFile = async (taskId: number, fileId: number): Promise<Blob> => {
+export const downloadFile = async (taskId: number, fileId: number): Promise<void> => {
   try {
     const response = await api.get(`/tasks/${taskId}/files/${fileId}/download`, {
       responseType: 'blob'
     });
-    return response.data;
+    
+    // Create blob URL and trigger download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Get filename from Content-Disposition header or use a default
+    const contentDisposition = response.headers['content-disposition'];
+    const filename = contentDisposition
+      ? decodeURIComponent(contentDisposition.split('filename=')[1].replace(/['"]/g, ''))
+      : 'download';
+      
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('Failed to download file', error);
     throw error;

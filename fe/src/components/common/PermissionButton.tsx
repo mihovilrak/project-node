@@ -19,8 +19,7 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
 }) => {
   const { hasPermission, loading } = usePermission(requiredPermission);
 
-  const hasRequiredPermission = hasPermission;
-  const isDisabled = loading || disabled || !hasRequiredPermission;
+  const isDisabled = loading || disabled || !hasPermission;
 
   const button = (
     <Button
@@ -35,7 +34,7 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
     </Button>
   );
 
-  if (!hasRequiredPermission && !loading) {
+  if (!hasPermission && !loading) {
     return (
       <Tooltip title={tooltipText} placement={placement}>
         <span>{button}</span>

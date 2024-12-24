@@ -44,15 +44,7 @@ const TaskFiles: React.FC<TaskFilesProps> = ({ taskId, onFileUploaded, onFileDel
 
   const handleDownload = async (file: TaskFile) => {
     try {
-      const blob = await downloadFile(taskId, file.id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.original_name;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await downloadFile(taskId, file.id);
     } catch (error) {
       console.error('Failed to download file:', error);
     }
