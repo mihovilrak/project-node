@@ -1,4 +1,5 @@
 const commentModel = require('../models/commentModel');
+const notificationModel = require('../models/notificationModel');
 
 // Get task comments
 exports.getTaskComments = async (req, res, pool) => {
@@ -29,6 +30,14 @@ exports.createComment = async (req, res, pool) => {
       userId,
       comment
     );
+
+    // Create notifications for watchers
+    await notificationModel.createWatcherNotifications(pool, {
+      task_id: taskId,
+      action_user_id: userId,
+      type_id: 'task_commented'
+    });
+
     res.status(201).json(newComment);
   } catch (error) {
     console.error(error);

@@ -96,5 +96,14 @@ module.exports = (pool) => {
   router.post('/:id/time-logs', (req, res) =>
     timeLogController.createTimeLog(req, res, pool));
 
+  router.get('/:id/watchers', (req, res) =>
+    taskController.getTaskWatchers(req, res, pool));
+
+  router.post('/:id/watchers', (req, res) =>
+    taskController.addTaskWatcher(req, res, pool));
+
+  router.delete('/:id/watchers/:userId', (req, res) =>
+    taskController.removeTaskWatcher(req, res, pool));
+
   return router;
-}; 
+};

@@ -54,12 +54,41 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
 
   useEffect(() => {
     const loadInitialData = async () => {
-      const [projectsData, activityTypesData] = await Promise.all([
-        getProjects(),
-        getActivityTypes()
+      try {
+        const [activityTypesData] = await Promise.all([
+          getActivityTypes()
+        ]);
+        setActivityTypes(activityTypesData);
+
+        if (timeLog) {
+          setSelectedActivityTypeId(timeLog.activity_type_id);
+          setSpentTime(String(timeLog.spent_time));
+          setDescription(timeLog.description || '');
+          setLogDate(dayjs(timeLog.log_date));
+          setSelectedUserId(timeLog.user_id);
+        } else {
+          setSelectedActivityTypeId(activityTypes[0]?.id || 0);
+          setSpentTime('');
+          setDescription('');
+          setLogDate(dayjs());
+          setSelectedUserId(currentUser?.id || 0);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+
+    if (open) {
+      loadInitialData();
+    }
+  }, [open, timeLog, currentUser]);
+
+  useEffect(() => {
+    const loadProjectsAndTasks = async () => {
+      const [projectsData] = await Promise.all([
+        getProjects()
       ]);
       setProjects(projectsData);
-      setActivityTypes(activityTypesData);
 
       if (hasPermission('Admin') || hasPermission('Project Manager')) {
         const usersData = await getUsers();
@@ -72,28 +101,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       }
     };
 
-    loadInitialData();
+    loadProjectsAndTasks();
   }, [projectId, hasPermission]);
-
-  useEffect(() => {
-    if (open && timeLog) {
-      setSelectedProjectId(projectId || null);
-      setSelectedTaskId(timeLog.task_id);
-      setSelectedUserId(timeLog.user_id);
-      setSelectedActivityTypeId(timeLog.activity_type_id);
-      setSpentTime(String(timeLog.spent_time / 60));
-      setDescription(timeLog.description || '');
-      setLogDate(dayjs(timeLog.log_date));
-    } else if (open) {
-      setSelectedProjectId(projectId || null);
-      setSelectedTaskId(taskId || null);
-      setSelectedUserId(currentUser?.id || 0);
-      setSelectedActivityTypeId(0);
-      setSpentTime('');
-      setDescription('');
-      setLogDate(dayjs());
-    }
-  }, [open, timeLog, projectId, taskId, currentUser]);
 
   const handleProjectChange = async (projectId: number) => {
     setSelectedProjectId(projectId);
@@ -131,32 +140,30 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       return Math.round(decimalHours * 60);
     }
 
-    setTimeError('Invalid time format. Use HH:MM or decimal hours (e.g., 1.5)');
+    setTimeError('Invalid time format. Use HH:MM or decimal hours (e.g., 1:30 or 1.5)');
     return null;
+  };
+
+  const validateTime = (): boolean => {
+    const timeInMinutes = validateAndFormatTime(spentTime);
+    return timeInMinutes !== null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTaskId || !selectedActivityTypeId) return;
+    if (!validateTime() || !taskId) return;
 
-    const timeInMinutes = validateAndFormatTime(spentTime);
-    if (timeInMinutes === null) return; // Invalid time format
+    const timeLogData: TimeLogCreate = {
+      activity_type_id: selectedActivityTypeId || activityTypes[0]?.id || 0,
+      spent_time: Number(spentTime),
+      description: description || '',
+      log_date: logDate.format('YYYY-MM-DD'),
+      user_id: selectedUserId || currentUser?.id || 0,
+      task_id: taskId
+    };
 
-    try {
-      const timeLogData: TimeLogCreate = {
-        task_id: selectedTaskId,
-        user_id: selectedUserId,
-        activity_type_id: selectedActivityTypeId,
-        log_date: logDate.format('YYYY-MM-DD'),
-        spent_time: timeInMinutes,
-        description: description || undefined
-      };
-
-      await onSubmit(timeLogData);
-      onClose();
-    } catch (error) {
-      console.error('Failed to submit time log:', error);
-    }
+    await onSubmit(timeLogData);
+    onClose();
   };
 
   return (

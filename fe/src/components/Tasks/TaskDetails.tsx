@@ -21,10 +21,22 @@ import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogList from '../TimeLog/TimeLogList';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import CommentEditDialog from '../Comments/CommentEditDialog';
+import WatcherList from './WatcherList';
+import WatcherDialog from './WatcherDialog';
 import { useAuth } from '../../context/AuthContext';
 import { useTaskDetails } from '../../hooks/useTaskDetails';
-import { deleteTimeLog, getTaskTimeLogs, createTimeLog } from '../../api/timeLogService';
-import { Task } from '../../types/task';
+import {
+  deleteTimeLog,
+  getTaskTimeLogs,
+  createTimeLog,
+  updateTimeLog
+} from '../../api/timeLogService';
+import {
+  getTaskWatchers,
+  addTaskWatcher,
+  removeTaskWatcher
+} from '../../api/tasks';
+import { Task, TaskWatcher } from '../../types/task';
 import { Comment } from '../../types/comment';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { TaskFile } from '../../types/files';
@@ -39,6 +51,8 @@ const TaskDetails: React.FC = () => {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
+  const [watchers, setWatchers] = useState<TaskWatcher[]>([]);
+  const [watcherDialogOpen, setWatcherDialogOpen] = useState(false);
 
   const {
     task: taskFromHook,
@@ -66,6 +80,21 @@ const TaskDetails: React.FC = () => {
       setTask(taskFromHook);
     }
   }, [taskFromHook]);
+
+  useEffect(() => {
+    const fetchWatchers = async () => {
+      if (task?.id) {
+        try {
+          const watcherData = await getTaskWatchers(task.id);
+          setWatchers(watcherData);
+        } catch (error) {
+          console.error('Failed to fetch watchers:', error);
+        }
+      }
+    };
+
+    fetchWatchers();
+  }, [task?.id]);
 
   const handleStatusMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusMenuAnchor(event.currentTarget);
@@ -95,13 +124,19 @@ const TaskDetails: React.FC = () => {
 
   const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
     try {
-      await createTimeLog(Number(id), timeLogData);
-      const updatedLogs = await getTaskTimeLogs(Number(id));
-      setTimeLogs(updatedLogs);
+      if (selectedTimeLog) {
+        await updateTimeLog(selectedTimeLog.id, timeLogData);
+        const updatedLogs = await getTaskTimeLogs(Number(id));
+        setTimeLogs(updatedLogs);
+      } else {
+        await createTimeLog(Number(id), timeLogData);
+        const updatedLogs = await getTaskTimeLogs(Number(id));
+        setTimeLogs(updatedLogs);
+      }
       setTimeLogDialogOpen(false);
       setSelectedTimeLog(null);
     } catch (error) {
-      console.error('Failed to submit time log:', error);
+      console.error('Error handling time log:', error);
     }
   };
 
@@ -142,6 +177,28 @@ const TaskDetails: React.FC = () => {
 
   const handleSubtaskDeleted = async (subtaskId: number) => {
     setSubtasks(subtasks.filter(subtask => subtask.id !== subtaskId));
+  };
+
+  const handleAddWatcher = async (userId: number) => {
+    if (task?.id) {
+      try {
+        const watcher = await addTaskWatcher(task.id, userId);
+        setWatchers(prev => [...prev, watcher]);
+      } catch (error) {
+        console.error('Failed to add watcher:', error);
+      }
+    }
+  };
+
+  const handleRemoveWatcher = async (userId: number) => {
+    if (task?.id) {
+      try {
+        await removeTaskWatcher(task.id, userId);
+        setWatchers(prev => prev.filter(w => w.user_id !== userId));
+      } catch (error) {
+        console.error('Failed to remove watcher:', error);
+      }
+    }
   };
 
   if (loading) {
@@ -185,35 +242,6 @@ const TaskDetails: React.FC = () => {
             >
               Edit Task
             </PermissionButton>
-            <Box>
-              <PermissionButton
-                requiredPermission="Edit tasks"
-                onClick={handleStatusMenuClick}
-                variant="contained"
-                color="secondary"
-                sx={{ mr: 1 }}
-                tooltipText="You don't have permission to change task status"
-              >
-                Change Status
-              </PermissionButton>
-              <Menu
-                anchorEl={statusMenuAnchor}
-                open={Boolean(statusMenuAnchor)}
-                onClose={handleStatusMenuClose}
-              >
-                {statuses.map((status) => (
-                  <MenuItem
-                    key={status.id}
-                    onClick={() => {
-                      handleStatusChange(status);
-                      handleStatusMenuClose();
-                    }}
-                  >
-                    {status.name}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
             <PermissionButton
               requiredPermission="Delete tasks"
               onClick={handleDelete}
@@ -378,6 +406,23 @@ const TaskDetails: React.FC = () => {
           />
         </Box>
       </Paper>
+
+      <Paper sx={{ mt: 3, p: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Watchers
+            </Typography>
+            <WatcherList
+              watchers={watchers}
+              canManageWatchers={canEdit}
+              onRemoveWatcher={handleRemoveWatcher}
+              onManageWatchers={() => setWatcherDialogOpen(true)}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
       <Paper sx={{ p: 3, mt: 3 }}>
         <Box sx={{ 
           display: 'flex', 
@@ -407,12 +452,23 @@ const TaskDetails: React.FC = () => {
         <TimeLogDialog
           open={timeLogDialogOpen}
           taskId={Number(id)}
-          projectId={task?.project_id || 0}
           timeLog={selectedTimeLog}
-          onClose={() => setTimeLogDialogOpen(false)}
+          onClose={() => {
+            setTimeLogDialogOpen(false);
+            setSelectedTimeLog(null);
+          }}
           onSubmit={handleTimeLogSubmit}
         />
       </Paper>
+
+      <WatcherDialog
+        open={watcherDialogOpen}
+        onClose={() => setWatcherDialogOpen(false)}
+        projectId={task?.project_id || 0}
+        currentWatchers={watchers}
+        onAddWatcher={handleAddWatcher}
+        onRemoveWatcher={handleRemoveWatcher}
+      />
     </Box>
   );
 };

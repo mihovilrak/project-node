@@ -39,9 +39,14 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
 
   const handleStatusToggle = async (subtask: Task): Promise<void> => {
     try {
-      const newStatusId = subtask.status_name === 'Done' ? 1 : 5; // 1=Todo, 3=Done
+      const newStatusId = subtask.status_name === 'Done' ? 1 : 5; // 1=Todo, 5=Done
       await changeTaskStatus(subtask.id, newStatusId);
-      onSubtaskUpdated(subtask.id, subtask);
+      const updatedSubtask = { 
+        ...subtask, 
+        status_id: newStatusId,
+        status_name: newStatusId === 5 ? 'Done' : 'Todo'
+      };
+      onSubtaskUpdated(subtask.id, updatedSubtask);
     } catch (error) {
       console.error('Failed to update subtask status:', error);
     }

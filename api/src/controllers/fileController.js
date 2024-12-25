@@ -1,6 +1,7 @@
 const fileModel = require('../models/fileModel');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 
 // Get task files
 exports.getTaskFiles = async (req, res, pool) => {
@@ -9,7 +10,7 @@ exports.getTaskFiles = async (req, res, pool) => {
     const files = await fileModel.getTaskFiles(pool, taskId);
     res.status(200).json(files);
   } catch (error) {
-    console.error(error);
+    console.error('Error in getTaskFiles:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -29,7 +30,6 @@ exports.uploadFile = async (req, res, pool) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Add validation for taskId
     if (!taskId || isNaN(taskId)) {
       return res.status(400).json({ error: 'Invalid task ID' });
     }
@@ -58,17 +58,27 @@ exports.uploadFile = async (req, res, pool) => {
 // Download a file
 exports.downloadFile = async (req, res, pool) => {
   try {
-    const { taskId, fileId } = req.params;
+    const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);
     
     if (!file) {
       return res.status(404).json({ error: 'File not found' });
     }
 
-    const filePath = path.join(__dirname, '../../uploads', file.stored_name);
-    res.download(filePath, file.original_name);
+    const filePath = path.resolve(__dirname, '../../uploads', file.stored_name);
+    
+    try {
+      // Check if file exists using sync version to avoid race conditions
+      if (!fsSync.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found on disk' });
+      }
+      res.download(filePath, file.original_name);
+    } catch (error) {
+      console.error('Error accessing file:', error);
+      res.status(500).json({ error: 'Error accessing file' });
+    }
   } catch (error) {
-    console.error(error);
+    console.error('Error in downloadFile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -76,7 +86,7 @@ exports.downloadFile = async (req, res, pool) => {
 // Delete a file
 exports.deleteFile = async (req, res, pool) => {
   try {
-    const { taskId, fileId } = req.params;
+    const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);
     
     if (!file) {
@@ -85,12 +95,17 @@ exports.deleteFile = async (req, res, pool) => {
 
     await fileModel.deleteFile(pool, fileId);
     
-    const filePath = path.join(__dirname, '../../uploads', file.stored_name);
-    await fs.unlink(filePath);
+    const filePath = path.resolve(__dirname, '../../uploads', file.stored_name);
+    try {
+      await fs.unlink(filePath);
+    } catch (error) {
+      console.error('Error deleting file from disk:', error);
+      // Continue even if file doesn't exist on disk
+    }
 
     res.status(200).json({ message: 'File deleted successfully' });
   } catch (error) {
-    console.error(error);
+    console.error('Error in deleteFile:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };

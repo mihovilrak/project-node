@@ -12,7 +12,8 @@ create or replace function create_task(
     p_holder_id integer,
     p_assignee_id integer,
     p_created_by integer,
-    p_tag_ids integer[]
+    p_tag_ids integer[],
+    p_watchers integer[]
 ) returns table(
     message text
 ) as $$
@@ -66,6 +67,12 @@ create or replace function create_task(
         if p_tag_ids is not null then
             insert into task_tags (task_id, tag_id) 
             values (v_task_id, unnest(p_tag_ids));
+        end if;
+
+        -- Insert watchers
+        if p_watchers is not null then
+            insert into watchers (task_id, user_id) 
+            values (v_task_id, unnest(p_watchers));
         end if;
 
         -- Return success message

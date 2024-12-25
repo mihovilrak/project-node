@@ -1,4 +1,5 @@
 const taskModel = require('../models/taskModel');
+const notificationModel = require('../models/notificationModel');
 
 // Get tasks
 exports.getTasks = async (req, res, pool) => {
@@ -82,6 +83,9 @@ exports.createTask = async (req, res, pool) => {
       tagIds
     } = req.body;
 
+    // Create unique watchers array from holder, assignee, and creator
+    const watchers = [...new Set([holder_id, assignee_id, created_by])].filter(id => id);
+
     // Validate required fields
     if (!name || !start_date || !due_date || !priority_id || !status_id || !type_id || !project_id || !holder_id || !assignee_id) {
       return res.status(400).json({
@@ -115,7 +119,8 @@ exports.createTask = async (req, res, pool) => {
       holder_id,
       assignee_id,
       created_by,
-      tagIds
+      tagIds,
+      watchers
     );
 
     res.status(201).json(result);
@@ -128,7 +133,9 @@ exports.createTask = async (req, res, pool) => {
 // Update a task
 exports.updateTask = async (req, res, pool) => {
   const { id } = req.params;
-  const { name,
+  const userId = req.session.user?.id;
+  const {
+    name,
     project_id,
     holder_id,
     assignee_id,
@@ -138,8 +145,9 @@ exports.updateTask = async (req, res, pool) => {
     priority_id,
     start_date,
     due_date,
-    end_date    
+    end_date
   } = req.body;
+
   try {
     const task = await taskModel.updateTask(
       pool,
@@ -154,11 +162,20 @@ exports.updateTask = async (req, res, pool) => {
       priority_id,
       start_date,
       due_date,
-      end_date      
+      end_date
     );
+
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
+
+    // Create notifications for watchers
+    await notificationModel.createWatcherNotifications(pool, {
+      task_id: id,
+      action_user_id: userId,
+      type_id: 'task_updated'
+    });
+
     res.status(200).json(task);
   } catch (error) {
     console.error(error);
@@ -170,11 +187,22 @@ exports.updateTask = async (req, res, pool) => {
 exports.changeTaskStatus = async (req, res, pool) => {
   const { id } = req.params;
   const { statusId } = req.body;
+  const userId = req.session.user?.id;
+
   try {
     const task = await taskModel.changeTaskStatus(pool, id, statusId);
+    
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
+
+    // Create notifications for watchers
+    await notificationModel.createWatcherNotifications(pool, {
+      task_id: id,
+      action_user_id: userId,
+      type_id: 'task_status_changed'
+    });
+
     res.status(200).json(task);
   } catch (error) {
     console.error(error);
@@ -241,6 +269,42 @@ exports.getSubtasks = async (req, res, pool) => {
     const { parentId } = req.params;
     const subtasks = await taskModel.getSubtasks(pool, parentId);
     res.status(200).json(subtasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get task watchers
+exports.getTaskWatchers = async (req, res, pool) => {
+  try {
+    const { taskId } = req.params;
+    const watchers = await taskModel.getTaskWatchers(pool, taskId);
+    res.status(200).json(watchers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Add task watcher
+exports.addTaskWatcher = async (req, res, pool) => {
+  try {
+    const { taskId, userId } = req.body;
+    const watcher = await taskModel.addTaskWatcher(pool, taskId, userId);
+    res.status(200).json(watcher);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Remove task watcher
+exports.removeTaskWatcher = async (req, res, pool) => {
+  try {
+    const { taskId, userId } = req.body;
+    const watcher = await taskModel.removeTaskWatcher(pool, taskId, userId);
+    res.status(200).json(watcher);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

@@ -45,7 +45,9 @@ const TaskForm: React.FC<TaskFormProps> = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const projectIdFromQuery = queryParams.get('projectId');
-  const { projectId } = useParams();
+  const parentTaskId = queryParams.get('parentTaskId');
+  const { projectId, taskId } = useParams();
+  const isEditing = Boolean(taskId);
 
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
@@ -55,7 +57,7 @@ const TaskForm: React.FC<TaskFormProps> = () => {
     priority_id: 2,
     status_id: 1,
     type_id: 1,
-    parent_id: null,
+    parent_id: parentTaskId ? Number(parentTaskId) : null,
     project_id: projectIdFromQuery ? Number(projectIdFromQuery) : (projectId ? Number(projectId) : 0),
     holder_id: 0,
     assignee_id: null,
@@ -89,9 +91,9 @@ const TaskForm: React.FC<TaskFormProps> = () => {
         setPriorities(prioritiesData);
         setAvailableTags(tagsData);
 
-        if (projectId) {
-          const taskData = await getTaskById(Number(projectId));
-          const taskTags = await getTaskTags(Number(projectId));
+        if (taskId) {
+          const taskData = await getTaskById(Number(taskId));
+          const taskTags = await getTaskTags(Number(taskId));
           setFormData({
             name: taskData.name,
             description: taskData.description || '',
@@ -100,38 +102,30 @@ const TaskForm: React.FC<TaskFormProps> = () => {
             priority_id: taskData.priority_id,
             status_id: taskData.status_id,
             type_id: taskData.type_id,
-            parent_id: taskData.parent_id || null,
+            parent_id: taskData.parent_id,
             project_id: taskData.project_id,
             holder_id: taskData.holder_id,
-            assignee_id: taskData.assignee_id || null,
+            assignee_id: taskData.assignee_id,
             created_by: taskData.created_by,
             tags: taskTags || [],
             estimated_time: taskData.estimated_time || 0
           });
-          
-          // Load project members and tasks for the task's project
+
           if (taskData.project_id) {
-            const projectMembersData = await getProjectMembers(taskData.project_id);
-            const projectTasksData = await getTasks({ project_id: taskData.project_id });
-            setProjectMembers(projectMembersData);
-            setProjectTasks(projectTasksData.filter(task => task.id !== Number(projectId)));
+            const members = await getProjectMembers(taskData.project_id);
+            setProjectMembers(members);
+            const tasks = await getTasks({ projectId: taskData.project_id });
+            setProjectTasks(tasks.filter(t => t.id !== Number(taskId)));
           }
-        } else if (projectIdFromQuery) {
-          // If creating new task from project page
-          const projectMembersData = await getProjectMembers(Number(projectIdFromQuery));
-          const projectTasksData = await getTasks({ project_id: Number(projectIdFromQuery) });
-          setProjectMembers(projectMembersData);
-          setProjectTasks(projectTasksData);
         }
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
-  }, [projectId]);
+  }, [taskId]);
 
-  // Update project members and tasks when project changes
   useEffect(() => {
     const updateProjectData = async () => {
       if (formData.project_id) {
@@ -141,9 +135,8 @@ const TaskForm: React.FC<TaskFormProps> = () => {
             getTasks({ project_id: formData.project_id })
           ]);
           setProjectMembers(projectMembersData);
-          setProjectTasks(projectTasksData.filter(task => task.id !== Number(projectId)));
+          setProjectTasks(projectTasksData.filter(task => task.id !== Number(taskId)));
           
-          // Reset holder and assignee if they're not project members
           const memberIds = projectMembersData.map(member => member.user_id);
           if (formData.holder_id && !memberIds.includes(formData.holder_id)) {
             setFormData(prev => ({ ...prev, holder_id: 0 }));
@@ -171,25 +164,14 @@ const TaskForm: React.FC<TaskFormProps> = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { tags, ...restFormValues } = formData;
-      
-      const taskData: Partial<Task> = {
-        ...restFormValues,
-        project_id: Number(restFormValues.project_id) || undefined,
-        holder_id: Number(restFormValues.holder_id) || undefined,
-        assignee_id: Number(restFormValues.assignee_id) || undefined,
-        parent_id: restFormValues.parent_id || undefined,
-        tags: tags
-      };
-      
-      if (projectId) {
-        await updateTask(Number(projectId), taskData);
+      if (isEditing) {
+        await updateTask(Number(taskId), formData);
       } else {
-        await createTask(taskData);
+        await createTask(formData);
       }
-      navigate('/tasks');
+      navigate(-1);
     } catch (error) {
-      console.error('Failed to save task:', error);
+      console.error('Error saving task:', error);
     }
   };
 
@@ -201,7 +183,7 @@ const TaskForm: React.FC<TaskFormProps> = () => {
   return (
     <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
       <Paper elevation={3} sx={{ padding: 4 }}>
-        <Typography variant="h4">{projectId ? 'Edit Task' : 'Add New Task'}</Typography>
+        <Typography variant="h4">{isEditing ? 'Edit Task' : 'Add New Task'}</Typography>
         <form onSubmit={handleSubmit}>
           <TextField 
             fullWidth 
@@ -398,7 +380,7 @@ const TaskForm: React.FC<TaskFormProps> = () => {
               Cancel
             </Button>
             <Button type="submit" variant="contained" color="primary">
-              {projectId ? 'Update Task' : 'Create Task'}
+              {isEditing ? 'Update Task' : 'Create Task'}
             </Button>
           </Box>
         </form>

@@ -1,14 +1,22 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { checkPermission } = require('../middleware/permissionMiddleware');
 const fileController = require('../controllers/fileController');
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Multer configuration
 const storage = multer.diskStorage({
-
-  destination: 'uploads/',
+  destination: function(req, file, cb) {
+    cb(null, uploadsDir);
+  },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
     cb(null, uniqueName);

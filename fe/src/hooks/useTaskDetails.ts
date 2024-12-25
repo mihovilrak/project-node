@@ -225,11 +225,21 @@ export const useTaskDetails = (taskId: string) => {
       }
     };
   
-    const handleSubtasksUpdate = (newSubtasks: Task[]) => {
+    const handleSubtasksUpdate = (subtaskId: number, updatedSubtask: Task) => {
       setState(prev => ({
         ...prev,
-        subtasks: newSubtasks
+        subtasks: prev.subtasks.map(subtask => 
+          subtask.id === subtaskId ? updatedSubtask : subtask
+        )
       }));
+    };
+  
+    const handleTimeLogDelete = async (timeLogId: number) => {
+      try {
+        // implement time log deletion logic here
+      } catch (error) {
+        console.error('Failed to delete time log:', error);
+      }
     };
   
     return {

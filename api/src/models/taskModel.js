@@ -45,7 +45,8 @@ exports.createTask = async (
   holderId,
   assigneeId,
   createdBy, 
-  tagIds
+  tagIds,
+  watchers
 ) => {
   const result = await pool.query(
     `SELECT * FROM create_task (
@@ -62,9 +63,26 @@ exports.createTask = async (
       $11,
       $12,
       $13,
-      $14
+      $14,
+      $15
     )`,
-    [name, description, estimatedTime, startDate, dueDate, priorityId, statusId, typeId, parentId, projectId, holderId, assigneeId, createdBy, tagIds]
+    [
+      name,
+      description,
+      estimatedTime,
+      startDate,
+      dueDate,
+      priorityId,
+      statusId,
+      typeId,
+      parentId,
+      projectId,
+      holderId,
+      assigneeId,
+      createdBy,
+      tagIds,
+      watchers
+    ]
   );
   return result.rows[0];
 };
@@ -182,4 +200,36 @@ exports.getSubtasks = async (pool, parentId) => {
     [parentId]
   );
   return result.rows;
+};
+
+// Get task watchers
+exports.getTaskWatchers = async (pool, taskId) => {
+  const result = await pool.query(
+    `SELECT * FROM v_task_watchers 
+    WHERE task_id = $1`,
+    [taskId]
+  );
+  return result.rows;
+};
+
+// Add task watcher
+exports.addTaskWatcher = async (pool, taskId, userId) => {
+  const result = await pool.query(
+    `INSERT INTO task_watchers (task_id, user_id) 
+    VALUES ($1, $2) 
+    RETURNING *`,
+    [taskId, userId]
+  );
+  return result.rows[0];
+};
+
+// Remove task watcher
+exports.removeTaskWatcher = async (pool, taskId, userId) => {
+  const result = await pool.query(
+    `DELETE FROM task_watchers 
+    WHERE task_id = $1 AND user_id = $2 
+    RETURNING *`,
+    [taskId, userId]
+  );
+  return result.rows[0];
 };
