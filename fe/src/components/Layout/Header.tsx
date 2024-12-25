@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppBar, Toolbar, Box } from '@mui/material';
 import NotificationCenter from '../Notifications/NotificationCenter';
-import { useHeader } from '../../hooks/useHeader';
+import { useHeader } from '../../hooks/layout/useHeader';
 
 const Header: React.FC = () => {
   const { currentUser, isScrolled } = useHeader();

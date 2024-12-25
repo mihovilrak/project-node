@@ -5,7 +5,7 @@ import {
   CircularProgress,
   ButtonProps
 } from '@mui/material';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission } from '../../hooks/common/usePermission';
 import { PermissionButtonProps } from '../../types/common';
 
 const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
@@ -45,4 +45,4 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
   return button;
 };
 
-export default PermissionButton; 
+export default PermissionButton;

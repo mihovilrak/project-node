@@ -53,4 +53,4 @@ export const deleteTaskType = async (id: number): Promise<void> => {
     console.error('Failed to delete task type:', error);
     throw error;
   }
-}; 
+};

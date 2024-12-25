@@ -39,12 +39,13 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
 
   const handleStatusToggle = async (subtask: Task): Promise<void> => {
     try {
-      const newStatusId = subtask.status_name === 'Done' ? 1 : 5; // 1=Todo, 5=Done
+      // Toggle between New and Done
+      const newStatusId = subtask.status_name === 'Done' ? 1 : 5; // 1=New, 5=Done
       await changeTaskStatus(subtask.id, newStatusId);
       const updatedSubtask = { 
         ...subtask, 
         status_id: newStatusId,
-        status_name: newStatusId === 5 ? 'Done' : 'Todo'
+        status_name: newStatusId === 5 ? 'Done' : 'New'
       };
       onSubtaskUpdated(subtask.id, updatedSubtask);
     } catch (error) {

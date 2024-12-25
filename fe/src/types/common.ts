@@ -5,7 +5,6 @@ import {
   TooltipProps
 } from '@mui/material';
 
-// Permission-aware button props
 export interface PermissionButtonProps extends Omit<ButtonProps, 'children'> {
     requiredPermission: string;
     children: ReactNode;
@@ -14,7 +13,6 @@ export interface PermissionButtonProps extends Omit<ButtonProps, 'children'> {
     placement?: TooltipProps['placement'];
 }
 
-// Permission-aware icon button props
 export interface PermissionIconButtonProps extends Omit<IconButtonProps, 'children'> {
     requiredPermission: string;
     children: ReactNode;
@@ -23,7 +21,6 @@ export interface PermissionIconButtonProps extends Omit<IconButtonProps, 'childr
     placement?: TooltipProps['placement'];
 }
 
-// Permission guard component props
 export interface PermissionGuardProps {
   requiredPermission: string;
   children: ReactNode;
@@ -34,7 +31,6 @@ export interface PermissionGuardProps {
   loadingComponent?: ReactNode;
 }
 
-// Delete confirmation dialog props
 export interface DeleteConfirmDialogProps {
     open: boolean;
     title?: string;
@@ -45,7 +41,6 @@ export interface DeleteConfirmDialogProps {
     error?: string;
 }
 
-// Use permission hook result
 export interface UsePermissionResult {
   hasPermission: boolean;
   loading: boolean;

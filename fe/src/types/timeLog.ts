@@ -90,3 +90,14 @@ export interface TimeLogListProps {
 export interface TimeLogStatsProps {
   timeLogs: TimeLog[];
 }
+
+export interface TaskTimeLoggingProps {
+  taskId: number;
+  timeLogs: TimeLog[];
+  timeLogDialogOpen: boolean;
+  selectedTimeLog: TimeLog | null;
+  onTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
+  onTimeLogDelete: (timeLogId: number) => Promise<void>;
+  onTimeLogEdit: (timeLog: TimeLog) => void;
+  onTimeLogDialogClose: () => void;
+}

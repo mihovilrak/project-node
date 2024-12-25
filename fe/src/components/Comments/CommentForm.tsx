@@ -5,7 +5,7 @@ import {
   Button, 
   CircularProgress 
 } from '@mui/material';
-import { useCommentForm } from '../../hooks/useCommentForm';
+import { useCommentForm } from '../../hooks/comment/useCommentForm';
 import { CommentFormProps } from '../../types/comment';
 
 const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => {

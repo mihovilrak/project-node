@@ -53,4 +53,4 @@ export const getTaskTags = async (taskId: number): Promise<Tag[]> => {
     console.error('Failed to fetch task tags', error);
     throw error;
   }
-}; 
+};

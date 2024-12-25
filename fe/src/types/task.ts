@@ -1,6 +1,6 @@
 import { SelectChangeEvent } from '@mui/material';
 import { User } from './user';
-import { Tag } from './tags';
+import { Tag } from './tag';
 
 export interface Task {
   id: number;
@@ -37,27 +37,12 @@ export interface Task {
   tags?: Tag[];
 }
 
-export interface TaskWatcher {
-  task_id: number;
-  user_id: number;
-  user_name: string;
-  role?: string;
-}
-
-export interface WatcherListProps {
-  watchers: TaskWatcher[];
-  canManageWatchers: boolean;
-  onRemoveWatcher: (userId: number) => void;
-  onManageWatchers: () => void;
-}
-
-export interface WatcherDialogProps {
-  open: boolean;
-  onClose: () => void;
-  projectId: number;
-  currentWatchers: TaskWatcher[];
-  onAddWatcher: (userId: number) => void;
-  onRemoveWatcher: (userId: number) => void;
+export interface TaskCoreState {
+  task: Task | null;
+  subtasks: Task[];
+  statuses: TaskStatus[];
+  loading: boolean;
+  error: string | null;
 }
 
 export interface TaskFilters {
@@ -154,4 +139,14 @@ export interface TaskFormState {
 
 export interface TaskTimeLogsProps {
   task: Task;
+}
+
+export interface TaskHeaderProps {
+  task: Task | null;
+  statuses: TaskStatus[];
+  canEdit: boolean;
+  statusMenuAnchor: HTMLElement | null;
+  onStatusMenuClick: (event: React.MouseEvent<HTMLElement>) => void;
+  onStatusMenuClose: () => void;
+  onStatusChange: (statusId: number) => void;
 }

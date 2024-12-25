@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import FileUpload from '../Files/FileUpload';
 import FileList from '../Files/FileList';
-import { TaskFile, TaskFilesProps } from '../../types/files';
+import { TaskFile, TaskFilesProps } from '../../types/file';
 import {
   getTaskFiles,
   deleteFile,

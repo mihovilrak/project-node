@@ -15,22 +15,26 @@ import RolesTable from './RolesTable';
 import TaskTypeDialog from './TaskTypeDialog';
 import ActivityTypeDialog from './ActivityTypeDialog';
 import RoleDialog from './RoleDialog';
-import { 
-  getTaskTypes, 
-  getActivityTypes, 
-  getRoles,
-  deleteTaskType,
+import {
   deleteActivityType,
-  updateTaskType,
   updateActivityType,
-  updateRole 
-} from '../../api/admin';
+  getActivityTypes
+} from '../../api/activityTypes';
+import {
+  getRoles,
+  updateRole
+} from '../../api/roles';
+import { 
+  getTaskTypes,
+  deleteTaskType,
+  updateTaskType
+} from '../../api/taskTypes';
 import {
   TypesAndRolesState,
   TaskType,
   ActivityType,
   Role as AdminRole
-} from '../../types/settings';
+} from '../../types/setting';
 import type { Role, Permission } from '../../types/admin';
 
 const TypesAndRolesManager: React.FC = () => {

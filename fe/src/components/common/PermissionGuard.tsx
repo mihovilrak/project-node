@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission } from '../../hooks/common/usePermission';
 import { PermissionGuardProps } from '../../types/common';
 
 const PermissionGuard: React.FC<PermissionGuardProps> = ({
@@ -32,4 +32,4 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   return <>{children}</>;
 };
 
-export default PermissionGuard; 
+export default PermissionGuard;

@@ -9,7 +9,7 @@ import {
   Grid
 } from '@mui/material';
 import { Edit, Lock } from '@mui/icons-material';
-import { useProfileData } from '../../hooks/useProfileData';
+import { useProfileData } from '../../hooks/profile/useProfileData';
 import ProfileHeader from './ProfileHeader';
 import ProfileStats from './ProfileStats';
 import ProfileTaskList from './ProfileTaskList';

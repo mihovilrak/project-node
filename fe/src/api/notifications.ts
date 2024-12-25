@@ -30,4 +30,4 @@ export const deleteNotification = async (notificationId: number): Promise<void> 
     console.error('Failed to delete notification:', error);
     throw error;
   }
-}; 
+};

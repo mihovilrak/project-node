@@ -41,4 +41,4 @@ export const updateSystemSettings = async (settings: AppSettings): Promise<void>
     console.error('Failed to update system settings', error);
     throw error;
   }
-}; 
+};

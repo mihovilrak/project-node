@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
-import { FileListProps } from '../../types/files';
-import { useFileList } from '../../hooks/useFileList';
+import { FileListProps } from '../../types/file';
+import { useFileList } from '../../hooks/file/useFileList';
 import { downloadFile } from '../../api/files';
 
 const FileList: React.FC<FileListProps> = ({

@@ -12,7 +12,7 @@ import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
   getTaskTimeLogs,
   deleteTimeLog
-} from '../../api/timeLogService';
+} from '../../api/timeLogs';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';

@@ -7,7 +7,7 @@ import {
   Typography,
   Paper
 } from '@mui/material';
-import { useLogin } from '../../hooks/useLogin';
+import { useLogin } from '../../hooks/auth/useLogin';
 
 const Login: React.FC = () => {
   const {

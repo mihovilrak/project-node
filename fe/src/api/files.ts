@@ -78,4 +78,4 @@ export const deleteFile = async (taskId: number, fileId: number): Promise<void> 
     console.error('Failed to delete file', error);
     throw error;
   }
-}; 
+};

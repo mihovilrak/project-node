@@ -194,7 +194,7 @@ exports.getTasksByProject = async (pool, project_id) => {
 // Get subtasks
 exports.getSubtasks = async (pool, parentId) => {
   const result = await pool.query(
-    `SELECT * FROM tasks 
+    `SELECT * FROM v_tasks 
     WHERE parent_id = $1 
     ORDER BY created_on ASC`,
     [parentId]
@@ -215,9 +215,10 @@ exports.getTaskWatchers = async (pool, taskId) => {
 // Add task watcher
 exports.addTaskWatcher = async (pool, taskId, userId) => {
   const result = await pool.query(
-    `INSERT INTO task_watchers (task_id, user_id) 
-    VALUES ($1, $2) 
-    RETURNING *`,
+    `INSERT INTO watchers (task_id, user_id)
+     VALUES ($1, $2)
+     ON CONFLICT (task_id, user_id) DO NOTHING
+     RETURNING *`,
     [taskId, userId]
   );
   return result.rows[0];
@@ -226,9 +227,9 @@ exports.addTaskWatcher = async (pool, taskId, userId) => {
 // Remove task watcher
 exports.removeTaskWatcher = async (pool, taskId, userId) => {
   const result = await pool.query(
-    `DELETE FROM task_watchers 
-    WHERE task_id = $1 AND user_id = $2 
-    RETURNING *`,
+    `DELETE FROM watchers
+     WHERE task_id = $1 AND user_id = $2
+     RETURNING *`,
     [taskId, userId]
   );
   return result.rows[0];

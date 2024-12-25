@@ -9,7 +9,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { DeleteConfirmDialogProps } from '../../types/common';
-import { useDeleteConfirm } from '../../hooks/useDeleteConfirm';
+import { useDeleteConfirm } from '../../hooks/common/useDeleteConfirm';
 
 const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ 
   open, 
@@ -52,4 +52,4 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   );
 };
 
-export default DeleteConfirmDialog; 
+export default DeleteConfirmDialog;

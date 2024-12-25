@@ -42,4 +42,4 @@ export const deleteComment = async (taskId: number, id: number): Promise<void> =
     console.error('Failed to delete comment', error);
     throw error;
   }
-}; 
+};

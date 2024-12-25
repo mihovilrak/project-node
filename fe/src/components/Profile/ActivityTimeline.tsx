@@ -11,7 +11,7 @@ import {
 import { Activity } from '../../types/profile';
 import { Box, Typography } from '@mui/material';
 import { ActivityTimelineProps } from '../../types/profile';
-import { useActivityTimeline } from '../../hooks/useActivityTimeline';
+import { useActivityTimeline } from '../../hooks/profile/useActivityTimeline';
 
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
   const { getActivityIcon, getActivityColor } = useActivityTimeline();

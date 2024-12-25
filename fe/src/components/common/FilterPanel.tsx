@@ -16,7 +16,7 @@ import {
 import { FilterPanelProps } from '../../types/filterPanel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { useFilterPanel } from '../../hooks/useFilterPanel';
+import { useFilterPanel } from '../../hooks/common/useFilterPanel';
 import { FilterOption } from '../../types/filterPanel';
 
 const FilterPanel: React.FC<FilterPanelProps> = ({

@@ -22,7 +22,7 @@ import {
   Info as InfoIcon
 } from '@mui/icons-material';
 import { NotificationCenterProps } from '../../types/notification';
-import { useNotificationCenter } from '../../hooks/useNotificationCenter';
+import { useNotificationCenter } from '../../hooks/notification/useNotificationCenter';
 
 const iconMap: { [key: string]: React.ComponentType } = {
   task: TaskIcon,

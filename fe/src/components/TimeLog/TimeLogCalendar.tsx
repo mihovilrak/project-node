@@ -24,7 +24,7 @@ import {
   eachDayOfInterval,
   isToday,
 } from 'date-fns';
-import { getProjectTimeLogs } from '../../api/timeLogService';
+import { getProjectTimeLogs } from '../../api/timeLogs';
 import { TimeLog, TimeLogCalendarProps } from '../../types/timeLog';
 
 const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {

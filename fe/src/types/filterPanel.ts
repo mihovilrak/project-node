@@ -1,6 +1,5 @@
 import { User } from './user';
 
-// Base filter values interface
 export interface FilterValues {
   search?: string;
   status_id?: number | string;
@@ -16,7 +15,6 @@ export interface FilterValues {
   active?: boolean;
 }
 
-// Common filter option structure
 export interface FilterOption {
   id: number;
   name: string;
@@ -24,7 +22,6 @@ export interface FilterOption {
   icon?: string;
 }
 
-// Filter panel base props
 export interface FilterPanelProps {
   type: 'tasks' | 'projects' | 'users' | 'time_logs';
   filters: FilterValues;
@@ -32,7 +29,6 @@ export interface FilterPanelProps {
   options: FilterPanelOptions;
 }
 
-// Available filter options
 export interface FilterPanelOptions {
   statuses?: FilterOption[];
   priorities?: FilterOption[];

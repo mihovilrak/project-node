@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useNavigation } from '../../hooks/useNavigation';
+import { useNavigation } from '../../hooks/layout/useNavigation';
 import {
   Brightness4,
   Brightness7,

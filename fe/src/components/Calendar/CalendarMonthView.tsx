@@ -6,9 +6,10 @@ import {
   Grid,
   Chip
 } from '@mui/material';
+import { Task } from '../../types/task';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
-import { useCalendarDays } from '../../hooks/useCalendarDays';
+import { useCalendarDays } from '../../hooks/calendar/useCalendarDays';
 
 const CalendarMonthView: React.FC<CalendarViewProps> = ({ 
   date,
@@ -57,7 +58,7 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
               {day.date.getDate()}
             </Typography>
             <Box sx={{ overflow: 'hidden' }}>
-              {day.tasks.slice(0, 3).map((task) => (
+              {day.tasks.slice(0, 3).map((task: Task) => (
                 <Chip
                   key={task.id}
                   label={task.name}

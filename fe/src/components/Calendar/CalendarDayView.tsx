@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -8,7 +7,7 @@ import {
 } from '@mui/material';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
-import { useTasksByHour } from '../../hooks/useTasksByHour';
+import { useTasksByHour } from '../../hooks/calendar/useTasksByHour';
 
 const CalendarDayView: React.FC<CalendarViewProps> = ({ 
   tasks,

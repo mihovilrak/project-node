@@ -6,7 +6,7 @@ export interface Notification {
   message: string;
   link: string | null;
   is_read: boolean;
-  created_on: string;  // ISO datetime string
+  created_on: string;
   // Virtual fields from database views/joins
   type_name?: string;
   type_color?: string;

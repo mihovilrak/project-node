@@ -10,7 +10,7 @@ import {
   Box
 } from '@mui/material';
 import { CommentEditDialogProps } from '../../types/comment';
-import { useCommentEdit } from '../../hooks/useCommentEdit';
+import { useCommentEdit } from '../../hooks/comment/useCommentEdit';
 
 const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   open,

@@ -14,7 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CommentEditDialog from './CommentEditDialog';
 import { CommentListProps } from '../../types/comment';
-import { useCommentMenu } from '../../hooks/useCommentMenu';
+import { useCommentMenu } from '../../hooks/comment/useCommentMenu';
 
 const CommentList: React.FC<CommentListProps> = ({
   comments,

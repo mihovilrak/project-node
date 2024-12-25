@@ -7,8 +7,8 @@ import {
   Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { FileUploadProps } from '../../types/files';
-import { useFileUpload } from '../../hooks/useFileUpload';
+import { FileUploadProps } from '../../types/file';
+import { useFileUpload } from '../../hooks/file/useFileUpload';
 
 const FileUpload: React.FC<FileUploadProps> = ({
   taskId,
@@ -68,4 +68,4 @@ const FileUpload: React.FC<FileUploadProps> = ({
   );
 };
 
-export default FileUpload; 
+export default FileUpload;

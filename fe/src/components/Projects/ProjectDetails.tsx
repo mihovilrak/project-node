@@ -16,7 +16,7 @@ import {
   Add as AddIcon,
   Group as GroupIcon
 } from '@mui/icons-material';
-import { useProjectDetails } from '../../hooks/useProjectDetails';
+import { useProjectDetails } from '../../hooks/project/useProjectDetails';
 import ProjectTaskList from './tabs/ProjectTaskList';
 import ProjectGantt from './ProjectGantt';
 import ProjectMembersList from './tabs/ProjectMembersList';
@@ -35,7 +35,7 @@ import {
   createTimeLog,
   getTaskTimeLogs,
   deleteTimeLog
-} from '../../api/timeLogService';
+} from '../../api/timeLogs';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { Task } from '../../types/task';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';

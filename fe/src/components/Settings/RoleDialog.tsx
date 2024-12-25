@@ -14,8 +14,8 @@ import {
   Checkbox,
   Box
 } from '@mui/material';
-import { getAllPermissions } from '../../api/admin';
-import { RoleDialogProps, Permission } from '../../types/settings';
+import { getAllPermissions } from '../../api/permissions';
+import { RoleDialogProps, Permission } from '../../types/setting';
 
 const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) => {
   const [formData, setFormData] = useState({

@@ -111,3 +111,9 @@ export interface Activity {
     name: string;
   };
 }
+
+export interface ProfileTaskListProps {
+  tasks: Task[];
+  onTaskClick: (taskId: number) => void;
+  loading?: boolean;
+}

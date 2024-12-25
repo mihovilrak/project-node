@@ -4,7 +4,7 @@ import {
   Tooltip,
   CircularProgress
 } from '@mui/material';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission } from '../../hooks/common/usePermission';
 import { PermissionIconButtonProps } from '../../types/common';
 
 const PermissionIconButton: React.FC<PermissionIconButtonProps> = ({ 

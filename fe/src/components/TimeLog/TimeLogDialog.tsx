@@ -10,8 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Box,
-  FormHelperText
+  Box
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { getProjects } from '../../api/projects';

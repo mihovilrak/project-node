@@ -10,12 +10,7 @@ import {
 } from '@mui/material';
 import { Task } from '../../types/task';
 import { useNavigate } from 'react-router-dom';
-
-interface ProfileTaskListProps {
-  tasks: Task[];
-  onTaskClick: (taskId: number) => void;
-  loading?: boolean;
-}
+import { ProfileTaskListProps } from '../../types/profile';
 
 const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, loading }) => {
   const navigate = useNavigate();

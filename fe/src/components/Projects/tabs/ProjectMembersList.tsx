@@ -1,4 +1,3 @@
-// fe/src/components/Projects/tabs/ProjectMembersList.tsx
 import React, { useState, useEffect } from 'react';
 import {
     List,

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
-import { useCalendarWeek } from '../../hooks/useCalendarWeek';
+import { useCalendarWeek } from '../../hooks/calendar/useCalendarWeek';
 
 const CalendarWeekView: React.FC<CalendarViewProps> = ({ 
   date,

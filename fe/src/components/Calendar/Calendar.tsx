@@ -16,7 +16,7 @@ import {
   ViewWeek, 
   ViewModule 
 } from '@mui/icons-material';
-import { useCalendar } from '../../hooks/useCalendar';
+import { useCalendar } from '../../hooks/calendar/useCalendar';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarView } from '../../types/calendar';
 import CalendarDayView from './CalendarDayView';

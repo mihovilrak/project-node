@@ -60,4 +60,4 @@ export const getRecentProjects = async (): Promise<Project[]> => {
     console.error('Failed to fetch recent projects', error);
     throw error;
   }
-}; 
+};
