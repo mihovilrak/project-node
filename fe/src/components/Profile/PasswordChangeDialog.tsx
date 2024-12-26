@@ -13,7 +13,7 @@ import {
   PasswordChangeDialogProps,
   PasswordForm
 } from '../../types/profile';
-import { changePassword } from '../../api/profile';
+import { changePassword } from '../../api/profiles';
 
 const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClose }) => {
   const [formData, setFormData] = useState<PasswordForm>({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   Box, 
   Paper, 
@@ -17,50 +17,22 @@ import {
   ViewModule 
 } from '@mui/icons-material';
 import { useCalendar } from '../../hooks/calendar/useCalendar';
-import { TimeLog } from '../../types/timeLog';
-import { CalendarView } from '../../types/calendar';
 import CalendarDayView from './CalendarDayView';
 import CalendarWeekView from './CalendarWeekView';
 import CalendarMonthView from './CalendarMonthView';
-import { useNavigate } from 'react-router-dom';
 
 const Calendar: React.FC = () => {
-  const { tasks, loading, fetchTasks } = useCalendar();
-  const [view, setView] = useState<CalendarView>('month');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
-  const navigate = useNavigate();
-
-  const handleDateChange = (newDate: Date): void => {
-    setSelectedDate(newDate);
-  };
-
-  const handleViewChange = (newView: CalendarView): void => {
-    setView(newView);
-  };
-
-  const handleTaskClick = (taskId: number): void => {
-    navigate(`/tasks/${taskId}`);
-  };
-
-  const handleTimeLogClick = (timeLogId: number): void => {
-    navigate(`/time-logs/${timeLogId}`);
-  };
-
-  useEffect(() => {
-    const start = new Date(selectedDate);
-    const end = new Date(selectedDate);
-    
-    if (view === 'month') {
-      start.setDate(1);
-      end.setMonth(end.getMonth() + 1, 0);
-    } else if (view === 'week') {
-      start.setDate(start.getDate() - start.getDay());
-      end.setDate(end.getDate() + (6 - end.getDay()));
-    }
-    
-    fetchTasks(start, end);
-  }, [selectedDate, view]);
+  const { 
+    tasks, 
+    loading, 
+    view, 
+    selectedDate, 
+    timeLogs, 
+    handleDateChange, 
+    handleViewChange,
+    handleTaskClick,
+    handleTimeLogClick
+  } = useCalendar();
 
   return (
     <Box sx={{ p: 3 }}>
@@ -96,7 +68,7 @@ const Calendar: React.FC = () => {
             <Tooltip title="Day View">
               <Button
                 variant={view === 'day' ? 'contained' : 'outlined'}
-                onClick={() => setView('day')}
+                onClick={() => handleViewChange('day')}
                 startIcon={<ViewDay />}
               >
                 Day
@@ -105,7 +77,7 @@ const Calendar: React.FC = () => {
             <Tooltip title="Week View">
               <Button
                 variant={view === 'week' ? 'contained' : 'outlined'}
-                onClick={() => setView('week')}
+                onClick={() => handleViewChange('week')}
                 startIcon={<ViewWeek />}
               >
                 Week
@@ -114,7 +86,7 @@ const Calendar: React.FC = () => {
             <Tooltip title="Month View">
               <Button
                 variant={view === 'month' ? 'contained' : 'outlined'}
-                onClick={() => setView('month')}
+                onClick={() => handleViewChange('month')}
                 startIcon={<ViewModule />}
               >
                 Month

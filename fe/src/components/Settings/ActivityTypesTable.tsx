@@ -14,7 +14,7 @@ import {
   Icon
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
-import { ActivityTypesTableProps } from '../../types/settings';
+import { ActivityType, ActivityTypesTableProps } from '../../types/setting';
 
 const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
   activityTypes,
@@ -43,7 +43,7 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {activityTypes.map((activityType) => (
+          {activityTypes.map((activityType: ActivityType) => (
             <TableRow key={activityType.id}>
               <TableCell>
                 {activityType.icon && <Icon>{activityType.icon}</Icon>}

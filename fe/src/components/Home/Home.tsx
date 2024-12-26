@@ -1,5 +1,5 @@
 import React from 'react';
-import ActiveTasks from '../Tasks/ActiveTasks';
+import ActiveTasks from './ActiveTasks';
 import { Box } from '@mui/material';
 
 const Home: React.FC = (): JSX.Element => {

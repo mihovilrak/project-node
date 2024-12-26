@@ -7,7 +7,7 @@ import {
   Box
 } from '@mui/material';
 import { getTags } from '../../api/tags';
-import { Tag, TagSelectProps } from '../../types/tags';
+import { Tag, TagSelectProps } from '../../types/tag';
 
 const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => {
   const [tags, setTags] = useState<Tag[]>([]);

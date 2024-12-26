@@ -34,7 +34,7 @@ import {
 } from '../../types/task';
 import { Project, ProjectMember } from '../../types/project';
 import { User } from '../../types/user';
-import { Tag } from '../../types/tags';
+import { Tag } from '../../types/tag';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 

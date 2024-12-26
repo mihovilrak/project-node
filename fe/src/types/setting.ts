@@ -1,4 +1,5 @@
 import { User } from './user';
+import { Role } from './role';
 
 export interface ActivityType {
   id: number;
@@ -23,14 +24,6 @@ export interface Permission {
   name: string;
 }
 
-export interface Role {
-  id: number;
-  name: string;
-  description?: string;
-  permissions: Permission[];
-  active?: boolean;
-}
-
 export interface ActivityTypeDialogProps {
   open: boolean;
   activityType?: ActivityType;
@@ -45,13 +38,6 @@ export interface TaskTypeDialogProps {
   onSave: (taskType: Partial<TaskType>) => Promise<void>;
 }
 
-export interface RoleDialogProps {
-  open: boolean;
-  role?: Role;
-  onClose: () => void;
-  onSave: (role: Partial<Role>) => Promise<void>;
-}
-
 export interface ActivityTypesTableProps {
   activityTypes: ActivityType[];
   onEdit: (activityType: ActivityType) => void;
@@ -63,13 +49,6 @@ export interface TaskTypesTableProps {
   taskTypes: TaskType[];
   onEdit: (taskType: TaskType) => void;
   onDelete: (id: number) => Promise<void>;
-  loading?: boolean;
-}
-
-export interface RolesTableProps {
-  roles: Role[];
-  onEdit: (role: Role) => void;
-  onDelete?: (id: number) => Promise<void>;
   loading?: boolean;
 }
 
@@ -146,4 +125,28 @@ export interface UserSettings {
   };
   created_on: string;
   updated_on: string | null;
+}
+
+export interface ActivityTypeFormData {
+  name: string;
+  color: string;
+  description: string;
+  active: boolean;
+  icon: string | undefined;
+}
+
+export interface ActivityTypeFormProps {
+  formData: ActivityTypeFormData;
+  onChange: (field: string, value: string | boolean) => void;
+}
+
+interface AdminRole extends Role {
+}
+
+export interface TypesAndRolesDialogProps {
+  activeTab: number;
+  dialogOpen: boolean;
+  selectedItem: TaskType | ActivityType | AdminRole | null;
+  onClose: () => void;
+  onSave: (item: Partial<TaskType | ActivityType | AdminRole>) => Promise<void>;
 }

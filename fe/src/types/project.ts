@@ -8,7 +8,7 @@ import {
 import {
   AppointmentTooltip
 } from '@devexpress/dx-react-scheduler-material-ui';
-import { TimeLog } from "./timeLog";
+import { TimeLog, TimeLogCreate } from "./timeLog";
 
 export interface Project {
   id: number;
@@ -45,7 +45,7 @@ export interface ProjectEditDialogProps {
   open: boolean;
   project: Project;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (project: Project) => void;
 }
 
 export interface ProjectGanttProps {
@@ -187,4 +187,100 @@ export type AppointmentContentComponentProps = {
 
 export type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
   appointmentData: FormattedTask;
+}
+
+export interface ProjectActionsProps {
+  canEdit: boolean;
+  canDelete: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+export interface ProjectTabPanelsProps {
+  activeTab: number;
+  project: Project;
+  projectDetails: Project | null;
+  tasks: Task[];
+  members: ProjectMember[];
+  timeLogs: TimeLog[];
+  canManageMembers: boolean;
+  projectId: string;
+  onCreateTask: () => void;
+  onManageMembers: () => void;
+  onTimeLogCreate: (taskId: number) => void;
+  onTimeLogEdit: (timeLog: TimeLog) => void;
+  onTimeLogDelete: (timeLogId: number) => void;
+  onMemberRemove: (userId: number) => void;
+}
+
+export interface ProjectMembersHook {
+  members: ProjectMember[];
+  setMembers: React.Dispatch<React.SetStateAction<ProjectMember[]>>;
+  manageMembersOpen: boolean;
+  setManageMembersOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleMemberUpdate: (memberId: number, role: string) => Promise<void>;
+  handleMemberRemove: (memberId: number) => Promise<void>;
+  handleMembersUpdate: (selectedUsers: number[]) => Promise<void>;
+  loadMembers: () => Promise<void>;
+}
+
+export interface ProjectTasksHook {
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  taskFormOpen: boolean;
+  setTaskFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleTaskCreate: (task: Task) => Promise<void>;
+  loadTasks: () => Promise<void>;
+}
+
+export interface ProjectTimeLogsHook {
+  timeLogs: TimeLog[];
+  setTimeLogs: React.Dispatch<React.SetStateAction<TimeLog[]>>;
+  timeLogDialogOpen: boolean;
+  setTimeLogDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedTimeLog: TimeLog | null;
+  setSelectedTimeLog: React.Dispatch<React.SetStateAction<TimeLog | null>>;
+  handleTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
+  handleTimeLogEdit: (timeLog: TimeLog) => Promise<void>;
+  handleTimeLogDelete: (timeLogId: number) => Promise<void>;
+  loadTimeLogs: () => Promise<void>;
+}
+
+export interface TaskFormProps {
+  projectId: number;
+  open: boolean;
+  onClose: () => void;
+  onCreated: (task: Task) => Promise<void>;
+}
+
+export interface ProjectDetailsFormProps {
+  formData: any;
+  errors: Record<string, string>;
+  dateError: string;
+  availableProjects: Project[];
+  parentId: string | null;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleStatusChange: (event: any) => void;
+  handleDateChange: (field: 'start_date' | 'due_date', newValue: Dayjs | null) => void;
+  handleParentChange: (e: any) => void;
+  handleCancel: () => void;
+  onSubmit: () => void;
+}
+
+export interface ProjectMembersFormProps {
+  users: User[];
+  selectedUsers: number[];
+  memberError: string;
+  onUserSelect: (userId: number) => void;
+  onBack: () => void;
+  onSubmit: () => void;
+}
+
+export interface ProjectFormData {
+  name: string;
+  description: string | null;
+  start_date: string;
+  due_date: string;
+  status_id: number;
+  parent_id: number | null;
 }

@@ -1,37 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  Box,
-  TextField,
-  Button,
-  Paper,
-  Typography,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent
-} from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
+import { Paper } from '@mui/material';
 import {
   createProject,
   addProjectMember,
-  getProjects
+  getProjects,
 } from '../../api/projects';
 import { getUsers } from '../../api/users';
 import { ProjectFormProps, Project } from '../../types/project';
-import ProjectMemberSelect from './ProjectMemberSelect';
 import { User } from '../../types/user';
+import { useProjectForm } from '../../hooks/project/useProjectForm';
+import ProjectDetailsForm from './ProjectDetailsForm';
+import ProjectMembersForm from './ProjectMembersForm';
 
 const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const parentId = searchParams.get('parentId');
+
   const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
-  const [dateError, setDateError] = useState<string>('');
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [step, setStep] = useState<'details' | 'members'>('details');
+  const [memberError, setMemberError] = useState<string>('');
+
+  const {
+    formData,
+    errors,
+    dateError,
+    handleChange,
+    handleStatusChange,
+    handleDateChange,
+    handleParentChange,
+    validateForm
+  } = useProjectForm(project, parentId);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -45,21 +48,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     fetchProjects();
   }, []);
 
-  const [formData, setFormData] = useState<Partial<Project>>({
-    name: project?.name || '',
-    description: project?.description || '',
-    start_date: project?.start_date || new Date().toISOString(),
-    due_date: project?.due_date || undefined,
-    status_id: project?.status_id || 1,
-    parent_id: project?.parent_id || (parentId ? parseInt(parentId) : null)
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [memberError, setMemberError] = useState<string>('');
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [step, setStep] = useState<'details' | 'members'>('details');
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -72,91 +60,22 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     fetchUsers();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when field is modified
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const handleStatusChange = (event: SelectChangeEvent<number>) => {
-    setFormData(prev => ({
-      ...prev,
-      status_id: event.target.value as number
-    }));
-  };
-
-  const handleDateChange = (field: 'start_date' | 'due_date', newValue: dayjs.Dayjs | null) => {
-    if (!newValue) {
-      setFormData(prev => ({
-        ...prev,
-        [field]: ''
-      }));
-      return;
-    }
-
-    const value = newValue.format('YYYY-MM-DD');
-    const startDate = field === 'start_date' ? new Date(value) : new Date(formData.start_date || '');
-    const dueDate = field === 'due_date' ? new Date(value) : new Date(formData.due_date || '');
-
-    if (field === 'due_date' && startDate > dueDate) {
-      setDateError('Due date must be after start date');
-      setTimeout(() => setDateError(''), 3000); // Message disappears after 3 seconds
-      return;
-    }
-    
-    setDateError('');
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name?.trim()) {
-      newErrors.name = 'Project name is required';
-    }
-
-    if (!formData.start_date) {
-      newErrors.start_date = 'Start date is required';
-    }
-
-    if (!formData.due_date) {
-      newErrors.due_date = 'Due date is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleUserSelect = (userId: number) => {
     setSelectedUsers(prev => 
       prev.includes(userId) 
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
+    setMemberError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (step === 'details') {
-      if (validateForm()) {
-        setStep('members');
-      }
-      return;
+  const handleDetailsSubmit = () => {
+    if (validateForm()) {
+      setStep('members');
     }
+  };
 
-    // Validate that at least one member is selected
+  const handleMembersSubmit = async () => {
     if (selectedUsers.length === 0) {
       setMemberError('Please select at least one project member');
       return;
@@ -167,7 +86,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       const projectData = { ...formData };
       const response = await createProject(projectData);
       
-      // Add selected members to the project
       await Promise.all(
         selectedUsers.map(userId => addProjectMember(response.id, userId))
       );
@@ -191,157 +109,30 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
 
   return (
     <Paper sx={{ p: 3 }}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => e.preventDefault()}>
         {step === 'details' ? (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Project Details
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Project Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  error={!!errors.name}
-                  helperText={errors.name}
-                  required
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  name="description"
-                  multiline
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <DatePicker
-                  label="Start Date"
-                  value={formData.start_date ? dayjs(formData.start_date) : null}
-                  onChange={(newValue) => handleDateChange('start_date', newValue)}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      required: true
-                    }
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <DatePicker
-                  label="Due Date"
-                  value={formData.due_date ? dayjs(formData.due_date) : null}
-                  onChange={(newValue) => handleDateChange('due_date', newValue)}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      required: true
-                    }
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={formData.status_id}
-                    label="Status"
-                    onChange={handleStatusChange}
-                  >
-                    <MenuItem value={1}>Active</MenuItem>
-                    <MenuItem value={2}>On Hold</MenuItem>
-                    <MenuItem value={3}>Completed</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Parent Project</InputLabel>
-                  <Select
-                    value={formData.parent_id || ''}
-                    onChange={(e) => {
-                      const value = e.target.value ? Number(e.target.value) : null;
-                      setFormData(prev => ({
-                        ...prev,
-                        parent_id: value
-                      }));
-                    }}
-                    label="Parent Project"
-                    disabled={!!parentId}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    {availableProjects.map(p => (
-                      <MenuItem key={p.id} value={p.id}>
-                        {p.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              {dateError && (
-                <Grid item xs={12}>
-                  <Typography 
-                    color="error" 
-                    sx={{ 
-                      mt: 1,
-                      position: 'relative',
-                      animation: 'fadeIn 0.3s ease-in'
-                    }}
-                  >
-                    {dateError}
-                  </Typography>
-                </Grid>
-              )}
-
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                <Button onClick={handleCancel} color="inherit">
-                  Cancel
-                </Button>
-                <Button type="submit" variant="contained" color="primary">
-                  Next
-                </Button>
-              </Box>
-            </Grid>
-          </>
+          <ProjectDetailsForm
+            formData={formData}
+            errors={errors}
+            dateError={dateError}
+            availableProjects={availableProjects}
+            parentId={parentId}
+            handleChange={handleChange}
+            handleStatusChange={handleStatusChange}
+            handleDateChange={handleDateChange}
+            handleParentChange={handleParentChange}
+            handleCancel={handleCancel}
+            onSubmit={handleDetailsSubmit}
+          />
         ) : (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Project Members
-            </Typography>
-            <ProjectMemberSelect
-              users={users}
-              selectedUsers={selectedUsers}
-              onUserSelect={handleUserSelect}
-            />
-            {memberError && (
-              <Typography color="error" sx={{ mt: 1 }}>
-                {memberError}
-              </Typography>
-            )}
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button onClick={() => setStep('details')} color="inherit">
-                Back
-              </Button>
-              <Button type="submit" variant="contained" color="primary">
-                Create Project
-              </Button>
-            </Box>
-          </>
+          <ProjectMembersForm
+            users={users}
+            selectedUsers={selectedUsers}
+            memberError={memberError}
+            onUserSelect={handleUserSelect}
+            onBack={() => setStep('details')}
+            onSubmit={handleMembersSubmit}
+          />
         )}
       </form>
     </Paper>

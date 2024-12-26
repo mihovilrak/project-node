@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Grid,
   Typography,
@@ -7,35 +7,14 @@ import {
   ListItem,
   Link
 } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ProjectOverviewProps, Project } from '../../../types/project';
+import { ProjectOverviewProps } from '../../../types/project';
 import PermissionButton from '../../common/PermissionButton';
-import { getSubprojects } from '../../../api/projects';
+import { useProjectOverview } from '../../../hooks/project/useProjectOverview';
 
 const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetails }) => {
-  const navigate = useNavigate();
-  const [subprojects, setSubprojects] = useState<Project[]>([]);
-
-  useEffect(() => {
-    const fetchSubprojects = async () => {
-      if (project?.id) {
-        try {
-          const data = await getSubprojects(project.id);
-          setSubprojects(data);
-        } catch (error) {
-          console.error('Failed to fetch subprojects:', error);
-        }
-      }
-    };
-    fetchSubprojects();
-  }, [project?.id]);
-
-  const handleAddSubproject = () => {
-    if (project?.id) {
-      navigate(`/projects/new?parentId=${project.id}`);
-    }
-  };
+  const { subprojects, handleAddSubproject } = useProjectOverview(project?.id);
 
   if (!project || !projectDetails) {
     return <Typography>Loading project details...</Typography>;

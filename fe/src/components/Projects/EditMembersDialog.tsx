@@ -7,9 +7,9 @@ import {
   Button,
   List,
   ListItem,
-  ListItemText,
+  FormControlLabel,
   Checkbox,
-  Box
+  Alert
 } from '@mui/material';
 import { User } from '../../types/user';
 import { EditMembersDialogProps } from '../../types/project';
@@ -25,6 +25,7 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   const [selectedUsers, setSelectedUsers] = useState<number[]>(
     currentMembers.map(m => m.user_id)
   );
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -33,13 +34,15 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
         setUsers(fetchedUsers);
       } catch (error) {
         console.error('Failed to fetch users:', error);
+        setError('Failed to load users');
       }
     };
-    if (open) {
-      fetchUsers();
-      setSelectedUsers(currentMembers.map(m => m.user_id));
-    }
-  }, [open, currentMembers]);
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    setSelectedUsers(currentMembers.map(m => m.user_id));
+  }, [currentMembers]);
 
   const handleToggleUser = (userId: number) => {
     setSelectedUsers(prev =>
@@ -49,30 +52,40 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
     );
   };
 
-  const handleSave = () => {
-    onSave(selectedUsers);
-    onClose();
+  const handleSave = async () => {
+    try {
+      onSave(selectedUsers);
+      onClose();
+    } catch (error) {
+      console.error('Failed to save members:', error);
+      setError('Failed to save changes');
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Manage Project Members</DialogTitle>
+      <DialogTitle>Edit Project Members</DialogTitle>
       <DialogContent>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <List>
           {users.map(user => (
-            <ListItem key={user.id} button onClick={() => handleToggleUser(user.id)}>
-              <Checkbox
-                checked={selectedUsers.includes(user.id)}
-                onChange={() => handleToggleUser(user.id)}
+            <ListItem key={user.id}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedUsers.includes(user.id)}
+                    onChange={() => handleToggleUser(user.id)}
+                  />
+                }
+                label={`${user.name} ${user.surname}`}
               />
-              <ListItemText primary={user.name} />
             </ListItem>
           ))}
         </List>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} color="primary" variant="contained">
+        <Button onClick={handleSave} color="primary">
           Save Changes
         </Button>
       </DialogActions>

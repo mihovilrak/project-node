@@ -14,7 +14,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
-import { RolesTableProps } from '../../types/settings';
+import { RolesTableProps } from '../../types/role';
 
 const RolesTable: React.FC<RolesTableProps> = ({ 
   roles, 
@@ -47,9 +47,9 @@ const RolesTable: React.FC<RolesTableProps> = ({
               <TableCell>{role.name}</TableCell>
               <TableCell>{role.description}</TableCell>
               <TableCell>
-                <Tooltip title={role.permissions.map(p => p.name).join(', ')}>
+                <Tooltip title={(role.permissions || []).map(p => p.name).join(', ')}>
                   <Chip
-                    label={`${role.permissions.length} permissions`}
+                    label={`${role.permissions?.length || 0} permissions`}
                     size="small"
                     variant="outlined"
                   />

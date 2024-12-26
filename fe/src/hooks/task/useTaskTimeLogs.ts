@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
-import { getTaskTimeLogs } from '../../api/timeLogs';
+import { getTaskTimeLogs, deleteTimeLog as deleteTimeLogApi } from '../../api/timeLogs';
 
 export const useTaskTimeLogs = (taskId: string) => {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
@@ -39,10 +39,21 @@ export const useTaskTimeLogs = (taskId: string) => {
     }
   };
 
+  const deleteTimeLog = async (timeLogId: number): Promise<void> => {
+    try {
+      await deleteTimeLogApi(timeLogId);
+      setTimeLogs(prev => prev.filter(log => log.id !== timeLogId));
+    } catch (error) {
+      console.error('Failed to delete time log:', error);
+      throw error;
+    }
+  };
+
   return {
     timeLogs,
     setTimeLogs,
     handleTimeLogSubmit,
+    deleteTimeLog,
     fetchTimeLogs
   };
 };

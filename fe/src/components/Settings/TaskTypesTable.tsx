@@ -13,7 +13,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
-import { TaskType, TaskTypesTableProps } from '../../types/settings';
+import { TaskType, TaskTypesTableProps } from '../../types/setting';
 
 const TaskTypesTable: React.FC<TaskTypesTableProps> = ({ 
   taskTypes: propTaskTypes,

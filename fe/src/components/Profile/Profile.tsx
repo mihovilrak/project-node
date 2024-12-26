@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Container,
   Paper,
@@ -10,15 +10,13 @@ import {
 } from '@mui/material';
 import { Edit, Lock } from '@mui/icons-material';
 import { useProfileData } from '../../hooks/profile/useProfileData';
+import { ProfileData } from '../../types/profile';
 import ProfileHeader from './ProfileHeader';
 import ProfileStats from './ProfileStats';
 import ProfileTaskList from './ProfileTaskList';
 import ProfileEditDialog from './ProfileEditDialog';
 import PasswordChangeDialog from './PasswordChangeDialog';
 import ProfileProjectList from './ProfileProjectList';
-import { updateProfile } from '../../api/profile';
-import type { ProfileData, ProfileUpdateData } from '../../types/profile';
-import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
   const { 
@@ -27,30 +25,17 @@ const Profile: React.FC = () => {
     recentProjects, 
     loading, 
     error,
-    refreshData 
+    editDialogOpen,
+    passwordDialogOpen,
+    updateSuccess,
+    setEditDialogOpen,
+    setPasswordDialogOpen,
+    setUpdateSuccess,
+    handleProfileUpdate,
+    handleTaskClick,
+    getTypedProfile,
+    getProfileStats
   } = useProfileData();
-  
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
-
-  const navigate = useNavigate();
-
-  const handleProfileUpdate = async (updatedProfile: ProfileUpdateData) => {
-    try {
-      await updateProfile(updatedProfile);
-      await refreshData();
-      setEditDialogOpen(false);
-      setUpdateSuccess(true);
-      setTimeout(() => setUpdateSuccess(false), 3000);
-    } catch (err) {
-      console.error('Failed to update profile:', err);
-    }
-  };
-
-  const handleTaskClick = (taskId: number) => {
-    navigate(`/tasks/${taskId}`);
-  };
 
   if (loading) {
     return (
@@ -72,15 +57,8 @@ const Profile: React.FC = () => {
     return null;
   }
 
-  // Type assertion here to tell TypeScript what profile looks like
-  const typedProfile = profile as ProfileData;
-
-  const stats = {
-    totalTasks: typedProfile.total_tasks ?? 0,
-    completedTasks: typedProfile.completed_tasks ?? 0,
-    activeProjects: typedProfile.active_projects ?? 0,
-    totalHours: typedProfile.total_hours ?? 0
-  };
+  const typedProfile = getTypedProfile();
+  const stats = getProfileStats();
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -141,7 +119,7 @@ const Profile: React.FC = () => {
       <ProfileEditDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        profile={profile as ProfileData}
+        profile={typedProfile as ProfileData}
         onProfileUpdate={handleProfileUpdate}
       />
 

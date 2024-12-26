@@ -11,7 +11,7 @@ import {
   Button,
   Alert
 } from '@mui/material';
-import { updateProfile } from '../../api/profile';
+import { updateProfile } from '../../api/profiles';
 import {
   ProfileEditDialogProps,
   FormData

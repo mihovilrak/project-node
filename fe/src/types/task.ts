@@ -1,6 +1,9 @@
 import { SelectChangeEvent } from '@mui/material';
 import { User } from './user';
 import { Tag } from './tag';
+import { TimeLog, TimeLogCreate } from './timeLog';
+import { Comment } from './comment';
+import { TaskFile } from './file';
 
 export interface Task {
   id: number;
@@ -100,10 +103,10 @@ export interface TaskListProps {
 
 export interface TaskFormProps {
   taskId?: string;
-  projectId?: number;
-  open?: boolean;
-  onClose?: () => void;
-  onCreated?: () => void;
+  projectId: number;
+  open: boolean;
+  onClose: () => void;
+  onCreated: (task: Task) => Promise<void>;
 }
 
 export interface TaskTypeSelectProps {
@@ -145,8 +148,64 @@ export interface TaskHeaderProps {
   task: Task | null;
   statuses: TaskStatus[];
   canEdit: boolean;
+  canDelete: boolean;
   statusMenuAnchor: HTMLElement | null;
   onStatusMenuClick: (event: React.MouseEvent<HTMLElement>) => void;
   onStatusMenuClose: () => void;
   onStatusChange: (statusId: number) => void;
+  onDelete: () => void;
+}
+
+export interface TaskDetailsHeaderProps extends TaskHeaderProps {
+  task: Task;
+  statuses: TaskStatus[];
+  statusMenuAnchor: HTMLElement | null;
+  onStatusMenuClick: (event: React.MouseEvent<HTMLElement>) => void;
+  onStatusMenuClose: () => void;
+  onStatusChange: (statusId: number) => void;
+  onDelete: () => void;
+}
+
+export interface TaskDetailsContentProps {
+  id: string;
+  task: Task;
+  subtasks: Task[];
+  timeLogs: TimeLog[];
+  comments: Comment[];
+  timeLogDialogOpen: boolean;
+  selectedTimeLog: TimeLog | null;
+  editingComment: Comment | null;
+  onSubtaskDeleted: (subtaskId: number) => void;
+  onSubtaskUpdated: (subtaskId: number, updatedSubtask: Task) => void;
+  onTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
+  onTimeLogDelete: (timeLogId: number) => Promise<void>;
+  onTimeLogEdit: (timeLog: TimeLog) => void;
+  onTimeLogDialogClose: () => void;
+  onCommentSubmit: (content: string) => Promise<void>;
+  onCommentUpdate: (commentId: number, newText: string) => Promise<void>;
+  onCommentDelete: (commentId: number) => Promise<void>;
+  onEditStart: (comment: Comment | null) => void;
+  onEditEnd: () => void;
+}
+
+export interface TaskDetailsSidebarProps {
+  id: string;
+  projectId: number;
+  files: TaskFile[];
+  watchers: any[];
+  watcherDialogOpen: boolean;
+  onFileUploaded: (file: TaskFile) => void;
+  onFileDeleted: (fileId: number) => Promise<void>;
+  onAddWatcher: (userId: number) => void;
+  onRemoveWatcher: (userId: number) => void;
+  onWatcherDialogClose: () => void;
+  onManageWatchers: () => void;
+}
+
+export interface TaskDetailsState {
+  statusMenuAnchor: HTMLElement | null;
+  editingComment: Comment | null;
+  timeLogDialogOpen: boolean;
+  selectedTimeLog: TimeLog | null;
+  watcherDialogOpen: boolean;
 }

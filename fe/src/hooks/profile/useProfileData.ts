@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import {
   getProfile,
   getRecentTasks,
-  getRecentProjects
-} from '../../api/profile';
+  getRecentProjects,
+  updateProfile
+} from '../../api/profiles';
 import { User } from '../../types/user';
 import { Task } from '../../types/task';
 import { Project } from '../../types/project';
-import { ProfileStats } from '../../types/profile';
+import { ProfileStats, ProfileUpdateData, ProfileData } from '../../types/profile';
+import { useNavigate } from 'react-router-dom';
 
-// Create a concrete implementation
 const DEFAULT_STATS: ProfileStats = {
   totalTasks: 0,
   completedTasks: 0,
@@ -24,6 +25,11 @@ export const useProfileData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<ProfileStats>(DEFAULT_STATS);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -31,7 +37,6 @@ export const useProfileData = () => {
       const profileData = await getProfile();
       setProfile(profileData);
       
-      // Update stats whenever profile changes
       setStats({
         totalTasks: profileData?.total_tasks ?? 0,
         completedTasks: profileData?.completed_tasks ?? 0,
@@ -55,6 +60,38 @@ export const useProfileData = () => {
     }
   };
 
+  const handleProfileUpdate = async (updatedProfile: ProfileUpdateData) => {
+    try {
+      await updateProfile(updatedProfile);
+      await fetchData();
+      setEditDialogOpen(false);
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
+  };
+
+  const handleTaskClick = (taskId: number) => {
+    navigate(`/tasks/${taskId}`);
+  };
+
+  const getTypedProfile = (): ProfileData | null => {
+    return profile as ProfileData;
+  };
+
+  const getProfileStats = () => {
+    const typedProfile = getTypedProfile();
+    if (!typedProfile) return DEFAULT_STATS;
+
+    return {
+      totalTasks: typedProfile.total_tasks ?? 0,
+      completedTasks: typedProfile.completed_tasks ?? 0,
+      activeProjects: typedProfile.active_projects ?? 0,
+      totalHours: typedProfile.total_hours ?? 0
+    };
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -66,6 +103,16 @@ export const useProfileData = () => {
     recentProjects,
     loading,
     error,
+    editDialogOpen,
+    passwordDialogOpen,
+    updateSuccess,
+    setEditDialogOpen,
+    setPasswordDialogOpen,
+    setUpdateSuccess,
+    handleProfileUpdate,
+    handleTaskClick,
+    getTypedProfile,
+    getProfileStats,
     refreshData: fetchData
   } as const;
 };

@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useTheme } from '@mui/material/styles';
+import React from 'react';
 import {
   Box,
-  Typography,
   Paper,
   CircularProgress,
   Alert
@@ -28,38 +26,22 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { updateTaskDates } from '../../api/tasks';
 import { ProjectGanttProps } from '../../types/project';
-import {
-  FormattedTask,
-  AppointmentComponentProps,
-  AppointmentContentComponentProps,
-  TooltipContentComponentProps
- } from '../../types/project';
+import { useProjectGantt } from '../../hooks/project/useProjectGantt';
 
 const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTasks }) => {
-  const [tasks, setTasks] = useState<FormattedTask[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentViewName, setCurrentViewName] = useState('Month');
-  const theme = useTheme();
-
-  useEffect(() => {
-    if (initialTasks) {
-      const formattedTasks: FormattedTask[] = initialTasks.map(task => ({
-        id: task.id,
-        title: task.name,
-        startDate: new Date(task.start_date),
-        endDate: new Date(task.due_date),
-        assigneeId: task.assignee_id,
-        type_name: task.type_name,
-        priority: task.priority_name,
-        status: task.status_name,
-        description: task.description,
-      }));
-      setTasks(formattedTasks);
-      setLoading(false);
-    }
-  }, [initialTasks]);
+  const {
+    tasks,
+    loading,
+    error,
+    currentDate,
+    currentViewName,
+    setCurrentDate,
+    setCurrentViewName,
+    setError,
+    renderAppointment,
+    renderAppointmentContent,
+    renderTooltipContent
+  } = useProjectGantt(initialTasks);
 
   const handleTaskUpdated = async (changes: ChangeSet) => {
     try {
@@ -79,118 +61,6 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
       setError('Failed to update task dates');
     }
   };
-
-  const Appointment = React.memo<AppointmentComponentProps>(({
-    children,
-    style,
-    data,
-    draggable,
-    resources,
-    ...restProps
-  }) => {
-    const status = data.status?.toLowerCase() || 'unknown';
-    const priority = data.priority?.toLowerCase() || 'normal';
-    
-    const getStatusColor = () => {
-      const colors: Record<string, string> = {
-        'new': theme.palette.grey[500],
-        'in progress': theme.palette.primary.main,
-        'done': theme.palette.success.main,
-        'cancelled': theme.palette.error.main,
-        'deleted': theme.palette.error.dark,
-        'unknown': theme.palette.grey[300]
-      };
-      return colors[status] || colors['unknown'];
-    };
-
-    const getPriorityColor = () => {
-      const colors: Record<string, string> = {
-        'very high/must': theme.palette.error.main,
-        'high/should': theme.palette.warning.main,
-        'normal/could': theme.palette.info.main,
-        'low/would': theme.palette.success.light,
-        'normal': theme.palette.grey[400]
-      };
-      return colors[priority] || colors['normal'];
-    };
-
-    return (
-      <Appointments.Appointment
-        {...restProps}
-        data={data}
-        draggable={draggable}
-        resources={resources}
-        style={{
-          ...style,
-          backgroundColor: getStatusColor(),
-          borderLeft: `4px solid ${getPriorityColor()}`,
-        }}
-      >
-        {children}
-      </Appointments.Appointment>
-    );
-  });
-
-  const AppointmentContent = React.memo<AppointmentContentComponentProps>(({
-    children,
-    style,
-    data,
-    formatDate,
-    type,
-    durationType,
-    recurringIconComponent,
-    resources,
-    ...restProps
-  }) => (
-    <Appointments.AppointmentContent
-      {...restProps}
-      style={style}
-      data={data}
-      formatDate={formatDate}
-      type={type}
-      durationType={durationType}
-      recurringIconComponent={recurringIconComponent}
-      resources={resources}
-    >
-      <Box sx={{ height: '100%', p: 0.5 }}>
-        <Typography variant="subtitle2" noWrap>
-          {data.title}
-        </Typography>
-        <Typography variant="caption" color="textSecondary" noWrap>
-          {data.type_name}
-        </Typography>
-      </Box>
-    </Appointments.AppointmentContent>
-  ));
-
-  const TooltipContent = React.memo<TooltipContentComponentProps>(({
-    children,
-    appointmentData,
-    ...restProps
-  }) => (
-    <AppointmentTooltip.Content
-      {...restProps}
-      appointmentData={appointmentData}
-    >
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          {appointmentData.title}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" paragraph>
-          {appointmentData.description}
-        </Typography>
-        <Typography variant="body2">
-          Status: {appointmentData.status}
-        </Typography>
-        <Typography variant="body2">
-          Priority: {appointmentData.priority}
-        </Typography>
-        <Typography variant="body2">
-          Type: {appointmentData.type_name}
-        </Typography>
-      </Box>
-    </AppointmentTooltip.Content>
-  ));
 
   if (loading) {
     return (
@@ -238,11 +108,11 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
         <TodayButton />
         <ViewSwitcher />
         <Appointments
-          appointmentComponent={Appointment as any}
-          appointmentContentComponent={AppointmentContent as any}
+          appointmentComponent={props => React.createElement(Appointments.Appointment, renderAppointment(props))}
+          appointmentContentComponent={props => React.createElement(Appointments.AppointmentContent, renderAppointmentContent(props))}
         />
         <AppointmentTooltip
-          contentComponent={TooltipContent as any}
+          contentComponent={props => React.createElement(AppointmentTooltip.Content, renderTooltipContent(props))}
           showCloseButton
         />
         <DragDropProvider />

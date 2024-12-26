@@ -12,7 +12,7 @@ import {
   Alert
 } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
-import { TaskTypeDialogProps } from '../../types/settings';
+import { TaskTypeDialogProps } from '../../types/setting';
 
 const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose, onSave }) => {
   const [formData, setFormData] = useState({

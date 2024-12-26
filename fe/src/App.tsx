@@ -20,14 +20,14 @@ import ProjectForm from './components/Projects/ProjectForm';
 import Tasks from './components/Tasks/Tasks';
 import TaskDetails from './components/Tasks/TaskDetails';
 import TaskForm from './components/Tasks/TaskForm';
-import ActiveTasks from './components/Tasks/ActiveTasks';
+import ActiveTasks from './components/Home/ActiveTasks';
 import Settings from './components/Settings/Settings';
 import Profile from './components/Profile/Profile';
 import Calendar from './components/Calendar/Calendar';
 import TaskFiles from './components/Tasks/TaskFiles';
 import TaskTimeLogs from './components/Tasks/TaskTimeLogs';
 import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
-import { TaskFile } from './types/files';
+import { TaskFile } from './types/file';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Task } from './types/task';
@@ -113,16 +113,24 @@ const App: React.FC = () => {
                   path="/tasks/new" 
                   element={<PrivateRoute element={
                     <TaskForm 
+                      projectId={0}
                       open={taskFormOpen}
                       onClose={() => setTaskFormOpen(false)}
-                      onCreated={() => {
+                      onCreated={async (task: Task) => {
                         setTaskFormOpen(false);
                       }}
                     />
                   } />}
                 />
                 <Route path="/tasks/:id" element={<TaskDetails />} />
-                <Route path="/tasks/:id/edit" element={<TaskForm />} />
+                <Route path="/tasks/:id/edit" element={<PrivateRoute element={
+                  <TaskForm 
+                    projectId={0}
+                    open={true}
+                    onClose={() => {}}
+                    onCreated={async () => {}}
+                  />
+                } />} />
                 <Route path="/tasks/active" element={<ActiveTasks />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
