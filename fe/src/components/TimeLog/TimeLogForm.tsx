@@ -8,71 +8,119 @@ import {
   MenuItem,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import {
-  ExtendedTimeLogFormProps,
-  ActivityType,
-} from '../../types/timeLog';
-import dayjs, { Dayjs } from 'dayjs';
+import { TimeLogFormProps } from '../../types/timeLog';
 
-const TimeLogForm: React.FC<ExtendedTimeLogFormProps> = ({
-  taskId,
-  onClose,
-  onSubmit,
-  activityTypes
+const TimeLogForm: React.FC<TimeLogFormProps> = ({
+  selectedProjectId,
+  selectedTaskId,
+  selectedUserId,
+  selectedActivityTypeId,
+  spentTime,
+  description,
+  logDate,
+  timeError,
+  projects,
+  tasks,
+  users,
+  activityTypes,
+  showUserSelect,
+  onProjectChange,
+  onTaskChange,
+  onUserChange,
+  onActivityTypeChange,
+  onSpentTimeChange,
+  onDescriptionChange,
+  onDateChange,
 }) => {
-  const [spentTime, setSpentTime] = React.useState<number>(0);
-  const [description, setDescription] = React.useState<string>('');
-  const [activityTypeId, setActivityTypeId] = React.useState<number>(0);
-  const [logDate, setLogDate] = React.useState<Dayjs>(dayjs());
-
-  const handleSubmit = async () => {
-    await onSubmit({
-      task_id: taskId || 0,
-      spent_time: spentTime,
-      description,
-      activity_type_id: activityTypeId,
-      log_date: logDate.format('YYYY-MM-DD')
-    });
-    onClose();
-  };
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
       <DatePicker
         label="Log Date"
         value={logDate}
-        onChange={(newValue: Dayjs | null) => setLogDate(newValue || dayjs())}
-        slotProps={{ textField: { fullWidth: true } }}
+        onChange={onDateChange}
+        slotProps={{ 
+          textField: { 
+            fullWidth: true,
+            required: true
+          } 
+        }}
       />
+
+      {showUserSelect && (
+        <FormControl fullWidth>
+          <InputLabel>User</InputLabel>
+          <Select
+            value={selectedUserId}
+            onChange={(e) => onUserChange(e.target.value as number)}
+          >
+            {users.map(user => (
+              <MenuItem key={user.id} value={user.id}>
+                {user.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      <FormControl fullWidth>
+        <InputLabel>Project</InputLabel>
+        <Select
+          value={selectedProjectId || ''}
+          onChange={(e) => onProjectChange(e.target.value as number || null)}
+        >
+          {projects.map(project => (
+            <MenuItem key={project.id} value={project.id}>
+              {project.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth>
+        <InputLabel>Task</InputLabel>
+        <Select
+          value={selectedTaskId || ''}
+          onChange={(e) => onTaskChange(e.target.value as number || null, tasks)}
+        >
+          {tasks.map(task => (
+            <MenuItem key={task.id} value={task.id}>
+              {task.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <TextField
-        label="Time Spent (minutes)"
-        type="number"
+        label="Time Spent"
         value={spentTime}
-        onChange={(e) => setSpentTime(parseInt(e.target.value) || 0)}
+        onChange={(e) => onSpentTimeChange(e.target.value)}
         fullWidth
         required
+        error={!!timeError}
+        helperText={timeError || 'Enter time as HH:MM or decimal hours (e.g., 1:30 or 1.5)'}
+        sx={{ mt: 2 }}
       />
-      <FormControl fullWidth required>
+
+      <FormControl fullWidth>
         <InputLabel>Activity Type</InputLabel>
         <Select
-          value={activityTypeId}
-          onChange={(e) => setActivityTypeId(e.target.value as number)}
-          label="Activity Type"
+          value={selectedActivityTypeId}
+          onChange={(e) => onActivityTypeChange(e.target.value as number)}
         >
-          {activityTypes.map((type: ActivityType) => (
+          {activityTypes.map(type => (
             <MenuItem key={type.id} value={type.id}>
               {type.name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
+
       <TextField
         label="Description"
         multiline
         rows={4}
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        fullWidth
+        onChange={(e) => onDescriptionChange(e.target.value)}
       />
     </Box>
   );

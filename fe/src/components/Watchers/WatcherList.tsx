@@ -11,7 +11,7 @@ import {
   Box
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
-import { WatcherListProps } from '../../types/watchers';
+import { WatcherListProps } from '../../types/watcher';
 import PermissionButton from '../common/PermissionButton';
 
 const WatcherList: React.FC<WatcherListProps> = ({

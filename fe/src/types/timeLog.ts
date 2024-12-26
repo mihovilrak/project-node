@@ -1,3 +1,8 @@
+import { Dayjs } from 'dayjs';
+import { Project } from './project';
+import { Task } from './task';
+import { User } from './user';
+
 export interface TimeLog {
   id: number;
   task_id: number;
@@ -43,10 +48,26 @@ export interface TimeSpent {
 }
 
 export interface TimeLogFormProps {
-  projectId?: number;
-  taskId?: number;
-  onClose: () => void;
-  onSubmit: (timeLog: TimeLogCreate) => Promise<void>;
+  selectedProjectId: number | null;
+  selectedTaskId: number | null;
+  selectedUserId: number;
+  selectedActivityTypeId: number;
+  spentTime: string;
+  description: string;
+  logDate: Dayjs;
+  timeError: string;
+  projects: Project[];
+  tasks: Task[];
+  users: User[];
+  activityTypes: ActivityType[];
+  showUserSelect: boolean;
+  onProjectChange: (projectId: number | null) => void;
+  onTaskChange: (taskId: number | null, tasks: Task[]) => void;
+  onUserChange: (userId: number) => void;
+  onActivityTypeChange: (typeId: number) => void;
+  onSpentTimeChange: (time: string) => void;
+  onDescriptionChange: (desc: string) => void;
+  onDateChange: (date: Dayjs | null) => void;
 }
 
 export interface TimeLogDialogProps {

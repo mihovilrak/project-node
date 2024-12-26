@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
-  useParams,
   Outlet
 } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -27,69 +26,50 @@ import Calendar from './components/Calendar/Calendar';
 import TaskFiles from './components/Tasks/TaskFiles';
 import TaskTimeLogs from './components/Tasks/TaskTimeLogs';
 import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
-import { TaskFile } from './types/file';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Task } from './types/task';
-import { getTaskById } from './api/tasks';
 import { ThemeProvider } from './context/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
+import { 
+  useTaskFileWrapper, 
+  useTimeLogCalendarWrapper, 
+  useTaskTimeLogsWrapper,
+  useAppState 
+} from './hooks/app/useAppRoutes';
 
-// Wrapper component for TaskFiles with proper types
 const TaskFileWrapper: React.FC = () => {
-  const handleFileUploaded = (file: TaskFile) => {
-    // Handle file upload success
-    console.log('File uploaded:', file);
-  };
-
-  const handleFileDeleted = (fileId: number) => {
-    // Handle file deletion
-    console.log('File deleted:', fileId);
-  };
-
+  const { taskId, handleFileUploaded, handleFileDeleted } = useTaskFileWrapper();
+  
   return (
     <TaskFiles
-      taskId={parseInt(window.location.pathname.split('/')[2])}
+      taskId={taskId}
       onFileUploaded={handleFileUploaded}
       onFileDeleted={handleFileDeleted}
     />
   );
 };
 
-// Wrapper component for TimeLogCalendar with proper types
 const TimeLogCalendarWrapper: React.FC = () => {
-  const projectId = parseInt(window.location.pathname.split('/')[2]);
+  const { projectId } = useTimeLogCalendarWrapper();
   return <TimeLogCalendar projectId={projectId} />;
 };
 
-// Update the TaskTimeLogsWrapper component
 const TaskTimeLogsWrapper: React.FC = () => {
-  const [task, setTask] = useState<Task | null>(null);
-  const { id } = useParams<{ id: string }>();
-
-  useEffect(() => {
-    const fetchTask = async () => {
-      if (id) {
-        try {
-          const taskData = await getTaskById(parseInt(id));
-          setTask(taskData);
-        } catch (error) {
-          console.error('Failed to fetch task:', error);
-        }
-      }
-    };
-    fetchTask();
-  }, [id]);
+  const { task } = useTaskTimeLogsWrapper();
 
   if (!task) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return <TaskTimeLogs task={task} />;
 };
 
 const App: React.FC = () => {
-  const [taskFormOpen, setTaskFormOpen] = useState(false);
+  const { 
+    taskFormOpen, 
+    handleTaskCreated, 
+    handleTaskFormClose 
+  } = useAppState();
 
   return (
     <ThemeProvider>
@@ -115,10 +95,8 @@ const App: React.FC = () => {
                     <TaskForm 
                       projectId={0}
                       open={taskFormOpen}
-                      onClose={() => setTaskFormOpen(false)}
-                      onCreated={async (task: Task) => {
-                        setTaskFormOpen(false);
-                      }}
+                      onClose={handleTaskFormClose}
+                      onCreated={handleTaskCreated}
                     />
                   } />}
                 />
