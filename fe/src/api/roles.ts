@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Role } from '../types/admin';
+import { Role } from '../types/role';
 
 // Get roles with permissions
 export const getRoles = async (): Promise<Role[]> => {

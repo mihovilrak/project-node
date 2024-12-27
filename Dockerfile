@@ -34,21 +34,23 @@ FROM node:23-alpine3.19 AS backend-builder
 WORKDIR /app/api
 
 # Copy package and lock files
-COPY api/package*.json api/yarn.lock ./
+COPY api/package*.json api/yarn.lock api/tsconfig.json ./
 
 # Install dependencies
 RUN mkdir node_modules && \
     yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
-    --production=true --link-duplicates --ignore-optional && \
-    npm install -g @vercel/ncc && \
+    --production=false && \
+    yarn add -D typescript @types/node && \
     yarn cache clean --all
 
 # Copy source code
 COPY api/src/ ./src/
 
 # Build the API
-RUN ncc build src/app.js -o dist --no-cache -q
+RUN yarn run tsc && \
+    npm install -g @vercel/ncc && \
+    ncc build dist/app.js -o dist --no-cache -q
 
 # Build notification service
 FROM node:23-alpine3.19 AS notification-builder

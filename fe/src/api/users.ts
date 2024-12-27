@@ -1,6 +1,6 @@
 import { api } from './api';
 import { User, UserCreate, UserUpdate } from '../types/user';
-import { Role } from '../types/admin';
+import { Role } from '../types/role';
 
 // Get all users
 export const getUsers = async (): Promise<User[]> => {

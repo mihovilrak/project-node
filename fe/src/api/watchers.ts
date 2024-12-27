@@ -1,5 +1,5 @@
 import { api } from './api';
-import { TaskWatcher } from '../types/watchers';
+import { TaskWatcher } from '../types/watcher';
 
 // Get task watchers
 export const getTaskWatchers = async (taskId: number): Promise<TaskWatcher[]> => {

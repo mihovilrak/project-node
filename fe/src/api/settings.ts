@@ -1,5 +1,5 @@
 import { api } from './api';
-import { UserSettings, AppSettings } from '../types/settings';
+import { UserSettings, AppSettings } from '../types/setting';
 
 // Get User Settings
 export const getUserSettings = async (): Promise<UserSettings> => {
