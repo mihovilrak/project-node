@@ -4,13 +4,4 @@ instructions.md
 db/backup/
 .obsolete
 
-fe/**/*.js
-fe/**/*.bak
-
-fe/src/api/*.js
-fe/src/api/*.bak
-
-import.py
-
-.cursorignore
-.cursorrules
+api/**/*.js
