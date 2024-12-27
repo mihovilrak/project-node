@@ -2,7 +2,10 @@ import { Pool } from 'pg';
 import { Permission, UserPermission } from '../types/permission';
 
 // Get all permissions for a user
-export const getUserPermissions = async (pool: Pool, userId: string): Promise<UserPermission[]> => {
+export const getUserPermissions = async (
+  pool: Pool,
+  userId: string
+): Promise<UserPermission[]> => {
   const result = await pool.query(
     'SELECT * FROM get_user_permissions($1)',
     [userId]

@@ -4,7 +4,11 @@ import * as roleModel from '../models/roleModel';
 import { RoleCreateInput, RoleUpdateInput } from '../types/role';
 
 // Get all roles
-export const getRoles = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getRoles = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const roles = await roleModel.getRoles(pool);
     res.status(200).json(roles);
@@ -14,7 +18,11 @@ export const getRoles = async (req: Request, res: Response, pool: Pool): Promise
   }
 };
 
-export const createRole = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const createRole = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const roleData = req.body as RoleCreateInput;
     
@@ -40,7 +48,11 @@ export const createRole = async (req: Request, res: Response, pool: Pool): Promi
   }
 };
 
-export const updateRole = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateRole = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const roleData = req.body as RoleUpdateInput;

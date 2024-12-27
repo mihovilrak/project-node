@@ -83,6 +83,9 @@ export interface TaskWatcher {
 }
 
 export interface TaskQueryFilters {
+  whereParams?: {
+    [key: string]: string;
+  };
   project_id?: string;
   assignee_id?: string;
   holder_id?: string;

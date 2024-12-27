@@ -8,9 +8,13 @@ import { TaskRequest } from '../types/comment';
 import { FileUploadRequest } from '../types/file';
 
 // Get task files
-export const getTaskFiles = async (req: TaskRequest, res: Response, pool: Pool): Promise<void> => {
+export const getTaskFiles = async (
+  req: TaskRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
-    const taskId = req.taskId;
+    const taskId = req.taskId || '';
     const files = await fileModel.getTaskFiles(pool, taskId);
     res.status(200).json(files);
   } catch (error) {
@@ -20,7 +24,11 @@ export const getTaskFiles = async (req: TaskRequest, res: Response, pool: Pool):
 };
 
 // Upload a file
-export const uploadFile = async (req: FileUploadRequest, res: Response, pool: Pool): Promise<void> => {
+export const uploadFile = async (
+  req: FileUploadRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const taskId = req.taskId;
     const userId = req.session?.user?.id;
@@ -60,7 +68,11 @@ export const uploadFile = async (req: FileUploadRequest, res: Response, pool: Po
 };
 
 // Download a file
-export const downloadFile = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const downloadFile = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);
@@ -88,7 +100,11 @@ export const downloadFile = async (req: Request, res: Response, pool: Pool): Pro
 };
 
 // Delete a file
-export const deleteFile = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteFile = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);

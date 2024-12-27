@@ -6,11 +6,11 @@ import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
 
 // Get tasks
-export async function getTasks(
+export const getTasks = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { project_id } = req.query;
   try {
     const tasks = project_id
@@ -24,11 +24,11 @@ export async function getTasks(
 }
 
 // Get Task by ID
-export async function getTaskById(
+export const getTaskById = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { id } = req.params;
   try {
     const task = await taskModel.getTaskById(pool, id);
@@ -44,11 +44,11 @@ export async function getTaskById(
 }
 
 // Get tasks by assignee
-export async function getTaskByAssignee(
+export const getTaskByAssignee = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const { assignee_id } = req.query;
     const result = await taskModel.getTasks(pool, { assignee_id: assignee_id as string });
@@ -64,11 +64,11 @@ export async function getTaskByAssignee(
 }
 
 // Get tasks by holder
-export async function getTaskByHolder(
+export const getTaskByHolder = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const { holder_id } = req.query;
     const result = await taskModel.getTasks(pool, { holder_id: holder_id as string });
@@ -84,11 +84,11 @@ export async function getTaskByHolder(
 }
 
 // Create a task
-export async function createTask(
+export const createTask = async (
   req: CustomRequest,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const taskData: TaskCreateInput = req.body;
     const {
@@ -132,11 +132,11 @@ export async function createTask(
 }
 
 // Update a task
-export async function updateTask(
+export const updateTask = async (
   req: CustomRequest,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { id } = req.params;
   const userId = req.session.user?.id;
   const taskData: TaskUpdateInput = req.body;
@@ -164,11 +164,11 @@ export async function updateTask(
 }
 
 // Change task status
-export async function changeTaskStatus(
+export const changeTaskStatus = async (
   req: CustomRequest,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { id } = req.params;
   const { statusId } = req.body;
   const userId = req.session.user?.id;
@@ -196,11 +196,11 @@ export async function changeTaskStatus(
 }
 
 // Delete a task
-export async function deleteTask(
+export const deleteTask = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { id } = req.params;
   try {
     const task = await taskModel.deleteTask(pool, id);
@@ -216,11 +216,11 @@ export async function deleteTask(
 }
 
 // Get task statuses
-export async function getTaskStatuses(
+export const getTaskStatuses = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const statuses = await taskModel.getTaskStatuses(pool);
     res.status(200).json(statuses);
@@ -231,11 +231,11 @@ export async function getTaskStatuses(
 }
 
 // Get priorities
-export async function getPriorities(
+export const getPriorities = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const priorities = await taskModel.getPriorities(pool);
     res.status(200).json(priorities);
@@ -246,11 +246,11 @@ export async function getPriorities(
 }
 
 // Get active tasks
-export async function getActiveTasks(
+export const getActiveTasks = async (
   req: CustomRequest,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   try {
     const userId = req.session.user?.id;
     if (!userId) {
@@ -266,68 +266,15 @@ export async function getActiveTasks(
 }
 
 // Get subtasks
-export async function getSubtasks(
+export const getSubtasks = async (
   req: Request,
   res: Response,
   pool: DatabasePool
-): Promise<void> {
+): Promise<void> => {
   const { id } = req.params;
   try {
     const subtasks = await taskModel.getSubtasks(pool, id);
     res.status(200).json(subtasks);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
-// Get task watchers
-export async function getTaskWatchers(
-  req: Request,
-  res: Response,
-  pool: DatabasePool
-): Promise<void> {
-  const { id } = req.params;
-  try {
-    const watchers = await taskModel.getTaskWatchers(pool, id);
-    res.status(200).json(watchers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
-// Add task watcher
-export async function addTaskWatcher(
-  req: Request,
-  res: Response,
-  pool: DatabasePool
-): Promise<void> {
-  const { id } = req.params;
-  const { userId } = req.body;
-  try {
-    const watcher = await taskModel.addTaskWatcher(pool, id, userId);
-    res.status(201).json(watcher);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
-// Remove task watcher
-export async function removeTaskWatcher(
-  req: Request,
-  res: Response,
-  pool: DatabasePool
-): Promise<void> {
-  const { id, userId } = req.params;
-  try {
-    const result = await taskModel.removeTaskWatcher(pool, id, userId);
-    if (result === 0) {
-      res.status(404).json({ error: 'Watcher not found' });
-      return;
-    }
-    res.status(204).send();
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

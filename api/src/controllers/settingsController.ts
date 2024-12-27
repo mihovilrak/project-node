@@ -5,7 +5,11 @@ import { CustomRequest } from '../types/express';
 import { SettingsUpdateInput } from '../types/settings';
 
 // Get System Settings
-export const getSystemSettings = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getSystemSettings = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const settings = await settingsModel.getSystemSettings(pool);
     res.status(200).json(settings);
@@ -16,7 +20,11 @@ export const getSystemSettings = async (req: Request, res: Response, pool: Pool)
 };
 
 // Update System Settings
-export const updateSystemSettings = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateSystemSettings = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const settings = await settingsModel.updateSystemSettings(pool, req.body as SettingsUpdateInput);
     res.status(200).json(settings);
@@ -27,7 +35,11 @@ export const updateSystemSettings = async (req: Request, res: Response, pool: Po
 };
 
 // Get User Settings
-export const getUserSettings = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getUserSettings = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     if (!userId) {
@@ -42,7 +54,11 @@ export const getUserSettings = async (req: CustomRequest, res: Response, pool: P
 };
 
 // Update User Settings
-export const updateUserSettings = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const updateUserSettings = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     if (!userId) {

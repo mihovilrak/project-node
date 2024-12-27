@@ -2,7 +2,10 @@ import { Pool } from 'pg';
 import { Comment, CommentWithUser } from '../types/comment';
 
 // Get all comments for a task
-export const getTaskComments = async (pool: Pool, taskId: string): Promise<CommentWithUser[]> => {
+export const getTaskComments = async (
+  pool: Pool,
+  taskId: string
+): Promise<CommentWithUser[]> => {
   const result = await pool.query(
     `SELECT * FROM v_comments 
     WHERE task_id = $1 
@@ -29,7 +32,10 @@ export const createComment = async (
 };
 
 // Fetch the created comment with user details
-export const commentWithUser = async (pool: Pool, id: string): Promise<CommentWithUser | null> => {
+export const commentWithUser = async (
+  pool: Pool,
+  id: string
+): Promise<CommentWithUser | null> => {
   const result = await pool.query(
     `SELECT * FROM v_comments 
     WHERE id = $1`,
@@ -40,7 +46,11 @@ export const commentWithUser = async (pool: Pool, id: string): Promise<CommentWi
 };
 
 // Edit a comment
-export const editComment = async (pool: Pool, id: string, comment: string): Promise<Comment | null> => {
+export const editComment = async (
+  pool: Pool,
+  id: string,
+  comment: string
+): Promise<Comment | null> => {
   const result = await pool.query(
     `UPDATE comments 
     SET (comment, updated_on) = ($2, current_timestamp) 
@@ -51,7 +61,10 @@ export const editComment = async (pool: Pool, id: string, comment: string): Prom
 };
 
 // Delete a comment
-export const deleteComment = async (pool: Pool, id: string): Promise<Comment | null> => {
+export const deleteComment = async (
+  pool: Pool,
+  id: string
+): Promise<Comment | null> => {
   const result = await pool.query(
     `UPDATE comments 
     SET (active, updated_on) = (false, current_timestamp) 

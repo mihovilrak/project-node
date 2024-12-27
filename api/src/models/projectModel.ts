@@ -9,10 +9,10 @@ import {
 import { QueryResult } from 'pg';
 
 // Get all projects
-export async function getProjects(
+export const getProjects = async (
   pool: DatabasePool,
   whereParams?: Record<string, any>
-): Promise<Project[]> {
+): Promise<Project[]> => {
   let query = 'SELECT * FROM projects';
   const values: any[] = [];
 
@@ -33,10 +33,10 @@ export async function getProjects(
 }
 
 // Get a project by ID
-export async function getProjectById(
+export const getProjectById = async (
   pool: DatabasePool,
   id: string
-): Promise<Project | null> {
+): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
     `SELECT * FROM projects 
     WHERE id = $1`,
@@ -46,10 +46,10 @@ export async function getProjectById(
 }
 
 // Get project details
-export async function getProjectDetails(
+export const getProjectDetails = async (
   pool: DatabasePool,
   id: string
-): Promise<ProjectDetails | null> {
+): Promise<ProjectDetails | null> => {
   const result: QueryResult<ProjectDetails> = await pool.query(
     `SELECT * FROM project_details($1)`,
     [id]
@@ -58,7 +58,7 @@ export async function getProjectDetails(
 }
 
 // Create a new project
-export async function createProject(
+export const createProject = async (
   pool: DatabasePool,
   name: string,
   description: string,
@@ -66,7 +66,7 @@ export async function createProject(
   due_date: Date | null,
   created_by: string,
   parent_id?: string
-): Promise<Project> {
+): Promise<Project> => {
   const result: QueryResult<Project> = await pool.query(
     `INSERT INTO projects 
     (name, description, start_date, due_date, created_by, parent_id) 
@@ -78,11 +78,11 @@ export async function createProject(
 }
 
 // Change a project status
-export async function changeProjectStatus(
+export const changeProjectStatus = async (
   pool: DatabasePool,
   id: string,
   status: string
-): Promise<Project | null> {
+): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
     `SELECT * FROM change_project_status($1, $2)`,
     [id, status]
@@ -91,11 +91,11 @@ export async function changeProjectStatus(
 }
 
 // Update a project
-export async function updateProject(
+export const updateProject = async (
   pool: DatabasePool,
   updates: Partial<Project>,
   id: string
-): Promise<number> {
+): Promise<number | null> => {
   const columns = Object.keys(updates);
   const values = Object.values(updates);
   
@@ -111,10 +111,10 @@ export async function updateProject(
 }
 
 // Delete a project
-export async function deleteProject(
+export const deleteProject = async (
   pool: DatabasePool,
   id: string
-): Promise<Project | null> {
+): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
     `SELECT * FROM delete_project($1)`,
     [id]
@@ -123,10 +123,10 @@ export async function deleteProject(
 }
 
 // Get project members
-export async function getProjectMembers(
+export const getProjectMembers = async (
   pool: DatabasePool,
   projectId: string
-): Promise<ProjectMember[]> {
+): Promise<ProjectMember[]> => {
   const result: QueryResult<ProjectMember> = await pool.query(
     `SELECT * FROM v_project_members 
     WHERE project_id = $1`,
@@ -136,10 +136,10 @@ export async function getProjectMembers(
 }
 
 // Get subprojects
-export async function getSubprojects(
+export const getSubprojects = async (
   pool: DatabasePool,
   parentId: string
-): Promise<Project[]> {
+): Promise<Project[]> => {
   const result: QueryResult<Project> = await pool.query(
     `SELECT * FROM v_subprojects 
     WHERE parent_id = $1`,
@@ -149,11 +149,11 @@ export async function getSubprojects(
 }
 
 // Add project member
-export async function addProjectMember(
+export const addProjectMember = async (
   pool: DatabasePool,
   projectId: string,
   userId: string
-): Promise<ProjectMember | null> {
+): Promise<ProjectMember | null> => {
   const result: QueryResult<ProjectMember> = await pool.query(
     `INSERT INTO project_users 
     (project_id, user_id) 
@@ -165,11 +165,11 @@ export async function addProjectMember(
 }
 
 // Delete project member
-export async function deleteProjectMember(
+export const deleteProjectMember = async (
   pool: DatabasePool,
   projectId: string,
   userId: string
-): Promise<number> {
+): Promise<number | null> => {
   const result: QueryResult = await pool.query(
     `DELETE FROM project_users 
     WHERE project_id = $1 
@@ -180,11 +180,11 @@ export async function deleteProjectMember(
 }
 
 // Get project tasks
-export async function getProjectTasks(
+export const getProjectTasks = async (
   pool: DatabasePool,
   id: string,
   filters: ProjectTaskFilters = {}
-): Promise<any[]> {
+): Promise<any[]> => {
   const query = `
     SELECT * FROM v_tasks 
     WHERE project_id = $1 
@@ -200,9 +200,9 @@ export async function getProjectTasks(
 }
 
 // Get project statuses
-export async function getProjectStatuses(
+export const getProjectStatuses = async (
   pool: DatabasePool
-): Promise<ProjectStatus[]> {
+): Promise<ProjectStatus[]> => {
   const result: QueryResult<ProjectStatus> = await pool.query(
     `SELECT id, name FROM project_statuses 
     ORDER BY id`

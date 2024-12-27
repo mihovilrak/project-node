@@ -15,7 +15,10 @@ export const login = async (
 };
 
 // Create a new login record
-export const app_logins = async (pool: Pool, id: string): Promise<void> => {
+export const app_logins = async (
+  pool: Pool,
+  id: string
+): Promise<void> => {
   await pool.query(
     `INSERT INTO app_logins (user_id) 
     VALUES ($1)`,

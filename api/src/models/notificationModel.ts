@@ -2,7 +2,10 @@ import { Pool } from 'pg';
 import { Notification, NotificationWithDetails, NotificationCreateInput } from '../types/notification';
 
 // Get notifications by user ID
-export const getNotificationsByUserId = async (pool: Pool, user_id: string): Promise<NotificationWithDetails[]> => {
+export const getNotificationsByUserId = async (
+  pool: Pool,
+  user_id: string
+): Promise<NotificationWithDetails[]> => {
   const result = await pool.query(
     `SELECT * FROM notifications 
     WHERE user_id = $1 
@@ -13,7 +16,10 @@ export const getNotificationsByUserId = async (pool: Pool, user_id: string): Pro
 };
 
 // Mark notifications as read
-export const markNotificationsAsRead = async (pool: Pool, user_id: string): Promise<Notification[]> => {
+export const markNotificationsAsRead = async (
+  pool: Pool,
+  user_id: string
+): Promise<Notification[]> => {
   const result = await pool.query(
     `UPDATE notifications 
     SET (is_read, read_on) = (true, current_timestamp) 
@@ -26,7 +32,10 @@ export const markNotificationsAsRead = async (pool: Pool, user_id: string): Prom
 };
 
 // Delete notification
-export const deleteNotification = async (pool: Pool, id: string): Promise<void> => {
+export const deleteNotification = async (
+  pool: Pool,
+  id: string
+): Promise<void> => {
   await pool.query(
     `UPDATE notifications 
     SET active = false

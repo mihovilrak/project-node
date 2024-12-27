@@ -16,7 +16,4 @@
 
 .obsolete
 
-fe/**/*.js
-fe/**/*.bak
-
-importi.py
+api/**/*.js

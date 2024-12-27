@@ -2,7 +2,10 @@ import { Pool } from 'pg';
 import { SystemStats, SystemLog, Permission } from '../types/admin';
 
 // Check if user is admin
-export const isUserAdmin = async (pool: Pool, userId: string): Promise<boolean> => {
+export const isUserAdmin = async (
+  pool: Pool,
+  userId: string
+): Promise<boolean> => {
   const result = await pool.query(
     `SELECT is_admin($1)`,
     [userId]

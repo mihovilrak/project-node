@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import { Pool } from 'pg';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 import * as settingsController from '../controllers/settingsController';
 
 export default (pool: Pool): Router => {

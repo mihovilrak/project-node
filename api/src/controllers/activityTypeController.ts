@@ -12,7 +12,7 @@ export const getActivityTypes = async (
   req: Request,
   res: Response,
   pool: Pool
-): Promise<void> => {
+): Promise<Response | void> => {
   try {
     const activityTypes = await activityTypeModel.getActivityTypes(pool);
     res.status(200).json(activityTypes);
@@ -23,25 +23,34 @@ export const getActivityTypes = async (
 };
 
 // Create a new activity type
-export const createActivityType = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const createActivityType = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
-    const { name, description, color, icon = null } = req.body as ActivityTypeCreateInput;
+    const {
+      name,
+      description,
+      color,
+      icon,
+    } = req.body as ActivityTypeCreateInput;
     const userId = req.session?.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    if (!color.match(/^#[0-9A-Fa-f]{6}$/)) {
+    if (!color || !color.match(/^#[0-9A-Fa-f]{6}$/)) {
       return res.status(400).json({ error: 'Invalid color format' });
     }
 
     const activityType = await activityTypeModel.createActivityType(
       pool,
       name,
-      description,
+      description || null,
       color,
-      icon
+      icon || null
     );
     res.status(201).json(activityType);
   } catch (error) {
@@ -51,18 +60,27 @@ export const createActivityType = async (req: CustomRequest, res: Response, pool
 };
 
 // Update an activity type
-export const updateActivityType = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateActivityType = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
-    const { name, description, color, icon = null } = req.body as ActivityTypeUpdateInput;
-    
-    const activityType = await activityTypeModel.updateActivityType(
-      pool,
-      id,
+    const {
       name,
       description,
       color,
-      icon
+      icon,
+    } = req.body as ActivityTypeUpdateInput;
+
+    const activityType = await activityTypeModel.updateActivityType(
+      pool,
+      id || '',
+      name || '',
+      description || '',
+      color || '',
+      icon || ''
     );
 
     if (!activityType) {
@@ -77,7 +95,11 @@ export const updateActivityType = async (req: Request, res: Response, pool: Pool
 };
 
 // Delete an activity type
-export const deleteActivityType = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteActivityType = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const result = await activityTypeModel.deleteActivityType(pool, id);
@@ -94,7 +116,10 @@ export const deleteActivityType = async (req: Request, res: Response, pool: Pool
 };
 
 // Get available icons
-export const getAvailableIcons = async (req: Request, res: Response): Promise<void> => {
+export const getAvailableIcons = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
     // You can customize this list based on your icon library
     const icons = [

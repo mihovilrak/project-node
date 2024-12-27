@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import { Pool } from 'pg';
-import * as taskTypeRouter from './taskTypesRouter';
+import * as taskTypeRouter from './taskTypeRouter';
 import * as activityTypeRouter from './activityTypeRouter';
 import * as adminController from '../controllers/adminController';
 

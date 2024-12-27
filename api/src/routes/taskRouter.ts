@@ -1,15 +1,16 @@
 import express, { Router } from 'express';
 import { DatabasePool } from '../types/models';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 import * as taskController from '../controllers/taskController';
-import * as commentRouter from './commentRouter';
-import * as fileRouter from './fileRouter';
+import commentRouter from './commentRouter';
+import fileRouter from './fileRouter';
 import {
   getTaskTags,
   addTaskTags,
   removeTaskTag
 } from '../controllers/tagController';
 import * as timeLogController from '../controllers/timeLogController';
+import * as watcherController from '../controllers/watcherController';
 
 export function taskRouter(pool: DatabasePool): Router {
   const router = express.Router();
@@ -51,13 +52,13 @@ export function taskRouter(pool: DatabasePool): Router {
 
   // Comment routes
   router.use('/:id/comments', (req, res, next) => {
-    req.taskId = req.params.id;
+    (req as any).taskId = req.params.id;
     next();
   }, commentRouter(pool));
 
   // File routes
   router.use('/:id/files', (req, res, next) => {
-    req.taskId = req.params.id;
+    (req as any).taskId = req.params.id;
     next();
   }, fileRouter(pool));
 
@@ -90,13 +91,13 @@ export function taskRouter(pool: DatabasePool): Router {
     timeLogController.createTimeLog(req, res, pool));
 
   router.get('/:id/watchers', (req, res) =>
-    taskController.getTaskWatchers(req, res, pool));
+    watcherController.getTaskWatchers(req, res, pool));
 
   router.post('/:id/watchers', (req, res) =>
-    taskController.addTaskWatcher(req, res, pool));
+    watcherController.addTaskWatcher(req, res, pool));
 
   router.delete('/:id/watchers/:userId', (req, res) =>
-    taskController.removeTaskWatcher(req, res, pool));
+    watcherController.removeTaskWatcher(req, res, pool));
 
   return router;
 }

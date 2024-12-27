@@ -1,12 +1,11 @@
 import { CustomRequest } from './express';
-import { TaskRequest } from './comment';
-
 export interface File {
   id: string;
   task_id: string;
   user_id: string;
   name: string;
   original_name: string;
+  stored_name: string;
   mime_type: string;
   size: number;
   created_on: Date;
@@ -33,6 +32,7 @@ export interface FileUpdateInput {
   active?: boolean;
 }
 
-export interface FileUploadRequest extends CustomRequest, TaskRequest {
+export interface FileUploadRequest extends CustomRequest {
   file?: Express.Multer.File;
+  taskId?: string;
 }

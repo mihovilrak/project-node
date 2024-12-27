@@ -1,5 +1,11 @@
 import { Pool } from 'pg';
-import { TimeLog, TimeLogCreateInput, TimeLogUpdateInput, TimeLogQueryFilters, SpentTime } from '../types/timeLog';
+import {
+  TimeLog,
+  TimeLogCreateInput,
+  TimeLogUpdateInput,
+  TimeLogQueryFilters,
+  SpentTime,
+} from '../types/timeLog';
 
 // Time log model
 export const getAllTimeLogs = async (pool: Pool): Promise<TimeLog[]> => {
@@ -17,7 +23,12 @@ export const createTimeLog = async (
   userId: string,
   timeLogData: TimeLogCreateInput
 ): Promise<TimeLog> => {
-  const { log_date, spent_time, description, activity_type_id } = timeLogData;
+  const {
+    log_date,
+    spent_time,
+    description,
+    activity_type_id,
+  } = timeLogData;
   const result = await pool.query(
     `INSERT INTO time_logs 
     (task_id, user_id, log_date, spent_time, description, activity_type_id)
@@ -34,7 +45,12 @@ export const updateTimeLog = async (
   timeLogId: string,
   timeLogData: TimeLogUpdateInput
 ): Promise<TimeLog> => {
-  const { log_date, spent_time, description, activity_type_id } = timeLogData;
+  const {
+    log_date,
+    spent_time,
+    description,
+    activity_type_id
+  } = timeLogData;
   const result = await pool.query(
     `UPDATE time_logs 
     SET (log_date, spent_time, description, activity_type_id) = ($1, $2, $3, $4)
@@ -46,7 +62,10 @@ export const updateTimeLog = async (
 };
 
 // Delete time log
-export const deleteTimeLog = async (pool: Pool, timeLogId: string): Promise<void> => {
+export const deleteTimeLog = async (
+  pool: Pool,
+  timeLogId: string
+): Promise<void> => {
   await pool.query(
     'DELETE FROM time_logs WHERE id = $1',
     [timeLogId]
@@ -84,7 +103,10 @@ export const getProjectTimeLogs = async (
 };
 
 // Get project spent time
-export const getProjectSpentTime = async (pool: Pool, projectId: string): Promise<SpentTime> => {
+export const getProjectSpentTime = async (
+  pool: Pool,
+  projectId: string
+): Promise<SpentTime> => {
   const result = await pool.query(
     `SELECT * FROM v_project_spent_time 
     WHERE project_id = $1`,
@@ -94,17 +116,26 @@ export const getProjectSpentTime = async (pool: Pool, projectId: string): Promis
 };
 
 // Get task time logs
-export const getTaskTimeLogs = async (pool: Pool, taskId: string): Promise<TimeLog[]> => {
+export const getTaskTimeLogs = async (
+  pool: Pool,
+  taskId: string,
+  params?: TimeLogQueryFilters
+): Promise<TimeLog[]> => {
+  
   const result = await pool.query(
     `SELECT * FROM v_time_logs 
-    WHERE task_id = $1`,
+    WHERE task_id = $1 
+    ORDER BY created_on DESC`,
     [taskId]
   );
   return result.rows;
 };
 
 // Get task spent time
-export const getTaskSpentTime = async (pool: Pool, taskId: string): Promise<SpentTime> => {
+export const getTaskSpentTime = async (
+  pool: Pool,
+  taskId: string
+): Promise<SpentTime> => {
   const result = await pool.query(
     `SELECT * FROM v_task_spent_time 
     WHERE task_id = $1`,

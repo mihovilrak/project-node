@@ -5,14 +5,8 @@ export interface LoginInput {
 
 export interface LoginResponse {
   id: string;
-  name: string;
-  surname: string;
-  email: string;
   login: string;
-  is_admin: boolean;
-  created_on: Date;
-  updated_on: Date;
-  active: boolean;
+  role_id: number;
 }
 
 export interface PasswordResetInput {

@@ -5,7 +5,11 @@ import { CustomRequest } from '../types/express';
 import { TimeLogCreateInput } from '../types/timeLog';
 
 // Get all time logs
-export const getAllTimeLogs = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getAllTimeLogs = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const timeLogs = await timeLogModel.getAllTimeLogs(pool);
     res.status(200).json(timeLogs);
@@ -16,7 +20,11 @@ export const getAllTimeLogs = async (req: Request, res: Response, pool: Pool): P
 };
 
 // Get task time logs
-export const getTaskTimeLogs = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTaskTimeLogs = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const timeLogs = await timeLogModel.getTaskTimeLogs(pool, taskId);
@@ -28,7 +36,11 @@ export const getTaskTimeLogs = async (req: Request, res: Response, pool: Pool): 
 };
 
 // Get task spent time
-export const getTaskSpentTime = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTaskSpentTime = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const spentTime = await timeLogModel.getTaskSpentTime(pool, taskId);
@@ -40,7 +52,11 @@ export const getTaskSpentTime = async (req: Request, res: Response, pool: Pool):
 };
 
 // Get project time logs
-export const getProjectTimeLogs = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getProjectTimeLogs = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { projectId } = req.params;
     const params = req.query;
@@ -53,7 +69,11 @@ export const getProjectTimeLogs = async (req: Request, res: Response, pool: Pool
 };
 
 // Get project spent time
-export const getProjectSpentTime = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getProjectSpentTime = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { projectId } = req.params;
     const spentTime = await timeLogModel.getProjectSpentTime(pool, projectId);
@@ -65,7 +85,11 @@ export const getProjectSpentTime = async (req: Request, res: Response, pool: Poo
 };
 
 // Create time log
-export const createTimeLog = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const createTimeLog = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const userId = req.session?.user?.id;
@@ -98,7 +122,11 @@ export const createTimeLog = async (req: CustomRequest, res: Response, pool: Poo
 };
 
 // Update time log
-export const updateTimeLog = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateTimeLog = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { timeLogId } = req.params;
     const {
@@ -122,7 +150,11 @@ export const updateTimeLog = async (req: Request, res: Response, pool: Pool): Pr
 };
 
 // Delete time log
-export const deleteTimeLog = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteTimeLog = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { timeLogId } = req.params;
     await timeLogModel.deleteTimeLog(pool, timeLogId);
@@ -134,7 +166,11 @@ export const deleteTimeLog = async (req: Request, res: Response, pool: Pool): Pr
 };
 
 // Get user time logs
-export const getUserTimeLogs = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getUserTimeLogs = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     const params = req.query;

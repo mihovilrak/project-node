@@ -2,11 +2,10 @@ import { Request, Response } from 'express';
 import { DatabasePool } from '../types/models';
 import {
   ProjectTaskFilters,
-  ProjectCreateInput,
   ProjectUpdateInput,
   ProjectQueryFilters,
 } from '../types/project';
-import { CustomRequest } from '../types/express';
+import { ProjectRequest } from '../types/express';
 import * as projectModel from '../models/projectModel';
 
 // Get all projects
@@ -71,7 +70,7 @@ export const getProjectDetails = async (
 
 // Create a project
 export const createProject = async (
-  req: CustomRequest<{}, {}, ProjectCreateInput>,
+  req: ProjectRequest,
   res: Response,
   pool: DatabasePool
 ): Promise<void> => {

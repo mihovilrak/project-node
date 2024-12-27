@@ -3,7 +3,11 @@ import { Pool } from 'pg';
 import * as notificationModel from '../models/notificationModel';
 
 // Get user notifications
-export const getUserNotifications = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getUserNotifications = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { user_id } = req.params;
   try {
     const notifications = await notificationModel.getNotificationsByUserId(pool, user_id);
@@ -15,7 +19,11 @@ export const getUserNotifications = async (req: Request, res: Response, pool: Po
 };
 
 // Mark notifications as read
-export const markAsRead = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const markAsRead = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { user_id } = req.params;
   try {
     const updatedNotifications = await notificationModel.markNotificationsAsRead(pool, user_id);
@@ -27,7 +35,11 @@ export const markAsRead = async (req: Request, res: Response, pool: Pool): Promi
 };
 
 // Delete notification
-export const deleteNotification = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteNotification = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   try {
     await notificationModel.deleteNotification(pool, id);

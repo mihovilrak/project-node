@@ -4,7 +4,11 @@ import * as taskTypeModel from '../models/taskTypeModel';
 import { TaskTypeCreateInput, TaskTypeUpdateInput } from '../types/taskType';
 
 // Task Type Controllers
-export const getTaskTypes = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTaskTypes = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<void> => {
   try {
     const result = await taskTypeModel.getTaskTypes(pool);
     res.json(result);
@@ -15,7 +19,11 @@ export const getTaskTypes = async (req: Request, res: Response, pool: Pool): Pro
 };
 
 // Get task type by ID
-export const getTaskTypeById = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTaskTypeById = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const result = await taskTypeModel.getTaskTypeById(pool, id);
@@ -32,7 +40,11 @@ export const getTaskTypeById = async (req: Request, res: Response, pool: Pool): 
 };
 
 // Create a task type
-export const createTaskType = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const createTaskType = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const {
       name,
@@ -55,9 +67,9 @@ export const createTaskType = async (req: Request, res: Response, pool: Pool): P
     const result = await taskTypeModel.createTaskType(
       pool,
       name,
-      description,
+      description || null,
       color,
-      icon,
+      icon || null,
       active
     );
     
@@ -69,7 +81,11 @@ export const createTaskType = async (req: Request, res: Response, pool: Pool): P
 };
 
 // Update a task type
-export const updateTaskType = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateTaskType = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const { name, description, color, icon, active } = req.body as TaskTypeUpdateInput;
@@ -77,11 +93,11 @@ export const updateTaskType = async (req: Request, res: Response, pool: Pool): P
     const result = await taskTypeModel.updateTaskType(
       pool,
       id,
-      name,
-      description,
-      color,
-      icon,
-      active
+      name || null,
+      description || null,
+      color || null,
+      icon || null,
+      active || null
     );
     
     if (!result) {
@@ -96,7 +112,11 @@ export const updateTaskType = async (req: Request, res: Response, pool: Pool): P
 };
 
 // Delete a task type
-export const deleteTaskType = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteTaskType = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const result = await taskTypeModel.deleteTaskType(pool, id);

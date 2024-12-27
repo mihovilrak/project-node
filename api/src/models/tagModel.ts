@@ -53,7 +53,10 @@ export const removeTaskTag = async (
 };
 
 // Get task tags
-export const getTaskTags = async (pool: Pool, taskId: string): Promise<Tag[]> => {
+export const getTaskTags = async (
+  pool: Pool,
+  taskId: string
+): Promise<Tag[]> => {
   const result = await pool.query(
     `SELECT t.* 
     FROM tags t

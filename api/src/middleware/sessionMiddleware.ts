@@ -5,7 +5,10 @@ import { RequestHandler } from 'express';
 
 const pgSession = pgConnect(session);
 
-export default function sessionMiddleware(pool: DatabasePool, sessionSecret: string): RequestHandler {
+export default (
+  pool: DatabasePool,
+  sessionSecret: string
+): RequestHandler => {
   return session({
     store: new pgSession({
       pool: pool,

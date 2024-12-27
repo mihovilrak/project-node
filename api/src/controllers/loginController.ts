@@ -4,7 +4,11 @@ import * as loginModel from '../models/loginModel';
 import { LoginInput } from '../types/login';
 
 // Login controller
-export const login = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const login = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { login, password } = req.body as LoginInput;
 
   try {
@@ -26,7 +30,7 @@ export const login = async (req: Request, res: Response, pool: Pool): Promise<vo
     req.session.user = {
       id: user.id,
       login: user.login,
-      role: user.role_id,
+      role_id: user.role_id,
     };
 
     // Log login to table app_logins

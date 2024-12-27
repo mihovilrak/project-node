@@ -9,7 +9,9 @@ export const getRoles = async (pool: Pool): Promise<Role[]> => {
   return results.rows;
 };
 
-export const createRole = async (pool: Pool, roleData: RoleCreateInput): Promise<string> => {
+export const createRole = async (
+  pool: Pool, roleData: RoleCreateInput
+): Promise<string> => {
   const { name, description, permissions } = roleData;
   try {
     const roleResult = await pool.query(
@@ -23,7 +25,9 @@ export const createRole = async (pool: Pool, roleData: RoleCreateInput): Promise
   }
 };
 
-export const updateRole = async (pool: Pool, id: string, roleData: RoleUpdateInput): Promise<void> => {
+export const updateRole = async (
+  pool: Pool, id: string, roleData: RoleUpdateInput
+): Promise<void> => {
   const { name, description, active, permissions } = roleData;
   try {
     await pool.query(

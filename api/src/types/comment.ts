@@ -26,5 +26,5 @@ export interface CommentWithUser extends Comment {
 }
 
 export interface TaskRequest extends Request {
-  taskId: string;
+  taskId?: string;
 }

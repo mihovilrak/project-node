@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { Pool } from 'pg';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 import * as fileController from '../controllers/fileController';
 
 // Create uploads directory if it doesn't exist
@@ -29,6 +29,14 @@ const upload = multer({ storage });
 // File routes
 export default (pool: Pool): Router => {
   const router = express.Router();
+
+  // Middleware to set taskId from query params
+  router.use((req: any, res, next) => {
+    if (req.query.taskId) {
+      req.taskId = req.query.taskId;
+    }
+    next();
+  });
 
   // Get task files
   router.get('/', (req, res) => 

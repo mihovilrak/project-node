@@ -2,7 +2,10 @@ import { Pool } from 'pg';
 import { File, FileWithUser } from '../types/file';
 
 // Get all files for a task
-export const getTaskFiles = async (pool: Pool, taskId: string): Promise<FileWithUser[]> => {
+export const getTaskFiles = async (
+  pool: Pool,
+  taskId: string
+): Promise<FileWithUser[]> => {
   const result = await pool.query(
     `SELECT * FROM get_task_files($1)`,
     [taskId]
@@ -38,7 +41,10 @@ export const createFile = async (
 };
 
 // Get a file by ID
-export const getFileById = async (pool: Pool, fileId: string): Promise<File | null> => {
+export const getFileById = async (
+  pool: Pool,
+  fileId: string
+): Promise<File | null> => {
   const result = await pool.query(
     `SELECT * FROM files 
     WHERE id = $1`,
@@ -48,7 +54,10 @@ export const getFileById = async (pool: Pool, fileId: string): Promise<File | nu
 };
 
 // Delete a file
-export const deleteFile = async (pool: Pool, fileId: string): Promise<void> => {
+export const deleteFile = async (
+  pool: Pool,
+  fileId: string
+): Promise<void> => {
   await pool.query(
     `DELETE FROM files 
     WHERE id = $1`,

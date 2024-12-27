@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import { Pool } from 'pg';
 import * as timeLogController from '../controllers/timeLogController';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 
 export default (pool: Pool): Router => {
   const router = express.Router();

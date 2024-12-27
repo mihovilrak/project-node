@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeController from '../controllers/taskTypeController';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 
 export default (pool: Pool): Router => {
   const router = express.Router();

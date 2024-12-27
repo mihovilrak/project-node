@@ -5,7 +5,11 @@ import { CustomRequest } from '../types/express';
 import { TagCreateInput } from '../types/tag';
 
 // Get all tags
-export const getTags = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTags = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const tags = await tagModel.getTags(pool);
     res.status(200).json(tags);
@@ -16,7 +20,11 @@ export const getTags = async (req: Request, res: Response, pool: Pool): Promise<
 };
 
 // Create a tag
-export const createTag = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const createTag = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { name, color } = req.body as TagCreateInput;
     const userId = req.session?.user?.id;
@@ -34,7 +42,11 @@ export const createTag = async (req: CustomRequest, res: Response, pool: Pool): 
 };
 
 // Add tags to task
-export const addTaskTags = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const addTaskTags = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const { tagIds } = req.body as { tagIds: string[] };
@@ -53,7 +65,11 @@ export const addTaskTags = async (req: CustomRequest, res: Response, pool: Pool)
 };
 
 // Remove tag from task
-export const removeTaskTag = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const removeTaskTag = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId, tagId } = req.params;
     await tagModel.removeTaskTag(pool, taskId, tagId);
@@ -65,11 +81,48 @@ export const removeTaskTag = async (req: Request, res: Response, pool: Pool): Pr
 };
 
 // Get task tags
-export const getTaskTags = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getTaskTags = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const tags = await tagModel.getTaskTags(pool, taskId);
     res.status(200).json(tags);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Update tag
+export const updateTag = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+    const { name, color } = req.body as { name: string; color: string };
+    const tag = await tagModel.updateTag(pool, id, name, color);
+    res.status(200).json(tag);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Delete tag
+export const deleteTag = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+    await tagModel.deleteTag(pool, id);
+    res.status(200).json({ message: 'Tag deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

@@ -4,7 +4,10 @@ import { Task } from '../types/task';
 import { Project } from '../types/project';
 
 // Get user profile
-export const getProfile = async (pool: Pool, userId: string): Promise<Profile | null> => {
+export const getProfile = async (
+  pool: Pool,
+  userId: string
+): Promise<Profile | null> => {
   const result = await pool.query(
     `SELECT *
      FROM v_profiles
@@ -24,7 +27,8 @@ export const updateProfile = async (
   
   const result = await pool.query(
     `UPDATE users 
-     SET (email, name, surname, updated_on) = ($1, $2, $3, CURRENT_TIMESTAMP)
+     SET (email, name, surname, updated_on) 
+     = ($1, $2, $3, CURRENT_TIMESTAMP)
      WHERE id = $4 
      RETURNING *`,
     [email, name, surname, userId]
@@ -53,7 +57,8 @@ export const changePassword = async (
 ): Promise<Profile | null> => {
   const result = await pool.query(
     `UPDATE users 
-     SET (password, updated_on) = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
+     SET (password, updated_on) 
+     = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
      WHERE id = $2
      RETURNING *`,
     [password, userId]
@@ -62,7 +67,10 @@ export const changePassword = async (
 };
 
 // Get recent tasks
-export const getRecentTasks = async (pool: Pool, userId: string): Promise<Task[]> => {
+export const getRecentTasks = async (
+  pool: Pool,
+  userId: string
+): Promise<Task[]> => {
   const result = await pool.query(
     `SELECT * FROM recent_tasks($1)`,
     [userId]
@@ -71,7 +79,10 @@ export const getRecentTasks = async (pool: Pool, userId: string): Promise<Task[]
 };
 
 // Get recent projects
-export const getRecentProjects = async (pool: Pool, userId: string): Promise<Project[]> => {
+export const getRecentProjects = async (
+  pool: Pool,
+  userId: string
+): Promise<Project[]> => {
   const result = await pool.query(
     `SELECT * FROM recent_projects($1)`,
     [userId]

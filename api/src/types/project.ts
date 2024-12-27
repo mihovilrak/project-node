@@ -57,5 +57,5 @@ export interface ProjectTaskFilters {
 }
 
 export interface ProjectQueryFilters {
-  whereParams?: string;
+  whereParams?: Record<string, any>;
 }

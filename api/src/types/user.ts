@@ -4,11 +4,11 @@ export interface User {
   name: string;
   surname: string;
   email: string;
-  password?: string;
-  role_id: string;
-  status_id: string;
+  status: string;
+  role: string;
   created_on: Date;
   updated_on: Date;
+  last_login?: Date | null;
 }
 
 export interface UserDetails extends User {
@@ -37,9 +37,9 @@ export interface UserUpdateInput {
 }
 
 export interface UserQueryFilters {
-  role_id?: string;
-  status_id?: string;
-  search?: string;
+  whereParams: {
+    [key: string]: string;
+  };
 }
 
 export interface UserStatus {

@@ -12,7 +12,10 @@ export const getTaskTypes = async (pool: Pool): Promise<TaskType[]> => {
 };
 
 // Get a task type by ID
-export const getTaskTypeById = async (pool: Pool, id: string): Promise<TaskType | null> => {
+export const getTaskTypeById = async (
+  pool: Pool,
+  id: string
+): Promise<TaskType | null> => {
   const result = await pool.query(
     `SELECT * FROM task_types 
     WHERE id = $1`,

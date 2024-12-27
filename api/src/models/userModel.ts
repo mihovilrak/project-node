@@ -1,18 +1,25 @@
 import { Pool } from 'pg';
-import { User, UserQueryFilters, UserCreateInput, UserUpdateInput } from '../types/user';
+import {
+  User,
+  UserQueryFilters,
+  UserUpdateInput,
+} from '../types/user';
 
 // Get all users
-export const getUsers = async (pool: Pool, whereParams?: UserQueryFilters): Promise<User[]> => {
+export const getUsers = async (
+  pool: Pool,
+  filters?: UserQueryFilters
+): Promise<User[]> => {
   let query = 'SELECT * FROM v_users';
   let values: any[] = [];
 
-  if (whereParams && Object.keys(whereParams).length > 0) {
+  if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
     query += ' WHERE ';
     const conditions: string[] = [];
 
-    Object.keys(whereParams).forEach((param, index) => {
+    Object.keys(filters.whereParams).forEach((param, index) => {
       conditions.push(`${param} = $${index + 1}`);
-      values.push(whereParams[param]);
+      values.push(filters.whereParams[param]);
     });
 
     query += conditions.join(' AND ');
@@ -23,7 +30,10 @@ export const getUsers = async (pool: Pool, whereParams?: UserQueryFilters): Prom
 };
 
 // Get a user by ID
-export const getUserById = async (pool: Pool, id: string): Promise<User | null> => {
+export const getUserById = async (
+  pool: Pool,
+  id: string
+): Promise<User | null> => {
   const result = await pool.query(
     'SELECT * FROM v_users WHERE id = $1', 
     [id]);
@@ -51,8 +61,12 @@ export const createUser = async (
 };
   
 // Update a user
-export const updateUser = async (pool: Pool, updates: UserUpdateInput, id: string): Promise<number> => {
-  const columns = Object.keys(updates);
+export const updateUser = async (
+  pool: Pool,
+  updates: UserUpdateInput,
+  id: string
+): Promise<number | null> => {
+  const columns = Object.keys(updates) as Array<keyof UserUpdateInput>;
   const values: any[] = [];
 
   let setExpressions = columns.map((column, index) => {
@@ -76,7 +90,11 @@ export const updateUser = async (pool: Pool, updates: UserUpdateInput, id: strin
 };
 
 // Change user status
-export const changeUserStatus = async (pool: Pool, id: string, status: number): Promise<User | null> => {
+export const changeUserStatus = async (
+  pool: Pool,
+  id: string,
+  status: number
+): Promise<User | null> => {
   const result = await pool.query(
     `UPDATE users 
     SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP) 
@@ -88,7 +106,10 @@ export const changeUserStatus = async (pool: Pool, id: string, status: number): 
 };
   
 // Delete a user
-export const deleteUser = async (pool: Pool, id: string): Promise<User | null> => {
+export const deleteUser = async (
+  pool: Pool,
+  id: string
+): Promise<User | null> => {
   const result = await pool.query(
     `UPDATE users 
     SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP) 

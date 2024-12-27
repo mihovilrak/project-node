@@ -1,14 +1,20 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as userModel from '../models/userModel';
-import { getUserPermissions } from '../models/permissionModel';
+import * as permissionModel from '../models/permissionModel';
 import { CustomRequest } from '../types/express';
 
 // Get users
-export const getUsers = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
-    const { whereParams } = req.query;
-    const users = await userModel.getUsers(pool, whereParams as string);
+    const whereParams = typeof req.query.whereParams === 'string' 
+      ? JSON.parse(req.query.whereParams) 
+      : undefined;
+    const users = await userModel.getUsers(pool, { whereParams });
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
@@ -17,7 +23,11 @@ export const getUsers = async (req: Request, res: Response, pool: Pool): Promise
 };
 
 // Get user by ID
-export const getUserById = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   try {
     const user = await userModel.getUserById(pool, id);
@@ -32,7 +42,11 @@ export const getUserById = async (req: Request, res: Response, pool: Pool): Prom
 };
 
 // Create a user
-export const createUser = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const createUser = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const {
     login,
     name,
@@ -59,7 +73,11 @@ export const createUser = async (req: Request, res: Response, pool: Pool): Promi
 };
 
 // Update a user
-export const updateUser = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   const { updates } = req.body;
   try {
@@ -75,7 +93,11 @@ export const updateUser = async (req: Request, res: Response, pool: Pool): Promi
 };
 
 // Change user status
-export const changeUserStatus = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const changeUserStatus = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   const { status } = req.body;
   try {
@@ -91,7 +113,11 @@ export const changeUserStatus = async (req: Request, res: Response, pool: Pool):
 };
 
 // Delete a user
-export const deleteUser = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   try {
     const user = await userModel.deleteUser(pool, id);
@@ -106,14 +132,18 @@ export const deleteUser = async (req: Request, res: Response, pool: Pool): Promi
 };
 
 // Get user permissions
-export const getUserPermissions = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getUserPermissions = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    const permissions = await getUserPermissions(pool, userId);
+    const permissions = await permissionModel.getUserPermissions(pool, userId);
     res.json(permissions);
   } catch (error) {
     console.error('Failed to fetch permissions:', error);

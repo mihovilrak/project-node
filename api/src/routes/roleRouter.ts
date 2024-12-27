@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import { Pool } from 'pg';
 import * as roleController from '../controllers/roleController';
-import { checkPermission } from '../middleware/permissionMiddleware';
+import checkPermission from '../middleware/permissionMiddleware';
 
 // Role routes
 export default (pool: Pool): Router => {

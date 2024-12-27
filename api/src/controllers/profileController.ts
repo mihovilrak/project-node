@@ -5,7 +5,11 @@ import { CustomRequest } from '../types/express';
 import { ProfileUpdateInput, PasswordUpdateInput } from '../types/profile';
 
 // Get user profile
-export const getProfile = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getProfile = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     
@@ -26,7 +30,11 @@ export const getProfile = async (req: CustomRequest, res: Response, pool: Pool):
 };
 
 // Update user profile
-export const updateProfile = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const updateProfile = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     const profileData = req.body as ProfileUpdateInput;
@@ -37,7 +45,11 @@ export const updateProfile = async (req: CustomRequest, res: Response, pool: Poo
       });
     }
 
-    const profile = await profileModel.updateProfile(pool, userId, profileData);
+    const profile = await profileModel.updateProfile(
+      pool,
+      userId,
+      profileData
+    );
     res.status(200).json(profile);
   } catch (error) {
     console.error(error);
@@ -48,7 +60,11 @@ export const updateProfile = async (req: CustomRequest, res: Response, pool: Poo
 };
 
 // Change user password
-export const changePassword = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const changePassword = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     const { old_password, new_password } = req.body as PasswordUpdateInput;
@@ -70,8 +86,13 @@ export const changePassword = async (req: CustomRequest, res: Response, pool: Po
 
     // Update password
     const updatedUser = await profileModel.changePassword(pool, userId, new_password);
+    if (!updatedUser) {
+      return res.status(500).json({
+        error: 'Failed to update password'
+      });
+    }
     res.status(200).json({
-      message: `Password updated successfully on ${updatedUser.updated_on}`
+      message: `Password updated successfully on ${updatedUser.updated_on}`,
     });
 
   } catch (error) {
@@ -83,7 +104,11 @@ export const changePassword = async (req: CustomRequest, res: Response, pool: Po
 };
 
 // Get recent tasks
-export const getRecentTasks = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getRecentTasks = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     
@@ -104,7 +129,11 @@ export const getRecentTasks = async (req: CustomRequest, res: Response, pool: Po
 };
 
 // Get recent projects
-export const getRecentProjects = async (req: CustomRequest, res: Response, pool: Pool): Promise<void> => {
+export const getRecentProjects = async (
+  req: CustomRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     

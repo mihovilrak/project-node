@@ -1,7 +1,7 @@
 export interface SessionUser {
   id: string;
   login: string;
-  role: string;
+  role_id: number;
 }
 
 export interface Session {

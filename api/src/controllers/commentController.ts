@@ -6,10 +6,14 @@ import { CustomRequest } from '../types/express';
 import { CommentCreateInput, CommentUpdateInput, TaskRequest } from '../types/comment';
 
 // Get task comments
-export const getTaskComments = async (req: TaskRequest, res: Response, pool: Pool): Promise<void> => {
+export const getTaskComments = async (
+  req: TaskRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const taskId = req.taskId;
-    const comments = await commentModel.getTaskComments(pool, taskId);
+    const comments = await commentModel.getTaskComments(pool, taskId || '');
     res.status(200).json(comments);
   } catch (error) {
     console.error(error);
@@ -18,7 +22,11 @@ export const getTaskComments = async (req: TaskRequest, res: Response, pool: Poo
 };
 
 // Create a comment
-export const createComment = async (req: CustomRequest & TaskRequest, res: Response, pool: Pool): Promise<void> => {
+export const createComment = async (
+  req: CustomRequest & TaskRequest,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   try {
     const taskId = req.taskId;
     const { comment } = req.body as CommentCreateInput;
@@ -30,14 +38,14 @@ export const createComment = async (req: CustomRequest & TaskRequest, res: Respo
 
     const newComment = await commentModel.createComment(
       pool,
-      taskId,
+      taskId || '',
       userId,
       comment
     );
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: taskId,
+      task_id: taskId || '',
       action_user_id: userId,
       type_id: 'task_commented'
     });
@@ -50,7 +58,11 @@ export const createComment = async (req: CustomRequest & TaskRequest, res: Respo
 };
 
 // Edit a comment
-export const editComment = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const editComment = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
   const { comment } = req.body as CommentUpdateInput;
 
@@ -64,7 +76,11 @@ export const editComment = async (req: Request, res: Response, pool: Pool): Prom
 };
 
 // Delete a comment
-export const deleteComment = async (req: Request, res: Response, pool: Pool): Promise<void> => {
+export const deleteComment = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
   const { id } = req.params;
 
   try {
