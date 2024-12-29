@@ -1,8 +1,8 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import { logout } from '../controllers/loginController';
 
 export default (): Router => {
-  const router = express.Router();
+  const router = Router();
 
   // Logout
   router.post('/', (req, res) =>

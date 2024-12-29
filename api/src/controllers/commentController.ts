@@ -4,6 +4,7 @@ import * as commentModel from '../models/commentModel';
 import * as notificationModel from '../models/notificationModel';
 import { CustomRequest } from '../types/express';
 import { CommentCreateInput, CommentUpdateInput, TaskRequest } from '../types/comment';
+import { NotificationType } from '../types/notification';
 
 // Get task comments
 export const getTaskComments = async (
@@ -45,9 +46,9 @@ export const createComment = async (
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: taskId || '',
-      action_user_id: userId,
-      type_id: 'task_commented'
+      task_id: parseInt(taskId || '0'),
+      action_user_id: parseInt(userId),
+      type_id: NotificationType.TaskComment  // Task Comment
     });
 
     res.status(201).json(newComment);

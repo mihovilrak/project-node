@@ -45,7 +45,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ userId, classNa
     handleDeleteNotification
   } = useNotificationCenter(userId);
 
-  const getIcon = (type: string): JSX.Element => {
+  const getIcon = (type: string): React.ReactElement => {
     const Icon = iconMap[type] || NotificationsIcon;
     return <Icon />;
   };
@@ -90,11 +90,14 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ userId, classNa
           <List sx={{ p: 0 }}>
             {notifications.map((notification) => (
               <ListItem
+                component="div"
                 key={notification.id}
-                button
                 onClick={() => handleNotificationClick(notification)}
                 sx={{
-                  backgroundColor: notification.is_read ? 'inherit' : 'action.hover'
+                  backgroundColor: notification.is_read ? 'inherit' : 'action.hover',
+                  '&:hover': {
+                    cursor: 'pointer'
+                  }
                 }}
               >
                 <ListItemIcon>

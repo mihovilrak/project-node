@@ -1,4 +1,4 @@
-import express, { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -28,7 +28,7 @@ const upload = multer({ storage });
 
 // File routes
 export default (pool: Pool): Router => {
-  const router = express.Router();
+  const router = Router();
 
   // Middleware to set taskId from query params
   router.use((req: any, res, next) => {
@@ -39,21 +39,21 @@ export default (pool: Pool): Router => {
   });
 
   // Get task files
-  router.get('/', (req, res) => 
-    fileController.getTaskFiles(req, res, pool));
+  router.get('/', ((req, res) => 
+    fileController.getTaskFiles(req, res, pool)) as RequestHandler);
 
   // Upload a file
   router.post('/', 
     upload.single('file'),
-    (req, res) => fileController.uploadFile(req, res, pool));
+    ((req, res) => fileController.uploadFile(req, res, pool)) as RequestHandler);
 
   // Download a file
-  router.get('/:fileId/download', (req, res) => 
-    fileController.downloadFile(req, res, pool));
+  router.get('/:fileId/download', ((req, res) => 
+    fileController.downloadFile(req, res, pool)) as RequestHandler);
 
   // Delete a file
-  router.delete('/:fileId', checkPermission(pool, 'Delete files'), (req, res) => 
-    fileController.deleteFile(req, res, pool));
+  router.delete('/:fileId', checkPermission(pool, 'Delete files'), ((req, res) => 
+    fileController.deleteFile(req, res, pool)) as RequestHandler);
 
   return router;
 };

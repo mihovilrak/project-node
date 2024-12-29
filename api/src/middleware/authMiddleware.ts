@@ -8,9 +8,10 @@ export default async (
 ): Promise<void> => {
   // Check if the user is authenticated
   if (req.session && req.session.user) {
+    console.log('Auth check - User found:', req.session.user);
     next();
   } else {
-    console.log("No session or user found");
+    console.log('Auth check - No session or user found');
     res.status(403).json({ error: 'Access denied' });
   }
 }

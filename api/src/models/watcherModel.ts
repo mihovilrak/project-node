@@ -7,7 +7,7 @@ export const getTaskWatchers = async (
   taskId: string
 ): Promise<TaskWatcher[]> => {
   const result: QueryResult<TaskWatcher> = await pool.query(
-    `SELECT * FROM task_watchers 
+    `SELECT * FROM v_task_watchers 
     WHERE task_id = $1`,
     [taskId]
   );
@@ -21,7 +21,7 @@ export const addTaskWatcher = async (
   userId: string
 ): Promise<TaskWatcher | null> => {
   const result: QueryResult<TaskWatcher> = await pool.query(
-    `INSERT INTO task_watchers (task_id, user_id) 
+    `INSERT INTO watchers (task_id, user_id) 
     VALUES ($1, $2) 
     RETURNING *`,
     [taskId, userId]
@@ -36,7 +36,7 @@ export const removeTaskWatcher = async (
   userId: string
 ): Promise<number | null> => {
   const result: QueryResult = await pool.query(
-    `DELETE FROM task_watchers 
+    `DELETE FROM watchers 
     WHERE task_id = $1 
     AND user_id = $2`,
     [taskId, userId]

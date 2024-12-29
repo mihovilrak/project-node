@@ -1,4 +1,3 @@
-import { DatabasePool } from '../types/models';
 import { 
   Project, 
   ProjectDetails, 
@@ -6,11 +5,11 @@ import {
   ProjectStatus,
   ProjectTaskFilters
 } from '../types/project';
-import { QueryResult } from 'pg';
+import { Pool, QueryResult } from 'pg';
 
 // Get all projects
 export const getProjects = async (
-  pool: DatabasePool,
+  pool: Pool,
   whereParams?: Record<string, any>
 ): Promise<Project[]> => {
   let query = 'SELECT * FROM projects';
@@ -34,7 +33,7 @@ export const getProjects = async (
 
 // Get a project by ID
 export const getProjectById = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string
 ): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
@@ -47,7 +46,7 @@ export const getProjectById = async (
 
 // Get project details
 export const getProjectDetails = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string
 ): Promise<ProjectDetails | null> => {
   const result: QueryResult<ProjectDetails> = await pool.query(
@@ -59,7 +58,7 @@ export const getProjectDetails = async (
 
 // Create a new project
 export const createProject = async (
-  pool: DatabasePool,
+  pool: Pool,
   name: string,
   description: string,
   start_date: Date | null,
@@ -79,7 +78,7 @@ export const createProject = async (
 
 // Change a project status
 export const changeProjectStatus = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string,
   status: string
 ): Promise<Project | null> => {
@@ -92,7 +91,7 @@ export const changeProjectStatus = async (
 
 // Update a project
 export const updateProject = async (
-  pool: DatabasePool,
+  pool: Pool,
   updates: Partial<Project>,
   id: string
 ): Promise<number | null> => {
@@ -112,7 +111,7 @@ export const updateProject = async (
 
 // Delete a project
 export const deleteProject = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string
 ): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
@@ -124,7 +123,7 @@ export const deleteProject = async (
 
 // Get project members
 export const getProjectMembers = async (
-  pool: DatabasePool,
+  pool: Pool,
   projectId: string
 ): Promise<ProjectMember[]> => {
   const result: QueryResult<ProjectMember> = await pool.query(
@@ -137,7 +136,7 @@ export const getProjectMembers = async (
 
 // Get subprojects
 export const getSubprojects = async (
-  pool: DatabasePool,
+  pool: Pool,
   parentId: string
 ): Promise<Project[]> => {
   const result: QueryResult<Project> = await pool.query(
@@ -150,7 +149,7 @@ export const getSubprojects = async (
 
 // Add project member
 export const addProjectMember = async (
-  pool: DatabasePool,
+  pool: Pool,
   projectId: string,
   userId: string
 ): Promise<ProjectMember | null> => {
@@ -166,7 +165,7 @@ export const addProjectMember = async (
 
 // Delete project member
 export const deleteProjectMember = async (
-  pool: DatabasePool,
+  pool: Pool,
   projectId: string,
   userId: string
 ): Promise<number | null> => {
@@ -181,7 +180,7 @@ export const deleteProjectMember = async (
 
 // Get project tasks
 export const getProjectTasks = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string,
   filters: ProjectTaskFilters = {}
 ): Promise<any[]> => {
@@ -201,7 +200,7 @@ export const getProjectTasks = async (
 
 // Get project statuses
 export const getProjectStatuses = async (
-  pool: DatabasePool
+  pool: Pool
 ): Promise<ProjectStatus[]> => {
   const result: QueryResult<ProjectStatus> = await pool.query(
     `SELECT id, name FROM project_statuses 

@@ -1,14 +1,14 @@
-import express, { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import * as loginController from '../controllers/loginController';
 
 // Login routes
 export default (pool: Pool): Router => {  
-  const router = express.Router();
+  const router = Router();
 
   // Login
-  router.post('/', (req, res) =>
-    loginController.login(req, res, pool));
+  router.post('/', ((req, res) =>
+    loginController.login(req, res, pool)) as RequestHandler);
 
   return router;
 };

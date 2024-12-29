@@ -1,13 +1,13 @@
-import express, { Router, Request } from 'express';
-import { DatabasePool } from '../types/models';
+import { Router, Request, RequestHandler } from 'express';
+import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
 import * as projectController from '../controllers/projectController';
 import * as timeLogController from '../controllers/timeLogController';
 import { ProjectUpdateInput, ProjectTaskFilters } from '../types/project';
 import { ProjectRequest } from '../types/express';
 
-export default function projectRouter(pool: DatabasePool): Router {
-  const router = express.Router();
+export default (pool: Pool): Router => {
+  const router = Router();
 
   // Get project statuses route
   router.get('/statuses', (req, res) =>
@@ -54,7 +54,8 @@ export default function projectRouter(pool: DatabasePool): Router {
   );
 
   // Get tasks by project ID
-  router.get('/:id/tasks', (req: Request<{ id: string }, {}, {}, ProjectTaskFilters>, res) =>
+  router.get('/:id/tasks', 
+    (req: Request<{ id: string }, {}, {}, ProjectTaskFilters>, res) =>
     projectController.getProjectTasks(req, res, pool));
 
   // Get project members route
@@ -80,11 +81,13 @@ export default function projectRouter(pool: DatabasePool): Router {
     projectController.getSubprojects(req, res, pool));
 
   // Time log related routes
-  router.get('/:id/time-logs', (req: Request<{ id: string }>, res) =>
-    timeLogController.getProjectTimeLogs(req, res, pool));
+  router.get('/:id/time-logs', (async (req: Request<{ id: string }>, res) => {
+    await timeLogController.getProjectTimeLogs(req, res, pool);
+  }) as RequestHandler<{ id: string }>);
 
-  router.get('/:id/spent-time', (req: Request<{ id: string }>, res) =>
-    timeLogController.getProjectSpentTime(req, res, pool));
+  router.get('/:id/spent-time', (async (req: Request<{ id: string }>, res) => {
+    await timeLogController.getProjectSpentTime(req, res, pool);
+  }) as RequestHandler<{ id: string }>);
 
   return router;
 }

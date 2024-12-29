@@ -46,7 +46,9 @@ class NotificationService {
 
       // Mark as read after sending email
       await pool.query(
-        'UPDATE notifications SET read_on = NOW() WHERE id = $1',
+        `UPDATE notifications 
+        SET read_on = NOW() 
+        WHERE id = $1`,
         [notification.id]
       );
     } catch (error) {

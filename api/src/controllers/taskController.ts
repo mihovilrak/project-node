@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
-import { DatabasePool } from '../types/models';
+import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
 import { TaskCreateInput, TaskUpdateInput } from '../types/task';
 import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
+import * as watcherModel from '../models/watcherModel';
+import { NotificationType } from '../types/notification';
 
 // Get tasks
 export const getTasks = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { project_id } = req.query;
   try {
@@ -27,7 +29,7 @@ export const getTasks = async (
 export const getTaskById = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -47,7 +49,7 @@ export const getTaskById = async (
 export const getTaskByAssignee = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const { assignee_id } = req.query;
@@ -67,7 +69,7 @@ export const getTaskByAssignee = async (
 export const getTaskByHolder = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const { holder_id } = req.query;
@@ -87,7 +89,7 @@ export const getTaskByHolder = async (
 export const createTask = async (
   req: CustomRequest,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const taskData: TaskCreateInput = req.body;
@@ -123,8 +125,22 @@ export const createTask = async (
       return;
     }
 
-    const result = await taskModel.createTask(pool, taskData, watchers);
-    res.status(201).json(result);
+    // Create task
+    const task = await taskModel.createTask(pool, taskData, watchers);
+
+    // Add initial watchers
+    for (const watcherId of watchers) {
+      await watcherModel.addTaskWatcher(pool, task.id, watcherId);
+    }
+
+    // Create notifications for watchers
+    await notificationModel.createWatcherNotifications(pool, {
+      task_id: parseInt(task.id),
+      action_user_id: parseInt(created_by),
+      type_id: NotificationType.TaskCreated
+    });
+
+    res.status(201).json(task);
   } catch (error) {
     console.error('Error creating task:', error);
     res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' });
@@ -135,7 +151,7 @@ export const createTask = async (
 export const updateTask = async (
   req: CustomRequest,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   const userId = req.session.user?.id;
@@ -151,9 +167,9 @@ export const updateTask = async (
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: id,
-      action_user_id: userId!,
-      type_id: 'task_updated'
+      task_id: parseInt(id),
+      action_user_id: parseInt(userId!),
+      type_id: NotificationType.TaskUpdated  // Task Updated
     });
 
     res.status(200).json(task);
@@ -167,7 +183,7 @@ export const updateTask = async (
 export const changeTaskStatus = async (
   req: CustomRequest,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   const { statusId } = req.body;
@@ -183,9 +199,9 @@ export const changeTaskStatus = async (
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: id,
-      action_user_id: userId!,
-      type_id: 'task_status_changed'
+      task_id: parseInt(id),
+      action_user_id: parseInt(userId!),
+      type_id: NotificationType.TaskUpdated  // Task Status Changed
     });
 
     res.status(200).json(task);
@@ -199,7 +215,7 @@ export const changeTaskStatus = async (
 export const deleteTask = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -219,7 +235,7 @@ export const deleteTask = async (
 export const getTaskStatuses = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const statuses = await taskModel.getTaskStatuses(pool);
@@ -234,7 +250,7 @@ export const getTaskStatuses = async (
 export const getPriorities = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const priorities = await taskModel.getPriorities(pool);
@@ -249,7 +265,7 @@ export const getPriorities = async (
 export const getActiveTasks = async (
   req: CustomRequest,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   try {
     const userId = req.session.user?.id;
@@ -269,7 +285,7 @@ export const getActiveTasks = async (
 export const getSubtasks = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   try {

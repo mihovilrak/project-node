@@ -1,11 +1,11 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeRouter from './taskTypeRouter';
 import * as activityTypeRouter from './activityTypeRouter';
 import * as adminController from '../controllers/adminController';
 
 export default (pool: Pool): Router => {
-  const router = express.Router();
+  const router = Router();
 
   // Mount task types routes under /admin/task-types
   router.use('/task-types', (req, res, next) => {

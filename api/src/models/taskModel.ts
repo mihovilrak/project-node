@@ -1,4 +1,3 @@
-import { DatabasePool } from '../types/models';
 import { 
   Task, 
   TaskDetails, 
@@ -9,11 +8,11 @@ import {
   TaskWatcher,
   TaskQueryFilters
 } from '../types/task';
-import { QueryResult } from 'pg';
+import { Pool, QueryResult } from 'pg';
 
 // Get all tasks
 export const getTasks = async (
-  pool: DatabasePool,
+  pool: Pool,
   filters?: TaskQueryFilters
 ): Promise<TaskDetails[]> => {
   let query = 'SELECT * FROM v_tasks';
@@ -38,7 +37,7 @@ export const getTasks = async (
 
 // Get a task by ID
 export const getTaskById = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string
 ): Promise<TaskDetails | null> => {
   const result: QueryResult<TaskDetails> = await pool.query(
@@ -51,7 +50,7 @@ export const getTaskById = async (
 
 // Create a task
 export const createTask = async (
-  pool: DatabasePool,
+  pool: Pool,
   {
     name,
     description,
@@ -98,7 +97,7 @@ export const createTask = async (
 
 // Update a task
 export const updateTask = async (
-  pool: DatabasePool,
+  pool: Pool,
   taskId: string,
   taskData: TaskUpdateInput
 ): Promise<Task | null> => {
@@ -142,7 +141,7 @@ export const updateTask = async (
 
 // Change a task status
 export const changeTaskStatus = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string,
   statusId: string
 ): Promise<Task | null> => {
@@ -158,7 +157,7 @@ export const changeTaskStatus = async (
 
 // Delete a task
 export const deleteTask = async (
-  pool: DatabasePool,
+  pool: Pool,
   id: string
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
@@ -173,7 +172,7 @@ export const deleteTask = async (
 
 // Get task statuses
 export const getTaskStatuses = async (
-  pool: DatabasePool
+  pool: Pool
 ): Promise<TaskStatus[]> => {
   const result: QueryResult<TaskStatus> = await pool.query(
     `SELECT id, name 
@@ -184,7 +183,7 @@ export const getTaskStatuses = async (
 
 // Get priorities
 export const getPriorities = async (
-  pool: DatabasePool
+  pool: Pool
 ): Promise<TaskPriority[]> => {
   const result: QueryResult<TaskPriority> = await pool.query(
     `SELECT id, name 
@@ -195,7 +194,7 @@ export const getPriorities = async (
 
 // Get active tasks
 export const getActiveTasks = async (
-  pool: DatabasePool,
+  pool: Pool,
   userId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
@@ -209,7 +208,7 @@ export const getActiveTasks = async (
 
 // Get tasks by project
 export const getTasksByProject = async (
-  pool: DatabasePool,
+  pool: Pool,
   project_id: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
@@ -223,7 +222,7 @@ export const getTasksByProject = async (
 
 // Get subtasks
 export const getSubtasks = async (
-  pool: DatabasePool,
+  pool: Pool,
   parentId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(

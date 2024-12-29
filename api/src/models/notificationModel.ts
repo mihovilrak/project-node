@@ -50,50 +50,20 @@ export const createWatcherNotifications = async (
   { task_id, action_user_id, type_id }: NotificationCreateInput
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `WITH task_info AS (
-      SELECT 
-        t.name as task_name,
-        t.description,
-        p.name as project_name,
-        u.name as action_user_name
-      FROM tasks t
-      JOIN projects p ON t.project_id = p.id
-      JOIN users u ON u.id = $2
-      WHERE t.id = $1
-    )
-    INSERT INTO notifications (
-      user_id,
-      title,
-      message,
-      link,
-      type_id,
-      active,
-      created_on
-    )
-    SELECT 
-      w.user_id,
-      CASE 
-        WHEN $3 = 'task_updated' THEN 'Task Updated'
-        WHEN $3 = 'task_commented' THEN 'New Comment'
-        WHEN $3 = 'task_status_changed' THEN 'Status Changed'
-      END,
-      action_user_name || ' ' || 
-      CASE 
-        WHEN $3 = 'task_updated' THEN 'updated'
-        WHEN $3 = 'task_commented' THEN 'commented on'
-        WHEN $3 = 'task_status_changed' THEN 'changed status of'
-      END || 
-      ' task "' || task_name || '" in project "' || project_name || '"',
-      '/tasks/' || $1,
-      $3,
-      true,
-      CURRENT_TIMESTAMP
-    FROM watchers w
-    CROSS JOIN task_info
-    WHERE w.task_id = $1
-    AND w.user_id != $2
-    RETURNING *`,
+    `SELECT * FROM create_watcher_notifications($1, $2, $3)`,
     [task_id, action_user_id, type_id]
+  );
+  return result.rows;
+};
+
+// Create project member notifications
+export const createProjectMemberNotifications = async (
+  pool: Pool,
+  { project_id, action_user_id, type_id }: { project_id: number; action_user_id: number; type_id: number }
+): Promise<Notification[]> => {
+  const result = await pool.query(
+    `SELECT * FROM create_project_member_notifications($1, $2, $3)`,
+    [project_id, action_user_id, type_id]
   );
   return result.rows;
 };

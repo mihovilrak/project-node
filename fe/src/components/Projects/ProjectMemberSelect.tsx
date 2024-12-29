@@ -22,7 +22,13 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
       </Typography>
       <List>
         {users.map((user) => (
-          <ListItem key={user.id} dense button onClick={() => onUserSelect(user.id)}>
+          <ListItem
+            component="div"
+            key={user.id}
+            dense
+            onClick={() => onUserSelect(user.id)}
+            sx={{ '&:hover': { cursor: 'pointer' } }}
+          >
             <ListItemIcon>
               <Checkbox
                 edge="start"

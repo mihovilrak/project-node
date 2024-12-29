@@ -1,5 +1,5 @@
 import { api } from './api';
-import { TaskFile } from '../types/files';
+import { TaskFile } from '../types/file';
 import { FileUploadOptions } from '../types/api';
 import { AxiosProgressEvent } from 'axios';
 

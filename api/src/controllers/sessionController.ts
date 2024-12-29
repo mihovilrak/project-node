@@ -8,13 +8,8 @@ export const session = async (
   res: Response
 ): Promise<void> => {
   try {
-    if (req.session?.user) {
-      const sessionUser: SessionUser = {
-        id: req.session.user.id,
-        login: req.session.user.login,
-        role_id: req.session.user.role_id
-      };
-      res.status(200).json({ user: sessionUser });
+    if (req.session.user) {
+      res.status(200).json({ user: req.session.user });
     } else {
       res.status(401).json({ message: 'Not authenticated' });
     }

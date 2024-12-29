@@ -1,5 +1,5 @@
 # Build frontend
-FROM node:23-alpine3.19 AS frontend-builder
+FROM node:23.5.0-alpine3.21 AS frontend-builder
 
 # Set working directory
 WORKDIR /app/fe
@@ -28,7 +28,7 @@ RUN yarn run type-check && \
     yarn run build --verbose
 
 # Build backend
-FROM node:23-alpine3.19 AS backend-builder
+FROM node:23.5.0-alpine3.21 AS backend-builder
 
 # Set working directory
 WORKDIR /app/api
@@ -53,7 +53,7 @@ RUN yarn run tsc && \
     ncc build dist/app.js -o dist --no-cache -q
 
 # Build notification service
-FROM node:23-alpine3.19 AS notification-builder
+FROM node:23.5.0-alpine3.21 AS notification-builder
 
 # Set working directory
 WORKDIR /app/service
@@ -76,7 +76,7 @@ COPY notification-service/src/ ./src/
 RUN ncc build src/index.js -o dist --no-cache -q
 
 # Final image
-FROM nginx:1.25.3-alpine
+FROM nginx:1.27.3-alpine3.20
 
 # Copy built applications
 WORKDIR /app
@@ -104,8 +104,8 @@ COPY db/init/ ./db-init/
 
 # Copy built applications
 COPY --from=frontend-builder /app/fe/build /usr/share/nginx/html
-COPY --from=backend-builder /app/api/dist/* ./api/
-COPY --from=notification-builder /app/service/dist/* ./service/
+COPY --from=backend-builder /app/api/dist/index.js ./api/
+COPY --from=notification-builder /app/service/dist/index.js ./service/
 
 # Copy NGINX configuration
 COPY fe/nginx.conf /etc/nginx/nginx.conf

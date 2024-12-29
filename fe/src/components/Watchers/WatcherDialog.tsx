@@ -79,9 +79,10 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
               const isWatcher = currentWatchers.some(w => w.user_id === member.user_id);
               return (
                 <ListItem 
-                  key={member.user_id} 
-                  button 
+                  component="div"
+                  key={member.user_id}
                   onClick={() => handleToggle(member.user_id)}
+                  sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
                   <ListItemText 
                     primary={member.name}

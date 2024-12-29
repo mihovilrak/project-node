@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { DatabasePool } from '../types/models';
+import { Pool } from 'pg';
 import { Permission } from '../types/permission';
 import { CustomRequest } from '../types/express';
 import { hasPermission } from '../models/permissionModel';
 
-export default (pool: DatabasePool, requiredPermission: Permission) => {
-  return (req: CustomRequest, res: Response, next: NextFunction): void => {
+export default (pool: Pool, requiredPermission: Permission) => {
+  return async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
     const userId = req.session.user?.id;
 
     console.log('Session check - Session:', req.session);

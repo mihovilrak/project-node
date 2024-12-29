@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { DatabasePool } from '../types/models';
+import { Pool } from 'pg';
 import * as watcherModel from '../models/watcherModel';
 
 // Get task watchers
 export const getTaskWatchers = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -22,7 +22,7 @@ export const getTaskWatchers = async (
 export const addTaskWatcher = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -39,7 +39,7 @@ export const addTaskWatcher = async (
 export const removeTaskWatcher = async (
   req: Request,
   res: Response,
-  pool: DatabasePool
+  pool: Pool
 ): Promise<void> => {
   const { id, userId } = req.params;
   try {
