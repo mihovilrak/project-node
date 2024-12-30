@@ -59,13 +59,14 @@ FROM node:23.5.0-alpine3.21 AS notification-builder
 WORKDIR /app/service
 
 # Copy package and lock files
-COPY notification-service/package*.json notification-service/yarn.lock ./
+COPY notification-service/package*.json notification-service/yarn.lock notification-service/tsconfig.json ./
 
 # Install dependencies
 RUN mkdir node_modules && \
     yarn config set cache-folder /tmp/yarn-cache && \
     yarn install --frozen-lockfile --prefer-offline \
-    --production=true --link-duplicates --ignore-optional && \
+    --production=false --link-duplicates --ignore-optional && \
+    yarn add -D typescript @types/node && \
     npm install -g @vercel/ncc && \
     yarn cache clean --all
 
@@ -73,7 +74,11 @@ RUN mkdir node_modules && \
 COPY notification-service/src/ ./src/
 
 # Build the service
-RUN ncc build src/index.js -o dist --no-cache -q
+RUN yarn run tsc && \
+    npm install -g @vercel/ncc && \
+    ncc build dist/index.js -o dist --no-cache -q && \
+    mkdir -p dist/templates && \
+    cp -r src/templates/* dist/templates/
 
 # Final image
 FROM nginx:1.27.3-alpine3.20
@@ -106,12 +111,10 @@ COPY db/init/ ./db-init/
 COPY --from=frontend-builder /app/fe/build /usr/share/nginx/html
 COPY --from=backend-builder /app/api/dist/index.js ./api/
 COPY --from=notification-builder /app/service/dist/index.js ./service/
+COPY --from=notification-builder /app/service/dist/templates/ ./service/templates/
 
 # Copy NGINX configuration
 COPY fe/nginx.conf /etc/nginx/nginx.conf
-
-# Copy email templates
-COPY notification-service/src/templates/ ./service/templates/
 
 # Expose ports
 EXPOSE 80 5000

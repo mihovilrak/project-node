@@ -1,4 +1,6 @@
-module.exports = {
+import { Config } from './types/config.types';
+
+export const config: Config = {
   db: {
     user: process.env.POSTGRES_USER,
     host: process.env.POSTGRES_HOST,
@@ -12,13 +14,14 @@ module.exports = {
     secure: process.env.EMAIL_SECURE === 'true',
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD, // App-specific password for Gmail
+      pass: process.env.EMAIL_PASSWORD,
     },
     from: process.env.EMAIL_FROM || 'Project Management <noreply@yourcompany.com>',
   },
   app: {
     nodeEnv: process.env.NODE_ENV || 'development',
     emailEnabled: process.env.EMAIL_ENABLED === 'true',
-    baseUrl: `http://localhost:${process.env.PORT || '5001'}`
+    baseUrl: `http://localhost:${process.env.PORT || '5001'}`,
+    port: parseInt(process.env.PORT || '5001')
   }
-}; 
+};

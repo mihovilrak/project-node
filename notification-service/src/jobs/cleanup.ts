@@ -1,8 +1,8 @@
-const schedule = require('node-schedule');
-const pool = require('../db');
-const logger = require('../utils/logger');
+import * as schedule from 'node-schedule';
+import { pool } from '../db';
+import { logger } from '../utils/logger';
 
-const cleanupOldNotifications = async () => {
+const cleanupOldNotifications = async (): Promise<void> => {
   try {
     const result = await pool.query(
       `UPDATE notifications 
@@ -17,4 +17,4 @@ const cleanupOldNotifications = async () => {
 };
 
 // Run cleanup job daily at 2 AM
-schedule.scheduleJob('0 2 * * *', cleanupOldNotifications); 
+schedule.scheduleJob('0 2 * * *', cleanupOldNotifications);

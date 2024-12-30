@@ -16,4 +16,4 @@
 
 .obsolete
 
-api/**/*.js
+notification_service/**/*.js

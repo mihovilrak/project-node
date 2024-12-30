@@ -4,4 +4,4 @@ instructions.md
 db/backup/
 .obsolete
 
-api/**/*.js
+notification_service/**/*.js

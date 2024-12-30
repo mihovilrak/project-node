@@ -1,11 +1,20 @@
-const nodemailer = require('nodemailer');
-const handlebars = require('handlebars');
-const fs = require('fs').promises;
-const path = require('path');
-const config = require('../config');
-const logger = require('../utils/logger');
+import nodemailer from 'nodemailer';
+import handlebars, { TemplateDelegate } from 'handlebars';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { config } from '../config';
+import { logger } from '../utils/logger';
+import {
+  EmailService as IEmailService,
+  EmailTemplates,
+  MailOptions,
+  EmailInfo,
+} from '../types/email.types';
 
-class EmailService {
+class EmailService implements IEmailService {
+  public transporter: nodemailer.Transporter;
+  public templates: EmailTemplates;
+
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: config.email.host,
@@ -18,9 +27,9 @@ class EmailService {
     this.initializeTemplates();
   }
 
-  async initializeTemplates() {
+  async initializeTemplates(): Promise<void> {
     try {
-      const templateDir = path.join(__dirname, '../templates');
+      const templateDir = path.join(__dirname, './templates');
       const files = await fs.readdir(templateDir);
       
       for (const file of files) {
@@ -34,7 +43,7 @@ class EmailService {
     }
   }
 
-  async loadTemplate(name) {
+  async loadTemplate(name: string): Promise<TemplateDelegate> {
     if (this.templates[name]) {
       return this.templates[name];
     }
@@ -45,7 +54,12 @@ class EmailService {
     return this.templates[name];
   }
 
-  async sendEmail(to, subject, templateName, data) {
+  async sendEmail(
+    to: string,
+    subject: string,
+    templateName: string,
+    data: any
+  ): Promise<EmailInfo | void> {
     if (!config.app.emailEnabled) {
       logger.info('Email sending is disabled');
       return;
@@ -55,7 +69,7 @@ class EmailService {
       const template = await this.loadTemplate(templateName);
       const html = template(data);
 
-      const mailOptions = {
+      const mailOptions: MailOptions = {
         from: config.email.from,
         to,
         subject,
@@ -71,7 +85,13 @@ class EmailService {
     }
   }
 
-  async sendEmailWithRetry(to, subject, templateName, data, retries = 3) {
+  async sendEmailWithRetry(
+    to: string,
+    subject: string,
+    templateName: string,
+    data: any,
+    retries = 3
+  ): Promise<EmailInfo | void> {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         return await this.sendEmail(to, subject, templateName, data);
@@ -83,7 +103,7 @@ class EmailService {
     }
   }
 
-  async validateTemplate(name) {
+  async validateTemplate(name: string): Promise<boolean> {
     try {
       const template = await this.loadTemplate(name);
       template({});
@@ -95,4 +115,4 @@ class EmailService {
   }
 }
 
-module.exports = new EmailService(); 
+export const emailService = new EmailService();

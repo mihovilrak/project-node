@@ -1,13 +1,11 @@
-const schedule = require('node-schedule');
-const config = require('./config');
-const pool = require('./db');
-const server = require('./server');
-const notificationService = require('./services/notificationService');
-const logger = require('./utils/logger');
-const metrics = require('./metrics');
-require('./jobs/cleanup');
+import * as schedule from 'node-schedule';
+import { pool } from './db';
+import { server } from './server';
+import { notificationService } from './services/notificationService';
+import { logger } from './utils/logger';
+import './jobs/cleanup';
 
-const initializeService = async () => {
+const initializeService = async (): Promise<void> => {
   try {
     await pool.query('SELECT 1');
     logger.info('Database connection established');
@@ -25,7 +23,7 @@ const initializeService = async () => {
 };
 
 // Handle graceful shutdown
-const shutdown = async (signal) => {
+const shutdown = async (signal: string): Promise<void> => {
   logger.info(`${signal} received. Shutting down gracefully...`);
   try {
     server.close();
@@ -40,7 +38,7 @@ const shutdown = async (signal) => {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-initializeService().catch((error) => {
+initializeService().catch((error: Error) => {
   logger.error('Failed to start service:', error);
   process.exit(1);
 });

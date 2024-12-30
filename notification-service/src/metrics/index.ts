@@ -1,4 +1,5 @@
-const winston = require('winston');
+import winston from 'winston';
+import { Metrics } from '../types/metrics.types';
 
 const metricsLogger = winston.createLogger({
   level: 'info',
@@ -9,26 +10,26 @@ const metricsLogger = winston.createLogger({
   ]
 });
 
-const metrics = {
+const metrics: Metrics = {
   notificationsSent: 0,
   emailErrors: 0,
   lastProcessingTime: null,
   
-  increment(metric) {
+  increment(metric: 'notificationsSent' | 'emailErrors'): void {
     this[metric]++;
     this.logMetrics();
   },
 
-  setProcessingTime() {
+  setProcessingTime(): void {
     this.lastProcessingTime = new Date();
     this.logMetrics();
   },
 
-  logMetrics() {
+  logMetrics(): void {
     if (process.env.METRICS_ENABLED === 'true') {
       metricsLogger.info('metrics_update', { ...this });
     }
   }
 };
 
-module.exports = metrics;
+export { metrics };

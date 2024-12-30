@@ -1,5 +1,5 @@
-const { Pool } = require('pg');
-const config = require('./config');
+import { Pool } from 'pg';
+import { config } from './config';
 
 const pool = new Pool({
   ...config.db,
@@ -8,9 +8,9 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-pool.on('error', (err) => {
+pool.on('error', (err: Error) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 
-module.exports = pool; 
+export { pool };

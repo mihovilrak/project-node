@@ -1,11 +1,11 @@
-const express = require('express');
-const emailService = require('./services/emailService');
-const pool = require('./db');
-const config = require('./config');
-const rateLimiter = require('./middleware/rateLimiter');
-const notificationRoutes = require('./routes/notifications');
-const metrics = require('./metrics');
-const logger = require('./utils/logger');
+import express, { Request, Response, NextFunction } from 'express';
+import { emailService } from './services/emailService';
+import { pool } from './db';
+import { config } from './config';
+import { rateLimiter } from './middleware/rateLimiter';
+import { notificationRoutes } from './routes/notifications';
+import { metrics } from './metrics';
+import { logger } from './utils/logger';
 
 const app = express();
 
@@ -13,7 +13,7 @@ app.use(express.json());
 app.use('/api/notifications', rateLimiter, notificationRoutes);
 
 // Health check endpoint
-app.get('/health', async (req, res) => {
+app.get('/health', async (req: Request, res: Response) => {
   try {
     await pool.query('SELECT 1');
     await emailService.transporter.verify();
@@ -33,13 +33,13 @@ app.get('/health', async (req, res) => {
     logger.error('Health check failed:', error);
     res.status(503).json({
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   logger.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
@@ -58,4 +58,4 @@ process.on('SIGTERM', () => {
   });
 });
 
-module.exports = server;
+export { server };
