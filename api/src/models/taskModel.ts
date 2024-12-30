@@ -68,8 +68,8 @@ export const createTask = async (
     tagIds
   }: TaskCreateInput,
   watchers: string[]
-): Promise<Task> => {
-  const result: QueryResult<Task> = await pool.query(
+): Promise<{ task_id: number }> => {
+  const result = await pool.query<{ task_id: number }>(
     `SELECT * FROM create_task (
       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
       $11, $12, $13, $14, $15
@@ -80,18 +80,23 @@ export const createTask = async (
       estimated_time,
       start_date,
       due_date,
-      priority_id,
-      status_id,
-      type_id,
-      parent_id,
-      project_id,
-      holder_id,
-      assignee_id,
-      created_by,
+      Number(priority_id),
+      Number(status_id),
+      Number(type_id),
+      parent_id ? Number(parent_id) : null,
+      Number(project_id),
+      Number(holder_id),
+      Number(assignee_id),
+      Number(created_by),
       tagIds,
-      watchers
+      watchers.map(Number)
     ]
   );
+  
+  if (!result.rows[0]) {
+    throw new Error('Task creation failed - no task ID returned');
+  }
+  
   return result.rows[0];
 }
 

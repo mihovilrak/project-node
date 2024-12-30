@@ -17,7 +17,11 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     -- Verify notification type exists
-    IF NOT EXISTS (SELECT 1 FROM notification_types WHERE id = p_type_id) THEN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM notification_types notype 
+        WHERE notype.id = p_type_id
+        ) THEN
         RAISE EXCEPTION 'Invalid notification type ID: %', p_type_id;
     END IF;
 

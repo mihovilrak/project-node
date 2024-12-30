@@ -4,7 +4,6 @@ import { CustomRequest } from '../types/express';
 import { TaskCreateInput, TaskUpdateInput } from '../types/task';
 import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
-import * as watcherModel from '../models/watcherModel';
 import { NotificationType } from '../types/notification';
 
 // Get tasks
@@ -96,7 +95,9 @@ export const createTask = async (
     const {
       holder_id,
       assignee_id,
-      created_by
+      created_by,
+      tags,
+      estimated_time
     } = taskData;
 
     // Create unique watchers array from holder, assignee, and creator
@@ -125,25 +126,61 @@ export const createTask = async (
       return;
     }
 
-    // Create task
-    const task = await taskModel.createTask(pool, taskData, watchers);
+    // Convert types to match database expectations
+    const processedData: TaskCreateInput = {
+      ...taskData,
+      // Convert estimated_time from string to number if present
+      estimated_time: estimated_time ? Number(estimated_time) : null,
+      
+      priority_id: taskData.priority_id,
+      status_id: taskData.status_id,
+      type_id: taskData.type_id,
+      project_id: taskData.project_id,
+      holder_id: taskData.holder_id,
+      assignee_id: taskData.assignee_id,
+      created_by: taskData.created_by,
+      parent_id: taskData.parent_id || undefined,
+      // Extract tag IDs as numbers
+      tagIds: tags?.map(tag => tag.id)
+    };
 
-    // Add initial watchers
-    for (const watcherId of watchers) {
-      await watcherModel.addTaskWatcher(pool, task.id, watcherId);
+    // Create task with processed data
+    const task = await taskModel.createTask(pool, processedData, watchers);
+
+    // Debug log
+    console.log('Created task:', task);
+    
+    if (!task || !task.task_id) {
+      throw new Error('Task creation failed - no task ID returned');
+    }
+
+    // Ensure we have valid numbers for the notification
+    const taskId = Number(task.task_id);
+    const actionUserId = Number(created_by);
+
+    // Debug log
+    console.log('Converted IDs:', { taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by });
+
+    if (isNaN(taskId)) {
+      throw new Error(`Invalid task ID: ${task.task_id}`);
+    }
+    if (isNaN(actionUserId)) {
+      throw new Error(`Invalid created_by ID: ${created_by}`);
     }
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: parseInt(task.id),
-      action_user_id: parseInt(created_by),
+      task_id: taskId,
+      action_user_id: actionUserId,
       type_id: NotificationType.TaskCreated
     });
 
     res.status(201).json(task);
   } catch (error) {
     console.error('Error creating task:', error);
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' });
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error('Full error details:', { error, taskData: req.body });
+    res.status(500).json({ error: errorMessage });
   }
 }
 

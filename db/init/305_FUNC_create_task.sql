@@ -15,7 +15,7 @@ create or replace function create_task(
     p_tag_ids integer[],
     p_watchers integer[]
 ) returns table(
-    message text
+    task_id integer
 ) as $$
 
     declare
@@ -26,9 +26,6 @@ create or replace function create_task(
         if p_name is null or p_start_date is null or p_due_date is null 
            or p_priority_id is null or p_status_id is null or p_type_id is null 
            or p_project_id is null or p_holder_id is null or p_assignee_id is null then
-            return query select 
-                null::text as message,
-                'Required fields cannot be null'::text as error;
             return;
         end if;
 
@@ -75,11 +72,9 @@ create or replace function create_task(
             values (v_task_id, unnest(p_watchers));
         end if;
 
-        -- Return success message
+        -- Return just the ID
         return query 
-        select 'Task '
-        || p_name 
-        || ' created successfully' as message;
+        select v_task_id;
     end;
 
 $$ language plpgsql;

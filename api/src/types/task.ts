@@ -48,7 +48,7 @@ export interface TaskType {
 export interface TaskCreateInput {
   name: string;
   description?: string;
-  estimated_time?: number;
+  estimated_time?: number | null;
   start_date: Date;
   due_date: Date;
   priority_id: string;
@@ -59,7 +59,8 @@ export interface TaskCreateInput {
   holder_id: string;
   assignee_id: string;
   created_by: string;
-  tagIds?: string[];
+  tagIds?: number[];
+  tags?: Array<{ id: number; name: string; color: string; description: string | null; active: boolean; created_on: Date; }>;
 }
 
 export interface TaskUpdateInput {
