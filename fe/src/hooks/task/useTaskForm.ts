@@ -6,7 +6,8 @@ import {
   createTask,
   updateTask,
   getTaskStatuses,
-  getPriorities
+  getPriorities,
+  changeTaskStatus
 } from '../../api/tasks';
 import { getTaskTags, getTags } from '../../api/tags';
 import { TaskStatus, TaskPriority, TaskFormState } from '../../types/task';
@@ -106,12 +107,32 @@ export const useTaskForm = ({
     fetchData();
   }, [taskId]);
 
-  const handleChange = (e: { target: { name: string; value: any } }) => {
+  const handleChange = async (e: { target: { name: string; value: any } }) => {
     const { name, value } = e.target;
+    const newValue = value === '' ? null : value;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value === '' ? null : value
+      [name]: newValue
     }));
+
+    // If we're editing and the status changes, update it immediately
+    if (isEditing && name === 'status_id' && newValue !== null) {
+      try {
+        const updatedTask = await changeTaskStatus(Number(taskId), newValue);
+        setFormData(prev => ({
+          ...prev,
+          status_id: updatedTask.status_id
+        }));
+      } catch (error) {
+        console.error('Error updating task status:', error);
+        // Revert the status if update fails
+        setFormData(prev => ({
+          ...prev,
+          status_id: prev.status_id
+        }));
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

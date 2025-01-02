@@ -3,5 +3,3 @@
 instructions.md
 db/backup/
 .obsolete
-
-notification_service/**/*.js

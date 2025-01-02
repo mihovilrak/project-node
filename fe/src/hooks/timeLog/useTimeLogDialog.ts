@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TimeLogCreate, TimeLog } from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
 import { User } from '../../types/user';
@@ -13,6 +13,7 @@ interface UseTimeLogDialogProps {
   onClose: () => void;
   open: boolean;
   projectId?: number;
+  taskId?: number;
   hasAdminPermission: boolean;
 }
 
@@ -23,15 +24,16 @@ export const useTimeLogDialog = ({
   onClose,
   open,
   projectId,
+  taskId,
   hasAdminPermission,
 }: UseTimeLogDialogProps) => {
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | undefined>(undefined);
   const [selectedUserId, setSelectedUserId] = useState<number>(currentUser?.id || 0);
   const [selectedActivityTypeId, setSelectedActivityTypeId] = useState<number>(0);
   const [spentTime, setSpentTime] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [logDate, setLogDate] = useState<Dayjs>(timeLog ? dayjs(timeLog.log_date) : dayjs());
+  const [logDate, setLogDate] = useState<Dayjs>(dayjs());
 
   const { timeError, validateTime } = useTimeLogValidation();
   const {
@@ -41,60 +43,69 @@ export const useTimeLogDialog = ({
     activityTypes,
     isLoading,
     handleProjectSelect: handleProjectDataFetch
-  } = useTimeLogData({ open, projectId, hasAdminPermission });
+  } = useTimeLogData({ open, projectId: selectedProjectId, hasAdminPermission });
 
-  const handleProjectChange = (projectId: number | null) => {
-    setSelectedProjectId(projectId);
-    handleProjectDataFetch(projectId);
-    if (!selectedTaskId) {
-      setSelectedTaskId(null);
-    }
-  };
-
-  const handleTaskChange = (taskId: number | null, tasks: Task[]) => {
-    setSelectedTaskId(taskId);
-    if (taskId !== null) {
-      const task = tasks.find(t => t.id === taskId);
-      if (task && !selectedProjectId) {
-        setSelectedProjectId(task.project_id);
+  // Initialize form when dialog opens
+  useEffect(() => {
+    if (open) {
+      if (timeLog) {
+        const project = tasks.find(t => t.id === timeLog.task_id)?.project_id;
+        setSelectedProjectId(project);
+        setSelectedTaskId(timeLog.task_id);
+        setSelectedUserId(timeLog.user_id);
+        setSelectedActivityTypeId(timeLog.activity_type_id);
+        setSpentTime(String(timeLog.spent_time));
+        setDescription(timeLog.description || '');
+        setLogDate(dayjs(timeLog.log_date));
+      } else {
+        setSelectedProjectId(projectId);
+        setSelectedTaskId(taskId);
+        setSelectedUserId(currentUser?.id || 0);
+        setSelectedActivityTypeId(0);
+        setSpentTime('');
+        setDescription('');
+        setLogDate(dayjs());
       }
     }
+  }, [open, timeLog, projectId, taskId, currentUser, tasks]);
+
+  const handleProjectChange = (id: number | null) => {
+    setSelectedProjectId(id || undefined);
+    setSelectedTaskId(undefined);
+    if (id) {
+      handleProjectDataFetch(id);
+    }
   };
 
-  const handleDateChange = (newDate: Dayjs | null) => {
-    setLogDate(newDate || dayjs());
+  const handleTaskChange = (id: number | null, taskList: Task[]) => {
+    setSelectedTaskId(id || undefined);
   };
 
-  const handleSubmit = async (e: React.FormEvent, taskId: number | null) => {
-    e.preventDefault();
-    if (!validateTime(spentTime) || !taskId) return;
+  const handleSubmit = async () => {
+    if (!selectedTaskId || !validateTime(spentTime)) {
+      return;
+    }
 
     const timeLogData: TimeLogCreate = {
-      activity_type_id: selectedActivityTypeId || activityTypes[0]?.id || 0,
-      spent_time: Number(spentTime),
-      description: description || '',
+      task_id: selectedTaskId,
+      user_id: selectedUserId,
+      activity_type_id: selectedActivityTypeId,
       log_date: logDate.format('YYYY-MM-DD'),
-      user_id: selectedUserId || currentUser?.id || 0,
-      task_id: taskId
+      spent_time: parseFloat(spentTime),
+      description: description || undefined
     };
 
-    await onSubmit(timeLogData);
-    onClose();
+    try {
+      await onSubmit(timeLogData);
+      onClose();
+    } catch (error) {
+      console.error('Failed to submit time log:', error);
+    }
   };
 
-  const resetForm = () => {
-    if (timeLog) {
-      setSelectedActivityTypeId(timeLog.activity_type_id);
-      setSpentTime(String(timeLog.spent_time));
-      setDescription(timeLog.description || '');
-      setLogDate(dayjs(timeLog.log_date));
-      setSelectedUserId(timeLog.user_id);
-    } else {
-      setSelectedActivityTypeId(activityTypes[0]?.id || 0);
-      setSpentTime('');
-      setDescription('');
-      setLogDate(dayjs());
-      setSelectedUserId(currentUser?.id || 0);
+  const handleDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setLogDate(date);
     }
   };
 
@@ -122,6 +133,5 @@ export const useTimeLogDialog = ({
     handleProjectChange,
     handleTaskChange,
     handleSubmit,
-    resetForm,
   };
 };

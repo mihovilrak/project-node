@@ -59,7 +59,8 @@ FROM node:23.5.0-alpine3.21 AS notification-builder
 WORKDIR /app/service
 
 # Copy package and lock files
-COPY notification-service/package*.json notification-service/yarn.lock notification-service/tsconfig.json ./
+COPY notification-service/package*.json notification-service/yarn.lock \
+    notification-service/tsconfig.json ./
 
 # Install dependencies
 RUN mkdir node_modules && \

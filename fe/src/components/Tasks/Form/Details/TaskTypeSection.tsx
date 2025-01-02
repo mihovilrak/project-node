@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import TaskTypeSelect from '../../TaskTypeSelect';
 import { TaskFormState } from '../../../../types/task';
 import { FormChangeHandler } from '../types';
@@ -14,7 +14,6 @@ export const TaskTypeSection: React.FC<TaskTypeSectionProps> = ({
   handleChange
 }) => (
   <Box sx={{ mb: 2 }}>
-    <Typography variant="subtitle1" sx={{ mb: 1 }}>Task Type</Typography>
     <TaskTypeSelect
       value={formData.type_id}
       onChange={(e) => handleChange({

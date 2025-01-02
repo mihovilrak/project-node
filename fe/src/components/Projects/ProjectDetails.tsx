@@ -57,6 +57,11 @@ const ProjectDetails: React.FC = () => {
     setManageMembersOpen
   } = useProjectDetails(id!);
 
+  const handleCreateTask = () => {
+    navigate(`/tasks/new?projectId=${id}`);
+    setTaskFormOpen(false);
+  };
+
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!project) return <Alert severity="error">Project not found</Alert>;
@@ -93,7 +98,7 @@ const ProjectDetails: React.FC = () => {
           timeLogs={timeLogs}
           canManageMembers={canManageMembers}
           projectId={id!}
-          onCreateTask={() => setTaskFormOpen(true)}
+          onCreateTask={handleCreateTask}
           onManageMembers={() => setManageMembersOpen(true)}
           onTimeLogCreate={() => {
             setSelectedTimeLog(null);
@@ -138,15 +143,6 @@ const ProjectDetails: React.FC = () => {
         currentMembers={members}
         onSave={handleMembersUpdate}
       />
-
-      {taskFormOpen && (
-        <TaskForm
-          projectId={Number(id)}
-          onClose={() => setTaskFormOpen(false)}
-          onCreated={handleTaskCreate}
-          open={taskFormOpen}
-        />
-      )}
     </Box>
   );
 };

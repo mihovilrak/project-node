@@ -101,7 +101,8 @@ export const createTask = async (
     } = taskData;
 
     // Create unique watchers array from holder, assignee, and creator
-    const watchers = [...new Set([holder_id, assignee_id, created_by])].filter(id => id);
+    const watcherIds = [holder_id, assignee_id, created_by];
+    const watchers = Array.from(new Set(watcherIds)).filter(id => id);
 
     // Validate required fields
     const requiredFields: (keyof TaskCreateInput)[] = [

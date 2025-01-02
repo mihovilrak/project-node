@@ -21,11 +21,9 @@ export const useTaskDetailsHandlers = () => {
     setState(prev => ({ ...prev, statusMenuAnchor: null }));
   };
 
-  const handleStatusChange = (statusId: number, statuses: TaskStatus[], onStatusChange: (status: TaskStatus) => void) => {
-    const newStatus = statuses.find(s => s.id === statusId);
-    if (newStatus) {
-      onStatusChange(newStatus);
-    }
+  const handleStatusChange = (statusId: number, statuses: TaskStatus[], onStatusChange: (statusId: number) => Promise<void>) => {
+    onStatusChange(statusId);
+    handleStatusMenuClose();
   };
 
   // Comment Handlers
@@ -72,6 +70,12 @@ export const useTaskDetailsHandlers = () => {
   };
 
   // Subtask Handlers
+  const handleAddSubtaskClick = (task: Task, navigate: (path: string) => void) => {
+    if (task) {
+      navigate(`/tasks/new?projectId=${task.project_id}&parentId=${task.id}`);
+    }
+  };
+
   const handleSubtaskUpdate = (
     subtasks: Task[],
     subtaskId: number,
@@ -110,6 +114,7 @@ export const useTaskDetailsHandlers = () => {
     handleTimeLogSubmit,
     handleTimeLogEdit,
     handleTimeLogDialogClose,
+    handleAddSubtaskClick,
     handleSubtaskUpdate,
     handleSubtaskDelete,
     handleWatcherDialogOpen,

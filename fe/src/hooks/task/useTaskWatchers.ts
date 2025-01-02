@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TaskWatcher } from '../../types/watcher';
 import {
   getTaskWatchers,
@@ -17,6 +17,10 @@ export const useTaskWatchers = (taskId: string) => {
       console.error('Failed to fetch watchers:', error);
     }
   };
+
+  useEffect(() => {
+    fetchWatchers();
+  }, [taskId]);
 
   const handleAddWatcher = async (userId: number) => {
     try {

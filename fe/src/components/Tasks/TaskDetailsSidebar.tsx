@@ -1,8 +1,8 @@
 import React from 'react';
-import { Grid } from '@mui/material';
+import { Grid, Typography, Box } from '@mui/material';
+import TaskFileSection from './TaskFileSection';
 import WatcherList from '../Watchers/WatcherList';
 import WatcherDialog from '../Watchers/WatcherDialog';
-import TaskFileSection from './TaskFileSection';
 import { TaskDetailsSidebarProps } from '../../types/task';
 
 const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
@@ -19,26 +19,37 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
   onManageWatchers
 }) => (
   <Grid item xs={12} md={4}>
-    <WatcherList
-      watchers={watchers}
-      canManageWatchers={true}
-      onRemoveWatcher={onRemoveWatcher}
-      onManageWatchers={onManageWatchers}
-    />
-    <TaskFileSection
-      taskId={Number(id)}
-      files={files}
-      onFileUploaded={onFileUploaded}
-      onFileDeleted={onFileDeleted}
-    />
-    <WatcherDialog
-      open={watcherDialogOpen}
-      onClose={onWatcherDialogClose}
-      onAddWatcher={onAddWatcher}
-      projectId={projectId}
-      currentWatchers={watchers}
-      onRemoveWatcher={onRemoveWatcher}
-    />
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        Files
+      </Typography>
+      <TaskFileSection
+        taskId={Number(id)}
+        files={files}
+        onFileUploaded={onFileUploaded}
+        onFileDeleted={onFileDeleted}
+      />
+    </Box>
+
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        Watchers
+      </Typography>
+      <WatcherList
+        watchers={watchers}
+        canManageWatchers={true}
+        onRemoveWatcher={onRemoveWatcher}
+        onManageWatchers={onManageWatchers}
+      />
+      <WatcherDialog
+        open={watcherDialogOpen}
+        onClose={onWatcherDialogClose}
+        onAddWatcher={onAddWatcher}
+        projectId={projectId}
+        currentWatchers={watchers}
+        onRemoveWatcher={onRemoveWatcher}
+      />
+    </Box>
   </Grid>
 );
 

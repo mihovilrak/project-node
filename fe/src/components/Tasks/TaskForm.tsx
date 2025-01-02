@@ -1,8 +1,7 @@
 import React from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import { TaskFormProps } from '../../types/task';
 import { useTaskForm } from '../../hooks/task/useTaskForm';
 import { SimpleChangeEvent } from './Form/types';
 
@@ -19,12 +18,13 @@ import { TaskTagsSection } from './Form/Details/TaskTagsSection';
 import { EstimatedTimeField } from './Form/Estimation/EstimatedTimeField';
 import { TaskFormActionButtons } from './Form/Actions/TaskFormActionButtons';
 
-const TaskForm: React.FC<TaskFormProps> = () => {
+const TaskForm: React.FC = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const projectIdFromQuery = queryParams.get('projectId');
-  const parentTaskId = queryParams.get('parentTaskId');
+  const parentId = queryParams.get('parentId');
   const { projectId, taskId } = useParams();
 
   const {
@@ -38,70 +38,123 @@ const TaskForm: React.FC<TaskFormProps> = () => {
     handleChange,
     handleSubmit
   } = useTaskForm({
-    taskId,
-    projectId,
+    taskId: taskId || undefined,
+    projectId: projectId || undefined,
     projectIdFromQuery,
-    parentTaskId,
+    parentTaskId: parentId,
     currentUserId: currentUser?.id
   });
 
+  // Force project and parent task IDs from URL
+  React.useEffect(() => {
+    if (projectIdFromQuery) {
+      handleChange({
+        target: {
+          name: 'project_id',
+          value: parseInt(projectIdFromQuery, 10)
+        }
+      });
+    }
+  }, [projectIdFromQuery, handleChange]);
+
+  React.useEffect(() => {
+    if (parentId) {
+      handleChange({
+        target: {
+          name: 'parent_id',
+          value: parseInt(parentId, 10)
+        }
+      });
+    }
+  }, [parentId, handleChange]);
+
   const handleFormChange = (e: SimpleChangeEvent) => {
+    // Don't allow changing project_id and parent_id if they come from URL
+    if ((e.target.name === 'project_id' && projectIdFromQuery) ||
+        (e.target.name === 'parent_id' && parentId)) {
+      return;
+    }
     handleChange(e);
   };
 
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSubmit(e);
+    navigate(-1);
+  };
+
   return (
-    <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
-      <Paper elevation={3} sx={{ padding: 4 }}>
-        <Typography variant="h4">{isEditing ? 'Edit Task' : 'Add New Task'}</Typography>
-        <form onSubmit={handleSubmit}>
-          <TaskNameField formData={formData} handleChange={handleFormChange} />
-          
-          <ProjectSelect 
-            projects={projects} 
-            formData={formData} 
+    <Box component={Paper} sx={{ p: 3, maxWidth: 800, mx: 'auto', mt: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        {isEditing ? 'Edit Task' : 'Create Task'}
+      </Typography>
+      <form onSubmit={onSubmit}>
+        <TaskNameField
+          formData={formData}
+          handleChange={handleFormChange}
+        />
+        
+        <ProjectSelect
+          projects={projects}
+          formData={formData}
+          handleChange={handleFormChange}
+          projectIdFromQuery={projectIdFromQuery}
+        />
+        
+        <TaskDescriptionField
+          formData={formData} 
+          handleChange={handleFormChange} 
+        />
+        
+        <DatePickerSection
+          formData={formData} 
+          handleChange={handleFormChange} 
+        />
+        
+        <TaskPrioritySelect
+          formData={formData} 
+          priorities={priorities} 
+          handleChange={handleFormChange} 
+        />
+        
+        <TaskStatusSelect 
+          formData={formData} 
+          statuses={statuses} 
+          handleChange={handleFormChange} 
+        />
+        
+        <AssigneeSelectionSection 
+          formData={formData} 
+          projectMembers={projectMembers} 
+          handleChange={handleFormChange}
+        />
+        
+        {formData.project_id && (
+          <ParentTaskSelect
+            formData={formData}
+            projectTasks={projectTasks}
             handleChange={handleFormChange}
-            projectIdFromQuery={projectIdFromQuery}
+            parentIdFromUrl={parentId}
           />
-          
-          <TaskDescriptionField formData={formData} handleChange={handleFormChange} />
-          
-          <DatePickerSection formData={formData} handleChange={handleFormChange} />
-          
-          <TaskPrioritySelect 
-            formData={formData} 
-            priorities={priorities} 
-            handleChange={handleFormChange} 
-          />
-          
-          <TaskStatusSelect 
-            formData={formData} 
-            statuses={statuses} 
-            handleChange={handleFormChange} 
-          />
-          
-          <AssigneeSelectionSection 
-            formData={formData} 
-            projectMembers={projectMembers} 
-            handleChange={handleFormChange} 
-          />
-          
-          {formData.project_id && (
-            <ParentTaskSelect 
-              formData={formData} 
-              projectTasks={projectTasks} 
-              handleChange={handleFormChange} 
-            />
-          )}
-          
-          <TaskTypeSection formData={formData} handleChange={handleFormChange} />
-          
-          <TaskTagsSection formData={formData} handleChange={handleFormChange} />
-          
-          <EstimatedTimeField formData={formData} handleChange={handleFormChange} />
-          
-          <TaskFormActionButtons isEditing={isEditing} />
-        </form>
-      </Paper>
+        )}
+        
+        <TaskTypeSection
+          formData={formData} 
+          handleChange={handleFormChange} 
+        />
+        
+        <TaskTagsSection 
+          formData={formData} 
+          handleChange={handleFormChange} 
+        />
+        
+        <EstimatedTimeField
+          formData={formData} 
+          handleChange={handleFormChange} 
+        />
+        
+        <TaskFormActionButtons isEditing={isEditing} />
+      </form>
     </Box>
   );
 };

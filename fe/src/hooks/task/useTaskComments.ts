@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Comment } from '../../types/comment';
 import {
@@ -20,6 +20,10 @@ export const useTaskComments = (taskId: string) => {
       console.error('Failed to fetch comments:', error);
     }
   };
+
+  useEffect(() => {
+    fetchComments();
+  }, [taskId]);
 
   const handleCommentSubmit = async (content: string) => {
     try {

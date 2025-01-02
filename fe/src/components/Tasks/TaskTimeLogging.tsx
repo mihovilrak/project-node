@@ -7,6 +7,7 @@ import { TaskTimeLoggingProps } from '../../types/timeLog';
 
 const TaskTimeLogging: React.FC<TaskTimeLoggingProps> = ({
   taskId,
+  projectId,
   timeLogs,
   timeLogDialogOpen,
   selectedTimeLog,
@@ -29,6 +30,7 @@ const TaskTimeLogging: React.FC<TaskTimeLoggingProps> = ({
         onSubmit={onTimeLogSubmit}
         timeLog={selectedTimeLog}
         taskId={taskId}
+        projectId={projectId}
       />
     </Paper>
   );

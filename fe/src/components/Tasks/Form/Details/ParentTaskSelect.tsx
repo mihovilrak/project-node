@@ -7,12 +7,14 @@ interface ParentTaskSelectProps {
   formData: TaskFormState;
   projectTasks: Task[];
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  parentIdFromUrl?: string | null;
 }
 
 export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
   formData,
   projectTasks,
-  handleChange
+  handleChange,
+  parentIdFromUrl
 }) => (
   formData.project_id ? (
     <TextField 
@@ -21,7 +23,8 @@ export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
       label="Parent Task" 
       name="parent_id" 
       value={formData.parent_id || ''} 
-      onChange={handleChange} 
+      onChange={handleChange}
+      disabled={Boolean(parentIdFromUrl)}
       sx={{ mb: 2 }}
     >
       <MenuItem value="">None</MenuItem>

@@ -1,9 +1,11 @@
 import React from 'react';
-import { Grid } from '@mui/material';
+import { Grid, Typography, Box, Button } from '@mui/material';
 import SubtaskList from './SubtaskList';
 import TaskTimeLogging from './TaskTimeLogging';
 import TaskCommentSection from './TaskCommentSection';
 import { TaskDetailsContentProps } from '../../types/task';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   id,
@@ -24,35 +26,75 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onCommentUpdate,
   onCommentDelete,
   onEditStart,
-  onEditEnd
+  onEditEnd,
+  onAddSubtaskClick,
+  onTimeLogClick
 }) => (
   <Grid item xs={12} md={8}>
-    <SubtaskList
-      subtasks={subtasks}
-      parentTaskId={task.id}
-      onSubtaskDeleted={onSubtaskDeleted}
-      onSubtaskUpdated={onSubtaskUpdated}
-    />
-    <TaskTimeLogging
-      taskId={Number(id)}
-      timeLogs={timeLogs}
-      timeLogDialogOpen={timeLogDialogOpen}
-      selectedTimeLog={selectedTimeLog}
-      onTimeLogSubmit={onTimeLogSubmit}
-      onTimeLogDelete={onTimeLogDelete}
-      onTimeLogEdit={onTimeLogEdit}
-      onTimeLogDialogClose={onTimeLogDialogClose}
-    />
-    <TaskCommentSection
-      taskId={Number(id)}
-      comments={comments}
-      editingComment={editingComment}
-      onCommentSubmit={onCommentSubmit}
-      onCommentUpdate={onCommentUpdate}
-      onCommentDelete={onCommentDelete}
-      onEditStart={onEditStart}
-      onEditEnd={onEditEnd}
-    />
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          Subtasks
+        </Typography>
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<AddTaskIcon />}
+          onClick={onAddSubtaskClick}
+        >
+          Add Subtask
+        </Button>
+      </Box>
+      <SubtaskList
+        subtasks={subtasks}
+        parentTaskId={task.id}
+        onSubtaskDeleted={onSubtaskDeleted}
+        onSubtaskUpdated={onSubtaskUpdated}
+      />
+    </Box>
+
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          Time Logs
+        </Typography>
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<AccessTimeIcon />}
+          onClick={onTimeLogClick}
+        >
+          Log Time
+        </Button>
+      </Box>
+      <TaskTimeLogging
+        taskId={Number(id)}
+        projectId={task.project_id}
+        timeLogs={timeLogs}
+        timeLogDialogOpen={timeLogDialogOpen}
+        selectedTimeLog={selectedTimeLog}
+        onTimeLogSubmit={onTimeLogSubmit}
+        onTimeLogDelete={onTimeLogDelete}
+        onTimeLogEdit={onTimeLogEdit}
+        onTimeLogDialogClose={onTimeLogDialogClose}
+      />
+    </Box>
+
+    <Box sx={{ mb: 4 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        Comments
+      </Typography>
+      <TaskCommentSection
+        taskId={Number(id)}
+        comments={comments}
+        editingComment={editingComment}
+        onCommentSubmit={onCommentSubmit}
+        onCommentUpdate={onCommentUpdate}
+        onCommentDelete={onCommentDelete}
+        onEditStart={onEditStart}
+        onEditEnd={onEditEnd}
+      />
+    </Box>
   </Grid>
 );
 

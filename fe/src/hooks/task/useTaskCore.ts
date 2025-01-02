@@ -22,6 +22,8 @@ export const useTaskCore = (taskId: string) => {
 
   useEffect(() => {
     const fetchTaskData = async () => {
+      if (!taskId) return;
+      
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
@@ -50,12 +52,14 @@ export const useTaskCore = (taskId: string) => {
     fetchTaskData();
   }, [taskId]);
 
-  const handleStatusChange = async (newStatus: TaskStatus) => {
+  const handleStatusChange = async (statusId: number) => {
+    if (!state.task) return;
+
     try {
-      await changeTaskStatus(Number(taskId), newStatus.id);
+      const updatedTask = await changeTaskStatus(state.task.id, statusId);
       setState(prev => ({
         ...prev,
-        task: prev.task ? { ...prev.task, status_id: newStatus.id } : null
+        task: updatedTask
       }));
     } catch (error) {
       console.error('Failed to update task status:', error);
@@ -63,22 +67,18 @@ export const useTaskCore = (taskId: string) => {
   };
 
   const handleDelete = async () => {
+    if (!state.task) return;
+
     try {
-      await deleteTask(Number(taskId));
+      await deleteTask(state.task.id);
       navigate('/tasks');
     } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: 'Failed to delete task'
-      }));
+      console.error('Failed to delete task:', error);
     }
   };
 
-  const setSubtasks = (newSubtasks: Task[]) => {
-    setState(prev => ({
-      ...prev,
-      subtasks: newSubtasks
-    }));
+  const setSubtasks = (subtasks: Task[]) => {
+    setState(prev => ({ ...prev, subtasks }));
   };
 
   return {

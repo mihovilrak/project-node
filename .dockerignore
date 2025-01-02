@@ -15,5 +15,3 @@
 **/*.md
 
 .obsolete
-
-notification_service/**/*.js

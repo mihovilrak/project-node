@@ -91,24 +91,10 @@ const App: React.FC = () => {
                 <Route path="/tasks" element={<Tasks />} />
                 <Route 
                   path="/tasks/new" 
-                  element={<PrivateRoute element={
-                    <TaskForm 
-                      projectId={0}
-                      open={taskFormOpen}
-                      onClose={handleTaskFormClose}
-                      onCreated={handleTaskCreated}
-                    />
-                  } />}
+                  element={<PrivateRoute element={<TaskForm />} />}
                 />
                 <Route path="/tasks/:id" element={<TaskDetails />} />
-                <Route path="/tasks/:id/edit" element={<PrivateRoute element={
-                  <TaskForm 
-                    projectId={0}
-                    open={true}
-                    onClose={() => {}}
-                    onCreated={async () => {}}
-                  />
-                } />} />
+                <Route path="/tasks/:id/edit" element={<PrivateRoute element={<TaskForm />} />} />
                 <Route path="/tasks/active" element={<ActiveTasks />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />

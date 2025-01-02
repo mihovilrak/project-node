@@ -16,7 +16,7 @@ export interface TimeLog {
   // Virtual fields
   task_name?: string;
   project_name?: string;
-  user_name?: string;
+  user?: string;
   activity_type_name?: string;
   activity_type_color?: string;
   activity_type_icon?: string;
@@ -48,6 +48,10 @@ export interface TimeSpent {
 }
 
 export interface TimeLogFormProps {
+  projects: Project[];
+  tasks: Task[];
+  activityTypes: ActivityType[];
+  users: User[];
   selectedProjectId: number | null;
   selectedTaskId: number | null;
   selectedUserId: number;
@@ -55,13 +59,11 @@ export interface TimeLogFormProps {
   spentTime: string;
   description: string;
   logDate: Dayjs;
-  timeError: string;
-  projects: Project[];
-  tasks: Task[];
-  users: User[];
-  activityTypes: ActivityType[];
+  timeError: string | null;
   showUserSelect: boolean;
-  onProjectChange: (projectId: number | null) => void;
+  isProjectReadOnly?: boolean;
+  isTaskReadOnly?: boolean;
+  onProjectChange: (projectId: number | null, tasks: Task[]) => void;
   onTaskChange: (taskId: number | null, tasks: Task[]) => void;
   onUserChange: (userId: number) => void;
   onActivityTypeChange: (typeId: number) => void;
@@ -114,11 +116,12 @@ export interface TimeLogStatsProps {
 
 export interface TaskTimeLoggingProps {
   taskId: number;
+  projectId: number;
   timeLogs: TimeLog[];
   timeLogDialogOpen: boolean;
   selectedTimeLog: TimeLog | null;
-  onTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
-  onTimeLogDelete: (timeLogId: number) => Promise<void>;
+  onTimeLogSubmit: (data: TimeLogCreate) => Promise<void>;
+  onTimeLogDelete: (id: number) => Promise<void>;
   onTimeLogEdit: (timeLog: TimeLog) => void;
   onTimeLogDialogClose: () => void;
 }

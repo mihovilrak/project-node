@@ -55,52 +55,71 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
     onClose,
     open,
     projectId,
-    hasAdminPermission,
+    taskId,
+    hasAdminPermission
   });
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{timeLog ? 'Edit Time Log' : 'Log Time'}</DialogTitle>
-      {isLoading ? (
-        <DialogContent>
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+          boxShadow: 3
+        }
+      }}
+    >
+      <DialogTitle sx={{ pb: 1 }}>
+        {timeLog ? 'Edit Time Log' : 'Log Time'}
+      </DialogTitle>
+      <DialogContent sx={{ pt: 2 }}>
+        {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
-        </DialogContent>
-      ) : (
-        <form onSubmit={(e) => handleSubmit(e, taskId || null)}>
-          <DialogContent>
-            <TimeLogForm
-              selectedProjectId={selectedProjectId}
-              selectedTaskId={selectedTaskId}
-              selectedUserId={selectedUserId}
-              selectedActivityTypeId={selectedActivityTypeId}
-              spentTime={spentTime}
-              description={description}
-              logDate={logDate}
-              timeError={timeError}
-              projects={projects}
-              tasks={tasks}
-              users={users}
-              activityTypes={activityTypes}
-              showUserSelect={hasAdminPermission}
-              onProjectChange={handleProjectChange}
-              onTaskChange={handleTaskChange}
-              onUserChange={setSelectedUserId}
-              onActivityTypeChange={setSelectedActivityTypeId}
-              onSpentTimeChange={setSpentTime}
-              onDescriptionChange={setDescription}
-              onDateChange={handleDateChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button type="submit" variant="contained" color="primary">
-              {timeLog ? 'Update' : 'Save'}
-            </Button>
-          </DialogActions>
-        </form>
-      )}
+        ) : (
+          <TimeLogForm
+            selectedProjectId={selectedProjectId === undefined ? null : selectedProjectId}
+            selectedTaskId={selectedTaskId === undefined ? null : selectedTaskId}
+            selectedUserId={selectedUserId}
+            selectedActivityTypeId={selectedActivityTypeId}
+            spentTime={spentTime}
+            description={description}
+            logDate={logDate}
+            timeError={timeError}
+            projects={projects}
+            tasks={tasks}
+            users={users}
+            activityTypes={activityTypes}
+            showUserSelect={hasAdminPermission}
+            isProjectReadOnly={Boolean(projectId)}
+            isTaskReadOnly={Boolean(taskId)}
+            onProjectChange={handleProjectChange}
+            onTaskChange={handleTaskChange}
+            onUserChange={(userId) => setSelectedUserId(userId)}
+            onActivityTypeChange={(typeId) => setSelectedActivityTypeId(typeId)}
+            onSpentTimeChange={setSpentTime}
+            onDescriptionChange={setDescription}
+            onDateChange={handleDateChange}
+          />
+        )}
+      </DialogContent>
+      <DialogActions sx={{ p: 2, pt: 0 }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSubmit}
+          variant="contained" 
+          color="primary"
+          disabled={isLoading}
+        >
+          {timeLog ? 'Update' : 'Submit'}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

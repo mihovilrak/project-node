@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TaskFile } from '../../types/file';
 import {
   getTaskFiles,
@@ -17,6 +17,10 @@ export const useTaskFiles = (taskId: string) => {
       console.error('Failed to fetch files:', error);
     }
   };
+
+  useEffect(() => {
+    fetchFiles();
+  }, [taskId]);
 
   const handleFileUpload = async (file: File) => {
     try {

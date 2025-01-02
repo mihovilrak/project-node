@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Link,
   List,
   ListItem,
   ListItemText,
@@ -12,8 +13,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import { TimeLogListProps } from '../../types/timeLog';
-import { useAuth } from '../../context/AuthContext';
 import PermissionButton from '../common/PermissionButton';
 
 const TimeLogList: React.FC<TimeLogListProps> = ({
@@ -65,8 +66,18 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                     <Typography variant="body2" color="text.secondary">
                       {new Date(log.log_date).toLocaleDateString()}
                     </Typography>
+                    <Typography variant="body1">
+                      By: <Link component={RouterLink} to={`/users/${log.user_id}`}>
+                        {log.user}
+                      </Link>
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      Task: <Link component={RouterLink} to={`/tasks/${log.task_id}`}>
+                        {log.task_name}
+                      </Link>
+                    </Typography>
                     {log.description && (
-                      <Typography variant="body2">
+                      <Typography variant="body2" sx={{ mt: 0.5 }}>
                         {log.description}
                       </Typography>
                     )}

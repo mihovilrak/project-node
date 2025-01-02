@@ -6,18 +6,12 @@ export const useTimeLogValidation = () => {
   const validateAndFormatTime = (timeStr: string): number | null => {
     setTimeError('');
 
-    const timePattern = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
-    if (timePattern.test(timeStr)) {
-      const [hours, minutes] = timeStr.split(':');
-      return parseInt(hours) * 60 + parseInt(minutes);
-    }
-
     const decimalHours = parseFloat(timeStr);
     if (!isNaN(decimalHours) && decimalHours > 0) {
       return Math.round(decimalHours * 60);
     }
 
-    setTimeError('Invalid time format. Use HH:MM or decimal hours (e.g., 1:30 or 1.5)');
+    setTimeError('Please enter a valid number of hours (e.g., 1, 1.5, 2)');
     return null;
   };
 

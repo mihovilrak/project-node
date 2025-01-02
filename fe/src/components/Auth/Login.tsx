@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
-  Box,
+  Paper,
+  Typography,
   TextField,
   Button,
-  Typography,
-  Paper
+  Box,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useLogin } from '../../hooks/auth/useLogin';
 
 const Login: React.FC = () => {
@@ -16,6 +19,12 @@ const Login: React.FC = () => {
     handleInputChange,
     handleSubmit
   } = useLogin();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <Container maxWidth="sm">
@@ -34,33 +43,52 @@ const Login: React.FC = () => {
               label="Username"
               name="login"
               fullWidth
+              required
               value={loginDetails.login}
               onChange={handleInputChange}
-              required
+              autoComplete="username"
+              InputLabelProps={{
+                sx: { background: 'white', px: 1 }
+              }}
             />
           </Box>
           <Box mb={3}>
             <TextField
               label="Password"
-              type="password"
               name="password"
+              type={showPassword ? 'text' : 'password'}
               fullWidth
+              required
               value={loginDetails.password}
               onChange={handleInputChange}
-              required
+              autoComplete="current-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              InputLabelProps={{
+                sx: { background: 'white', px: 1 }
+              }}
             />
           </Box>
-          <Box mb={2} textAlign="center">
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ padding: 1.5 }}
-            >
-              Login
-            </Button>
-          </Box>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            size="large"
+          >
+            Login
+          </Button>
         </form>
       </Paper>
     </Container>

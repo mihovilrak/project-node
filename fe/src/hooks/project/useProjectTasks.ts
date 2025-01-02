@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Task } from '../../types/task';
 import { ProjectTasksHook } from '../../types/project';
 import { getProjectTasks, createTask } from '../../api/tasks';
@@ -6,6 +7,7 @@ import { getProjectTasks, createTask } from '../../api/tasks';
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
+  const navigate = useNavigate();
 
   const loadTasks = async () => {
     if (projectId) {
@@ -18,14 +20,8 @@ export const useProjectTasks = (projectId: string): ProjectTasksHook => {
     }
   };
 
-  const handleTaskCreate = async (task: Task) => {
-    try {
-      const createdTask = await createTask({ ...task, project_id: Number(projectId) });
-      setTasks(prev => [...prev, createdTask]);
-      setTaskFormOpen(false);
-    } catch (error) {
-      console.error('Failed to create task:', error);
-    }
+  const handleTaskCreate = async (task: Task): Promise<void> => {
+    navigate(`/tasks/new?projectId=${projectId}`);
   };
 
   return {

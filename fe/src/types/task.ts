@@ -8,36 +8,29 @@ import { TaskFile } from './file';
 export interface Task {
   id: number;
   name: string;
-  description: string | null;
   project_id: number;
-  type_id: number;
-  priority_id: number;
-  status_id: number;
-  parent_id: number | null;
-  parent_name?: string | null;
+  project_name: string;
   holder_id: number;
-  assignee_id: number | null;
-  start_date: string;
-  due_date: string;
-  estimated_time: number | null;
+  holder_name: string;
+  assignee_id: number;
+  assignee_name: string;
+  parent_id: number | null;
+  parent_name: string | null;
+  description: string;
+  type_id: number;
+  type_name: string;
+  status_id: number;
+  status_name: string;
+  priority_name: string;
+  start_date: string | null;
+  due_date: string | null;
+  end_date: string | null;
+  spent_time: number;
+  progress: number;
   created_by: number;
+  created_by_name: string;
   created_on: string;
-  updated_on: string | null;
-  project_name?: string;
-  type_name?: string;
-  type_color?: string;
-  type_icon?: string;
-  priority?: string;
-  priority_name?: string;
-  priority_color?: string;
-  status?: string;  
-  status_name?: string;
-  status_color?: string;
-  holder_name?: string;
-  assignee_name?: string;
-  created_by_name?: string;
-  spent_time?: number;
-  tags?: Tag[];
+  estimated_time: number | null;
 }
 
 export interface TaskCoreState {
@@ -154,6 +147,8 @@ export interface TaskHeaderProps {
   onStatusMenuClose: () => void;
   onStatusChange: (statusId: number) => void;
   onDelete: () => void;
+  onTimeLogClick: () => void;
+  onAddSubtaskClick: () => void;
 }
 
 export interface TaskDetailsHeaderProps extends TaskHeaderProps {
@@ -177,15 +172,17 @@ export interface TaskDetailsContentProps {
   editingComment: Comment | null;
   onSubtaskDeleted: (subtaskId: number) => void;
   onSubtaskUpdated: (subtaskId: number, updatedSubtask: Task) => void;
-  onTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
-  onTimeLogDelete: (timeLogId: number) => Promise<void>;
+  onTimeLogSubmit: (data: TimeLogCreate) => Promise<void>;
+  onTimeLogDelete: (id: number) => Promise<void>;
   onTimeLogEdit: (timeLog: TimeLog) => void;
   onTimeLogDialogClose: () => void;
   onCommentSubmit: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: number, newText: string) => Promise<void>;
-  onCommentDelete: (commentId: number) => Promise<void>;
+  onCommentUpdate: (commentId: number, text: string) => Promise<void>;
+  onCommentDelete: (id: number) => Promise<void>;
   onEditStart: (comment: Comment | null) => void;
   onEditEnd: () => void;
+  onAddSubtaskClick: () => void;
+  onTimeLogClick: () => void;
 }
 
 export interface TaskDetailsSidebarProps {

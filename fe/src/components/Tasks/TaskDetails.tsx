@@ -1,5 +1,5 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Grid } from '@mui/material';
 import TaskDetailsHeader from './TaskDetailsHeader';
 import TaskDetailsContent from './TaskDetailsContent';
@@ -11,9 +11,11 @@ import { useTaskWatchers } from '../../hooks/task/useTaskWatchers';
 import { useTaskComments } from '../../hooks/task/useTaskComments';
 import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
+import { TimeLog } from '../../types/timeLog';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const {
     task,
@@ -67,11 +69,26 @@ const TaskDetails: React.FC = () => {
     handleTimeLogSubmit: handleTimeLogSubmitWrapper,
     handleTimeLogEdit,
     handleTimeLogDialogClose,
+    handleAddSubtaskClick,
     handleSubtaskUpdate,
     handleSubtaskDelete,
     handleWatcherDialogOpen,
     handleWatcherDialogClose
   } = useTaskDetailsHandlers();
+
+  const [state, setState] = useState<{
+    statusMenuAnchor: null;
+    editingComment: null;
+    timeLogDialogOpen: boolean;
+    selectedTimeLog: TimeLog | null;
+    watcherDialogOpen: boolean;
+  }>({
+    statusMenuAnchor: null,
+    editingComment: null,
+    timeLogDialogOpen: false,
+    selectedTimeLog: null,
+    watcherDialogOpen: false
+  });
 
   if (loading) {
     return (
@@ -93,8 +110,14 @@ const TaskDetails: React.FC = () => {
         statusMenuAnchor={statusMenuAnchor}
         onStatusMenuClick={handleStatusMenuClick}
         onStatusMenuClose={handleStatusMenuClose}
-        onStatusChange={(statusId) => handleStatusChangeWrapper(statusId, statuses, handleStatusChange)}
+        onStatusChange={handleStatusChange}
         onDelete={handleDelete}
+        onTimeLogClick={() => setState(prev => ({
+          ...prev,
+          timeLogDialogOpen: true,
+          selectedTimeLog: null
+        }))}
+        onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
         canEdit={true}
         canDelete={true}
       />
@@ -105,26 +128,49 @@ const TaskDetails: React.FC = () => {
         subtasks={subtasks}
         timeLogs={timeLogs}
         comments={comments}
-        timeLogDialogOpen={timeLogDialogOpen}
-        selectedTimeLog={selectedTimeLog}
+        timeLogDialogOpen={state.timeLogDialogOpen}
+        selectedTimeLog={state.selectedTimeLog}
         editingComment={editingComment}
         onSubtaskDeleted={(subtaskId) => handleSubtaskDelete(subtasks, subtaskId, setSubtasks)}
         onSubtaskUpdated={(subtaskId, updatedSubtask) => handleSubtaskUpdate(subtasks, subtaskId, updatedSubtask, setSubtasks)}
         onTimeLogSubmit={async (data) => {
           await handleTimeLogSubmit(data);
+          setState({
+            ...state,
+            timeLogDialogOpen: false,
+            selectedTimeLog: null
+          });
         }}
         onTimeLogDelete={deleteTimeLog}
-        onTimeLogEdit={handleTimeLogEdit}
-        onTimeLogDialogClose={handleTimeLogDialogClose}
+        onTimeLogEdit={(timeLog) => {
+          setState({
+            ...state,
+            timeLogDialogOpen: true,
+            selectedTimeLog: timeLog
+          });
+        }}
+        onTimeLogDialogClose={() => setState({
+          ...state,
+          timeLogDialogOpen: false,
+          selectedTimeLog: null
+        })}
         onCommentSubmit={async (content) => {
-          await handleCommentSubmit(content);
+          const comment = await handleCommentSubmit(content);
+          return;
         }}
         onCommentUpdate={async (commentId, text) => {
-          await handleCommentUpdate(commentId, text);
+          const comment = await handleCommentUpdate(commentId, text);
+          return;
         }}
         onCommentDelete={handleCommentDelete}
-        onEditStart={handleEditStart}
+        onEditStart={(commentId) => handleEditStart(commentId)}
         onEditEnd={() => handleEditStart(null)}
+        onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
+        onTimeLogClick={() => setState(prev => ({
+          ...prev,
+          timeLogDialogOpen: true,
+          selectedTimeLog: null
+        }))}
       />
       
       <TaskDetailsSidebar

@@ -10,8 +10,14 @@ select
     tl.log_date,
     tl.spent_time,
     tl.description,
-    tl.activity_type_id 
+    tl.activity_type_id,
+    at.name as activity_type_name,
+    at.color as activity_type_color,
+    at.icon as activity_type_icon,
+    tl.created_on,
+    tl.updated_on
 from time_logs tl
-join tasks t on tl.task_id = t.id
-join projects p on t.project_id = p.id
-join users u on tl.user_id = u.id;
+left join tasks t on tl.task_id = t.id
+left join projects p on t.project_id = p.id
+left join users u on tl.user_id = u.id
+left join activity_types at on at.id = tl.activity_type_id;
