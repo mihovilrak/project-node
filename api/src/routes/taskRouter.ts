@@ -63,7 +63,7 @@ export default (pool: Pool): Router => {
   }) as RequestHandler, fileRouter(pool));
 
   // Update task status
-  router.patch('/:id/status', checkPermission(pool, 'Edit tasks'), 
+  router.patch('/:id', checkPermission(pool, 'Edit tasks'), 
     ((req, res) => taskController.updateTask(req, res, pool)) as RequestHandler);
 
   // Change task status

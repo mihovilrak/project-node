@@ -12,6 +12,7 @@ import { useTaskComments } from '../../hooks/task/useTaskComments';
 import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
 import { TimeLog } from '../../types/timeLog';
+import { changeTaskStatus } from '../../api/tasks';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +24,7 @@ const TaskDetails: React.FC = () => {
     statuses,
     loading,
     error,
-    handleStatusChange,
+    handleStatusChange: handleStatusChangeCore,
     handleDelete,
     setSubtasks,
   } = useTaskCore(id!);
@@ -89,6 +90,11 @@ const TaskDetails: React.FC = () => {
     selectedTimeLog: null,
     watcherDialogOpen: false
   });
+
+  const handleStatusChange = async (statusId: number) => {
+    await handleStatusChangeCore(statusId);
+    handleStatusMenuClose();
+  };
 
   if (loading) {
     return (

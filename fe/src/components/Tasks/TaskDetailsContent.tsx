@@ -33,9 +33,11 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   <Grid item xs={12} md={8}>
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          Subtasks
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" component="h2">
+            Subtasks
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           size="small"
@@ -55,9 +57,11 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
 
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          Time Logs
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" component="h2">
+            Time Logs
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           size="small"
@@ -81,9 +85,11 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
     </Box>
 
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        Comments
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          Comments
+        </Typography>
+      </Box>
       <TaskCommentSection
         taskId={Number(id)}
         comments={comments}

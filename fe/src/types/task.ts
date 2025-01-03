@@ -19,9 +19,13 @@ export interface Task {
   description: string;
   type_id: number;
   type_name: string;
+  type_color?: string;
+  type_icon?: string;
   status_id: number;
   status_name: string;
+  priority_id: number;
   priority_name: string;
+  priority_color?: string;
   start_date: string | null;
   due_date: string | null;
   end_date: string | null;
@@ -118,19 +122,19 @@ export interface SubtaskListProps {
 
 export interface TaskFormState {
   name: string;
-  description: string | null;
-  start_date: string;
-  due_date: string;
-  priority_id: number;
-  status_id: number;
-  type_id: number;
+  description: string;
+  project_id: number | null;
+  type_id: number | null;
+  priority_id: number | null;
+  status_id: number | null;
   parent_id: number | null;
-  project_id: number;
-  holder_id: number;
+  holder_id: number | null;
   assignee_id: number | null;
-  created_by?: number;
-  tags: Tag[];
+  start_date: string | null;
+  due_date: string | null;
   estimated_time: number | null;
+  created_by?: number;
+  tags?: Tag[];
 }
 
 export interface TaskTimeLogsProps {

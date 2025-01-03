@@ -10,6 +10,7 @@ import {
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarWeek } from '../../hooks/calendar/useCalendarWeek';
+import dayjs from 'dayjs'; // Import dayjs library
 
 const CalendarWeekView: React.FC<CalendarViewProps> = ({ 
   date,
@@ -63,10 +64,7 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
                 onClick={() => onTaskClick(task.id)}
               >
                 <Typography variant="subtitle2">
-                  {new Date(task.start_date).toLocaleTimeString('en-US', { 
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })} - {task.name}
+                  {task.start_date ? dayjs(task.start_date).format('HH:mm') : 'No time'} - {task.name}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                   <Chip 
@@ -80,6 +78,9 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
                     variant="outlined"
                   />
                 </Box>
+                <Typography variant="body2" color="text.secondary">
+                  {task.due_date ? dayjs(task.due_date).format('HH:mm') : 'No due date'}
+                </Typography>
               </Paper>
             ))}
             {getTimeLogsForDay(day).map(timeLog => (

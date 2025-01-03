@@ -8,7 +8,7 @@ import {
   Box
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { ProjectTaskListProps } from '../../../types/project';
 
 const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }) => {
@@ -63,11 +63,11 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
                 </Typography>
               </Grid>
               <Grid item xs={12} md={3}>
-                <Typography variant="body1">
-                  Start date: {format(new Date(task.start_date), 'dd/MM/yyyy')}
+                <Typography variant="body2" color="text.secondary">
+                  Start: {task.start_date ? dayjs(task.start_date).format('MMM D, YYYY') : 'Not started'}
                 </Typography>
-                <Typography variant="body1">
-                  Due date: {format(new Date(task.due_date), 'dd/MM/yyyy')}
+                <Typography variant="body2" color="text.secondary">
+                  Due: {task.due_date ? dayjs(task.due_date).format('MMM D, YYYY') : 'No due date'}
                 </Typography>
               </Grid>
               <Grid item xs={12} md={3}>

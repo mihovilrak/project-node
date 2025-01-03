@@ -77,7 +77,7 @@ const TaskList: React.FC = () => {
                 />
               </Box>
               <Typography variant="body2" sx={{ mt: 1 }}>
-                Due: {new Date(task.due_date).toLocaleDateString()}
+                Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}
               </Typography>
               <Typography variant="body2" sx={{ mt: 1 }}>
                 Assignee: {task.assignee_name || 'Unassigned'}
@@ -89,17 +89,13 @@ const TaskList: React.FC = () => {
                 <PermissionButton 
                   requiredPermission="Edit tasks"
                   color="warning" 
-                  onClick={() => navigate(`/tasks/${task.id}/edit`)}
-                  tooltipText="You don't have permission to edit tasks"
-                >
+                  onClick={() => navigate(`/tasks/${task.id}/edit`)}>
                   Edit
                 </PermissionButton>
                 <PermissionButton 
                   requiredPermission="Delete tasks"
                   color="error" 
-                  onClick={() => handleDelete(task.id)}
-                  tooltipText="You don't have permission to delete tasks"
-                >
+                  onClick={() => handleDelete(task.id)}>
                   Delete
                 </PermissionButton>
               </Box>

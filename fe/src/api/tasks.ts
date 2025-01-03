@@ -135,7 +135,7 @@ export const getActiveTasks = async (): Promise<Task[]> => {
 // Change task status
 export const changeTaskStatus = async (taskId: number, statusId: number): Promise<Task> => {
   try {
-    const response = await api.patch(`/tasks/${taskId}/status`, { statusId });
+    const response = await api.patch(`/tasks/${taskId}/change-status`, { statusId });
     return response.data;
   } catch (error) {
     console.error('Failed to change task status:', error);

@@ -6,6 +6,7 @@ export const useTasksByHour = (tasks: Task[], timeLogs: TimeLog[]) => {
 
   const getTasksForHour = (hour: number): Task[] => {
     return tasks.filter(task => {
+      if (!task.start_date) return false;
       const taskDate = new Date(task.start_date);
       return taskDate.getHours() === hour;
     });

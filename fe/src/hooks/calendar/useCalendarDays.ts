@@ -58,8 +58,12 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
 
   const getTasksForDay = (day: Date): Task[] => {
     return tasks.filter(task => {
-      const taskDate = new Date(task.start_date);
-      return taskDate.toDateString() === day.toDateString();
+      const startDate = task.start_date ? new Date(task.start_date) : null;
+      const endDate = task.end_date ? new Date(task.end_date) : null;
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      return (startDate && startDate.toDateString() === day.toDateString()) ||
+             (endDate && endDate.toDateString() === day.toDateString()) ||
+             (dueDate && dueDate.toDateString() === day.toDateString());
     });
   };
 

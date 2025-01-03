@@ -15,7 +15,7 @@ export const TaskTypeSection: React.FC<TaskTypeSectionProps> = ({
 }) => (
   <Box sx={{ mb: 2 }}>
     <TaskTypeSelect
-      value={formData.type_id}
+      value={formData.type_id || 0}
       onChange={(e) => handleChange({
         target: { name: 'type_id', value: e.target.value }
       })}

@@ -12,7 +12,9 @@ const TaskDetailsHeader: React.FC<TaskDetailsHeaderProps> = ({
   onStatusChange,
   onDelete,
   onTimeLogClick,
-  onAddSubtaskClick
+  onAddSubtaskClick,
+  canEdit,
+  canDelete
 }) => (
   <Grid item xs={12}>
     <TaskHeader
@@ -25,8 +27,8 @@ const TaskDetailsHeader: React.FC<TaskDetailsHeaderProps> = ({
       onDelete={onDelete}
       onTimeLogClick={onTimeLogClick}
       onAddSubtaskClick={onAddSubtaskClick}
-      canEdit={true}
-      canDelete={true}
+      canEdit={canEdit}
+      canDelete={canDelete}
     />
   </Grid>
 );

@@ -5,7 +5,6 @@ import {
   TaskPriority,
   TaskCreateInput,
   TaskUpdateInput,
-  TaskWatcher,
   TaskQueryFilters
 } from '../types/task';
 import { Pool, QueryResult } from 'pg';
@@ -147,8 +146,8 @@ export const updateTask = async (
 // Change a task status
 export const changeTaskStatus = async (
   pool: Pool,
-  id: string,
-  statusId: string
+  id: number,
+  statusId: number
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
     `UPDATE tasks 

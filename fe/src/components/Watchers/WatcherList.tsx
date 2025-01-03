@@ -8,7 +8,8 @@ import {
   Typography,
   Paper,
   Tooltip,
-  Box
+  Box,
+  Button
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { WatcherListProps } from '../../types/watcher';
@@ -44,6 +45,21 @@ const WatcherList: React.FC<WatcherListProps> = ({
 
   return (
     <Paper sx={{ mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          Watchers
+        </Typography>
+        {canManageWatchers && (
+          <PermissionButton
+            onClick={onManageWatchers}
+            requiredPermission="Edit tasks"
+            variant="contained"
+            size="small"
+          >
+            Manage Watchers
+          </PermissionButton>
+        )}
+      </Box>
       <List dense>
         {watchers.map((watcher) => (
           <ListItem key={watcher.user_id}>
@@ -67,19 +83,6 @@ const WatcherList: React.FC<WatcherListProps> = ({
           </ListItem>
         ))}
       </List>
-      {canManageWatchers && (
-        <Box sx={{ p: 1 }}>
-          <PermissionButton
-            onClick={onManageWatchers}
-            requiredPermission="Edit tasks"
-            variant="outlined"
-            size="small"
-            fullWidth
-          >
-            Manage Watchers
-          </PermissionButton>
-        </Box>
-      )}
     </Paper>
   );
 };

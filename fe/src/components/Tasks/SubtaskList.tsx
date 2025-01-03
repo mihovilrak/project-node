@@ -126,7 +126,7 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
                     {subtask.description}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Due: {new Date(subtask.due_date).toLocaleDateString()}
+                    Due: {subtask.due_date ? new Date(subtask.due_date).toLocaleDateString() : '-'}
                   </Typography>
                 </Box>
               }

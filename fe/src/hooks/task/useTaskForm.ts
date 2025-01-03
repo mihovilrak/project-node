@@ -37,18 +37,18 @@ export const useTaskForm = ({
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
     description: '',
-    start_date: today.toISOString(),
-    due_date: '',
+    project_id: projectIdFromQuery ? Number(projectIdFromQuery) : (projectId ? Number(projectId) : null),
+    type_id: 1,
     priority_id: 2,
     status_id: 1,
-    type_id: 1,
     parent_id: parentTaskId ? Number(parentTaskId) : null,
-    project_id: projectIdFromQuery ? Number(projectIdFromQuery) : (projectId ? Number(projectId) : 0),
-    holder_id: 0,
+    holder_id: currentUserId || null,
     assignee_id: null,
+    start_date: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+    due_date: null,
+    estimated_time: 0,
     created_by: currentUserId,
-    tags: [],
-    estimated_time: 0
+    tags: []
   });
 
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
@@ -82,22 +82,22 @@ export const useTaskForm = ({
         if (taskId) {
           const taskData = await getTaskById(Number(taskId));
           const taskTags = await getTaskTags(Number(taskId));
-          setFormData({
+          setFormData(prev => ({
             name: taskData.name,
             description: taskData.description || '',
-            start_date: taskData.start_date,
-            due_date: taskData.due_date,
-            priority_id: taskData.priority_id,
-            status_id: taskData.status_id,
-            type_id: taskData.type_id,
-            parent_id: taskData.parent_id,
             project_id: taskData.project_id,
-            holder_id: taskData.holder_id,
+            type_id: taskData.type_id || prev.type_id,
+            priority_id: taskData.priority_id || prev.priority_id,
+            status_id: taskData.status_id || prev.status_id,
+            parent_id: taskData.parent_id,
+            holder_id: taskData.holder_id || prev.holder_id,
             assignee_id: taskData.assignee_id,
+            start_date: taskData.start_date || prev.start_date,
+            due_date: taskData.due_date,
+            estimated_time: taskData.estimated_time || prev.estimated_time,
             created_by: taskData.created_by,
-            tags: taskTags || [],
-            estimated_time: taskData.estimated_time || 0
-          });
+            tags: taskTags || []
+          }));
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -138,10 +138,22 @@ export const useTaskForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const taskData = {
+        ...formData,
+        project_id: formData.project_id ? Number(formData.project_id) : undefined,
+        type_id: formData.type_id ? Number(formData.type_id) : undefined,
+        priority_id: formData.priority_id ? Number(formData.priority_id) : undefined,
+        status_id: formData.status_id ? Number(formData.status_id) : undefined,
+        holder_id: formData.holder_id ? Number(formData.holder_id) : undefined,
+        assignee_id: formData.assignee_id ? Number(formData.assignee_id) : undefined,
+        parent_id: formData.parent_id ? Number(formData.parent_id) : undefined,
+        estimated_time: formData.estimated_time ? Number(formData.estimated_time) : undefined
+      };
+
       if (isEditing) {
-        await updateTask(Number(taskId), formData);
+        await updateTask(Number(taskId), taskData);
       } else {
-        await createTask(formData);
+        await createTask(taskData);
       }
       navigate(-1);
     } catch (error) {

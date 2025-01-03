@@ -14,8 +14,6 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TaskHeaderProps } from '../../types/task';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AddTaskIcon from '@mui/icons-material/AddTask';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
 
@@ -26,20 +24,32 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   onStatusMenuClick,
   onStatusMenuClose,
   onStatusChange,
-  onDelete,
-  onTimeLogClick,
-  onAddSubtaskClick,
   canEdit,
-  canDelete
+  canDelete,
+  onDelete
 }) => {
   if (!task) return null;
 
-  const currentStatus = statuses?.find(s => s.id === task.status_id);
-  const statusName = currentStatus?.name || 'Unknown Status';
+  // Add null check for statuses
+  if (!statuses || statuses.length === 0) {
+    console.warn('No statuses available');
+  }
+
+  const currentStatus = statuses?.find(status => status.id === Number(task.status_id));
+  const statusName = currentStatus?.name ?? 'Unknown Status';
+  const statusColor = currentStatus?.color ?? '#808080';
 
   return (
-    <Paper elevation={2} sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+    <Paper
+      elevation={2}
+      sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}
+    >
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        mb: 2 }}
+        >
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
             {task.name}
@@ -50,7 +60,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <FolderIcon fontSize="small" />
                 <Typography variant="body2">
                   Project:{' '}
-                  <Link component={RouterLink} to={`/projects/${task.project_id}`} color="primary">
+                  <Link
+                    component={RouterLink}
+                    to={`/projects/${task.project_id}`}
+                    color="primary"
+                  >
                     {task.project_name}
                   </Link>
                 </Typography>
@@ -83,7 +97,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2">
                   Assignee:{' '}
-                  <Link component={RouterLink} to={`/users/${task.assignee_id}`} color="primary">
+                  <Link
+                    component={RouterLink}
+                    to={`/users/${task.assignee_id}`}
+                    color="primary"
+                  >
                     {task.assignee_name}
                   </Link>
                 </Typography>
@@ -123,13 +141,15 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Typography variant="body1">Status:</Typography>
         <Button
-          onClick={onStatusMenuClick}
+          onClick={canEdit ? onStatusMenuClick : undefined}
           variant="contained"
           size="small"
+          disabled={!canEdit}
           sx={{
-            backgroundColor: currentStatus?.color || 'grey.500',
+            backgroundColor: statusColor,
+            color: 'white',
             '&:hover': {
-              backgroundColor: currentStatus?.color || 'grey.600',
+              backgroundColor: statusColor,
               opacity: 0.9
             }
           }}
@@ -141,20 +161,14 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
           open={Boolean(statusMenuAnchor)}
           onClose={onStatusMenuClose}
         >
-          {statuses.map((status) => (
+          {statuses?.map((status) => (
             <MenuItem
               key={status.id}
               onClick={() => {
                 onStatusChange(status.id);
                 onStatusMenuClose();
               }}
-              sx={{
-                backgroundColor: status.id === task.status_id ? status.color : 'inherit',
-                '&:hover': {
-                  backgroundColor: status.color,
-                  opacity: 0.9
-                }
-              }}
+              selected={status.id === task.status_id}
             >
               {status.name}
             </MenuItem>

@@ -12,6 +12,7 @@ create or replace view v_tasks as
             t.description,
             t.type_id,
             tt.name as type_name,
+            t.status_id,
             ts.name as status_name,
             pi.name as priority_name,
             t.start_date,

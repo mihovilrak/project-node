@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography, Box } from '@mui/material';
+import { Grid, Box } from '@mui/material';
 import TaskFileSection from './TaskFileSection';
 import WatcherList from '../Watchers/WatcherList';
 import WatcherDialog from '../Watchers/WatcherDialog';
@@ -20,9 +20,6 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
 }) => (
   <Grid item xs={12} md={4}>
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        Files
-      </Typography>
       <TaskFileSection
         taskId={Number(id)}
         files={files}
@@ -31,10 +28,7 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
       />
     </Box>
 
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        Watchers
-      </Typography>
+    <Box>
       <WatcherList
         watchers={watchers}
         canManageWatchers={true}

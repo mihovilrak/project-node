@@ -16,7 +16,7 @@ export const TaskTagsSection: React.FC<TaskTagsSectionProps> = ({
 }) => (
   <Box sx={{ mb: 2 }}>
     <TagSelect
-      selectedTags={formData.tags}
+      selectedTags={formData.tags || []}
       onTagsChange={(newTags: Tag[]) => {
         handleChange({
           target: { name: 'tags', value: newTags }

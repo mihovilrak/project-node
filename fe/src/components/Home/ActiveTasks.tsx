@@ -10,6 +10,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Task } from '../../types/task';
+import dayjs from 'dayjs'; // Import dayjs library
 
 const ActiveTasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -49,8 +50,8 @@ const ActiveTasks: React.FC = () => {
                   <Typography variant="h6">{task.name}</Typography>
                   <Typography variant="body2">Project: {task.project_name}</Typography>
                   <Typography variant="body2">Priority: {task.priority_name}</Typography>
-                  <Typography variant="caption">
-                    Due: {new Date(task.due_date).toLocaleDateString()}
+                  <Typography variant="body2" color="text.secondary">
+                    Due: {task.due_date ? dayjs(task.due_date).format('MMM D, YYYY') : 'No due date'}
                   </Typography>
                 </CardContent>
               </Card>

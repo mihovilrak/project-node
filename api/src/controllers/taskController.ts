@@ -228,10 +228,10 @@ export const changeTaskStatus = async (
   const userId = req.session.user?.id;
 
   try {
-    const task = await taskModel.changeTaskStatus(pool, id, statusId);
-    
+    const task = await taskModel.changeTaskStatus(pool, Number(id), statusId);
+
     if (!task) {
-      res.status(404).json({ error: 'Task not found' });
+      res.status(404).json({ error: 'Unable to update task status' });
       return;
     }
 
