@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography, Box, Button } from '@mui/material';
+import { Grid, Typography, Box, Button, Paper } from '@mui/material';
 import SubtaskList from './SubtaskList';
 import TaskTimeLogging from './TaskTimeLogging';
 import TaskCommentSection from './TaskCommentSection';
@@ -31,16 +31,22 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onTimeLogClick
 }) => (
   <Grid item xs={12} md={8}>
-    <Box sx={{ mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="h2">
-            Subtasks
-          </Typography>
-        </Box>
+    <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 3,
+        px: 2,
+        py: 1 
+      }}>
+        <Typography variant="h5" component="h2">
+          Subtasks:
+        </Typography>
         <Button
           variant="contained"
-          size="small"
+          size="medium"
+          sx={{ px: 3, py: 1 }}
           startIcon={<AddTaskIcon />}
           onClick={onAddSubtaskClick}
         >
@@ -53,15 +59,20 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onSubtaskDeleted={onSubtaskDeleted}
         onSubtaskUpdated={onSubtaskUpdated}
       />
-    </Box>
-
-    <Box sx={{ mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="h2">
-            Time Logs
-          </Typography>
-        </Box>
+    </Paper>
+    
+    <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 3,
+        px: 2,
+        py: 1
+      }}>
+        <Typography variant="h5" component="h2">
+          Time Logs:
+        </Typography>
         <Button
           variant="contained"
           size="small"
@@ -82,12 +93,19 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onTimeLogEdit={onTimeLogEdit}
         onTimeLogDialogClose={onTimeLogDialogClose}
       />
-    </Box>
+    </Paper>
 
-    <Box sx={{ mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          Comments
+    <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 3,
+        px: 2,
+        py: 1
+      }}>
+        <Typography variant="h5" component="h2">
+          Comments:
         </Typography>
       </Box>
       <TaskCommentSection
@@ -100,7 +118,7 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onEditStart={onEditStart}
         onEditEnd={onEditEnd}
       />
-    </Box>
+    </Paper>
   </Grid>
 );
 

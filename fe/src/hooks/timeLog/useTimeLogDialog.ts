@@ -35,7 +35,7 @@ export const useTimeLogDialog = ({
   const [description, setDescription] = useState<string>('');
   const [logDate, setLogDate] = useState<Dayjs>(dayjs());
 
-  const { timeError, validateTime } = useTimeLogValidation();
+  const { timeError, validateTime, validateAndFormatTime } = useTimeLogValidation();
   const {
     projects,
     tasks,
@@ -54,7 +54,8 @@ export const useTimeLogDialog = ({
         setSelectedTaskId(timeLog.task_id);
         setSelectedUserId(timeLog.user_id);
         setSelectedActivityTypeId(timeLog.activity_type_id);
-        setSpentTime(String(timeLog.spent_time));
+        const spentTimeNum = typeof timeLog.spent_time === 'string' ? parseFloat(timeLog.spent_time) : timeLog.spent_time;
+        setSpentTime(String(spentTimeNum / 60)); // Convert minutes to hours
         setDescription(timeLog.description || '');
         setLogDate(dayjs(timeLog.log_date));
       } else {
@@ -82,7 +83,9 @@ export const useTimeLogDialog = ({
   };
 
   const handleSubmit = async () => {
-    if (!selectedTaskId || !validateTime(spentTime)) {
+    const validatedHours = validateAndFormatTime(spentTime);
+    console.log('Validated hours:', validatedHours);
+    if (!selectedTaskId || validatedHours === null) {
       return;
     }
 
@@ -91,9 +94,10 @@ export const useTimeLogDialog = ({
       user_id: selectedUserId,
       activity_type_id: selectedActivityTypeId,
       log_date: logDate.format('YYYY-MM-DD'),
-      spent_time: parseFloat(spentTime),
+      spent_time: validatedHours, // Store as hours, no conversion needed
       description: description || undefined
     };
+    console.log('Submitting time log data:', timeLogData);
 
     try {
       await onSubmit(timeLogData);

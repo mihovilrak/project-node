@@ -75,7 +75,7 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       <DialogTitle sx={{ pb: 1 }}>
         {timeLog ? 'Edit Time Log' : 'Log Time'}
       </DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
+      <DialogContent sx={{ pt: 2, mt: 2 }}>
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />

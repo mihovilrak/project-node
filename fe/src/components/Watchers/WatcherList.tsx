@@ -23,17 +23,18 @@ const WatcherList: React.FC<WatcherListProps> = ({
 }) => {
   if (!watchers?.length) {
     return (
-      <Paper sx={{ p: 2, mb: 2 }}>
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
         <Typography variant="body2" color="textSecondary">
-          No watchers
+          No watchers.
         </Typography>
         {canManageWatchers && (
-          <Box sx={{ mt: 1 }}>
+          <Box sx={{ mt: 2 }}>
             <PermissionButton
               onClick={onManageWatchers}
               requiredPermission="Edit tasks"
               variant="outlined"
-              size="small"
+              size="medium"
+              sx={{ px: 3, py: 1 }}
             >
               Add Watchers
             </PermissionButton>
@@ -44,25 +45,32 @@ const WatcherList: React.FC<WatcherListProps> = ({
   }
 
   return (
-    <Paper sx={{ mb: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="h2">
-          Watchers
+    <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 3,
+        px: 2 
+      }}>
+        <Typography variant="h5" component="h2">
+          Watchers:
         </Typography>
         {canManageWatchers && (
           <PermissionButton
             onClick={onManageWatchers}
             requiredPermission="Edit tasks"
             variant="contained"
-            size="small"
+            size="medium"
+            sx={{ px: 3, py: 1 }}
           >
             Manage Watchers
           </PermissionButton>
         )}
       </Box>
-      <List dense>
+      <List sx={{ py: 1 }}>
         {watchers.map((watcher) => (
-          <ListItem key={watcher.user_id}>
+          <ListItem key={watcher.user_id} sx={{ py: 1 }}>
             <ListItemText 
               primary={watcher.user_name}
               secondary={watcher.role}

@@ -75,7 +75,10 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
   };
 
   const calculateTotalTime = (dayTimeLogs: TimeLog[]): number => {
-    return dayTimeLogs.reduce((total, log) => total + (log.spent_time || 0), 0);
+    return dayTimeLogs.reduce((total, log) => {
+      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      return total + (hours || 0);
+    }, 0);
   };
 
   return {

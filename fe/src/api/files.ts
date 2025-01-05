@@ -1,12 +1,18 @@
 import { api } from './api';
 import { TaskFile } from '../types/file';
-import { FileUploadOptions } from '../types/api';
 import { AxiosProgressEvent } from 'axios';
+
+interface FileUploadOptions {
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  params?: Record<string, string>;
+}
 
 // Get task files
 export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
   try {
-    const response = await api.get(`/tasks/${taskId}/files`);
+    const response = await api.get(`/files`, {
+      params: { taskId: taskId.toString() }
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch files', error);
@@ -22,18 +28,13 @@ export const uploadFile = async (
 ): Promise<TaskFile> => {
   try {
     const options: FileUploadOptions = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: onProgress,
+      params: {
+        taskId: taskId.toString()
+      }
     };
 
-    const response = await api.post(
-      `/tasks/${taskId}/files`, 
-      formData,
-      options
-    );
-    
+    const response = await api.post('/files', formData, options);
     return response.data;
   } catch (error) {
     console.error('Failed to upload file', error);
@@ -44,16 +45,15 @@ export const uploadFile = async (
 // Download file
 export const downloadFile = async (taskId: number, fileId: number): Promise<void> => {
   try {
-    const response = await api.get(`/tasks/${taskId}/files/${fileId}/download`, {
+    const response = await api.get(`/files/${fileId}/download`, {
+      params: { taskId: taskId.toString() },
       responseType: 'blob'
     });
     
-    // Create blob URL and trigger download
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
     
-    // Get filename from Content-Disposition header or use a default
     const contentDisposition = response.headers['content-disposition'];
     const filename = contentDisposition
       ? decodeURIComponent(contentDisposition.split('filename=')[1].replace(/['"]/g, ''))
@@ -73,7 +73,9 @@ export const downloadFile = async (taskId: number, fileId: number): Promise<void
 // Delete file
 export const deleteFile = async (taskId: number, fileId: number): Promise<void> => {
   try {
-    await api.delete(`/tasks/${taskId}/files/${fileId}`);
+    await api.delete(`/files/${fileId}`, {
+      params: { taskId: taskId.toString() }
+    });
   } catch (error) {
     console.error('Failed to delete file', error);
     throw error;

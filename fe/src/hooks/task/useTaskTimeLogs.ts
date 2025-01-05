@@ -1,20 +1,25 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
-import { getTaskTimeLogs, deleteTimeLog as deleteTimeLogApi } from '../../api/timeLogs';
+import {
+  getTaskTimeLogs,
+  deleteTimeLog as deleteTimeLogApi,
+  createTimeLog
+} from '../../api/timeLogs';
 
 export const useTaskTimeLogs = (taskId: string) => {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const { currentUser } = useAuth();
 
-  const fetchTimeLogs = async () => {
+  const fetchTimeLogs = useCallback(async () => {
     try {
       const timeLogsData = await getTaskTimeLogs(Number(taskId));
+      console.log('Fetched time logs:', timeLogsData);
       setTimeLogs(timeLogsData);
     } catch (error) {
       console.error('Failed to fetch time logs:', error);
     }
-  };
+  }, [taskId]);
 
   const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
     try {
@@ -22,16 +27,10 @@ export const useTaskTimeLogs = (taskId: string) => {
         throw new Error('User not authenticated');
       }
 
-      const newTimeLog: TimeLog = {
-        id: Date.now(),
-        user_id: currentUser.id,
-        created_on: new Date().toISOString(),
-        updated_on: new Date().toISOString(),
-        description: timeLogData.description || null,
-        ...timeLogData
-      };
-      
-      setTimeLogs(prev => [...prev, newTimeLog]);
+      console.log('Submitting time log:', timeLogData);
+      const newTimeLog = await createTimeLog(Number(taskId), timeLogData);
+      console.log('Created time log:', newTimeLog);
+      await fetchTimeLogs(); // Refresh time logs after submission
       return newTimeLog;
     } catch (error) {
       console.error('Failed to add time log:', error);
@@ -42,7 +41,7 @@ export const useTaskTimeLogs = (taskId: string) => {
   const deleteTimeLog = async (timeLogId: number): Promise<void> => {
     try {
       await deleteTimeLogApi(timeLogId);
-      setTimeLogs(prev => prev.filter(log => log.id !== timeLogId));
+      await fetchTimeLogs(); // Refresh time logs after deletion
     } catch (error) {
       console.error('Failed to delete time log:', error);
       throw error;
@@ -51,7 +50,6 @@ export const useTaskTimeLogs = (taskId: string) => {
 
   return {
     timeLogs,
-    setTimeLogs,
     handleTimeLogSubmit,
     deleteTimeLog,
     fetchTimeLogs

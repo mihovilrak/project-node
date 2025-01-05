@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Button,
   Box,
@@ -7,50 +7,54 @@ import {
   Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { FileUploadProps } from '../../types/file';
 import { useFileUpload } from '../../hooks/file/useFileUpload';
+import { TaskFile } from '../../types/file';
 
-const FileUpload: React.FC<FileUploadProps> = ({
-  taskId,
-  onFileUploaded
-}) => {
+interface FileUploadProps {
+  taskId: number;
+  onFileUploaded: (file: TaskFile) => void;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ taskId, onFileUploaded }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     uploading,
     progress,
     error,
-    fileInputRef,
     handleFileChange,
     setError
   } = useFileUpload(taskId, onFileUploaded);
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <Box>
       <input
         type="file"
+        ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
-        ref={fileInputRef}
+        data-testid="file-input"
         accept="*/*"
       />
       <Button
         variant="contained"
-        startIcon={<CloudUploadIcon />}
-        onClick={() => fileInputRef.current?.click()}
+        color="primary"
+        onClick={handleClick}
         disabled={uploading}
+        startIcon={<CloudUploadIcon />}
         sx={{ mb: 2 }}
       >
         Upload File
       </Button>
 
       {uploading && (
-        <Box sx={{ mt: 2, width: '100%' }}>
-          <LinearProgress 
-            variant="determinate" 
-            value={progress} 
-            sx={{ mb: 1 }}
-          />
-          <Typography variant="caption" color="text.secondary">
-            {progress}% uploaded
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <LinearProgress variant="determinate" value={progress} />
+          <Typography variant="body2" color="text.secondary" align="center">
+            {progress}%
           </Typography>
         </Box>
       )}
@@ -58,8 +62,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
       {error && (
         <Alert 
           severity="error" 
-          sx={{ mt: 2 }}
           onClose={() => setError(null)}
+          sx={{ mt: 2 }}
         >
           {error}
         </Alert>

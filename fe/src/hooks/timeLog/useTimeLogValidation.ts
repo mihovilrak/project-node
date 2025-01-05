@@ -8,7 +8,8 @@ export const useTimeLogValidation = () => {
 
     const decimalHours = parseFloat(timeStr);
     if (!isNaN(decimalHours) && decimalHours > 0) {
-      return Math.round(decimalHours * 60);
+      // Return hours as is, no conversion needed
+      return decimalHours;
     }
 
     setTimeError('Please enter a valid number of hours (e.g., 1, 1.5, 2)');
@@ -16,8 +17,8 @@ export const useTimeLogValidation = () => {
   };
 
   const validateTime = (spentTime: string): boolean => {
-    const timeInMinutes = validateAndFormatTime(spentTime);
-    return timeInMinutes !== null;
+    const timeInHours = validateAndFormatTime(spentTime);
+    return timeInHours !== null;
   };
 
   return {

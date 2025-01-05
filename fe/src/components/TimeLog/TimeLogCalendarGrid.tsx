@@ -18,7 +18,7 @@ interface TimeLogCalendarGridProps {
   getTimeLogsForDate: (date: Date, timeLogs: TimeLog[]) => TimeLog[];
   getTotalHoursForDate: (date: Date, timeLogs: TimeLog[]) => number;
   getDayColor: (hours: number) => string;
-  formatTime: (minutes: number) => string;
+  formatTime: (time: string | number) => string;
 }
 
 const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({

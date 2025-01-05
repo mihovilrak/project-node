@@ -9,7 +9,7 @@ export interface TimeLog {
   user_id: number;
   activity_type_id: number;
   log_date: string;
-  spent_time: number;
+  spent_time: number | string;  // Can be string from API
   description: string | null;
   created_on: string;
   updated_on: string | null;

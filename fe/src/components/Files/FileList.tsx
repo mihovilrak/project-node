@@ -5,13 +5,18 @@ import {
   IconButton,
   Typography,
   ListItemText,
-  ListItemSecondaryAction
+  Link,
+  ListItemSecondaryAction,
+  Box,
+  Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { FileListProps } from '../../types/file';
 import { useFileList } from '../../hooks/file/useFileList';
 import { downloadFile } from '../../api/files';
+import { Link as RouterLink } from 'react-router-dom';
 
 const FileList: React.FC<FileListProps> = ({
   files,
@@ -20,6 +25,16 @@ const FileList: React.FC<FileListProps> = ({
 }) => {
   const { formatFileSize } = useFileList(onFileDeleted);
 
+  if (files.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 3 }}>
+        <Typography variant="body2" color="text.secondary">
+          No files uploaded yet
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <List>
       {files.map((file) => (
@@ -27,39 +42,62 @@ const FileList: React.FC<FileListProps> = ({
           key={file.id}
           sx={{
             borderBottom: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'divider',
+            '&:hover': {
+              bgcolor: 'action.hover',
+            }
           }}
         >
-          <ListItemText
-            primary={decodeURIComponent(escape(file.original_name))}
-            secondary={
-              <>
-                <Typography variant="caption" display="block">
-                  Uploaded by: {file.uploaded_by || 'Unknown'}
+          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            <InsertDriveFileIcon sx={{ mr: 2, color: 'primary.main' }} />
+            <ListItemText
+              primary={
+                <Typography variant="body1" component="div">
+                  {decodeURIComponent(escape(file.original_name))}
                 </Typography>
-                <Typography variant="caption" display="block">
-                  Uploaded on: {new Date(file.uploaded_on).toLocaleString()}
-                </Typography>
-                <Typography variant="caption" display="block">
-                  Size: {formatFileSize(file.size)}
-                </Typography>
-              </>
-            }
-          />
-          <ListItemSecondaryAction>
-            <IconButton
-              edge="end"
-              onClick={() => downloadFile(taskId, file.id)}
-            >
-              <DownloadIcon />
-            </IconButton>
-            <IconButton
-              edge="end"
-              onClick={() => onFileDeleted(file.id)}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </ListItemSecondaryAction>
+              }
+              secondary={
+                <Box>
+                  <Typography variant="caption" display="block">
+                    Uploaded by: <Link
+                      component={RouterLink}
+                      to={`/users/${file.user_id}`}
+                      color="primary"
+                    >
+                      {file.uploaded_by}
+                    </Link>
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    Size: {formatFileSize(file.size)}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    Uploaded on: {new Date(file.uploaded_on).toLocaleString()}
+                  </Typography>
+                </Box>
+              }
+            />
+            <ListItemSecondaryAction>
+              <Tooltip title="Download">
+                <IconButton
+                  edge="end"
+                  aria-label="download"
+                  onClick={() => downloadFile(taskId, file.id)}
+                  sx={{ mr: 1 }}
+                >
+                  <DownloadIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => onFileDeleted(file.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </ListItemSecondaryAction>
+          </Box>
         </ListItem>
       ))}
     </List>

@@ -7,7 +7,8 @@ import {
   IconButton,
   Box,
   Typography,
-  Chip
+  Chip,
+  Paper
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -23,10 +24,19 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
   onDelete
 }) => {
 
-  const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}:${remainingMinutes.toString().padStart(2, '0')}`;
+  const formatTime = (hours: number | string): string => {
+    const numHours = typeof hours === 'string' ? parseFloat(hours) : hours;
+    
+    if (typeof numHours !== 'number' || isNaN(numHours)) {
+      console.log('Invalid hours value:', hours);
+      return '0:00';
+    }
+    console.log('Formatting hours:', numHours);
+    const wholeHours = Math.floor(numHours);
+    const minutes = Math.round((numHours - wholeHours) * 60);
+    const formatted = `${wholeHours}:${minutes.toString().padStart(2, '0')}`;
+    console.log('Formatted time:', formatted);
+    return formatted;
   };
 
   return (

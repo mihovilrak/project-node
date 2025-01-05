@@ -19,7 +19,7 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
   onManageWatchers
 }) => (
   <Grid item xs={12} md={4}>
-    <Box sx={{ mb: 4 }}>
+    <Box sx={{ mb: 5, p: 3 }}>
       <TaskFileSection
         taskId={Number(id)}
         files={files}
@@ -28,7 +28,7 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
       />
     </Box>
 
-    <Box>
+    <Box sx={{ p: 3 }}>
       <WatcherList
         watchers={watchers}
         canManageWatchers={true}

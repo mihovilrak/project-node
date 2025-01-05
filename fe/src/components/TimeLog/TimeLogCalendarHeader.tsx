@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 interface TimeLogCalendarHeaderProps {
   currentDate: Date;
   totalHours: number;
-  onNavigateMonth: (direction: number) => void;
+  onNavigateMonth: (direction: 'next' | 'prev') => void;
 }
 
 const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
@@ -35,13 +35,13 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
           Time Log Calendar
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={() => onNavigateMonth(-1)}>
+          <IconButton onClick={() => onNavigateMonth('prev')}>
             <NavigateBefore />
           </IconButton>
           <Typography variant="h6" sx={{ mx: 2 }}>
             {format(currentDate, 'MMMM yyyy')}
           </Typography>
-          <IconButton onClick={() => onNavigateMonth(1)}>
+          <IconButton onClick={() => onNavigateMonth('next')}>
             <NavigateNext />
           </IconButton>
         </Box>
@@ -49,7 +49,7 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle2" color="textSecondary">
-          Total hours this month: {totalHours.toFixed(1)}h
+          Total hours this month: {totalHours}h
         </Typography>
       </Box>
     </>

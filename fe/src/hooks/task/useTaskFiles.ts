@@ -1,26 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TaskFile } from '../../types/file';
-import {
-  getTaskFiles,
-  uploadFile,
-  deleteFile
-} from '../../api/files';
+import { getTaskFiles, uploadFile, deleteFile } from '../../api/files';
 
 export const useTaskFiles = (taskId: string) => {
   const [files, setFiles] = useState<TaskFile[]>([]);
 
-  const fetchFiles = async () => {
+  const refreshFiles = useCallback(async () => {
     try {
       const filesData = await getTaskFiles(Number(taskId));
       setFiles(filesData);
     } catch (error) {
       console.error('Failed to fetch files:', error);
     }
-  };
+  }, [taskId]);
 
   useEffect(() => {
-    fetchFiles();
-  }, [taskId]);
+    refreshFiles();
+  }, [refreshFiles]);
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -29,7 +25,7 @@ export const useTaskFiles = (taskId: string) => {
       formData.append('task_id', taskId);
       
       const uploadedFile = await uploadFile(Number(taskId), formData);
-      setFiles(prev => [...prev, uploadedFile]);
+      await refreshFiles(); // Refresh files after upload
       return uploadedFile;
     } catch (error) {
       console.error('Failed to upload file:', error);
@@ -40,7 +36,7 @@ export const useTaskFiles = (taskId: string) => {
   const handleFileDelete = async (fileId: number) => {
     try {
       await deleteFile(Number(taskId), fileId);
-      setFiles(prev => prev.filter(f => f.id !== fileId));
+      setFiles(prev => prev.filter(file => file.id !== fileId));
     } catch (error) {
       console.error('Failed to delete file:', error);
       throw error;
@@ -49,9 +45,8 @@ export const useTaskFiles = (taskId: string) => {
 
   return {
     files,
-    setFiles,
     handleFileUpload,
     handleFileDelete,
-    fetchFiles
+    refreshFiles
   };
 };

@@ -41,8 +41,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
   return (
     <Paper
-      elevation={2}
-      sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}
+      elevation={3}
+      sx={{ p: 4, mb: 4, backgroundColor: '#f8f9fa' }}
     >
       <Box sx={{
         display: 'flex',
@@ -75,7 +75,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2">
                   Holder:{' '}
-                  <Link component={RouterLink} to={`/users/${task.holder_id}`} color="primary">
+                  <Link
+                    component={RouterLink}
+                    to={`/users/${task.holder_id}`}
+                    color="primary"
+                  >
                     {task.holder_name}
                   </Link>
                 </Typography>
@@ -86,7 +90,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2">
                   Created by:{' '}
-                  <Link component={RouterLink} to={`/users/${task.created_by}`} color="primary">
+                  <Link
+                    component={RouterLink}
+                    to={`/users/${task.created_by}`}
+                    color="primary"
+                  >
                     {task.created_by_name}
                   </Link>
                 </Typography>
@@ -119,6 +127,60 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Grid>
             )}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body2">
+                Task ID: #{task.id}
+              </Typography>
+            </Grid>
+            {task.type_name && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Type: {task.type_name}
+                </Typography>
+              </Grid>
+            )}
+            {task.priority_name && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Priority: {task.priority_name}
+                </Typography>
+              </Grid>
+            )}
+            {task.estimated_time && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Estimated Time: {task.estimated_time} hours
+                </Typography>
+              </Grid>
+            )}
+            {task.spent_time && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Time Spent: {task.spent_time} hours
+                </Typography>
+              </Grid>
+            )}
+            {task.progress !== undefined && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Progress: {task.progress}%
+                </Typography>
+              </Grid>
+            )}
+            {task.start_date && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  Start Date: {new Date(task.start_date).toLocaleDateString()}
+                </Typography>
+              </Grid>
+            )}
+            {task.end_date && (
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  End Date: {new Date(task.end_date).toLocaleDateString()}
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         </Box>
 
@@ -138,8 +200,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
       <Divider sx={{ my: 2 }} />
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Typography variant="body1">Status:</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mt: 3 }}>
+        <Typography variant="h6">Status:</Typography>
         <Button
           onClick={canEdit ? onStatusMenuClick : undefined}
           variant="contained"
@@ -148,6 +210,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
           sx={{
             backgroundColor: statusColor,
             color: 'white',
+            px: 3,
+            py: 1,
             '&:hover': {
               backgroundColor: statusColor,
               opacity: 0.9

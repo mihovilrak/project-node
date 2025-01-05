@@ -3,19 +3,23 @@ import {
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
+  addMonths,
+  subMonths,
 } from 'date-fns';
 import { TimeLog } from '../../types/timeLog';
 import { useTheme } from '@mui/material';
 
 export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
   const theme = useTheme();
 
-  const navigateMonth = (direction: number): void => {
-    setCurrentDate(prev => {
-      const newDate = new Date(prev);
-      newDate.setMonth(prev.getMonth() + direction);
-      return newDate;
+  const navigateMonth = (direction: 'next' | 'prev') => {
+    setCurrentDate(current => {
+      if (direction === 'next') {
+        return addMonths(current, 1);
+      } else {
+        return subMonths(current, 1);
+      }
     });
   };
 
@@ -28,7 +32,10 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
 
   const getTotalHoursForDate = (date: Date, timeLogs: TimeLog[]): number => {
     const logs = getTimeLogsForDate(date, timeLogs);
-    return logs.reduce((total, log) => total + log.spent_time / 60, 0);
+    return logs.reduce((total, log) => {
+      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      return total + hours;
+    }, 0);
   };
 
   const getDayColor = (hours: number): string => {
@@ -38,10 +45,13 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
     return theme.palette.warning.light;
   };
 
-  const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+  const formatTime = (time: string | number): string => {
+    const hours = typeof time === 'string' ? parseFloat(time) : time;
+    if (isNaN(hours)) return '0h 0m';
+    
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    return `${wholeHours}h ${minutes}m`;
   };
 
   const getCalendarDays = () => {
@@ -51,7 +61,10 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   };
 
   const getTotalMonthHours = (timeLogs: TimeLog[]): number => {
-    return timeLogs.reduce((total, log) => total + log.spent_time / 60, 0);
+    return timeLogs.reduce((total, log) => {
+      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      return total + hours;
+    }, 0);
   };
 
   return {

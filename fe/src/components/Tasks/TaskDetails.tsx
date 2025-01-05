@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Grid } from '@mui/material';
 import TaskDetailsHeader from './TaskDetailsHeader';
@@ -12,7 +12,6 @@ import { useTaskComments } from '../../hooks/task/useTaskComments';
 import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
 import { TimeLog } from '../../types/timeLog';
-import { changeTaskStatus } from '../../api/tasks';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,8 +31,15 @@ const TaskDetails: React.FC = () => {
   const {
     timeLogs,
     handleTimeLogSubmit,
-    deleteTimeLog
+    deleteTimeLog,
+    fetchTimeLogs
   } = useTaskTimeLogs(id!);
+
+  useEffect(() => {
+    if (id) {
+      fetchTimeLogs();
+    }
+  }, [id, fetchTimeLogs]);
 
   const {
     watchers,
@@ -44,7 +50,8 @@ const TaskDetails: React.FC = () => {
   const {
     files,
     handleFileUpload,
-    handleFileDelete
+    handleFileDelete,
+    refreshFiles
   } = useTaskFiles(id!);
 
   const {
@@ -185,8 +192,8 @@ const TaskDetails: React.FC = () => {
         files={files}
         watchers={watchers}
         watcherDialogOpen={watcherDialogOpen}
-        onFileUploaded={(file: TaskFile) => {
-          handleFileUpload(file as unknown as File);
+        onFileUploaded={async () => {
+          await refreshFiles();
         }}
         onFileDeleted={handleFileDelete}
         onAddWatcher={handleAddWatcher}
