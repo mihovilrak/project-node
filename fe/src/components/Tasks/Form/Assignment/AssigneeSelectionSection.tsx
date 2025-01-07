@@ -1,13 +1,6 @@
 import React from 'react';
 import { AssigneeSelect } from '../../AssigneeSelect';
-import { TaskFormState } from '../../../../types/task';
-import { ProjectMember } from '../../../../types/project';
-
-interface AssigneeSelectionSectionProps {
-  formData: TaskFormState;
-  projectMembers: ProjectMember[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { AssigneeSelectionSectionProps } from '../../../../types/task';
 
 export const AssigneeSelectionSection: React.FC<AssigneeSelectionSectionProps> = ({
   formData,

@@ -8,12 +8,7 @@ import {
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useFileUpload } from '../../hooks/file/useFileUpload';
-import { TaskFile } from '../../types/file';
-
-interface FileUploadProps {
-  taskId: number;
-  onFileUploaded: (file: TaskFile) => void;
-}
+import { FileUploadProps } from '../../types/file';
 
 const FileUpload: React.FC<FileUploadProps> = ({ taskId, onFileUploaded }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);

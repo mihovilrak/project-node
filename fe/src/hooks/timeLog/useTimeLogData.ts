@@ -2,17 +2,11 @@ import { useState, useEffect } from 'react';
 import { Project } from '../../types/project';
 import { Task } from '../../types/task';
 import { User } from '../../types/user';
-import { ActivityType } from '../../types/timeLog';
+import { ActivityType, UseTimeLogDataProps } from '../../types/timeLog';
 import { getProjects } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
 import { getUsers } from '../../api/users';
 import { getActivityTypes } from '../../api/activityTypes';
-
-interface UseTimeLogDataProps {
-  open: boolean;
-  projectId?: number;
-  hasAdminPermission: boolean;
-}
 
 export const useTimeLogData = ({
   open,

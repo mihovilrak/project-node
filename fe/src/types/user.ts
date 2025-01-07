@@ -51,9 +51,18 @@ export interface UserCreate {
   language?: string;
 }
 
-export interface UserUpdate extends Partial<Omit<UserCreate, 'password'>> {
+export interface UserUpdate {
   id: number;
+  login?: string;
   password?: string;
+  currentPassword?: string;
+  name?: string;
+  surname?: string;
+  email?: string;
+  role_id?: number;
+  status_id?: number;
+  timezone?: string;
+  language?: string;
 }
 
 export interface PasswordChange {
@@ -76,6 +85,8 @@ export interface FormData {
   surname: string;
   email: string;
   password: string;
+  currentPassword?: string;
+  confirmPassword?: string;
   role_id: number;
   status_id?: number;  
 }

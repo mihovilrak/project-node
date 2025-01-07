@@ -1,11 +1,6 @@
 import React from 'react';
 import { TextField } from '@mui/material';
-import { TaskFormState } from '../../../../types/task';
-
-interface EstimatedTimeFieldProps {
-  formData: TaskFormState;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { EstimatedTimeFieldProps } from '../../../../types/task';
 
 export const EstimatedTimeField: React.FC<EstimatedTimeFieldProps> = ({
   formData,

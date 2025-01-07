@@ -1,14 +1,6 @@
 import React from 'react';
 import { TextField, MenuItem } from '@mui/material';
-import { TaskFormState } from '../../../../types/task';
-import { Task } from '../../../../types/task';
-
-interface ParentTaskSelectProps {
-  formData: TaskFormState;
-  projectTasks: Task[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  parentIdFromUrl?: string | null;
-}
+import { ParentTaskSelectProps } from '../../../../types/task';
 
 export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
   formData,

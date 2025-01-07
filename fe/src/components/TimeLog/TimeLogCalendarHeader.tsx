@@ -10,12 +10,7 @@ import {
   NavigateNext,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-
-interface TimeLogCalendarHeaderProps {
-  currentDate: Date;
-  totalHours: number;
-  onNavigateMonth: (direction: 'next' | 'prev') => void;
-}
+import { TimeLogCalendarHeaderProps } from '../../types/timeLog';
 
 const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
   currentDate,

@@ -1,13 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import TaskTypeSelect from '../../TaskTypeSelect';
-import { TaskFormState } from '../../../../types/task';
-import { FormChangeHandler } from '../types';
-
-interface TaskTypeSectionProps {
-  formData: TaskFormState;
-  handleChange: FormChangeHandler;
-}
+import { TaskTypeSectionProps } from '../../../../types/task';
 
 export const TaskTypeSection: React.FC<TaskTypeSectionProps> = ({
   formData,

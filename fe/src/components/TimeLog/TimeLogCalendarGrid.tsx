@@ -10,16 +10,7 @@ import {
 } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import { format, isToday } from 'date-fns';
-import { TimeLog } from '../../types/timeLog';
-
-interface TimeLogCalendarGridProps {
-  days: Date[];
-  timeLogs: TimeLog[];
-  getTimeLogsForDate: (date: Date, timeLogs: TimeLog[]) => TimeLog[];
-  getTotalHoursForDate: (date: Date, timeLogs: TimeLog[]) => number;
-  getDayColor: (hours: number) => string;
-  formatTime: (time: string | number) => string;
-}
+import { TimeLogCalendarGridProps } from '../../types/timeLog';
 
 const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
   days,

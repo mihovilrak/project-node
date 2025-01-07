@@ -10,18 +10,15 @@ import {
   changeTaskStatus
 } from '../../api/tasks';
 import { getTaskTags, getTags } from '../../api/tags';
-import { TaskStatus, TaskPriority, TaskFormState } from '../../types/task';
+import {
+  TaskStatus,
+  TaskPriority,
+  TaskFormState,
+  UseTaskFormProps
+} from '../../types/task';
 import { ProjectMember } from '../../types/project';
 import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
-
-interface UseTaskFormProps {
-  taskId?: string;
-  projectId?: string;
-  projectIdFromQuery: string | null;
-  parentTaskId: string | null;
-  currentUserId?: number;
-}
 
 export const useTaskForm = ({ 
   taskId, 
@@ -31,8 +28,8 @@ export const useTaskForm = ({
   currentUserId 
 }: UseTaskFormProps) => {
   const navigate = useNavigate();
-  const today = dayjs();
-  const isEditing = Boolean(taskId);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
@@ -47,6 +44,7 @@ export const useTaskForm = ({
     start_date: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
     due_date: null,
     estimated_time: 0,
+    progress: 0,
     created_by: currentUserId,
     tags: []
   });
@@ -67,6 +65,51 @@ export const useTaskForm = ({
   }, [fetchedProjectMembers]);
 
   useEffect(() => {
+    const loadTaskData = async () => {
+      // Check if we're in edit mode by looking at the URL path
+      const isEditPath = window.location.pathname.includes('/edit');
+      if (!isEditPath || !taskId) {
+        setIsEditing(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const taskData = await getTaskById(Number(taskId));
+        if (taskData) {
+          setIsEditing(true);
+          const taskTags = await getTaskTags(Number(taskId));
+          
+          // Format dates properly
+          const formattedStartDate = taskData.start_date ? dayjs(taskData.start_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
+          const formattedDueDate = taskData.due_date ? dayjs(taskData.due_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
+
+          setFormData({
+            name: taskData.name || '',
+            description: taskData.description || '',
+            project_id: taskData.project_id,
+            type_id: taskData.type_id || 1,
+            priority_id: taskData.priority_id || 2,
+            status_id: taskData.status_id || 1,
+            parent_id: taskData.parent_id || null,
+            holder_id: taskData.holder_id || currentUserId || null,
+            assignee_id: taskData.assignee_id || null,
+            start_date: formattedStartDate,
+            due_date: formattedDueDate,
+            estimated_time: taskData.estimated_time || 0,
+            progress: taskData.progress || 0,
+            created_by: taskData.created_by || currentUserId,
+            tags: taskTags || []
+          });
+        }
+      } catch (error) {
+        console.error('Error loading task:', error);
+        setIsEditing(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const fetchData = async () => {
       try {
         const [statusesData, prioritiesData, tagsData] = await Promise.all([
@@ -78,34 +121,14 @@ export const useTaskForm = ({
         setStatuses(statusesData);
         setPriorities(prioritiesData);
         setAvailableTags(tagsData);
-
-        if (taskId) {
-          const taskData = await getTaskById(Number(taskId));
-          const taskTags = await getTaskTags(Number(taskId));
-          setFormData(prev => ({
-            name: taskData.name,
-            description: taskData.description || '',
-            project_id: taskData.project_id,
-            type_id: taskData.type_id || prev.type_id,
-            priority_id: taskData.priority_id || prev.priority_id,
-            status_id: taskData.status_id || prev.status_id,
-            parent_id: taskData.parent_id,
-            holder_id: taskData.holder_id || prev.holder_id,
-            assignee_id: taskData.assignee_id,
-            start_date: taskData.start_date || prev.start_date,
-            due_date: taskData.due_date,
-            estimated_time: taskData.estimated_time || prev.estimated_time,
-            created_by: taskData.created_by,
-            tags: taskTags || []
-          }));
-        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
+    loadTaskData();
     fetchData();
-  }, [taskId]);
+  }, [taskId, currentUserId]);
 
   const handleChange = async (e: { target: { name: string; value: any } }) => {
     const { name, value } = e.target;
@@ -170,6 +193,7 @@ export const useTaskForm = ({
     priorities,
     availableTags,
     isEditing,
+    isLoading,
     handleChange,
     handleSubmit
   };

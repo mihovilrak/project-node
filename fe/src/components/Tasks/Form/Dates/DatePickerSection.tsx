@@ -1,13 +1,7 @@
 import React from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { TaskFormState } from '../../../../types/task';
-import { FormChangeHandler } from '../types';
-
-interface DatePickerSectionProps {
-  formData: TaskFormState;
-  handleChange: FormChangeHandler;
-}
+import { DatePickerSectionProps } from '../../../../types/task';
 
 export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, handleChange }) => {
   const datePickerStyle = {

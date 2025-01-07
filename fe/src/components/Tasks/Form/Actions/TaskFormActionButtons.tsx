@@ -1,9 +1,6 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
-
-interface TaskFormActionButtonsProps {
-  isEditing: boolean;
-}
+import { TaskFormActionButtonsProps } from '../../../../types/task';
 
 export const TaskFormActionButtons: React.FC<TaskFormActionButtonsProps> = ({
   isEditing

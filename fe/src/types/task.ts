@@ -4,6 +4,7 @@ import { Tag } from './tag';
 import { TimeLog, TimeLogCreate } from './timeLog';
 import { Comment } from './comment';
 import { TaskFile } from './file';
+import { ProjectMember } from './project';
 
 export interface Task {
   id: number;
@@ -133,6 +134,7 @@ export interface TaskFormState {
   start_date: string | null;
   due_date: string | null;
   estimated_time: number | null;
+  progress?: number;
   created_by?: number;
   tags?: Tag[];
 }
@@ -209,4 +211,85 @@ export interface TaskDetailsState {
   timeLogDialogOpen: boolean;
   selectedTimeLog: TimeLog | null;
   watcherDialogOpen: boolean;
+}
+
+export interface TaskFormActionButtonsProps {
+  isEditing: boolean;
+}
+
+export interface AssigneeSelectionSectionProps {
+  formData: TaskFormState;
+  projectMembers: ProjectMember[];
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export interface TaskDescriptionFieldProps {
+  formData: TaskFormState;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export type SimpleChangeEvent = {
+  target: {
+    name: string;
+    value: any;
+  };
+};
+
+type FormChangeHandler = (e: SimpleChangeEvent) => void;
+
+export interface TaskNameFieldProps {
+  formData: TaskFormState;
+  handleChange: FormChangeHandler;
+}
+
+export interface DatePickerSectionProps {
+  formData: TaskFormState;
+  handleChange: FormChangeHandler;
+}
+
+export interface ParentTaskSelectProps {
+  formData: TaskFormState;
+  projectTasks: Task[];
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  parentIdFromUrl?: string | null;
+}
+
+export interface TaskProgressFieldProps {
+  value: number;
+  handleChange: (e: SimpleChangeEvent) => void;
+}
+
+export interface TaskTagsSectionProps {
+  formData: TaskFormState;
+  handleChange: FormChangeHandler;
+}
+
+export interface TaskTypeSectionProps {
+  formData: TaskFormState;
+  handleChange: FormChangeHandler;
+}
+
+export interface EstimatedTimeFieldProps {
+  formData: TaskFormState;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export interface TaskPrioritySelectProps {
+  formData: TaskFormState;
+  priorities: TaskPriority[];
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export interface TaskStatusSelectProps {
+  formData: TaskFormState;
+  statuses: TaskStatus[];
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export interface UseTaskFormProps {
+  taskId?: string;
+  projectId?: string;
+  projectIdFromQuery: string | null;
+  parentTaskId: string | null;
+  currentUserId?: number;
 }

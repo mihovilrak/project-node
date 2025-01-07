@@ -1,3 +1,5 @@
+import { AxiosProgressEvent } from "axios";
+
 export interface FileUploadProps {
   taskId: number;
   onFileUploaded: (file: TaskFile) => void;
@@ -9,7 +11,7 @@ export interface FileListProps {
   onFileDeleted: (fileId: number) => void;
 }
 
-export interface TaskFile {
+export interface TaskFile { 
   id: number;
   task_id: number;
   user_id: number;
@@ -39,4 +41,14 @@ export interface TaskFileSectionProps {
   files: TaskFile[];
   onFileUploaded: (file: TaskFile) => void;
   onFileDeleted: (fileId: number) => void;
+}
+
+export interface FileUploadOptions {
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+  params?: Record<string, string>;
+}
+
+export interface FileUploadProps {
+  taskId: number;
+  onFileUploaded: (file: TaskFile) => void;
 }

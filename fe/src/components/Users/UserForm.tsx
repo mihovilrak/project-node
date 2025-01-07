@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   TextField, 
   Button, 
@@ -7,12 +7,17 @@ import {
   Typography, 
   Paper,
   Grid,
-  Alert
+  Alert,
+  IconButton,
+  InputAdornment
 } from '@mui/material';
-import { UserFormProps } from '../../types/user';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useUserForm } from '../../hooks/user/useUserForm';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const UserForm: React.FC<UserFormProps> = ({ userId }) => {
+const UserForm: React.FC = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const {
     loading,
     error,
@@ -20,13 +25,19 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
     formValues,
     handleInputChange,
     handleSubmit,
-  } = useUserForm({ userId });
+  } = useUserForm({ userId: id });
+
+  const isEditMode = window.location.pathname.includes('/edit');
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   return (
     <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
       <Paper elevation={3} sx={{ padding: 4 }}>
         <Typography variant="h4" gutterBottom>
-          {userId ? 'Edit User' : 'Add New User'}
+          {isEditMode ? `Edit User ${formValues.name} ${formValues.surname}` : 'Add New User'}
         </Typography>
         
         {error && (
@@ -78,17 +89,121 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 required
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label={userId ? "New Password (leave blank to keep current)" : "Password"}
-                name="password"
-                type="password"
-                value={formValues.password}
-                onChange={handleInputChange}
-                required={!userId}
-              />
-            </Grid>
+            
+            {isEditMode ? (
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Current Password"
+                    name="currentPassword"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    value={formValues.currentPassword || ''}
+                    onChange={handleInputChange}
+                    required={!!formValues.password}
+                    placeholder="Enter current password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
+                            {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="New Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formValues.password}
+                    onChange={handleInputChange}
+                    placeholder="Leave blank to keep current password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                {formValues.password && (
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Confirm New Password"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formValues.confirmPassword || ''}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Confirm new password"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                )}
+              </>
+            ) : (
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formValues.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={formValues.confirmPassword || ''}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Confirm password"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              </>
+            )}
+
             <Grid item xs={12}>
               <TextField
                 select
@@ -99,30 +214,30 @@ const UserForm: React.FC<UserFormProps> = ({ userId }) => {
                 onChange={handleInputChange}
                 required
                 disabled={loading}
-                error={!!error}
               >
-                {loading ? (
-                  <MenuItem disabled>Loading roles...</MenuItem>
-                ) : roles.length === 0 ? (
-                  <MenuItem disabled>No roles available</MenuItem>
-                ) : (
-                  roles.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.name}
-                    </MenuItem>
-                  ))
-                )}
+                {roles.map((role) => (
+                  <MenuItem key={role.id} value={role.id}>
+                    {role.name}
+                  </MenuItem>
+                ))}
               </TextField>
             </Grid>
+
             <Grid item xs={12}>
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate('/users')}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
                   color="primary"
                   disabled={loading}
                 >
-                  {userId ? 'Update User' : 'Create User'}
+                  {isEditMode ? 'Update User' : 'Create User'}
                 </Button>
               </Box>
             </Grid>

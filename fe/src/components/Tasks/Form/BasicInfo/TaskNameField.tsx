@@ -1,12 +1,6 @@
 import React from 'react';
 import { TextField } from '@mui/material';
-import { TaskFormState } from '../../../../types/task';
-import { FormChangeHandler } from '../types';
-
-interface TaskNameFieldProps {
-  formData: TaskFormState;
-  handleChange: FormChangeHandler;
-}
+import { TaskNameFieldProps } from '../../../../types/task';
 
 export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleChange }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   List,
+  Link,
   IconButton,
   Menu,
   MenuItem,
@@ -9,6 +10,7 @@ import {
   Box,
   Paper
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -61,8 +63,14 @@ const CommentList: React.FC<CommentListProps> = ({
                   }}
                 >
                   <Typography variant="subtitle2">
+                  <Link
+                    component={RouterLink}
+                    to={`/users/${comment.user_id}`}
+                    color="primary"
+                  >
                     {comment.user_name}
-                  </Typography>
+                  </Link>
+                </Typography>
                   <Box>
                     <Typography
                       variant="caption"

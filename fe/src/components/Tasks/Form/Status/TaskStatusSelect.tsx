@@ -1,12 +1,6 @@
 import React from 'react';
 import { TextField, MenuItem } from '@mui/material';
-import { TaskFormState, TaskStatus } from '../../../../types/task';
-
-interface TaskStatusSelectProps {
-  formData: TaskFormState;
-  statuses: TaskStatus[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import {TaskStatusSelectProps } from '../../../../types/task';
 
 export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({ 
   formData, 

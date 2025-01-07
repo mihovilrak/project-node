@@ -1,21 +1,9 @@
 import { useState, useEffect } from 'react';
-import { TimeLogCreate, TimeLog } from '../../types/timeLog';
+import { TimeLogCreate, UseTimeLogDialogProps } from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
-import { User } from '../../types/user';
 import { Task } from '../../types/task';
 import { useTimeLogData } from './useTimeLogData';
 import { useTimeLogValidation } from './useTimeLogValidation';
-
-interface UseTimeLogDialogProps {
-  timeLog?: TimeLog;
-  currentUser: User | null;
-  onSubmit: (data: TimeLogCreate) => Promise<void>;
-  onClose: () => void;
-  open: boolean;
-  projectId?: number;
-  taskId?: number;
-  hasAdminPermission: boolean;
-}
 
 export const useTimeLogDialog = ({
   timeLog,

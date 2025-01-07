@@ -1,12 +1,6 @@
 import React from 'react';
 import { TextField, MenuItem } from '@mui/material';
-import { TaskFormState, TaskPriority } from '../../../../types/task';
-
-interface TaskPrioritySelectProps {
-  formData: TaskFormState;
-  priorities: TaskPriority[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { TaskPrioritySelectProps } from '../../../../types/task';
 
 export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({ 
   formData, 

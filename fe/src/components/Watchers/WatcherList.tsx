@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   List,
+  Link,
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
@@ -8,9 +9,9 @@ import {
   Typography,
   Paper,
   Tooltip,
-  Box,
-  Button
+  Box
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { WatcherListProps } from '../../types/watcher';
 import PermissionButton from '../common/PermissionButton';
@@ -72,7 +73,13 @@ const WatcherList: React.FC<WatcherListProps> = ({
         {watchers.map((watcher) => (
           <ListItem key={watcher.user_id} sx={{ py: 1 }}>
             <ListItemText 
-              primary={watcher.user_name}
+              primary={<Link
+                        component={RouterLink}
+                        to={`/users/${watcher.user_id}`}
+                        color="primary"
+                      >
+                        {watcher.user_name}
+                      </Link>}
               secondary={watcher.role}
             />
             {canManageWatchers && (

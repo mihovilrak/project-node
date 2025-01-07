@@ -3,7 +3,7 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Paper } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useTaskForm } from '../../hooks/task/useTaskForm';
-import { SimpleChangeEvent } from './Form/types';
+import { SimpleChangeEvent } from '../../types/task';
 
 import { TaskNameField } from './Form/BasicInfo/TaskNameField';
 import { TaskDescriptionField } from './Form/BasicInfo/TaskDescriptionField';
@@ -17,6 +17,7 @@ import { TaskTypeSection } from './Form/Details/TaskTypeSection';
 import { TaskTagsSection } from './Form/Details/TaskTagsSection';
 import { EstimatedTimeField } from './Form/Estimation/EstimatedTimeField';
 import { TaskFormActionButtons } from './Form/Actions/TaskFormActionButtons';
+import { TaskProgressField } from './Form/Details/TaskProgressField';
 
 const TaskForm: React.FC = () => {
   const { currentUser } = useAuth();
@@ -25,7 +26,7 @@ const TaskForm: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const projectIdFromQuery = queryParams.get('projectId');
   const parentId = queryParams.get('parentId');
-  const { projectId, taskId } = useParams();
+  const { projectId, id } = useParams<{ projectId?: string; id?: string }>();
 
   const {
     formData,
@@ -35,11 +36,12 @@ const TaskForm: React.FC = () => {
     statuses,
     priorities,
     isEditing,
+    isLoading,
     handleChange,
     handleSubmit
   } = useTaskForm({
-    taskId: taskId || undefined,
-    projectId: projectId || undefined,
+    taskId: id,
+    projectId,
     projectIdFromQuery,
     parentTaskId: parentId,
     currentUserId: currentUser?.id
@@ -86,7 +88,7 @@ const TaskForm: React.FC = () => {
   return (
     <Box component={Paper} sx={{ p: 3, maxWidth: 800, mx: 'auto', mt: 3 }}>
       <Typography variant="h4" gutterBottom>
-        {isEditing ? 'Edit Task' : 'Create Task'}
+        {isLoading ? 'Loading...' : (isEditing ? 'Edit Task' : 'Create Task')}
       </Typography>
       <form onSubmit={onSubmit}>
         <TaskNameField
@@ -105,6 +107,13 @@ const TaskForm: React.FC = () => {
           formData={formData} 
           handleChange={handleFormChange} 
         />
+        
+        {isEditing && (
+          <TaskProgressField
+            value={formData.progress || 0}
+            handleChange={handleFormChange}
+          />
+        )}
         
         <DatePickerSection
           formData={formData} 

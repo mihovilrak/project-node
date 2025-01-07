@@ -125,3 +125,35 @@ export interface TaskTimeLoggingProps {
   onTimeLogEdit: (timeLog: TimeLog) => void;
   onTimeLogDialogClose: () => void;
 }
+
+export interface TimeLogCalendarGridProps {
+  days: Date[];
+  timeLogs: TimeLog[];
+  getTimeLogsForDate: (date: Date, timeLogs: TimeLog[]) => TimeLog[];
+  getTotalHoursForDate: (date: Date, timeLogs: TimeLog[]) => number;
+  getDayColor: (hours: number) => string;
+  formatTime: (time: string | number) => string;
+}
+
+export interface TimeLogCalendarHeaderProps {
+  currentDate: Date;
+  totalHours: number;
+  onNavigateMonth: (direction: 'next' | 'prev') => void;
+}
+
+export interface UseTimeLogDataProps {
+  open: boolean;
+  projectId?: number;
+  hasAdminPermission: boolean;
+}
+
+export interface UseTimeLogDialogProps {
+  timeLog?: TimeLog;
+  currentUser: User | null;
+  onSubmit: (data: TimeLogCreate) => Promise<void>;
+  onClose: () => void;
+  open: boolean;
+  projectId?: number;
+  taskId?: number;
+  hasAdminPermission: boolean;
+}
