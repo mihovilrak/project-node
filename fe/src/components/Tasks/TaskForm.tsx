@@ -26,7 +26,7 @@ const TaskForm: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const projectIdFromQuery = queryParams.get('projectId');
   const parentId = queryParams.get('parentId');
-  const { projectId, id } = useParams<{ projectId?: string; id?: string }>();
+  const { id } = useParams<{ id?: string }>();
 
   const {
     formData,
@@ -41,7 +41,6 @@ const TaskForm: React.FC = () => {
     handleSubmit
   } = useTaskForm({
     taskId: id,
-    projectId,
     projectIdFromQuery,
     parentTaskId: parentId,
     currentUserId: currentUser?.id

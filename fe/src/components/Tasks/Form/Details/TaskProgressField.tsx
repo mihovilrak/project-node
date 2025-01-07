@@ -19,7 +19,7 @@ export const TaskProgressField: React.FC<TaskProgressFieldProps> = ({
         max: 100,
         step: 1
       }}
-      sx={{ mt: 2 }}
+      sx={{ mb: 2 }}
     />
   );
 };
