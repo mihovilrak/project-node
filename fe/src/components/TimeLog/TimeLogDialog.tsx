@@ -72,10 +72,17 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
         }
       }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
+      <DialogTitle sx={{ pb: 0, mb: 0 }}>
         {timeLog ? 'Edit Time Log' : 'Log Time'}
       </DialogTitle>
-      <DialogContent sx={{ pt: 2, mt: 2 }}>
+      <DialogContent 
+        sx={{ 
+          pt: '8px',
+          '&.MuiDialogContent-root': {
+            paddingTop: '8px'
+          }
+        }}
+      >
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />

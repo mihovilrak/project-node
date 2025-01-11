@@ -4,6 +4,7 @@ create or replace view v_users as
             u.name,
             u.surname,
             u.email,
+            u.role_id,
             s.name as status,
             r.name as role,
             u.created_on::timestamp(0),

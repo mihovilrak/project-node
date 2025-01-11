@@ -37,22 +37,6 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
     }
   };
 
-  const handleStatusToggle = async (subtask: Task): Promise<void> => {
-    try {
-      // Toggle between New and Done
-      const newStatusId = subtask.status_name === 'Done' ? 1 : 5; // 1=New, 5=Done
-      await changeTaskStatus(subtask.id, newStatusId);
-      const updatedSubtask = { 
-        ...subtask, 
-        status_id: newStatusId,
-        status_name: newStatusId === 5 ? 'Done' : 'New'
-      };
-      onSubtaskUpdated(subtask.id, updatedSubtask);
-    } catch (error) {
-      console.error('Failed to update subtask status:', error);
-    }
-  };
-
   if (subtasks.length === 0) {
     return (
       <Typography variant="body2" color="textSecondary" sx={{ p: 2 }}>
@@ -72,19 +56,10 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
           <ListItem
             secondaryAction={
               <Box>
-                <Tooltip title="Toggle Status">
-                  <IconButton 
-                    edge="end" 
-                    onClick={() => handleStatusToggle(subtask)}
-                    color={subtask.status_name === 'Done' ? 'success' : 'default'}
-                  >
-                    {subtask.status_name === 'Done' ? <DoneIcon /> : <TodoIcon />}
-                  </IconButton>
-                </Tooltip>
                 <Tooltip title="Edit">
                   <IconButton 
                     edge="end" 
-                    onClick={() => navigate(`/tasks/${subtask.id}`)}
+                    onClick={() => navigate(`/tasks/${subtask.id}/edit`)}
                   >
                     <EditIcon />
                   </IconButton>

@@ -43,7 +43,7 @@ export const useTimeLogDialog = ({
         setSelectedUserId(timeLog.user_id);
         setSelectedActivityTypeId(timeLog.activity_type_id);
         const spentTimeNum = typeof timeLog.spent_time === 'string' ? parseFloat(timeLog.spent_time) : timeLog.spent_time;
-        setSpentTime(String(spentTimeNum / 60)); // Convert minutes to hours
+        setSpentTime(String(spentTimeNum));
         setDescription(timeLog.description || '');
         setLogDate(dayjs(timeLog.log_date));
       } else {

@@ -7,29 +7,37 @@ import {
   Grid,
   Card,
   CardContent,
-  CircularProgress
+  CircularProgress,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import { getUsers, deleteUser } from '../../api/users';
 import { User } from '../../types/user';
+import FilterPanel from '../common/FilterPanel';
+import { FilterValues } from '../../types/filterPanel';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [filters, setFilters] = useState<FilterValues>({});
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const userList = await getUsers();
-        setUsers(userList);
-      } catch (error) {
-        console.error('Failed to fetch users', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const userList = await getUsers();
+      setUsers(userList);
+    } catch (error) {
+      console.error('Failed to fetch users', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
@@ -42,14 +50,65 @@ const Users: React.FC = () => {
     }
   };
 
+  const handleFilterChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+  };
+
+  const handleSortChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
+    setSortOrder(event.target.value as 'asc' | 'desc');
+  };
+
+  const filterOptions = {
+    showSearch: true
+  };
+
+  const filteredUsers = users
+    .filter(user => {
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        return (
+          user.name.toLowerCase().includes(searchTerm) ||
+          user.surname.toLowerCase().includes(searchTerm) ||
+          user.email.toLowerCase().includes(searchTerm)
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const nameA = `${a.name} ${a.surname}`;
+      const nameB = `${b.name} ${b.surname}`;
+      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
+
   if (loading) return <CircularProgress />;
 
   return (
     <Box p={3}>
       <Typography variant="h4" gutterBottom>User Management</Typography>
-      <Button variant="contained" color="primary" onClick={() => navigate('/users/new')}>Add New User</Button>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+        <Button variant="contained" color="primary" onClick={() => navigate('/users/new')}>
+          Add New User
+        </Button>
+        <Select 
+          value={sortOrder} 
+          onChange={handleSortChange} 
+          size="small"
+          sx={{ minWidth: 120 }}
+        >
+          <MenuItem value="asc">A-Z</MenuItem>
+          <MenuItem value="desc">Z-A</MenuItem>
+        </Select>
+      </Box>
+
+      <FilterPanel
+        type="users"
+        filters={filters}
+        options={filterOptions}
+        onFilterChange={handleFilterChange}
+      />
+
       <Grid container spacing={2} marginTop={2}>
-        {users.map(user => (
+        {filteredUsers.map(user => (
           <Grid item xs={12} sm={6} md={4} key={user.id}>
             <Card>
               <CardContent>

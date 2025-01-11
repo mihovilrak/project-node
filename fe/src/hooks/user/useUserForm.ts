@@ -63,7 +63,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         password: '',
         currentPassword: '',
         confirmPassword: '',
-        role_id: Number(user.role_id)
+        role_id: Number(user.role_id) || 4
       });
     } catch (error) {
       console.error('Failed to fetch user data', error);

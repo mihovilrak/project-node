@@ -9,16 +9,23 @@ import {
   Typography, 
   Box,
   CircularProgress,
-  Chip
+  Chip,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import PermissionButton from '../common/PermissionButton';
+import FilterPanel from '../common/FilterPanel';
 import { Task } from '../../types/task';
+import { FilterValues } from '../../types/filterPanel';
 import { getPriorityColor } from '../../utils/taskUtils';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterValues>({});
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +57,49 @@ const Tasks: React.FC = () => {
     }
   };
 
+  const handleFilterChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+  };
+
+  const handleSortChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
+    setSortOrder(event.target.value as 'asc' | 'desc');
+  };
+
+  const filterOptions = {
+    showSearch: true,
+    showDateFilters: true,
+    statuses: [], // This should be populated with actual status options from your API
+    priorities: [], // This should be populated with actual priority options from your API
+    projects: [] // This should be populated with actual project options from your API
+  };
+
+  const filteredTasks = tasks
+    .filter(task => {
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        return (
+          task.name.toLowerCase().includes(searchTerm) ||
+          task.description?.toLowerCase().includes(searchTerm) ||
+          task.project_name?.toLowerCase().includes(searchTerm)
+        );
+      }
+      if (filters.status_id) {
+        return task.status_id === Number(filters.status_id);
+      }
+      if (filters.priority_id) {
+        return task.priority_id === Number(filters.priority_id);
+      }
+      if (filters.project_id) {
+        return task.project_id === Number(filters.project_id);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      return sortOrder === 'asc' 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    });
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -62,18 +112,35 @@ const Tasks: React.FC = () => {
     <Box sx={{ width: '100%', p: 3 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>Tasks</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={() => navigate('/tasks/new')}
-          sx={{ mb: 2 }}
-        >
-          Create New Task
-        </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => navigate('/tasks/new')}
+          >
+            Create New Task
+          </Button>
+          <Select 
+            value={sortOrder} 
+            onChange={handleSortChange} 
+            size="small"
+            sx={{ minWidth: 120 }}
+          >
+            <MenuItem value="asc">A-Z</MenuItem>
+            <MenuItem value="desc">Z-A</MenuItem>
+          </Select>
+        </Box>
+
+        <FilterPanel
+          type="tasks"
+          filters={filters}
+          options={filterOptions}
+          onFilterChange={handleFilterChange}
+        />
       </Box>
 
       <Grid container spacing={3}>
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <Grid item xs={12} sm={6} lg={4} key={task.id}>
             <Card>
               <CardContent>
@@ -99,22 +166,20 @@ const Tasks: React.FC = () => {
                   <Button onClick={() => navigate(`/tasks/${task.id}`)}>
                     Details
                   </Button>
-                  <PermissionButton 
-                    requiredPermission="Edit tasks"
+                  <Button 
                     color="warning" 
                     onClick={() => navigate(`/tasks/${task.id}/edit`)}
-                    tooltipText="You don't have permission to edit tasks"
+                    sx={{ ml: 1 }}
                   >
                     Edit
-                  </PermissionButton>
-                  <PermissionButton 
-                    requiredPermission="Delete tasks"
+                  </Button>
+                  <Button 
                     color="error" 
                     onClick={() => handleDelete(task.id)}
-                    tooltipText="You don't have permission to delete tasks"
+                    sx={{ ml: 1 }}
                   >
                     Delete
-                  </PermissionButton>
+                  </Button>
                 </Box>
               </CardContent>
             </Card>
