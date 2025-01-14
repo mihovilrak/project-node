@@ -24,7 +24,10 @@ export const useRoleDialog = (role: Role | undefined) => {
         name: role.name,
         description: role.description || '',
         active: role.active ?? true,
-        permissions: role.permissions || []
+        permissions: role.permissions 
+        ? role.permissions.map(p => typeof p === 'number' ? p : p.id) 
+        || []
+        : []
       });
     } else {
       setFormData({
@@ -56,9 +59,9 @@ export const useRoleDialog = (role: Role | undefined) => {
   const handlePermissionToggle = (permission: Permission) => {
     setFormData(prev => ({
       ...prev,
-      permissions: prev.permissions.some(p => p.id === permission.id)
-        ? prev.permissions.filter(p => p.id !== permission.id)
-        : [...prev.permissions, permission]
+      permissions: prev.permissions.includes(permission.id)
+        ? prev.permissions.filter(id => id !== permission.id)
+        : [...prev.permissions, permission.id]
     }));
   };
 

@@ -8,7 +8,7 @@ export interface Role {
   created_on?: string;
   updated_on?: string | null;
   // Virtual fields from joins
-  permissions?: Permission[];
+  permissions?: Permission[] | number[];
 }
 
 export interface RolesTableProps {
@@ -22,7 +22,7 @@ export interface RoleFormData {
   name: string;
   description: string;
   active: boolean;
-  permissions: Permission[];
+  permissions: number[];
 }
 
 export interface RoleFormProps {

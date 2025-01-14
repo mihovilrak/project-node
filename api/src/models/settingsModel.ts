@@ -1,5 +1,9 @@
 import { Pool } from 'pg';
-import { Settings, SettingsUpdateInput } from '../types/settings';
+import {
+  Settings,
+  SettingsUpdateInput,
+  UserSettingsUpdateInput
+} from '../types/settings';
 
 // Get System Settings
 export const getSystemSettings = async (pool: Pool): Promise<Settings | null> => {
@@ -15,18 +19,20 @@ export const updateSystemSettings = async (
   settings: SettingsUpdateInput
 ): Promise<Settings | null> => {
   const {
+    app_name,
+    company_name,
+    sender_email,
+    time_zone,
     theme,
-    language,
-    notifications_enabled,
-    email_notifications
+    welcome_message
   } = settings;
   const result = await pool.query(
     `UPDATE app_settings 
-     SET (theme, language, notifications_enabled, email_notifications, updated_on) 
-        = ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+     SET (app_name, company_name, sender_email, time_zone, theme, welcome_message, updated_on) 
+        = ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
      WHERE id = 1
      RETURNING *`,
-    [theme, language, notifications_enabled, email_notifications]
+    [app_name, company_name, sender_email, time_zone, theme, welcome_message]
   );
   return result.rows[0] || null;
 };
@@ -47,7 +53,7 @@ export const getUserSettings = async (
 export const updateUserSettings = async (
   pool: Pool,
   userId: string,
-  settings: SettingsUpdateInput
+  settings: UserSettingsUpdateInput
 ): Promise<Settings | null> => {
   const {
     theme,

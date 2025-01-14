@@ -23,12 +23,12 @@ export interface Permission {
 export interface RoleCreateInput {
   name: string;
   description?: string;
-  permissions?: string[];
+  permissions?: number[];
 }
 
 export interface RoleUpdateInput {
   name?: string;
   description?: string;
   active?: boolean;
-  permissions?: string[];
+  permissions?: number[];
 }

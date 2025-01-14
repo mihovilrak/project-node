@@ -52,7 +52,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
                   key={permission.id}
                   control={
                     <Checkbox
-                      checked={formData.permissions.some(p => p.id === permission.id)}
+                      checked={formData.permissions.includes(permission.id)}
                       onChange={() => onPermissionToggle(permission)}
                     />
                   }

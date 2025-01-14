@@ -7,6 +7,7 @@ import {
   Button,
   Alert
 } from '@mui/material';
+import { Role } from '../../types/role';
 import { RoleDialogProps } from '../../types/role';
 import { useRoleDialog } from '../../hooks/setting/useRoleDialog';
 import { RoleForm } from './RoleForm';
@@ -25,9 +26,16 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+    
+    const roleData: Partial<Role> = {
+      name: formData.name,
+      description: formData.description,
+      active: formData.active,
+      permissions: formData.permissions
+    };
 
     try {
-      await onSave(formData);
+      await onSave(roleData);
       onClose();
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to save role');

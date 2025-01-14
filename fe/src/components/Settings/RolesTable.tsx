@@ -47,7 +47,9 @@ const RolesTable: React.FC<RolesTableProps> = ({
               <TableCell>{role.name}</TableCell>
               <TableCell>{role.description}</TableCell>
               <TableCell>
-                <Tooltip title={(role.permissions || []).map(p => p.name).join(', ')}>
+              <Tooltip title={(role.permissions || [])
+    .map(p => typeof p === 'number' ? String(p) : p.name)
+    .join(', ')}>
                   <Chip
                     label={`${role.permissions?.length || 0} permissions`}
                     size="small"

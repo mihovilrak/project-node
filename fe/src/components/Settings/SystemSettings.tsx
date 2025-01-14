@@ -13,8 +13,18 @@ import {
   InputLabel,
   Tab,
   Tabs,
-  SelectChangeEvent
+  SelectChangeEvent,
+  Tooltip,
+  IconButton
 } from '@mui/material';
+import {
+  FormatBold,
+  FormatItalic,
+  FormatUnderlined,
+  LooksOne,
+  LooksTwo,
+  Looks3
+} from '@mui/icons-material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -50,48 +60,60 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
   return (
     <Box sx={{ mb: 2, '& button': { mr: 1, mb: 1 } }}>
-      <Button
-        size="small"
-        variant={editor.isActive('bold') ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleBold().run()}
-      >
-        Bold
-      </Button>
-      <Button
-        size="small"
-        variant={editor.isActive('italic') ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-      >
-        Italic
-      </Button>
-      <Button
-        size="small"
-        variant={editor.isActive('underline') ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-      >
-        Underline
-      </Button>
-      <Button
-        size="small"
-        variant={editor.isActive('heading', { level: 1 }) ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-      >
-        H1
-      </Button>
-      <Button
-        size="small"
-        variant={editor.isActive('heading', { level: 2 }) ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-      >
-        H2
-      </Button>
-      <Button
-        size="small"
-        variant={editor.isActive('heading', { level: 3 }) ? 'contained' : 'outlined'}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-      >
-        H3
-      </Button>
+      <Tooltip title="Bold">
+        <IconButton
+          size="small"
+          color={editor.isActive('bold') ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+        >
+          <FormatBold />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Italic">
+        <IconButton
+          size="small"
+          color={editor.isActive('italic') ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+        >
+          <FormatItalic />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Underline">
+        <IconButton
+          size="small"
+          color={editor.isActive('underline') ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+        >
+          <FormatUnderlined />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Heading 1">
+        <IconButton
+          size="small"
+          color={editor.isActive('heading', { level: 1 }) ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        >
+          <LooksOne />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Heading 2">
+        <IconButton
+          size="small"
+          color={editor.isActive('heading', { level: 2 }) ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        >
+          <LooksTwo />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Heading 3">
+        <IconButton
+          size="small"
+          color={editor.isActive('heading', { level: 3 }) ? 'primary' : 'default'}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        >
+          <Looks3 />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 };
@@ -208,6 +230,9 @@ const SystemSettings: React.FC = () => {
           </FormControl>
 
           <Box sx={{ width: '100%', mt: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              Welcome Message
+            </Typography>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={tabValue} onChange={handleTabChange}>
                 <Tab label="Editor" />
@@ -231,7 +256,7 @@ const SystemSettings: React.FC = () => {
               </Box>
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-              <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
+              <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1, minHeight: '200px' }}>
                 <div dangerouslySetInnerHTML={{ __html: state.settings.welcome_message || '' }} />
               </Box>
             </TabPanel>

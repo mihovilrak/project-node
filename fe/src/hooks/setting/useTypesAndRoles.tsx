@@ -5,16 +5,19 @@ import { Permission } from '../../types/admin';
 import {
   deleteActivityType,
   updateActivityType,
-  getActivityTypes
+  getActivityTypes,
+  createActivityType
 } from '../../api/activityTypes';
 import {
   getRoles,
-  updateRole
+  updateRole,
+  createRole
 } from '../../api/roles';
 import {
   getTaskTypes,
   deleteTaskType,
-  updateTaskType
+  updateTaskType,
+  createTaskType
 } from '../../api/taskTypes';
 
 export const useTypesAndRoles = () => {
@@ -77,17 +80,26 @@ export const useTypesAndRoles = () => {
   const handleSave = async (item: Partial<TaskType | ActivityType | AdminRole>): Promise<void> => {
     try {
       setState(prev => ({ ...prev, loading: true }));
-      if (!item.id) {
-        throw new Error('Item ID is required');
-      }
-  
+      
       if (state.activeTab === 0) {
-        await updateTaskType(item.id, item as TaskType);
+        if (item.id) {
+          await updateTaskType(item.id, item as TaskType);
+        } else {
+          await createTaskType(item as TaskType);
+        }
       } else if (state.activeTab === 1) {
-        await updateActivityType(item.id, item as ActivityType);
+        if (item.id) {
+          await updateActivityType(item.id, item as ActivityType);
+        } else {
+          await createActivityType(item as ActivityType);
+        }
       } else if (state.activeTab === 2) {
         const roleData = item as Partial<AdminRole>;
-        await updateRole(item.id, roleData);
+        if (item.id) {
+          await updateRole(item.id, roleData);
+        } else {
+          await createRole(roleData);
+        }
       }
       handleDialogClose();
       await fetchData();
@@ -125,8 +137,8 @@ export const useTypesAndRoles = () => {
         name: updatedRole.name,
         description: updatedRole.description,
         permissions: (updatedRole.permissions || []).map(p => ({
-          id: p.id,
-          name: p.name,
+          id: typeof p === 'number' ? p : p.id,
+          name: typeof p === 'number' ? String(p) : p.name,
           active: true,
           created_on: new Date().toISOString(),
           updated_on: null
