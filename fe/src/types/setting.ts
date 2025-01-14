@@ -76,7 +76,8 @@ export interface AppSettings {
   company_name: string;
   sender_email: string;
   time_zone: string;
-  theme: string;
+  theme: 'light' | 'dark' | 'system';
+  welcome_message: string;
   created_on?: string;
   updated_on?: string;
 }

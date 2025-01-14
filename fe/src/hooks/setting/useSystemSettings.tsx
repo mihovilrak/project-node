@@ -13,7 +13,8 @@ export const useSystemSettings = () => {
       company_name: '',
       sender_email: '',
       time_zone: '',
-      theme: ''
+      theme: 'system',
+      welcome_message: ''
     },
     loading: true,
     error: null,

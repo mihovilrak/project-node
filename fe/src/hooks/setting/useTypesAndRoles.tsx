@@ -37,8 +37,8 @@ export const useTypesAndRoles = () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
       const [taskTypesData, activityTypesData, rolesData] = await Promise.all([
-        getTaskTypes().then(data => data.map((t: any) => ({ ...t, is_active: t.active || t.is_active || false }))),
-        getActivityTypes().then(data => data.map((t: any) => ({ ...t, is_active: t.active || t.is_active || false }))),
+        getTaskTypes().then(data => data.map((t: any) => ({ ...t, active: t.active ?? t.is_active ?? false }))),
+        getActivityTypes().then(data => data.map((t: any) => ({ ...t, active: t.active ?? t.is_active ?? false }))),
         getRoles()
       ]);
 

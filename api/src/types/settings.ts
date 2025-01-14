@@ -1,19 +1,21 @@
 export interface Settings {
   id: string;
   user_id: string;
-  theme: string;
+  theme: 'light' | 'dark' | 'system';
   language: string;
   notifications_enabled: boolean;
   email_notifications: boolean;
+  welcome_message: string;
   created_on: Date;
   updated_on: Date;
 }
 
 export interface SettingsUpdateInput {
-  theme?: string;
+  theme?: 'light' | 'dark' | 'system';
   language?: string;
   notifications_enabled?: boolean;
   email_notifications?: boolean;
+  welcome_message?: string;
 }
 
 export interface UserSettings extends Settings {
