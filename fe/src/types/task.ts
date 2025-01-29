@@ -1,5 +1,4 @@
 import { SelectChangeEvent } from '@mui/material';
-import { User } from './user';
 import { Tag } from './tag';
 import { TimeLog, TimeLogCreate } from './timeLog';
 import { Comment } from './comment';
@@ -60,8 +59,12 @@ export interface TaskFilters {
 export interface TaskType {
   id: number;
   name: string;
+  description?: string;
   color: string;
   icon?: string;
+  created_on?: string;
+  updated_on?: string | null;
+  active?: boolean;
 }
 
 export interface TaskStatus {
@@ -89,7 +92,7 @@ export interface TaskTableProps {
   loading: boolean;
   priorities: TaskPriority[];
   statuses: TaskStatus[];
-  users: User[];
+  users: ProjectMember[];
   taskTypes: TaskType[];
 }
 

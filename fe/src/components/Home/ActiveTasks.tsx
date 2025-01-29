@@ -10,7 +10,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Task } from '../../types/task';
-import dayjs from 'dayjs'; // Import dayjs library
+import dayjs from 'dayjs';
 
 const ActiveTasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);

@@ -14,7 +14,6 @@ import {
   MenuItem,
   SelectChangeEvent
 } from '@mui/material';
-import PermissionButton from '../common/PermissionButton';
 import FilterPanel from '../common/FilterPanel';
 import { Task } from '../../types/task';
 import { FilterValues } from '../../types/filterPanel';

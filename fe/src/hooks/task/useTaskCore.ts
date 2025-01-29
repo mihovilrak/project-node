@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Task, TaskStatus, TaskCoreState } from '../../types/task';
+import { Task, TaskCoreState } from '../../types/task';
 import {
   getTaskById,
   getSubtasks,

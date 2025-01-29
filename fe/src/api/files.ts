@@ -1,7 +1,6 @@
 import { api } from './api';
-import { TaskFile } from '../types/file';
+import { TaskFile, FileUploadOptions } from '../types/file';
 import { AxiosProgressEvent } from 'axios';
-import { FileUploadOptions } from '../types/file';
 
 // Get task files
 export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {

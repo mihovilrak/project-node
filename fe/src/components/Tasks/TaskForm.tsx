@@ -5,19 +5,19 @@ import { useAuth } from '../../context/AuthContext';
 import { useTaskForm } from '../../hooks/task/useTaskForm';
 import { SimpleChangeEvent } from '../../types/task';
 
-import { TaskNameField } from './Form/BasicInfo/TaskNameField';
-import { TaskDescriptionField } from './Form/BasicInfo/TaskDescriptionField';
-import { DatePickerSection } from './Form/Dates/DatePickerSection';
-import { TaskStatusSelect } from './Form/Status/TaskStatusSelect';
-import { TaskPrioritySelect } from './Form/Status/TaskPrioritySelect';
+import { TaskNameField } from './Form/TaskNameField';
+import { TaskDescriptionField } from './Form/TaskDescriptionField';
+import { DatePickerSection } from './Form/DatePickerSection';
+import { TaskStatusSelect } from './Form/TaskStatusSelect';
+import { TaskPrioritySelect } from './Form/TaskPrioritySelect';
 import { ProjectSelect } from './ProjectSelect';
-import { AssigneeSelectionSection } from './Form/Assignment/AssigneeSelectionSection';
-import { ParentTaskSelect } from './Form/Details/ParentTaskSelect';
-import { TaskTypeSection } from './Form/Details/TaskTypeSection';
-import { TaskTagsSection } from './Form/Details/TaskTagsSection';
-import { EstimatedTimeField } from './Form/Estimation/EstimatedTimeField';
-import { TaskFormActionButtons } from './Form/Actions/TaskFormActionButtons';
-import { TaskProgressField } from './Form/Details/TaskProgressField';
+import { AssigneeSelectionSection } from './Form/AssigneeSelectionSection';
+import { ParentTaskSelect } from './Form/ParentTaskSelect';
+import { TaskTypeSection } from './Form/TaskTypeSection';
+import { TaskTagsSection } from './Form/TaskTagsSection';
+import { EstimatedTimeField } from './Form/EstimatedTimeField';
+import { TaskFormActionButtons } from './Form/TaskFormActionButtons';
+import { TaskProgressField } from './Form/TaskProgressField';
 
 const TaskForm: React.FC = () => {
   const { currentUser } = useAuth();

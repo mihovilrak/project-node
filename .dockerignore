@@ -8,6 +8,9 @@
 
 **/tmp*
 
+**/__tests__
+**/integration
+
 .vscode
 .cursorignore
 .cursorrules

@@ -11,14 +11,11 @@ import {
 } from '@mui/material';
 import { useProjectDetails } from '../../hooks/project/useProjectDetails';
 import ProjectEditDialog from './ProjectEditDialog';
-import TaskForm from '../Tasks/TaskForm';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import EditMembersDialog from './EditMembersDialog';
 import ProjectActions from './ProjectActions';
 import ProjectTabPanels from './ProjectTabPanels';
-import { Project } from '../../types/project';
-import { Task } from '../../types/task';
 
 const ProjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();

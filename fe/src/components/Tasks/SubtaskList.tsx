@@ -12,13 +12,11 @@ import {
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Edit as EditIcon,
-  CheckCircle as DoneIcon,
-  RadioButtonUnchecked as TodoIcon
+  Edit as EditIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { deleteTask, changeTaskStatus } from '../../api/tasks';
-import { Task, SubtaskListProps } from '../../types/task';
+import { deleteTask } from '../../api/tasks';
+import { SubtaskListProps } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
 
 const SubtaskList: React.FC<SubtaskListProps> = ({ 
