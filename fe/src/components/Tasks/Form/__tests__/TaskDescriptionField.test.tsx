@@ -9,7 +9,7 @@ describe('TaskDescriptionField', () => {
   
   const defaultFormData: TaskFormState = {
     name: '',
-    description: '',  // Initialize as empty string instead of null
+    description: '',
     project_id: null,
     type_id: null,
     priority_id: null,

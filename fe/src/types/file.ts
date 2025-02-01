@@ -22,7 +22,6 @@ export interface TaskFile {
   uploaded_on: string;
   // Virtual fields
   uploaded_by?: string;
-  user_avatar?: string;
 }
 
 export interface FileUpload {

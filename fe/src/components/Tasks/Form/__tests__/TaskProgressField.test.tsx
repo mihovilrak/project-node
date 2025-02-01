@@ -1,9 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TaskProgressField } from '../TaskProgressField';
+import { TaskProgressFieldProps } from '../../../../types/task';
 
 describe('TaskProgressField', () => {
-  const defaultProps = {
+  const defaultProps: TaskProgressFieldProps = {
     value: 50,
     handleChange: jest.fn()
   };

@@ -20,8 +20,6 @@ describe('ProfileEditDialog', () => {
     name: 'John',
     surname: 'Doe',
     email: 'john@example.com',
-    timezone: 'UTC',
-    language: 'en',
     total_tasks: 10,
     completed_tasks: 5,
     active_projects: 2,

@@ -6,40 +6,42 @@ import {
   updateTimeLog,
   deleteTimeLog
 } from '../../../api/timeLogs';
+import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
 
 // Mock dependencies
 jest.mock('../../../api/timeLogs');
 
 describe('useProjectTimeLogs', () => {
-  const mockTimeLogs = [
+  const mockTimeLogs: TimeLog[] = [
     {
       id: 1,
       task_id: 1,
       user_id: 1,
-      date: '2024-01-01',
-      hours: 4,
+      log_date: '2024-01-01',
+      spent_time: 4,
+      activity_type_id: 1,
       description: 'Work on feature',
       created_on: '2024-01-01',
-      task_name: 'Task 1',
-      user_name: 'John Doe'
+      task_name: 'Task 1'
     },
     {
       id: 2,
       task_id: 2,
       user_id: 1,
-      date: '2024-01-02',
-      hours: 6,
+      log_date: '2024-01-02',
+      spent_time: 6,
+      activity_type_id: 1,
       description: 'Bug fixing',
       created_on: '2024-01-02',
-      task_name: 'Task 2',
-      user_name: 'John Doe'
+      task_name: 'Task 2'
     }
   ];
 
-  const mockTimeLogCreate = {
+  const mockTimeLogCreate: TimeLogCreate = {
     task_id: 3,
-    date: '2024-01-03',
-    hours: 2,
+    log_date: '2024-01-03',
+    spent_time: 2,
+    activity_type_id: 1,
     description: 'New work'
   };
 
@@ -60,12 +62,11 @@ describe('useProjectTimeLogs', () => {
   });
 
   it('should handle time log creation', async () => {
-    const newTimeLog = {
+    const newTimeLog: TimeLog = {
       id: 3,
       user_id: 1,
       created_on: '2024-01-03',
       task_name: 'Task 3',
-      user_name: 'John Doe',
       ...mockTimeLogCreate
     };
     (createTimeLog as jest.Mock).mockResolvedValue(newTimeLog);
@@ -87,8 +88,9 @@ describe('useProjectTimeLogs', () => {
   it('should handle time log update', async () => {
     const updatedTimeLog = {
       ...mockTimeLogs[0],
-      hours: 5,
-      description: 'Updated work'
+      spent_time: 5,
+      description: 'Updated work',
+      activity_type_id: 2
     };
     (updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
 

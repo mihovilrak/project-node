@@ -19,9 +19,6 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: null,
-    language: null,
-    avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null
@@ -34,9 +31,6 @@ const mockUsers: User[] = [
     email: 'jane@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: null,
-    language: null,
-    avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null
@@ -47,7 +41,7 @@ const mockCurrentMembers: ProjectMember[] = [
   {
     project_id: 1,
     user_id: 1,
-    role_id: 1,
+    role: "Admin",
     created_on: '2024-01-01',
     name: 'John',
     surname: 'Doe'

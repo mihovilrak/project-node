@@ -19,8 +19,6 @@ const mockUser: User = {
   role_id: 2,
   status_id: 1,
   created_on: '2023-01-01',
-  timezone: null,
-  language: null,
   avatar_url: null,
   updated_on: null,
   last_login: null

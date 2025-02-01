@@ -44,7 +44,6 @@ describe('Projects API', () => {
   const mockProjectMember: ProjectMember = {
     project_id: 1,
     user_id: 1,
-    role_id: 1,
     created_on: '2023-01-01T00:00:00Z',
     name: 'Test',
     surname: 'User',

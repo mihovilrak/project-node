@@ -1,12 +1,14 @@
 import { renderHook, act } from '@testing-library/react';
 import { useProjectTasks } from '../useProjectTasks';
 import { getProjectTasks } from '../../../api/tasks';
+import { Task } from '../../../types/task';
+
 
 // Mock dependencies
 jest.mock('../../../api/tasks');
 
 describe('useProjectTasks', () => {
-  const mockTasks = [
+  const mockTasks: Task[] = [
     {
       id: 1,
       name: 'Task 1',

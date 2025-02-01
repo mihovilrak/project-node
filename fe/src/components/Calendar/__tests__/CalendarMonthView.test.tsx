@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import CalendarMonthView from '../CalendarMonthView';
 import { useCalendarDays } from '../../../hooks/calendar/useCalendarDays';
-import { CalendarViewProps } from '../../../types/calendar';
+import { CalendarViewProps, CalendarDay } from '../../../types/calendar';
 import { Task } from '../../../types/task';
+import { TimeLog } from '../../../types/timeLog';
 
 // Mock the useCalendarDays hook
 jest.mock('../../../hooks/calendar/useCalendarDays');
@@ -73,7 +74,7 @@ const mockTasks: Task[] = [
   }
 ];
 
-const mockTimeLogs = [
+const mockTimeLogs: TimeLog[] = [
   {
     id: 1,
     task_id: 1,
@@ -81,13 +82,13 @@ const mockTimeLogs = [
     activity_type_id: 1,
     log_date: '2023-01-01',
     spent_time: 120,
-    description: null,
+    description: '',
     created_on: '2023-01-01',
     updated_on: null
   }
 ];
 
-const mockCalendarDay = {
+const mockCalendarDay: CalendarDay = {
   date: new Date(2023, 0, 1),
   isCurrentMonth: true,
   isToday: true,
@@ -110,7 +111,7 @@ const mockProps: CalendarViewProps = {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-03-15',
-      description: null,
+      description: '',
       updated_on: null
     }
   ],

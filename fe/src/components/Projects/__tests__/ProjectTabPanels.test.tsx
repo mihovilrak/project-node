@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import ProjectTabPanels from '../ProjectTabPanels';
+import { Project } from '../../../types/project';
 
 // Mock child components
 jest.mock('../tabs/ProjectOverview', () => () => <div data-testid="project-overview">Overview</div>);
@@ -10,7 +11,7 @@ jest.mock('../ProjectGantt', () => () => <div data-testid="project-gantt">Gantt<
 jest.mock('../tabs/ProjectMembersList', () => () => <div data-testid="project-members-list">Members</div>);
 jest.mock('../../TimeLog/TimeLogList', () => () => <div data-testid="time-log-list">Time Logs</div>);
 
-const mockProject = {
+const mockProject: Project = {
   id: 1,
   name: 'Test Project',
   description: 'Test Description',
@@ -20,9 +21,11 @@ const mockProject = {
   status_name: 'Active',
   start_date: '2023-01-01',
   due_date: '2023-12-31',
+  end_date: null,
   created_by: 1,
   created_by_name: 'Test User',
   created_on: '2023-01-01',
+  updated_on: null,
   estimated_time: 100,
   spent_time: 50,
   progress: 50

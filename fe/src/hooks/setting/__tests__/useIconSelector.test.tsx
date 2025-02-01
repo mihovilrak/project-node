@@ -1,16 +1,17 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useIconSelector } from '../useIconSelector';
 import { getActivityTypes } from '../../../api/activityTypes';
+import { ActivityType } from '../../../types/setting';
 
 // Mock the API calls
 jest.mock('../../../api/activityTypes');
 
 describe('useIconSelector', () => {
-  const mockActivityTypes = [
-    { id: 1, name: 'Activity 1', icon: 'icon1' },
-    { id: 2, name: 'Activity 2', icon: 'icon2' },
-    { id: 3, name: 'Activity 3', icon: null },
-    { id: 4, name: 'Activity 4', icon: 'icon4' }
+  const mockActivityTypes: ActivityType[] = [
+    { id: 1, name: 'Activity 1', icon: 'icon1', color: '#000000', active: true },
+    { id: 2, name: 'Activity 2', icon: 'icon2', color: '#ffffff', active: false },
+    { id: 3, name: 'Activity 3', icon: undefined, color: '#000000', active: true },
+    { id: 4, name: 'Activity 4', icon: 'icon4', color: '#ffffff', active: false }
   ];
 
   beforeEach(() => {

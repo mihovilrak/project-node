@@ -25,9 +25,6 @@ describe('Users API', () => {
     email: 'test@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
-    avatar_url: null,
     created_on: '2024-01-01T00:00:00Z',
     updated_on: null,
     last_login: null

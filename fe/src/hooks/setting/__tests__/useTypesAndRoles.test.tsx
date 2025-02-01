@@ -17,6 +17,9 @@ import {
   createRole,
   updateRole
 } from '../../../api/roles';
+import { Role } from '../../../types/role';
+import { TaskType } from '../../../types/setting';
+import { ActivityType } from '../../../types/setting';
 
 // Mock all API calls
 jest.mock('../../../api/taskTypes');
@@ -24,17 +27,17 @@ jest.mock('../../../api/activityTypes');
 jest.mock('../../../api/roles');
 
 describe('useTypesAndRoles', () => {
-  const mockTaskTypes = [
+  const mockTaskTypes: TaskType[] = [
     { id: 1, name: 'Task Type 1', color: '#000000', active: true },
     { id: 2, name: 'Task Type 2', color: '#ffffff', active: false }
   ];
 
-  const mockActivityTypes = [
+  const mockActivityTypes: ActivityType[] = [
     { id: 1, name: 'Activity Type 1', color: '#000000', active: true },
     { id: 2, name: 'Activity Type 2', color: '#ffffff', active: false }
   ];
 
-  const mockRoles = [
+  const mockRoles: Role[] = [
     { id: 1, name: 'Role 1', description: 'Description 1', permissions: [] },
     { id: 2, name: 'Role 2', description: 'Description 2', permissions: [] }
   ];

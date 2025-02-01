@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import ProjectGantt from '../ProjectGantt';
 import { updateTaskDates } from '../../../api/tasks';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Task } from '../../../types/task';
 
 // Mock the tasks API
 jest.mock('../../../api/tasks', () => ({
@@ -26,32 +27,58 @@ jest.mock('@devexpress/dx-react-scheduler-material-ui', () => ({
 }));
 
 // Sample test data
-const mockTasks = [
+const mockTasks: Task[] = [
   {
     id: 1,
     name: 'Task 1',
-    start_date: '2024-01-01',
-    due_date: '2024-01-05',
-    assignee_id: 1,
+    project_id: 1,
+    project_name: 'Test Project',
+    parent_id: null,
+    parent_name: null,
+    description: 'Test task',
+    type_id: 1,
     type_name: 'Bug',
     type_color: '#f44336',
     type_icon: 'BugReport',
-    priority_name: 'Very high/Must',
+    status_id: 2,
     status_name: 'In Progress',
-    description: 'Test task'
+    priority_id: 1,
+    priority_name: 'Very high/Must',
+    start_date: '2024-01-01',
+    due_date: '2024-01-05',
+    spent_time: 0,
+    progress: 0,
+    created_by: 1,
+    created_by_name: 'Test User',
+    created_on: '2025-02-01T23:28:38+01:00',
+    estimated_time: null,
+    assignee_id: 1
   },
   {
     id: 2,
     name: 'Task 2',
-    start_date: '2024-01-03',
-    due_date: '2024-01-07',
-    assignee_id: 2,
+    project_id: 1,
+    project_name: 'Test Project',
+    parent_id: null,
+    parent_name: null,
+    description: 'Another test task',
+    type_id: 2,
     type_name: 'Feature',
     type_color: '#ff9800',
     type_icon: 'NewReleases',
-    priority_name: 'Normal/Could',
+    status_id: 1,
     status_name: 'New',
-    description: 'Another test task'
+    priority_id: 2,
+    priority_name: 'Normal/Could',
+    start_date: '2024-01-03',
+    due_date: '2024-01-07',
+    spent_time: 0,
+    progress: 0,
+    created_by: 1,
+    created_by_name: 'Test User',
+    created_on: '2025-02-01T23:28:38+01:00',
+    estimated_time: null,
+    assignee_id: 2
   }
 ];
 
@@ -192,13 +219,12 @@ describe('ProjectGantt', () => {
     const formattedTasks = mockTasks.map(task => ({
       id: task.id,
       title: task.name,
-      startDate: new Date(task.start_date),
-      endDate: new Date(task.due_date),
-      assigneeId: task.assignee_id,
-      type_name: task.type_name,
+      startDate: task.start_date ? new Date(task.start_date) : new Date(),
+      endDate: task.due_date ? new Date(task.due_date) : new Date(),
+      type: task.type_name,
       priority: task.priority_name,
       status: task.status_name,
-      description: task.description,
+      description: task.description
     }));
 
     expect(screen.getByTestId('scheduler')).toHaveAttribute('data', JSON.stringify(formattedTasks));

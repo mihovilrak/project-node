@@ -1,6 +1,6 @@
 export interface Admin {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   created_on: Date;
   updated_on: Date;
   active: boolean;
@@ -14,7 +14,7 @@ export interface AdminWithUser extends Admin {
 }
 
 export interface AdminCreateInput {
-  user_id: string;
+  user_id: number;
 }
 
 export interface AdminUpdateInput {
@@ -29,17 +29,17 @@ export interface SystemStats {
 }
 
 export interface SystemLog {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   user_login: string;
-  activity_type_id: string;
+  activity_type_id: number;
   activity_name: string;
   description: string;
   created_on: Date;
 }
 
 export interface Permission {
-  id: string;
+  id: number;
   name: string;
 }
 

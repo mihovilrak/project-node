@@ -2,9 +2,10 @@ import { renderHook, act } from '@testing-library/react';
 import { useProjectForm } from '../useProjectForm';
 import dayjs from 'dayjs';
 import { SelectChangeEvent } from '@mui/material';
+import { Project } from '../../../types/project'
 
 describe('useProjectForm', () => {
-  const mockProject = {
+  const mockProject: Project = {
     id: 1,
     name: 'Test Project',
     description: 'Test Description',

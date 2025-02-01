@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import ProjectMemberSelect from '../ProjectMemberSelect';
+import { User } from '../../../types/user';
 
-const mockUsers = [
+const mockUsers: User[] = [
   {
     id: 1,
     login: 'john.doe',
@@ -12,13 +13,11 @@ const mockUsers = [
     email: 'john@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
     avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Developer'
+    role_name: 'Developer'
   },
   {
     id: 2,
@@ -28,13 +27,11 @@ const mockUsers = [
     email: 'jane@example.com',
     role_id: 2,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
     avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Manager'
+    role_name: 'Project Manager'
   }
 ];
 
@@ -69,7 +66,7 @@ describe('ProjectMemberSelect', () => {
   it('shows correct role for each user', () => {
     renderComponent();
     expect(screen.getByText('Role: Developer')).toBeInTheDocument();
-    expect(screen.getByText('Role: Manager')).toBeInTheDocument();
+    expect(screen.getByText('Role: Project Manager')).toBeInTheDocument();
   });
 
   it('shows correct checkbox state for selected users', () => {

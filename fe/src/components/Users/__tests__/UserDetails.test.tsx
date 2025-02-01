@@ -22,14 +22,12 @@ const mockUser: User = {
   email: 'test@example.com',
   role_id: 1,
   status_id: 1,
-  timezone: 'UTC',
-  language: 'en',
   avatar_url: null,
   created_on: '2023-01-01T12:00:00Z',
   updated_on: '2023-01-02T12:00:00Z',
   last_login: '2023-01-03T12:00:00Z',
-  role: 'Admin',
-  status: 'Active',
+  role_name: 'Admin',
+  status_name: 'Active',
   status_color: 'green'
 };
 
@@ -66,8 +64,8 @@ describe('UserDetails', () => {
       expect(screen.getByText(`Name: ${mockUser.name}`)).toBeInTheDocument();
       expect(screen.getByText(`Surname: ${mockUser.surname}`)).toBeInTheDocument();
       expect(screen.getByText(`Email: ${mockUser.email}`)).toBeInTheDocument();
-      expect(screen.getByText(`Status: ${mockUser.status}`)).toBeInTheDocument();
-      expect(screen.getByText(`Role: ${mockUser.role}`)).toBeInTheDocument();
+      expect(screen.getByText(`Status: ${mockUser.status_name}`)).toBeInTheDocument();
+      expect(screen.getByText(`Role: ${mockUser.role_name}`)).toBeInTheDocument();
     });
   });
 

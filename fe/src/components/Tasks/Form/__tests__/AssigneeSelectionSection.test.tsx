@@ -20,7 +20,6 @@ describe('AssigneeSelectionSection', () => {
     {
       project_id: 1,
       user_id: 1,
-      role_id: 3,
       created_on: '2024-01-01',
       name: 'John',
       surname: 'Doe',
@@ -29,7 +28,6 @@ describe('AssigneeSelectionSection', () => {
     {
       project_id: 1,
       user_id: 2,
-      role_id: 2,
       created_on: '2024-01-01',
       name: 'Jane',
       surname: 'Smith',

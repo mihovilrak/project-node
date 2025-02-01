@@ -14,18 +14,21 @@ export interface Project {
   id: number;
   name: string;
   description: string | null;
+  start_date: string;
+  end_date?: string | null;
+  due_date: string;
   parent_id: number | null;
   parent_name: string | null;
   status_id: number;
   status_name: string;
-  start_date: string;
-  due_date: string;
   created_by: number;
   created_by_name: string;
   created_on: string;
+  updated_on?: string | null;
   estimated_time: number;
   spent_time: number;
   progress: number;
+  // Frontend-specific fields
   subprojects?: Project[];
   can_create_project?: boolean;
 }
@@ -33,12 +36,10 @@ export interface Project {
 export interface ProjectMember {
   project_id: number;
   user_id: number;
-  role_id: number;
+  name: string;
+  surname: string;
+  role: string;
   created_on: string;
-  // Virtual fields from joins
-  name?: string;
-  surname?: string;
-  role?: string;
 }
 
 export interface ProjectEditDialogProps {

@@ -1,9 +1,9 @@
 export interface Role {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   created_on: Date;
-  updated_on: Date;
+  updated_on?: Date;
   active: boolean;
 }
 
@@ -12,12 +12,9 @@ export interface RoleWithPermissions extends Role {
 }
 
 export interface Permission {
-  id: string;
+  id: number;
   name: string;
-  description?: string;
   created_on: Date;
-  updated_on: Date;
-  active: boolean;
 }
 
 export interface RoleCreateInput {

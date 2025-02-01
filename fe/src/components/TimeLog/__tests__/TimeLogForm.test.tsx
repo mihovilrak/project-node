@@ -5,6 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import TimeLogForm from '../TimeLogForm';
 import { TimeLogFormProps } from '../../../types/timeLog';
+import { Project } from '../../../types/project';
 
 const mockProps: TimeLogFormProps = {
   projects: [
@@ -18,9 +19,11 @@ const mockProps: TimeLogFormProps = {
         status_name: '',
         start_date: '',
         due_date: '',
+        end_date: null,
         created_by: 1,
         created_by_name: '',
         created_on: '',
+        updated_on: null,
         estimated_time: 0,
         spent_time: 0,
         progress: 0
@@ -36,9 +39,11 @@ const mockProps: TimeLogFormProps = {
         status_name: '',
         start_date: '',
         due_date: '',
+        end_date: null,
         created_by: 1,
         created_by_name: '',
         created_on: '',
+        updated_on: null,
         estimated_time: 0,
         spent_time: 0,
         progress: 0
@@ -136,9 +141,6 @@ const mockProps: TimeLogFormProps = {
         surname: '',
         role_id: 1,
         status_id: 1,
-        timezone: null,
-        language: null,
-        avatar_url: null,
         created_on: '',
         updated_on: null,
         last_login: null
@@ -152,9 +154,6 @@ const mockProps: TimeLogFormProps = {
         surname: '',
         role_id: 1,
         status_id: 1,
-        timezone: null,
-        language: null,
-        avatar_url: null,
         created_on: '',
         updated_on: null,
         last_login: null

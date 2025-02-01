@@ -1,12 +1,13 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useSystemSettings } from '../useSystemSettings';
 import { getSystemSettings, updateSystemSettings } from '../../../api/settings';
+import { AppSettings } from '../../../types/setting';
 
 // Mock the API calls
 jest.mock('../../../api/settings');
 
 describe('useSystemSettings', () => {
-  const mockSettings = {
+  const mockSettings: AppSettings = {
     id: 1,
     app_name: 'Test App',
     company_name: 'Test Company',

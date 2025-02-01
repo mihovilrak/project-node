@@ -1,7 +1,6 @@
 import { api } from '../api';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
-
 getAllTimeLogs,
 getTaskTimeLogs,
 getTaskSpentTime,

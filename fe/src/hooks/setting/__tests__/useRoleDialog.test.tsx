@@ -2,15 +2,16 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { useRoleDialog } from '../useRoleDialog';
 import { getAllPermissions } from '../../../api/permissions';
 import { Role } from '../../../types/role';
+import { Permission } from '../../../types/setting';
 
 // Mock the API calls
 jest.mock('../../../api/permissions');
 
 describe('useRoleDialog', () => {
-  const mockPermissions = [
-    { id: 1, name: 'project_create', active: true },
-    { id: 2, name: 'project_edit', active: true },
-    { id: 3, name: 'user_create', active: true }
+  const mockPermissions: Permission[] = [
+    { id: 1, name: 'project_create' },
+    { id: 2, name: 'project_edit' },
+    { id: 3, name: 'user_create' }
   ];
 
   const mockRole: Role = {

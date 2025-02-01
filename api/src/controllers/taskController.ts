@@ -52,7 +52,7 @@ export const getTaskByAssignee = async (
 ): Promise<void> => {
   try {
     const { assignee_id } = req.query;
-    const result = await taskModel.getTasks(pool, { assignee_id: assignee_id as string });
+    const result = await taskModel.getTasks(pool, { assignee_id: Number(assignee_id) });
     if (!result) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
@@ -72,7 +72,7 @@ export const getTaskByHolder = async (
 ): Promise<void> => {
   try {
     const { holder_id } = req.query;
-    const result = await taskModel.getTasks(pool, { holder_id: holder_id as string });
+    const result = await taskModel.getTasks(pool, { holder_id: Number(holder_id) });
     if (!result) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
@@ -96,13 +96,14 @@ export const createTask = async (
       holder_id,
       assignee_id,
       created_by,
-      tags,
+      tag_ids,
       estimated_time
     } = taskData;
 
     // Create unique watchers array from holder, assignee, and creator
     const watcherIds = [holder_id, assignee_id, created_by];
-    const watchers = Array.from(new Set(watcherIds)).filter(id => id);
+    const watchers = Array.from(new Set(watcherIds))
+      .filter((id): id is number => typeof id === 'number' && !isNaN(id));
 
     // Validate required fields
     const requiredFields: (keyof TaskCreateInput)[] = [
@@ -141,8 +142,8 @@ export const createTask = async (
       assignee_id: taskData.assignee_id,
       created_by: taskData.created_by,
       parent_id: taskData.parent_id || undefined,
-      // Extract tag IDs as numbers
-      tagIds: tags?.map(tag => tag.id)
+      // Extract tag IDs and ensure they are numbers
+      tag_ids: (taskData.tags || []).map(tag => Number(tag.id))
     };
 
     // Create task with processed data

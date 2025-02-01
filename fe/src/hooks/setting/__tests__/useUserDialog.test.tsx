@@ -16,8 +16,6 @@ describe('useUserDialog', () => {
     email: 'test@example.com',
     role_id: 2,
     status_id: 1,
-    timezone: null,
-    language: null,
     avatar_url: null,
     last_login: null,
     created_on: '2024-01-25T00:00:00Z',

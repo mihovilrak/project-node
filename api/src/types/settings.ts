@@ -1,6 +1,6 @@
 export interface Settings {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   app_name: string;
   company_name: string;
   sender_email: string;

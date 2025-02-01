@@ -1,5 +1,5 @@
 export interface SessionUser {
-  id: string;
+  id: number;
   login: string;
   role_id: number;
 }

@@ -1,19 +1,21 @@
 export interface Notification {
   id: number;
   user_id: number;
-  task_id: number;
-  action_user_id: number;
   type_id: number;
-  read: boolean;
+  title: string;
+  message: string;
+  link: string | null;
+  is_read: boolean;
+  active: boolean;
+  read_on: Date | null;
   created_on: Date;
-  updated_on: Date;
 }
 
+// Extended notification type with joined data
 export interface NotificationWithDetails extends Notification {
-  task_name: string;
-  action_user_name: string;
-  action_user_surname: string;
   type_name: string;
+  type_icon: string;
+  type_color: string;
 }
 
 // Notification type IDs matching the database
@@ -31,12 +33,20 @@ export enum NotificationType {
 export interface NotificationTypeInfo {
   id: number;
   name: string;
-  description?: string;
   icon: string;
   color: string;
+  created_on: Date;
 }
 
 export interface NotificationCreateInput {
+  user_id: number;
+  type_id: number;
+  title: string;
+  message: string;
+  link?: string | null;
+}
+
+export interface CreateWatcherNotificationsInput {
   task_id: number;
   action_user_id: number;
   type_id: number;

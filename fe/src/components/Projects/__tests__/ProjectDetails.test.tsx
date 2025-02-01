@@ -22,6 +22,7 @@ const mockProject: Project = {
   description: 'Test Description',
   start_date: '2024-01-01',
   due_date: '2024-12-31',
+  end_date: null,
   status_id: 1,
   status_name: 'Active',
   created_by: 1,
@@ -31,13 +32,13 @@ const mockProject: Project = {
   parent_name: null,
   estimated_time: 100,
   spent_time: 50,
-  progress: 50
+  progress: 50,
+  updated_on: null
 };
 
 const mockMembers: ProjectMember[] = [{
   project_id: 1,
   user_id: 1,
-  role_id: 1,
   created_on: '2024-01-01',
   name: 'Test User',
   surname: 'Test',

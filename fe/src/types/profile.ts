@@ -62,11 +62,9 @@ export interface FormData {
   name: string;
   surname: string;
   email: string;
-  timezone: string | null;
-  language: string | null;
 }
 
-export interface ProfileUpdateData extends Pick<User, 'name' | 'surname' | 'email' | 'timezone' | 'language'> {}
+export interface ProfileUpdateData extends Pick<User, 'name' | 'surname' | 'email' > {}
 
 export interface ProfileTaskListProps {
   tasks: Task[];

@@ -27,9 +27,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   const [formData, setFormData] = useState<FormData>({
     name: profile?.name || '',
     surname: profile?.surname || '',
-    email: profile?.email || '',
-    timezone: profile?.timezone || '',
-    language: profile?.language || ''
+    email: profile?.email || ''
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,9 +37,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       setFormData({
         name: profile.name || '',
         surname: profile.surname || '',
-        email: profile.email || '',
-        timezone: profile.timezone || '',
-        language: profile.language || ''
+        email: profile.email || ''
       });
     }
   }, [profile]);

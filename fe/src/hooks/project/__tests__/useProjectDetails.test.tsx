@@ -3,6 +3,7 @@ import { useProjectDetails } from '../useProjectDetails';
 import { getProjectById, getProjectDetails, updateProject, deleteProject } from '../../../api/projects';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Project } from '../../../types/project';
 
 // Mock dependencies
 jest.mock('../../../api/projects');
@@ -32,7 +33,7 @@ jest.mock('../useProjectTimeLogs', () => ({
 }));
 
 describe('useProjectDetails', () => {
-  const mockProject = {
+  const mockProject: Project = {
     id: 1,
     name: 'Test Project',
     description: 'Test Description',
@@ -40,9 +41,11 @@ describe('useProjectDetails', () => {
     status_name: 'Active',
     start_date: '2024-01-01',
     due_date: '2024-12-31',
+    end_date: null,
     created_by: 1,
     created_by_name: 'Test User',
     created_on: '2024-01-01',
+    updated_on: null,
     estimated_time: 100,
     spent_time: 50,
     progress: 50,

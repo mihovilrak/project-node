@@ -18,6 +18,8 @@ describe('Notifications API', () => {
     message: 'This is a test notification',
     link: null,
     is_read: false,
+    read_on: null,
+    active: true,
     created_on: '2023-01-01T00:00:00Z'
   };
 

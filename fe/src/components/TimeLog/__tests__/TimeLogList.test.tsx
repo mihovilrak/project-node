@@ -128,7 +128,7 @@ describe('TimeLogList', () => {
       ...defaultProps,
       timeLogs: [{
         ...mockTimeLogs[0],
-        spent_time: 'invalid'
+        spent_time: Number('invalid')
       }]
     });
     expect(screen.getByText('0:00 hours')).toBeInTheDocument();

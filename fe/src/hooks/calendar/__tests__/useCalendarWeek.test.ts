@@ -73,7 +73,7 @@ describe('useCalendarWeek', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-17',
-      spent_time: '2.5',
+      spent_time: 2.5,
       description: 'Work on task 1',
       created_on: '2024-01-17T14:00:00Z',
       updated_on: null
@@ -84,7 +84,7 @@ describe('useCalendarWeek', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-17',
-      spent_time: '1.5',
+      spent_time: 1.5,
       description: 'More work on task 1',
       created_on: '2024-01-17T16:00:00Z',
       updated_on: null

@@ -6,6 +6,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TaskForm from '../TaskForm';
 import { useAuth } from '../../../context/AuthContext';
 import { useTaskForm } from '../../../hooks/task/useTaskForm';
+import { TaskFormState } from '../../../types/task';
 
 // Mock all dependencies
 jest.mock('../../../context/AuthContext');
@@ -38,7 +39,7 @@ describe('TaskForm', () => {
   const mockHandleSubmit = jest.fn();
   const mockNavigate = jest.fn();
 
-  const defaultFormData = {
+  const defaultFormData: TaskFormState = {
     name: '',
     description: '',
     project_id: null,

@@ -23,9 +23,11 @@ const mockProjects: Project[] = [
     status_name: 'Active',
     start_date: '2024-01-01',
     due_date: '2024-12-31',
+    end_date: null,
     created_by: 1,
     created_by_name: 'User 1',
     created_on: '2024-01-01',
+    updated_on: null,
     estimated_time: 100,
     spent_time: 50,
     progress: 50
@@ -40,9 +42,11 @@ const mockProjects: Project[] = [
     status_name: 'Active',
     start_date: '2024-01-01',
     due_date: '2024-12-31',
+    end_date: null,
     created_by: 1,
     created_by_name: 'User 1',
     created_on: '2024-01-01',
+    updated_on: null,
     estimated_time: 100,
     spent_time: 0,
     progress: 0

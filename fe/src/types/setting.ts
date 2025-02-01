@@ -88,7 +88,7 @@ export interface Notification {
   title: string;
   message: string;
   read: boolean;
-  created_at: string;
+  created_on: string;
   link?: string;
   metadata?: Record<string, any>;
 }

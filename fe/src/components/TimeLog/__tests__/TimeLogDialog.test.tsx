@@ -6,6 +6,7 @@ import TimeLogDialog from '../TimeLogDialog';
 import { useAuth } from '../../../context/AuthContext';
 import { useTimeLogDialog } from '../../../hooks/timeLog/useTimeLogDialog';
 import { TimeLogCreate } from '../../../types/timeLog';
+import { User } from '../../../types/user';
 import dayjs from 'dayjs';
 
 // Mock the hooks
@@ -13,10 +14,16 @@ jest.mock('../../../context/AuthContext');
 jest.mock('../../../hooks/timeLog/useTimeLogDialog');
 
 // Mock data
-const mockUser = {
+const mockUser: User = {
   id: 1,
+  login: 'testuser',
   name: 'Test User',
-  email: 'test@example.com'
+  surname: 'User',
+  email: 'test@example.com',
+  role_id: 1,
+  status_id: 1,
+  created_on: '2025-02-01T20:09:10+01:00',
+  updated_on: null
 };
 
 const mockTimeLogData = {

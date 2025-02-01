@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TaskStatusSelect } from '../TaskStatusSelect';
-import { TaskStatus } from '../../../../types/task';
+import { TaskStatus, TaskFormState } from '../../../../types/task';
 
 describe('TaskStatusSelect', () => {
   const mockStatuses: TaskStatus[] = [
@@ -25,7 +25,7 @@ describe('TaskStatusSelect', () => {
     }
   ];
 
-  const mockFormData = {
+  const mockFormData: TaskFormState = {
     name: '',
     description: '',
     project_id: null,

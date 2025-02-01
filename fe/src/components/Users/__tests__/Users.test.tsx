@@ -40,13 +40,11 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: null,
-    language: null,
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Admin'
+    role_name: 'Admin'
   },
   {
     id: 2,
@@ -56,13 +54,11 @@ const mockUsers: User[] = [
     email: 'jane@example.com',
     role_id: 4,
     status_id: 1,
-    timezone: null,
-    language: null,
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Reporter'
+    role_name: 'Reporter'
   }
 ];
 

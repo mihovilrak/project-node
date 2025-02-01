@@ -48,7 +48,6 @@ describe('Task Management Flow', () => {
     task_id: 1,
     comment: 'Test comment',
     user_id: 1,
-    user_name: 'Test User',
     created_on: '2025-01-25',
     updated_on: null,
     active: true

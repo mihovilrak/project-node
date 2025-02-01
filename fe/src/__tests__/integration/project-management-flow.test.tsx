@@ -32,11 +32,10 @@ describe('Project Management Flow', () => {
   const mockMember: ProjectMember = {
     project_id: 1,
     user_id: 2,
-    role_id: 1,
     created_on: '2025-01-25',
     name: 'John',
     surname: 'Doe',
-    role: 'Member'
+    role: 'Reporter'
   };
 
   const mockSubproject: Project = {

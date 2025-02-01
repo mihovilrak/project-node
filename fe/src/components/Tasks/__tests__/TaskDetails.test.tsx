@@ -8,6 +8,7 @@ import * as TaskWatchers from '../../../hooks/task/useTaskWatchers';
 import * as TaskFiles from '../../../hooks/task/useTaskFiles';
 import * as TaskComments from '../../../hooks/task/useTaskComments';
 import * as TaskDetailsHandlers from '../../../hooks/task/useTaskDetailsHandlers';
+import { Task, TaskStatus } from '../../../types/task';
 
 // Mock all hooks
 jest.mock('../../../hooks/task/useTaskCore');
@@ -33,18 +34,31 @@ jest.mock('../TaskDetailsSidebar', () => ({
   default: () => <div data-testid="task-details-sidebar" />
 }));
 
-const mockTask = {
+const mockTask: Task = {
   id: 1,
   name: 'Test Task',
   project_id: 1,
   project_name: 'Test Project',
-  description: 'Test Description',
+  description: 'Test description',
+  parent_id: null,
+  parent_name: null,
+  type_id: 1,
+  type_name: 'Task',
   status_id: 1,
   status_name: 'New',
-  // ... other required task properties
+  priority_id: 1,
+  priority_name: 'Medium',
+  start_date: null,
+  due_date: null,
+  spent_time: 0,
+  progress: 0,
+  created_by: 1,
+  created_by_name: 'Test User',
+  created_on: '2025-02-01T21:52:40+01:00',
+  estimated_time: null
 };
 
-const mockStatuses = [
+const mockStatuses: TaskStatus[] = [
   {
     id: 1,
     name: 'New',

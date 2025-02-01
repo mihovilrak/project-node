@@ -10,10 +10,10 @@ export interface Task {
   name: string;
   project_id: number;
   project_name: string;
-  holder_id: number;
-  holder_name: string;
-  assignee_id: number;
-  assignee_name: string;
+  holder_id?: number;
+  holder_name?: string;
+  assignee_id?: number;
+  assignee_name?: string;
   parent_id: number | null;
   parent_name: string | null;
   description: string;
@@ -28,7 +28,7 @@ export interface Task {
   priority_color?: string;
   start_date: string | null;
   due_date: string | null;
-  end_date: string | null;
+  end_date?: string | null;
   spent_time: number;
   progress: number;
   created_by: number;

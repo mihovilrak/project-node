@@ -1,20 +1,19 @@
 export interface User {
-  id: string;
+  id: number;
   login: string;
   name: string;
   surname: string;
   email: string;
-  status: string;
-  role: string;
+  status_id: number;
+  role_id: number;
   created_on: Date;
-  updated_on: Date;
-  last_login?: Date | null;
+  updated_on: Date | null;
 }
 
 export interface UserDetails extends User {
-  role_name: string;
-  status_name: string;
-  full_name: string;
+  status: string;
+  role: string;
+  last_login: Date | null;
 }
 
 export interface UserCreateInput {
@@ -23,7 +22,8 @@ export interface UserCreateInput {
   surname: string;
   email: string;
   password: string;
-  role_id: string;
+  role_id: number;
+  status_id?: number;
 }
 
 export interface UserUpdateInput {
@@ -32,8 +32,8 @@ export interface UserUpdateInput {
   surname?: string;
   email?: string;
   password?: string;
-  role_id?: string;
-  status_id?: string;
+  role_id?: number;
+  status_id?: number;
 }
 
 export interface UserQueryFilters {
@@ -43,27 +43,27 @@ export interface UserQueryFilters {
 }
 
 export interface UserStatus {
-  id: string;
+  id: number;
   name: string;
 }
 
 export interface UserRole {
-  id: string;
+  id: number;
   name: string;
-  description?: string;
 }
 
 export interface UserPermission {
-  user_id: string;
+  user_id: number;
   permission: string;
   granted_on: Date;
 }
 
 export interface UserSession {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   expires: Date;
   data: {
     user: User;
   };
+  user: User;
 }

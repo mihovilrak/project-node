@@ -15,6 +15,7 @@ const mockProject: Project = {
   description: 'Test Description',
   start_date: '2023-01-01T00:00:00',
   due_date: '2023-12-31T00:00:00',
+  end_date: null,
   status_id: 1,
   status_name: 'Active',
   parent_id: null,
@@ -24,7 +25,8 @@ const mockProject: Project = {
   created_on: '2023-01-01T00:00:00',
   estimated_time: 0,
   spent_time: 0,
-  progress: 0
+  progress: 0,
+  updated_on: null
 };
 
 const mockStatuses: ProjectStatus[] = [

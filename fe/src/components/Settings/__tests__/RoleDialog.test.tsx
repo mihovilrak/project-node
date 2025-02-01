@@ -22,36 +22,24 @@ const mockGroupedPermissions: Record<string, Permission[]> = {
     {
       id: 1,
       name: 'Create projects',
-      description: null,
-      active: true,
-      created_on: '',
-      updated_on: null
+      created_on: '2025-01-01'
     },
     {
       id: 2,
       name: 'Edit projects',
-      description: null,
-      active: true,
-      created_on: '',
-      updated_on: null
+      created_on: '2025-01-01'
     }
   ],
   task: [
     {
       id: 3,
       name: 'Create tasks',
-      description: null,
-      active: true,
-      created_on: '',
-      updated_on: null
+      created_on: '2025-01-01'
     },
     {
       id: 4,
       name: 'Edit tasks',
-      description: null,
-      active: true,
-      created_on: '',
-      updated_on: null
+      created_on: '2025-01-01'
     }
   ]
 };

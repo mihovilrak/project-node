@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useProjectGantt } from '../useProjectGantt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { ReactNode } from 'react';
+import { Task } from '../../../types/task';
 
 // Create a wrapper component that provides the theme
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -9,28 +10,54 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 );
 
 describe('useProjectGantt', () => {
-  const mockTasks = [
+  const mockTasks: Task[] = [
     {
       id: 1,
       name: 'Task 1',
+      project_id: 1,
+      project_name: 'Test Project',
+      parent_id: null,
+      parent_name: null,
+      description: 'Test description',
+      type_id: 1,
+      type_name: 'Feature',
+      status_id: 2,
+      status_name: 'In Progress',
+      priority_id: 1,
+      priority_name: 'High',
       start_date: '2024-01-01T00:00:00Z',
       due_date: '2024-01-31T00:00:00Z',
       assignee_id: 1,
-      type_name: 'Feature',
-      priority_name: 'High',
-      status_name: 'In Progress',
-      description: 'Test description'
+      spent_time: 0,
+      created_by: 1,
+      created_by_name: 'Test User',
+      created_on: '2024-01-01T00:00:00Z',
+      estimated_time: 40,
+      progress: 0
     },
     {
       id: 2,
       name: 'Task 2',
+      project_id: 1,
+      project_name: 'Test Project',
+      parent_id: null,
+      parent_name: null,
+      description: 'Another test description',
+      type_id: 2,
+      type_name: 'Bug',
+      status_id: 1,
+      status_name: 'New',
+      priority_id: 2,
+      priority_name: 'Normal',
       start_date: '2024-02-01T00:00:00Z',
       due_date: '2024-02-28T00:00:00Z',
       assignee_id: 2,
-      type_name: 'Bug',
-      priority_name: 'Normal',
-      status_name: 'New',
-      description: 'Another test description'
+      spent_time: 0,
+      created_by: 1,
+      created_by_name: 'Test User',
+      created_on: '2024-01-01T00:00:00Z',
+      estimated_time: 20,
+      progress: 0
     }
   ];
 
@@ -40,25 +67,51 @@ describe('useProjectGantt', () => {
     expect(result.current.tasks).toEqual([
       {
         id: 1,
-        title: 'Task 1',
-        startDate: new Date('2024-01-01T00:00:00Z'),
-        endDate: new Date('2024-01-31T00:00:00Z'),
-        assigneeId: 1,
+        name: 'Task 1',
+        project_id: 1,
+        project_name: 'Test Project',
+        parent_id: null,
+        parent_name: null,
+        description: 'Test description',
+        type_id: 1,
         type_name: 'Feature',
-        priority: 'High',
-        status: 'In Progress',
-        description: 'Test description'
+        status_id: 2,
+        status_name: 'In Progress',
+        priority_id: 1,
+        priority_name: 'High',
+        start_date: '2024-01-01T00:00:00Z',
+        due_date: '2024-01-31T00:00:00Z',
+        assignee_id: 1,
+        spent_time: 0,
+        created_by: 1,
+        created_by_name: 'Test User',
+        created_on: '2024-01-01T00:00:00Z',
+        estimated_time: 40,
+        progress: 0
       },
       {
         id: 2,
-        title: 'Task 2',
-        startDate: new Date('2024-02-01T00:00:00Z'),
-        endDate: new Date('2024-02-28T00:00:00Z'),
-        assigneeId: 2,
+        name: 'Task 2',
+        project_id: 1,
+        project_name: 'Test Project',
+        parent_id: null,
+        parent_name: null,
+        description: 'Another test description',
+        type_id: 2,
         type_name: 'Bug',
-        priority: 'Normal',
-        status: 'New',
-        description: 'Another test description'
+        status_id: 1,
+        status_name: 'New',
+        priority_id: 2,
+        priority_name: 'Normal',
+        start_date: '2024-02-01T00:00:00Z',
+        due_date: '2024-02-28T00:00:00Z',
+        assignee_id: 2,
+        spent_time: 0,
+        created_by: 1,
+        created_by_name: 'Test User',
+        created_on: '2024-01-01T00:00:00Z',
+        estimated_time: 20,
+        progress: 0
       }
     ]);
     expect(result.current.loading).toBe(false);
@@ -120,13 +173,26 @@ describe('useProjectGantt', () => {
     const updatedTask = {
       id: 1,
       name: 'Updated Task 1',
+      project_id: 1,
+      project_name: 'Test Project',
+      parent_id: null,
+      parent_name: null,
+      description: 'Updated description',
+      type_id: 1,
+      type_name: 'Feature',
+      status_id: 3,
+      status_name: 'Done',
+      priority_id: 1,
+      priority_name: 'High',
       start_date: '2024-03-01T00:00:00Z',
       due_date: '2024-03-31T00:00:00Z',
       assignee_id: 1,
-      type_name: 'Feature',
-      priority_name: 'High',
-      status_name: 'Done',
-      description: 'Updated description'
+      spent_time: 0,
+      created_by: 1,
+      created_by_name: 'Test User',
+      created_on: '2024-01-01T00:00:00Z',
+      estimated_time: 40,
+      progress: 0
     };
 
     // Since we can't directly update tasks, we need to re-initialize with new tasks

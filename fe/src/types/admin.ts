@@ -1,10 +1,7 @@
 export interface Permission {
   id: number;
   name: string;
-  description: string | null;
-  active: boolean;
   created_on: string;
-  updated_on: string | null;
 }
 
 export interface PrivateRouteProps {

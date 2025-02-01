@@ -70,7 +70,7 @@ describe('useTasksByHour', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-17',
-      spent_time: '1.0',
+      spent_time: 1.0,
       description: 'Work on morning task',
       created_on: '2024-01-17T09:30:00Z',
       updated_on: null
@@ -81,7 +81,7 @@ describe('useTasksByHour', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-17',
-      spent_time: '1.5',
+      spent_time: 1.5,
       description: 'Work on afternoon task',
       created_on: '2024-01-17T14:30:00Z',
       updated_on: null

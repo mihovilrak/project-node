@@ -10,14 +10,18 @@ describe('useAssigneeSelect', () => {
   const mockProjectMembers: ProjectMember[] = [
     {
       user_id: 1,
+      name: 'John',
+      surname: 'Doe',
       project_id: 1,
-      role_id: 1,
+      role: 'Admin',
       created_on: '2024-01-25T00:00:00Z'
     },
     {
       user_id: 2,
+      name: 'Jane',
+      surname: 'Smith',
       project_id: 1,
-      role_id: 2,
+      role: 'Developer',
       created_on: '2024-01-25T00:00:00Z'
     }
   ];

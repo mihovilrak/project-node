@@ -1,9 +1,9 @@
 import { CustomRequest } from './express';
 
 export interface File {
-  id: string;
-  task_id: string;
-  user_id: string;
+  id: number;
+  task_id: number;
+  user_id: number;
   name: string;
   original_name: string;
   stored_name: string;

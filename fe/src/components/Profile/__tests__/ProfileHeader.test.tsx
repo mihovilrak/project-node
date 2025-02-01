@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ProfileHeader from '../ProfileHeader';
+import { User } from '../../../types/user';
 
-const mockUser = {
+const mockUser: User = {
   id: 1,
   login: 'testuser',
   name: 'John',
@@ -11,18 +12,13 @@ const mockUser = {
   email: 'john.doe@example.com',
   role_id: 1,
   status_id: 1,
-  timezone: 'UTC',
-  language: 'en',
   avatar_url: 'https://example.com/avatar.jpg',
   created_on: '2024-01-01',
   updated_on: null,
   last_login: null,
-  role: 'Developer',
-  status: 'Active',
-  status_color: '#00ff00',
-  full_name: 'John Doe',
-  permissions: ['read', 'write']
-};
+  role_name: 'Developer',
+  status_name: 'Active',
+  status_color: '#00ff00'};
 
 describe('ProfileHeader', () => {
   test('renders user information correctly', () => {

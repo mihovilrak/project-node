@@ -45,8 +45,6 @@ const mockUser: User = {
   email: 'test@example.com',
   role_id: 1,
   status_id: 1,
-  timezone: null,
-  language: null,
   avatar_url: null,
   created_on: '2025-01-25T10:00:00Z',
   updated_on: null,

@@ -23,9 +23,6 @@ describe('Time Log Integration Tests', () => {
     email: 'test@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: null,
-    language: null,
-    avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null

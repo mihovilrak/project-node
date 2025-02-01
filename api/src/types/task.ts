@@ -1,48 +1,75 @@
 import { User } from './user';
+import { Tag } from './tag';
 
 export interface Task {
-  id: string;
+  id: number;
   name: string;
+  project_id: number;
+  project_name?: string;
+  holder_id?: number;
+  holder_name?: string;
+  assignee_id?: number;
+  assignee_name?: string;
+  parent_id?: number | null;
+  parent_name?: string | null;
   description?: string;
-  estimated_time?: number;
+  type_id: number;
+  type_name?: string;
+  status_id: number;
+  status_name?: string;
+  priority_id: number;
+  priority_name?: string;
   start_date: Date;
   due_date: Date;
-  end_date?: Date;
-  priority_id: string;
-  status_id: string;
-  type_id: string;
-  parent_id?: string;
-  project_id: string;
-  holder_id: string;
-  assignee_id: string;
-  created_by: string;
+  end_date?: Date | null;
+  spent_time?: number;
+  progress: number;
+  created_by: number;
+  created_by_name?: string;
   created_on: Date;
-  updated_on: Date;
+  updated_on?: Date | null;
+  estimated_time?: number | null;
 }
 
 export interface TaskDetails extends Task {
   project_name: string;
-  holder: User;
-  assignee: User;
-  creator: User;
+  holder_name: string;
+  assignee_name: string;
+  created_by_name: string;
   status_name: string;
   priority_name: string;
   type_name: string;
 }
 
 export interface TaskStatus {
-  id: string;
+  id: number;
   name: string;
+  color: string;
+  description?: string | null;
+  active: boolean;
+  created_on: Date;
+  updated_on?: Date | null;
 }
 
 export interface TaskPriority {
-  id: string;
+  id: number;
   name: string;
+  color: string;
+  description?: string | null;
+  active: boolean;
+  created_on: Date;
+  updated_on?: Date | null;
 }
 
 export interface TaskType {
-  id: string;
+  id: number;
   name: string;
+  color: string;
+  icon?: string;
+  description?: string | null;
+  active: boolean;
+  created_on: Date;
+  updated_on?: Date | null;
 }
 
 export interface TaskCreateInput {
@@ -51,47 +78,52 @@ export interface TaskCreateInput {
   estimated_time?: number | null;
   start_date: Date;
   due_date: Date;
-  priority_id: string;
-  status_id: string;
-  type_id: string;
-  parent_id?: string;
-  project_id: string;
-  holder_id: string;
-  assignee_id: string;
-  created_by: string;
-  tagIds?: number[];
-  tags?: Array<{ id: number; name: string; color: string; description: string | null; active: boolean; created_on: Date; }>;
+  end_date?: Date | null;
+  priority_id: number;
+  status_id: number;
+  type_id: number;
+  parent_id?: number | null;
+  project_id: number;
+  holder_id?: number;
+  assignee_id?: number;
+  created_by: number;
+  progress?: number;
+  tags?: Tag[];
+  tag_ids?: number[];
+  watchers?: number[];
 }
 
 export interface TaskUpdateInput {
   name?: string;
-  project_id?: string;
-  holder_id?: string;
-  assignee_id?: string;
+  project_id?: number;
+  holder_id?: number;
+  assignee_id?: number;
   description?: string;
-  estimated_time?: number;
-  status_id?: string;
-  priority_id?: string;
+  estimated_time?: number | null;
+  status_id?: number;
+  priority_id?: number;
+  type_id?: number;
   start_date?: Date;
   due_date?: Date;
-  end_date?: Date;
+  end_date?: Date | null;
+  progress?: number;
 }
 
 export interface TaskWatcher {
-  task_id: string;
-  user_id: string;
+  task_id: number;
+  user_id: number;
   user?: User;
 }
 
 export interface TaskQueryFilters {
   whereParams?: {
-    [key: string]: string;
+    [key: string]: number | string;
   };
-  project_id?: string;
-  assignee_id?: string;
-  holder_id?: string;
-  status_id?: string;
-  priority_id?: string;
-  type_id?: string;
-  parent_id?: string;
+  project_id?: number;
+  assignee_id?: number;
+  holder_id?: number;
+  status_id?: number;
+  priority_id?: number;
+  type_id?: number;
+  parent_id?: number;
 }

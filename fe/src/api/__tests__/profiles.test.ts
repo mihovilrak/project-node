@@ -1,13 +1,13 @@
 import { api } from '../api';
 import { ProfileData, ProfileUpdateData, PasswordChange } from '../../types/profile';
 import { 
-
-getProfile, 
-updateProfile, 
-changePassword, 
-getRecentTasks, 
-getRecentProjects 
+  getProfile, 
+  updateProfile, 
+  changePassword, 
+  getRecentTasks, 
+  getRecentProjects 
 } from '../profiles';
+import { Task} from '../../types/task';
 
 // Mock the api module
 jest.mock('../api');
@@ -23,9 +23,6 @@ const mockProfileData: ProfileData = {
   email: 'test@example.com',
   role_id: 1,
   status_id: 1,
-  timezone: 'UTC',
-  language: 'en',
-  avatar_url: null,
   created_on: '2023-01-01T00:00:00Z',
   updated_on: null,
   last_login: null,
@@ -38,9 +35,7 @@ const mockProfileData: ProfileData = {
 const mockUpdateData: ProfileUpdateData = {
   name: 'Updated',
   surname: 'Name',
-  email: 'updated@example.com',
-  timezone: 'UTC',
-  language: 'en'
+  email: 'updated@example.com'  
 };
 
 const mockPasswordData: PasswordChange = {
@@ -49,7 +44,7 @@ const mockPasswordData: PasswordChange = {
   confirm_password: 'newpass'
 };
 
-const mockTasks = [
+const mockTasks: Task[] = [
   {
     id: 1,
     name: 'Test Task',
@@ -59,6 +54,9 @@ const mockTasks = [
     holder_name: 'Test Holder',
     assignee_id: 1,
     assignee_name: 'Test Assignee',
+    parent_id: null,
+    parent_name: null,
+    estimated_time: 8,
     description: 'Test Description',
     type_id: 1,
     type_name: 'Test Type',

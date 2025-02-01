@@ -64,9 +64,9 @@ export const createTask = async (
     holder_id,
     assignee_id,
     created_by,
-    tagIds
+    tag_ids
   }: TaskCreateInput,
-  watchers: string[]
+  watchers: number[]
 ): Promise<{ task_id: number }> => {
   const result = await pool.query<{ task_id: number }>(
     `SELECT * FROM create_task (
@@ -79,16 +79,16 @@ export const createTask = async (
       estimated_time,
       start_date,
       due_date,
-      Number(priority_id),
-      Number(status_id),
-      Number(type_id),
-      parent_id ? Number(parent_id) : null,
-      Number(project_id),
-      Number(holder_id),
-      Number(assignee_id),
-      Number(created_by),
-      tagIds,
-      watchers.map(Number)
+      priority_id,
+      status_id,
+      type_id,
+      parent_id ?? null,
+      project_id,
+      holder_id ?? null,
+      assignee_id ?? null,
+      created_by,
+      tag_ids,
+      watchers
     ]
   );
   
@@ -113,10 +113,12 @@ export const updateTask = async (
     'description',
     'estimated_time',
     'status_id',
+    'type_id',
     'priority_id',
     'start_date',
     'due_date',
-    'end_date'
+    'end_date',
+    'progress'
   ] as const;
 
   // Filter out undefined values and invalid fields

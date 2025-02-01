@@ -1,11 +1,11 @@
 export interface ActivityType {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   color: string;
   icon?: string;
   created_on: Date;
-  updated_on: Date;
+  updated_on?: Date;
   active: boolean;
 }
 

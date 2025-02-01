@@ -12,6 +12,7 @@ describe('ProfileProjectList', () => {
       description: 'Test Description 1',
       start_date: '2023-12-01',
       due_date: '2024-01-01',
+      end_date: null,
       progress: 75,
       parent_id: null,
       parent_name: null,
@@ -20,6 +21,7 @@ describe('ProfileProjectList', () => {
       created_by: 1,
       created_by_name: 'Test User',
       created_on: '2024-01-01T00:00:00Z',
+      updated_on: null,
       estimated_time: 100,
       spent_time: 75
     },
@@ -29,6 +31,7 @@ describe('ProfileProjectList', () => {
       description: 'Test Description 2',
       start_date: '2024-01-01',
       due_date: '2024-02-01',
+      end_date: null,
       progress: 25,
       parent_id: null,
       parent_name: null,
@@ -37,6 +40,7 @@ describe('ProfileProjectList', () => {
       created_by: 1,
       created_by_name: 'Test User',
       created_on: '2024-01-01T00:00:00Z',
+      updated_on: null,
       estimated_time: 80,
       spent_time: 20
     }

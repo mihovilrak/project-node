@@ -3,6 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import TimeLogCalendar from '../TimeLogCalendar';
+import { TimeLog } from '../../../types/timeLog';
 import { getProjectTimeLogs } from '../../../api/timeLogs';
 import { useTimeLogCalendar } from '../../../hooks/timeLog/useTimeLogCalendar';
 
@@ -21,7 +22,7 @@ jest.mock('./TimeLogCalendarGrid', () => ({ days, timeLogs }: any) => (
 ));
 
 // Mock data
-const mockTimeLogs = [
+const mockTimeLogs: TimeLog[] = [
   {
     id: 1,
     task_id: 1,

@@ -49,12 +49,14 @@ const mockProjects: Project[] = [
     status_name: 'Active',
     start_date: '2024-01-01',
     due_date: '2024-12-31',
+    end_date: null,
     created_by: 1,
     created_by_name: 'Test User',
     created_on: '2024-01-01',
     estimated_time: 100,
     spent_time: 0,
-    progress: 0
+    progress: 0,
+    updated_on: null
   }
 ];
 
@@ -67,9 +69,6 @@ const mockUsers: User[] = [
     email: 'test@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
-    avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null

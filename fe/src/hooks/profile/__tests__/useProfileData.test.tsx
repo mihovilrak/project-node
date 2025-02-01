@@ -30,8 +30,6 @@ const mockProfileData: ProfileData = {
   completed_tasks: 5,
   active_projects: 3,
   total_hours: 40,
-  timezone: 'UTC',
-  language: 'en',
   avatar_url: null,
   created_on: '2024-01-01',
   updated_on: '2024-01-01',
@@ -205,9 +203,7 @@ describe('useProfileData', () => {
     const updateData: ProfileUpdateData = {
       name: 'Updated Name',
       surname: 'Doe',
-      email: 'updated@example.com',
-      timezone: 'UTC',
-      language: 'en'
+      email: 'updated@example.com'
     };
 
     await act(async () => {

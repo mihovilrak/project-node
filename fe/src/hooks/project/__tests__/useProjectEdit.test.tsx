@@ -2,12 +2,13 @@ import { renderHook, act } from '@testing-library/react';
 import { useProjectEdit } from '../useProjectEdit';
 import { getProjectStatuses } from '../../../api/projects';
 import { SelectChangeEvent } from '@mui/material';
+import { Project, ProjectStatus } from '../../../types/project';
 
 // Mock dependencies
 jest.mock('../../../api/projects');
 
 describe('useProjectEdit', () => {
-  const mockProject = {
+  const mockProject: Project = {
     id: 1,
     name: 'Test Project',
     description: 'Test Description',
@@ -25,7 +26,7 @@ describe('useProjectEdit', () => {
     parent_name: null
   };
 
-  const mockStatuses = [
+  const mockStatuses: ProjectStatus[] = [
     { id: 1, name: 'Active' },
     { id: 2, name: 'Completed' },
     { id: 3, name: 'On Hold' }

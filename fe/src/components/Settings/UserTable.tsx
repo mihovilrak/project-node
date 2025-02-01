@@ -83,9 +83,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <Chip 
-                      label={user.role || 'No Role'} 
+                      label={user.role_name || 'No Role'} 
                       size="small"
-                      color={user.role === 'Admin' ? 'primary' : 'default'}
+                      color={user.role_name === 'Admin' ? 'primary' : 'default'}
                     />
                   </TableCell>
                   <TableCell align="right">

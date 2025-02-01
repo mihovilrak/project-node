@@ -1,6 +1,11 @@
 import { api } from '../api';
 import { UserSettings, AppSettings } from '../../types/setting';
-import { getUserSettings, updateUserSettings, getSystemSettings, updateSystemSettings } from '../settings';
+import {
+  getUserSettings,
+  updateUserSettings,
+  getSystemSettings,
+  updateSystemSettings
+} from '../settings';
 
 // Mock the api module
 jest.mock('../api');

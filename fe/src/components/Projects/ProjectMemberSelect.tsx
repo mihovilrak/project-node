@@ -39,7 +39,7 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
             </ListItemIcon>
             <ListItemText 
               primary={`${user.name} ${user.surname}`}
-              secondary={`Role: ${user.role}`}
+              secondary={`Role: ${user.role_name}`}
             />
           </ListItem>
         ))}

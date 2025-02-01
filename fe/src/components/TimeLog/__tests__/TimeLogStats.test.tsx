@@ -18,7 +18,7 @@ describe('TimeLogStats', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2023-01-01',
-      spent_time: 2.5, // 2 hours 30 minutes
+      spent_time: 2.5,
       description: 'Test',
       created_on: '2023-01-01',
       updated_on: null
@@ -29,7 +29,7 @@ describe('TimeLogStats', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2023-01-01',
-      spent_time: '1.75', // 1 hour 45 minutes
+      spent_time: 1.75,
       description: 'Test',
       created_on: '2023-01-01',
       updated_on: null
@@ -59,7 +59,7 @@ describe('TimeLogStats', () => {
   test('correctly calculates total time from string values', () => {
     const stringTimeLogs: TimeLog[] = [{
       ...mockTimeLogs[0],
-      spent_time: '1.75' // 1 hour 45 minutes
+      spent_time: 1.75
     }];
     
     renderTimeLogStats(stringTimeLogs);
@@ -74,7 +74,7 @@ describe('TimeLogStats', () => {
   test('handles invalid time values gracefully', () => {
     const invalidTimeLogs: TimeLog[] = [{
       ...mockTimeLogs[0],
-      spent_time: 'invalid'
+      spent_time: Number('invalid')
     }];
     
     renderTimeLogStats(invalidTimeLogs);
@@ -84,7 +84,7 @@ describe('TimeLogStats', () => {
   test('rounds minutes correctly', () => {
     const roundingTimeLogs: TimeLog[] = [{
       ...mockTimeLogs[0],
-      spent_time: 1.99 // 1 hour 59.4 minutes should round to 1h 59m
+      spent_time: 1.99
     }];
     
     renderTimeLogStats(roundingTimeLogs);

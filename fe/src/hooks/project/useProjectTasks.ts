@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Task } from '../../types/task';
 import { ProjectTasksHook } from '../../types/project';
-import { getProjectTasks, createTask } from '../../api/tasks';
+import { getProjectTasks } from '../../api/tasks';
 
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {
   const [tasks, setTasks] = useState<Task[]>([]);

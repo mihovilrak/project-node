@@ -2,12 +2,12 @@ export interface Comment {
   id: number;
   task_id: number;
   user_id: number;
+  user_name?: string;
+  user_avatar?: string;
   comment: string;
   active: boolean;
   created_on: string;
   updated_on: string | null;
-  user_name?: string;
-  user_avatar?: string;
 }
 
 export interface CommentFormProps {

@@ -1,10 +1,9 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TestWrapper } from '../TestWrapper';
 import { api } from '../../api/api';
 import { AppSettings, TaskType, ActivityType } from '../../types/setting';
 import { Role } from '../../types/role';
-import { UserSettings } from '../../types/user';
 import Settings from '../../components/Settings/Settings';
 
 // Mock the API calls
@@ -21,23 +20,6 @@ describe('Settings and Profile Flow', () => {
     theme: 'light',
     welcome_message: 'Welcome to Project Manager',
     created_on: '2025-01-26'
-  };
-
-  const mockUserSettings: UserSettings = {
-    user_id: 1,
-    timezone: 'UTC',
-    language: 'en',
-    date_format: 'YYYY-MM-DD',
-    time_format: '24h',
-    notification_preferences: {
-      email_notifications: true,
-      push_notifications: true,
-      task_reminders: true,
-      project_updates: true,
-      team_mentions: true
-    },
-    created_on: '2025-01-26',
-    updated_on: null
   };
 
   const mockTaskType: TaskType = {
@@ -73,8 +55,6 @@ describe('Settings and Profile Flow', () => {
       switch (url) {
         case '/settings/app_settings':
           return Promise.resolve({ data: mockAppSettings });
-        case '/settings/user_settings':
-          return Promise.resolve({ data: mockUserSettings });
         case '/task-types':
           return Promise.resolve({ data: [mockTaskType] });
         case '/activity-types':
@@ -85,43 +65,6 @@ describe('Settings and Profile Flow', () => {
           return Promise.reject(new Error('Not found'));
       }
     });
-  });
-
-  it('should update user profile settings', async () => {
-    const updatedUserSettings = {
-      ...mockUserSettings,
-      timezone: 'GMT',
-      language: 'es'
-    };
-
-    mockedApi.put.mockResolvedValueOnce({});
-
-    render(
-      <TestWrapper>
-        <Settings />
-      </TestWrapper>
-    );
-
-    // Wait for settings to load
-    await waitFor(() => {
-      expect(screen.getByText('Profile Settings')).toBeInTheDocument();
-    });
-
-    // Update timezone and language
-    const timezoneSelect = screen.getByLabelText(/timezone/i);
-    const languageSelect = screen.getByLabelText(/language/i);
-
-    await userEvent.selectOptions(timezoneSelect, 'GMT');
-    await userEvent.selectOptions(languageSelect, 'es');
-
-    // Save changes
-    const saveButton = screen.getByRole('button', { name: /save/i });
-    await userEvent.click(saveButton);
-
-    expect(mockedApi.put).toHaveBeenCalledWith('/settings/user_settings', expect.objectContaining({
-      timezone: 'GMT',
-      language: 'es'
-    }));
   });
 
   it('should create a new task type', async () => {

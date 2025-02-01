@@ -23,7 +23,7 @@ const mockTimeLogs: TimeLog[] = [
     user_id: 1,
     activity_type_id: 1,
     log_date: '2025-01-25',
-    spent_time: '2.5',
+    spent_time: 2.5,
     description: 'Test log 2',
     created_on: '2025-01-25T14:00:00Z',
     updated_on: null

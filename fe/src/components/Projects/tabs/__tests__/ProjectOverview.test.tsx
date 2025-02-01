@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ProjectOverview from '../ProjectOverview';
 import { useProjectOverview } from '../../../../hooks/project/useProjectOverview';
+import { Project } from '../../../../types/project';
 
 // Mock the custom hook
 jest.mock('../../../../hooks/project/useProjectOverview');
@@ -18,7 +19,7 @@ jest.mock('../../../common/PermissionButton', () => ({
   ),
 }));
 
-const mockProject = {
+const mockProject: Project = {
   id: 1,
   name: 'Test Project',
   description: 'Test Description',
@@ -28,11 +29,13 @@ const mockProject = {
   status_name: 'Active',
   start_date: '2024-01-01',
   due_date: '2024-12-31',
+  end_date: null,
   created_by: 1,
   created_by_name: 'John Doe',
   created_on: '2024-01-01',
+  updated_on: null,
   estimated_time: 100,
-  spent_time: 3600, // 60 hours in minutes
+  spent_time: 60,
   progress: 50,
 };
 

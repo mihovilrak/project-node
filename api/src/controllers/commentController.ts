@@ -46,9 +46,9 @@ export const createComment = async (
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
-      task_id: parseInt(taskId || '0'),
       action_user_id: parseInt(userId),
-      type_id: NotificationType.TaskComment  // Task Comment
+      type_id: NotificationType.TaskComment,  // Task Comment
+      task_id: parseInt(taskId!)
     });
 
     res.status(201).json(newComment);

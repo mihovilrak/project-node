@@ -3,11 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CommentEditDialog from '../CommentEditDialog';
 import { useCommentEdit } from '../../../hooks/comment/useCommentEdit';
+import { Comment } from '../../../types/comment';
 
 // Mock the custom hook
 jest.mock('../../../hooks/comment/useCommentEdit');
 
-const mockComment = {
+const mockComment: Comment = {
   id: 1,
   task_id: 1,
   comment: 'Test comment',

@@ -2,6 +2,8 @@ import { renderHook, act } from '@testing-library/react';
 import { useUserForm } from '../useUserForm';
 import { fetchRoles, createUser, getUserById, updateUser } from '../../../api/users';
 import { useNavigate } from 'react-router-dom';
+import { Role } from '../../../types/role';
+import { User } from '../../../types/user';
 
 // Mock the API functions and react-router-dom
 jest.mock('../../../api/users');
@@ -13,18 +15,21 @@ const mockNavigate = jest.fn();
 (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
 
 describe('useUserForm', () => {
-  const mockRoles = [
+  const mockRoles: Role[] = [
     { id: 1, name: 'Admin' },
     { id: 2, name: 'User' }
   ];
 
-  const mockUser = {
+  const mockUser: User = {
     id: 1,
     login: 'testuser',
     name: 'Test',
     surname: 'User',
     email: 'test@example.com',
-    role_id: 2
+    role_id: 2,
+    status_id: 1,
+    created_on: '2025-02-01',
+    updated_on: null
   };
 
   beforeEach(() => {

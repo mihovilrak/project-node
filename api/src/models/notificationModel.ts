@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { Notification, NotificationWithDetails, NotificationCreateInput } from '../types/notification';
+import { Notification, NotificationWithDetails, NotificationCreateInput, CreateWatcherNotificationsInput } from '../types/notification';
 
 // Get notifications by user ID
 export const getNotificationsByUserId = async (
@@ -47,7 +47,7 @@ export const deleteNotification = async (
 // Create watcher notifications
 export const createWatcherNotifications = async (
   pool: Pool,
-  { task_id, action_user_id, type_id }: NotificationCreateInput
+  { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput
 ): Promise<Notification[]> => {
   const result = await pool.query(
     `SELECT * FROM create_watcher_notifications($1, $2, $3)`,

@@ -137,7 +137,10 @@ export const updateProject = async (
   pool: Pool
 ): Promise<void> => {
   const { id } = req.params;
-  const updates = req.body;
+  const updates = {
+    ...req.body,
+    parent_id: req.body.parent_id ? Number(req.body.parent_id) : undefined
+  };
   try {
     const result = await projectModel.updateProject(pool, updates, id);
     if (!result) {

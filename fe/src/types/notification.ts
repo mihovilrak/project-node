@@ -6,6 +6,8 @@ export interface Notification {
   message: string;
   link: string | null;
   is_read: boolean;
+  active: boolean;
+  read_on: string | null;
   created_on: string;
   // Virtual fields from database views/joins
   type_name?: string;

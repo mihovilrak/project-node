@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { useHeader } from '../useHeader';
 import { useAuth } from '../../../context/AuthContext';
+import { User } from '../../../types/user';
 
 // Mock useAuth hook
 jest.mock('../../../context/AuthContext', () => ({
@@ -9,9 +10,18 @@ jest.mock('../../../context/AuthContext', () => ({
 
 describe('useHeader', () => {
   // Mock user for testing
-  const mockUser = {
+  const mockUser: User = {
     id: 1,
-    name: 'Test User'
+    name: 'Test User',
+    login: 'testuser',
+    surname: 'Test',
+    email: 'test@example.com',
+    role_id: 1,
+    status_id: 1,
+    avatar_url: null,
+    created_on: '2025-01-25T16:29:14.000Z',
+    updated_on: '2025-01-25T16:29:14.000Z',
+    last_login: '2025-01-25T16:29:14.000Z',
   };
 
   // Setup mock implementation of useAuth

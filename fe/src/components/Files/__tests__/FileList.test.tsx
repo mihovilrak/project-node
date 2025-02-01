@@ -20,8 +20,7 @@ const mockFiles: TaskFile[] = [
     mime_type: 'application/pdf',
     size: 1024576, // 1MB
     uploaded_on: '2024-01-01T00:00:00Z',
-    uploaded_by: 'John Doe',
-    user_avatar: 'avatar.jpg'
+    uploaded_by: 'John Doe'
   }
 ];
 

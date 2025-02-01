@@ -19,17 +19,12 @@ describe('User Management Flow', () => {
     email: 'test@example.com',
     role_id: 2,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
-    avatar_url: null,
     created_on: '2025-01-25',
     updated_on: null,
     last_login: null,
-    role: 'User',
-    status: 'Active',
-    status_color: 'green',
-    full_name: 'Test User',
-    permissions: ['read', 'write']
+    role_name: 'Reporter',
+    status_name: 'Active',
+    status_color: 'green'
   };
 
   beforeEach(() => {

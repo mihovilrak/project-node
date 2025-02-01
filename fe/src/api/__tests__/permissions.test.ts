@@ -9,10 +9,7 @@ describe('Permissions API', () => {
   const mockPermission: Permission = {
     id: 1,
     name: 'TEST_PERMISSION',
-    description: 'Test permission description',
-    active: true,
-    created_on: '2023-01-01T00:00:00Z',
-    updated_on: null
+    created_on: '2023-01-01T00:00:00Z'
   };
 
   beforeEach(() => {

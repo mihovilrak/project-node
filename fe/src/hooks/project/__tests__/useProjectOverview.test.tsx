@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useProjectOverview } from '../useProjectOverview';
 import { getSubprojects } from '../../../api/projects';
+import { Project } from '../../../types/project';
 import { useNavigate } from 'react-router-dom';
 
 // Mock dependencies
@@ -10,7 +11,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('useProjectOverview', () => {
-  const mockSubprojects = [
+  const mockSubprojects: Project[] = [
     {
       id: 2,
       name: 'Subproject 1',

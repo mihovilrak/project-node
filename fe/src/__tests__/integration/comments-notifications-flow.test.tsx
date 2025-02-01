@@ -46,7 +46,6 @@ describe('Comments and Notifications Flow', () => {
     task_id: 1,
     comment: 'Test comment',
     user_id: 1,
-    user_name: 'Test User',
     created_on: '2025-01-25',
     updated_on: '2025-01-25',
     active: true
@@ -60,6 +59,8 @@ describe('Comments and Notifications Flow', () => {
     message: 'Test User commented on Test Task',
     link: '/tasks/1',
     is_read: false,
+    active: true,
+    read_on: null,
     created_on: '2025-01-25',
     type_name: 'Comment',
     type_color: 'blue',

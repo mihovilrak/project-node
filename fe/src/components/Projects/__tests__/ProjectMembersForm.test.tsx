@@ -14,13 +14,11 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role_id: 3,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
     avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Developer'
+    role_name: 'Developer'
   },
   {
     id: 2,
@@ -30,13 +28,11 @@ const mockUsers: User[] = [
     email: 'jane@example.com',
     role_id: 2,
     status_id: 1,
-    timezone: 'UTC',
-    language: 'en',
     avatar_url: null,
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role: 'Project Manager'
+    role_name: 'Project Manager'
   }
 ];
 
@@ -99,7 +95,7 @@ describe('ProjectMembersForm', () => {
     renderComponent();
     const selectedUser = mockUsers[0];
     expect(screen.getByText(`${selectedUser.name} ${selectedUser.surname}`)).toBeInTheDocument();
-    expect(screen.getByText(`Role: ${selectedUser.role}`)).toBeInTheDocument();
+    expect(screen.getByText(`Role: ${selectedUser.role_name}`)).toBeInTheDocument();
   });
 
   it('handles user selection through ProjectMemberSelect', () => {

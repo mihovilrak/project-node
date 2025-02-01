@@ -2,24 +2,37 @@ import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import NotificationCenter from '../NotificationCenter';
 import { useNotificationCenter } from '../../../hooks/notification/useNotificationCenter';
+import { Notification } from '../../../types/notification';
 
 // Mock the hook
 jest.mock('../../../hooks/notification/useNotificationCenter');
 
-const mockNotifications = [
+const mockNotifications: Notification[] = [
   {
     id: 1,
+    user_id: 1,
+    type_id: 1,
+    link: '/test-link-1',
+    active: true,
+    read_on: null,
     title: 'Test Notification 1',
     message: 'Test Message 1',
     type_name: 'task',
-    is_read: false
+    is_read: false,
+    created_on: '2025-01-25T16:29:14.000Z'
   },
   {
     id: 2,
+    type_id: 2,
+    user_id: 1,
+    read_on: '2025-01-25T16:29:14.000Z',
+    link: '/test-link-2',
+    active: true,
     title: 'Test Notification 2',
     message: 'Test Message 2',
     type_name: 'project',
-    is_read: true
+    is_read: true,
+    created_on: '2025-01-25T16:29:14.000Z'
   }
 ];
 

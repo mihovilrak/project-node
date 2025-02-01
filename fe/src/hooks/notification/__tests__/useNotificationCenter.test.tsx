@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useNotificationCenter } from '../useNotificationCenter';
 import { getNotifications, markAsRead, deleteNotification } from '../../../api/notifications';
 import { MemoryRouter } from 'react-router-dom';
+import { Notification } from '../../../types/notification';
 
 // Mock the API functions
 jest.mock('../../../api/notifications', () => ({
@@ -11,7 +12,7 @@ jest.mock('../../../api/notifications', () => ({
 }));
 
 // Mock data
-const mockNotifications = [
+const mockNotifications: Notification[] = [
   {
     id: 1,
     user_id: 1,
@@ -20,6 +21,8 @@ const mockNotifications = [
     message: 'Test Message 1',
     link: '/test-link-1',
     is_read: false,
+    read_on: null,
+    active: true,
     created_on: '2025-01-25T16:29:14.000Z',
   },
   {
@@ -30,6 +33,8 @@ const mockNotifications = [
     message: 'Test Message 2',
     link: null,
     is_read: true,
+    read_on: '2025-01-25T16:29:14.000Z',
+    active: true,
     created_on: '2025-01-25T16:29:14.000Z',
   },
 ];

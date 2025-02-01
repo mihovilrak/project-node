@@ -1,12 +1,12 @@
 export interface TaskType {
-  id: string;
+  id: number;
   name: string;
-  description?: string;
   color: string;
   icon?: string;
-  created_on: Date;
-  updated_on: Date;
+  description?: string;
   active: boolean;
+  created_on: Date;
+  updated_on?: Date;
 }
 
 export interface TaskTypeCreateInput {
