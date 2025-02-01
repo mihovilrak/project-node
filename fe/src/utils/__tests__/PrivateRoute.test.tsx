@@ -32,13 +32,10 @@ describe('PrivateRoute', () => {
     email: 'test@example.com',
     role_id: 1,
     status_id: 1,
-    timezone: null,
-    language: null,
     avatar_url: null,
     created_on: new Date().toISOString(),
     updated_on: null,
-    last_login: null,
-    permissions: ['Admin']
+    last_login: null
   };
 
   beforeEach(() => {
