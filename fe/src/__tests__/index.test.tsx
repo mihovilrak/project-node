@@ -33,7 +33,7 @@ describe('Index', () => {
 
   it('should render App component inside root element', () => {
     // Import and execute the index file
-    require('./index');
+    require('../index');
 
     // Check if createRoot was called with the root element
     expect(mockCreateRoot).toHaveBeenCalledWith(

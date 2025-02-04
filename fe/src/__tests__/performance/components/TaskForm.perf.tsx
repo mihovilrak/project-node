@@ -104,7 +104,6 @@ const mockProjectMembers: ProjectMember[] = [
   {
     project_id: 1,
     user_id: 1,
-    role_id: 1,
     created_on: '2024-01-26T00:00:00Z',
     name: 'John Doe',
     surname: 'Doe',

@@ -56,12 +56,10 @@ describe('UserDetails Component Performance Tests', () => {
         email: 'john.doe@example.com',
         role_id: 1,
         status_id: 1,
-        role: 'Admin',
+        role_name: 'Admin',
         created_on: new Date().toISOString(),
         updated_on: new Date().toISOString(),
         last_login: new Date().toISOString(),
-        language: 'en',
-        timezone: 'UTC',
         avatar_url: null
       },
       loading: false,

@@ -37,7 +37,7 @@ const Login: React.FC = () => {
             {error}
           </Typography>
         )}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} role="form">
           <Box mb={3}>
             <TextField
               label="Username"

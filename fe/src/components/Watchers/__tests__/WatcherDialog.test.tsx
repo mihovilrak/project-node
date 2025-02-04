@@ -11,17 +11,17 @@ jest.mock('../../../api/projects');
 const mockProjectMembers: ProjectMember[] = [
   { 
     project_id: 1,
-    user_id: 1, 
-    role_id: 3,
-    name: 'John Doe', 
+    user_id: 1,
+    name: 'John',
+    surname: 'Doe', 
     role: 'Developer',
     created_on: '2024-01-01T00:00:00Z'
   },
   { 
     project_id: 1,
     user_id: 2, 
-    role_id: 2,
-    name: 'Jane Smith', 
+    name: 'Jane',
+    surname: 'Smith', 
     role: 'Project Manager',
     created_on: '2024-01-01T00:00:00Z'
   },
