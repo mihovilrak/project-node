@@ -53,6 +53,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 src={comment.user_avatar || undefined}
                 alt={comment.user_name}
                 sx={{ width: 32, height: 32, mr: 2 }}
+                data-testid="avatar-test"
               />
               <Box sx={{ flex: 1 }}>
                 <Box
@@ -109,14 +110,17 @@ const CommentList: React.FC<CommentListProps> = ({
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
+        role="menu"
+        aria-label="comment actions"
       >
-        <MenuItem onClick={handleEditClick}>
+        <MenuItem onClick={handleEditClick} role="menuitem">
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
           Edit
         </MenuItem>
         <MenuItem
           onClick={handleDeleteClick}
           sx={{ color: 'error.main' }}
+          role="menuitem"
         >
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           Delete

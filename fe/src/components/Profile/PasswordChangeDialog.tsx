@@ -62,10 +62,6 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
         confirm_password: formData.confirmPassword
       });
       onClose();
-      setFormData((prev: PasswordForm) => ({
-        ...prev,
-        error: undefined
-      }));
     } catch (err) {
       setError('Failed to change password. Please check your current password.');
     } finally {
@@ -74,12 +70,12 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Change Password</DialogTitle>
-      <form onSubmit={handleSubmit}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth data-testid="password-change-dialog">
+      <DialogTitle data-testid="dialog-title">Change Password</DialogTitle>
+      <form onSubmit={handleSubmit} data-testid="password-form">
         <DialogContent>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }} data-testid="error-alert">
               {error}
             </Alert>
           )}
@@ -91,6 +87,7 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
               onChange={handleChange('currentPassword')}
               fullWidth
               required
+              data-testid="current-password-field"
             />
             <TextField
               label="New Password"
@@ -99,6 +96,7 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
               onChange={handleChange('newPassword')}
               fullWidth
               required
+              data-testid="new-password-field"
             />
             <TextField
               label="Confirm New Password"
@@ -107,15 +105,17 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
               onChange={handleChange('confirmPassword')}
               fullWidth
               required
+              data-testid="confirm-password-field"
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} data-testid="cancel-button">Cancel</Button>
           <Button 
             type="submit" 
             variant="contained" 
             disabled={loading}
+            data-testid="submit-button"
           >
             Change Password
           </Button>

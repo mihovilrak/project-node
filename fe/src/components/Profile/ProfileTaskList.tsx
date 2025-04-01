@@ -22,7 +22,7 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={2}>
-        <CircularProgress />
+        <CircularProgress data-testid="loading-spinner" />
       </Box>
     );
   }
@@ -34,7 +34,7 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
       </Typography>
       <List>
         {tasks.map((task) => (
-          <ListItem key={task.id} divider>
+          <ListItem key={task.id} divider onClick={() => handleTaskClick(task)}>
             <ListItemText
               primary={task.name}
               secondary={
@@ -43,17 +43,20 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
                     label={task.project_name}
                     size="small"
                     variant="outlined"
+                    data-testid="project-chip"
                   />
                   <Chip
                     label={task.status_name}
                     size="small"
                     color="primary"
                     variant="outlined"
+                    data-testid="status-chip"
                   />
                   <Chip
                     label={task.priority_name}
                     size="small"
                     sx={{ bgcolor: task.priority_color, color: 'white' }}
+                    data-testid="priority-chip"
                   />
                 </Box>
               }

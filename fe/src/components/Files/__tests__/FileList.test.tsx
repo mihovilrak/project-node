@@ -51,7 +51,8 @@ describe('FileList', () => {
   it('renders file list with correct file information', () => {
     renderFileList();
     expect(screen.getByText('test file.pdf')).toBeInTheDocument();
-    expect(screen.getByText('Size: 1 MB')).toBeInTheDocument();
+    const fileSizeElement = screen.getByTestId('file-size');
+    expect(fileSizeElement.textContent).toBe('0.98 MB');
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText(/Uploaded on:/)).toBeInTheDocument();
   });
@@ -72,8 +73,8 @@ describe('FileList', () => {
 
   it('renders download and delete tooltips', () => {
     renderFileList();
-    expect(screen.getByTitle('Download')).toBeInTheDocument();
-    expect(screen.getByTitle('Delete')).toBeInTheDocument();
+    expect(screen.getByLabelText('download')).toBeInTheDocument();
+    expect(screen.getByLabelText('delete')).toBeInTheDocument();
   });
 
   it('renders file icon', () => {
@@ -92,7 +93,8 @@ describe('FileList', () => {
   it('properly formats file names with special characters', () => {
     const filesWithSpecialChars: TaskFile[] = [{
       ...mockFiles[0],
-      original_name: 'test%20file%20with%20spaces.pdf'
+      name: 'test%20file%20with%20spaces.pdf',
+      original_name: 'test file with spaces.pdf'
     }];
     renderFileList({ files: filesWithSpecialChars });
     expect(screen.getByText('test file with spaces.pdf')).toBeInTheDocument();

@@ -36,21 +36,22 @@ describe('ProfileHeader', () => {
     };
     render(<ProfileHeader user={userWithoutAvatar} />);
     
-    const avatar = screen.getByAltText('John Doe');
+    const avatar = screen.getByTestId('user-avatar');
     expect(avatar).toBeInTheDocument();
   });
 
   test('renders with correct layout', () => {
     const { container } = render(<ProfileHeader user={mockUser} />);
     
-    expect(container.querySelector('h4')).toBeInTheDocument();
-    expect(container.querySelectorAll('p')).toHaveLength(2);
+    expect(screen.getByRole('heading', { level: 4 })).toBeInTheDocument();
+    expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Developer')).toBeInTheDocument();
   });
 
   test('renders avatar with correct size', () => {
     render(<ProfileHeader user={mockUser} />);
     
-    const avatar = screen.getByAltText('John Doe').parentElement;
+    const avatar = screen.getByTestId('user-avatar');
     expect(avatar).toHaveStyle({
       width: '80px',
       height: '80px'

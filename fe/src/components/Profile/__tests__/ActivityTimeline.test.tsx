@@ -40,7 +40,8 @@ describe('ActivityTimeline', () => {
 
     // Check if activities are rendered
     mockActivities.forEach(activity => {
-      expect(screen.getByText(activity.description)).toBeInTheDocument();
+      // Using getAllByText instead of getByText since the description appears twice
+      expect(screen.getAllByText(activity.description).length).toBeGreaterThan(0);
       expect(screen.getByText(new Date(activity.timestamp).toLocaleString())).toBeInTheDocument();
     });
   });

@@ -14,7 +14,7 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loadi
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={2}>
-        <CircularProgress />
+        <CircularProgress data-testid="loading-spinner" />
       </Box>
     );
   }
@@ -38,6 +38,7 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loadi
                     variant="determinate" 
                     value={project.progress} 
                     sx={{ height: 8, borderRadius: 1 }}
+                    data-testid="project-progress"
                   />
                 </Box>
               }

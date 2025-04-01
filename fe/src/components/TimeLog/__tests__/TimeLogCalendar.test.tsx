@@ -15,7 +15,7 @@ jest.mock('../TimeLogCalendarHeader', () => ({ currentDate, totalHours }: any) =
     Header: {currentDate.toISOString()} - {totalHours}h
   </div>
 ));
-jest.mock('./TimeLogCalendarGrid', () => ({ days, timeLogs }: any) => (
+jest.mock('../TimeLogCalendarGrid', () => ({ days, timeLogs }: any) => (
   <div data-testid="mock-calendar-grid">
     Grid: {days.length} days, {timeLogs.length} logs
   </div>
@@ -37,7 +37,7 @@ const mockTimeLogs: TimeLog[] = [
   }
 ];
 
-const mockHookReturn = {
+const defaultMockHookReturn = {
   currentDate: new Date('2023-01-01'),
   navigateMonth: jest.fn(),
   getTimeLogsForDate: jest.fn(),
@@ -51,7 +51,7 @@ const mockHookReturn = {
 describe('TimeLogCalendar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useTimeLogCalendar as jest.Mock).mockReturnValue(mockHookReturn);
+    (useTimeLogCalendar as jest.Mock).mockReturnValue({ ...defaultMockHookReturn });
   });
 
   test('shows loading state initially', () => {
@@ -109,13 +109,13 @@ describe('TimeLogCalendar', () => {
       expect(getProjectTimeLogs).toHaveBeenCalledWith(1);
     });
 
-    // Simulate date change
+    // Simulate date change with a new mock object
+    const updatedMockHookReturn = {
+      ...defaultMockHookReturn,
+      currentDate: new Date('2023-02-01')
+    };
     act(() => {
-      mockHookReturn.currentDate = new Date('2023-02-01');
-      (useTimeLogCalendar as jest.Mock).mockReturnValue({
-        ...mockHookReturn,
-        currentDate: new Date('2023-02-01')
-      });
+      (useTimeLogCalendar as jest.Mock).mockReturnValue(updatedMockHookReturn);
     });
 
     await waitFor(() => {

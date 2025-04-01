@@ -34,7 +34,10 @@ const ActiveTasks: React.FC = () => {
   if (loading) return <CircularProgress />;
 
   return (
-    <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}>
+    <Box 
+      data-testid="active-tasks"
+      sx={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}
+    >
       <Typography variant="h4" gutterBottom>My Active Tasks</Typography>
       {tasks.length === 0 ? (
         <Typography>No active tasks assigned to you.</Typography>

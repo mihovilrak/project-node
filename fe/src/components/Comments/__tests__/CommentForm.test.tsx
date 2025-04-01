@@ -2,12 +2,22 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CommentForm from '../CommentForm';
+import { createComment } from '../../../api/comments';
+
+jest.mock('../../../api/comments');
 
 const mockOnCommentAdded = jest.fn();
 
 describe('CommentForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (createComment as jest.Mock).mockResolvedValue({
+      id: 1,
+      taskId: 1,
+      comment: 'Test comment',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   });
 
   it('renders comment input field', () => {

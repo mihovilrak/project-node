@@ -68,7 +68,7 @@ const FileList: React.FC<FileListProps> = ({
                     </Link>
                   </Typography>
                   <Typography variant="caption" display="block">
-                    Size: {formatFileSize(file.size)}
+                    Size: <span data-testid="file-size">{formatFileSize(file.size)}</span>
                   </Typography>
                   <Typography variant="caption" display="block">
                     Uploaded on: {new Date(file.uploaded_on).toLocaleString()}

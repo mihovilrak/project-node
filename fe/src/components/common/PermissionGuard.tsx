@@ -7,11 +7,15 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   requiredPermission,
   children,
   fallback,
-  showLoading = true
+  showLoading = true,
+  loadingComponent
 }) => {
   const { hasPermission, loading } = usePermission(requiredPermission);
 
   if (loading && showLoading) {
+    if (loadingComponent) {
+      return loadingComponent;
+    }
     return (  
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
         <Typography>Loading permissions...</Typography>

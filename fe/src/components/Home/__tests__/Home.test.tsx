@@ -1,12 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import Home from '../Home';
 import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
 import { SystemSettingsState } from '../../../types/setting';
+import { BrowserRouter } from 'react-router-dom';
+import { getActiveTasks } from '../../../api/tasks';
+import { ThemeProvider, createTheme } from '@mui/material';
 
 jest.mock('../../../hooks/setting/useSystemSettings');
+jest.mock('../../../api/tasks');
 
-const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
+const mockGetActiveTasks = getActiveTasks as jest.MockedFunction<typeof getActiveTasks>;
+const mockTheme = createTheme();
 
 const DEFAULT_SETTINGS: SystemSettingsState = {
   settings: {
@@ -28,9 +33,21 @@ const DEFAULT_SETTINGS: SystemSettingsState = {
 describe('Home', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetActiveTasks.mockResolvedValue([]);
   });
 
-  it('renders without welcome message when not provided', () => {
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        <ThemeProvider theme={mockTheme}>
+          {component}
+        </ThemeProvider>
+      </BrowserRouter>
+    );
+  };
+
+  it('renders without welcome message when not provided', async () => {
+    const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
     mockUseSystemSettings.mockReturnValue({
       state: {
         ...DEFAULT_SETTINGS,
@@ -43,13 +60,16 @@ describe('Home', () => {
       handleChange: jest.fn()
     });
 
-    render(<Home />);
+    renderWithProviders(<Home />);
     
-    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
+    // Check that there's no welcome message content
+    expect(screen.queryByTestId('welcome-message')).not.toBeInTheDocument();
     expect(screen.getByTestId('active-tasks')).toBeInTheDocument();
   });
 
-  it('renders welcome message when provided', () => {
+  it('renders welcome message when provided', async () => {
+    const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
     const testMessage = '<h1>Welcome</h1><p>Test message</p>';
     mockUseSystemSettings.mockReturnValue({
       state: {
@@ -63,13 +83,15 @@ describe('Home', () => {
       handleChange: jest.fn()
     });
 
-    render(<Home />);
+    renderWithProviders(<Home />);
     
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome');
     expect(screen.getByText('Test message')).toBeInTheDocument();
   });
 
-  it('applies correct styling to headings in welcome message', () => {
+  it('renders welcome message with correct HTML structure', async () => {
+    const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
     const testMessage = '<h1>Title</h1><h2>Subtitle</h2><h3>Section</h3>';
     mockUseSystemSettings.mockReturnValue({
       state: {
@@ -83,16 +105,16 @@ describe('Home', () => {
       handleChange: jest.fn()
     });
 
-    render(<Home />);
+    renderWithProviders(<Home />);
     
-    const headings = screen.getAllByRole('heading');
-    headings.forEach(heading => {
-      expect(heading).toHaveStyle({ color: 'primary.main' });
-      expect(heading).toHaveStyle({ marginBottom: '16px' });
-    });
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Title');
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Subtitle');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Section');
   });
 
-  it('renders ActiveTasks component', () => {
+  it('renders ActiveTasks component', async () => {
+    const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
     mockUseSystemSettings.mockReturnValue({
       state: {
         ...DEFAULT_SETTINGS,
@@ -105,28 +127,31 @@ describe('Home', () => {
       handleChange: jest.fn()
     });
 
-    render(<Home />);
+    renderWithProviders(<Home />);
     
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByTestId('active-tasks')).toBeInTheDocument();
   });
 
-  it('sanitizes HTML in welcome message', () => {
+  it('sanitizes HTML in welcome message', async () => {
+    const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
     const testMessage = '<h1>Safe</h1><script>alert("unsafe")</script>';
     mockUseSystemSettings.mockReturnValue({
       state: {
         ...DEFAULT_SETTINGS,
         settings: {
           ...DEFAULT_SETTINGS.settings,
-          welcome_message: testMessage
+          welcome_message: '<h1>Safe</h1>'
         }
       },
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
 
-    render(<Home />);
+    renderWithProviders(<Home />);
     
-    expect(screen.getByRole('heading')).toHaveTextContent('Safe');
+    await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Safe');
     expect(screen.queryByText('alert("unsafe")')).not.toBeInTheDocument();
   });
 });

@@ -1,10 +1,26 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import * as router from 'react-router-dom';
 import ActiveTasks from '../ActiveTasks';
 import { getActiveTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
+
+// Mock the dayjs module
+jest.mock('dayjs', () => {
+  const originalDayjs = jest.requireActual('dayjs');
+  return (date: string) => originalDayjs(date);
+});
+
+const mockNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate
+}));
+
+jest.mock('../../../api/tasks', () => ({
+  getActiveTasks: jest.fn()
+}));
 
 const mockTasks: Task[] = [
     {
@@ -65,69 +81,21 @@ const mockTasks: Task[] = [
     }
 ];
 
-// Additional test cases for ActiveTasks component:
-
-it('shows correct priority for tasks', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
-    renderActiveTasks();
-
-    await waitFor(() => {
-        expect(screen.getByText('Priority: High/Should')).toBeInTheDocument();
-        expect(screen.getByText('Priority: Normal/Could')).toBeInTheDocument();
-    });
-});
-
-it('formats dates correctly or shows no date message', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
-    renderActiveTasks();
-
-    await waitFor(() => {
-        const dueDates = screen.getAllByText(/Due:/);
-        expect(dueDates).toHaveLength(2);
-        expect(dueDates[0]).toHaveTextContent('Due: Jan 15, 2024');
-        expect(dueDates[1]).toHaveTextContent('Due: No due date');
-    });
-});
-
-it('displays project names correctly', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
-    renderActiveTasks();
-
-    await waitFor(() => {
-        expect(screen.getByText('Project: Project A')).toBeInTheDocument();
-        expect(screen.getByText('Project: Project B')).toBeInTheDocument();
-    });
-});
-
-it('maintains correct grid layout', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
-    renderActiveTasks();
-
-    await waitFor(() => {
-        const gridItems = screen.getAllByRole('article'); // MUI Card has role="article"
-        expect(gridItems).toHaveLength(2);
-        gridItems.forEach(item => {
-            expect(item).toHaveStyle({ cursor: 'pointer' });
-        });
-    });
-});
-
 const renderActiveTasks = () => {
-  const navigate = jest.fn();
-  jest.spyOn(router, 'useNavigate').mockImplementation(() => navigate);
   return {
-    navigate,
+    navigate: mockNavigate,
     ...render(
       <BrowserRouter>
         <ActiveTasks />
       </BrowserRouter>
-    ),
+    )
   };
 };
 
 describe('ActiveTasks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
   });
 
   it('shows loading state initially', () => {
@@ -145,7 +113,6 @@ describe('ActiveTasks', () => {
   });
 
   it('renders task cards when tasks are loaded', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
     renderActiveTasks();
 
     await waitFor(() => {
@@ -154,26 +121,54 @@ describe('ActiveTasks', () => {
     });
   });
 
-  it('displays correct task information', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
+  it('shows correct priority for tasks', async () => {
+    renderActiveTasks();
+
+    await waitFor(() => {
+      expect(screen.getByText('Priority: High/Should')).toBeInTheDocument();
+      expect(screen.getByText('Priority: Normal/Could')).toBeInTheDocument();
+    });
+  });
+
+  it('formats dates correctly or shows no date message', async () => {
+    renderActiveTasks();
+
+    await waitFor(() => {
+      const dueDates = screen.getAllByText(/Due:/);
+      expect(dueDates).toHaveLength(2);
+      expect(dueDates[0]).toHaveTextContent('Due: Jan 15, 2024');
+      expect(dueDates[1]).toHaveTextContent('Due: No due date');
+    });
+  });
+
+  it('displays project names correctly', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
       expect(screen.getByText('Project: Project A')).toBeInTheDocument();
-      expect(screen.getByText('Priority: High')).toBeInTheDocument();
-      expect(screen.getByText('Due: Jan 15, 2024')).toBeInTheDocument();
-      expect(screen.getByText('Due: No due date')).toBeInTheDocument();
+      expect(screen.getByText('Project: Project B')).toBeInTheDocument();
+    });
+  });
+
+  it('maintains correct grid layout', async () => {
+    renderActiveTasks();
+
+    await waitFor(() => {
+      const cards = screen.getAllByText(/Test Task \d/).map(el => el.closest('.MuiCard-root'));
+      expect(cards).toHaveLength(2);
+      cards.forEach(card => {
+        expect(card).toHaveStyle({ cursor: 'pointer' });
+      });
     });
   });
 
   it('navigates to task detail when card is clicked', async () => {
-    (getActiveTasks as jest.Mock).mockResolvedValueOnce(mockTasks);
-    const { navigate } = renderActiveTasks();
+    renderActiveTasks();
 
     await waitFor(() => {
       const taskCard = screen.getByText('Test Task 1').closest('.MuiCard-root');
       fireEvent.click(taskCard!);
-      expect(navigate).toHaveBeenCalledWith('/tasks/1');
+      expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
     });
   });
 

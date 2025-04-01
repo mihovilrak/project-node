@@ -73,8 +73,10 @@ describe('PermissionButton', () => {
     
     render(<PermissionButton {...defaultProps} tooltipText={customTooltip} />);
     
-    const tooltip = screen.getByRole('button').closest('span');
-    expect(tooltip).toHaveAttribute('title', customTooltip);
+    // Material-UI creates a tooltip element that's not immediately visible
+    // We need to find the button first and verify the tooltip is properly set up
+    const button = screen.getByRole('button');
+    expect(button.parentElement).toHaveAttribute('aria-label', customTooltip);
   });
 
   it('forwards additional button props', () => {

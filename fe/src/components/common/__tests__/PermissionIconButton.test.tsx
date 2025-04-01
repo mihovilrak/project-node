@@ -4,7 +4,7 @@ import PermissionIconButton from '../PermissionIconButton';
 import { usePermission } from '../../../hooks/common/usePermission';
 
 // Mock the usePermission hook
-jest.mock('../../hooks/common/usePermission');
+jest.mock('../../../hooks/common/usePermission');
 
 describe('PermissionIconButton', () => {
   const mockUsePermission = usePermission as jest.Mock;

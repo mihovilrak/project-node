@@ -13,11 +13,10 @@ import {
   SelectChangeEvent,
   Button
 } from '@mui/material';
-import { FilterPanelProps } from '../../types/filterPanel';
+import { FilterPanelProps, FilterValues, FilterOption } from '../../types/filterPanel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useFilterPanel } from '../../hooks/common/useFilterPanel';
-import { FilterOption } from '../../types/filterPanel';
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
   filters,
@@ -31,6 +30,27 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     getAppliedFilters,
     handleClearFilters
   } = useFilterPanel(filters, onFilterChange);
+
+  const getFilterField = (field: string): keyof FilterValues => {
+    switch (field) {
+      case 'statuses':
+        return 'status_id';
+      case 'priorities':
+        return 'priority_id';
+      case 'types':
+        return 'type_id';
+      case 'users':
+        return 'assignee_id';
+      case 'projects':
+        return 'project_id';
+      case 'activities':
+        return 'type_id';
+      case 'search':
+        return 'search';
+      default:
+        return 'search';
+    }
+  };
 
   return (
     <Box sx={{ mb: 2 }}>
@@ -60,13 +80,18 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             <Grid item xs={12} sm={6} md={4} key={field}>
               {Array.isArray(fieldOption) ? (
                 <FormControl fullWidth size="small">
-                  <InputLabel>{field}</InputLabel>
+                  <InputLabel id={`${field}-label`}>{field}</InputLabel>
                   <Select
-                    value={String(filters[field as keyof typeof filters] || '')}
-                    onChange={(e: SelectChangeEvent) => 
-                      handleFilterChange(field as keyof typeof filters, e.target.value)
+                    size="small"
+                    value={String(filters[getFilterField(field)] || '')}
+                    onChange={(e: SelectChangeEvent<string>) =>
+                      handleFilterChange(getFilterField(field), e.target.value || null)
                     }
                     label={field}
+                    labelId={`${field}-label`}
+                    id={`${field}-select`}
+                    data-testid={`${field}-select`}
+                    aria-label={field}
                   >
                     <MenuItem value="">
                       <em>None</em>
@@ -100,7 +125,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </Button>
           <Button
             variant="contained"
-            onClick={() => setExpanded(false)}
+            onClick={() => {
+              setExpanded(false);
+            }}
+            data-testid="apply-filters-button"
+            style={{ display: expanded ? 'inline-flex' : 'none' }}
           >
             Apply Filters
           </Button>

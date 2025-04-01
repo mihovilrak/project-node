@@ -10,6 +10,7 @@ const Home: React.FC = (): React.ReactElement => {
     <Box>
       {state.settings.welcome_message && (
         <Box 
+          data-testid="welcome-message"
           sx={{ 
             mb: 4,
             '& h1, & h2, & h3': {

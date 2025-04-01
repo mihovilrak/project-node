@@ -5,17 +5,33 @@ import { useHeader } from '../../../hooks/layout/useHeader';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material';
 import type { User } from '../../../types/user';
+import '@testing-library/jest-dom';
+
+// Mock MUI AppBar to capture elevation prop
+jest.mock('@mui/material', () => ({
+  ...jest.requireActual('@mui/material'),
+  AppBar: ({ elevation, children, ...props }: { elevation: number, children: React.ReactNode }) => (
+    <header role="banner" data-elevation={elevation} {...props}>
+      {children}
+    </header>
+  ),
+  Toolbar: ({ children, ...props }: { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+  Box: ({ children, ...props }: { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  )
+}));
 
 // Mock the custom hook
 jest.mock('../../../hooks/layout/useHeader');
-const mockedUseHeader = useHeader as jest.MockedFunction<typeof useHeader>;
 
 // Mock NotificationCenter component
 jest.mock('../../Notifications/NotificationCenter', () => ({
   __esModule: true,
   default: ({ userId }: { userId?: number }) => (
     <div data-testid="notification-center">
-      Notification Center (UserId: {userId})
+      Notification Center (UserId: {userId === undefined ? '' : userId})
     </div>
   ),
 }));
@@ -47,32 +63,33 @@ describe('Header', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useHeader as jest.Mock).mockReset();
   });
 
   it('renders with elevation when scrolled', () => {
-    mockedUseHeader.mockReturnValue({
+    (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
       isScrolled: true
     });
 
     renderHeader();
     const appBar = screen.getByRole('banner');
-    expect(appBar).toHaveStyle({ boxShadow: expect.stringContaining('0px 2px 4px') });
+    expect(appBar).toHaveAttribute('data-elevation', '4');
   });
 
   it('renders without elevation when not scrolled', () => {
-    mockedUseHeader.mockReturnValue({
+    (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
       isScrolled: false
     });
 
     renderHeader();
     const appBar = screen.getByRole('banner');
-    expect(appBar).toHaveStyle({ boxShadow: 'none' });
+    expect(appBar).toHaveAttribute('data-elevation', '0');
   });
 
   it('renders notification center with user id when user is present', () => {
-    mockedUseHeader.mockReturnValue({
+    (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
       isScrolled: false
     });
@@ -83,7 +100,7 @@ describe('Header', () => {
   });
 
   it('renders notification center without user id when user is null', () => {
-    mockedUseHeader.mockReturnValue({
+    (useHeader as jest.Mock).mockReturnValue({
       currentUser: null,
       isScrolled: false
     });

@@ -56,19 +56,14 @@ describe('Projects API', () => {
   };
 
   describe('getProjects', () => {
-    it('should fetch projects with pagination', async () => {
-      const paginatedResponse = {
-        data: [mockProject],
-        total: 1,
-        page: 1,
-        limit: 10
-      };
-      mockedApi.get.mockResolvedValueOnce({ data: paginatedResponse });
+    it('should fetch projects', async () => {
+      const mockProjects = [mockProject];
+      mockedApi.get.mockResolvedValueOnce({ data: mockProjects });
 
       const result = await getProjects();
 
-      expect(mockedApi.get).toHaveBeenCalledWith('/projects?page=1&limit=10');
-      expect(result).toEqual(paginatedResponse);
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects');
+      expect(result).toEqual(mockProjects);
     });
   });
 
@@ -211,7 +206,7 @@ describe('Projects API', () => {
     it('should fetch statuses successfully', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockProjectStatus] });
       const result = await getProjectStatuses();
-      expect(mockedApi.get).toHaveBeenCalledWith('projects/statuses');
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects/statuses');
       expect(result).toEqual([mockProjectStatus]);
     });
   });

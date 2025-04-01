@@ -34,68 +34,79 @@ jest.mock('../PasswordChangeDialog', () => ({
   default: () => <div data-testid="password-change-dialog" />
 }));
 
-// Mock the useProfileData hook
+// Mock functions
 const mockSetEditDialogOpen = jest.fn();
 const mockSetPasswordDialogOpen = jest.fn();
 const mockSetUpdateSuccess = jest.fn();
 const mockHandleProfileUpdate = jest.fn();
 const mockHandleTaskClick = jest.fn();
 
-jest.mock('../../../hooks/profile/useProfileData', () => ({
-  useProfileData: () => ({
-    profile: {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com'
-    },
-    recentTasks: [],
-    recentProjects: [],
-    loading: false,
-    error: null,
-    editDialogOpen: false,
-    passwordDialogOpen: false,
-    updateSuccess: false,
-    setEditDialogOpen: mockSetEditDialogOpen,
-    setPasswordDialogOpen: mockSetPasswordDialogOpen,
-    setUpdateSuccess: mockSetUpdateSuccess,
-    handleProfileUpdate: mockHandleProfileUpdate,
-    handleTaskClick: mockHandleTaskClick,
-    getTypedProfile: () => ({
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com'
-    }),
-    getProfileStats: () => ({
-      totalTasks: 10,
-      completedTasks: 5,
-      activeProjects: 2,
-      totalHours: 100
-    })
+// Create a mock for the useProfileData hook
+const mockUseProfileData = {
+  profile: {
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com'
+  },
+  recentTasks: [],
+  recentProjects: [],
+  loading: false,
+  error: null,
+  editDialogOpen: false,
+  passwordDialogOpen: false,
+  updateSuccess: false,
+  setEditDialogOpen: mockSetEditDialogOpen,
+  setPasswordDialogOpen: mockSetPasswordDialogOpen,
+  setUpdateSuccess: mockSetUpdateSuccess,
+  handleProfileUpdate: mockHandleProfileUpdate,
+  handleTaskClick: mockHandleTaskClick,
+  getTypedProfile: () => ({
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com'
+  }),
+  getProfileStats: () => ({
+    totalTasks: 10,
+    completedTasks: 5,
+    activeProjects: 2,
+    totalHours: 100
   })
+};
+
+// Mock the useProfileData hook
+jest.mock('../../../hooks/profile/useProfileData', () => ({
+  useProfileData: jest.fn()
 }));
+
+// Import the mocked module
+import { useProfileData } from '../../../hooks/profile/useProfileData';
 
 describe('Profile', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Set default mock implementation
+    (useProfileData as jest.Mock).mockReturnValue(mockUseProfileData);
   });
 
   test('renders loading state', () => {
-    jest.mock('../../../hooks/profile/useProfileData', () => ({
-      useProfileData: () => ({
-        loading: true
-      })
-    }));
+    // Override the mock for this specific test
+    (useProfileData as jest.Mock).mockReturnValue({
+      ...mockUseProfileData,
+      loading: true
+    });
+    
     render(<Profile />);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   test('renders error state', () => {
-    jest.mock('../../../hooks/profile/useProfileData', () => ({
-      useProfileData: () => ({
-        loading: false,
-        error: 'Error message'
-      })
-    }));
+    // Override the mock for this specific test
+    (useProfileData as jest.Mock).mockReturnValue({
+      ...mockUseProfileData,
+      loading: false,
+      error: 'Error message'
+    });
+    
     render(<Profile />);
     expect(screen.getByRole('alert')).toHaveTextContent('Error message');
   });
@@ -123,23 +134,23 @@ describe('Profile', () => {
   });
 
   test('shows success alert when update is successful', () => {
-    jest.mock('../../../hooks/profile/useProfileData', () => ({
-      useProfileData: () => ({
-        profile: { id: 1 },
-        updateSuccess: true
-      })
-    }));
+    // Override the mock for this specific test
+    (useProfileData as jest.Mock).mockReturnValue({
+      ...mockUseProfileData,
+      updateSuccess: true
+    });
+    
     render(<Profile />);
     expect(screen.getByText('Profile updated successfully')).toBeInTheDocument();
   });
 
   test('handles success alert dismissal', () => {
-    jest.mock('../../../hooks/profile/useProfileData', () => ({
-      useProfileData: () => ({
-        profile: { id: 1 },
-        updateSuccess: true
-      })
-    }));
+    // Override the mock for this specific test
+    (useProfileData as jest.Mock).mockReturnValue({
+      ...mockUseProfileData,
+      updateSuccess: true
+    });
+    
     render(<Profile />);
     const closeButton = screen.getByRole('button', { name: /close/i });
     fireEvent.click(closeButton);

@@ -25,11 +25,18 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
   const { getWeekDays, getTasksForDay, getTimeLogsForDay } = useCalendarWeek(date, tasks, timeLogs);
   const days = getWeekDays();
 
+  const formatTime = (hours: number): string => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    return `${wholeHours}:${minutes.toString().padStart(2, '0')}`;
+  };
+
   return (
     <Grid container spacing={2}>
       {days.map((day, index) => (
         <Grid item xs={12} key={index}>
           <Paper 
+            role="presentation"
             sx={{ 
               p: 2,
               backgroundColor: day.toDateString() === new Date().toDateString() 
@@ -99,7 +106,7 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
                   {new Date(timeLog.created_on).toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit'
-                  })} - {timeLog.task_name} ({timeLog.spent_time} minutes)
+                  })} - {timeLog.task_name} ({formatTime(timeLog.spent_time)} hours)
                 </Typography>
               </Paper>
             ))}

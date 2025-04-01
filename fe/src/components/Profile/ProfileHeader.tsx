@@ -14,6 +14,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
         src={user.avatar_url || undefined}
         alt={`${user.name} ${user.surname}`}
         sx={{ width: 80, height: 80 }}
+        data-testid="user-avatar"
       />
       <Box>
         <Typography variant="h4" gutterBottom>

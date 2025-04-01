@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import CalendarWeekView from '../CalendarWeekView';
 import { Task } from '../../../types/task';
 import { TimeLog } from '../../../types/timeLog';
+import { ThemeProvider, createTheme } from '@mui/material';
 
 // Mock useNavigate
 const mockedNavigate = jest.fn();
@@ -24,8 +25,14 @@ jest.mock('../../../hooks/calendar/useCalendarWeek', () => ({
       new Date('2023-01-06'),
       new Date('2023-01-07'),
     ],
-    getTasksForDay: () => mockTasks,
-    getTimeLogsForDay: () => mockTimeLogs,
+    getTasksForDay: (day: Date) => {
+      // Only return tasks for January 1st
+      return day.toDateString() === new Date('2023-01-01').toDateString() ? mockTasks : [];
+    },
+    getTimeLogsForDay: (day: Date) => {
+      // Only return time logs for January 1st
+      return day.toDateString() === new Date('2023-01-01').toDateString() ? mockTimeLogs : [];
+    },
   }),
 }));
 
@@ -67,7 +74,7 @@ const mockTimeLogs: TimeLog[] = [
     user_id: 1,
     activity_type_id: 1,
     log_date: '2023-01-01',
-    spent_time: 60,
+    spent_time: 1.5,
     description: 'Test Time Log',
     created_on: '2023-01-01T10:00:00',
     updated_on: null,
@@ -75,6 +82,8 @@ const mockTimeLogs: TimeLog[] = [
     activity_type_color: '#FF0000'
   }
 ];
+
+const theme = createTheme();
 
 const defaultProps = {
   date: new Date('2023-01-01'),
@@ -87,14 +96,17 @@ const defaultProps = {
   onTimeLogClick: jest.fn()
 };
 
-describe('CalendarWeekView', () => {
-  const renderCalendarWeekView = () =>
-    render(
+const renderCalendarWeekView = () => {
+  render(
+    <ThemeProvider theme={theme}>
       <MemoryRouter>
         <CalendarWeekView {...defaultProps} />
       </MemoryRouter>
-    );
+    </ThemeProvider>
+  );
+};
 
+describe('CalendarWeekView', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -107,26 +119,28 @@ describe('CalendarWeekView', () => {
 
   test('renders tasks with correct information', () => {
     renderCalendarWeekView();
-    expect(screen.getByText(/Test Task/)).toBeInTheDocument();
-    expect(screen.getByText(/High\/Should/)).toBeInTheDocument();
-    expect(screen.getByText(/New/)).toBeInTheDocument();
+    const taskElement = screen.getAllByText(/09:00.*Test Task/)[0]; // Get first occurrence
+    expect(taskElement).toBeInTheDocument();
+    expect(screen.getByText(/High\/Should/i)).toBeInTheDocument();
+    expect(screen.getByText('New')).toBeInTheDocument();
   });
 
   test('renders time logs with correct information', () => {
     renderCalendarWeekView();
-    expect(screen.getByText(/Test Task \(60 minutes\)/)).toBeInTheDocument();
+    const timeLogElement = screen.getAllByText(/Test Task \(1:30 hours\)/)[0];
+    expect(timeLogElement).toBeInTheDocument();
   });
 
   test('handles task click', () => {
     renderCalendarWeekView();
-    const taskElement = screen.getByText(/Test Task/);
+    const taskElement = screen.getAllByText(/09:00.*Test Task/)[0]; // Get first occurrence
     fireEvent.click(taskElement);
     expect(defaultProps.onTaskClick).toHaveBeenCalledWith(1);
   });
 
   test('handles time log click', () => {
     renderCalendarWeekView();
-    const timeLogElement = screen.getByText(/Test Task \(60 minutes\)/);
+    const timeLogElement = screen.getAllByText(/Test Task \(1:30 hours\)/)[0];
     fireEvent.click(timeLogElement);
     expect(defaultProps.onTimeLogClick).toHaveBeenCalledWith(1);
   });
@@ -140,23 +154,28 @@ describe('CalendarWeekView', () => {
   });
 
   test('highlights current day', () => {
-    // Mock current date to match one of the days
-    jest.useFakeTimers().setSystemTime(new Date('2023-01-01'));
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2023-01-01'));
+
     renderCalendarWeekView();
     
-    const papers = screen.getAllByRole('article');
-    const todayPaper = papers.find(paper => 
-      paper.style.backgroundColor === 'var(--action-hover)'
+    const papers = screen.getAllByRole('presentation');
+    const todayPaper = papers.find(
+      paper => paper.textContent?.includes('Sunday, January 1')
     );
+    
     expect(todayPaper).toBeTruthy();
+    expect(todayPaper).toHaveStyle({
+      backgroundColor: theme.palette.action.hover
+    });
     
     jest.useRealTimers();
   });
 
   test('formats dates correctly', () => {
     renderCalendarWeekView();
-    const task = screen.getByText(/09:00/);
-    expect(task).toBeInTheDocument();
+    const taskElement = screen.getAllByText(/09:00/)[0];
+    expect(taskElement).toBeInTheDocument();
     expect(screen.getByText(/17:00/)).toBeInTheDocument();
   });
 });
