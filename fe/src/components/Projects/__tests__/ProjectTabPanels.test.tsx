@@ -77,7 +77,8 @@ describe('ProjectTabPanels', () => {
   it('renders time logs tab when activeTab is 3', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={3} />);
     expect(screen.getByTestId('time-log-list')).toBeInTheDocument();
-    expect(screen.getByText('Time Logs')).toBeInTheDocument();
+    // Using role to find the Typography component with Time Logs text
+    expect(screen.getByRole('heading', { name: 'Time Logs' })).toBeInTheDocument();
     expect(screen.getByText('Log Time')).toBeInTheDocument();
   });
 
@@ -107,10 +108,16 @@ describe('ProjectTabPanels', () => {
   it('hides tabs content when activeTab does not match', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={0} />);
     expect(screen.getByTestId('project-overview')).toBeVisible();
-    expect(screen.queryByTestId('project-task-list')).not.toBeVisible();
-    expect(screen.queryByTestId('project-members-list')).not.toBeVisible();
-    expect(screen.queryByTestId('time-log-list')).not.toBeVisible();
-    expect(screen.queryByTestId('project-gantt')).not.toBeVisible();
+    
+    // The first tab panel should be visible (not hidden) with activeTab=0
+    const tabPanels = screen.getAllByRole('tabpanel');
+    expect(tabPanels[0]).not.toHaveAttribute('hidden');
+    
+    // Other content should be hidden
+    expect(screen.queryByTestId('project-task-list')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('project-members-list')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('time-log-list')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('project-gantt')).not.toBeInTheDocument();
   });
 
   it('passes correct props to ProjectMembersList', () => {

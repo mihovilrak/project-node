@@ -218,6 +218,7 @@ export interface TaskDetailsState {
 
 export interface TaskFormActionButtonsProps {
   isEditing: boolean;
+  onCancel?: () => void;
 }
 
 export interface AssigneeSelectionSectionProps {

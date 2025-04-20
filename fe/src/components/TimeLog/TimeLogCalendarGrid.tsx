@@ -29,9 +29,9 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
         const logs = getTimeLogsForDate(day, timeLogs);
         
         return (
-          <Grid item xs={12/7} key={day.toString()}>
+          <Grid item xs={12/7} key={day.toString()} role="gridcell">
             <Tooltip title={
-              <Box>
+              <Box data-testid="timelog-tooltip">
                 <Typography variant="subtitle2">
                   {format(day, 'MMMM d, yyyy')}
                 </Typography>
@@ -43,6 +43,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
               </Box>
             }>
               <Paper
+                data-testid="timelog-day-paper"
                 elevation={isToday(day) ? 3 : 1}
                 sx={{
                   p: 1,

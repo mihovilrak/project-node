@@ -53,7 +53,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2 }} data-testid="filter-panel">
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <Box sx={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           {getAppliedFilters(options).map((filter) => (
@@ -105,9 +105,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 </FormControl>
               ) : (
                 <TextField
-                  label={field}
-                  value={filters[field as keyof typeof filters] || ''}
-                  onChange={(e) => handleFilterChange(field as keyof typeof filters, e.target.value)}
+                  label={field === 'search' ? 'Search' : field}
+                  value={filters[getFilterField(field)] || ''}
+                  onChange={(e) => handleFilterChange(getFilterField(field), e.target.value)}
                   fullWidth
                   size="small"
                   type="text"

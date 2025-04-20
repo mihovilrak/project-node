@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { ProjectSelect } from '../ProjectSelect';
 import { Project } from '../../../types/project';
 import { TaskFormState } from '../../../types/task';
@@ -80,51 +79,76 @@ describe('ProjectSelect', () => {
 
   test('renders with correct label', () => {
     renderProjectSelect();
-    expect(screen.getByLabelText('Project')).toBeInTheDocument();
+    // Material-UI select doesn't use textbox role, it uses button role
+    const selectElement = screen.getByLabelText(/project/i);
+    expect(selectElement).toBeInTheDocument();
   });
 
   test('displays all projects', () => {
     renderProjectSelect();
+    // Open the select dropdown
+    const selectElement = screen.getByLabelText(/project/i);
+    fireEvent.mouseDown(selectElement);
+    
+    const listbox = document.querySelector('[role="listbox"]');
+    expect(listbox).not.toBeNull();
+    
     mockProjects.forEach(project => {
-      expect(screen.getByText(project.name)).toBeInTheDocument();
+      expect(within(listbox as HTMLElement).getByText(project.name)).toBeInTheDocument();
     });
   });
 
   test('calls handleChange when selection changes', () => {
     renderProjectSelect();
-    const select = screen.getByLabelText('Project');
-    fireEvent.change(select, { target: { value: 2 } });
+    // Open the select dropdown
+    const selectElement = screen.getByLabelText(/project/i);
+    fireEvent.mouseDown(selectElement);
+    
+    // Get options from the dropdown in the portal
+    const listbox = document.querySelector('[role="listbox"]');
+    expect(listbox).not.toBeNull();
+    
+    // Select the second option
+    const options = within(listbox as HTMLElement).getAllByRole('option');
+    fireEvent.click(options[1]); // Second project
+    
     expect(mockHandleChange).toHaveBeenCalled();
   });
 
   test('uses correct initial value from formData', () => {
-    renderProjectSelect();
-    const select = screen.getByLabelText('Project');
-    expect(select).toHaveValue('1');
+    const { container } = renderProjectSelect();
+    // Find the select input's displayed value
+    expect(screen.getByText('Project Alpha')).toBeInTheDocument();
   });
 
   test('is disabled when projectIdFromQuery is provided', () => {
-    renderProjectSelect('1');
-    const select = screen.getByLabelText('Project');
-    expect(select).toBeDisabled();
+    const { container } = renderProjectSelect('1');
+    
+    const selectElement = container.querySelector('input[name="project_id"]');
+    expect(selectElement).not.toBeNull();
+    expect(selectElement).toHaveAttribute('disabled');
   });
 
   test('is enabled when projectIdFromQuery is null', () => {
-    renderProjectSelect(null);
-    const select = screen.getByLabelText('Project');
-    expect(select).not.toBeDisabled();
+    const { container } = renderProjectSelect(null);
+    
+    const selectElement = container.querySelector('input[name="project_id"]');
+    expect(selectElement).not.toBeNull();
+    expect(selectElement).not.toHaveAttribute('disabled');
   });
 
   test('applies full width style', () => {
     renderProjectSelect();
-    const textField = screen.getByLabelText('Project');
-    expect(textField.parentElement).toHaveStyle({ width: '100%' });
+    // Find the containing div instead of the input directly
+    const formControl = screen.getByTestId('ProjectSelectFormControl');
+    expect(formControl).toHaveStyle({ width: '100%' });
   });
 
   test('is marked as required', () => {
     renderProjectSelect();
-    const select = screen.getByLabelText('Project');
-    expect(select).toBeRequired();
+    const label = screen.getByText('Project');
+    // Check if the label has a required indicator
+    expect(label.textContent).toMatch(/Project.?\*/);
   });
 
   test('handles empty projects array', () => {
@@ -135,8 +159,16 @@ describe('ProjectSelect', () => {
         handleChange={mockHandleChange}
       />
     );
-    const select = screen.getByLabelText('Project');
-    expect(select).toBeInTheDocument();
-    expect(screen.queryByRole('option')).toBeNull();
+    
+    // The select should still render
+    const selectElement = screen.getByTestId('ProjectSelectFormControl');
+    expect(selectElement).toBeInTheDocument();
+    
+    // Open dropdown
+    fireEvent.mouseDown(selectElement);
+    
+    // Should have no options
+    const options = document.querySelectorAll('[role="option"]');
+    expect(options.length).toBe(0);
   });
 });

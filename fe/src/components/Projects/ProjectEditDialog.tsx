@@ -57,7 +57,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
       <DialogTitle>Edit Project</DialogTitle>
       <DialogContent>
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={{ mb: 2 }} data-testid="error-alert">
             {error}
           </Alert>
         )}
@@ -65,42 +65,50 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
           <Grid item xs={12}>
             <TextField
               label="Name"
+              name="name"
               value={formData.name}
               onChange={handleTextChange('name')}
               fullWidth
               required
+              data-testid="project-name-input"
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
               label="Description"
+              name="description"
               value={formData.description || ''}
               onChange={handleTextChange('description')}
               fullWidth
               multiline
               rows={3}
+              data-testid="project-description-input"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Start Date"
               type="date"
+              name="start_date"
               value={formData.start_date}
               onChange={handleTextChange('start_date')}
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              data-testid="project-start-date-input"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Due Date"
               type="date"
+              name="due_date"
               value={formData.due_date}
               onChange={handleTextChange('due_date')}
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
+              data-testid="project-due-date-input"
             />
           </Grid>
           <Grid item xs={12}>
@@ -109,7 +117,9 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               <Select
                 value={formData.status_id}
                 label="Status"
+                name="status_id"
                 onChange={handleStatusChange}
+                data-testid="project-status-select"
               >
                 {statuses.map(status => (
                   <MenuItem key={status.id} value={status.id}>
@@ -122,10 +132,10 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
+        <Button onClick={onClose} disabled={loading} data-testid="cancel-button">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button onClick={handleSubmit} disabled={loading} data-testid="save-button">
           Save Changes
         </Button>
       </DialogActions>

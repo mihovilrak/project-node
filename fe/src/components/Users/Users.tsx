@@ -86,14 +86,15 @@ const Users: React.FC = () => {
     <Box p={3}>
       <Typography variant="h4" gutterBottom>User Management</Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <Button variant="contained" color="primary" onClick={() => navigate('/users/new')}>
+        <Button variant="contained" color="primary" onClick={() => navigate('/users/new')} data-testid="add-user-btn">
           Add New User
         </Button>
-        <Select 
-          value={sortOrder} 
-          onChange={handleSortChange} 
+        <Select
+          value={sortOrder}
+          onChange={handleSortChange}
           size="small"
-          sx={{ minWidth: 120 }}
+          sx={{ minWidth: 100, ml: 2 }}
+          inputProps={{ 'data-testid': 'sort-select' }}
         >
           <MenuItem value="asc">A-Z</MenuItem>
           <MenuItem value="desc">Z-A</MenuItem>
@@ -116,9 +117,9 @@ const Users: React.FC = () => {
                 <Typography variant="body2">Email: {user.email}</Typography>
                 <Typography variant="body2">Role: {user.role_name}</Typography>
                 <Box marginTop={2}>
-                  <Button variant="contained" color="primary" onClick={() => navigate(`/users/${user.id}`)}>View</Button>
-                  <Button variant="contained" color="warning" onClick={() => navigate(`/users/${user.id}/edit`)} sx={{ ml: 1 }}>Edit</Button>
-                  <Button variant="contained" color="error" onClick={() => handleDelete(user.id)} sx={{ ml: 1 }}>Delete</Button>
+                  <Button variant="contained" color="primary" onClick={() => navigate(`/users/${user.id}`)} data-testid="view-user-btn">View</Button>
+                  <Button variant="contained" color="warning" onClick={() => navigate(`/users/${user.id}/edit`)} sx={{ ml: 1 }} data-testid="edit-user-btn">Edit</Button>
+                  <Button variant="contained" color="error" onClick={() => handleDelete(user.id)} sx={{ ml: 1 }} data-testid={`delete-user-${user.id}`}>Delete</Button>
                 </Box>
               </CardContent>
             </Card>

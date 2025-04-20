@@ -54,8 +54,10 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
       width: '100%'
     }}>
       <FormControl fullWidth disabled={isProjectReadOnly}>
-        <InputLabel>Project</InputLabel>
+        <InputLabel id="project-label">Project</InputLabel>
         <Select
+          labelId="project-label"
+          id="project-select"
           value={selectedProjectId?.toString() || ''}
           onChange={(e: SelectChangeEvent) => onProjectChange(Number(e.target.value), tasks)}
           label="Project"
@@ -70,8 +72,10 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
       </FormControl>
 
       <FormControl fullWidth disabled={isTaskReadOnly}>
-        <InputLabel>Task</InputLabel>
+        <InputLabel id="task-label">Task</InputLabel>
         <Select
+          labelId="task-label"
+          id="task-select"
           value={selectedTaskId?.toString() || ''}
           onChange={(e: SelectChangeEvent) => onTaskChange(Number(e.target.value), tasks)}
           label="Task"
@@ -86,8 +90,10 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
       </FormControl>
 
       <FormControl fullWidth>
-        <InputLabel>Activity Type</InputLabel>
+        <InputLabel id="activity-type-label">Activity Type</InputLabel>
         <Select
+          labelId="activity-type-label"
+          id="activity-type-select"
           value={selectedActivityTypeId?.toString() || ''}
           onChange={(e: SelectChangeEvent) => onActivityTypeChange(Number(e.target.value))}
           label="Activity Type"
@@ -103,8 +109,10 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
 
       {showUserSelect && (
         <FormControl fullWidth>
-          <InputLabel>User</InputLabel>
+          <InputLabel id="user-label">User</InputLabel>
           <Select
+            labelId="user-label"
+            id="user-select"
             value={selectedUserId?.toString() || ''}
             onChange={(e: SelectChangeEvent) => onUserChange(Number(e.target.value))}
             label="User"

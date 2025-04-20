@@ -34,7 +34,7 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} role="form" aria-label="activity-type-form">
         <DialogTitle>
           {activityType ? 'Edit Activity Type' : 'Create Activity Type'}
         </DialogTitle>

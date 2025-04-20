@@ -52,7 +52,7 @@ const Projects: React.FC = () => {
   if (loading) return <Typography>Loading projects...</Typography>;
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: '100%', p: 3 }} data-testid="projects-container">
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>Projects</Typography>
         <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -62,11 +62,14 @@ const Projects: React.FC = () => {
             size="small"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            data-testid="project-filter"
           />
           <Select 
             value={sortOrder} 
             onChange={handleSortChange} 
             size="small"
+            data-testid="project-sort"
+            aria-label="Sort Order"
           >
             <MenuItem value="asc">Ascending</MenuItem>
             <MenuItem value="desc">Descending</MenuItem>
@@ -76,6 +79,7 @@ const Projects: React.FC = () => {
             variant="contained" 
             color="primary" 
             onClick={handleCreateProject}
+            data-testid="create-project-button"
           >
             Create New Project
           </Button>
@@ -88,7 +92,12 @@ const Projects: React.FC = () => {
       <Grid container spacing={3}>
         {filteredProjects.map((project) => (
           <Grid item xs={12} sm={6} lg={4} key={project.id}>
-            <Card onClick={() => navigate(`/projects/${project.id}`)}>
+            <Card 
+              onClick={() => navigate(`/projects/${project.id}`)}
+              data-testid={`project-card-${project.id}`}
+              role="button"
+              aria-label={`View project ${project.name}`}
+            >
               <CardContent>
                 <Typography variant="h6">{project.name}</Typography>
                 <Typography variant="body2">{project.description}</Typography>

@@ -96,9 +96,25 @@ describe('RoleDialog', () => {
   });
 
   test('handles form submission error', async () => {
-    const error = new Error('Failed to save role');
+    const errorMessage = 'Failed to save role';
     defaultProps.onSave.mockRejectedValueOnce({
-      response: { data: { error: error.message } }
+      response: { data: { error: errorMessage } }
+    });
+    
+    const mockSetError = jest.fn();
+    mockUseRoleDialog.mockReturnValue({
+      formData: {
+        name: '',
+        description: '',
+        active: true,
+        permissions: []
+      },
+      error: undefined,
+      groupedPermissions: mockGroupedPermissions,
+      handleChange: jest.fn(),
+      handlePermissionToggle: jest.fn(),
+      clearError: jest.fn(),
+      setError: mockSetError
     });
     
     render(<RoleDialog {...defaultProps} />);
@@ -106,7 +122,7 @@ describe('RoleDialog', () => {
     fireEvent.submit(screen.getByRole('form'));
     
     await waitFor(() => {
-      expect(screen.getByText(error.message)).toBeInTheDocument();
+      expect(mockSetError).toHaveBeenCalledWith(errorMessage);
     });
   });
 

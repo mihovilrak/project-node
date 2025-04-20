@@ -2,13 +2,19 @@ import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 
 // Mock window.matchMedia
-window.matchMedia = window.matchMedia || function() {
-  return {
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
-    addListener: function() {},
-    removeListener: function() {}
-  };
-};
+    media: query,
+    onchange: null,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    dispatchEvent: jest.fn(),
+  })),
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {

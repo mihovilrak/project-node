@@ -213,8 +213,26 @@ describe('TaskDetails', () => {
     });
 
     (TaskDetailsHandlers.useTaskDetailsHandlers as jest.Mock).mockReturnValue({
-      ...TaskDetailsHandlers,
-      handleStatusMenuClose: mockHandleStatusMenuClose
+      state: {
+        statusMenuAnchor: null,
+        editingComment: null,
+        timeLogDialogOpen: false,
+        selectedTimeLog: null,
+        watcherDialogOpen: false
+      },
+      handleStatusMenuClick: jest.fn(),
+      handleStatusMenuClose: mockHandleStatusMenuClose,
+      handleStatusChange: mockHandleStatusChange,
+      handleSaveComment: jest.fn(),
+      handleEditStart: jest.fn(),
+      handleTimeLogSubmit: jest.fn(),
+      handleTimeLogEdit: jest.fn(),
+      handleTimeLogDialogClose: jest.fn(),
+      handleAddSubtaskClick: jest.fn(),
+      handleSubtaskUpdate: jest.fn(),
+      handleSubtaskDelete: jest.fn(),
+      handleWatcherDialogOpen: jest.fn(),
+      handleWatcherDialogClose: jest.fn()
     });
 
     renderTaskDetails();

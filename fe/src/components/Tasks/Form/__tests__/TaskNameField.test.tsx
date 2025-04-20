@@ -64,9 +64,9 @@ describe('TaskNameField', () => {
 
   it('has full width style', () => {
     render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
-    
-    const textField = screen.getByRole('textbox', { name: /name/i }).parentElement;
-    expect(textField).toHaveClass('MuiTextField-root');
-    expect(textField).toHaveStyle({ width: '100%' });
+    const input = screen.getByRole('textbox', { name: /name/i });
+    const textFieldRoot = input.closest('.MuiTextField-root');
+    expect(textFieldRoot).toBeInTheDocument();
+    expect(textFieldRoot).toHaveStyle({ width: '100%' });
   });
 });

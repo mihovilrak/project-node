@@ -131,11 +131,17 @@ describe('TaskTypesTable', () => {
       />
     );
 
-    const colorBoxes = screen.getAllByRole('cell').filter(
-      cell => cell.children[0]?.tagName === 'DIV'
-    );
-
-    expect(colorBoxes[0].children[0]).toHaveStyle({ backgroundColor: '#2196f3' });
-    expect(colorBoxes[1].children[0]).toHaveStyle({ backgroundColor: '#f44336' });
+    // Use data-testid to reliably find color boxes
+    const firstColorBox = screen.getByTestId('color-box-1');
+    const secondColorBox = screen.getByTestId('color-box-2');
+    
+    // Verify the elements exist
+    expect(firstColorBox).toBeInTheDocument();
+    expect(secondColorBox).toBeInTheDocument();
+    
+    // Verify the color boxes have the correct background colors
+    // Check computed style instead of inline style attributes
+    expect(window.getComputedStyle(firstColorBox).backgroundColor).toBe('rgb(33, 150, 243)');
+    expect(window.getComputedStyle(secondColorBox).backgroundColor).toBe('rgb(244, 67, 54)');
   });
 });

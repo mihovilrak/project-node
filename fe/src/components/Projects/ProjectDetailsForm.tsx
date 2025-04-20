@@ -138,10 +138,19 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         )}
 
         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button onClick={handleCancel} color="inherit">
+          <Button 
+            onClick={handleCancel} 
+            color="inherit"
+            data-testid="cancel-button"
+          >
             Cancel
           </Button>
-          <Button onClick={onSubmit} variant="contained" color="primary">
+          <Button 
+            onClick={onSubmit} 
+            variant="contained" 
+            color="primary"
+            data-testid="next-button"
+          >
             Next
           </Button>
         </Box>

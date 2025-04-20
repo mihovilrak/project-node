@@ -3,3 +3,5 @@
 instructions.md
 db/backup/
 .obsolete
+*.test.txt
+*/run_tests.sh

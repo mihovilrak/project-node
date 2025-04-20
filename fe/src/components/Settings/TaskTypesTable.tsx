@@ -58,6 +58,7 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
               <TableCell>{type.description}</TableCell>
               <TableCell>
                 <Box
+                  data-testid={`color-box-${type.id}`}
                   sx={{
                     width: 24,
                     height: 24,

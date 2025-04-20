@@ -6,6 +6,15 @@ export const TaskProgressField: React.FC<TaskProgressFieldProps> = ({
   value,
   handleChange
 }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleChange({
+      target: {
+        name: e.target.name,
+        value: e.target.value
+      }
+    });
+  };
+
   return (
     <TextField
       fullWidth
@@ -13,7 +22,7 @@ export const TaskProgressField: React.FC<TaskProgressFieldProps> = ({
       label="Progress (%)"
       name="progress"
       value={value}
-      onChange={handleChange}
+      onChange={handleInputChange}
       inputProps={{
         min: 0,
         max: 100,

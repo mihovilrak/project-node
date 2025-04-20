@@ -123,6 +123,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
             handleParentChange={handleParentChange}
             handleCancel={handleCancel}
             onSubmit={handleDetailsSubmit}
+            data-testid="project-details-form"
           />
         ) : (
           <ProjectMembersForm
@@ -132,6 +133,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
             onUserSelect={handleUserSelect}
             onBack={() => setStep('details')}
             onSubmit={handleMembersSubmit}
+            data-testid="project-members-form"
           />
         )}
       </form>

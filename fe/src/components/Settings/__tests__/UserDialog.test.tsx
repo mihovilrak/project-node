@@ -3,7 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import UserDialog from '../UserDialog';
 import { useUserDialog } from '../../../hooks/setting/useUserDialog';
 import { User } from '../../../types/user';
-import userEvent from '@testing-library/user-event';
 
 // Mock the custom hook
 jest.mock('../../../hooks/setting/useUserDialog');
@@ -56,17 +55,27 @@ describe('UserDialog', () => {
   it('renders create user dialog correctly', () => {
     render(<UserDialog {...defaultProps} />);
     
-    expect(screen.getByText('Create New User')).toBeInTheDocument();
-    expect(screen.getByLabelText('Login')).toBeEnabled();
-    expect(screen.getByLabelText('Password')).toBeRequired();
+    expect(screen.getByRole('heading', { name: 'Create New User' })).toBeInTheDocument();
+    
+    // Using more reliable selectors
+    const loginInput = screen.getByRole('textbox', { name: /login/i });
+    expect(loginInput).toBeEnabled();
+    
+    // For password fields, use direct DOM query
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    expect(passwordInputs[0]).toBeRequired();
   });
 
   it('renders edit user dialog correctly', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
     
-    expect(screen.getByText(`Edit user ${mockUser.name} ${mockUser.surname}`)).toBeInTheDocument();
-    expect(screen.getByLabelText('Login')).toBeDisabled();
-    expect(screen.getByLabelText('New Password (leave empty to keep current)')).not.toBeRequired();
+    expect(screen.getByRole('heading', { name: `Edit user ${mockUser.name} ${mockUser.surname}` })).toBeInTheDocument();
+    
+    const loginInput = screen.getByRole('textbox', { name: /login/i });
+    expect(loginInput).toBeDisabled();
+    
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    expect(passwordInputs[0]).not.toBeRequired();
   });
 
   it('displays error message when error exists', () => {
@@ -96,56 +105,58 @@ describe('UserDialog', () => {
 
     render(<UserDialog {...defaultProps} />);
     
-    const submitButton = screen.getByText('Create User');
-    fireEvent.click(submitButton);
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
     
-    expect(mockHandleSubmit).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockHandleSubmit).toHaveBeenCalled();
+    });
   });
 
   it('calls onClose when cancel button is clicked', () => {
     render(<UserDialog {...defaultProps} />);
     
-    const cancelButton = screen.getByText('Cancel');
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
     fireEvent.click(cancelButton);
     
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
-  it('shows correct role options', () => {
+  it('shows correct role options', async () => {
     render(<UserDialog {...defaultProps} />);
     
-    const roleSelect = screen.getByLabelText('Role');
+    // Open the select dropdown
+    const roleSelect = screen.getByLabelText(/role/i);
     fireEvent.mouseDown(roleSelect);
     
-    expect(screen.getByText('Admin')).toBeInTheDocument();
-    expect(screen.getByText('Project Manager')).toBeInTheDocument();
-    expect(screen.getByText('Devleoper')).toBeInTheDocument();
-    expect(screen.getByText('Reporter')).toBeInTheDocument();
+    // Wait for options to appear in the dropdown
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Manager' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'User' })).toBeInTheDocument();
+    });
   });
 
-  it('validates required fields', async () => {
+  it('validates required fields in create mode', () => {
     render(<UserDialog {...defaultProps} />);
     
-    const requiredFields = [
-      'Login',
-      'First Name',
-      'Last Name',
-      'Email',
-      'Password'
-    ];
-
-    requiredFields.forEach(fieldLabel => {
-      const field = screen.getByLabelText(fieldLabel);
-      expect(field).toBeRequired();
-    });
+    // For text fields
+    expect(screen.getByRole('textbox', { name: /login/i })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: /first name/i })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: /last name/i })).toBeRequired();
+    expect(screen.getByRole('textbox', { name: /email/i })).toBeRequired();
+    
+    // For password field
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    expect(passwordInputs[0]).toBeRequired();
   });
 
   it('pre-fills form data for existing user', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
     
-    expect(screen.getByLabelText('Login')).toHaveValue(mockUser.login);
-    expect(screen.getByLabelText('First Name')).toHaveValue(mockUser.name);
-    expect(screen.getByLabelText('Last Name')).toHaveValue(mockUser.surname);
-    expect(screen.getByLabelText('Email')).toHaveValue(mockUser.email);
+    expect(screen.getByRole('textbox', { name: /login/i })).toHaveValue(mockUser.login);
+    expect(screen.getByRole('textbox', { name: /first name/i })).toHaveValue(mockUser.name);
+    expect(screen.getByRole('textbox', { name: /last name/i })).toHaveValue(mockUser.surname);
+    expect(screen.getByRole('textbox', { name: /email/i })).toHaveValue(mockUser.email);
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TaskStatusSelect } from '../TaskStatusSelect';
 import { TaskStatus, TaskFormState } from '../../../../types/task';
 
@@ -54,28 +54,32 @@ describe('TaskStatusSelect', () => {
 
   it('renders status select field correctly', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    expect(screen.getByLabelText('Status')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Status/i })).toBeInTheDocument();
   });
 
-  it('displays all status options', () => {
+  it('displays all status options', async () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const select = screen.getByLabelText('Status');
+    const select = screen.getByRole('combobox', { name: /Status/i });
     fireEvent.mouseDown(select);
-    
+
+    const options = await screen.findAllByRole('option');
+    const optionTexts = options.map(opt => opt.textContent);
     mockStatuses.forEach(status => {
-      expect(screen.getByText(status.name)).toBeInTheDocument();
+      expect(optionTexts).toContain(status.name);
     });
   });
 
   it('shows the selected status', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const select = screen.getByLabelText('Status') as HTMLInputElement;
-    expect(select.value).toBe('1');
+    // Check the visible value in the select's display element
+    const selectDisplay = document.querySelector('.MuiSelect-select');
+    expect(selectDisplay).toBeTruthy();
+    expect(selectDisplay?.textContent).toBe('New'); // defaultProps.status_id is 1, which is 'New'
   });
 
   it('calls handleChange when a new status is selected', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const select = screen.getByLabelText('Status');
+    const select = screen.getByRole('combobox', { name: /Status/i });
     
     fireEvent.mouseDown(select);
     fireEvent.click(screen.getByText('In Progress'));
@@ -85,19 +89,19 @@ describe('TaskStatusSelect', () => {
 
   it('has required attribute', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const select = screen.getByLabelText('Status');
+    const select = screen.getByRole('combobox', { name: /Status/i });
     expect(select).toBeRequired();
   });
 
   it('renders as full width', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const textField = screen.getByLabelText('Status').closest('.MuiTextField-root');
+    const textField = screen.getByRole('combobox', { name: /Status/i }).closest('.MuiTextField-root');
     expect(textField).toHaveStyle({ width: '100%' });
   });
 
   it('has proper margin bottom styling', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const textField = screen.getByLabelText('Status').closest('.MuiTextField-root');
+    const textField = screen.getByRole('combobox', { name: /Status/i }).closest('.MuiTextField-root');
     expect(textField).toHaveStyle({ marginBottom: '16px' });
   });
 });

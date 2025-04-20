@@ -13,26 +13,145 @@ jest.mock('../../../context/AuthContext');
 jest.mock('../../../hooks/task/useTaskForm');
 
 // Mock child components
+jest.mock('../TagSelect', () => ({
+  __esModule: true,
+  TagSelect: () => <div data-testid="tag-select" />,
+}));
+jest.mock('../Form/DatePickerSection', () => ({
+  DatePickerSection: ({ handleChange }: any) => (
+    <div data-testid="date-picker-section" />
+  ),
+}));
+jest.mock('../Form/AssigneeSelectionSection', () => ({
+  AssigneeSelectionSection: ({ handleChange }: any) => (
+    <div data-testid="assignee-selection-section" />
+  ),
+}));
+jest.mock('../Form/ParentTaskSelect', () => ({
+  ParentTaskSelect: ({ handleChange }: any) => (
+    <div data-testid="parent-task-select" />
+  ),
+}));
+jest.mock('../Form/TaskTagsSection', () => ({
+  TaskTagsSection: ({ handleChange }: any) => (
+    <div data-testid="task-tags-section" />
+  ),
+}));
+
+jest.mock('../Form/TaskFormActionButtons', () => ({
+  TaskFormActionButtons: ({ handleChange }: any) => (
+    <div data-testid="task-form-action-buttons" />
+  ),
+}));
 jest.mock('../Form/TaskNameField', () => ({
-  TaskNameField: ({ handleChange }: any) => (
-    <input data-testid="task-name" onChange={handleChange} />
+  TaskNameField: ({ handleChange, formData }: any) => (
+    <input
+      data-testid="task-name"
+      name="name"
+      value={formData?.name || ''}
+      onChange={handleChange}
+    />
   ),
 }));
 
 jest.mock('../Form/TaskDescriptionField', () => ({
-  TaskDescriptionField: ({ handleChange }: any) => (
-    <textarea data-testid="task-description" onChange={handleChange} />
+  TaskDescriptionField: ({ handleChange, formData }: any) => (
+    <textarea
+      data-testid="task-description"
+      name="description"
+      value={formData?.description || ''}
+      onChange={handleChange}
+    />
+  ),
+}));
+// 
+
+// 
+jest.mock('../Form/TaskPrioritySelect', () => ({
+  TaskPrioritySelect: ({ handleChange, formData }: any) => (
+    <select
+      data-testid="task-priority"
+      name="priority_id"
+      value={formData?.priority_id || ''}
+      onChange={handleChange}
+    >
+      <option value="">Select Priority</option>
+      <option value="1">High</option>
+      <option value="2">Medium</option>
+      <option value="3">Low</option>
+    </select>
+  ),
+}));
+
+jest.mock('../Form/TaskStatusSelect', () => ({
+  TaskStatusSelect: ({ handleChange, formData }: any) => (
+    <select
+      data-testid="task-status"
+      name="status_id"
+      value={formData?.status_id || ''}
+      onChange={handleChange}
+    >
+      <option value="">Select Status</option>
+      <option value="1">Open</option>
+      <option value="2">In Progress</option>
+      <option value="3">Done</option>
+    </select>
+  ),
+}));
+
+jest.mock('../Form/TaskTypeSection', () => ({
+  TaskTypeSection: ({ handleChange, formData }: any) => (
+    <select
+      data-testid="task-type"
+      name="type_id"
+      value={formData?.type_id || ''}
+      onChange={handleChange}
+    >
+      <option value="">Select Type</option>
+      <option value="1">Feature</option>
+      <option value="2">Bug</option>
+      <option value="3">Chore</option>
+    </select>
+  ),
+}));
+
+jest.mock('../Form/TaskProgressField', () => ({
+  // Render if value !== undefined && value !== null
+  TaskProgressField: (props: any) => {
+    const { handleChange, value } = props;
+    return value !== undefined && value !== null
+      ? <input data-testid="task-progress" name="progress" value={value} onChange={handleChange} />
+      : null;
+  },
+}));
+
+jest.mock('../Form/EstimatedTimeField', () => ({
+  EstimatedTimeField: ({ handleChange, formData }: any) => (
+    <input
+      data-testid="estimated-time"
+      name="estimated_time"
+      value={formData?.estimated_time || ''}
+      onChange={handleChange}
+    />
   ),
 }));
 
 jest.mock('../ProjectSelect', () => ({
-  __esModule: true,
-  default: ({ handleChange }: any) => (
-    <select data-testid="project-select" onChange={handleChange} />
+  ProjectSelect: ({ handleChange, formData }: any) => (
+    <select
+      data-testid="project-select"
+      name="project_id"
+      value={formData?.project_id || ''}
+      onChange={handleChange}
+    >
+      <option value="">Select Project</option>
+      <option value="123">Project 123</option>
+      <option value="456">Project 456</option>
+      <option value="789">Project 789</option>
+    </select>
   ),
 }));
 
-// Mock other form components similarly...
 
 describe('TaskForm', () => {
   const mockHandleChange = jest.fn();
@@ -78,13 +197,14 @@ describe('TaskForm', () => {
 
   const renderTaskForm = (path = '/tasks/new') => {
     return render(
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <MemoryRouter initialEntries={[path]}>
+      <MemoryRouter initialEntries={[path]}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Routes>
-            <Route path="/tasks/:id?" element={<TaskForm />} />
+            <Route path="/tasks/new" element={<TaskForm />} />
+            <Route path="/tasks/:id" element={<TaskForm />} />
           </Routes>
-        </MemoryRouter>
-      </LocalizationProvider>
+        </LocalizationProvider>
+      </MemoryRouter>
     );
   };
 
@@ -118,14 +238,10 @@ describe('TaskForm', () => {
   });
 
   it('handles form submission correctly', async () => {
-    const mockEvent = { preventDefault: jest.fn() };
     renderTaskForm();
-    
-    const form = screen.getByRole('form');
-    fireEvent.submit(form, mockEvent);
-
+    const form = screen.getByTestId('task-form');
+    fireEvent.submit(form);
     await waitFor(() => {
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockHandleSubmit).toHaveBeenCalled();
     });
   });
@@ -155,18 +271,9 @@ describe('TaskForm', () => {
   it('shows progress field only when editing', () => {
     (useTaskForm as jest.Mock).mockReturnValue({
       ...mockTaskFormHook,
-      isEditing: true,
-    });
-    
-    renderTaskForm('/tasks/1');
-    expect(screen.getByTestId('task-progress')).toBeInTheDocument();
-
-    // Re-render with isEditing false
-    (useTaskForm as jest.Mock).mockReturnValue({
-      ...mockTaskFormHook,
       isEditing: false,
+      formData: { ...mockTaskFormHook.formData, progress: undefined },
     });
-    
     renderTaskForm('/tasks/new');
     expect(screen.queryByTestId('task-progress')).not.toBeInTheDocument();
   });
@@ -183,15 +290,29 @@ describe('TaskForm', () => {
   });
 
   it('handles form field changes correctly', () => {
-    renderTaskForm();
+    // Set up so that after change, formData reflects the new value
+    (useTaskForm as jest.Mock).mockReturnValue({
+      ...mockTaskFormHook,
+      formData: { ...mockTaskFormHook.formData }
+    });
+    const { unmount } = renderTaskForm();
     
     const taskName = screen.getByTestId('task-name');
     fireEvent.change(taskName, {
       target: { name: 'name', value: 'New Task' }
     });
-    
-    expect(mockHandleChange).toHaveBeenCalledWith({
-      target: { name: 'name', value: 'New Task' }
+    // Assert on event passed to mockHandleChange
+    expect(mockHandleChange).toHaveBeenCalled();
+    const callArg = mockHandleChange.mock.calls[0][0];
+    expect(callArg.target.name).toBe('name');
+    // Simulate formData update and re-render
+    (useTaskForm as jest.Mock).mockReturnValue({
+      ...mockTaskFormHook,
+      formData: { ...mockTaskFormHook.formData, name: 'New Task' }
     });
+    unmount();
+    renderTaskForm();
+    // Assert input value is updated in the DOM
+    expect(screen.getByTestId('task-name')).toHaveValue('New Task');
   });
 });

@@ -75,15 +75,16 @@ const ProjectDetails: React.FC = () => {
             canDelete={canDelete}
             onEdit={() => setState(prev => ({ ...prev, editDialogOpen: true }))}
             onDelete={() => setState(prev => ({ ...prev, deleteDialogOpen: true }))}
+            data-testid="project-actions"
           />
         </Box>
 
-        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-          <Tab label="Overview" />
-          <Tab label="Tasks" />
-          <Tab label="Members" />
-          <Tab label="Time Log" />
-          <Tab label="Gantt" />
+        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} data-testid="project-tabs">
+          <Tab label="Overview" data-testid="tab-overview" />
+          <Tab label="Tasks" data-testid="tab-tasks" />
+          <Tab label="Members" data-testid="tab-members" />
+          <Tab label="Time Log" data-testid="tab-timelog" />
+          <Tab label="Gantt" data-testid="tab-gantt" />
         </Tabs>
 
         <ProjectTabPanels

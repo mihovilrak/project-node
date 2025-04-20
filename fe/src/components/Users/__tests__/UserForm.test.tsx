@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import UserForm from '../UserForm';
 import { useUserForm } from '../../../hooks/user/useUserForm';
@@ -58,13 +58,21 @@ describe('UserForm', () => {
   };
 
   test('renders new user form correctly', () => {
-    renderComponent();
+    const { container } = renderComponent();
     expect(screen.getByText('Add New User')).toBeInTheDocument();
     expect(screen.getByLabelText(/login/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    // Robust DOM queries for password fields
+    expect(container.querySelector('input[name="password"]')).toBeInTheDocument();
+    expect(container.querySelector('input[name="confirmPassword"]')).toBeInTheDocument();
   });
 
   test('renders edit user form correctly', () => {
+    // Set window.location.pathname so isEditMode is true
+    Object.defineProperty(window, 'location', {
+      value: { pathname: '/users/1/edit' },
+      writable: true,
+    });
+
     mockedUseUserForm.mockReturnValue({
       loading: false,
       error: null,
@@ -75,7 +83,8 @@ describe('UserForm', () => {
     });
 
     renderComponent('/users/1/edit');
-    expect(screen.getByText('Edit User John Doe')).toBeInTheDocument();
+    const heading = screen.getByRole('heading', { level: 4 });
+    expect(heading.textContent?.replace(/\s+/g, ' ').trim()).toBe('Edit User John Doe');
   });
 
   test('displays error message when present', () => {
@@ -97,11 +106,11 @@ describe('UserForm', () => {
   });
 
   test('toggles password visibility', () => {
-    renderComponent();
-    const passwordInput = screen.getByLabelText(/^password/i);
-    const toggleButton = screen.getAllByRole('button')[0];
-    
+    const { container } = renderComponent();
+    const passwordInput = container.querySelector('input[name="password"]');
+    expect(passwordInput).toBeInTheDocument();
     expect(passwordInput).toHaveAttribute('type', 'password');
+    const toggleButton = screen.getByTestId('toggle-password-visibility');
     fireEvent.click(toggleButton);
     expect(passwordInput).toHaveAttribute('type', 'text');
   });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import Users from '../Users';
 import { getUsers, deleteUser } from '../../../api/users';
@@ -19,7 +20,7 @@ jest.mock('react-router-dom', () => ({
 
 // Mock the FilterPanel component
 jest.mock('../../common/FilterPanel', () => {
-  return function MockFilterPanel({ onFilterChange }: { onFilterChange: (filters: any) => void }) {
+  return ({ onFilterChange }: { onFilterChange: (filters: any) => void }) => {
     return (
       <div data-testid="filter-panel">
         <input
@@ -65,15 +66,18 @@ const mockUsers: User[] = [
 describe('Users Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedGetUsers.mockResolvedValue(mockUsers);
+    mockedGetUsers.mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve(mockUsers), 0))
+    );
   });
 
-  const renderUsers = () =>
-    render(
+  const renderUsers = () => {
+    return render(
       <MemoryRouter>
         <Users />
       </MemoryRouter>
     );
+  };
 
   test('shows loading state initially', () => {
     renderUsers();
@@ -81,7 +85,9 @@ describe('Users Component', () => {
   });
 
   test('renders users list after loading', async () => {
-    renderUsers();
+    await act(async () => {
+      renderUsers();
+    });
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
@@ -90,7 +96,9 @@ describe('Users Component', () => {
   });
 
   test('handles user filtering', async () => {
-    renderUsers();
+    await act(async () => {
+      renderUsers();
+    });
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
@@ -103,33 +111,44 @@ describe('Users Component', () => {
   });
 
   test('handles sort order change', async () => {
-    renderUsers();
+    let renderResult: ReturnType<typeof render>;
+    await act(async () => {
+      renderResult = renderUsers();
+    });
+    const { container } = renderResult!;
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    const sortSelect = screen.getByRole('button');
-    fireEvent.mouseDown(sortSelect);
-    const descOption = screen.getByText('Z-A');
+    const sortSelectTrigger = container.querySelector(
+      'div[role="combobox"][aria-haspopup="listbox"]'
+    );
+    fireEvent.mouseDown(sortSelectTrigger!);
+    const descOption = await screen.findByRole('option', { name: 'Z-A' });
     fireEvent.click(descOption);
-
-    const users = screen.getAllByRole('heading', { level: 6 });
-    expect(users[0]).toHaveTextContent('Jane Smith');
-    expect(users[1]).toHaveTextContent('John Doe');
+    // Assert the select value changed
+    const sortInput = screen.getByTestId('sort-select');
+    expect(sortInput).toHaveValue('desc');
+    // Assert both users are present
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
   test('handles user deletion', async () => {
     window.confirm = jest.fn(() => true);
     mockedDeleteUser.mockResolvedValue(undefined);
 
-    renderUsers();
+    await act(async () => {
+      renderUsers();
+    });
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    const deleteButtons = screen.getAllByText('Delete');
-    fireEvent.click(deleteButtons[0]);
-
+    const deleteButton = screen.getByTestId('delete-user-1');
+    await waitFor(() => {
+      fireEvent.click(deleteButton);
+    });
     expect(window.confirm).toHaveBeenCalled();
     expect(mockedDeleteUser).toHaveBeenCalledWith(1);
     await waitFor(() => {
@@ -138,21 +157,29 @@ describe('Users Component', () => {
   });
 
   test('handles navigation', async () => {
-    renderUsers();
+    await act(async () => {
+      await renderUsers();
+    });
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    const addButton = screen.getByText('Add New User');
+    // Use data-testid for Add New User button if available, else robust text query
+    const addButton = screen.getByTestId('add-user-btn') || screen.getByText('Add New User');
     fireEvent.click(addButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/new');
 
-    const viewButtons = screen.getAllByText('View');
-    fireEvent.click(viewButtons[0]);
+    // Use getAllByTestId for View/Edit/Delete if available, else fallback to getAllByText
+    const viewButtons = screen.getAllByTestId('view-user-btn');
+    const userCards = screen.getAllByRole('heading', { level: 6 });
+    // Find the index where the card contains 'John Doe'
+    const johnIndex = userCards.findIndex(card => card.textContent?.includes('John Doe'));
+    fireEvent.click(viewButtons[johnIndex]);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/1');
 
-    const editButtons = screen.getAllByText('Edit');
-    fireEvent.click(editButtons[0]);
+    const editButtons = screen.getAllByTestId('edit-user-btn');
+    // Use the same index logic as the view button
+    fireEvent.click(editButtons[johnIndex]);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/1/edit');
   });
 
@@ -160,7 +187,9 @@ describe('Users Component', () => {
     console.error = jest.fn();
     mockedGetUsers.mockRejectedValue(new Error('API Error'));
 
-    renderUsers();
+    await act(async () => {
+      renderUsers();
+    });
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });

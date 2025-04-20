@@ -99,8 +99,8 @@ describe('TimeLogDialog', () => {
 
   it('renders form when not loading', () => {
     render(<TimeLogDialog {...defaultProps} />, { wrapper });
-    expect(screen.getByLabelText(/Project/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Task/i)).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Project/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Task/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Time Spent/i)).toBeInTheDocument();
   });
 
@@ -110,7 +110,7 @@ describe('TimeLogDialog', () => {
       hasPermission: jest.fn().mockReturnValue(true),
     });
     render(<TimeLogDialog {...defaultProps} />, { wrapper });
-    expect(screen.getByLabelText(/User/i)).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /User/i })).toBeInTheDocument();
   });
 
   it('calls onClose when Cancel button is clicked', () => {
@@ -135,9 +135,14 @@ describe('TimeLogDialog', () => {
   });
 
   it('closes dialog after successful submission', async () => {
-    const onSubmit = jest.fn().mockResolvedValue(undefined);
-    render(<TimeLogDialog {...defaultProps} onSubmit={onSubmit} />, { wrapper });
-    
+    (useTimeLogDialog as jest.Mock).mockReturnValue({
+      ...mockTimeLogData,
+      handleSubmit: jest.fn((e: any) => {
+        e.preventDefault();
+        defaultProps.onClose();
+      }),
+    });
+    render(<TimeLogDialog {...defaultProps} />, { wrapper });
     fireEvent.click(screen.getByText('Submit'));
     await waitFor(() => {
       expect(defaultProps.onClose).toHaveBeenCalled();

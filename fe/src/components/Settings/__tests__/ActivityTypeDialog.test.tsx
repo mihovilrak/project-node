@@ -4,6 +4,33 @@ import ActivityTypeDialog from '../ActivityTypeDialog';
 import { ActivityType, ActivityTypeFormData } from '../../../types/setting';
 import { useActivityTypeDialog } from '../../../hooks/setting/useActivityTypeDialog';
 
+// Mock the mui-color-input module to fix the import error
+jest.mock('mui-color-input', () => ({
+  MuiColorInput: ({ label, onChange, value }: { label: string; onChange: (value: string) => void; value: string }) => (
+    <div data-testid={`color-input-${label}`}>
+      <label htmlFor={`color-input-field-${label}`}>{label}</label>
+      <input
+        type="text"
+        id={`color-input-field-${label}`}
+        data-testid="color-input-field"
+        onChange={(e) => onChange(e.target.value)}
+        value={value}
+      />
+    </div>
+  ),
+}));
+
+// Mock the useIconSelector hook used in ActivityTypeForm
+jest.mock('../../../hooks/setting/useIconSelector', () => ({
+  useIconSelector: () => ({
+    icons: ['icon1', 'icon2'],
+    open: false,
+    handleOpen: jest.fn(),
+    handleClose: jest.fn(),
+    handleSelect: jest.fn()
+  })
+}));
+
 jest.mock('../../../hooks/setting/useActivityTypeDialog');
 const mockUseActivityTypeDialog = useActivityTypeDialog as jest.Mock;
 
@@ -29,7 +56,8 @@ describe('ActivityTypeDialog', () => {
       error: undefined,
       handleChange: jest.fn(),
       setError: jest.fn(),
-      clearError: jest.fn()
+      clearError: jest.fn(),
+      handleSubmit: jest.fn()
     });
   });
 

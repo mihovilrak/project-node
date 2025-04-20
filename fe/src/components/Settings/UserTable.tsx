@@ -63,7 +63,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
   return (
     <>
       <TableContainer component={Paper}>
-        <Table>
+        <Table data-testid="user-table">
           <TableHead>
             <TableRow>
               <TableCell>Login</TableCell>
@@ -90,12 +90,20 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit">
-                      <IconButton onClick={() => onEditUser(user)}>
+                      <IconButton 
+                        data-testid={`edit-user-${user.id}`}
+                        onClick={() => onEditUser(user)}
+                        aria-label="Edit"
+                      >
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
-                      <IconButton onClick={() => handleDeleteClick(user)}>
+                      <IconButton 
+                        data-testid={`delete-user-${user.id}`}
+                        onClick={() => handleDeleteClick(user)}
+                        aria-label="Delete"
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
@@ -113,19 +121,35 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        data-testid="pagination"
       />
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={() => setDeleteDialogOpen(false)}
+        data-testid="delete-dialog"
+      >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <Typography>
+          <Typography data-testid="delete-confirmation-text">
             Are you sure you want to delete user {userToDelete?.name}? 
             This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)}
+            data-testid="cancel-delete-button"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error"
+            data-testid="confirm-delete-button"
+          >
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </>

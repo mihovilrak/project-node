@@ -7,10 +7,10 @@ const TimeLogStats: React.FC<TimeLogStatsProps> = ({ timeLogs }) => {
   
   const totalHours = timeLogs.reduce((sum, log) => {
     console.log('Processing log in Stats:', log);
-    const hours = typeof log.spent_time === 'string' 
+    let hours = typeof log.spent_time === 'string' 
       ? parseFloat(log.spent_time) 
       : (typeof log.spent_time === 'number' ? log.spent_time : 0);
-      
+    if (isNaN(hours) || hours === null || hours === undefined) hours = 0;
     console.log('Hours from log:', hours);
     return sum + hours;
   }, 0);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AssigneeSelect } from '../AssigneeSelect';
 import { ProjectMember } from '../../../types/project';
 import { TaskFormState } from '../../../types/task';
@@ -57,37 +57,60 @@ describe('AssigneeSelect', () => {
     jest.clearAllMocks();
   });
 
-  test('renders with correct label', () => {
+  test('renders with correct label', async () => {
     renderAssigneeSelect();
-    expect(screen.getByLabelText('Assignee')).toBeInTheDocument();
-  });
-
-  test('shows unassigned option', () => {
-    renderAssigneeSelect();
-    expect(screen.getByText('Unassigned')).toBeInTheDocument();
-  });
-
-  test('displays all project members', () => {
-    renderAssigneeSelect();
-    mockProjectMembers.forEach(member => {
-      expect(screen.getByText(`${member.name} ${member.surname}`)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
     });
   });
 
-  test('calls handleChange when selection changes', () => {
+  test('shows unassigned option', async () => {
     renderAssigneeSelect();
-    const select = screen.getByLabelText('Assignee');
-    fireEvent.change(select, { target: { value: '2' } });
+    // Open the dropdown to see options
+    const selectElement = screen.getByRole('combobox', { name: /assignee/i });
+    fireEvent.mouseDown(selectElement);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Unassigned')).toBeInTheDocument();
+    });
+  });
+
+  test('displays all project members', async () => {
+    renderAssigneeSelect();
+    // Open the dropdown to see options
+    const selectElement = screen.getByRole('combobox', { name: /assignee/i });
+    fireEvent.mouseDown(selectElement);
+    
+    await waitFor(() => {
+      mockProjectMembers.forEach(member => {
+        expect(screen.getByText(`${member.name} ${member.surname}`)).toBeInTheDocument();
+      });
+    });
+  });
+
+  test('calls handleChange when selection changes', async () => {
+    renderAssigneeSelect();
+    const select = screen.getByRole('combobox', { name: /assignee/i });
+    
+    // Open the dropdown
+    fireEvent.mouseDown(select);
+    
+    // Wait for the dropdown to open
+    await waitFor(() => {
+      const option = screen.getByText('Jane Smith');
+      fireEvent.click(option);
+    });
+    
     expect(mockHandleChange).toHaveBeenCalled();
   });
 
-  test('uses correct initial value from formData', () => {
+  test('uses correct initial value from formData', async () => {
     const formDataWithAssignee = {
       ...mockFormData,
       assignee_id: 1
     };
     
-    render(
+    const { container } = render(
       <AssigneeSelect
         label="Assignee"
         name="assignee_id"
@@ -97,17 +120,28 @@ describe('AssigneeSelect', () => {
       />
     );
 
-    const select = screen.getByLabelText('Assignee');
-    expect(select).toHaveValue('1');
+    await waitFor(() => {
+      // Check if the displayed value shows the expected user
+      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
+      // The input has the selected value or its display value
+      const selectText = container.querySelector('.MuiSelect-select');
+      expect(selectText?.textContent).toContain('John Doe');
+    });
   });
 
-  test('applies full width style', () => {
-    renderAssigneeSelect();
-    const textField = screen.getByLabelText('Assignee');
-    expect(textField.parentElement).toHaveStyle({ width: '100%' });
+  test('applies full width style', async () => {
+    const { container } = renderAssigneeSelect();
+    
+    await waitFor(() => {
+      // Select itself should be there
+      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
+      // Verify the component render with the fullWidth prop
+      const textFieldRoot = container.querySelector('.MuiFormControl-fullWidth');
+      expect(textFieldRoot).not.toBeNull();
+    });
   });
 
-  test('handles empty project members array', () => {
+  test('handles empty project members array', async () => {
     render(
       <AssigneeSelect
         label="Assignee"
@@ -118,7 +152,18 @@ describe('AssigneeSelect', () => {
       />
     );
     
-    expect(screen.getByText('Unassigned')).toBeInTheDocument();
-    expect(screen.queryByRole('option')).not.toBeNull();
+    // Open the dropdown
+    const selectElement = screen.getByRole('combobox', { name: /assignee/i });
+    fireEvent.mouseDown(selectElement);
+    
+    // Material-UI renders menu items in a portal, so we need to look at the document body
+    await waitFor(() => {
+      const unassignedItem = screen.getByRole('option', { name: /unassigned/i });
+      expect(unassignedItem).toBeInTheDocument();
+      
+      // Make sure there's only one option (Unassigned)
+      const options = screen.getAllByRole('option');
+      expect(options.length).toBe(1);
+    });
   });
 });

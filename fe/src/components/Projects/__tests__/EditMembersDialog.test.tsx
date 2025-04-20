@@ -6,7 +6,6 @@ import { getUsers } from '../../../api/users';
 import { User } from '../../../types/user';
 import { ProjectMember } from '../../../types/project';
 
-// Mock the API call
 jest.mock('../../../api/users');
 const mockGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
 

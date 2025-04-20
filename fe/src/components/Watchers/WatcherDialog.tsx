@@ -85,7 +85,7 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
                   sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
                   <ListItemText 
-                    primary={member.name}
+                    primary={`${member.name} ${member.surname}`}
                     secondary={member.role}
                   />
                   <ListItemSecondaryAction>

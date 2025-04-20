@@ -4,13 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import WatcherList from '../WatcherList';
 import { TaskWatcher } from '../../../types/watcher';
 
-const MockPermissionButton = ({ children, onClick }: any) => {
-  return <button onClick={onClick}>{children}</button>;
-};
-
 // Mock PermissionButton component
-jest.mock('../../common/PermissionButton', () => {
-  return MockPermissionButton; 
+jest.mock('../../common/PermissionButton', () => ({ children, onClick }: any) => {
+  return <button onClick={onClick}>{children}</button>;
 });
 
 const mockWatchers: TaskWatcher[] = [
@@ -38,7 +34,7 @@ describe('WatcherList', () => {
 
   it('shows empty state when no watchers', () => {
     renderWithRouter(<WatcherList {...defaultProps} watchers={[]} />);
-    expect(screen.getByText('No watchers')).toBeInTheDocument();
+    expect(screen.getByText(/no watchers/i)).toBeInTheDocument();
   });
 
   it('calls onRemoveWatcher when delete button is clicked', () => {

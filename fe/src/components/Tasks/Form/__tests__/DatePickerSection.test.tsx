@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { DatePickerSection } from '../DatePickerSection';
 import { TaskFormState } from '../../../../types/task';
 import dayjs from 'dayjs';
@@ -82,9 +82,7 @@ describe('DatePickerSection', () => {
 
     const startDatePicker = screen.getByTestId('mock-date-picker-start-date')
       .querySelector('input');
-    startDatePicker?.dispatchEvent(
-      new Event('change', { bubbles: true })
-    );
+    fireEvent.change(startDatePicker!, { target: { value: '2024-02-01' } });
 
     expect(mockHandleChange).toHaveBeenCalled();
     // Note: exact matching might fail due to timezone differences

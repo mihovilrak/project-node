@@ -58,7 +58,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             <Grid item xs={12} sm={6}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <FolderIcon fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" data-testid="project-name">
                   Project:{' '}
                   <Link
                     component={RouterLink}
@@ -73,7 +73,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             <Grid item xs={12} sm={6}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <PersonIcon fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" data-testid="holder-name">
                   Holder:{' '}
                   <Link
                     component={RouterLink}
@@ -103,7 +103,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             <Grid item xs={12} sm={6}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <PersonIcon fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" data-testid="assignee-name">
                   Assignee:{' '}
                   <Link
                     component={RouterLink}
@@ -186,11 +186,13 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
         <Box sx={{ display: 'flex', gap: 1 }}>
           {canDelete && (
-            <IconButton 
-              onClick={onDelete}
+            <IconButton
               size="small"
               color="error"
-              sx={{ ml: 'auto' }}
+              onClick={onDelete}
+              sx={{ ml: 1 }}
+              disabled={!canDelete}
+              aria-label="delete"
             >
               <DeleteIcon />
             </IconButton>

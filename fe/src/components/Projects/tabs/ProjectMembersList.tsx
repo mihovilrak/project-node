@@ -65,9 +65,12 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
       }
 
       setEditDialogOpen(false);
+      // Clear any previous errors when successful
+      setError('');
     } catch (error) {
       console.error('Failed to update members:', error);
       setError('Failed to update project members');
+      // Keep dialog open when there's an error
     }
   };
 

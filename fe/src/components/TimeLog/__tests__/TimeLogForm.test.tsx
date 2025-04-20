@@ -5,7 +5,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import TimeLogForm from '../TimeLogForm';
 import { TimeLogFormProps } from '../../../types/timeLog';
-import { Project } from '../../../types/project';
 
 const mockProps: TimeLogFormProps = {
   projects: [
@@ -205,17 +204,21 @@ describe('TimeLogForm', () => {
     expect(screen.getByLabelText(/User/i)).toBeInTheDocument();
   });
 
-  it('handles project selection', () => {
+  it('handles project selection', async () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
     const projectSelect = screen.getByLabelText(/Project/i);
-    fireEvent.change(projectSelect, { target: { value: '2' } });
+    fireEvent.mouseDown(projectSelect);
+    const option = await screen.findByRole('option', { name: /Project 2/i });
+    fireEvent.click(option);
     expect(mockProps.onProjectChange).toHaveBeenCalledWith(2, mockProps.tasks);
   });
 
-  it('handles task selection', () => {
+  it('handles task selection', async () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
     const taskSelect = screen.getByLabelText(/Task/i);
-    fireEvent.change(taskSelect, { target: { value: '2' } });
+    fireEvent.mouseDown(taskSelect);
+    const option = await screen.findByRole('option', { name: /Task 2/i });
+    fireEvent.click(option);
     expect(mockProps.onTaskChange).toHaveBeenCalledWith(2, mockProps.tasks);
   });
 
@@ -254,21 +257,25 @@ describe('TimeLogForm', () => {
       { wrapper }
     );
     
-    expect(screen.getByLabelText(/Project/i)).toBeDisabled();
-    expect(screen.getByLabelText(/Task/i)).toBeDisabled();
+    expect(screen.getByLabelText(/Project/i)).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByLabelText(/Task/i)).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('handles activity type changes', () => {
+  it('handles activity type changes', async () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
     const activityTypeSelect = screen.getByLabelText(/Activity Type/i);
-    fireEvent.change(activityTypeSelect, { target: { value: '2' } });
+    fireEvent.mouseDown(activityTypeSelect);
+    const option = await screen.findByRole('option', { name: /Testing/i });
+    fireEvent.click(option);
     expect(mockProps.onActivityTypeChange).toHaveBeenCalledWith(2);
   });
 
-  it('handles user changes when user select is shown', () => {
+  it('handles user changes when user select is shown', async () => {
     render(<TimeLogForm {...mockProps} showUserSelect={true} />, { wrapper });
     const userSelect = screen.getByLabelText(/User/i);
-    fireEvent.change(userSelect, { target: { value: '2' } });
+    fireEvent.mouseDown(userSelect);
+    const option = await screen.findByRole('option', { name: /User 2/i });
+    fireEvent.click(option);
     expect(mockProps.onUserChange).toHaveBeenCalledWith(2);
   });
 });

@@ -50,14 +50,14 @@ describe('TaskProgressField', () => {
 
   it('has proper material-ui styling', () => {
     render(<TaskProgressField {...defaultProps} />);
-    const textField = screen.getByLabelText('Progress (%)').closest('div');
-    expect(textField).toHaveStyle({ marginBottom: '16px' }); // mb: 2 converts to 16px
+    const textFieldRoot = screen.getByLabelText('Progress (%)').closest('.MuiTextField-root');
+    expect(textFieldRoot).toHaveStyle({ marginBottom: '16px' }); // mb: 2 converts to 16px
   });
 
   it('renders as a full width input', () => {
     render(<TaskProgressField {...defaultProps} />);
-    const textField = screen.getByLabelText('Progress (%)').closest('div');
-    expect(textField).toHaveClass('MuiTextField-root');
-    expect(textField).toHaveStyle({ width: '100%' });
+    const textFieldRoot = screen.getByLabelText('Progress (%)').closest('.MuiTextField-root');
+    expect(textFieldRoot).toHaveClass('MuiTextField-root');
+    expect(textFieldRoot).toHaveStyle({ width: '100%' });
   });
 });

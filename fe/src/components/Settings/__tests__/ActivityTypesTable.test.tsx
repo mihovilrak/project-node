@@ -79,8 +79,17 @@ describe('ActivityTypesTable', () => {
 
   it('renders color blocks with correct styles', () => {
     const { container } = render(<ActivityTypesTable {...defaultProps} />);
-    const colorBlocks = container.querySelectorAll('div[style*="backgroundColor"]');
-    expect(colorBlocks[0]).toHaveStyle({ backgroundColor: '#FF0000' });
-    expect(colorBlocks[1]).toHaveStyle({ backgroundColor: '#00FF00' });
+    
+    // Using data-testid attributes for more reliable testing
+    const developmentColorBlock = screen.getByTestId('color-block-Development');
+    const meetingColorBlock = screen.getByTestId('color-block-Meeting');
+    
+    // Verify color blocks exist
+    expect(developmentColorBlock).toBeInTheDocument();
+    expect(meetingColorBlock).toBeInTheDocument();
+    
+    // Check that they have the correct styles
+    expect(developmentColorBlock).toHaveStyle({ backgroundColor: '#FF0000' });
+    expect(meetingColorBlock).toHaveStyle({ backgroundColor: '#00FF00' });
   });
 });

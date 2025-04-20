@@ -12,7 +12,7 @@ export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
     fullWidth 
     label="Priority" 
     name="priority_id" 
-    value={formData.priority_id} 
+    value={formData.priority_id || ''} 
     onChange={handleChange} 
     required 
     sx={{ mb: 2 }}

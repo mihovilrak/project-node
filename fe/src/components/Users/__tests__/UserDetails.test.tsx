@@ -85,8 +85,8 @@ describe('UserDetails', () => {
   it('handles null values properly', async () => {
     const userWithNulls = {
       ...mockUser,
-      status: null,
-      role: null,
+      status_name: null,
+      role_name: null,
       updated_on: null,
       last_login: null
     };
@@ -96,10 +96,26 @@ describe('UserDetails', () => {
     render(<UserDetails />);
 
     await waitFor(() => {
-      expect(screen.getByText('Status: -')).toBeInTheDocument();
-      expect(screen.getByText('Role: -')).toBeInTheDocument();
-      expect(screen.getByText('Last updated: -')).toBeInTheDocument();
-      expect(screen.getByText('Last login: -')).toBeInTheDocument();
+      expect(screen.getByText(
+        (content, element) => {
+          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Status: -'
+        }
+      )).toBeInTheDocument();
+      expect(screen.getByText(
+        (content, element) => {
+          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Role: -'
+        }
+      )).toBeInTheDocument();
+      expect(screen.getByText(
+        (content, element) => {
+          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Last updated: -'
+        }
+      )).toBeInTheDocument();
+      expect(screen.getByText(
+        (content, element) => {
+          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Last login: -'
+        }
+      )).toBeInTheDocument();
     });
   });
 

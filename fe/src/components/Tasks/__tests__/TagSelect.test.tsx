@@ -46,6 +46,8 @@ describe('TagSelect Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Always return mockTags unless overridden in a test
+    mockedGetTags.mockResolvedValue(mockTags);
   });
 
   test('shows loading state initially', () => {
@@ -54,47 +56,46 @@ describe('TagSelect Component', () => {
   });
 
   test('renders tags after loading', async () => {
-    mockedGetTags.mockResolvedValue(mockTags);
-
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
 
     // Wait for loading to finish
-    await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
 
-    // Open the autocomplete dropdown
-    const input = screen.getByRole('combobox');
-    fireEvent.click(input);
+    // Open the dropdown
+    fireEvent.mouseDown(screen.getByRole('combobox'));
 
-    // Check if active tags are rendered
-    expect(screen.getByText('Bug')).toBeInTheDocument();
-    expect(screen.getByText('Feature')).toBeInTheDocument();
-    expect(screen.queryByText('Inactive')).not.toBeInTheDocument();
+    // Wait for the options to appear
+    const options = await screen.findAllByRole('option');
+    const optionTexts = options.map(opt => opt.textContent);
+
+    expect(optionTexts).toEqual(
+      expect.arrayContaining(['Bug', 'Feature'])
+    );
+    expect(optionTexts).not.toContain('Inactive');
   });
 
   test('handles tag selection', async () => {
-    mockedGetTags.mockResolvedValue(mockTags);
-
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
 
+    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
+
+    // Open the dropdown
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+
+    // Use a robust query for the option (Material-UI splits text)
+    const bugOption = screen.getAllByRole('option').find(opt => /bug/i.test(opt.textContent || ''));
+    expect(bugOption).toBeDefined();
+    fireEvent.click(bugOption!);
+
+    // The onTagsChange callback should be called with the selected tag
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(onTagsChange).toHaveBeenCalledWith([
+        expect.objectContaining({ name: 'Bug' })
+      ]);
     });
-
-    // Open the autocomplete dropdown
-    const input = screen.getByRole('combobox');
-    fireEvent.click(input);
-
-    // Select a tag
-    fireEvent.click(screen.getByText('Bug'));
-
-    expect(onTagsChange).toHaveBeenCalledWith([mockTags[0]]);
   });
 
   test('renders selected tags as chips with correct colors', async () => {
-    mockedGetTags.mockResolvedValue(mockTags);
-
     render(
       <TagSelect
         selectedTags={[mockTags[0]]}

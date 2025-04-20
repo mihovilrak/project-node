@@ -1,12 +1,28 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
+import dayjs from 'dayjs';
 import ProjectForm from '../ProjectForm';
 import { createProject, addProjectMember, getProjects } from '../../../api/projects';
 import { getUsers } from '../../../api/users';
 import { Project } from '../../../types/project';
 import { User } from '../../../types/user';
+
+// Mock the DatePicker component to make testing easier
+jest.mock('@mui/x-date-pickers', () => ({
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) => children,
+  DatePicker: ({ label, onChange, value }: { label: string; onChange: (date: any) => void; value: any }) => (
+    <div data-testid={`date-picker-${label}`}>
+      <label htmlFor={`date-input-${label}`}>{label}</label>
+      <input
+        type="date"
+        id={`date-input-${label}`}
+        data-testid="date-input"
+        onChange={(e) => onChange(dayjs(e.target.value))}
+        value={value ? value.format('YYYY-MM-DD') : ''}
+      />
+    </div>
+  ),
+}));
 
 // Mock the modules
 jest.mock('react-router-dom', () => ({
@@ -89,122 +105,148 @@ describe('ProjectForm Component', () => {
     jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
   });
 
-  it('renders the project details form initially', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+  test('renders the project details form initially', async () => {
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Project Details')).toBeInTheDocument();
     });
-
-    expect(screen.getByText('Project Details')).toBeInTheDocument();
   });
 
-  it('loads available projects and users on mount', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+  test('loads available projects and users on mount', async () => {
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    await waitFor(() => {
+      expect(getProjects).toHaveBeenCalled();
+      expect(getUsers).toHaveBeenCalled();
     });
-
-    expect(getProjects).toHaveBeenCalled();
-    expect(getUsers).toHaveBeenCalled();
   });
 
-  it('switches to members form when details are validated', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    });
-
-    const nextButton = screen.getByText('Next');
-    await act(async () => {
+  test('switches to members form when Next is clicked', async () => {
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    // Find and click the Next button
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-
-    expect(screen.getByText('Project Members')).toBeInTheDocument();
+    
+    // Verify members form is displayed
+    await waitFor(() => {
+      expect(screen.getByText('Project Members')).toBeInTheDocument();
+    });
   });
 
-  it('shows error when trying to submit without selecting members', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    });
-
-    // Move to members step
-    const nextButton = screen.getByText('Next');
-    await act(async () => {
+  test('shows error when trying to submit without selecting members', async () => {
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    // Navigate to members step
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-
+    
     // Try to submit without selecting members
-    const createButton = screen.getByText('Create Project');
-    await act(async () => {
+    await waitFor(() => {
+      const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-
-    expect(screen.getByText('Please select at least one project member')).toBeInTheDocument();
+    
+    // Check for error message
+    await waitFor(() => {
+      expect(screen.getByText('Please select at least one project member')).toBeInTheDocument();
+    });
   });
 
-  it('successfully creates a project with members', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    });
-
-    // Move to members step
-    const nextButton = screen.getByText('Next');
-    await act(async () => {
+  test('successfully creates a project with members', async () => {
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    // Navigate to members step
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-
+    
     // Select a member
-    const memberCheckbox = screen.getByRole('checkbox');
-    await act(async () => {
-      fireEvent.click(memberCheckbox);
+    await waitFor(() => {
+      const checkbox = screen.getByRole('checkbox');
+      fireEvent.click(checkbox);
     });
-
+    
     // Submit the form
-    const createButton = screen.getByText('Create Project');
-    await act(async () => {
+    await waitFor(() => {
+      const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-
-    expect(createProject).toHaveBeenCalled();
-    expect(addProjectMember).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith('/projects/1');
+    
+    // Verify project was created
+    await waitFor(() => {
+      expect(createProject).toHaveBeenCalled();
+      expect(addProjectMember).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/projects/1');
+    });
   });
 
-  it('handles API errors during project creation', async () => {
+  test('handles API errors during project creation', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (createProject as jest.Mock).mockRejectedValue(new Error('API Error'));
-
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    });
-
-    // Move to members step
-    const nextButton = screen.getByText('Next');
-    await act(async () => {
+    
+    render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    // Navigate to members step
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-
+    
     // Select a member
-    const memberCheckbox = screen.getByRole('checkbox');
-    await act(async () => {
-      fireEvent.click(memberCheckbox);
+    await waitFor(() => {
+      const checkbox = screen.getByRole('checkbox');
+      fireEvent.click(checkbox);
     });
-
+    
     // Submit the form
-    const createButton = screen.getByText('Create Project');
-    await act(async () => {
+    await waitFor(() => {
+      const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-
-    expect(consoleError).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
+    
+    // Verify error handling
+    await waitFor(() => {
+      expect(consoleError).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
+    });
+    
     consoleError.mockRestore();
   });
 
-  it('navigates back to projects list on cancel', async () => {
-    await act(async () => {
-      render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+  // This test is split into two separate tests to isolate the functionality
+  // First test just verifies the cancel button exists
+  test('renders cancel button correctly', async () => {
+    const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    
+    // Verify that cancel button exists
+    await waitFor(() => {
+      const cancelButton = container.querySelector('[data-testid="cancel-button"]');
+      expect(cancelButton).not.toBeNull();
     });
-
-    const cancelButton = screen.getByText('Cancel');
+  });
+  
+  // Second test mock the handleCancel function directly
+  test('calls onClose when Cancel button is clicked', async () => {
+    const mockClose = jest.fn();
+    const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockClose} />);
+    
+    // Find and click the cancel button
+    const cancelButton = await waitFor(() => {
+      const button = container.querySelector('[data-testid="cancel-button"]');
+      expect(button).not.toBeNull();
+      return button as HTMLElement;
+    });
+    
+    // Click the button
     fireEvent.click(cancelButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/projects');
+    
+    // Verify onClose was called
+    expect(mockClose).toHaveBeenCalled();
   });
 });

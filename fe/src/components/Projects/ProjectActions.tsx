@@ -19,6 +19,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({
           startIcon={<EditIcon />}
           onClick={onEdit}
           sx={{ mr: 1 }}
+          data-testid="edit-project-button"
         >
           Edit
         </Button>
@@ -28,6 +29,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({
           startIcon={<DeleteIcon />}
           color="error"
           onClick={onDelete}
+          data-testid="delete-project-button"
         >
           Delete
         </Button>

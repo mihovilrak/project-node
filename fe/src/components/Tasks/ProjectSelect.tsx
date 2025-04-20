@@ -22,6 +22,7 @@ export const ProjectSelect: React.FC<{
     required 
     sx={{ mb: 2 }}
     disabled={!!projectIdFromQuery}
+    data-testid="ProjectSelectFormControl"
   >
     {projects.map((project) => (
       <MenuItem key={project.id} value={project.id}>

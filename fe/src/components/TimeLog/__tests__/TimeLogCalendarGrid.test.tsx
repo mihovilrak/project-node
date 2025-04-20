@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import TimeLogCalendarGrid from '../TimeLogCalendarGrid';
@@ -51,11 +52,12 @@ const mockProps = {
   formatTime: jest.fn((time) => `${time}h`)
 };
 
-const renderWithTheme = (component: React.ReactElement) => {
+const renderWithTheme = (component: React.ReactElement, options = {}) => {
   return render(
     <ThemeProvider theme={mockTheme}>
       {component}
-    </ThemeProvider>
+    </ThemeProvider>,
+    options
   );
 };
 
@@ -90,15 +92,25 @@ describe('TimeLogCalendarGrid', () => {
   });
 
   test('renders tooltip with correct content', async () => {
-    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />);
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, { container: document.body });
     const firstDay = screen.getAllByRole('gridcell')[0];
-    
-    await userEvent.hover(firstDay);
-    
-    expect(screen.getByText('January 1, 2023')).toBeInTheDocument();
-    expect(screen.getByText('Test Task 1: 4h')).toBeInTheDocument();
-    expect(screen.getByText('Test Task 2: 2h')).toBeInTheDocument();
-  });
+    const paper = within(firstDay).getByTestId('timelog-day-paper');
+
+    await user.hover(paper);
+
+    act(() => {
+      jest.advanceTimersByTime(600); // MUI Tooltip default delay is 500ms
+    });
+
+    const tooltip = await screen.findByTestId('timelog-tooltip');
+    expect(within(tooltip).getByText((content) => content.includes('January 1, 2023'))).toBeInTheDocument();
+    expect(within(tooltip).getByText((content) => content.includes('Test Task 1: 4h'))).toBeInTheDocument();
+    expect(within(tooltip).getByText((content) => content.includes('Test Task 2: 2h'))).toBeInTheDocument();
+
+    jest.useRealTimers();
+  }, 10000);
 
   test('applies different elevation for today', () => {
     const today = new Date();
@@ -120,12 +132,22 @@ describe('TimeLogCalendarGrid', () => {
   });
 
   test('formats time correctly in tooltip', async () => {
-    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />);
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, { container: document.body });
     const firstDay = screen.getAllByRole('gridcell')[0];
-    
-    await userEvent.hover(firstDay);
-    
-    expect(mockProps.formatTime).toHaveBeenCalledWith(4);
-    expect(mockProps.formatTime).toHaveBeenCalledWith(2);
-  });
+    const paper = within(firstDay).getByTestId('timelog-day-paper');
+
+    await user.hover(paper);
+
+    act(() => {
+      jest.advanceTimersByTime(600);
+    });
+
+    const tooltip = await screen.findByTestId('timelog-tooltip');
+    expect(within(tooltip).getByText((content) => content.includes('4h'))).toBeInTheDocument();
+    expect(within(tooltip).getByText((content) => content.includes('2h'))).toBeInTheDocument();
+
+    jest.useRealTimers();
+  }, 10000);
 });

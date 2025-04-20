@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import AuthProvider from '../../../context/AuthContext';
 import TaskList from '../TaskList';
 import { getTasks, deleteTask } from '../../../api/tasks';
 import { Task } from '../../../types/task';
@@ -15,6 +16,11 @@ const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigate
+}));
+
+// Mock usePermission to always grant permission
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
 }));
 
 // Mock sample tasks
@@ -79,9 +85,11 @@ const mockTasks: Task[] = [
 
 const renderTaskList = () => {
   return render(
-    <MemoryRouter>
-      <TaskList />
-    </MemoryRouter>
+    <AuthProvider>
+      <MemoryRouter>
+        <TaskList />
+      </MemoryRouter>
+    </AuthProvider>
   );
 };
 
@@ -110,6 +118,7 @@ describe('TaskList Component', () => {
   });
 
   test('handles task deletion', async () => {
+    const originalConfirm = window.confirm;
     window.confirm = jest.fn(() => true);
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockResolvedValue();
@@ -127,6 +136,7 @@ describe('TaskList Component', () => {
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
     });
+    window.confirm = originalConfirm;
   });
 
   test('navigates to task details when clicking Details button', async () => {
@@ -151,7 +161,8 @@ describe('TaskList Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    const editButtons = await screen.findAllByText('Edit');
+    // Find all PermissionButtons with 'Edit' as children
+    const editButtons = await screen.findAllByRole('button', { name: 'Edit' });
     fireEvent.click(editButtons[0]);
 
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1/edit');
@@ -175,9 +186,12 @@ describe('TaskList Component', () => {
     renderTaskList();
 
     await waitFor(() => {
-      const statusChips = screen.getAllByText(/Done|In Progress/);
-      const priorityChips = screen.getAllByText(/High\/Should|Normal\/Could/);
-      
+      // Get all Chip roots by their label text, then go up to the parent (Chip root)
+      const statusChipLabels = screen.getAllByText(/Done|In Progress/);
+      const priorityChipLabels = screen.getAllByText(/High\/Should|Normal\/Could/);
+      // The parentElement of the label span is the Chip root
+      const statusChips = statusChipLabels.map(label => label.parentElement);
+      const priorityChips = priorityChipLabels.map(label => label.parentElement);
       expect(statusChips[1]).toHaveClass('MuiChip-colorSuccess'); // Done status
       expect(priorityChips[0]).toHaveClass('MuiChip-colorError'); // High priority
     });

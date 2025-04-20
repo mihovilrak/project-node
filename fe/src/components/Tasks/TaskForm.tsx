@@ -89,7 +89,7 @@ const TaskForm: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         {isLoading ? 'Loading...' : (isEditing ? 'Edit Task' : 'Create Task')}
       </Typography>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} data-testid="task-form">
         <TaskNameField
           formData={formData}
           handleChange={handleFormChange}

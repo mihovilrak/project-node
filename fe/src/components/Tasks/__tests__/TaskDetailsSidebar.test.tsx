@@ -6,14 +6,9 @@ import { TaskFile } from '../../../types/file';
 import { TaskWatcher } from '../../../types/watcher';
 
 // Mock child components
-const MockTaskFileSection = () => <div data-testid="task-file-section">TaskFileSection</div>;
-jest.mock('../TaskFileSection', () => MockTaskFileSection);
-
-const MockWatcherList = () => <div data-testid="watcher-list">WatcherList</div>;
-jest.mock('../../Watchers/WatcherList', () => MockWatcherList);
-
-const MockWatcherDialog = () => <div data-testid="watcher-dialog">WatcherDialog</div>;
-jest.mock('../../Watchers/WatcherDialog', () => MockWatcherDialog);
+jest.mock('../TaskFileSection', () => () => <div data-testid="task-file-section">TaskFileSection</div>);
+jest.mock('../../Watchers/WatcherList', () => () => <div data-testid="watcher-list">WatcherList</div>);
+jest.mock('../../Watchers/WatcherDialog', () => () => <div data-testid="watcher-dialog">WatcherDialog</div>);
 
 const mockFiles: TaskFile[] = [
   {

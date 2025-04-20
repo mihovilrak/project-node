@@ -41,13 +41,13 @@ describe('TaskTypeSection', () => {
 
   it('passes correct props to TaskTypeSelect', () => {
     render(<TaskTypeSection {...defaultProps} />);
-    expect(TaskTypeSelect).toHaveBeenCalledWith(
+    expect(TaskTypeSelect).toHaveBeenCalled();
+    expect((TaskTypeSelect as jest.Mock).mock.calls[0][0]).toEqual(
       expect.objectContaining({
         value: defaultProps.formData.type_id || 0,
         required: true,
         onChange: expect.any(Function)
-      }),
-      expect.any(Object)
+      })
     );
   });
 
@@ -57,11 +57,13 @@ describe('TaskTypeSection', () => {
       formData: { ...defaultProps.formData, type_id: null }
     };
     render(<TaskTypeSection {...propsWithNullType} />);
-    expect(TaskTypeSelect).toHaveBeenCalledWith(
+    expect(TaskTypeSelect).toHaveBeenCalled();
+    expect((TaskTypeSelect as jest.Mock).mock.calls[0][0]).toEqual(
       expect.objectContaining({
-        value: 0
-      }),
-      expect.any(Object)
+        value: 0,
+        required: true,
+        onChange: expect.any(Function)
+      })
     );
   });
 

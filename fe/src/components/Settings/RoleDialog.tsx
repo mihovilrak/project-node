@@ -44,7 +44,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <form onSubmit={handleSubmit}>
+      <form role="form" onSubmit={handleSubmit}>
         <DialogTitle>
           {role ? 'Edit Role' : 'Create Role'}
         </DialogTitle>

@@ -27,7 +27,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} role="form">
         <DialogTitle>
           {user ? `Edit user ${user.name} ${user.surname}` : 'Create New User'}
         </DialogTitle>

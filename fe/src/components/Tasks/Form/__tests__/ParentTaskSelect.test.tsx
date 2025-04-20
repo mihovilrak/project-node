@@ -135,7 +135,7 @@ describe('ParentTaskSelect', () => {
       />
     );
 
-    expect(screen.getByLabelText('Parent Task')).toBeDisabled();
+    expect(screen.getByLabelText('Parent Task')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('calls handleChange when selection changes', () => {

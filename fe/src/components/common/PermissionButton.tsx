@@ -25,6 +25,7 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
     <Button
       {...props}
       disabled={isDisabled}
+      aria-label={tooltipText}
     >
       {showLoading && loading ? (
         <CircularProgress size={24} color="inherit" />

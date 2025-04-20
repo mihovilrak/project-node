@@ -58,8 +58,15 @@ describe('TaskTypeSelect', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
+    // Only the selected value is rendered by default
     expect(screen.getByText('Task')).toBeInTheDocument();
-    expect(screen.getByText('Bug')).toBeInTheDocument();
+    // Open the dropdown to render all options
+    const combobox = screen.getByRole('combobox', { name: /task type/i });
+    fireEvent.mouseDown(combobox);
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Task' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Bug' })).toBeInTheDocument();
+    });
   });
 
   it('handles API errors gracefully', async () => {
@@ -100,8 +107,12 @@ describe('TaskTypeSelect', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    fireEvent.mouseDown(screen.getByRole('button'));
-    fireEvent.click(screen.getByText('Bug'));
+    const combobox = screen.getByRole('combobox', { name: /task type/i });
+    fireEvent.mouseDown(combobox);
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Bug' })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('option', { name: 'Bug' }));
 
     expect(mockOnChange).toHaveBeenCalled();
     const changeEvent = mockOnChange.mock.calls[0][0] as SelectChangeEvent<number>;
@@ -141,7 +152,8 @@ describe('TaskTypeSelect', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(screen.getByRole('button')).toHaveClass('Mui-error');
+    const combobox = screen.getByRole('combobox', { name: /task type/i });
+    expect(combobox).toHaveClass('Mui-error');
   });
 
   it('renders icons for task types that have them', async () => {
@@ -158,10 +170,13 @@ describe('TaskTypeSelect', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Open the select
-    fireEvent.mouseDown(screen.getByRole('button'));
+    const combobox = screen.getByRole('combobox', { name: /task type/i });
+    fireEvent.mouseDown(combobox);
 
-    // Check that icons are rendered
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Task' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Bug' })).toBeInTheDocument();
+    });
     const menuItems = screen.getAllByRole('option');
     expect(menuItems[0]).toContainHTML('TaskAlt');
     expect(menuItems[1]).toContainHTML('BugReport');

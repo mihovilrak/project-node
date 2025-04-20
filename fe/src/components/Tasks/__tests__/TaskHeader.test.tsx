@@ -83,9 +83,9 @@ describe('TaskHeader', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
     
     expect(screen.getByText(mockTask.name)).toBeInTheDocument();
-    expect(screen.getByText(`Project: ${mockTask.project_name}`)).toBeInTheDocument();
-    expect(screen.getByText(`Holder: ${mockTask.holder_name}`)).toBeInTheDocument();
-    expect(screen.getByText(`Assignee: ${mockTask.assignee_name}`)).toBeInTheDocument();
+    expect(screen.getByTestId('project-name')).toHaveTextContent(`Project: ${mockTask.project_name}`);
+    expect(screen.getByTestId('holder-name')).toHaveTextContent(`Holder: ${mockTask.holder_name}`);
+    expect(screen.getByTestId('assignee-name')).toHaveTextContent(`Assignee: ${mockTask.assignee_name}`);
   });
 
   it('renders status button with correct color', () => {
@@ -98,21 +98,21 @@ describe('TaskHeader', () => {
   it('shows delete button when canDelete is true', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
     
-    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    const deleteButton = screen.getByLabelText('delete');
     expect(deleteButton).toBeInTheDocument();
   });
 
   it('hides delete button when canDelete is false', () => {
     renderWithRouter(<TaskHeader {...defaultProps} canDelete={false} />);
     
-    const deleteButton = screen.queryByRole('button', { name: /delete/i });
+    const deleteButton = screen.queryByLabelText('delete');
     expect(deleteButton).not.toBeInTheDocument();
   });
 
   it('calls onDelete when delete button is clicked', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
     
-    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    const deleteButton = screen.getByLabelText('delete');
     fireEvent.click(deleteButton);
     expect(defaultProps.onDelete).toHaveBeenCalled();
   });

@@ -4,7 +4,7 @@ import TaskDetailsHeader from '../TaskDetailsHeader';
 import { Task, TaskStatus } from '../../../types/task';
 
 // Mock the TaskHeader component
-jest.mock('./TaskHeader', () => ({
+jest.mock('../TaskHeader', () => ({
   __esModule: true,
   default: (props: any) => (
     <div data-testid="task-header">

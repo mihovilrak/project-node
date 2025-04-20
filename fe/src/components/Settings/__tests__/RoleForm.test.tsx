@@ -96,15 +96,29 @@ describe('RoleForm', () => {
         render(<RoleForm {...defaultProps} />);
         const descriptionInput = screen.getByLabelText(/description/i);
         
+        // Check for rows attribute directly
         expect(descriptionInput).toHaveAttribute('rows', '3');
-        expect(descriptionInput).toHaveAttribute('multiline', '');
+        // Instead of checking for 'multiline' attribute directly, check if it's a textarea
+        expect(descriptionInput.tagName.toLowerCase()).toBe('textarea');
     });
 
     it('renders permission categories in correct order', () => {
         render(<RoleForm {...defaultProps} />);
         
-        const categories = screen.getAllByRole('heading', { level: 6 });
-        expect(categories[0]).toHaveTextContent('users');
-        expect(categories[1]).toHaveTextContent('projects');
+        // First, find the Permissions heading
+        const permissionsHeading = screen.getByText('Permissions');
+        expect(permissionsHeading).toBeInTheDocument();
+        
+        // Then find the category headings under it
+        const categoryElements = screen.getAllByRole('heading', { level: 6 });
+        // Get only the category headings
+        const categoryTexts = categoryElements
+            .filter(el => el.textContent !== 'Permissions')
+            .map(el => el.textContent?.toLowerCase());
+        
+        // Check that categories are rendered in the expected order
+        expect(categoryTexts).toContain('users');
+        expect(categoryTexts).toContain('projects');
+        expect(categoryTexts.indexOf('users')).toBeLessThan(categoryTexts.indexOf('projects'));
     });
 });

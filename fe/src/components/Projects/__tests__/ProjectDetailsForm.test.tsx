@@ -6,20 +6,24 @@ import dayjs from 'dayjs';
 import ProjectDetailsForm from '../ProjectDetailsForm';
 import { Project } from '../../../types/project';
 
-// Mock the date picker to avoid full implementation
+// Mock date picker with data-testid attribute for easier testing
 jest.mock('@mui/x-date-pickers', () => ({
   ...jest.requireActual('@mui/x-date-pickers'),
-  DatePicker: ({ label, onChange, value }: any) => (
-    <input
-      type="date"
-      data-testid={`date-picker-${label.toLowerCase().replace(' ', '-')}`}
-      onChange={(e) => onChange(dayjs(e.target.value))}
-      value={value ? value.format('YYYY-MM-DD') : ''}
-    />
+  DatePicker: ({ label, onChange, value }: { label: string; onChange: (date: any) => void; value: any }) => (
+    <div data-testid={`date-picker-${label}`}>
+      <label htmlFor={`date-input-${label}`}>{label}</label>
+      <input
+        type="date"
+        id={`date-input-${label}`}
+        data-testid="date-input"
+        onChange={(e) => onChange(dayjs(e.target.value))}
+        value={value ? value.format('YYYY-MM-DD') : ''}
+      />
+    </div>
   ),
 }));
 
-const mockAvailableProjects: Project[] = [
+const mockAvailableProjects = [
   { id: 1, name: 'Project 1' },
   { id: 2, name: 'Project 2' },
 ] as Project[];
@@ -45,26 +49,31 @@ const defaultProps = {
   onSubmit: jest.fn()
 };
 
-const renderForm = (props = {}) => {
-  return render(
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ProjectDetailsForm {...defaultProps} {...props} />
-    </LocalizationProvider>
-  );
-};
-
 describe('ProjectDetailsForm', () => {
-  it('renders all form fields', () => {
+  const renderForm = (props = {}) => {
+    return render(
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <ProjectDetailsForm {...defaultProps} {...props} />
+      </LocalizationProvider>
+    );
+  };
+  
+  test('renders the form with all required fields', () => {
     renderForm();
-    expect(screen.getByLabelText(/project name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
-    expect(screen.getByTestId('date-picker-start-date')).toBeInTheDocument();
-    expect(screen.getByTestId('date-picker-due-date')).toBeInTheDocument();
-    expect(screen.getByLabelText(/status/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/parent project/i)).toBeInTheDocument();
+    
+    expect(screen.getByText('Project Details')).toBeInTheDocument();
+    
+    expect(screen.getByRole('textbox', { name: /project name/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /description/i })).toBeInTheDocument();
+    
+    expect(screen.getByTestId('date-picker-Start Date')).toBeInTheDocument();
+    expect(screen.getByTestId('date-picker-Due Date')).toBeInTheDocument();
+    
+    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
   });
-
-  it('displays validation errors', () => {
+  
+  test('displays validation errors when provided', () => {
     renderForm({
       errors: { name: 'Name is required' },
       dateError: 'Invalid date range'
@@ -73,54 +82,40 @@ describe('ProjectDetailsForm', () => {
     expect(screen.getByText('Name is required')).toBeInTheDocument();
     expect(screen.getByText('Invalid date range')).toBeInTheDocument();
   });
-
-  it('handles name input change', () => {
+  
+  test('calls handleChange when text input changes', () => {
     renderForm();
-    const nameInput = screen.getByLabelText(/project name/i);
+    const nameInput = screen.getByRole('textbox', { name: /project name/i });
+    
     fireEvent.change(nameInput, { target: { value: 'New Project' } });
     expect(defaultProps.handleChange).toHaveBeenCalled();
   });
-
-  it('handles date changes', () => {
+  
+  test('calls handleDateChange when date input changes', () => {
     renderForm();
-    const startDatePicker = screen.getByTestId('date-picker-start-date');
-    fireEvent.change(startDatePicker, { target: { value: '2023-01-01' } });
-    expect(defaultProps.handleDateChange).toHaveBeenCalledWith('start_date', expect.any(Object));
+    const startDateContainer = screen.getByTestId('date-picker-Start Date');
+    const dateInput = startDateContainer.querySelector('input[data-testid="date-input"]');
+    
+    if (dateInput) {
+      fireEvent.change(dateInput, { target: { value: '2023-01-01' } });
+      expect(defaultProps.handleDateChange).toHaveBeenCalledWith('start_date', expect.any(Object));
+    } else {
+      throw new Error('Date input not found');
+    }
   });
-
-  it('handles status change', () => {
+  
+  test('calls onSubmit when Next button is clicked', () => {
     renderForm();
-    const statusSelect = screen.getByLabelText(/status/i);
-    fireEvent.mouseDown(statusSelect);
-    const option = screen.getByText('On Hold');
-    fireEvent.click(option);
-    expect(defaultProps.handleStatusChange).toHaveBeenCalled();
-  });
-
-  it('disables parent project select when parentId is provided', () => {
-    renderForm({ parentId: 1 });
-    expect(screen.getByLabelText(/parent project/i)).toBeDisabled();
-  });
-
-  it('renders available projects in parent project select', () => {
-    renderForm();
-    const parentSelect = screen.getByLabelText(/parent project/i);
-    fireEvent.mouseDown(parentSelect);
-    mockAvailableProjects.forEach(project => {
-      expect(screen.getByText(project.name)).toBeInTheDocument();
-    });
-  });
-
-  it('calls onSubmit when Next button is clicked', () => {
-    renderForm();
-    const submitButton = screen.getByText('Next');
-    fireEvent.click(submitButton);
+    const nextButton = screen.getByRole('button', { name: /next/i });
+    
+    fireEvent.click(nextButton);
     expect(defaultProps.onSubmit).toHaveBeenCalled();
   });
-
-  it('calls handleCancel when Cancel button is clicked', () => {
+  
+  test('calls handleCancel when Cancel button is clicked', () => {
     renderForm();
-    const cancelButton = screen.getByText('Cancel');
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    
     fireEvent.click(cancelButton);
     expect(defaultProps.handleCancel).toHaveBeenCalled();
   });

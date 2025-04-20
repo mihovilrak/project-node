@@ -65,7 +65,7 @@ const Tasks: React.FC = () => {
   };
 
   const filterOptions = {
-    showSearch: true,
+    search: true,
     showDateFilters: true,
     statuses: [], // This should be populated with actual status options from your API
     priorities: [], // This should be populated with actual priority options from your API
@@ -103,6 +103,14 @@ const Tasks: React.FC = () => {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Typography color="error" data-testid="task-error">{error}</Typography>
       </Box>
     );
   }
@@ -151,11 +159,13 @@ const Tasks: React.FC = () => {
                     size="small"
                     color={task.status_name === 'Done' ? 'success' : 'default'}
                     sx={{ mr: 1 }}
+                    data-testid="status-chip"
                   />
                   <Chip 
                     label={task.priority_name}
                     size="small"
                     color={getPriorityColor(task.priority_name || '')}
+                    data-testid="priority-chip"
                   />
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1 }}>

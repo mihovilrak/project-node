@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { TaskDescriptionField } from '../TaskDescriptionField';
 import userEvent from '@testing-library/user-event';
 import { TaskFormState } from '../../../../types/task';
@@ -69,17 +69,22 @@ describe('TaskDescriptionField', () => {
     expect(screen.getByLabelText('Description')).toHaveValue('');
   });
 
-  it('calls handleChange when input changes', () => {
+  it('calls handleChange when input changes', async () => {
+    const testFormData = {
+      ...defaultFormData,
+      description: ''
+    };
+
     render(
       <TaskDescriptionField 
-        formData={defaultFormData} 
+        formData={testFormData} 
         handleChange={mockHandleChange} 
       />
     );
     
     const input = screen.getByLabelText('Description');
-    userEvent.type(input, 'New description');
+    await userEvent.type(input, 'New description');
     
-    expect(mockHandleChange).toHaveBeenCalled();
+    await waitFor(() => expect(mockHandleChange).toHaveBeenCalled());
   });
 });
