@@ -60,8 +60,18 @@ describe('AuthContext', () => {
   it('should handle successful login with admin permissions', async () => {
     const mockUser = { id: 1, name: 'Admin User' };
     
+    // Mock login API response
     (api.post as jest.Mock).mockResolvedValueOnce({ data: { user: mockUser }});
-    (api.get as jest.Mock).mockResolvedValueOnce({ data: mockPermissions });
+    // Mock api.get to return correct data for each endpoint
+    (api.get as jest.Mock).mockImplementation((url: string) => {
+      if (url === '/check-session') {
+        return Promise.resolve({ status: 200, data: { user: mockUser } });
+      }
+      if (url === '/users/permissions') {
+        return Promise.resolve({ data: mockPermissions });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    });
 
     render(
       <AuthProvider>
@@ -78,9 +88,7 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    await act(async () => {
-      await userEvent.click(screen.getByText('Login'));
-    });
+    await userEvent.click(screen.getByText('Login'));
 
     await waitFor(() => {
       expect(screen.getByTestId('admin-permission').textContent).toBe('true');
@@ -90,8 +98,16 @@ describe('AuthContext', () => {
   it('should verify all defined permissions', async () => {
     const mockUser = { id: 1, name: 'Test User' };
     
-    (api.get as jest.Mock).mockResolvedValueOnce({ data: { user: mockUser }});
-    (api.get as jest.Mock).mockResolvedValueOnce({ data: mockPermissions });
+    // Mock api.get to return correct data for each endpoint
+    (api.get as jest.Mock).mockImplementation((url: string) => {
+      if (url === '/check-session') {
+        return Promise.resolve({ status: 200, data: { user: mockUser } });
+      }
+      if (url === '/users/permissions') {
+        return Promise.resolve({ data: mockPermissions });
+      }
+      return Promise.reject(new Error('Unknown endpoint'));
+    });
 
     render(
       <AuthProvider>
@@ -114,7 +130,7 @@ describe('AuthContext', () => {
         expect(screen.getByTestId(`permission-${permission}`).textContent)
           .toBe('true');
       });
-    });
+    }); // waitFor ensures all state is updated
   });
 
   it('should handle logout', async () => {
@@ -130,15 +146,14 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    await act(async () => {
-      await userEvent.click(screen.getByText('Logout'));
-    });
+    await userEvent.click(screen.getByText('Logout'));
 
     expect(api.post).toHaveBeenCalledWith('/logout', {});
   });
 
   it('should handle login errors', async () => {
     (api.post as jest.Mock).mockRejectedValueOnce(new Error('Invalid credentials'));
+    (api.get as jest.Mock).mockImplementation(() => Promise.resolve({ data: [] }));
 
     render(
       <AuthProvider>
@@ -153,11 +168,11 @@ describe('AuthContext', () => {
       </AuthProvider>
     );
 
-    await act(async () => {
-      await userEvent.click(screen.getByText('Login'));
-    });
+    await userEvent.click(screen.getByText('Login'));
 
-    expect(screen.getByTestId('error').textContent)
-      .toBe('Login failed. Please check your credentials.');
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent)
+        .toBe('Login failed. Please check your credentials.');
+    });
   });
 });

@@ -25,13 +25,11 @@ export const useAuth = (): AuthContextType => {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userPermissions, setUserPermissions] = useState<Permission[]>([]);
-  const [permissionCache, setPermissionCache] = useState<Record<string, boolean>>({});
+
   const [permissionsLoading, setPermissionsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setPermissionCache({});
-  }, [userPermissions]);
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -61,15 +59,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const hasPermission = (requiredPermission: string): boolean => {
     if (permissionsLoading) return false;
-
-    if (permissionCache[requiredPermission] !== undefined) {
-      return permissionCache[requiredPermission];
-    }
-    
-    const hasAccess = userPermissions.some(p => p.permission === requiredPermission);
-    setPermissionCache(prev => ({...prev, [requiredPermission]: hasAccess}));
-    return hasAccess;
+    return userPermissions.some(p => p.permission === requiredPermission);
   };
+
 
   const login = async (login: string, password: string): Promise<void> => {
     try {
@@ -77,20 +69,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(null);
       
       const response = await api.post('/login', { login, password });
-      if (response.data) {
+      if (response && response.data && response.data.user) {
         setCurrentUser(response.data.user);
         const permissionsResponse = await api.get('/users/permissions');
         setUserPermissions(permissionsResponse.data);
-        setPermissionCache({});
       } else {
-        console.error('Login failed:', response.data);
+        setCurrentUser(null);
+        setUserPermissions([]);
+        setError('Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Login failed:', error);
       setCurrentUser(null);
       setUserPermissions([]);
       setError('Login failed. Please check your credentials.');
-      throw error;
     } finally {
       setPermissionsLoading(false);
     }
@@ -105,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setCurrentUser(null);
       setUserPermissions([]);
-      setPermissionCache({});
+      
       setPermissionsLoading(false);
     }
   };
