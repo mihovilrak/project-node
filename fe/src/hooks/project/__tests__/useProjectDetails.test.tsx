@@ -1,6 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { useProjectDetails } from '../useProjectDetails';
-import { getProjectById, getProjectDetails, updateProject, deleteProject } from '../../../api/projects';
+import {
+  getProjectById,
+  getProjectDetails,
+  updateProject,
+  deleteProject
+} from '../../../api/projects';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../../types/project';
@@ -128,7 +133,7 @@ describe('useProjectDetails', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(result.current.error).toBe('Failed to fetch project data');
+    expect(result.current.error).toBe('Failed to load project details');
     expect(result.current.loading).toBe(false);
   });
 

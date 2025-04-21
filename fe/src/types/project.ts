@@ -133,7 +133,7 @@ export interface TabPanelProps {
 }
 
 export interface FormData extends Partial<Project> {
-  name: string;
+  name: string | undefined;
   description: string | null;
   start_date: string;
   due_date: string;
@@ -278,7 +278,7 @@ export interface ProjectMembersFormProps {
 }
 
 export interface ProjectFormData {
-  name: string;
+  name: string | undefined;
   description: string | null;
   start_date: string;
   due_date: string;

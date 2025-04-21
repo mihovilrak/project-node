@@ -102,7 +102,9 @@ export const useProjectDetails = (projectId: string) => {
     setState,
     handleProjectUpdate,
     handleProjectDelete,
-    isProjectMember: memberHooks.members.some(member => member.user_id === currentUser?.id),
+    isProjectMember: memberHooks.members.some(
+      member => member.user_id === currentUser?.id
+    ),
     canEdit: hasPermission('Edit projects'),
     canDelete: hasPermission('Delete projects'),
     canManageMembers: hasPermission('Manage project members')

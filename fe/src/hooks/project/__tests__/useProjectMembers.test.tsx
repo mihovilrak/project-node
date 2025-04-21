@@ -33,10 +33,42 @@ describe('useProjectMembers', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
+  });
+
+  // ...
+
+  it('should handle members update with new users', async () => {
+    (getProjectMembers as jest.Mock).mockReset(); // Ensure reset BEFORE any other calls
+    const newMember = {
+      project_id: 1,
+      user_id: 3,
+      role_id: 1,
+      created_on: '2024-01-01',
+      name: 'Bob',
+      surname: 'Johnson',
+      role: 'Developer'
+    };
+    (addProjectMember as jest.Mock).mockResolvedValue(newMember);
+    (getProjectMembers as jest.Mock)
+      .mockResolvedValueOnce(mockMembers) // initial load
+      .mockResolvedValueOnce([...mockMembers, newMember]); // after add
+
+    const { result } = renderHook(() => useProjectMembers('1'));
+
+    await act(async () => {
+      await result.current.loadMembers();
+    });
+
+    await act(async () => {
+      await result.current.handleMembersUpdate([1, 2, 3]);
+    });
+
+    expect(addProjectMember).toHaveBeenCalledWith(1, 3);
+    expect(result.current.members).toContainEqual(newMember);
   });
 
   it('should fetch project members on mount', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     const { result } = renderHook(() => useProjectMembers('1'));
 
     await act(async () => {
@@ -48,6 +80,7 @@ describe('useProjectMembers', () => {
   });
 
   it('should handle member update', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     const updatedMember = {
       ...mockMembers[0],
       role: 'Senior Developer'
@@ -69,6 +102,7 @@ describe('useProjectMembers', () => {
   });
 
   it('should handle member removal', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     (removeProjectMember as jest.Mock).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProjectMembers('1'));
@@ -96,6 +130,10 @@ describe('useProjectMembers', () => {
       role: 'Developer'
     };
     (addProjectMember as jest.Mock).mockResolvedValue(newMember);
+    // Make getProjectMembers return the updated list after add
+    (getProjectMembers as jest.Mock)
+      .mockResolvedValueOnce(mockMembers) // initial load
+      .mockResolvedValueOnce([...mockMembers, newMember]); // after add
 
     const { result } = renderHook(() => useProjectMembers('1'));
 
@@ -104,7 +142,7 @@ describe('useProjectMembers', () => {
     });
 
     await act(async () => {
-      await result.current.handleMembersUpdate([3]);
+      await result.current.handleMembersUpdate([1, 2, 3]);
     });
 
     expect(addProjectMember).toHaveBeenCalledWith(1, 3);
@@ -112,6 +150,7 @@ describe('useProjectMembers', () => {
   });
 
   it('should handle error during member operations', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     const error = new Error('Failed to update member');
     (updateProjectMember as jest.Mock).mockRejectedValue(error);
 
@@ -125,6 +164,7 @@ describe('useProjectMembers', () => {
   });
 
   it('should toggle manage members dialog', () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     const { result } = renderHook(() => useProjectMembers('1'));
 
     act(() => {

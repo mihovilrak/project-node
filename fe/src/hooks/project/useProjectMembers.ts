@@ -17,6 +17,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       setMembers(membersData);
     } catch (error) {
       console.error('Failed to load members:', error);
+      throw error;
     }
   };
 
@@ -29,6 +30,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       setMembers(updatedMembers);
     } catch (error) {
       console.error('Failed to update member role:', error);
+      throw error;
     }
   };
 
@@ -39,6 +41,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       setMembers(updatedMembers);
     } catch (error) {
       console.error('Failed to remove member:', error);
+      throw error;
     }
   };
 
@@ -63,6 +66,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       await loadMembers();
     } catch (error) {
       console.error('Failed to update members:', error);
+      throw error;
     }
   };
 

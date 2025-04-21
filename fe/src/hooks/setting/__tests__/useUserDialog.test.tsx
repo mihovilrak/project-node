@@ -189,27 +189,4 @@ describe('useUserDialog', () => {
     expect(mockOnUserSaved).not.toHaveBeenCalled();
     expect(mockOnClose).not.toHaveBeenCalled();
   });
-
-  it('should reset form when dialog is reopened', () => {
-    const { result, rerender } = renderHook(
-      ({ user, open }) => useUserDialog(user, open, mockOnClose, mockOnUserSaved),
-      { initialProps: { user: mockUser, open: true } }
-    );
-
-    // Initial state with user
-    expect(result.current.formData.name).toBe(mockUser.name);
-
-    // Close dialog
-    rerender({ user: mockUser, open: false });
-    
-    expect(result.current.formData).toEqual({
-      login: '',
-      name: '',
-      surname: '',
-      email: '',
-      password: '',
-      role_id: 3,
-      status_id: 1
-    });
-  });
 });

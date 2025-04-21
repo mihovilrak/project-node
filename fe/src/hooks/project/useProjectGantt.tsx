@@ -11,22 +11,26 @@ export const useProjectGantt = (initialTasks: any[]) => {
   const theme = useTheme();
 
   useEffect(() => {
-    if (initialTasks) {
-      const formattedTasks: FormattedTask[] = initialTasks.map(task => ({
-        id: task.id,
-        title: task.name,
-        startDate: new Date(task.start_date),
-        endDate: new Date(task.due_date),
-        assigneeId: task.assignee_id,
-        type_name: task.type_name,
-        priority: task.priority_name,
-        status: task.status_name,
-        description: task.description,
-      }));
+    const formattedTasks: FormattedTask[] = (initialTasks || []).map(task => ({
+      id: task.id,
+      title: task.name,
+      startDate: new Date(task.start_date),
+      endDate: new Date(task.due_date),
+      assigneeId: task.assignee_id,
+      type_name: task.type_name,
+      priority: task.priority_name,
+      status: task.status_name,
+      description: task.description,
+    }));
+    // Only update state if tasks actually changed
+    if (
+      formattedTasks.length !== tasks.length ||
+      !formattedTasks.every((t, i) => JSON.stringify(t) === JSON.stringify(tasks[i]))
+    ) {
       setTasks(formattedTasks);
-      setLoading(false);
     }
-  }, [initialTasks]);
+    setLoading(false);
+  }, [initialTasks, tasks]);
 
   const getStatusColor = useCallback((status: string) => {
     const colors: Record<string, string> = {

@@ -67,52 +67,26 @@ describe('useProjectGantt', () => {
     expect(result.current.tasks).toEqual([
       {
         id: 1,
-        name: 'Task 1',
-        project_id: 1,
-        project_name: 'Test Project',
-        parent_id: null,
-        parent_name: null,
-        description: 'Test description',
-        type_id: 1,
+        title: 'Task 1',
+        startDate: new Date('2024-01-01T00:00:00Z'),
+        endDate: new Date('2024-01-31T00:00:00Z'),
+        assigneeId: 1,
         type_name: 'Feature',
-        status_id: 2,
-        status_name: 'In Progress',
-        priority_id: 1,
-        priority_name: 'High',
-        start_date: '2024-01-01T00:00:00Z',
-        due_date: '2024-01-31T00:00:00Z',
-        assignee_id: 1,
-        spent_time: 0,
-        created_by: 1,
-        created_by_name: 'Test User',
-        created_on: '2024-01-01T00:00:00Z',
-        estimated_time: 40,
-        progress: 0
+        priority: 'High',
+        status: 'In Progress',
+        description: 'Test description',
       },
       {
         id: 2,
-        name: 'Task 2',
-        project_id: 1,
-        project_name: 'Test Project',
-        parent_id: null,
-        parent_name: null,
-        description: 'Another test description',
-        type_id: 2,
+        title: 'Task 2',
+        startDate: new Date('2024-02-01T00:00:00Z'),
+        endDate: new Date('2024-02-28T00:00:00Z'),
+        assigneeId: 2,
         type_name: 'Bug',
-        status_id: 1,
-        status_name: 'New',
-        priority_id: 2,
-        priority_name: 'Normal',
-        start_date: '2024-02-01T00:00:00Z',
-        due_date: '2024-02-28T00:00:00Z',
-        assignee_id: 2,
-        spent_time: 0,
-        created_by: 1,
-        created_by_name: 'Test User',
-        created_on: '2024-01-01T00:00:00Z',
-        estimated_time: 20,
-        progress: 0
-      }
+        priority: 'Normal',
+        status: 'New',
+        description: 'Another test description',
+      },
     ]);
     expect(result.current.loading).toBe(false);
   });
@@ -145,17 +119,17 @@ describe('useProjectGantt', () => {
   });
 
   it('should handle current view name changes', () => {
-    const { result } = renderHook(() => useProjectGantt([]), { wrapper });
+    const { result: result1 } = renderHook(() => useProjectGantt([]), { wrapper });
 
     act(() => {
-      result.current.setCurrentViewName('Week');
+      result1.current.setCurrentViewName('Week');
     });
-    expect(result.current.currentViewName).toBe('Week');
+    expect(result1.current.currentViewName).toBe('Week');
 
     act(() => {
-      result.current.setCurrentViewName('Month');
+      result1.current.setCurrentViewName('Month');
     });
-    expect(result.current.currentViewName).toBe('Month');
+    expect(result1.current.currentViewName).toBe('Month');
   });
 
   it('should handle current date changes', () => {
@@ -169,7 +143,13 @@ describe('useProjectGantt', () => {
   });
 
   it('should handle task updates', () => {
-    const { result } = renderHook(() => useProjectGantt(mockTasks), { wrapper });
+    const { result: result2, rerender } = renderHook(
+      ({ initialTasks }) => useProjectGantt(initialTasks),
+      {
+        wrapper,
+        initialProps: { initialTasks: mockTasks }
+      }
+    );
     const updatedTask = {
       id: 1,
       name: 'Updated Task 1',
@@ -196,15 +176,10 @@ describe('useProjectGantt', () => {
     };
 
     // Since we can't directly update tasks, we need to re-initialize with new tasks
-    const { rerender } = renderHook((props) => useProjectGantt(props), {
-      wrapper,
-      initialProps: [updatedTask]
-    });
+    rerender({ initialTasks: [updatedTask] });
 
-    rerender([updatedTask]);
-
-    expect(result.current.tasks[0].title).toBe('Updated Task 1');
-    expect(result.current.tasks[0].status).toBe('Done');
+    expect(result2.current.tasks[0].title).toBe('Updated Task 1');
+    expect(result2.current.tasks[0].status).toBe('Done');
   });
 
   it('should handle resource rendering', () => {

@@ -73,7 +73,7 @@ describe('useProjectForm', () => {
     });
 
     expect(result.current.formData.name).toBe('New Project Name');
-    expect(result.current.errors.name).toBe('');
+    expect(result.current.errors.name).toBe(undefined);
   });
 
   it('should handle status changes', () => {
@@ -163,21 +163,25 @@ describe('useProjectForm', () => {
     });
 
     expect(isValid).toBe(false);
-    expect(result.current.errors.name).toBe('Name is required');
+    expect(result.current.errors.name).toBe('Project name is required');
 
     // Fill in required fields
     act(() => {
       result.current.handleChange({
         target: { name: 'name', value: 'Test Project' }
       } as React.ChangeEvent<HTMLInputElement>);
+    });
+    act(() => {
       result.current.handleDateChange('start_date', dayjs('2024-01-01'));
+    });
+    act(() => {
       result.current.handleDateChange('due_date', dayjs('2024-12-31'));
     });
 
     act(() => {
       isValid = result.current.validateForm();
     });
-
+    console.log(result.current.formData);
     expect(isValid).toBe(true);
     expect(result.current.errors).toEqual({});
   });

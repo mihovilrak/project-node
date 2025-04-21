@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { useProjectTasks } from '../useProjectTasks';
 import { getProjectTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
@@ -6,6 +7,14 @@ import { Task } from '../../../types/task';
 
 // Mock dependencies
 jest.mock('../../../api/tasks');
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn()
+}));
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <MemoryRouter>{children}</MemoryRouter>
+);
 
 describe('useProjectTasks', () => {
   const mockTasks: Task[] = [
@@ -79,7 +88,7 @@ describe('useProjectTasks', () => {
   });
 
   it('should fetch project tasks on mount', async () => {
-    const { result } = renderHook(() => useProjectTasks('1'));
+    const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
     await act(async () => {
       await result.current.loadTasks();
@@ -95,8 +104,10 @@ describe('useProjectTasks', () => {
       id: 3,
       name: 'New Task'
     };
+    const mockNavigate = jest.fn();
+    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
 
-    const { result } = renderHook(() => useProjectTasks('1'));
+    const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
     await act(async () => {
       await result.current.loadTasks();
@@ -106,20 +117,27 @@ describe('useProjectTasks', () => {
       await result.current.handleTaskCreate(newTask);
     });
 
-    expect(result.current.tasks).toContainEqual(newTask);
+    expect(mockNavigate).toHaveBeenCalledWith('/tasks/new?projectId=1');
   });
 
   it('should handle error during task fetch', async () => {
     const error = new Error('Failed to fetch tasks');
     (getProjectTasks as jest.Mock).mockRejectedValue(error);
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() => useProjectTasks('1'));
+    const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
-    await expect(result.current.loadTasks()).rejects.toThrow('Failed to fetch tasks');
+    await act(async () => {
+      await result.current.loadTasks();
+    });
+
+    expect(result.current.tasks).toEqual([]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load tasks:', error);
+    consoleErrorSpy.mockRestore();
   });
 
   it('should toggle task form dialog', () => {
-    const { result } = renderHook(() => useProjectTasks('1'));
+    const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
     act(() => {
       result.current.setTaskFormOpen(true);
@@ -133,7 +151,7 @@ describe('useProjectTasks', () => {
   });
 
   it('should update tasks state', () => {
-    const { result } = renderHook(() => useProjectTasks('1'));
+    const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
     act(() => {
       result.current.setTasks(mockTasks);

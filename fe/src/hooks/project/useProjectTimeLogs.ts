@@ -20,6 +20,7 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
       setTimeLogs(allLogs);
     } catch (error) {
       console.error('Failed to load time logs:', error);
+      throw error;
     }
   };
 
@@ -45,6 +46,7 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
       await loadTimeLogs();
     } catch (error) {
       console.error('Failed to delete time log:', error);
+      throw error;
     }
   };
 
