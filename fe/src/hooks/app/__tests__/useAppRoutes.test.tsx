@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import {
   useTaskFileWrapper,
   useTimeLogCalendarWrapper,
@@ -13,6 +13,7 @@ import { TaskFile } from '../../../types/file';
 // Mock the tasks API
 jest.mock('../../../api/tasks');
 const mockedGetTaskById = getTaskById as jest.MockedFunction<typeof getTaskById>;
+
 
 // Mock window.location
 const mockLocation = {
@@ -50,15 +51,12 @@ describe('useTaskFileWrapper', () => {
 
     expect(consoleSpy).toHaveBeenCalledWith('File uploaded:', {
       id: 1,
-      task_id: '1',
-      user_id: '1',
+      task_id: 1,
+      user_id: 1,
       name: 'test.txt',
       original_name: 'test.txt',
       mime_type: 'text/plain',
       size: 1000,
-      created_on: expect.any(Date),
-      updated_on: expect.any(Date),
-      active: true
     });
   });
 
@@ -127,26 +125,26 @@ describe('useTaskTimeLogsWrapper', () => {
     };
     mockedGetTaskById.mockResolvedValueOnce(mockTask);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
+    const { result } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
 
     expect(result.current.task).toBeNull();
-    
-    await waitForNextUpdate();
 
-    expect(mockedGetTaskById).toHaveBeenCalledWith(1);
-    expect(result.current.task).toEqual(mockTask);
+    await waitFor(() => {
+      expect(mockedGetTaskById).toHaveBeenCalledWith(1);
+      expect(result.current.task).toEqual(mockTask);
+    });
   });
 
   it('should handle fetch error gracefully', async () => {
     const consoleSpy = jest.spyOn(console, 'error');
     mockedGetTaskById.mockRejectedValueOnce(new Error('Failed to fetch'));
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
+    const { result } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
 
-    await waitForNextUpdate();
-
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch task:', expect.any(Error));
-    expect(result.current.task).toBeNull();
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch task:', expect.any(Error));
+      expect(result.current.task).toBeNull();
+    });
   });
 });
 

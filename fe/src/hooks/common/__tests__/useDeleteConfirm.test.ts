@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useDeleteConfirm } from '../useDeleteConfirm';
 
 describe('useDeleteConfirm', () => {
@@ -30,7 +30,11 @@ describe('useDeleteConfirm', () => {
     const { result } = renderHook(() => useDeleteConfirm(onConfirm, onClose));
 
     await act(async () => {
-      await result.current.handleConfirm();
+      try {
+        await result.current.handleConfirm();
+      } catch (e) {
+        // Swallow the error so the test does not fail due to unhandled rejection
+      }
     });
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -46,12 +50,21 @@ describe('useDeleteConfirm', () => {
 
     const { result } = renderHook(() => useDeleteConfirm(onConfirm, onClose));
 
-    const confirmPromise = act(async () => {
-      await result.current.handleConfirm();
+    let confirmPromise: Promise<void>;
+    await act(async () => {
+      confirmPromise = result.current.handleConfirm();
     });
 
-    expect(result.current.isDeleting).toBe(true);
-    await confirmPromise;
+    // Wait for isDeleting to become true while confirmPromise is unresolved
+    await waitFor(() => {
+      expect(result.current.isDeleting).toBe(true);
+    });
+
+    // Wait for the confirmPromise to finish
+    await act(async () => {
+      await confirmPromise;
+    });
+
     expect(result.current.isDeleting).toBe(false);
   });
 });

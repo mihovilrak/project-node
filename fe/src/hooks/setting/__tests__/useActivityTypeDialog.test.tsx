@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useActivityTypeDialog } from '../useActivityTypeDialog';
 import { ActivityType } from '../../../types/setting';
 

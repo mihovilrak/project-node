@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useHeader } from '../useHeader';
 import { useAuth } from '../../../context/AuthContext';
 import { User } from '../../../types/user';
@@ -42,20 +42,29 @@ describe('useHeader', () => {
     expect(result.current.currentUser).toBe(mockUser);
   });
 
-  it('should update isScrolled when window is scrolled', () => {
+  it('should update isScrolled when window is scrolled', async () => {
     const { result } = renderHook(() => useHeader());
-    
-    // Simulate scroll event
-    global.window.scrollY = 100;
-    global.dispatchEvent(new Event('scroll'));
+    const { act, waitFor } = require('@testing-library/react');
 
-    expect(result.current.isScrolled).toBe(true);
+    // Simulate scroll event
+    await act(async () => {
+      global.window.scrollY = 100;
+      global.dispatchEvent(new Event('scroll'));
+    });
+
+    await waitFor(() => {
+      expect(result.current.isScrolled).toBe(true);
+    });
 
     // Reset scroll position
-    global.window.scrollY = 0;
-    global.dispatchEvent(new Event('scroll'));
+    await act(async () => {
+      global.window.scrollY = 0;
+      global.dispatchEvent(new Event('scroll'));
+    });
 
-    expect(result.current.isScrolled).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isScrolled).toBe(false);
+    });
   });
 
   it('should handle case when user is not authenticated', () => {

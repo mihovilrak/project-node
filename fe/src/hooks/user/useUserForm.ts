@@ -36,7 +36,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         setLoading(true);
         const roleData = await fetchRoles();
         setRoles(roleData);
-        setError(null);
+        setError(prev => (prev ? null : prev));
       } catch (error) {
         console.error('Failed to fetch roles', error);
         setError('Failed to load roles');
@@ -77,12 +77,26 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       ...prev,
       [name]: name === 'role_id' ? Number(value) : value,
     }));
-    setError(null);
+    setError(prev => (prev ? null : prev));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('DEBUG formValues at submit:', formValues);
     e.preventDefault();
-    
+
+    // Validate all required fields first, regardless of mode
+    if (
+      !formValues.login ||
+      !formValues.name ||
+      !formValues.surname ||
+      !formValues.email ||
+      !formValues.password ||
+      !formValues.confirmPassword
+    ) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     const isEditMode = window.location.pathname.includes('/edit');
     
     // Validate passwords based on mode
@@ -99,25 +113,15 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         }
       }
     } else {
-      // Create mode
-      if (!formValues.password) {
-        setError('Password is required');
-        return;
-      }
-      if (!formValues.confirmPassword) {
-        setError('Please confirm your password');
+      // Create mode: validate all required fields first
+      if (!formValues.login || !formValues.name || !formValues.surname || !formValues.email || !formValues.password || !formValues.confirmPassword) {
+        setError('Please fill in all required fields');
         return;
       }
       if (formValues.password !== formValues.confirmPassword) {
         setError('Passwords do not match');
         return;
       }
-    }
-
-    // Validate other required fields
-    if (!formValues.login || !formValues.name || !formValues.surname || !formValues.email) {
-      setError('Please fill in all required fields');
-      return;
     }
 
     try {

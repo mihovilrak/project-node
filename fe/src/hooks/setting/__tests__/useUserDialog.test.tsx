@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { SelectChangeEvent } from '@mui/material';
 import { useUserDialog } from '../useUserDialog';
 import { createUser, updateUser } from '../../../api/users';

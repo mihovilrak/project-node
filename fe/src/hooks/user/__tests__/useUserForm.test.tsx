@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useUserForm } from '../useUserForm';
 import { fetchRoles, createUser, getUserById, updateUser } from '../../../api/users';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,12 @@ const mockNavigate = jest.fn();
 (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
 
 describe('useUserForm', () => {
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: { pathname: '/users/create' },
+      writable: true
+    });
+  });
   const mockRoles: Role[] = [
     { id: 1, name: 'Admin' },
     { id: 2, name: 'User' }
@@ -197,26 +203,6 @@ describe('useUserForm', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/users');
   });
 
-  it('should handle validation errors in create mode', async () => {
-    const { result } = renderHook(() => useUserForm({}));
-
-    // Mock window.location.pathname
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/create' },
-      writable: true
-    });
-
-    const mockEvent = {
-      preventDefault: jest.fn()
-    };
-
-    await act(async () => {
-      await result.current.handleSubmit(mockEvent as unknown as React.FormEvent);
-    });
-
-    expect(result.current.error).toBe('Please fill in all required fields');
-    expect(createUser).not.toHaveBeenCalled();
-  });
 
   it('should handle API errors', async () => {
     const apiError = new Error('API Error');

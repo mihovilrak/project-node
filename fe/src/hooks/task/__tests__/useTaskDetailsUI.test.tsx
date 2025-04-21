@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useTaskDetailsUI } from '../useTaskDetailsUI';
 import { Task } from '../../../types/task';
 import { Comment } from '../../../types/comment';

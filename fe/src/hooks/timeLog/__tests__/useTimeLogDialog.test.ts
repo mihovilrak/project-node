@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useTimeLogDialog } from '../useTimeLogDialog';
 import dayjs from 'dayjs';
 import { TimeLog } from '../../../types/timeLog';

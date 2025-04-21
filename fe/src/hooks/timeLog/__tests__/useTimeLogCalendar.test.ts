@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useTimeLogCalendar } from '../useTimeLogCalendar';
 import { TimeLog } from '../../../types/timeLog';
 import { createTheme } from '@mui/material/styles';

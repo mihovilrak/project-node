@@ -1,6 +1,10 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useNotificationCenter } from '../useNotificationCenter';
-import { getNotifications, markAsRead, deleteNotification } from '../../../api/notifications';
+import {
+  getNotifications,
+  markAsRead,
+  deleteNotification
+} from '../../../api/notifications';
 import { MemoryRouter } from 'react-router-dom';
 import { Notification } from '../../../types/notification';
 
@@ -10,6 +14,9 @@ jest.mock('../../../api/notifications', () => ({
   markAsRead: jest.fn(),
   deleteNotification: jest.fn(),
 }));
+
+// Helper to flush all pending promises
+const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
 // Mock data
 const mockNotifications: Notification[] = [
@@ -46,15 +53,15 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 describe('useNotificationCenter', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    jest.runOnlyPendingTimers();
+    jest.clearAllMocks();
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => useNotificationCenter(undefined), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(undefined, 0), { wrapper });
     
     expect(result.current.notifications).toEqual([]);
     expect(result.current.loading).toBe(false);
@@ -65,23 +72,28 @@ describe('useNotificationCenter', () => {
   it('should fetch notifications when userId is provided', async () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
 
-    const { result } = renderHook(() => useNotificationCenter(1), { wrapper });
+    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
 
-    // Wait for the initial fetch
     await act(async () => {
-      await jest.runAllTimers();
+      jest.advanceTimersByTime(1);
+      await flushPromises();
     });
-
-    expect(getNotifications).toHaveBeenCalledWith(1);
-    expect(result.current.notifications).toEqual(mockNotifications);
-    expect(result.current.unreadCount).toBe(1); // Only one notification is unread
+    await waitFor(() => {
+      expect(getNotifications).toHaveBeenCalledWith(1);
+      expect(result.current.notifications).toEqual(mockNotifications);
+      expect(result.current.unreadCount).toBe(1); // Only one notification is unread
+    });
+    await act(async () => {
+      await flushPromises();
+    });
+    unmount();
   });
 
   it('should handle notification click correctly', async () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
     (markAsRead as jest.Mock).mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useNotificationCenter(1), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
 
     await act(async () => {
       await result.current.handleNotificationClick(mockNotifications[0]);
@@ -95,7 +107,7 @@ describe('useNotificationCenter', () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
     (deleteNotification as jest.Mock).mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useNotificationCenter(1), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
 
     const mockEvent = {
       stopPropagation: jest.fn(),
@@ -111,7 +123,7 @@ describe('useNotificationCenter', () => {
   });
 
   it('should handle anchor element for notification menu', () => {
-    const { result } = renderHook(() => useNotificationCenter(1), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
 
     const mockEvent = {
       currentTarget: document.createElement('button'),
@@ -133,33 +145,41 @@ describe('useNotificationCenter', () => {
   it('should poll for notifications every minute', async () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
 
-    renderHook(() => useNotificationCenter(1), { wrapper });
+    const { unmount } = renderHook(() => useNotificationCenter(1, 100), { wrapper });
 
     // Initial fetch
     expect(getNotifications).toHaveBeenCalledTimes(1);
 
-    // Advance time by 1 minute
+    // Advance time by 1 minute (simulate polling)
     await act(async () => {
-      jest.advanceTimersByTime(60000);
+      jest.advanceTimersByTime(101);
+      await flushPromises();
+    });
+    await flushPromises();
+    await waitFor(() => {
+      expect(getNotifications).toHaveBeenCalledTimes(2);
     });
 
-    // Should fetch again after 1 minute
-    expect(getNotifications).toHaveBeenCalledTimes(2);
+    unmount();
   });
 
   it('should handle API errors gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getNotifications as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(() => useNotificationCenter(1), { wrapper });
+    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
 
     await act(async () => {
-      jest.runAllTimers();
+      jest.advanceTimersByTime(1);
+      await flushPromises();
     });
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
-    expect(result.current.notifications).toEqual([]);
-    expect(result.current.loading).toBe(false);
+    unmount();
+    await flushPromises();
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
+      expect(result.current.notifications).toEqual([]);
+      expect(result.current.loading).toBe(false);
+    });
 
     consoleErrorSpy.mockRestore();
   });

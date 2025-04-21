@@ -69,7 +69,7 @@ describe('PrivateRoute', () => {
     });
 
     render(<PrivateRoute />);
-    expect(Navigate).toHaveBeenCalledWith({ to: '/login' }, {});
+    expect(Navigate).toHaveBeenCalledWith(expect.objectContaining({ to: '/login' }), undefined);
   });
 
   it('should redirect to home when user lacks required permission', () => {
@@ -84,7 +84,7 @@ describe('PrivateRoute', () => {
     });
 
     render(<PrivateRoute requiredPermission="CreateProject" />);
-    expect(Navigate).toHaveBeenCalledWith({ to: '/' }, {});
+    expect(Navigate).toHaveBeenCalledWith(expect.objectContaining({ to: '/' }), undefined);
   });
 
   it('should render component when user has required permission', () => {

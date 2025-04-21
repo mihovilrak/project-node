@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useProfileData } from '../useProfileData';
 import {
   getProfile,
@@ -167,11 +167,13 @@ describe('useProfileData', () => {
   });
 
   it('should fetch profile data on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProfileData());
+    const { result } = renderHook(() => useProfileData());
     
     expect(result.current.loading).toBe(true);
     
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
     
     expect(getProfile).toHaveBeenCalled();
     expect(getRecentTasks).toHaveBeenCalled();
@@ -188,18 +190,19 @@ describe('useProfileData', () => {
     const error = new Error('API Error');
     (getProfile as jest.Mock).mockRejectedValue(error);
     
-    const { result, waitForNextUpdate } = renderHook(() => useProfileData());
+    const { result } = renderHook(() => useProfileData());
     
-    await waitForNextUpdate();
-    
-    expect(result.current.error).toBe('Failed to fetch profile data');
+    await waitFor(() => {
+      expect(result.current.error).toBe('Failed to load profile data');
+    });
     expect(result.current.loading).toBe(false);
   });
 
   it('should update profile successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProfileData());
-    await waitForNextUpdate();
-
+    const { result } = renderHook(() => useProfileData());
+    await waitFor(() => {
+      expect(result.current.profile).not.toBeNull();
+    });
     const updateData: ProfileUpdateData = {
       name: 'Updated Name',
       surname: 'Doe',
@@ -227,7 +230,7 @@ describe('useProfileData', () => {
       result.current.setEditDialogOpen(false);
     });
     expect(result.current.editDialogOpen).toBe(false);
-
+    
     act(() => {
       result.current.setPasswordDialogOpen(true);
     });
@@ -240,15 +243,15 @@ describe('useProfileData', () => {
   });
 
   it('should update stats when profile data changes', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProfileData());
+    const { result } = renderHook(() => useProfileData());
     
-    await waitForNextUpdate();
-    
-    expect(result.current.stats).toEqual({
-      totalTasks: mockProfileData.total_tasks,
-      completedTasks: mockProfileData.completed_tasks,
-      activeProjects: mockProfileData.active_projects,
-      totalHours: mockProfileData.total_hours
+    await waitFor(() => {
+      expect(result.current.stats).toEqual({
+        totalTasks: mockProfileData.total_tasks,
+        completedTasks: mockProfileData.completed_tasks,
+        activeProjects: mockProfileData.active_projects,
+        totalHours: mockProfileData.total_hours
+      });
     });
   });
 });

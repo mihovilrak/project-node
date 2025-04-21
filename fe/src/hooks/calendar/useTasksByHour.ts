@@ -8,14 +8,14 @@ export const useTasksByHour = (tasks: Task[], timeLogs: TimeLog[]) => {
     return tasks.filter(task => {
       if (!task.start_date) return false;
       const taskDate = new Date(task.start_date);
-      return taskDate.getHours() === hour;
+      return taskDate.getUTCHours() === hour;
     });
   };
 
   const getTimeLogsForHour = (hour: number): TimeLog[] => {
     return timeLogs.filter(timeLog => {
       const logDate = new Date(timeLog.created_on);
-      return logDate.getHours() === hour;
+      return logDate.getUTCHours() === hour;
     });
   };
 

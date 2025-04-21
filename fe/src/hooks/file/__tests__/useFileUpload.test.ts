@@ -1,11 +1,11 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFileUpload } from '../useFileUpload';
 import { uploadFile } from '../../../api/files';
 import { TaskFile } from '../../../types/file';
 import { AxiosProgressEvent } from 'axios';
 
 // Mock the uploadFile function
-jest.mock('../../api/files');
+jest.mock('../../../api/files');
 const mockedUploadFile = uploadFile as jest.MockedFunction<typeof uploadFile>;
 
 describe('useFileUpload', () => {
@@ -59,18 +59,35 @@ describe('useFileUpload', () => {
   });
 
   it('should handle upload progress', async () => {
+    let progressCallbackRef: ((e: AxiosProgressEvent) => void) | undefined;
+    let resolveUpload: (() => void) | undefined;
+    const uploadPromise = new Promise<TaskFile>(resolve => { resolveUpload = () => resolve(mockTaskFile); });
+
     mockedUploadFile.mockImplementation(async (_, __, onProgress) => {
-      onProgress?.({ loaded: 50, total: 100 } as AxiosProgressEvent);
-      return mockTaskFile;
+      progressCallbackRef = onProgress;
+      return uploadPromise;
     });
 
     const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
 
+    // Start the upload (do not await yet)
+    const uploadTask = result.current.handleFileChange(mockEvent);
+
+    // Simulate progress event inside act
     await act(async () => {
-      await result.current.handleFileChange(mockEvent);
+      progressCallbackRef?.({ loaded: 50, total: 100 } as AxiosProgressEvent);
     });
 
-    expect(result.current.progress).toBe(50);
+    // Wait for progress to update
+    await waitFor(() => {
+      expect(result.current.progress).toBe(50);
+    });
+
+    // Complete the upload
+    await act(async () => {
+      resolveUpload && resolveUpload();
+      await uploadTask;
+    });
   });
 
   it('should handle upload error', async () => {

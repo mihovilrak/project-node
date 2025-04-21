@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
 import { useLogin } from '../useLogin';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';

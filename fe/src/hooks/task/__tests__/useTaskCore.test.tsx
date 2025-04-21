@@ -1,6 +1,12 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useTaskCore } from '../useTaskCore';
-import { getTaskById, getSubtasks, getTaskStatuses, changeTaskStatus, deleteTask } from '../../../api/tasks';
+import {
+  getTaskById,
+  getSubtasks,
+  getTaskStatuses,
+  changeTaskStatus,
+  deleteTask
+} from '../../../api/tasks';
 import { Task, TaskStatus } from '../../../types/task';
 
 // Mock react-router-dom

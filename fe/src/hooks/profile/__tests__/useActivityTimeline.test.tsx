@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useActivityTimeline } from '../useActivityTimeline';
 import {
   Task as TaskIcon,

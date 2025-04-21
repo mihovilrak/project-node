@@ -7,7 +7,10 @@ import {
 } from '../../api/notifications';
 import { Notification } from '../../types/notification';
 
-export const useNotificationCenter = (userId: number | undefined) => {
+export const useNotificationCenter = (
+  userId: number | undefined,
+  pollIntervalMs: number = 60000
+) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -32,10 +35,12 @@ export const useNotificationCenter = (userId: number | undefined) => {
   useEffect(() => {
     if (userId) {
       fetchNotifications();
-      const interval = setInterval(fetchNotifications, 60000);
-      return () => clearInterval(interval);
+      if (pollIntervalMs > 0) {
+        const interval = setInterval(fetchNotifications, pollIntervalMs);
+        return () => clearInterval(interval);
+      }
     }
-  }, [userId]);
+  }, [userId, pollIntervalMs]);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
     setAnchorEl(event.currentTarget);
