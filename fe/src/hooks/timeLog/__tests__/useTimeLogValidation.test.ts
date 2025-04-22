@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useTimeLogValidation } from '../useTimeLogValidation';
 
 describe('useTimeLogValidation', () => {
@@ -18,7 +18,10 @@ describe('useTimeLogValidation', () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        const formatted = result.current.validateAndFormatTime(input);
+        let formatted: number | null = null;
+        act(() => {
+          formatted = result.current.validateAndFormatTime(input);
+        });
         expect(formatted).toBe(expected);
         expect(result.current.timeError).toBe('');
       });
@@ -29,7 +32,10 @@ describe('useTimeLogValidation', () => {
       const invalidInputs = ['', 'abc', '-1', '0', 'a1.5'];
 
       invalidInputs.forEach(input => {
-        const formatted = result.current.validateAndFormatTime(input);
+        let formatted: number | null = null;
+        act(() => {
+          formatted = result.current.validateAndFormatTime(input);
+        });
         expect(formatted).toBeNull();
         expect(result.current.timeError).toBe('Please enter a valid number of hours (e.g., 1, 1.5, 2)');
       });
@@ -42,7 +48,10 @@ describe('useTimeLogValidation', () => {
       const validInputs = ['1', '1.5', '2.25', '0.5'];
 
       validInputs.forEach(input => {
-        const isValid = result.current.validateTime(input);
+        let isValid: boolean = false;
+        act(() => {
+          isValid = result.current.validateTime(input);
+        });
         expect(isValid).toBe(true);
       });
     });
@@ -52,7 +61,10 @@ describe('useTimeLogValidation', () => {
       const invalidInputs = ['', 'abc', '-1', '0', 'a1.5'];
 
       invalidInputs.forEach(input => {
-        const isValid = result.current.validateTime(input);
+        let isValid: boolean = false;
+        act(() => {
+          isValid = result.current.validateTime(input);
+        });
         expect(isValid).toBe(false);
       });
     });

@@ -6,16 +6,20 @@ import { Task } from '../../../types/task';
 import { User } from '../../../types/user';
 
 // Mock dependencies
+// --- mockTask and mockUser must be declared before these mocks ---
+// (move these lines below their respective declarations)
+
 jest.mock('../useTimeLogData', () => ({
   useTimeLogData: () => ({
-    projects: [{ id: 1, name: 'Project 1' }],
-    tasks: [mockTask],
-    users: [mockUser],
-    activityTypes: [{ id: 1, name: 'Activity 1' }],
+    projects: mockProjects,
+    tasks: mockTasks,
+    users: mockUsers,
+    activityTypes: mockActivityTypes,
     isLoading: false,
     handleProjectSelect: jest.fn(),
   }),
 }));
+
 
 jest.mock('../useTimeLogValidation', () => ({
   useTimeLogValidation: () => ({
@@ -90,6 +94,12 @@ const defaultProps = {
   taskId: undefined,
   hasAdminPermission: false,
 };
+
+// Stable mock arrays to prevent infinite loop due to new reference on each render
+const mockProjects = [{ id: 1, name: 'Project 1' }];
+const mockTasks = [mockTask];
+const mockUsers = [mockUser];
+const mockActivityTypes = [{ id: 1, name: 'Activity 1' }];
 
 describe('useTimeLogDialog', () => {
   beforeEach(() => {

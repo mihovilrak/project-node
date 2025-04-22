@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTimeLogData } from '../useTimeLogData';
 import { getProjects } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
@@ -163,14 +163,14 @@ describe('useTimeLogData', () => {
   });
 
   it('should load initial data when opened', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: undefined,
       hasAdminPermission: false
     }));
 
     expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getActivityTypes).toHaveBeenCalled();
     expect(result.current.activityTypes).toEqual(mockActivityTypes);
@@ -178,14 +178,14 @@ describe('useTimeLogData', () => {
   });
 
   it('should load projects and tasks on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: 1,
       hasAdminPermission: false
     }));
 
     expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getProjects).toHaveBeenCalled();
     expect(getProjectTasks).toHaveBeenCalledWith(1);
@@ -195,47 +195,47 @@ describe('useTimeLogData', () => {
   });
 
   it('should load users when has admin permission', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: undefined,
       hasAdminPermission: true
     }));
 
     expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getUsers).toHaveBeenCalled();
     expect(result.current.users).toEqual(mockUsers);
   });
 
   it('should handle project selection', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: undefined,
       hasAdminPermission: false
     }));
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     act(() => {
       result.current.handleProjectSelect(1);
     });
 
     expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getProjectTasks).toHaveBeenCalledWith(1);
     expect(result.current.tasks).toEqual(mockTasks);
   });
 
   it('should clear tasks when project is deselected', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: 1,
       hasAdminPermission: false
     }));
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     act(() => {
       result.current.handleProjectSelect(null);
@@ -248,13 +248,13 @@ describe('useTimeLogData', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getProjects as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    const { result, waitForNextUpdate } = renderHook(() => useTimeLogData({
+    const { result } = renderHook(() => useTimeLogData({
       open: true,
       projectId: undefined,
       hasAdminPermission: false
     }));
 
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(consoleError).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
