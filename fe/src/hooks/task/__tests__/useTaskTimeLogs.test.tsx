@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskTimeLogs } from '../useTaskTimeLogs';
 import { getTaskTimeLogs, createTimeLog, deleteTimeLog } from '../../../api/timeLogs';
 import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
@@ -58,12 +58,16 @@ describe('useTaskTimeLogs', () => {
   });
 
   it('should load time logs successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
 
-    await waitForNextUpdate();
+    // await waitForNextUpdate();
 
-    expect(getTaskTimeLogs).toHaveBeenCalledWith(1);
-    expect(result.current.timeLogs).toEqual(mockTimeLogs);
+    await waitFor(() => {
+      expect(getTaskTimeLogs).toHaveBeenCalledWith(1);
+    });
+    await waitFor(() => {
+      expect(result.current.timeLogs).toEqual(mockTimeLogs);
+    });
   });
 
   it('should add time log successfully', async () => {
@@ -96,30 +100,38 @@ describe('useTaskTimeLogs', () => {
     (createTimeLog as jest.Mock).mockResolvedValue(newTimeLog);
     (getTaskTimeLogs as jest.Mock).mockResolvedValue([...mockTimeLogs, newTimeLog]);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
+    // await waitForNextUpdate();
 
     await act(async () => {
       await result.current.handleTimeLogSubmit(timeLogData);
     });
 
-    expect(createTimeLog).toHaveBeenCalledWith(1, timeLogData);
-    expect(result.current.timeLogs).toEqual([...mockTimeLogs, newTimeLog]);
+    await waitFor(() => {
+      expect(createTimeLog).toHaveBeenCalledWith(1, timeLogData);
+    });
+    await waitFor(() => {
+      expect(result.current.timeLogs).toEqual([...mockTimeLogs, newTimeLog]);
+    });
   });
 
   it('should delete time log successfully', async () => {
     (deleteTimeLog as jest.Mock).mockResolvedValue(undefined);
     (getTaskTimeLogs as jest.Mock).mockResolvedValue([mockTimeLogs[1]]);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
+    // await waitForNextUpdate();
 
     await act(async () => {
       await result.current.deleteTimeLog(1);
     });
 
-    expect(deleteTimeLog).toHaveBeenCalledWith(1);
-    expect(result.current.timeLogs).toEqual([mockTimeLogs[1]]);
+    await waitFor(() => {
+      expect(deleteTimeLog).toHaveBeenCalledWith(1);
+    });
+    await waitFor(() => {
+      expect(result.current.timeLogs).toEqual([mockTimeLogs[1]]);
+    });
   });
 
   it('should handle time log submission error', async () => {
@@ -134,20 +146,24 @@ describe('useTaskTimeLogs', () => {
       description: 'New time log'
     };
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
+    // await waitForNextUpdate();
 
-    await expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('Failed to add time log');
+    await waitFor(() => {
+      expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('Failed to add time log');
+    });
   });
 
   it('should handle time log deletion error', async () => {
     const error = new Error('Failed to delete time log');
     (deleteTimeLog as jest.Mock).mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
+    // await waitForNextUpdate();
 
-    await expect(result.current.deleteTimeLog(1)).rejects.toThrow('Failed to delete time log');
+    await waitFor(() => {
+      expect(result.current.deleteTimeLog(1)).rejects.toThrow('Failed to delete time log');
+    });
   });
 
   it('should handle unauthenticated user', async () => {
@@ -164,9 +180,11 @@ describe('useTaskTimeLogs', () => {
       description: 'New time log'
     };
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskTimeLogs('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskTimeLogs('1'));
+    // await waitForNextUpdate();
 
-    await expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('User not authenticated');
+    await waitFor(() => {
+      expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('User not authenticated');
+    });
   });
 });

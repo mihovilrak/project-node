@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskCore } from '../useTaskCore';
 import {
   getTaskById,
@@ -97,12 +97,14 @@ describe('useTaskCore', () => {
   });
 
   it('should load task data successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskCore('1'));
+    const { result } = renderHook(() => useTaskCore('1'));
 
     expect(result.current.loading).toBe(true);
     expect(result.current.error).toBe(null);
 
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe(null);
@@ -115,10 +117,12 @@ describe('useTaskCore', () => {
     const error = new Error('Failed to load task');
     (getTaskById as jest.Mock).mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskCore('1'));
+    const { result } = renderHook(() => useTaskCore('1'));
 
     expect(result.current.loading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe('Failed to load task details');
@@ -129,8 +133,10 @@ describe('useTaskCore', () => {
     const newStatus = 2;
     (changeTaskStatus as jest.Mock).mockResolvedValue({ ...mockTask, status_id: newStatus });
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskCore('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskCore('1'));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     await act(async () => {
       await result.current.handleStatusChange(newStatus);
@@ -143,8 +149,10 @@ describe('useTaskCore', () => {
   it('should handle task deletion successfully', async () => {
     (deleteTask as jest.Mock).mockResolvedValue(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskCore('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskCore('1'));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     await act(async () => {
       await result.current.handleDelete();

@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskForm } from '../useTaskForm';
 import { 
   getTaskById, 
@@ -27,7 +27,7 @@ const mockLocation = {
 Object.defineProperty(window, 'location', {
   value: mockLocation,
   writable: true
-});
+    });
 
 // Mock data
 const mockProjectMembers: ProjectMember[] = [
@@ -158,7 +158,7 @@ describe('useTaskForm', () => {
     (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
   });
 
-  it('should initialize with default values for new task', () => {
+  it('should initialize with default values for new task', async () => {
     const { result } = renderHook(() => useTaskForm({ 
       currentUserId,
       projectId: undefined,
@@ -166,25 +166,29 @@ describe('useTaskForm', () => {
       parentTaskId: null
     }));
 
-    expect(result.current.formData).toMatchObject({
-      name: '',
-      description: '',
-      project_id: null,
-      type_id: 1,
-      priority_id: 2,
-      status_id: 1,
-      holder_id: currentUserId,
-      assignee_id: null,
-      estimated_time: 0,
-      progress: 0,
-      created_by: currentUserId,
-      tags: []
+    await waitFor(() => {
+      expect(result.current.formData).toMatchObject({
+        name: '',
+        description: '',
+        project_id: null,
+        type_id: 1,
+        priority_id: 2,
+        status_id: 1,
+        holder_id: currentUserId,
+        assignee_id: null,
+        estimated_time: 0,
+        progress: 0,
+        created_by: currentUserId,
+        tags: []
+      });
     });
-    expect(result.current.isEditing).toBe(false);
+    await waitFor(() => {
+      expect(result.current.isEditing).toBe(false);
+    });
   });
 
   it('should load existing task data when taskId is provided', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskForm({
+    const { result } = renderHook(() => useTaskForm({
       taskId: '1',
       currentUserId,
       projectId: undefined,
@@ -192,28 +196,30 @@ describe('useTaskForm', () => {
       parentTaskId: null
     }));
 
-    await waitForNextUpdate();
-
-    expect(result.current.formData).toMatchObject({
-      name: mockTask.name,
-      description: mockTask.description,
-      project_id: mockTask.project_id,
-      type_id: mockTask.type_id,
-      priority_id: mockTask.priority_id,
-      status_id: mockTask.status_id,
-      holder_id: mockTask.holder_id,
-      assignee_id: mockTask.assignee_id,
-      start_date: expect.any(String),
-      due_date: expect.any(String),
-      estimated_time: mockTask.estimated_time,
-      progress: mockTask.progress,
-      created_by: mockTask.created_by,
-      tags: [mockTags[0]]
+    await waitFor(() => {
+      expect(result.current.formData).toMatchObject({
+        name: mockTask.name,
+        description: mockTask.description,
+        project_id: mockTask.project_id,
+        type_id: mockTask.type_id,
+        priority_id: mockTask.priority_id,
+        status_id: mockTask.status_id,
+        holder_id: mockTask.holder_id,
+        assignee_id: mockTask.assignee_id,
+        start_date: expect.any(String),
+        due_date: expect.any(String),
+        estimated_time: mockTask.estimated_time,
+        progress: mockTask.progress,
+        created_by: mockTask.created_by,
+        tags: [mockTags[0]]
+      });
     });
-    expect(result.current.isEditing).toBe(true);
+    await waitFor(() => {
+      expect(result.current.isEditing).toBe(true);
+    });
   });
 
-  it('should handle form field changes', () => {
+  it('should handle form field changes', async () => {
     const { result } = renderHook(() => useTaskForm({ 
       currentUserId,
       projectId: undefined,
@@ -225,7 +231,9 @@ describe('useTaskForm', () => {
       result.current.handleChange({ target: { name: 'name', value: 'New Task Name' } });
     });
 
-    expect(result.current.formData.name).toBe('New Task Name');
+    await waitFor(() => {
+      expect(result.current.formData.name).toBe('New Task Name');
+    });
   });
 
   it('should create new task successfully', async () => {
@@ -247,15 +255,21 @@ describe('useTaskForm', () => {
       await result.current.handleSubmit({ preventDefault: () => {} } as React.FormEvent);
     });
 
-    expect(createTask).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    await waitFor(() => {
+      expect(createTask).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
   });
 
   it('should update existing task successfully', async () => {
     const updatedTask = { ...mockTask, name: 'Updated Task' };
     (updateTask as jest.Mock).mockResolvedValue(updatedTask);
-
-    const { result, waitForNextUpdate } = renderHook(() => useTaskForm({
+    (getTaskById as jest.Mock).mockResolvedValue(mockTask);
+    (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
+    window.location.pathname = '/tasks/1/edit';
+    const { result } = renderHook(() => useTaskForm({
       taskId: '1',
       currentUserId,
       projectId: undefined,
@@ -263,7 +277,10 @@ describe('useTaskForm', () => {
       parentTaskId: null
     }));
 
-    await waitForNextUpdate();
+    // Wait for edit mode
+    await waitFor(() => {
+      expect(result.current.isEditing).toBe(true);
+    });
 
     act(() => {
       result.current.handleChange({ target: { name: 'name', value: 'Updated Task' } });
@@ -273,16 +290,22 @@ describe('useTaskForm', () => {
       await result.current.handleSubmit({ preventDefault: () => {} } as React.FormEvent);
     });
 
-    expect(updateTask).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    await waitFor(() => {
+      expect(updateTask).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(-1);
+    });
   });
 
   it('should update task status immediately when editing', async () => {
     const newStatus = 2;
     const updatedTask = { ...mockTask, status_id: newStatus };
     (changeTaskStatus as jest.Mock).mockResolvedValue(updatedTask);
-
-    const { result, waitForNextUpdate } = renderHook(() => useTaskForm({
+    (getTaskById as jest.Mock).mockResolvedValue(mockTask);
+    (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
+    window.location.pathname = '/tasks/1/edit';
+    const { result } = renderHook(() => useTaskForm({
       taskId: '1',
       currentUserId,
       projectId: undefined,
@@ -290,13 +313,20 @@ describe('useTaskForm', () => {
       parentTaskId: null
     }));
 
-    await waitForNextUpdate();
+    // Wait for edit mode
+    await waitFor(() => {
+      expect(result.current.isEditing).toBe(true);
+    });
 
     act(() => {
       result.current.handleChange({ target: { name: 'status_id', value: newStatus } });
     });
 
-    expect(changeTaskStatus).toHaveBeenCalledWith(1, newStatus);
-    expect(result.current.formData.status_id).toBe(newStatus);
+    await waitFor(() => {
+      expect(changeTaskStatus).toHaveBeenCalledWith(1, newStatus);
+    });
+    await waitFor(() => {
+      expect(result.current.formData.status_id).toBe(newStatus);
+    });
   });
 });

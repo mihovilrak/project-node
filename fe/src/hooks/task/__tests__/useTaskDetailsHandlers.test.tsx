@@ -180,6 +180,7 @@ describe('useTaskDetailsHandlers', () => {
     expect(mockOnSubmit).toHaveBeenCalledWith(mockTimeLogData);
     expect(consoleSpy).toHaveBeenCalledWith('Error handling time log:', error);
     expect(result.current.state.timeLogDialogOpen).toBe(true);
+    expect(result.current.state.selectedTimeLog).toBeNull();
 
     consoleSpy.mockRestore();
   });

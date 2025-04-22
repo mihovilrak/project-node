@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
@@ -20,6 +20,11 @@ export const useTaskTimeLogs = (taskId: string) => {
       console.error('Failed to fetch time logs:', error);
     }
   }, [taskId]);
+
+  // Automatically fetch time logs on mount and when taskId changes
+  useEffect(() => {
+    fetchTimeLogs();
+  }, [fetchTimeLogs]);
 
   const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
     try {

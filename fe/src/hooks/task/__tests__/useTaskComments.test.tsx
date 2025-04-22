@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskComments } from '../useTaskComments';
 import {
   getTaskComments,
@@ -49,10 +49,10 @@ describe('useTaskComments', () => {
   });
 
   it('should load comments successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskComments('1'));
-
-    await waitForNextUpdate();
-
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
     expect(getTaskComments).toHaveBeenCalledWith(1);
     expect(result.current.comments).toEqual(mockComments);
   });
@@ -71,8 +71,10 @@ describe('useTaskComments', () => {
 
     (createComment as jest.Mock).mockResolvedValue(newComment);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskComments('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
 
     await act(async () => {
       await result.current.handleCommentSubmit('New comment');
@@ -91,8 +93,10 @@ describe('useTaskComments', () => {
 
     (editComment as jest.Mock).mockResolvedValue(updatedComment);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskComments('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
 
     await act(async () => {
       await result.current.handleCommentUpdate(1, 'Updated comment');
@@ -105,14 +109,16 @@ describe('useTaskComments', () => {
   it('should delete comment successfully', async () => {
     (deleteComment as jest.Mock).mockResolvedValue(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskComments('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
 
     await act(async () => {
       await result.current.handleCommentDelete(1);
     });
 
-    expect(deleteComment).toHaveBeenCalledWith(1);
+    expect(deleteComment).toHaveBeenCalledWith(1, 1);
     expect(result.current.comments).toEqual([mockComments[1]]);
   });
 
@@ -120,8 +126,10 @@ describe('useTaskComments', () => {
     const error = new Error('Failed to add comment');
     (createComment as jest.Mock).mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskComments('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
 
     await expect(result.current.handleCommentSubmit('New comment')).rejects.toThrow('Failed to add comment');
   });

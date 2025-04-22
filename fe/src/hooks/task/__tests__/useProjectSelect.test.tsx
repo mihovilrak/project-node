@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useProjectSelect } from '../useProjectSelect';
 import { getProjects, getProjectMembers } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
@@ -129,33 +129,31 @@ describe('useProjectSelect', () => {
   });
 
   it('should load projects on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProjectSelect());
+    const { result } = renderHook(() => useProjectSelect());
 
-    await waitForNextUpdate();
-
-    expect(getProjects).toHaveBeenCalled();
-    expect(result.current.projects).toEqual(mockProjects);
+    await waitFor(() => {
+      expect(getProjects).toHaveBeenCalled();
+      expect(result.current.projects).toEqual(mockProjects);
+    });
   });
 
   it('should load project members and tasks when projectId is provided', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProjectSelect(1));
+    const { result } = renderHook(() => useProjectSelect(1));
 
-    await waitForNextUpdate(); // Wait for projects
-    await waitForNextUpdate(); // Wait for members and tasks
-
-    expect(getProjectMembers).toHaveBeenCalledWith(1);
-    expect(getProjectTasks).toHaveBeenCalledWith(1);
-    expect(result.current.projectMembers).toEqual(mockProjectMembers);
-    expect(result.current.projectTasks).toEqual(mockTasks);
+    await waitFor(() => {
+      expect(getProjectMembers).toHaveBeenCalledWith(1);
+      expect(getProjectTasks).toHaveBeenCalledWith(1);
+      expect(result.current.projectMembers).toEqual(mockProjectMembers);
+      expect(result.current.projectTasks).toEqual(mockTasks);
+    });
   });
 
   it('should filter out current task from project tasks', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useProjectSelect(1, '1'));
+    const { result } = renderHook(() => useProjectSelect(1, '1'));
 
-    await waitForNextUpdate(); // Wait for projects
-    await waitForNextUpdate(); // Wait for members and tasks
-
-    expect(result.current.projectTasks).toEqual([mockTasks[1]]);
+    await waitFor(() => {
+      expect(result.current.projectTasks).toEqual([mockTasks[1]]);
+    });
   });
 
   it('should handle error when loading projects fails', async () => {
@@ -163,12 +161,12 @@ describe('useProjectSelect', () => {
     (getProjects as jest.Mock).mockRejectedValue(error);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    const { result, waitForNextUpdate } = renderHook(() => useProjectSelect());
+    const { result } = renderHook(() => useProjectSelect());
 
-    await waitForNextUpdate();
-
-    expect(consoleSpy).toHaveBeenCalledWith('Error fetching projects:', error);
-    expect(result.current.projects).toEqual([]);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching projects:', error);
+      expect(result.current.projects).toEqual([]);
+    });
 
     consoleSpy.mockRestore();
   });
@@ -178,26 +176,26 @@ describe('useProjectSelect', () => {
     (getProjectMembers as jest.Mock).mockRejectedValue(error);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    const { result, waitForNextUpdate } = renderHook(() => useProjectSelect(1));
+    const { result } = renderHook(() => useProjectSelect(1));
 
-    await waitForNextUpdate(); // Wait for projects
-    await waitForNextUpdate(); // Wait for members and tasks
-
-    expect(consoleSpy).toHaveBeenCalledWith('Error fetching project data:', error);
-    expect(result.current.projectMembers).toEqual([]);
-    expect(result.current.projectTasks).toEqual([]);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching project data:', error);
+      expect(result.current.projectMembers).toEqual([]);
+      expect(result.current.projectTasks).toEqual([]);
+    });
 
     consoleSpy.mockRestore();
   });
 
   it('should update project data when projectId changes', async () => {
-    const { result, waitForNextUpdate, rerender } = renderHook(
+    const { result, rerender } = renderHook(
       (props) => useProjectSelect(props.projectId, props.taskId),
       { initialProps: { projectId: 1, taskId: null } }
     );
 
-    await waitForNextUpdate(); // Wait for projects
-    await waitForNextUpdate(); // Wait for members and tasks
+    await waitFor(() => {
+      expect(result.current.projects.length).toBeGreaterThan(0);
+    });
 
     const newProjectMembers = [
       {
@@ -244,11 +242,11 @@ describe('useProjectSelect', () => {
     (getProjectTasks as jest.Mock).mockResolvedValue(newTasks);
 
     rerender({ projectId: 2, taskId: null });
-    await waitForNextUpdate();
-
-    expect(getProjectMembers).toHaveBeenCalledWith(2);
-    expect(getProjectTasks).toHaveBeenCalledWith(2);
-    expect(result.current.projectMembers).toEqual(newProjectMembers);
-    expect(result.current.projectTasks).toEqual(newTasks);
+    await waitFor(() => {
+      expect(getProjectMembers).toHaveBeenCalledWith(2);
+      expect(getProjectTasks).toHaveBeenCalledWith(2);
+      expect(result.current.projectMembers).toEqual(newProjectMembers);
+      expect(result.current.projectTasks).toEqual(newTasks);
+    });
   });
 });

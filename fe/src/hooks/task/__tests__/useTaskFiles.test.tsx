@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskFiles } from '../useTaskFiles';
 import { getTaskFiles, uploadFile, deleteFile } from '../../../api/files';
 import { TaskFile } from '../../../types/file';
@@ -38,12 +38,16 @@ describe('useTaskFiles', () => {
   });
 
   it('should load files successfully', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
+    const { result } = renderHook(() => useTaskFiles('1'));
 
-    await waitForNextUpdate();
+    // await waitForNextUpdate();
 
-    expect(getTaskFiles).toHaveBeenCalledWith(1);
-    expect(result.current.files).toEqual(mockFiles);
+    await waitFor(() => {
+      expect(getTaskFiles).toHaveBeenCalledWith(1);
+    });
+    await waitFor(() => {
+      expect(result.current.files).toEqual(mockFiles);
+    });
   });
 
   it('should handle file upload successfully', async () => {
@@ -59,59 +63,71 @@ describe('useTaskFiles', () => {
       uploaded_by: 'Test User'
     };
 
-    const mockFile = new File(['test content'], 'new.txt', { type: 'text/plain' });
+    const mockFile = new File(['test content'], 'new.txt', { type: 'text/plain'     });
     (uploadFile as jest.Mock).mockResolvedValue(newFile);
     (getTaskFiles as jest.Mock).mockResolvedValue([...mockFiles, newFile]);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskFiles('1'));
+    // await waitForNextUpdate();
 
     await act(async () => {
       await result.current.handleFileUpload(mockFile);
-    });
+        });
 
-    expect(uploadFile).toHaveBeenCalledWith(1, expect.any(FormData));
-    expect(result.current.files).toEqual([...mockFiles, newFile]);
+    await waitFor(() => {
+      expect(uploadFile).toHaveBeenCalledWith(1, expect.any(FormData));
+    });
+    await waitFor(() => {
+      expect(result.current.files).toEqual([...mockFiles, newFile]);
+    });
   });
 
   it('should handle file deletion successfully', async () => {
     (deleteFile as jest.Mock).mockResolvedValue(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskFiles('1'));
+    // await waitForNextUpdate();
 
     await act(async () => {
       await result.current.handleFileDelete(1);
-    });
+        });
 
-    expect(deleteFile).toHaveBeenCalledWith(1, 1);
-    expect(result.current.files).toEqual([mockFiles[1]]);
+    await waitFor(() => {
+      expect(deleteFile).toHaveBeenCalledWith(1, 1);
+    });
+    await waitFor(() => {
+      expect(result.current.files).toEqual([mockFiles[1]]);
+    });
   });
 
   it('should handle file upload error', async () => {
     const error = new Error('Failed to upload file');
-    const mockFile = new File(['test content'], 'error.txt', { type: 'text/plain' });
+    const mockFile = new File(['test content'], 'error.txt', { type: 'text/plain'     });
     (uploadFile as jest.Mock).mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskFiles('1'));
+    // await waitForNextUpdate();
 
-    await expect(result.current.handleFileUpload(mockFile)).rejects.toThrow('Failed to upload file');
+    await waitFor(() => {
+      expect(result.current.handleFileUpload(mockFile)).rejects.toThrow('Failed to upload file');
+    });
   });
 
   it('should handle file deletion error', async () => {
     const error = new Error('Failed to delete file');
     (deleteFile as jest.Mock).mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskFiles('1'));
+    // await waitForNextUpdate();
 
-    await expect(result.current.handleFileDelete(1)).rejects.toThrow('Failed to delete file');
+    await waitFor(() => {
+      expect(result.current.handleFileDelete(1)).rejects.toThrow('Failed to delete file');
+    });
   });
 
   it('should refresh files when called', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTaskFiles('1'));
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useTaskFiles('1'));
+    // await waitForNextUpdate();
 
     // Clear initial call count
     (getTaskFiles as jest.Mock).mockClear();
@@ -120,6 +136,8 @@ describe('useTaskFiles', () => {
       await result.current.refreshFiles();
     });
 
-    expect(getTaskFiles).toHaveBeenCalledWith(1);
+    await waitFor(() => {
+      expect(getTaskFiles).toHaveBeenCalledWith(1);
+    });
   });
 });

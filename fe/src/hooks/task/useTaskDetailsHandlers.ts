@@ -47,11 +47,13 @@ export const useTaskDetailsHandlers = () => {
   ) => {
     try {
       await onSubmit(timeLogData);
-      setState(prev => ({ ...prev, timeLogDialogOpen: false }));
+      setState(prev => ({ ...prev, timeLogDialogOpen: false, selectedTimeLog: null }));
     } catch (error) {
       console.error('Error handling time log:', error);
+      setState(prev => ({ ...prev, timeLogDialogOpen: true }));
     }
   };
+
 
   const handleTimeLogEdit = (timeLog: TimeLog) => {
     setState(prev => ({

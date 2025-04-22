@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAssigneeSelect } from '../useAssigneeSelect';
 import { getProjectMembers } from '../../../api/projects';
 import { ProjectMember } from '../../../types/project';
@@ -32,12 +32,12 @@ describe('useAssigneeSelect', () => {
   });
 
   it('should load project members when projectId is provided', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useAssigneeSelect(1));
+    const { result } = renderHook(() => useAssigneeSelect(1));
 
-    await waitForNextUpdate();
-
-    expect(getProjectMembers).toHaveBeenCalledWith(1);
-    expect(result.current.projectMembers).toEqual(mockProjectMembers);
+    await waitFor(() => {
+      expect(getProjectMembers).toHaveBeenCalledWith(1);
+      expect(result.current.projectMembers).toEqual(mockProjectMembers);
+    });
   });
 
   it('should not load project members when projectId is null', async () => {
@@ -52,40 +52,37 @@ describe('useAssigneeSelect', () => {
     (getProjectMembers as jest.Mock).mockRejectedValue(error);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    const { result, waitForNextUpdate } = renderHook(() => useAssigneeSelect(1));
+    const { result } = renderHook(() => useAssigneeSelect(1));
 
-    await waitForNextUpdate();
-
-    expect(getProjectMembers).toHaveBeenCalledWith(1);
-    expect(consoleSpy).toHaveBeenCalledWith('Error fetching project members:', error);
-    expect(result.current.projectMembers).toEqual([]);
+    await waitFor(() => {
+      expect(getProjectMembers).toHaveBeenCalledWith(1);
+      expect(consoleSpy).toHaveBeenCalledWith('Error fetching project members:', error);
+      expect(result.current.projectMembers).toEqual([]);
+    });
 
     consoleSpy.mockRestore();
   });
 
   it('should update project members when projectId changes', async () => {
-    const { result, waitForNextUpdate, rerender } = renderHook(
+    const { result, rerender } = renderHook(
       (props) => useAssigneeSelect(props),
       { initialProps: 1 }
     );
 
-    await waitForNextUpdate();
-    expect(result.current.projectMembers).toEqual(mockProjectMembers);
+    await waitFor(() => {
+      expect(result.current.projectMembers).toEqual(mockProjectMembers);
+    });
 
-    const newProjectMembers = [
-      {
-        user_id: 3,
-        project_id: 2,
-        role_id: 1,
-        created_on: '2024-01-25T00:00:00Z'
-      }
-    ];
-    (getProjectMembers as jest.Mock).mockResolvedValue(newProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValue([
+      mockProjectMembers[1]
+    ]);
 
     rerender(2);
-    await waitForNextUpdate();
-
-    expect(getProjectMembers).toHaveBeenCalledWith(2);
-    expect(result.current.projectMembers).toEqual(newProjectMembers);
+    await waitFor(() => {
+      expect(getProjectMembers).toHaveBeenCalledWith(2);
+      expect(result.current.projectMembers).toEqual([
+        mockProjectMembers[1]
+      ]);
+    });
   });
 });
