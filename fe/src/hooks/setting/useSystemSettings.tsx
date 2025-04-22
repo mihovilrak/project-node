@@ -56,7 +56,7 @@ export const useSystemSettings = () => {
     } catch (error) {
       setState(prev => ({ 
         ...prev, 
-        error: 'Failed to update settings',
+        error: 'Failed to update system settings',
         loading: false 
       }));
     }

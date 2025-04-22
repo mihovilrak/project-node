@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useIconSelector } from '../useIconSelector';
 import { getActivityTypes } from '../../../api/activityTypes';
 import { ActivityType } from '../../../types/setting';
@@ -27,23 +27,23 @@ describe('useIconSelector', () => {
   });
 
   it('should load and filter icons on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useIconSelector(undefined));
+    const { result } = renderHook(() => useIconSelector(undefined));
 
-    await waitForNextUpdate();
-
-    expect(getActivityTypes).toHaveBeenCalledTimes(1);
-    expect(result.current.icons).toEqual(['icon1', 'icon2', 'icon4']);
+    await waitFor(() => {
+      expect(getActivityTypes).toHaveBeenCalledTimes(1);
+      expect(result.current.icons).toEqual(['icon1', 'icon2', 'icon4']);
+    });
   });
 
   it('should handle API error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getActivityTypes as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
 
-    const { waitForNextUpdate } = renderHook(() => useIconSelector(undefined));
+    const { result } = renderHook(() => useIconSelector(undefined));
 
-    await waitForNextUpdate();
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load icons:', expect.any(Error));
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load icons:', expect.any(Error));
+    });
     consoleErrorSpy.mockRestore();
   });
 

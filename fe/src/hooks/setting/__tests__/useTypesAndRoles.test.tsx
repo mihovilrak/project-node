@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTypesAndRoles } from '../useTypesAndRoles';
 import {
   getTaskTypes,
@@ -50,10 +50,10 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should fetch all data on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
 
     expect(result.current.state.loading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     expect(getTaskTypes).toHaveBeenCalledTimes(1);
     expect(getActivityTypes).toHaveBeenCalledTimes(1);
@@ -69,17 +69,17 @@ describe('useTypesAndRoles', () => {
     const error = new Error('Failed to fetch data');
     (getTaskTypes as jest.Mock).mockRejectedValueOnce(error);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
 
     expect(result.current.state.loading).toBe(true);
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     expect(result.current.state.error).toBe('Failed to fetch data');
     expect(result.current.state.loading).toBe(false);
   });
 
   it('should handle tab change', () => {
-    const { result } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
 
     act(() => {
       result.current.handleTabChange({} as React.SyntheticEvent, 1);
@@ -89,7 +89,7 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should handle create action', () => {
-    const { result } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
 
     act(() => {
       result.current.handleCreate();
@@ -100,7 +100,7 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should handle edit action', () => {
-    const { result } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
     const mockItem = mockTaskTypes[0];
 
     act(() => {
@@ -112,7 +112,7 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should handle dialog close', () => {
-    const { result } = renderHook(() => useTypesAndRoles());
+    const { result } = renderHook(useTypesAndRoles);
 
     act(() => {
       result.current.handleDialogClose();
@@ -126,8 +126,8 @@ describe('useTypesAndRoles', () => {
     const newTaskType = { name: 'New Task Type', color: '#123456', active: true };
     (createTaskType as jest.Mock).mockResolvedValueOnce(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
-    await waitForNextUpdate();
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     await act(async () => {
       await result.current.handleSave(newTaskType);
@@ -141,8 +141,8 @@ describe('useTypesAndRoles', () => {
     const updatedTaskType = { id: 1, name: 'Updated Task Type', color: '#123456', active: true };
     (updateTaskType as jest.Mock).mockResolvedValueOnce(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
-    await waitForNextUpdate();
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     await act(async () => {
       await result.current.handleSave(updatedTaskType);
@@ -155,8 +155,8 @@ describe('useTypesAndRoles', () => {
   it('should delete task type', async () => {
     (deleteTaskType as jest.Mock).mockResolvedValueOnce(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
-    await waitForNextUpdate();
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     await act(async () => {
       await result.current.handleDelete(1);
@@ -176,8 +176,8 @@ describe('useTypesAndRoles', () => {
 
     (updateRole as jest.Mock).mockResolvedValueOnce(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(() => useTypesAndRoles());
-    await waitForNextUpdate();
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
 
     await act(async () => {
       await result.current.handleRoleUpdate(updatedRole);
