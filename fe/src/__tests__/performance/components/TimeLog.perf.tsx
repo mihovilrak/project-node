@@ -1,7 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { Profiler } from 'react';
-import { TestWrapper } from '../../TestWrapper';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TimeLog, ActivityType, TimeLogCreate } from '../../../types/timeLog';
 import { Project } from '../../../types/project';
 import { Task } from '../../../types/task';
@@ -10,7 +13,89 @@ import TimeLogForm from '../../../components/TimeLog/TimeLogForm';
 import TimeLogList from '../../../components/TimeLog/TimeLogList';
 import TimeLogCalendar from '../../../components/TimeLog/TimeLogCalendar';
 import TimeLogDialog from '../../../components/TimeLog/TimeLogDialog';
+import { createAppTheme } from '../../../theme/theme';
 import dayjs from 'dayjs';
+
+// Mock the API module to prevent real HTTP calls
+jest.mock('../../../api/api');
+
+// Mock AuthContext to provide a mock user
+jest.mock('../../../context/AuthContext', () => ({
+  ...jest.requireActual('../../../context/AuthContext'),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({
+    currentUser: { id: 1, name: 'Test User' },
+    hasPermission: () => true,
+    permissionsLoading: false,
+    userPermissions: [{ permission: 'Admin' }]
+  })
+}));
+
+// Mock useTimeLogDialog to prevent any hook-related issues
+jest.mock('../../../hooks/timeLog/useTimeLogDialog', () => ({
+  useTimeLogDialog: () => ({
+    selectedProjectId: 1,
+    selectedTaskId: 1,
+    selectedUserId: 1,
+    selectedActivityTypeId: 1,
+    spentTime: '2',
+    description: '',
+    logDate: dayjs(),
+    timeError: null,
+    projects: [],
+    tasks: [],
+    users: [],
+    activityTypes: [],
+    isLoading: false,
+    setSelectedProjectId: jest.fn(),
+    setSelectedTaskId: jest.fn(),
+    setSelectedUserId: jest.fn(),
+    setSelectedActivityTypeId: jest.fn(),
+    setSpentTime: jest.fn(),
+    setDescription: jest.fn(),
+    handleDateChange: jest.fn(),
+    handleProjectChange: jest.fn(),
+    handleTaskChange: jest.fn(),
+    handleSubmit: jest.fn(),
+  })
+}));
+
+// Mock useTimeLogCalendar for calendar component
+jest.mock('../../../hooks/timeLog/useTimeLogCalendar', () => ({
+  useTimeLogCalendar: () => ({
+    currentDate: new Date(),
+    navigateMonth: jest.fn(),
+    getTimeLogsForDate: jest.fn(() => []),
+    getTotalHoursForDate: jest.fn(() => 0),
+    getDayColor: jest.fn(() => '#ffffff'),
+    formatTime: jest.fn((time: number) => `${time}h`),
+    getCalendarDays: jest.fn(() => [new Date()]),
+    getTotalMonthHours: jest.fn(() => 0)
+  })
+}));
+
+// Mock timeLogs API
+jest.mock('../../../api/timeLogs', () => ({
+  getProjectTimeLogs: jest.fn().mockResolvedValue([]),
+  getTaskTimeLogs: jest.fn().mockResolvedValue([]),
+  createTimeLog: jest.fn().mockResolvedValue({}),
+  updateTimeLog: jest.fn().mockResolvedValue({}),
+  deleteTimeLog: jest.fn().mockResolvedValue({})
+}));
+
+// Custom test wrapper with all necessary providers
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const theme = createAppTheme('light');
+  return (
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {children}
+        </LocalizationProvider>
+      </ThemeProvider>
+    </BrowserRouter>
+  );
+};
 
 // Mock data generators
 const generateMockTimeLogs = (count: number): TimeLog[] => {
@@ -135,9 +220,9 @@ const onRenderCallback = (
 const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
   return (
     <Profiler id={Component.name} onRender={onRenderCallback}>
-      <TestWrapper>
+      <PerfTestWrapper>
         <Component {...props} />
-      </TestWrapper>
+      </PerfTestWrapper>
     </Profiler>
   );
 };

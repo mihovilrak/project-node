@@ -53,7 +53,7 @@ const mockTasks: Task[] = [
     },
     {
         id: 2,
-        name: 'Test Task 2', 
+        name: 'Test Task 2',
         project_id: 2,
         project_name: 'Project B',
         holder_id: 1,
@@ -106,7 +106,7 @@ describe('ActiveTasks', () => {
   it('displays no tasks message when empty', async () => {
     (getActiveTasks as jest.Mock).mockResolvedValueOnce([]);
     renderActiveTasks();
-    
+
     await waitFor(() => {
       expect(screen.getByText('No active tasks assigned to you.')).toBeInTheDocument();
     });
@@ -175,7 +175,7 @@ describe('ActiveTasks', () => {
   it('handles API error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     (getActiveTasks as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
-    
+
     renderActiveTasks();
 
     await waitFor(() => {

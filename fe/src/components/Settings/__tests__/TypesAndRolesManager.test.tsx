@@ -133,10 +133,10 @@ describe('TypesAndRolesManager', () => {
 
   it('shows correct add button text based on active tab', () => {
     const { rerender } = render(<TypesAndRolesManager />);
-    
+
     // Task Types tab
     expect(screen.getByText('Add Task Type')).toBeInTheDocument();
-    
+
     // Activity Types tab
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 1 },
@@ -144,7 +144,7 @@ describe('TypesAndRolesManager', () => {
     });
     rerender(<TypesAndRolesManager />);
     expect(screen.getByText('Add Activity Type')).toBeInTheDocument();
-    
+
     // Roles tab
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 2 },

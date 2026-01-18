@@ -95,7 +95,7 @@ describe('useTimeLogCalendar', () => {
 
   it('should get correct color based on hours', () => {
     const { result } = renderHook(() => useTimeLogCalendar());
-    
+
     expect(result.current.getDayColor(0)).toBe(theme.palette.background.paper);
     expect(result.current.getDayColor(2)).toBe(theme.palette.info.light);
     expect(result.current.getDayColor(6)).toBe(theme.palette.success.light);

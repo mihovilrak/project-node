@@ -99,7 +99,7 @@ describe('ActivityTypeDialog', () => {
     const error = new Error('API Error');
     Object.assign(error, { response: { data: { error: 'Failed to save' } } });
     const onSave = jest.fn().mockRejectedValue(error);
-    
+
     const mockSetError = jest.fn();
     mockUseActivityTypeDialog.mockReturnValue({
       formData: mockFormData,

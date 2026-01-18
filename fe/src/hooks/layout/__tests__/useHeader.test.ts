@@ -80,9 +80,9 @@ describe('useHeader', () => {
 
   it('should cleanup scroll event listener on unmount', () => {
     const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
-    
+
     const { unmount } = renderHook(() => useHeader());
-    
+
     unmount();
 
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
@@ -93,7 +93,7 @@ describe('useHeader', () => {
 
   it('should add scroll event listener on mount', () => {
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
-    
+
     renderHook(() => useHeader());
 
     expect(addEventListenerSpy).toHaveBeenCalledWith(

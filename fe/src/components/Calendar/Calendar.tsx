@@ -1,20 +1,20 @@
 import React from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  Button, 
-  IconButton, 
-  Tooltip, 
-  CircularProgress 
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  IconButton,
+  Tooltip,
+  CircularProgress
 } from '@mui/material';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Today, 
-  ViewDay, 
-  ViewWeek, 
-  ViewModule 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Today,
+  ViewDay,
+  ViewWeek,
+  ViewModule
 } from '@mui/icons-material';
 import { useCalendar } from '../../hooks/calendar/useCalendar';
 import CalendarDayView from './CalendarDayView';
@@ -22,13 +22,13 @@ import CalendarWeekView from './CalendarWeekView';
 import CalendarMonthView from './CalendarMonthView';
 
 const Calendar: React.FC = () => {
-  const { 
-    tasks, 
-    loading, 
-    view, 
-    selectedDate, 
-    timeLogs, 
-    handleDateChange, 
+  const {
+    tasks,
+    loading,
+    view,
+    selectedDate,
+    timeLogs,
+    handleDateChange,
     handleViewChange,
     handleTaskClick,
     handleTimeLogClick
@@ -39,10 +39,11 @@ const Calendar: React.FC = () => {
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton onClick={() => handleDateChange(new Date())}>
+            <IconButton onClick={() => handleDateChange(new Date())} aria-label="Today">
               <Today />
             </IconButton>
             <IconButton
+              aria-label="Previous Month"
               onClick={() => {
                 const newDate = new Date(selectedDate);
                 newDate.setMonth(newDate.getMonth() - 1);
@@ -52,6 +53,7 @@ const Calendar: React.FC = () => {
               <ChevronLeft />
             </IconButton>
             <IconButton
+              aria-label="Next Month"
               onClick={() => {
                 const newDate = new Date(selectedDate);
                 newDate.setMonth(newDate.getMonth() + 1);
@@ -111,6 +113,7 @@ const Calendar: React.FC = () => {
                 onViewChange={handleViewChange}
                 onTaskClick={handleTaskClick}
                 onTimeLogClick={handleTimeLogClick}
+                data-testid="day-view"
               />
             )}
             {view === 'week' && (
@@ -123,6 +126,7 @@ const Calendar: React.FC = () => {
                 onViewChange={handleViewChange}
                 onTaskClick={handleTaskClick}
                 onTimeLogClick={handleTimeLogClick}
+                data-testid="week-view"
               />
             )}
             {view === 'month' && (
@@ -135,6 +139,7 @@ const Calendar: React.FC = () => {
                 onViewChange={handleViewChange}
                 onTaskClick={handleTaskClick}
                 onTimeLogClick={handleTimeLogClick}
+                data-testid="month-view"
               />
             )}
           </>

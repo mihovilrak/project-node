@@ -12,14 +12,14 @@ import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarWeek } from '../../hooks/calendar/useCalendarWeek';
 import dayjs from 'dayjs'; // Import dayjs library
 
-const CalendarWeekView: React.FC<CalendarViewProps> = ({ 
+const CalendarWeekView: React.FC<CalendarViewProps> = ({
   date,
   tasks,
   timeLogs,
   onDateChange,
   onViewChange,
   onTaskClick,
-  onTimeLogClick 
+  onTimeLogClick
 }) => {
   const navigate = useNavigate();
   const { getWeekDays, getTasksForDay, getTimeLogsForDay } = useCalendarWeek(date, tasks, timeLogs);
@@ -32,20 +32,20 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} data-testid="week-grid">
       {days.map((day, index) => (
         <Grid item xs={12} key={index}>
-          <Paper 
+          <Paper
             role="presentation"
-            sx={{ 
+            sx={{
               p: 2,
-              backgroundColor: day.toDateString() === new Date().toDateString() 
-                ? 'action.hover' 
+              backgroundColor: day.toDateString() === new Date().toDateString()
+                ? 'action.hover'
                 : 'background.paper'
             }}
           >
-            <Typography 
-              variant="subtitle1" 
+            <Typography
+              variant="subtitle1"
               sx={{ mb: 2, fontWeight: 'medium' }}
               onClick={() => {
                 onDateChange(day);
@@ -53,10 +53,10 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
               }}
               style={{ cursor: 'pointer' }}
             >
-              {day.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
+              {day.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
               })}
             </Typography>
             {getTasksForDay(day).map(task => (
@@ -69,18 +69,19 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
                   '&:hover': { backgroundColor: 'action.hover' }
                 }}
                 onClick={() => onTaskClick(task.id)}
+                data-testid={`task-chip-${task.id}`}
               >
                 <Typography variant="subtitle2">
                   {task.start_date ? dayjs(task.start_date).format('HH:mm') : 'No time'} - {task.name}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                  <Chip 
-                    label={task.priority_name} 
+                  <Chip
+                    label={task.priority_name}
                     size="small"
                     color={getPriorityColor(task.priority_name)}
                   />
-                  <Chip 
-                    label={task.status_name} 
+                  <Chip
+                    label={task.status_name}
                     size="small"
                     variant="outlined"
                   />

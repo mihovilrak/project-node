@@ -32,7 +32,7 @@ describe('Notifications API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockNotification] });
 
       const notifications = await getNotifications(1);
-      
+
       expect(mockedApi.get).toHaveBeenCalledWith('/notifications/1');
       expect(notifications).toEqual([mockNotification]);
     });
@@ -51,7 +51,7 @@ describe('Notifications API', () => {
       mockedApi.patch.mockResolvedValueOnce({ data: undefined });
 
       await markAsRead(1);
-      
+
       expect(mockedApi.patch).toHaveBeenCalledWith('/notifications/1');
     });
 
@@ -69,7 +69,7 @@ describe('Notifications API', () => {
       mockedApi.delete.mockResolvedValueOnce({ data: undefined });
 
       await deleteNotification(1);
-      
+
       expect(mockedApi.delete).toHaveBeenCalledWith('/notifications/1');
     });
 

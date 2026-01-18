@@ -81,7 +81,7 @@ describe('TaskHeader', () => {
 
   it('renders task name and basic information', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     expect(screen.getByText(mockTask.name)).toBeInTheDocument();
     expect(screen.getByTestId('project-name')).toHaveTextContent(`Project: ${mockTask.project_name}`);
     expect(screen.getByTestId('holder-name')).toHaveTextContent(`Holder: ${mockTask.holder_name}`);
@@ -90,28 +90,28 @@ describe('TaskHeader', () => {
 
   it('renders status button with correct color', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     const statusButton = screen.getByText('New');
     expect(statusButton).toHaveStyle({ backgroundColor: '#2196f3' });
   });
 
   it('shows delete button when canDelete is true', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     const deleteButton = screen.getByLabelText('delete');
     expect(deleteButton).toBeInTheDocument();
   });
 
   it('hides delete button when canDelete is false', () => {
     renderWithRouter(<TaskHeader {...defaultProps} canDelete={false} />);
-    
+
     const deleteButton = screen.queryByLabelText('delete');
     expect(deleteButton).not.toBeInTheDocument();
   });
 
   it('calls onDelete when delete button is clicked', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     const deleteButton = screen.getByLabelText('delete');
     fireEvent.click(deleteButton);
     expect(defaultProps.onDelete).toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('TaskHeader', () => {
 
   it('calls onStatusMenuClick when status button is clicked and canEdit is true', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     const statusButton = screen.getByText('New');
     fireEvent.click(statusButton);
     expect(defaultProps.onStatusMenuClick).toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe('TaskHeader', () => {
 
   it('does not call onStatusMenuClick when status button is clicked and canEdit is false', () => {
     renderWithRouter(<TaskHeader {...defaultProps} canEdit={false} />);
-    
+
     const statusButton = screen.getByText('New');
     fireEvent.click(statusButton);
     expect(defaultProps.onStatusMenuClick).not.toHaveBeenCalled();
@@ -135,33 +135,33 @@ describe('TaskHeader', () => {
 
   it('renders dates in correct format', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     expect(screen.getByText(`Created: ${new Date(mockTask.created_on).toLocaleDateString()}`)).toBeInTheDocument();
     expect(screen.getByText(`Due: ${new Date(mockTask.due_date!).toLocaleDateString()}`)).toBeInTheDocument();
   });
 
   it('renders progress when available', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     expect(screen.getByText(`Progress: ${mockTask.progress}%`)).toBeInTheDocument();
   });
 
   it('renders estimated and spent time when available', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
-    
+
     expect(screen.getByText(`Estimated Time: ${mockTask.estimated_time} hours`)).toBeInTheDocument();
     expect(screen.getByText(`Time Spent: ${mockTask.spent_time} hours`)).toBeInTheDocument();
   });
 
   it('handles null task gracefully', () => {
     renderWithRouter(<TaskHeader {...defaultProps} task={null} />);
-    
+
     expect(screen.queryByText(mockTask.name)).not.toBeInTheDocument();
   });
 
   it('handles empty statuses array gracefully', () => {
     renderWithRouter(<TaskHeader {...defaultProps} statuses={[]} />);
-    
+
     expect(screen.getByText('Unknown Status')).toBeInTheDocument();
   });
 });

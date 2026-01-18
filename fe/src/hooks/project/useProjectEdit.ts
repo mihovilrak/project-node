@@ -44,16 +44,16 @@ export const useProjectEdit = (project: Project | null) => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const value = event.target.value;
-    
+
     if (field === 'start_date' || field === 'due_date') {
       const startDate = field === 'start_date' ? new Date(value) : new Date(formData.start_date);
       const dueDate = field === 'due_date' ? new Date(value) : new Date(formData.due_date);
-      
+
       if (field === 'due_date' && startDate > dueDate) {
         return; // Don't update if due date is before start date
       }
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [field]: value

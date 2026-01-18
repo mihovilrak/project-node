@@ -59,7 +59,7 @@ describe('AuthContext', () => {
 
   it('should handle successful login with admin permissions', async () => {
     const mockUser = { id: 1, name: 'Admin User' };
-    
+
     // Mock login API response
     (api.post as jest.Mock).mockResolvedValueOnce({ data: { user: mockUser }});
     // Mock api.get to return correct data for each endpoint
@@ -97,7 +97,7 @@ describe('AuthContext', () => {
 
   it('should verify all defined permissions', async () => {
     const mockUser = { id: 1, name: 'Test User' };
-    
+
     // Mock api.get to return correct data for each endpoint
     (api.get as jest.Mock).mockImplementation((url: string) => {
       if (url === '/check-session') {

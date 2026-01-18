@@ -34,9 +34,9 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loadi
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Due: {new Date(project.due_date).toLocaleDateString()}
                   </Typography>
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={project.progress} 
+                  <LinearProgress
+                    variant="determinate"
+                    value={project.progress}
                     sx={{ height: 8, borderRadius: 1 }}
                     data-testid="project-progress"
                   />

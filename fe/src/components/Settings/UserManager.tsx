@@ -58,11 +58,11 @@ const UserManager: React.FC = () => {
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        mb: 3 
+        mb: 3
       }}>
         <Typography variant="h5">User Management</Typography>
         <Button
@@ -85,8 +85,8 @@ const UserManager: React.FC = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <UserTable 
-          users={users} 
+        <UserTable
+          users={users}
           onEditUser={handleEditUser}
           onUserDeleted={handleUserSaved}
         />

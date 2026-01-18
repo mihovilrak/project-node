@@ -1,8 +1,8 @@
 import React, {
-  createContext, 
-  useContext, 
-  useState, 
-  useEffect 
+  createContext,
+  useContext,
+  useState,
+  useEffect
 } from 'react';
 import { api } from '../api/api';
 import { User } from '../types/user';
@@ -36,9 +36,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setPermissionsLoading(true);
         setError(null);
-        
+
         const response = await api.get('/check-session');
-        
+
         if (response.status === 200) {
           setCurrentUser(response.data.user);
           const permissionsResponse = await api.get('/users/permissions');
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setPermissionsLoading(true);
       setError(null);
-      
+
       const response = await api.post('/login', { login, password });
       if (response && response.data && response.data.user) {
         setCurrentUser(response.data.user);
@@ -97,21 +97,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setCurrentUser(null);
       setUserPermissions([]);
-      
+
       setPermissionsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        currentUser, 
-        login, 
-        logout, 
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login,
+        logout,
         hasPermission,
         permissionsLoading,
         error,
-        userPermissions 
+        userPermissions
       }}
     >
       {children}

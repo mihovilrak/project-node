@@ -67,11 +67,11 @@ const TaskList: React.FC = () => {
                 {task.description}
               </Typography>
               <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip 
-                  label={task.status_name} 
+                <Chip
+                  label={task.status_name}
                   color={task.status_name === 'Done' ? 'success' : 'default'}
                 />
-                <Chip 
+                <Chip
                   label={task.priority_name}
                   color={task.priority_name === 'High/Should' ? 'error' : 'default'}
                 />
@@ -86,15 +86,15 @@ const TaskList: React.FC = () => {
                 <Button onClick={() => navigate(`/tasks/${task.id}`)}>
                   Details
                 </Button>
-                <PermissionButton 
+                <PermissionButton
                   requiredPermission="Edit tasks"
-                  color="warning" 
+                  color="warning"
                   onClick={() => navigate(`/tasks/${task.id}/edit`)}>
                   Edit
                 </PermissionButton>
-                <PermissionButton 
+                <PermissionButton
                   requiredPermission="Delete tasks"
-                  color="error" 
+                  color="error"
                   onClick={() => handleDelete(task.id)}>
                   Delete
                 </PermissionButton>

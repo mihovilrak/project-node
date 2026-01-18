@@ -44,7 +44,7 @@ describe('FileUpload', () => {
     renderFileUpload();
     const fileInput = screen.getByTestId('file-input');
     const clickSpy = jest.spyOn(fileInput, 'click');
-    
+
     fireEvent.click(screen.getByText('Upload File'));
     expect(clickSpy).toHaveBeenCalled();
   });
@@ -89,7 +89,7 @@ describe('FileUpload', () => {
     renderFileUpload();
     const fileInput = screen.getByTestId('file-input');
     const file = new File(['test'], 'test.txt', { type: 'text/plain' });
-    
+
     fireEvent.change(fileInput, { target: { files: [file] } });
     expect(mockHandleFileChange).toHaveBeenCalled();
   });

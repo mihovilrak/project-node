@@ -60,7 +60,7 @@ describe('TaskPrioritySelect', () => {
         handleChange={mockHandleChange}
       />
     );
-    
+
     expect(screen.getByLabelText(/priority/i)).toBeInTheDocument();
   });
 
@@ -73,8 +73,8 @@ describe('TaskPrioritySelect', () => {
       />
     );
 
-    fireEvent.mouseDown(screen.getByRole('button'));
-    
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+
     mockPriorities.forEach(priority => {
       expect(screen.getByText(priority.name)).toBeInTheDocument();
     });
@@ -90,7 +90,8 @@ describe('TaskPrioritySelect', () => {
       />
     );
 
-    expect(screen.getByLabelText(/priority/i)).toHaveValue('2');
+    // MUI Select displays the selected option text, not a value attribute
+    expect(screen.getByText('Normal/Could')).toBeInTheDocument();
   });
 
   it('calls handleChange when priority is selected', () => {
@@ -102,7 +103,7 @@ describe('TaskPrioritySelect', () => {
       />
     );
 
-    fireEvent.mouseDown(screen.getByRole('button'));
+    fireEvent.mouseDown(screen.getByRole('combobox'));
     fireEvent.click(screen.getByText('Normal/Could'));
 
     expect(mockHandleChange).toHaveBeenCalled();

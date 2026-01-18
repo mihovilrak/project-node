@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { LoginRequest } from '../../types/auth';
 
 export const useLogin = () => {
-  const { login } = useAuth();
+  const { login, error: contextError } = useAuth();
   const [loginDetails, setLoginDetails] = useState<LoginRequest>({ login: '', password: '' });
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ export const useLogin = () => {
 
   return {
     loginDetails,
-    error,
+    error: error || contextError || "",
     handleInputChange,
     handleSubmit
   };

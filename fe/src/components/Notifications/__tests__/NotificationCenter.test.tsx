@@ -65,7 +65,7 @@ describe('NotificationCenter', () => {
       loading: true
     });
     render(<NotificationCenter userId={1} />);
-    
+
     // We don't need to click the button anymore since the loading indicator is always present when loading is true
     expect(screen.getByTestId('loading-state-indicator')).toBeInTheDocument();
   });
@@ -77,14 +77,14 @@ describe('NotificationCenter', () => {
     });
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     expect(screen.getByText('No notifications')).toBeInTheDocument();
   });
 
   it('renders notifications list correctly', () => {
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     expect(screen.getByText('Test Notification 1')).toBeInTheDocument();
     expect(screen.getByText('Test Message 1')).toBeInTheDocument();
     expect(screen.getByText('Test Notification 2')).toBeInTheDocument();
@@ -93,19 +93,19 @@ describe('NotificationCenter', () => {
   it('calls handleNotificationClick when notification is clicked', () => {
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     fireEvent.click(screen.getByText('Test Notification 1'));
-    
+
     expect(mockHookReturn.handleNotificationClick).toHaveBeenCalledWith(mockNotifications[0]);
   });
 
   it('calls handleDeleteNotification when delete button is clicked', () => {
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
     fireEvent.click(deleteButtons[0]);
-    
+
     expect(mockHookReturn.handleDeleteNotification).toHaveBeenCalledWith(
       mockNotifications[0].id,
       expect.any(Object)
@@ -115,9 +115,9 @@ describe('NotificationCenter', () => {
   it('applies different styles for read and unread notifications', () => {
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     const listItems = screen.getAllByRole('listitem');
-    
+
     expect(listItems[0]).toHaveStyle({ backgroundColor: 'action.hover' });
     expect(listItems[1]).toHaveStyle({ backgroundColor: 'inherit' });
   });
@@ -125,9 +125,9 @@ describe('NotificationCenter', () => {
   it('shows correct icon for different notification types', () => {
     // Use testMode to render menu content directly
     render(<NotificationCenter userId={1} testMode={true} />);
-    
+
     const listItems = screen.getAllByRole('listitem');
-    
+
     expect(within(listItems[0]).getByTestId('TaskIcon')).toBeInTheDocument();
     expect(within(listItems[1]).getByTestId('FolderIcon')).toBeInTheDocument();
   });

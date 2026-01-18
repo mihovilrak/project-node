@@ -69,7 +69,7 @@ describe('AssigneeSelect', () => {
     // Open the dropdown to see options
     const selectElement = screen.getByRole('combobox', { name: /assignee/i });
     fireEvent.mouseDown(selectElement);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Unassigned')).toBeInTheDocument();
     });
@@ -80,7 +80,7 @@ describe('AssigneeSelect', () => {
     // Open the dropdown to see options
     const selectElement = screen.getByRole('combobox', { name: /assignee/i });
     fireEvent.mouseDown(selectElement);
-    
+
     await waitFor(() => {
       mockProjectMembers.forEach(member => {
         expect(screen.getByText(`${member.name} ${member.surname}`)).toBeInTheDocument();
@@ -91,16 +91,16 @@ describe('AssigneeSelect', () => {
   test('calls handleChange when selection changes', async () => {
     renderAssigneeSelect();
     const select = screen.getByRole('combobox', { name: /assignee/i });
-    
+
     // Open the dropdown
     fireEvent.mouseDown(select);
-    
+
     // Wait for the dropdown to open
     await waitFor(() => {
       const option = screen.getByText('Jane Smith');
       fireEvent.click(option);
     });
-    
+
     expect(mockHandleChange).toHaveBeenCalled();
   });
 
@@ -109,7 +109,7 @@ describe('AssigneeSelect', () => {
       ...mockFormData,
       assignee_id: 1
     };
-    
+
     const { container } = render(
       <AssigneeSelect
         label="Assignee"
@@ -131,7 +131,7 @@ describe('AssigneeSelect', () => {
 
   test('applies full width style', async () => {
     const { container } = renderAssigneeSelect();
-    
+
     await waitFor(() => {
       // Select itself should be there
       expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
@@ -151,16 +151,16 @@ describe('AssigneeSelect', () => {
         handleChange={mockHandleChange}
       />
     );
-    
+
     // Open the dropdown
     const selectElement = screen.getByRole('combobox', { name: /assignee/i });
     fireEvent.mouseDown(selectElement);
-    
+
     // Material-UI renders menu items in a portal, so we need to look at the document body
     await waitFor(() => {
       const unassignedItem = screen.getByRole('option', { name: /unassigned/i });
       expect(unassignedItem).toBeInTheDocument();
-      
+
       // Make sure there's only one option (Unassigned)
       const options = screen.getAllByRole('option');
       expect(options.length).toBe(1);

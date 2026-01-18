@@ -110,7 +110,7 @@ describe('useSystemSettings', () => {
       const mockEvent = {
         target: { name: 'app_name', value: 'New App Name' }
       } as React.ChangeEvent<HTMLInputElement>;
-      
+
       result.current.handleChange(mockEvent);
     });
 

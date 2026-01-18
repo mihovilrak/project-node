@@ -1,11 +1,11 @@
 import { api } from '../api';
 import { ProfileData, ProfileUpdateData, PasswordChange } from '../../types/profile';
-import { 
-  getProfile, 
-  updateProfile, 
-  changePassword, 
-  getRecentTasks, 
-  getRecentProjects 
+import {
+  getProfile,
+  updateProfile,
+  changePassword,
+  getRecentTasks,
+  getRecentProjects
 } from '../profiles';
 import { Task} from '../../types/task';
 
@@ -35,7 +35,7 @@ const mockProfileData: ProfileData = {
 const mockUpdateData: ProfileUpdateData = {
   name: 'Updated',
   surname: 'Name',
-  email: 'updated@example.com'  
+  email: 'updated@example.com'
 };
 
 const mockPasswordData: PasswordChange = {

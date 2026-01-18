@@ -1,6 +1,7 @@
 import React, {
   useState,
-  useEffect
+  useEffect,
+  useCallback
 } from 'react';
 import {
   Dialog,
@@ -18,11 +19,11 @@ import {
 } from '../../types/profile';
 
 
-const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ 
-  open, 
-  onClose, 
-  profile, 
-  onProfileUpdate 
+const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
+  open,
+  onClose,
+  profile,
+  onProfileUpdate
 }) => {
   const [formData, setFormData] = useState<FormData>({
     name: profile?.name || '',
@@ -42,14 +43,14 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
     }
   }, [profile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
-  };
+    }));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -61,7 +62,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, onProfileUpdate, onClose]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

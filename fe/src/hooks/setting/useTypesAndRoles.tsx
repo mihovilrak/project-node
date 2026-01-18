@@ -80,7 +80,7 @@ export const useTypesAndRoles = () => {
   const handleSave = async (item: Partial<TaskType | ActivityType | AdminRole>): Promise<void> => {
     try {
       setState(prev => ({ ...prev, loading: true }));
-      
+
       if (state.activeTab === 0) {
         if (item.id) {
           await updateTaskType(item.id, item as TaskType);

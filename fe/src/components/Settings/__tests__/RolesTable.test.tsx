@@ -73,18 +73,18 @@ describe('RolesTable', () => {
 
   it('displays correct status chips', () => {
     const { container } = render(<RolesTable {...defaultProps} />);
-    
+
     // Use data attribute queries to ensure we're targeting the right elements
     // This approach aligns with the project's testing practices for Material-UI components
     const activeChipRow = screen.getByText('Active').closest('tr');
     const inactiveChipRow = screen.getByText('Inactive').closest('tr');
-    
+
     // Verify the active row contains the admin name
     expect(activeChipRow).toHaveTextContent('Admin');
-    
+
     // Verify the inactive row contains the user name
     expect(inactiveChipRow).toHaveTextContent('User');
-    
+
     // Verify both chips exist in the document
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Inactive')).toBeInTheDocument();

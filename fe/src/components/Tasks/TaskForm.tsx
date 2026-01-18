@@ -94,49 +94,49 @@ const TaskForm: React.FC = () => {
           formData={formData}
           handleChange={handleFormChange}
         />
-        
+
         <ProjectSelect
           projects={projects}
           formData={formData}
           handleChange={handleFormChange}
           projectIdFromQuery={projectIdFromQuery}
         />
-        
+
         <TaskDescriptionField
-          formData={formData} 
-          handleChange={handleFormChange} 
+          formData={formData}
+          handleChange={handleFormChange}
         />
-        
+
         {isEditing && (
           <TaskProgressField
             value={formData.progress || 0}
             handleChange={handleFormChange}
           />
         )}
-        
+
         <DatePickerSection
-          formData={formData} 
-          handleChange={handleFormChange} 
-        />
-        
-        <TaskPrioritySelect
-          formData={formData} 
-          priorities={priorities} 
-          handleChange={handleFormChange} 
-        />
-        
-        <TaskStatusSelect 
-          formData={formData} 
-          statuses={statuses} 
-          handleChange={handleFormChange} 
-        />
-        
-        <AssigneeSelectionSection 
-          formData={formData} 
-          projectMembers={projectMembers} 
+          formData={formData}
           handleChange={handleFormChange}
         />
-        
+
+        <TaskPrioritySelect
+          formData={formData}
+          priorities={priorities}
+          handleChange={handleFormChange}
+        />
+
+        <TaskStatusSelect
+          formData={formData}
+          statuses={statuses}
+          handleChange={handleFormChange}
+        />
+
+        <AssigneeSelectionSection
+          formData={formData}
+          projectMembers={projectMembers}
+          handleChange={handleFormChange}
+        />
+
         {formData.project_id && (
           <ParentTaskSelect
             formData={formData}
@@ -145,22 +145,22 @@ const TaskForm: React.FC = () => {
             parentIdFromUrl={parentId}
           />
         )}
-        
+
         <TaskTypeSection
-          formData={formData} 
-          handleChange={handleFormChange} 
+          formData={formData}
+          handleChange={handleFormChange}
         />
-        
-        <TaskTagsSection 
-          formData={formData} 
-          handleChange={handleFormChange} 
+
+        <TaskTagsSection
+          formData={formData}
+          handleChange={handleFormChange}
         />
-        
+
         <EstimatedTimeField
-          formData={formData} 
-          handleChange={handleFormChange} 
+          formData={formData}
+          handleChange={handleFormChange}
         />
-        
+
         <TaskFormActionButtons isEditing={isEditing} />
       </form>
     </Box>

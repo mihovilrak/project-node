@@ -54,13 +54,13 @@ describe('UserDialog', () => {
 
   it('renders create user dialog correctly', () => {
     render(<UserDialog {...defaultProps} />);
-    
+
     expect(screen.getByRole('heading', { name: 'Create New User' })).toBeInTheDocument();
-    
+
     // Using more reliable selectors
     const loginInput = screen.getByRole('textbox', { name: /login/i });
     expect(loginInput).toBeEnabled();
-    
+
     // For password fields, use direct DOM query
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     expect(passwordInputs[0]).toBeRequired();
@@ -68,12 +68,12 @@ describe('UserDialog', () => {
 
   it('renders edit user dialog correctly', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
-    
+
     expect(screen.getByRole('heading', { name: `Edit user ${mockUser.name} ${mockUser.surname}` })).toBeInTheDocument();
-    
+
     const loginInput = screen.getByRole('textbox', { name: /login/i });
     expect(loginInput).toBeDisabled();
-    
+
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     expect(passwordInputs[0]).not.toBeRequired();
   });
@@ -89,7 +89,7 @@ describe('UserDialog', () => {
     });
 
     render(<UserDialog {...defaultProps} />);
-    
+
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
@@ -104,10 +104,10 @@ describe('UserDialog', () => {
     });
 
     render(<UserDialog {...defaultProps} />);
-    
+
     const form = screen.getByRole('form');
     fireEvent.submit(form);
-    
+
     await waitFor(() => {
       expect(mockHandleSubmit).toHaveBeenCalled();
     });
@@ -115,20 +115,20 @@ describe('UserDialog', () => {
 
   it('calls onClose when cancel button is clicked', () => {
     render(<UserDialog {...defaultProps} />);
-    
+
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     fireEvent.click(cancelButton);
-    
+
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
   it('shows correct role options', async () => {
     render(<UserDialog {...defaultProps} />);
-    
+
     // Open the select dropdown
     const roleSelect = screen.getByLabelText(/role/i);
     fireEvent.mouseDown(roleSelect);
-    
+
     // Wait for options to appear in the dropdown
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument();
@@ -139,13 +139,13 @@ describe('UserDialog', () => {
 
   it('validates required fields in create mode', () => {
     render(<UserDialog {...defaultProps} />);
-    
+
     // For text fields
     expect(screen.getByRole('textbox', { name: /login/i })).toBeRequired();
     expect(screen.getByRole('textbox', { name: /first name/i })).toBeRequired();
     expect(screen.getByRole('textbox', { name: /last name/i })).toBeRequired();
     expect(screen.getByRole('textbox', { name: /email/i })).toBeRequired();
-    
+
     // For password field
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     expect(passwordInputs[0]).toBeRequired();
@@ -153,7 +153,7 @@ describe('UserDialog', () => {
 
   it('pre-fills form data for existing user', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
-    
+
     expect(screen.getByRole('textbox', { name: /login/i })).toHaveValue(mockUser.login);
     expect(screen.getByRole('textbox', { name: /first name/i })).toHaveValue(mockUser.name);
     expect(screen.getByRole('textbox', { name: /last name/i })).toHaveValue(mockUser.surname);

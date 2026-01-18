@@ -10,7 +10,7 @@ jest.mock('../../../context/AuthContext', () => ({
 describe('usePermission', () => {
   // Cast useAuth as jest.Mock for TypeScript
   const mockUseAuth = useAuth as jest.Mock;
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

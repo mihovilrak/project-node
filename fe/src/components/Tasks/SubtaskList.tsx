@@ -19,10 +19,10 @@ import { deleteTask } from '../../api/tasks';
 import { SubtaskListProps } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
 
-const SubtaskList: React.FC<SubtaskListProps> = ({ 
-  subtasks, 
+const SubtaskList: React.FC<SubtaskListProps> = ({
+  subtasks,
   onSubtaskDeleted,
-  onSubtaskUpdated 
+  onSubtaskUpdated
 }) => {
   const navigate = useNavigate();
 
@@ -46,25 +46,25 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
   return (
     <List>
       {subtasks.map((subtask) => (
-        <Paper 
-          key={subtask.id} 
-          variant="outlined" 
+        <Paper
+          key={subtask.id}
+          variant="outlined"
           sx={{ mb: 1, backgroundColor: subtask.status_name === 'Done' ? 'action.hover' : 'inherit' }}
         >
           <ListItem
             secondaryAction={
               <Box>
                 <Tooltip title="Edit">
-                  <IconButton 
-                    edge="end" 
+                  <IconButton
+                    edge="end"
                     onClick={() => navigate(`/tasks/${subtask.id}/edit`)}
                   >
                     <EditIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
-                  <IconButton 
-                    edge="end" 
+                  <IconButton
+                    edge="end"
                     onClick={() => handleDelete(subtask.id)}
                     color="error"
                   >
@@ -86,9 +86,9 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
                   >
                     {subtask.name}
                   </Typography>
-                  <Chip 
-                    label={subtask.priority_name} 
-                    size="small" 
+                  <Chip
+                    label={subtask.priority_name}
+                    size="small"
                     color={getPriorityColor(subtask.priority_name)}
                   />
                 </Box>

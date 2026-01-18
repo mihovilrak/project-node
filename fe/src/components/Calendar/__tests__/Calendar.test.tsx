@@ -5,17 +5,17 @@ import Calendar from '../Calendar';
 import { useCalendar } from '../../../hooks/calendar/useCalendar';
 
 // Mock all child components
-jest.mock('../CalendarDayView', () => ({ 
+jest.mock('../CalendarDayView', () => ({
   __esModule: true,
-  default: () => <div data-testid="day-view">Day View</div> 
+  default: () => <div data-testid="day-view">Day View</div>
 }));
-jest.mock('../CalendarWeekView', () => ({ 
+jest.mock('../CalendarWeekView', () => ({
   __esModule: true,
-  default: () => <div data-testid="week-view">Week View</div> 
+  default: () => <div data-testid="week-view">Week View</div>
 }));
-jest.mock('../CalendarMonthView', () => ({ 
+jest.mock('../CalendarMonthView', () => ({
   __esModule: true,
-  default: () => <div data-testid="month-view">Month View</div> 
+  default: () => <div data-testid="month-view">Month View</div>
 }));
 
 // Mock the useCalendar hook
@@ -61,7 +61,7 @@ describe('Calendar Component', () => {
 
   test('switches between different views', () => {
     render(<Calendar />);
-    
+
     const dayButton = screen.getByText('Day');
     const weekButton = screen.getByText('Week');
     const monthButton = screen.getByText('Month');
@@ -132,7 +132,7 @@ describe('Calendar Component', () => {
       view: 'day'
     });
     render(<Calendar />);
-    
+
     expect(screen.getByText('Day')).toHaveClass('MuiButton-contained');
     expect(screen.getByText('Week')).toHaveClass('MuiButton-outlined');
     expect(screen.getByText('Month')).toHaveClass('MuiButton-outlined');

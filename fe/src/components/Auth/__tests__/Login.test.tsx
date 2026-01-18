@@ -27,16 +27,16 @@ describe('Login Component', () => {
 
   test('renders login form', () => {
     render(<Login />);
-    
+
     // Check for heading
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Login');
-    
+
     // Check for input fields using exact label text
     const usernameField = screen.getByLabelText(/Username/);
     const passwordField = screen.getByLabelText(/Password/);
     expect(usernameField).toBeInTheDocument();
     expect(passwordField).toBeInTheDocument();
-    
+
     // Check for login button
     expect(screen.getByRole('button', { name: /^login$/i })).toBeInTheDocument();
   });
@@ -44,7 +44,7 @@ describe('Login Component', () => {
   test('password visibility toggle works', async () => {
     render(<Login />);
     const user = userEvent.setup();
-    
+
     const passwordInput = screen.getByLabelText(/Password/);
     const visibilityToggle = screen.getByRole('button', {
       name: /toggle password visibility/i,
@@ -52,11 +52,11 @@ describe('Login Component', () => {
 
     // Initial state - password should be hidden
     expect(passwordInput).toHaveAttribute('type', 'password');
-    
+
     // Click visibility toggle
     await user.click(visibilityToggle);
     expect(passwordInput).toHaveAttribute('type', 'text');
-    
+
     // Click visibility toggle again
     await user.click(visibilityToggle);
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -64,7 +64,7 @@ describe('Login Component', () => {
 
   test('form inputs have required attribute', () => {
     render(<Login />);
-    
+
     const usernameInput = screen.getByLabelText(/Username/);
     const passwordInput = screen.getByLabelText(/Password/);
 
@@ -76,7 +76,7 @@ describe('Login Component', () => {
     mockLogin.mockRejectedValueOnce(new Error('Login failed'));
     render(<Login />);
     const user = userEvent.setup();
-    
+
     await user.type(screen.getByLabelText(/Username/), 'testuser');
     await user.type(screen.getByLabelText(/Password/), 'testpass');
     await user.click(screen.getByRole('button', { name: /^login$/i }));
@@ -89,14 +89,14 @@ describe('Login Component', () => {
     mockLogin.mockResolvedValueOnce(undefined);
     render(<Login />);
     const user = userEvent.setup();
-    
+
     // Fill out the form
     await user.type(screen.getByLabelText(/Username/), 'testuser');
     await user.type(screen.getByLabelText(/Password/), 'testpass');
-    
+
     // Submit the form
     await user.click(screen.getByRole('button', { name: /^login$/i }));
-    
+
     expect(mockLogin).toHaveBeenCalledWith('testuser', 'testpass');
   });
 });

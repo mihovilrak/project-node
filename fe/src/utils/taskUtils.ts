@@ -6,4 +6,4 @@ export const getPriorityColor = (priority: string | undefined): "error" | "warni
     case 'low/wont': return 'success';
     default: return 'default';
   }
-}; 
+};

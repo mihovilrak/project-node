@@ -65,8 +65,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             />
           ))}
         </Box>
-        <IconButton 
-          size="small" 
+        <IconButton
+          size="small"
           onClick={() => setExpanded(!expanded)}
           sx={{ ml: 1 }}
         >
@@ -117,8 +117,8 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           ))}
         </Grid>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={handleClearFilters}
           >
             Clear

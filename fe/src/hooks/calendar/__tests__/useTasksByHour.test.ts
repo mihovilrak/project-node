@@ -90,7 +90,7 @@ describe('useTasksByHour', () => {
 
   it('should return hours array and utility functions', () => {
     const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
-    
+
     expect(result.current.hours).toBeDefined();
     expect(result.current.getTasksForHour).toBeDefined();
     expect(result.current.getTimeLogsForHour).toBeDefined();
@@ -98,7 +98,7 @@ describe('useTasksByHour', () => {
 
   it('should generate 24 hours', () => {
     const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
-    
+
     expect(result.current.hours.length).toBe(24);
     expect(result.current.hours[0]).toBe(0);
     expect(result.current.hours[23]).toBe(23);
@@ -106,11 +106,11 @@ describe('useTasksByHour', () => {
 
   it('should get tasks for specific hour', () => {
     const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
-    
+
     const morningTasks = result.current.getTasksForHour(9);
     const afternoonTasks = result.current.getTasksForHour(14);
     const emptyHourTasks = result.current.getTasksForHour(12);
-    
+
     expect(morningTasks.length).toBe(1);
     expect(morningTasks[0].id).toBe(1);
     expect(afternoonTasks.length).toBe(1);
@@ -120,11 +120,11 @@ describe('useTasksByHour', () => {
 
   it('should get time logs for specific hour', () => {
     const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
-    
+
     const morningLogs = result.current.getTimeLogsForHour(9);
     const afternoonLogs = result.current.getTimeLogsForHour(14);
     const emptyHourLogs = result.current.getTimeLogsForHour(12);
-    
+
     expect(morningLogs.length).toBe(1);
     expect(morningLogs[0].id).toBe(1);
     expect(afternoonLogs.length).toBe(1);
@@ -134,7 +134,7 @@ describe('useTasksByHour', () => {
 
   it('should handle empty tasks and time logs', () => {
     const { result } = renderHook(() => useTasksByHour([], []));
-    
+
     expect(result.current.hours.length).toBe(24);
     expect(result.current.getTasksForHour(9)).toEqual([]);
     expect(result.current.getTimeLogsForHour(9)).toEqual([]);
@@ -172,7 +172,7 @@ describe('useTasksByHour', () => {
 
     const { result } = renderHook(() => useTasksByHour(tasksWithMissingDates, []));
     const tasksForHour = result.current.getTasksForHour(9);
-    
+
     expect(tasksForHour).toEqual([]);
   });
 
@@ -238,7 +238,7 @@ describe('useTasksByHour', () => {
 
     const { result } = renderHook(() => useTasksByHour(tasksAcrossDays, []));
     const tasksAtNine = result.current.getTasksForHour(9);
-    
+
     // Should return both tasks since they're at the same hour, regardless of day
     expect(tasksAtNine.length).toBe(2);
   });

@@ -23,7 +23,7 @@ export const useTaskFiles = (taskId: string) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task_id', taskId);
-      
+
       const uploadedFile = await uploadFile(Number(taskId), formData);
       await refreshFiles(); // Refresh files after upload
       return uploadedFile;

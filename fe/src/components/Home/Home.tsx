@@ -9,16 +9,16 @@ const Home: React.FC = (): React.ReactElement => {
   return (
     <Box>
       {state.settings.welcome_message && (
-        <Box 
+        <Box
           data-testid="welcome-message"
-          sx={{ 
+          sx={{
             mb: 4,
             '& h1, & h2, & h3': {
               color: 'primary.main',
               mb: 2
             }
           }}
-          dangerouslySetInnerHTML={{ __html: state.settings.welcome_message }} 
+          dangerouslySetInnerHTML={{ __html: state.settings.welcome_message }}
         />
       )}
       <ActiveTasks />

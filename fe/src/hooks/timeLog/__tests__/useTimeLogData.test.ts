@@ -258,7 +258,7 @@ describe('useTimeLogData', () => {
 
     expect(consoleError).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
-    
+
     consoleError.mockRestore();
   });
 });

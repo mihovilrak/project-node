@@ -34,7 +34,7 @@ describe('Files API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockFile] });
 
       const files = await getTaskFiles(1);
-      
+
       expect(mockedApi.get).toHaveBeenCalledWith('/files', {
         params: { taskId: '1' }
       });
@@ -56,7 +56,7 @@ describe('Files API', () => {
       mockedApi.post.mockResolvedValueOnce({ data: mockFile });
 
       const result = await uploadFile(1, mockFormData, mockProgress);
-      
+
       expect(mockedApi.post).toHaveBeenCalledWith('/files', mockFormData, {
         onUploadProgress: mockProgress,
         params: { taskId: '1' }
@@ -134,7 +134,7 @@ describe('Files API', () => {
       mockedApi.delete.mockResolvedValueOnce({ data: undefined });
 
       await deleteFile(1, 1);
-      
+
       expect(mockedApi.delete).toHaveBeenCalledWith('/files/1', {
         params: { taskId: '1' }
       });

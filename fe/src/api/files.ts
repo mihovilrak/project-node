@@ -17,8 +17,8 @@ export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
 
 // Upload file
 export const uploadFile = async (
-  taskId: number, 
-  formData: FormData, 
+  taskId: number,
+  formData: FormData,
   onProgress?: (progressEvent: AxiosProgressEvent) => void
 ): Promise<TaskFile> => {
   try {
@@ -44,16 +44,16 @@ export const downloadFile = async (taskId: number, fileId: number): Promise<void
       params: { taskId: taskId.toString() },
       responseType: 'blob'
     });
-    
+
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    
+
     const contentDisposition = response.headers['content-disposition'];
     const filename = contentDisposition
       ? decodeURIComponent(contentDisposition.split('filename=')[1].replace(/['"]/g, ''))
       : 'download';
-      
+
     link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();

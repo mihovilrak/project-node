@@ -25,16 +25,16 @@ export const useSystemSettings = () => {
     const fetchSettings = async () => {
       try {
         const data = await getSystemSettings();
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           settings: data,
-          loading: false 
+          loading: false
         }));
       } catch (error) {
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           error: 'Failed to fetch system settings',
-          loading: false 
+          loading: false
         }));
       }
     };
@@ -47,17 +47,17 @@ export const useSystemSettings = () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
       await updateSystemSettings(state.settings);
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         success: true,
-        loading: false 
+        loading: false
       }));
       setTimeout(() => setState(prev => ({ ...prev, success: false })), 3000);
     } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         error: 'Failed to update system settings',
-        loading: false 
+        loading: false
       }));
     }
   };

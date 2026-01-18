@@ -65,7 +65,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </Toolbar>
       </AppBar>
-      
+
       <Box
         component="main"
         sx={{

@@ -27,14 +27,14 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
           <strong>Description:</strong> {projectDetails.description || 'No description provided'}
         </Typography>
       </Grid>
-      
+
       <Grid item xs={12} sm={6}>
         <Typography>
           <strong>Start Date:</strong>{' '}
           {format(new Date(projectDetails.start_date), 'dd/MM/yyyy')}
         </Typography>
       </Grid>
-      
+
       <Grid item xs={12} sm={6}>
         <Typography>
           <strong>Due Date:</strong>{' '}
@@ -48,7 +48,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
           {projectDetails.status_name}
         </Typography>
       </Grid>
-      
+
       <Grid item xs={12} sm={6}>
         <Typography>
           <strong>Parent Project:</strong>{' '}
@@ -80,7 +80,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
           ) : 'Unknown'}
         </Typography>
       </Grid>
-      
+
       <Grid item xs={12} sm={6}>
         <Typography>
           <strong>Created On:</strong>{' '}
@@ -92,13 +92,13 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         <Typography gutterBottom>
           <strong>Progress:</strong> {projectDetails.progress}%
         </Typography>
-        <LinearProgress 
-          variant="determinate" 
+        <LinearProgress
+          variant="determinate"
           value={projectDetails.progress}
           sx={{ height: 10, borderRadius: 1 }}
         />
       </Grid>
-      
+
       <Grid item xs={12} sm={6}>
         <Typography>
           <strong>Estimated Time:</strong> {projectDetails.estimated_time} hours
@@ -119,8 +119,8 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
           <List>
             {subprojects.map((subproject) => (
               <ListItem key={subproject.id}>
-                <Link 
-                  component={RouterLink} 
+                <Link
+                  component={RouterLink}
                   to={`/projects/${subproject.id}`}
                   underline="hover"
                 >

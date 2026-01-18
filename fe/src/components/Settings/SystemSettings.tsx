@@ -240,8 +240,8 @@ const SystemSettings: React.FC = () => {
               </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
-              <Box sx={{ 
-                border: '1px solid #ddd', 
+              <Box sx={{
+                border: '1px solid #ddd',
                 borderRadius: 1,
                 '.ProseMirror': {
                   minHeight: '200px',

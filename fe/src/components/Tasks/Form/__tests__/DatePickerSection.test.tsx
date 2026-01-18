@@ -9,9 +9,9 @@ jest.mock('@mui/x-date-pickers', () => ({
   DatePicker: ({ label, value, onChange, sx, slotProps }: any) => (
     <div data-testid={`mock-date-picker-${label.toLowerCase().replace(' ', '-')}`}>
       <label>{label}</label>
-      <input 
-        type="text" 
-        value={value ? value.format('YYYY-MM-DD') : ''} 
+      <input
+        type="text"
+        value={value ? value.format('YYYY-MM-DD') : ''}
         onChange={(e) => onChange(dayjs(e.target.value))}
       />
     </div>
@@ -20,7 +20,7 @@ jest.mock('@mui/x-date-pickers', () => ({
 
 describe('DatePickerSection', () => {
   const mockHandleChange = jest.fn();
-  
+
   const defaultFormData: TaskFormState = {
     name: '',
     description: '',
@@ -42,9 +42,9 @@ describe('DatePickerSection', () => {
 
   it('renders both date pickers', () => {
     render(
-      <DatePickerSection 
-        formData={defaultFormData} 
-        handleChange={mockHandleChange} 
+      <DatePickerSection
+        formData={defaultFormData}
+        handleChange={mockHandleChange}
       />
     );
 
@@ -54,9 +54,9 @@ describe('DatePickerSection', () => {
 
   it('displays correct labels', () => {
     render(
-      <DatePickerSection 
-        formData={defaultFormData} 
-        handleChange={mockHandleChange} 
+      <DatePickerSection
+        formData={defaultFormData}
+        handleChange={mockHandleChange}
       />
     );
 
@@ -66,17 +66,17 @@ describe('DatePickerSection', () => {
 
   it('handles start date change correctly', () => {
     render(
-      <DatePickerSection 
-        formData={defaultFormData} 
-        handleChange={mockHandleChange} 
+      <DatePickerSection
+        formData={defaultFormData}
+        handleChange={mockHandleChange}
       />
     );
 
     const newDate = '2024-02-01T00:00:00.000Z';
     const expectedChange = {
-      target: { 
-        name: 'start_date', 
-        value: newDate 
+      target: {
+        name: 'start_date',
+        value: newDate
       }
     };
 
@@ -98,9 +98,9 @@ describe('DatePickerSection', () => {
     };
 
     render(
-      <DatePickerSection 
-        formData={formDataWithNullDates} 
-        handleChange={mockHandleChange} 
+      <DatePickerSection
+        formData={formDataWithNullDates}
+        handleChange={mockHandleChange}
       />
     );
 
@@ -111,9 +111,9 @@ describe('DatePickerSection', () => {
 
   it('applies correct styles', () => {
     render(
-      <DatePickerSection 
-        formData={defaultFormData} 
-        handleChange={mockHandleChange} 
+      <DatePickerSection
+        formData={defaultFormData}
+        handleChange={mockHandleChange}
       />
     );
 

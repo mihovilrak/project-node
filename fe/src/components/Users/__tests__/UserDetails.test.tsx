@@ -90,7 +90,7 @@ describe('UserDetails', () => {
       updated_on: null,
       last_login: null
     };
-    
+
     (getUserById as jest.Mock).mockResolvedValue(userWithNulls);
 
     render(<UserDetails />);

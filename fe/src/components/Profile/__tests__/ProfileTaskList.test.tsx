@@ -67,7 +67,7 @@ describe('ProfileTaskList', () => {
     renderWithRouter(
       <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
     );
-    
+
     expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     expect(screen.getByText('Project 1')).toBeInTheDocument();
     expect(screen.getByText('New')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('ProfileTaskList', () => {
     renderWithRouter(
       <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
     );
-    
+
     const listItems = screen.getAllByRole('listitem');
     expect(listItems).toHaveLength(mockTasks.length);
   });
@@ -87,7 +87,7 @@ describe('ProfileTaskList', () => {
     renderWithRouter(
       <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
     );
-    
+
     const taskItem = screen.getByText('Test Task 1').closest('li');
     if (taskItem) {
       fireEvent.click(taskItem);
@@ -99,12 +99,12 @@ describe('ProfileTaskList', () => {
     renderWithRouter(
       <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
     );
-    
+
     // Get all chips by test IDs
     const projectChip = screen.getByTestId('project-chip');
     const statusChip = screen.getByTestId('status-chip');
     const priorityChip = screen.getByTestId('priority-chip');
-    
+
     // Check text content
     expect(projectChip).toHaveTextContent('Project 1');
     expect(statusChip).toHaveTextContent('New');

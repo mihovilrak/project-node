@@ -39,7 +39,7 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
   const handleSpentTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const numValue = parseFloat(value);
-    
+
     // Only allow numbers divisible by 0.25
     if (value === '' || (!isNaN(numValue) && numValue % 0.25 === 0)) {
       onSpentTimeChange(value);

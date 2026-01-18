@@ -118,7 +118,7 @@ export const updateProjectMember = async (projectId: number, userId: number, rol
     console.error('Error updating project member:', error);
     throw error;
   }
-}; 
+};
 
 // Get subprojects
 export const getSubprojects = async (projectId: number): Promise<Project[]> => {

@@ -62,7 +62,7 @@ export const useProjectGantt = (initialTasks: any[]) => {
   const renderAppointment = useCallback(({ children, style, data, draggable, resources, ...restProps }: any) => {
     const status = data.status?.toLowerCase() || 'unknown';
     const priority = data.priority?.toLowerCase() || 'normal';
-    
+
     return {
       ...restProps,
       data,

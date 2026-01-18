@@ -51,14 +51,14 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
               <TableCell>{activityType.name}</TableCell>
               <TableCell>{activityType.description}</TableCell>
               <TableCell>
-                <div 
+                <div
                   data-testid={`color-block-${activityType.name}`}
                   style={{
                     backgroundColor: activityType.color,
                     width: 24,
                     height: 24,
                     borderRadius: 4
-                  }} 
+                  }}
                 />
               </TableCell>
               <TableCell>

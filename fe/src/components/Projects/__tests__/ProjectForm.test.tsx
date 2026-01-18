@@ -107,7 +107,7 @@ describe('ProjectForm Component', () => {
 
   test('renders the project details form initially', async () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Project Details')).toBeInTheDocument();
     });
@@ -115,7 +115,7 @@ describe('ProjectForm Component', () => {
 
   test('loads available projects and users on mount', async () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     await waitFor(() => {
       expect(getProjects).toHaveBeenCalled();
       expect(getUsers).toHaveBeenCalled();
@@ -124,13 +124,13 @@ describe('ProjectForm Component', () => {
 
   test('switches to members form when Next is clicked', async () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     // Find and click the Next button
     await waitFor(() => {
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-    
+
     // Verify members form is displayed
     await waitFor(() => {
       expect(screen.getByText('Project Members')).toBeInTheDocument();
@@ -139,19 +139,19 @@ describe('ProjectForm Component', () => {
 
   test('shows error when trying to submit without selecting members', async () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     // Navigate to members step
     await waitFor(() => {
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-    
+
     // Try to submit without selecting members
     await waitFor(() => {
       const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-    
+
     // Check for error message
     await waitFor(() => {
       expect(screen.getByText('Please select at least one project member')).toBeInTheDocument();
@@ -160,25 +160,25 @@ describe('ProjectForm Component', () => {
 
   test('successfully creates a project with members', async () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     // Navigate to members step
     await waitFor(() => {
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-    
+
     // Select a member
     await waitFor(() => {
       const checkbox = screen.getByRole('checkbox');
       fireEvent.click(checkbox);
     });
-    
+
     // Submit the form
     await waitFor(() => {
       const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-    
+
     // Verify project was created
     await waitFor(() => {
       expect(createProject).toHaveBeenCalled();
@@ -190,32 +190,32 @@ describe('ProjectForm Component', () => {
   test('handles API errors during project creation', async () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (createProject as jest.Mock).mockRejectedValue(new Error('API Error'));
-    
+
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     // Navigate to members step
     await waitFor(() => {
       const nextButton = screen.getByText('Next');
       fireEvent.click(nextButton);
     });
-    
+
     // Select a member
     await waitFor(() => {
       const checkbox = screen.getByRole('checkbox');
       fireEvent.click(checkbox);
     });
-    
+
     // Submit the form
     await waitFor(() => {
       const createButton = screen.getByText('Create Project');
       fireEvent.click(createButton);
     });
-    
+
     // Verify error handling
     await waitFor(() => {
       expect(consoleError).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
     });
-    
+
     consoleError.mockRestore();
   });
 
@@ -223,29 +223,29 @@ describe('ProjectForm Component', () => {
   // First test just verifies the cancel button exists
   test('renders cancel button correctly', async () => {
     const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
-    
+
     // Verify that cancel button exists
     await waitFor(() => {
       const cancelButton = container.querySelector('[data-testid="cancel-button"]');
       expect(cancelButton).not.toBeNull();
     });
   });
-  
+
   // Second test mock the handleCancel function directly
   test('calls onClose when Cancel button is clicked', async () => {
     const mockClose = jest.fn();
     const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockClose} />);
-    
+
     // Find and click the cancel button
     const cancelButton = await waitFor(() => {
       const button = container.querySelector('[data-testid="cancel-button"]');
       expect(button).not.toBeNull();
       return button as HTMLElement;
     });
-    
+
     // Click the button
     fireEvent.click(cancelButton);
-    
+
     // Verify onClose was called
     expect(mockClose).toHaveBeenCalled();
   });

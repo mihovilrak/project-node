@@ -18,9 +18,9 @@ import {
   Tooltip,
   Chip
 } from '@mui/material';
-import { 
+import {
   Edit as EditIcon,
-  Delete as DeleteIcon 
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
@@ -82,15 +82,15 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                   <TableCell>{`${user.name} ${user.surname}`}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Chip 
-                      label={user.role_name || 'No Role'} 
+                    <Chip
+                      label={user.role_name || 'No Role'}
                       size="small"
                       color={user.role_name === 'Admin' ? 'primary' : 'default'}
                     />
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit">
-                      <IconButton 
+                      <IconButton
                         data-testid={`edit-user-${user.id}`}
                         onClick={() => onEditUser(user)}
                         aria-label="Edit"
@@ -99,7 +99,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
-                      <IconButton 
+                      <IconButton
                         data-testid={`delete-user-${user.id}`}
                         onClick={() => handleDeleteClick(user)}
                         aria-label="Delete"
@@ -124,27 +124,27 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
         data-testid="pagination"
       />
 
-      <Dialog 
-        open={deleteDialogOpen} 
+      <Dialog
+        open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         data-testid="delete-dialog"
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography data-testid="delete-confirmation-text">
-            Are you sure you want to delete user {userToDelete?.name}? 
+            Are you sure you want to delete user {userToDelete?.name}?
             This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button 
+          <Button
             onClick={() => setDeleteDialogOpen(false)}
             data-testid="cancel-delete-button"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleDeleteConfirm} 
+          <Button
+            onClick={handleDeleteConfirm}
             color="error"
             data-testid="confirm-delete-button"
           >

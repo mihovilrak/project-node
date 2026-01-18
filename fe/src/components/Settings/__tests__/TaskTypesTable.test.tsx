@@ -134,11 +134,11 @@ describe('TaskTypesTable', () => {
     // Use data-testid to reliably find color boxes
     const firstColorBox = screen.getByTestId('color-box-1');
     const secondColorBox = screen.getByTestId('color-box-2');
-    
+
     // Verify the elements exist
     expect(firstColorBox).toBeInTheDocument();
     expect(secondColorBox).toBeInTheDocument();
-    
+
     // Verify the color boxes have the correct background colors
     // Check computed style instead of inline style attributes
     expect(window.getComputedStyle(firstColorBox).backgroundColor).toBe('rgb(33, 150, 243)');

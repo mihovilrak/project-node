@@ -60,14 +60,14 @@ describe('AssigneeSelectionSection', () => {
 
   it('renders both holder and assignee selects', () => {
     render(<AssigneeSelectionSection {...defaultProps} />);
-    
+
     expect(screen.getByTestId('mock-assignee-select-holder_id')).toBeInTheDocument();
     expect(screen.getByTestId('mock-assignee-select-assignee_id')).toBeInTheDocument();
   });
 
   it('passes correct props to holder select', () => {
     render(<AssigneeSelectionSection {...defaultProps} />);
-    
+
     const holderSelect = screen.getByTestId('mock-assignee-select-holder_id');
     expect(holderSelect).toHaveTextContent('Label: Holder');
     expect(holderSelect).toHaveTextContent('Name: holder_id');
@@ -76,7 +76,7 @@ describe('AssigneeSelectionSection', () => {
 
   it('passes correct props to assignee select', () => {
     render(<AssigneeSelectionSection {...defaultProps} />);
-    
+
     const assigneeSelect = screen.getByTestId('mock-assignee-select-assignee_id');
     expect(assigneeSelect).toHaveTextContent('Label: Assignee');
     expect(assigneeSelect).toHaveTextContent('Name: assignee_id');
@@ -85,12 +85,12 @@ describe('AssigneeSelectionSection', () => {
 
   it('renders with empty project members', () => {
     render(
-      <AssigneeSelectionSection 
+      <AssigneeSelectionSection
         {...defaultProps}
         projectMembers={[]}
       />
     );
-    
+
     expect(screen.getByTestId('mock-assignee-select-holder_id')).toHaveTextContent('Members: 0');
     expect(screen.getByTestId('mock-assignee-select-assignee_id')).toHaveTextContent('Members: 0');
   });

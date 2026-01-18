@@ -29,16 +29,16 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ThemeProvider } from './context/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
-import { 
-  useTaskFileWrapper, 
-  useTimeLogCalendarWrapper, 
+import {
+  useTaskFileWrapper,
+  useTimeLogCalendarWrapper,
   useTaskTimeLogsWrapper,
-  useAppState 
+  useAppState
 } from './hooks/app/useAppRoutes';
 
 const TaskFileWrapper: React.FC = () => {
   const { taskId, handleFileUploaded, handleFileDeleted } = useTaskFileWrapper();
-  
+
   return (
     <TaskFiles
       taskId={taskId}
@@ -64,10 +64,10 @@ const TaskTimeLogsWrapper: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const { 
-    taskFormOpen, 
-    handleTaskCreated, 
-    handleTaskFormClose 
+  const {
+    taskFormOpen,
+    handleTaskCreated,
+    handleTaskFormClose
   } = useAppState();
 
   return (
@@ -87,8 +87,8 @@ const App: React.FC = () => {
               <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
               <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
               <Route path="/tasks" element={<Tasks />} />
-              <Route 
-                path="/tasks/new" 
+              <Route
+                path="/tasks/new"
                 element={<PrivateRoute element={<TaskForm />} />}
               />
               <Route path="/tasks/:id" element={<TaskDetails />} />

@@ -10,7 +10,7 @@ import {
 describe('useActivityTimeline', () => {
   it('should return getActivityIcon and getActivityColor functions', () => {
     const { result } = renderHook(() => useActivityTimeline());
-    
+
     expect(result.current.getActivityIcon).toBeDefined();
     expect(result.current.getActivityColor).toBeDefined();
   });

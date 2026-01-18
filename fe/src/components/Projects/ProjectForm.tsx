@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Paper } from '@mui/material';
 import {
@@ -16,8 +16,10 @@ import ProjectMembersForm from './ProjectMembersForm';
 const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const parentId = searchParams.get('parentId');
+  const parentId = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('parentId');
+  }, [location.search]);
 
   const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -60,22 +62,22 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     fetchUsers();
   }, []);
 
-  const handleUserSelect = (userId: number) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
+  const handleUserSelect = useCallback((userId: number) => {
+    setSelectedUsers(prev =>
+      prev.includes(userId)
         ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
     setMemberError('');
-  };
+  }, []);
 
-  const handleDetailsSubmit = () => {
+  const handleDetailsSubmit = useCallback(() => {
     if (validateForm()) {
       setStep('members');
     }
-  };
+  }, [validateForm]);
 
-  const handleMembersSubmit = async () => {
+  const handleMembersSubmit = useCallback(async () => {
     if (selectedUsers.length === 0) {
       setMemberError('Please select at least one project member');
       return;
@@ -85,7 +87,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     try {
       const projectData = { ...formData };
       const response = await createProject(projectData);
-      
+
       await Promise.all(
         selectedUsers.map(userId => addProjectMember(response.id, userId))
       );
@@ -97,15 +99,15 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     } catch (error) {
       console.error('Failed to create project:', error);
     }
-  };
+  }, [selectedUsers, formData, onSubmit, navigate]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (onClose) {
       onClose();
     } else {
       navigate('/projects');
     }
-  };
+  }, [onClose, navigate]);
 
   return (
     <Paper sx={{ p: 3 }}>

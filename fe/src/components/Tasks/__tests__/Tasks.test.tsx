@@ -135,7 +135,7 @@ describe('Tasks Component', () => {
     fireEvent.click(deleteButtons[0]);
 
     expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this task?');
-    
+
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
       expect(mockedGetTasks).toHaveBeenCalledTimes(2); // Initial load + after delete
@@ -145,7 +145,7 @@ describe('Tasks Component', () => {
   test('handles failed task deletion', async () => {
     window.confirm = jest.fn(() => true);
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockRejectedValue(new Error('Delete failed'));
 
@@ -179,7 +179,7 @@ describe('Tasks Component', () => {
     const expandButton = within(filterPanel).getByRole('button');
     fireEvent.click(expandButton);
     const searchInput = within(filterPanel).getByRole('textbox', { name: /search/i });
-    
+
     await userEvent.type(searchInput, 'Task 1');
 
     expect(screen.getByText('Test Task 1')).toBeInTheDocument();
@@ -192,18 +192,20 @@ describe('Tasks Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
 
     const sortSelect = screen.getByRole('combobox');
-    
+
     // Test descending sort
     await userEvent.click(sortSelect);
     await userEvent.click(screen.getByText('Z-A'));
 
-    const taskElements = screen.getAllByRole('heading', { level: 6 });
-    expect(taskElements[0]).toHaveTextContent('Test Task 2');
-    expect(taskElements[1]).toHaveTextContent('Test Task 1');
-  });
+    await waitFor(() => {
+      const taskElements = screen.getAllByRole('heading', { level: 6 });
+      expect(taskElements[0]).toHaveTextContent('Test Task 2');
+      expect(taskElements[1]).toHaveTextContent('Test Task 1');
+    }, { timeout: 10000 });
+  }, 15000);
 
   test('navigates to correct routes', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
@@ -258,7 +260,7 @@ describe('Tasks Component', () => {
   test('handles API error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetTasks.mockRejectedValue(new Error('API error'));
-    
+
     renderTasks();
 
     await waitFor(() => {

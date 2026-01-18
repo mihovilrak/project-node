@@ -23,10 +23,10 @@ export const useTaskCore = (taskId: string) => {
   useEffect(() => {
     const fetchTaskData = async () => {
       if (!taskId) return;
-      
+
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
-        
+
         const [taskData, subtasksData, statusesData] = await Promise.all([
           getTaskById(Number(taskId)),
           getSubtasks(Number(taskId)),

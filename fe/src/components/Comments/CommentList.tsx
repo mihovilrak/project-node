@@ -39,9 +39,9 @@ const CommentList: React.FC<CommentListProps> = ({
     <>
       <List>
         {comments.map((comment) => (
-          <Paper 
-            key={comment.id} 
-            elevation={0} 
+          <Paper
+            key={comment.id}
+            elevation={0}
             sx={{ mb: 2, p: 2, backgroundColor: 'background.default' }}
           >
             <Box sx={{
@@ -49,7 +49,7 @@ const CommentList: React.FC<CommentListProps> = ({
               alignItems: 'flex-start',
               mb: 1
             }}>
-              <Avatar 
+              <Avatar
                 src={comment.user_avatar || undefined}
                 alt={comment.user_name}
                 sx={{ width: 32, height: 32, mr: 2 }}
@@ -80,7 +80,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       {new Date(comment.created_on).toLocaleString()}
                     </Typography>
                     <IconButton
-                      size="small" 
+                      size="small"
                       onClick={(e) => handleMenuOpen(e, comment)}
                       sx={{ ml: 1 }}
                     >

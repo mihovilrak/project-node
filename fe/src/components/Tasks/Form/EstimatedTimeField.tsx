@@ -6,7 +6,7 @@ export const EstimatedTimeField: React.FC<EstimatedTimeFieldProps> = ({
   formData,
   handleChange
 }) => (
-  <TextField 
+  <TextField
     fullWidth
     label="Estimated Time (hours)"
     name="estimated_time"

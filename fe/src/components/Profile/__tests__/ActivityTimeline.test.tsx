@@ -58,7 +58,7 @@ describe('ActivityTimeline', () => {
 
   test('renders timeline connectors correctly', () => {
     render(<ActivityTimeline activities={mockActivities} />);
-    
+
     const timelineConnectors = document.querySelectorAll('.MuiTimelineConnector-root');
     // Should have one connector (between two items)
     expect(timelineConnectors.length).toBe(1);

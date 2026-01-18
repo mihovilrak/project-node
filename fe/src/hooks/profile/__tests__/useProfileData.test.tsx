@@ -142,7 +142,7 @@ describe('useProfileData', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
-    
+
     // Setup default mock implementations
     (getProfile as jest.Mock).mockResolvedValue(mockProfileData);
     (getRecentTasks as jest.Mock).mockResolvedValue(mockTasks);
@@ -168,17 +168,17 @@ describe('useProfileData', () => {
 
   it('should fetch profile data on mount', async () => {
     const { result } = renderHook(() => useProfileData());
-    
+
     expect(result.current.loading).toBe(true);
-    
+
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
-    
+
     expect(getProfile).toHaveBeenCalled();
     expect(getRecentTasks).toHaveBeenCalled();
     expect(getRecentProjects).toHaveBeenCalled();
-    
+
     expect(result.current.profile).toEqual(mockProfileData);
     expect(result.current.recentTasks).toEqual(mockTasks);
     expect(result.current.recentProjects).toEqual(mockProjects);
@@ -189,9 +189,9 @@ describe('useProfileData', () => {
   it('should handle API errors', async () => {
     const error = new Error('API Error');
     (getProfile as jest.Mock).mockRejectedValue(error);
-    
+
     const { result } = renderHook(() => useProfileData());
-    
+
     await waitFor(() => {
       expect(result.current.error).toBe('Failed to load profile data');
     });
@@ -230,7 +230,7 @@ describe('useProfileData', () => {
       result.current.setEditDialogOpen(false);
     });
     expect(result.current.editDialogOpen).toBe(false);
-    
+
     act(() => {
       result.current.setPasswordDialogOpen(true);
     });
@@ -244,7 +244,7 @@ describe('useProfileData', () => {
 
   it('should update stats when profile data changes', async () => {
     const { result } = renderHook(() => useProfileData());
-    
+
     await waitFor(() => {
       expect(result.current.stats).toEqual({
         totalTasks: mockProfileData.total_tasks,

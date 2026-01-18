@@ -176,7 +176,7 @@ describe('TaskTable', () => {
 
   test('renders table with correct headers', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
-    
+
     const headers = [
       'Name',
       'Type',
@@ -204,7 +204,7 @@ describe('TaskTable', () => {
 
   test('formats due date correctly', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
-    
+
     // Accepts dates like 31.12.2023, 31. 12. 2023., 12/31/2023, etc.
     expect(
       screen.getByText((content) =>
@@ -216,7 +216,7 @@ describe('TaskTable', () => {
 
   test('navigates to task details when edit button is clicked', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
-    
+
     const editButtons = screen.getAllByRole('button');
     fireEvent.click(editButtons[0]);
 
@@ -225,7 +225,7 @@ describe('TaskTable', () => {
 
   test('applies correct status colors', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
-    
+
     const statusChips = screen.getAllByText(/In Progress|Done/);
     const doneChip = statusChips.find(chip => chip.textContent === 'Done');
     expect(doneChip?.closest('[class*="MuiChip-colorSuccess"]')).toBeInTheDocument();
@@ -233,22 +233,22 @@ describe('TaskTable', () => {
 
   test('applies correct priority colors', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
-    
+
     const priorityChips = screen.getAllByText(/High\/Should|Normal\/Could/);
     expect(priorityChips).toHaveLength(2);
-    
+
     const highPriorityChip = priorityChips.find(chip => chip.textContent === 'High/Should');
     expect(highPriorityChip?.closest('[class*="MuiChip-colorWarning"]')).toBeInTheDocument();
   });
 
   test('renders empty table when no tasks provided', () => {
     renderTaskTable({ tasks: [], loading: false });
-    
+
     const headers = ['Name', 'Type', 'Status', 'Priority', 'Assignee', 'Due Date', 'Actions'];
     headers.forEach(header => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
-    
+
     expect(screen.queryByRole('row')).toBeTruthy();
     expect(screen.queryAllByRole('row')).toHaveLength(1); // Only header row
   });

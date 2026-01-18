@@ -39,8 +39,8 @@ describe('ProjectDetails', () => {
   });
 
   it('shows an error message when there is an error', () => {
-    mockUseProjectDetails.mockReturnValue({ 
-      ...mockHookReturnValue, 
+    mockUseProjectDetails.mockReturnValue({
+      ...mockHookReturnValue,
       error: 'Error loading project'
     });
     render(<ProjectDetails />);

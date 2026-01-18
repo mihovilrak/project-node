@@ -94,11 +94,11 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   return (
     <Box>
       <Paper sx={{ p: 3 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 2 
+          mb: 2
         }}>
           <Typography variant="h6">Time Logs</Typography>
           <Button

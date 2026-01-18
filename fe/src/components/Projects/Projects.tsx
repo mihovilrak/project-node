@@ -64,9 +64,9 @@ const Projects: React.FC = () => {
             onChange={(e) => setFilter(e.target.value)}
             data-testid="project-filter"
           />
-          <Select 
-            value={sortOrder} 
-            onChange={handleSortChange} 
+          <Select
+            value={sortOrder}
+            onChange={handleSortChange}
             size="small"
             data-testid="project-sort"
             aria-label="Sort Order"
@@ -75,9 +75,9 @@ const Projects: React.FC = () => {
             <MenuItem value="desc">Descending</MenuItem>
           </Select>
           <Box sx={{ flexGrow: 1 }} />
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={handleCreateProject}
             data-testid="create-project-button"
           >
@@ -92,7 +92,7 @@ const Projects: React.FC = () => {
       <Grid container spacing={3}>
         {filteredProjects.map((project) => (
           <Grid item xs={12} sm={6} lg={4} key={project.id}>
-            <Card 
+            <Card
               onClick={() => navigate(`/projects/${project.id}`)}
               data-testid={`project-card-${project.id}`}
               role="button"

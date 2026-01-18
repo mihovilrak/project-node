@@ -18,7 +18,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
 
   const renderTimelineItem = (activity: Activity, index: number) => {
     const Icon = getActivityIcon(activity.type);
-    
+
     return (
       <TimelineItem key={activity.id}>
         <TimelineOppositeContent sx={{ flex: 0.2 }}>

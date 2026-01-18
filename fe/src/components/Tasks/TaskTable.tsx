@@ -18,8 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import { TaskTableProps } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
 
-const TaskTable: React.FC<TaskTableProps> = ({ 
-  tasks, 
+const TaskTable: React.FC<TaskTableProps> = ({
+  tasks,
   loading
 }) => {
   const navigate = useNavigate();
@@ -51,24 +51,24 @@ const TaskTable: React.FC<TaskTableProps> = ({
             <TableRow key={task.id}>
               <TableCell>{task.name}</TableCell>
               <TableCell>
-                <Chip 
+                <Chip
                   label={task.type_name}
                   size="small"
-                  style={{ 
+                  style={{
                     backgroundColor: task.type_color,
                     color: '#fff'
                   }}
                 />
               </TableCell>
               <TableCell>
-                <Chip 
+                <Chip
                   label={task.status_name}
                   size="small"
                   color={task.status_name === 'Done' ? 'success' : 'default'}
                 />
               </TableCell>
               <TableCell>
-                <Chip 
+                <Chip
                   label={task.priority_name}
                   size="small"
                   color={getPriorityColor(task.priority_name || '')}
@@ -80,7 +80,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
               </TableCell>
               <TableCell>
                 <Tooltip title="Edit Task">
-                  <IconButton 
+                  <IconButton
                     size="small"
                     onClick={() => navigate(`/tasks/${task.id}`)}
                   >

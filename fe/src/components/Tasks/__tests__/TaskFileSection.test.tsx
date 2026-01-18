@@ -82,7 +82,7 @@ describe('TaskFileSection', () => {
 
   it('renders correctly with files', () => {
     renderComponent();
-    
+
     expect(screen.getByText('Files (2)')).toBeInTheDocument();
     expect(screen.getByText('Upload File')).toBeInTheDocument();
     expect(screen.getByText('File Count: 2')).toBeInTheDocument();
@@ -90,14 +90,14 @@ describe('TaskFileSection', () => {
 
   it('renders correctly with no files', () => {
     renderComponent({ files: [] });
-    
+
     expect(screen.getByText('Files (0)')).toBeInTheDocument();
     expect(screen.getByText('File Count: 0')).toBeInTheDocument();
   });
 
   it('handles file upload correctly', async () => {
     renderComponent();
-    
+
     const uploadButton = screen.getByText('Upload File');
     fireEvent.click(uploadButton);
 
@@ -112,7 +112,7 @@ describe('TaskFileSection', () => {
 
   it('handles file deletion correctly', async () => {
     renderComponent();
-    
+
     const deleteButton = screen.getAllByText('Delete')[0];
     fireEvent.click(deleteButton);
 
@@ -124,7 +124,7 @@ describe('TaskFileSection', () => {
 
   it('initializes useTaskFiles with correct taskId', () => {
     renderComponent();
-    
+
     expect(useTaskFiles).toHaveBeenCalledWith('1');
   });
 
@@ -133,7 +133,7 @@ describe('TaskFileSection', () => {
       onFileUploaded: undefined,
       onFileDeleted: undefined,
     });
-    
+
     const uploadButton = screen.getByText('Upload File');
     fireEvent.click(uploadButton);
 

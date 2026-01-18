@@ -108,7 +108,7 @@ describe('useUserForm', () => {
 
   it('should handle form submission in create mode', async () => {
     const { result } = renderHook(() => useUserForm({}));
-    
+
     // Set form values
     await act(async () => {
       result.current.handleInputChange({

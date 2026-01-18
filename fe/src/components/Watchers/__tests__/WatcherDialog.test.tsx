@@ -9,19 +9,19 @@ import { TaskWatcher } from '../../../types/watcher';
 jest.mock('../../../api/projects');
 
 const mockProjectMembers: ProjectMember[] = [
-  { 
+  {
     project_id: 1,
     user_id: 1,
     name: 'John',
-    surname: 'Doe', 
+    surname: 'Doe',
     role: 'Developer',
     created_on: '2024-01-01T00:00:00Z'
   },
-  { 
+  {
     project_id: 1,
-    user_id: 2, 
+    user_id: 2,
     name: 'Jane',
-    surname: 'Smith', 
+    surname: 'Smith',
     role: 'Project Manager',
     created_on: '2024-01-01T00:00:00Z'
   },
@@ -48,7 +48,7 @@ describe('WatcherDialog', () => {
   it('shows loading state initially', () => {
     (getProjectMembers as jest.Mock).mockImplementation(() => new Promise(() => {}));
     render(<WatcherDialog {...defaultProps} />);
-    
+
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
@@ -68,9 +68,9 @@ describe('WatcherDialog', () => {
                                 .mockImplementation();
     (getProjectMembers as jest.Mock)
       .mockRejectedValueOnce(new Error('API Error'));
-    
+
     render(<WatcherDialog {...defaultProps} />);
-    
+
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Failed to fetch project members:',

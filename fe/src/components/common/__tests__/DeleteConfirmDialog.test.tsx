@@ -16,7 +16,7 @@ describe('DeleteConfirmDialog', () => {
 
   test('renders with default props when open', () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
-    
+
     expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
     expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
@@ -29,23 +29,23 @@ describe('DeleteConfirmDialog', () => {
       title: 'Custom Title',
       content: 'Custom Content'
     };
-    
+
     render(<DeleteConfirmDialog {...customProps} />);
-    
+
     expect(screen.getByText('Custom Title')).toBeInTheDocument();
     expect(screen.getByText('Custom Content')).toBeInTheDocument();
   });
 
   test('calls onClose when Cancel button is clicked', () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
-    
+
     fireEvent.click(screen.getByText('Cancel'));
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
   test('calls onConfirm when Delete button is clicked', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
-    
+
     fireEvent.click(screen.getByText('Delete'));
     expect(defaultProps.onConfirm).toHaveBeenCalledTimes(1);
   });
@@ -53,9 +53,9 @@ describe('DeleteConfirmDialog', () => {
   test('shows loading state during deletion', async () => {
     const onConfirmMock = jest.fn(() => new Promise(resolve => setTimeout(resolve, 100)));
     render(<DeleteConfirmDialog {...defaultProps} onConfirm={onConfirmMock} />);
-    
+
     fireEvent.click(screen.getByText('Delete'));
-    
+
     // Check loading state
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeDisabled();
@@ -69,9 +69,9 @@ describe('DeleteConfirmDialog', () => {
 
   test('buttons are enabled after deletion completes', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
-    
+
     fireEvent.click(screen.getByText('Delete'));
-    
+
     await waitFor(() => {
       expect(screen.getByText('Cancel')).not.toBeDisabled();
       expect(screen.getByText('Delete')).not.toBeDisabled();
@@ -80,9 +80,9 @@ describe('DeleteConfirmDialog', () => {
 
   test('closes dialog after successful deletion', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
-    
+
     fireEvent.click(screen.getByText('Delete'));
-    
+
     await waitFor(() => {
       expect(defaultProps.onClose).toHaveBeenCalled();
     });

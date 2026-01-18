@@ -50,8 +50,8 @@ interface ExtendedNotificationCenterProps extends NotificationCenterProps {
   testMode?: boolean;
 }
 
-const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({ 
-  userId, 
+const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
+  userId,
   className,
   testMode = false // Default to false for production use
 }) => {
@@ -75,11 +75,11 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   // Loading component to ensure it's properly accessible for testing
   const renderLoadingComponent = () => (
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-      <CircularProgress 
-        size={24} 
-        role="progressbar" 
+      <CircularProgress
+        size={24}
+        role="progressbar"
         data-testid="loading-spinner"
-        aria-label="Loading notifications" 
+        aria-label="Loading notifications"
       />
     </Box>
   );
@@ -87,7 +87,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   // Menu content component for reuse
   const renderMenuContent = () => (
     <>
-      <Box 
+      <Box
         sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         data-testid="notifications-menu"
       >
@@ -145,7 +145,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
           Loading notifications
         </div>
       )}
-      
+
       <IconButton
         className={className}
         color="inherit"

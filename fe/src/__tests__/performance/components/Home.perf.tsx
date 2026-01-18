@@ -5,6 +5,18 @@ import Home from '../../../components/Home/Home';
 import ActiveTasks from '../../../components/Home/ActiveTasks';
 import { TestWrapper } from '../../TestWrapper';
 import { Task } from '../../../types/task';
+import { getActiveTasks } from '../../../api/tasks';
+import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
+
+// Mock API calls - use jest.fn() without referencing variables to avoid hoisting issues
+jest.mock('../../../api/tasks', () => ({
+  getActiveTasks: jest.fn()
+}));
+
+// Mock hooks - use jest.fn() without referencing variables to avoid hoisting issues
+jest.mock('../../../hooks/setting/useSystemSettings', () => ({
+  useSystemSettings: jest.fn()
+}));
 
 // Mock data
 const mockTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
@@ -74,17 +86,13 @@ const measurePerformance = (Component: React.ComponentType<any>, props = {}) => 
   return unmount;
 };
 
-// Mock API calls
-jest.mock('../../../api/tasks', () => ({
-  getActiveTasks: jest.fn().mockResolvedValue([])
-}));
-
-// Mock hooks
-jest.mock('../../../hooks/setting/useSystemSettings', () => ({
-  useSystemSettings: jest.fn().mockReturnValue({ state: mockSettings })
-}));
-
 describe('Home Components Performance Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (getActiveTasks as jest.Mock).mockResolvedValue([]);
+    (useSystemSettings as jest.Mock).mockReturnValue({ state: mockSettings });
+  });
+
   describe('Home Component Performance Tests', () => {
     test('Home initial render performance with welcome message', () => {
       const unmount = measurePerformance(Home);
@@ -93,38 +101,28 @@ describe('Home Components Performance Tests', () => {
 
     test('Home initial render performance without welcome message', () => {
       const settingsWithoutMessage = { settings: { welcome_message: '' } };
-      jest.mock('../../../hooks/setting/useSystemSettings', () => ({
-        useSystemSettings: jest.fn().mockReturnValue({ state: settingsWithoutMessage })
-      }));
-      
+      (useSystemSettings as jest.Mock).mockReturnValue({ state: settingsWithoutMessage });
+
       const unmount = measurePerformance(Home);
       unmount();
     });
   });
 
   describe('ActiveTasks Component Performance Tests', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
     test('ActiveTasks initial render performance with empty task list', () => {
       const unmount = measurePerformance(ActiveTasks);
       unmount();
     });
 
     test('ActiveTasks initial render performance with 10 tasks', () => {
-      jest.mock('../../../api/tasks', () => ({
-        getActiveTasks: jest.fn().mockResolvedValue(mockTasks)
-      }));
+      (getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
 
       const unmount = measurePerformance(ActiveTasks);
       unmount();
     });
 
     test('ActiveTasks initial render performance with loading state', () => {
-      jest.mock('../../../api/tasks', () => ({
-        getActiveTasks: jest.fn().mockImplementation(() => new Promise(() => {}))
-      }));
+      (getActiveTasks as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
       const unmount = measurePerformance(ActiveTasks);
       unmount();

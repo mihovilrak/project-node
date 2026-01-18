@@ -70,9 +70,9 @@ describe('TaskTypeSection', () => {
   it('calls handleChange with correct arguments when type changes', () => {
     render(<TaskTypeSection {...defaultProps} />);
     const taskSelectProps = (TaskTypeSelect as jest.Mock).mock.calls[0][0];
-    
+
     taskSelectProps.onChange({ target: { value: 2 } });
-    
+
     expect(defaultProps.handleChange).toHaveBeenCalledWith({
       target: {
         name: 'type_id',

@@ -68,7 +68,7 @@ describe('Projects Component', () => {
 
   it('renders projects after loading', async () => {
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
@@ -79,7 +79,7 @@ describe('Projects Component', () => {
 
   it('filters projects by name', async () => {
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
@@ -93,48 +93,48 @@ describe('Projects Component', () => {
 
   it('renders projects in correct order based on sort selection', async () => {
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Project A')).toBeInTheDocument();
     expect(screen.getByText('Project B')).toBeInTheDocument();
-    
+
     expect(screen.getByTestId('project-sort')).toBeInTheDocument();
   });
 
   it('navigates to create project page when clicking create button', async () => {
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
 
     const createButton = screen.getByTestId('create-project-button');
     fireEvent.click(createButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('/projects/new');
-  });
+  }, 15000);
 
   it('navigates to project details when clicking a project card', async () => {
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
     const projectCard = screen.getByTestId('project-card-1');
     fireEvent.click(projectCard);
-    
+
     expect(mockNavigate).toHaveBeenCalledWith('/projects/1');
   });
 
   it('displays "No projects yet" when project list is empty', async () => {
     (getProjects as jest.Mock).mockResolvedValue([]);
-    
+
     render(<Projects />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('No projects yet.')).toBeInTheDocument();
     });

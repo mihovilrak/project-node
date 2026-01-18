@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  getNotifications, 
+import {
+  getNotifications,
   markAsRead,
-  deleteNotification 
+  deleteNotification
 } from '../../api/notifications';
 import { Notification } from '../../types/notification';
 
@@ -19,7 +19,7 @@ export const useNotificationCenter = (
 
   const fetchNotifications = async (): Promise<void> => {
     if (!userId) return;
-    
+
     try {
       setLoading(true);
       const data = await getNotifications(userId);
@@ -53,7 +53,7 @@ export const useNotificationCenter = (
   const handleNotificationClick = async (notification: Notification): Promise<void> => {
     try {
       if (!userId) return;
-      
+
       if (!notification.is_read) {
         await markAsRead(userId);
         await fetchNotifications();

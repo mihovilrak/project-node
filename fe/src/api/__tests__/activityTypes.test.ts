@@ -29,7 +29,7 @@ describe('Activity Types API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockActivityType] });
 
       const result = await getActivityTypes();
-      
+
       expect(mockedApi.get).toHaveBeenCalledWith('/admin/activity-types');
       expect(result).toEqual([mockActivityType]);
     });
@@ -47,7 +47,7 @@ describe('Activity Types API', () => {
       mockedApi.post.mockResolvedValueOnce({ data: mockActivityType });
 
       const result = await createActivityType(mockActivityType);
-      
+
       expect(mockedApi.post).toHaveBeenCalledWith('/admin/activity-types', mockActivityType);
       expect(result).toEqual(mockActivityType);
     });
@@ -65,7 +65,7 @@ describe('Activity Types API', () => {
       mockedApi.put.mockResolvedValueOnce({ data: mockActivityType });
 
       const result = await updateActivityType(1, mockActivityType);
-      
+
       expect(mockedApi.put).toHaveBeenCalledWith('/admin/activity-types/1', mockActivityType);
       expect(result).toEqual(mockActivityType);
     });
@@ -83,7 +83,7 @@ describe('Activity Types API', () => {
       mockedApi.delete.mockResolvedValueOnce(undefined);
 
       await deleteActivityType(1);
-      
+
       expect(mockedApi.delete).toHaveBeenCalledWith('/admin/activity-types/1');
     });
 

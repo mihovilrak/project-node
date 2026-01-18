@@ -86,9 +86,9 @@ describe('RoleDialog', () => {
 
   test('handles form submission successfully', async () => {
     render(<RoleDialog {...defaultProps} />);
-    
+
     fireEvent.submit(screen.getByRole('form'));
-    
+
     await waitFor(() => {
       expect(defaultProps.onSave).toHaveBeenCalled();
       expect(defaultProps.onClose).toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('RoleDialog', () => {
     defaultProps.onSave.mockRejectedValueOnce({
       response: { data: { error: errorMessage } }
     });
-    
+
     const mockSetError = jest.fn();
     mockUseRoleDialog.mockReturnValue({
       formData: {
@@ -116,11 +116,11 @@ describe('RoleDialog', () => {
       clearError: jest.fn(),
       setError: mockSetError
     });
-    
+
     render(<RoleDialog {...defaultProps} />);
-    
+
     fireEvent.submit(screen.getByRole('form'));
-    
+
     await waitFor(() => {
       expect(mockSetError).toHaveBeenCalledWith(errorMessage);
     });
@@ -128,9 +128,9 @@ describe('RoleDialog', () => {
 
   test('closes dialog on cancel', () => {
     render(<RoleDialog {...defaultProps} />);
-    
+
     fireEvent.click(screen.getByText('Cancel'));
-    
+
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 });

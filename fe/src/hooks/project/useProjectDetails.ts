@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Project, ProjectDetailsState } from '../../types/project';
@@ -64,9 +64,10 @@ export const useProjectDetails = (projectId: string) => {
     };
 
     fetchProjectData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  const handleProjectUpdate = async (updatedProject: Project) => {
+  const handleProjectUpdate = useCallback(async (updatedProject: Project) => {
     try {
       await updateProject(Number(projectId), updatedProject);
       setState(prev => ({
@@ -80,9 +81,9 @@ export const useProjectDetails = (projectId: string) => {
         error: 'Failed to update project'
       }));
     }
-  };
+  }, [projectId]);
 
-  const handleProjectDelete = async () => {
+  const handleProjectDelete = useCallback(async () => {
     try {
       await deleteProject(Number(projectId));
       navigate('/projects');
@@ -92,7 +93,16 @@ export const useProjectDetails = (projectId: string) => {
         error: 'Failed to delete project'
       }));
     }
-  };
+  }, [projectId, navigate]);
+
+  const isProjectMember = useMemo(() => 
+    memberHooks.members.some(member => member.user_id === currentUser?.id),
+    [memberHooks.members, currentUser?.id]
+  );
+
+  const canEdit = useMemo(() => hasPermission('Edit projects'), [hasPermission]);
+  const canDelete = useMemo(() => hasPermission('Delete projects'), [hasPermission]);
+  const canManageMembers = useMemo(() => hasPermission('Manage project members'), [hasPermission]);
 
   return {
     ...state,
@@ -102,11 +112,9 @@ export const useProjectDetails = (projectId: string) => {
     setState,
     handleProjectUpdate,
     handleProjectDelete,
-    isProjectMember: memberHooks.members.some(
-      member => member.user_id === currentUser?.id
-    ),
-    canEdit: hasPermission('Edit projects'),
-    canDelete: hasPermission('Delete projects'),
-    canManageMembers: hasPermission('Manage project members')
+    isProjectMember,
+    canEdit,
+    canDelete,
+    canManageMembers
   };
 };

@@ -40,8 +40,8 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   };
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       maxWidth="sm"
       fullWidth
@@ -63,8 +63,8 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button 
-          onClick={onClose} 
+        <Button
+          onClick={onClose}
           disabled={isSubmitting}
         >
           Cancel

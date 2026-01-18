@@ -20,7 +20,7 @@ jest.mock('mui-color-input', () => ({
 // Mock Layout component
 jest.mock('../components/Layout/Layout', () => ({
   __esModule: true,
-  default: ({ children }: { children: React.ReactNode }) => 
+  default: ({ children }: { children: React.ReactNode }) =>
     React.createElement('div', { 'data-testid': 'mock-layout' }, children)
 }));
 

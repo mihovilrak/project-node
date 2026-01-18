@@ -37,7 +37,7 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
                 disableRipple
               />
             </ListItemIcon>
-            <ListItemText 
+            <ListItemText
               primary={`${user.name} ${user.surname}`}
               secondary={`Role: ${user.role_name}`}
             />

@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Box, 
-  TextField, 
-  Button, 
-  CircularProgress 
+import {
+  Box,
+  TextField,
+  Button,
+  CircularProgress
 } from '@mui/material';
 import { useCommentForm } from '../../hooks/comment/useCommentForm';
 import { CommentFormProps } from '../../types/comment';
@@ -18,8 +18,8 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
   } = useCommentForm(taskId, onCommentAdded);
 
   return (
-    <Box 
-      component="form" 
+    <Box
+      component="form"
       onSubmit={handleSubmit}
       sx={{ mt: 2 }}
     >
@@ -37,9 +37,9 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
       <Box
         sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}
       >
-        <Button 
-          type="submit" 
-          variant="contained" 
+        <Button
+          type="submit"
+          variant="contained"
           disabled={loading || !comment.trim()}
         >
           {loading ? <CircularProgress size={24} /> : 'Add Comment'}

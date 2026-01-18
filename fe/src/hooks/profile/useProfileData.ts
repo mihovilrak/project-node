@@ -28,7 +28,7 @@ export const useProfileData = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -36,7 +36,7 @@ export const useProfileData = () => {
       setLoading(true);
       const profileData = await getProfile();
       setProfile(profileData);
-      
+
       setStats({
         totalTasks: profileData?.total_tasks ?? 0,
         completedTasks: profileData?.completed_tasks ?? 0,
@@ -48,7 +48,7 @@ export const useProfileData = () => {
         getRecentTasks(),
         getRecentProjects()
       ]);
-      
+
       setRecentTasks(tasksData);
       setRecentProjects(projectsData);
       setError(null);

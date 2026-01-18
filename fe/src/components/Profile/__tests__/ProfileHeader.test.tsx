@@ -23,7 +23,7 @@ const mockUser: User = {
 describe('ProfileHeader', () => {
   test('renders user information correctly', () => {
     const { container } = render(<ProfileHeader user={mockUser} />);
-    
+
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
     expect(screen.getByText('Developer')).toBeInTheDocument();
@@ -35,14 +35,14 @@ describe('ProfileHeader', () => {
       avatar_url: null
     };
     render(<ProfileHeader user={userWithoutAvatar} />);
-    
+
     const avatar = screen.getByTestId('user-avatar');
     expect(avatar).toBeInTheDocument();
   });
 
   test('renders with correct layout', () => {
     const { container } = render(<ProfileHeader user={mockUser} />);
-    
+
     expect(screen.getByRole('heading', { level: 4 })).toBeInTheDocument();
     expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
     expect(screen.getByText('Developer')).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('ProfileHeader', () => {
 
   test('renders avatar with correct size', () => {
     render(<ProfileHeader user={mockUser} />);
-    
+
     const avatar = screen.getByTestId('user-avatar');
     expect(avatar).toHaveStyle({
       width: '80px',

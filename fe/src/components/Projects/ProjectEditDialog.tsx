@@ -38,7 +38,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
     try {
       setError(null);
       setLoading(true);
-      
+
       if (!project) return;
 
       const updatedProject = await updateProject(project.id, formData);

@@ -55,8 +55,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ taskId, onFileUploaded }) => {
       )}
 
       {error && (
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           onClose={() => setError(null)}
           sx={{ mt: 2 }}
         >

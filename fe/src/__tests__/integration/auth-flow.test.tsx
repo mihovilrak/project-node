@@ -1,11 +1,36 @@
-// src/integration/__tests__/auth-flow.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Login from '../../components/Auth/Login';
+import { api } from '../../api/api';
 import { TestWrapper } from '../TestWrapper';
 
+// Mock the api module
+jest.mock('../../api/api', () => ({
+  api: {
+    get: jest.fn(),
+    post: jest.fn(),
+  }
+}));
+
+const mockedApi = api as jest.Mocked<typeof api>;
+
 describe('Authentication Flow', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock for check-session (called by AuthProvider on mount)
+    mockedApi.get.mockResolvedValue({ status: 200, data: {} });
+  });
+
   it('should handle login flow correctly', async () => {
+    // Mock successful login
+    mockedApi.post.mockResolvedValueOnce({
+      status: 200,
+      data: { user: { id: 1, name: 'Test User' } }
+    });
+    // Mock permissions fetch after login
+    mockedApi.get.mockResolvedValueOnce({ status: 200, data: {} }); // check-session
+    mockedApi.get.mockResolvedValueOnce({ status: 200, data: [] }); // permissions
+
     render(
       <TestWrapper>
         <Login />
@@ -13,16 +38,16 @@ describe('Authentication Flow', () => {
     );
 
     // Get form elements
-    const loginInput = screen.getByLabelText(/login/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const loginInput = screen.getByTestId('login-input');
+    const passwordInput = screen.getByTestId('password-input');
+    const submitButton = screen.getByTestId('login-submit');
 
-    // Fill in the form
-    await userEvent.type(loginInput, 'testuser');
-    await userEvent.type(passwordInput, 'password123');
+    // Fill in the form using fireEvent.change (faster than userEvent.type)
+    fireEvent.change(loginInput, { target: { value: 'testuser' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
 
     // Submit the form
-    await userEvent.click(submitButton);
+    fireEvent.click(submitButton);
 
     // Wait for and verify success state - redirects to root (/) as per useLogin hook
     await waitFor(() => {
@@ -31,23 +56,41 @@ describe('Authentication Flow', () => {
   });
 
   it('should display error message for invalid credentials', async () => {
+    // Mock /check-session to resolve with no user
+    mockedApi.get.mockResolvedValueOnce({ status: 200, data: {} });
+    // Mock /login to reject with a 401 error (simulate missing user)
+    mockedApi.post.mockRejectedValueOnce({
+      response: { status: 401, data: {} }
+    });
+
     render(
       <TestWrapper>
         <Login />
       </TestWrapper>
     );
 
-    const loginInput = screen.getByLabelText(/login/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
+    const loginInput = screen.getByTestId('login-input');
+    const passwordInput = screen.getByTestId('password-input');
+    const submitButton = screen.getByTestId('login-submit');
 
-    await userEvent.type(loginInput, 'wronguser');
-    await userEvent.type(passwordInput, 'wrongpass');
-    await userEvent.click(submitButton);
+    // Fill in the form using fireEvent.change (faster than userEvent.type)
+    fireEvent.change(loginInput, { target: { value: 'wronguser' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrongpass' } });
+    fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Login error. Please try again.')).toBeInTheDocument();
-    });
+    let errorElem: HTMLElement | null = null;
+    try {
+      await waitFor(() => {
+        errorElem = screen.getByTestId('login-error');
+        expect(errorElem).toBeInTheDocument();
+        expect(errorElem!.textContent).not.toBe("");
+      });
+    } catch (e) {
+      // Log DOM for diagnosis if error element not found
+      // eslint-disable-next-line no-console
+      console.log('DEBUG: Rendered DOM:', document.body.innerHTML);
+      throw e;
+    }
   });
 
   it('should validate required fields', async () => {
@@ -57,12 +100,12 @@ describe('Authentication Flow', () => {
       </TestWrapper>
     );
 
-    const submitButton = screen.getByRole('button', { name: /sign in/i });
-    await userEvent.click(submitButton);
+    const submitButton = screen.getByTestId('login-submit');
+    fireEvent.click(submitButton);
 
     // Check if form validation prevents submission of empty fields
-    expect(screen.getByLabelText(/login/i)).toBeRequired();
-    expect(screen.getByLabelText(/password/i)).toBeRequired();
+    expect(screen.getByTestId('login-input')).toBeRequired();
+    expect(screen.getByTestId('password-input')).toBeRequired();
   });
 
   it('should toggle password visibility', async () => {
@@ -72,20 +115,20 @@ describe('Authentication Flow', () => {
       </TestWrapper>
     );
 
-    const passwordInput = screen.getByLabelText(/password/i);
-    const toggleButton = screen.getByRole('button', { name: /toggle password visibility/i });
+    const passwordInput = screen.getByTestId('password-input');
+    const toggleButton = screen.getByTestId('toggle-password-visibility');
 
     // Password should be hidden by default
     expect(passwordInput).toHaveAttribute('type', 'password');
 
     // Click toggle button
-    await userEvent.click(toggleButton);
+    fireEvent.click(toggleButton);
 
     // Password should be visible
     expect(passwordInput).toHaveAttribute('type', 'text');
 
     // Click toggle button again
-    await userEvent.click(toggleButton);
+    fireEvent.click(toggleButton);
 
     // Password should be hidden again
     expect(passwordInput).toHaveAttribute('type', 'password');

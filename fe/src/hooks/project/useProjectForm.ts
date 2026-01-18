@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import dayjs from 'dayjs';
 import { Project, ProjectFormData } from '../../types/project';
@@ -16,29 +16,31 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dateError, setDateError] = useState<string>('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    // Clear error when field is modified
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
+    // Clear error when field is modified - use functional update to avoid stale closure
+    setErrors(prev => {
+      if (prev[name]) {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      }
+      return prev;
+    });
+  }, []);
 
-  const handleStatusChange = (event: SelectChangeEvent<number>) => {
+  const handleStatusChange = useCallback((event: SelectChangeEvent<number>) => {
     setFormData(prev => ({
       ...prev,
       status_id: event.target.value as number
     }));
-  };
+  }, []);
 
-  const handleDateChange = (field: 'start_date' | 'due_date', newValue: dayjs.Dayjs | null) => {
+  const handleDateChange = useCallback((field: 'start_date' | 'due_date', newValue: dayjs.Dayjs | null) => {
     if (!newValue) {
       setFormData(prev => ({
         ...prev,
@@ -48,31 +50,33 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
     }
 
     const value = newValue.format('YYYY-MM-DD');
-    const startDate = field === 'start_date' ? new Date(value) : new Date(formData.start_date);
-    const dueDate = field === 'due_date' ? new Date(value) : new Date(formData.due_date);
+    setFormData(prev => {
+      const startDate = field === 'start_date' ? new Date(value) : new Date(prev.start_date);
+      const dueDate = field === 'due_date' ? new Date(value) : new Date(prev.due_date);
 
-    if (field === 'due_date' && startDate > dueDate) {
-      setDateError('Due date must be after start date');
-      setTimeout(() => setDateError(''), 3000);
-      return;
-    }
-    
-    setDateError('');
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+      if (field === 'due_date' && startDate > dueDate) {
+        setDateError('Due date must be after start date');
+        setTimeout(() => setDateError(''), 3000);
+        return prev;
+      }
 
-  const handleParentChange = (e: SelectChangeEvent<string | number>) => {
+      setDateError('');
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
+  }, []);
+
+  const handleParentChange = useCallback((e: SelectChangeEvent<string | number>) => {
     const value = e.target.value ? Number(e.target.value) : null;
     setFormData(prev => ({
       ...prev,
       parent_id: value
     }));
-  };
+  }, []);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name?.trim()) {
@@ -89,7 +93,7 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
   return {
     formData,

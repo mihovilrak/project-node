@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { createComment } from '../../api/comments';
 import {
-    Comment, 
-    CommentError 
+    Comment,
+    CommentError
 } from '../../types/comment';
 
 export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment) => void) => {
@@ -21,7 +21,7 @@ export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment
       const newComment = await createComment(taskId, {
         comment: comment.trim()
       });
-      
+
       onCommentAdded(newComment);
       setComment('');
     } catch (err) {

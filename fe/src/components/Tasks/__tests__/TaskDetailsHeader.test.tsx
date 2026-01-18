@@ -98,10 +98,10 @@ describe('TaskDetailsHeader', () => {
 
   it('passes all props correctly to TaskHeader', () => {
     render(<TaskDetailsHeader {...defaultProps} />);
-    
+
     const taskHeader = screen.getByTestId('task-header');
     expect(taskHeader).toBeInTheDocument();
-    
+
     // Verify that the TaskHeader receives all necessary props
     expect(screen.getByRole('button', { name: 'Status Menu' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Close Menu' })).toBeInTheDocument();

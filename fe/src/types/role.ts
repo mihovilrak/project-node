@@ -38,4 +38,3 @@ export interface RoleDialogProps {
   onClose: () => void;
   onSave: (role: Partial<Role>) => Promise<void>;
 }
-  

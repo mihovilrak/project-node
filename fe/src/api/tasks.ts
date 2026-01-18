@@ -1,7 +1,7 @@
 import { api } from './api';
-import { Task, 
+import { Task,
   TaskStatus,
-  TaskPriority, 
+  TaskPriority,
   TaskFilters,
   TaskFormState
 } from '../types/task';
@@ -12,7 +12,7 @@ import { ApiResponse } from '../types/api';
 export const getTasks = async (filters: TaskFilters = {}): Promise<Task[]> => {
   try {
     const queryParams = new URLSearchParams();
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         queryParams.append(key, value.toString());

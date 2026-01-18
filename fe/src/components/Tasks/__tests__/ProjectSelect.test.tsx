@@ -89,10 +89,10 @@ describe('ProjectSelect', () => {
     // Open the select dropdown
     const selectElement = screen.getByLabelText(/project/i);
     fireEvent.mouseDown(selectElement);
-    
+
     const listbox = document.querySelector('[role="listbox"]');
     expect(listbox).not.toBeNull();
-    
+
     mockProjects.forEach(project => {
       expect(within(listbox as HTMLElement).getByText(project.name)).toBeInTheDocument();
     });
@@ -103,15 +103,15 @@ describe('ProjectSelect', () => {
     // Open the select dropdown
     const selectElement = screen.getByLabelText(/project/i);
     fireEvent.mouseDown(selectElement);
-    
+
     // Get options from the dropdown in the portal
     const listbox = document.querySelector('[role="listbox"]');
     expect(listbox).not.toBeNull();
-    
+
     // Select the second option
     const options = within(listbox as HTMLElement).getAllByRole('option');
     fireEvent.click(options[1]); // Second project
-    
+
     expect(mockHandleChange).toHaveBeenCalled();
   });
 
@@ -123,7 +123,7 @@ describe('ProjectSelect', () => {
 
   test('is disabled when projectIdFromQuery is provided', () => {
     const { container } = renderProjectSelect('1');
-    
+
     const selectElement = container.querySelector('input[name="project_id"]');
     expect(selectElement).not.toBeNull();
     expect(selectElement).toHaveAttribute('disabled');
@@ -131,7 +131,7 @@ describe('ProjectSelect', () => {
 
   test('is enabled when projectIdFromQuery is null', () => {
     const { container } = renderProjectSelect(null);
-    
+
     const selectElement = container.querySelector('input[name="project_id"]');
     expect(selectElement).not.toBeNull();
     expect(selectElement).not.toHaveAttribute('disabled');
@@ -159,14 +159,14 @@ describe('ProjectSelect', () => {
         handleChange={mockHandleChange}
       />
     );
-    
+
     // The select should still render
     const selectElement = screen.getByTestId('ProjectSelectFormControl');
     expect(selectElement).toBeInTheDocument();
-    
+
     // Open dropdown
     fireEvent.mouseDown(selectElement);
-    
+
     // Should have no options
     const options = document.querySelectorAll('[role="option"]');
     expect(options.length).toBe(0);

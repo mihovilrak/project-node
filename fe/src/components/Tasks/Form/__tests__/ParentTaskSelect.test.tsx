@@ -119,7 +119,7 @@ describe('ParentTaskSelect', () => {
 
     const select = screen.getByLabelText('Parent Task');
     fireEvent.mouseDown(select);
-    
+
     expect(screen.getByText('None')).toBeInTheDocument();
     expect(screen.getByText('Task 1')).toBeInTheDocument();
     expect(screen.getByText('Task 2')).toBeInTheDocument();

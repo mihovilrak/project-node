@@ -13,7 +13,7 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
     <>
       <DatePicker
         label="Start Date"
-        value={dayjs(formData.start_date)}
+        value={formData.start_date ? dayjs(formData.start_date) : null}
         onChange={(newValue) => handleChange({
           target: { name: 'start_date', value: newValue ? newValue.toISOString() : '' }
         })}
@@ -26,7 +26,7 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
           }
         }}
       />
-      
+
       <DatePicker
         label="Due Date"
         value={formData.due_date ? dayjs(formData.due_date) : null}

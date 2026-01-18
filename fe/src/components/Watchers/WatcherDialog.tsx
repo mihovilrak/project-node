@@ -31,7 +31,7 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
   useEffect(() => {
     const fetchProjectMembers = async () => {
       if (!projectId) return;
-      
+
       try {
         setLoading(true);
         const members = await getProjectMembers(projectId);
@@ -58,10 +58,10 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: { minHeight: '50vh' }
@@ -78,13 +78,13 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
             {projectMembers.map((member) => {
               const isWatcher = currentWatchers.some(w => w.user_id === member.user_id);
               return (
-                <ListItem 
+                <ListItem
                   component="div"
                   key={member.user_id}
                   onClick={() => handleToggle(member.user_id)}
                   sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
-                  <ListItemText 
+                  <ListItemText
                     primary={`${member.name} ${member.surname}`}
                     secondary={member.role}
                   />

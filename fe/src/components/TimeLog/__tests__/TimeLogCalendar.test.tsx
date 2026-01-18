@@ -56,7 +56,7 @@ describe('TimeLogCalendar', () => {
 
   test('shows loading state initially', () => {
     (getProjectTimeLogs as jest.Mock).mockImplementation(() => new Promise(() => {}));
-    
+
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
@@ -68,7 +68,7 @@ describe('TimeLogCalendar', () => {
 
   test('shows error state when API fails', async () => {
     (getProjectTimeLogs as jest.Mock).mockRejectedValue(new Error('API Error'));
-    
+
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
@@ -82,7 +82,7 @@ describe('TimeLogCalendar', () => {
 
   test('renders calendar components with data when API succeeds', async () => {
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
-    
+
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
@@ -97,7 +97,7 @@ describe('TimeLogCalendar', () => {
 
   test('fetches new data when currentDate changes', async () => {
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
-    
+
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
@@ -125,7 +125,7 @@ describe('TimeLogCalendar', () => {
 
   test('passes correct props to child components', async () => {
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
-    
+
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
@@ -135,7 +135,7 @@ describe('TimeLogCalendar', () => {
     await waitFor(() => {
       const header = screen.getByTestId('mock-calendar-header');
       const grid = screen.getByTestId('mock-calendar-grid');
-      
+
       expect(header).toHaveTextContent('2023-01-01');
       expect(header).toHaveTextContent('8h');
       expect(grid).toHaveTextContent('1 days, 1 logs');

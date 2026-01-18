@@ -60,27 +60,27 @@ describe('useTaskCore', () => {
   ];
 
   const mockStatuses: TaskStatus[] = [
-    { 
-      id: 1, 
-      name: 'To Do', 
+    {
+      id: 1,
+      name: 'To Do',
       color: '#000000',
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null
     },
-    { 
-      id: 2, 
-      name: 'In Progress', 
+    {
+      id: 2,
+      name: 'In Progress',
       color: '#0000FF',
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null
     },
-    { 
-      id: 3, 
-      name: 'Done', 
+    {
+      id: 3,
+      name: 'Done',
       color: '#00FF00',
       description: null,
       active: true,

@@ -21,7 +21,7 @@ describe('Permissions API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockPermission] });
 
       const permissions = await getAllPermissions();
-      
+
       expect(mockedApi.get).toHaveBeenCalledWith('/admin/permissions');
       expect(mockedApi.get).toHaveBeenCalledTimes(1);
       expect(permissions).toEqual([mockPermission]);

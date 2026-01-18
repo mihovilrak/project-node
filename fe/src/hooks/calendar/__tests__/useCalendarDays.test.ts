@@ -5,7 +5,7 @@ import { TimeLog } from '../../../types/timeLog';
 
 describe('useCalendarDays', () => {
   const mockDate = new Date('2024-01-15'); // January 15, 2024
-  
+
   const mockTasks: Task[] = [
     {
       id: 1,
@@ -92,7 +92,7 @@ describe('useCalendarDays', () => {
 
   it('should return calendar utility functions', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
-    
+
     expect(result.current.getDaysInMonth).toBeDefined();
     expect(result.current.getTasksForDay).toBeDefined();
     expect(result.current.getTimeLogsForDay).toBeDefined();
@@ -102,14 +102,14 @@ describe('useCalendarDays', () => {
   it('should generate correct number of days in month', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const days = result.current.getDaysInMonth();
-    
+
     expect(days.length).toBe(42); // 6 weeks * 7 days
   });
 
   it('should mark current month days correctly', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const days = result.current.getDaysInMonth();
-    
+
     const januaryDays = days.filter(day => day.isCurrentMonth);
     expect(januaryDays.length).toBe(31); // January has 31 days
   });
@@ -117,7 +117,7 @@ describe('useCalendarDays', () => {
   it('should identify weekends correctly', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const days = result.current.getDaysInMonth();
-    
+
     const weekends = days.filter(day => day.isWeekend);
     expect(weekends.length).toBe(12); // 6 Saturdays + 6 Sundays
   });
@@ -125,7 +125,7 @@ describe('useCalendarDays', () => {
   it('should get tasks for specific day', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const tasksForDay = result.current.getTasksForDay(new Date('2024-01-15'));
-    
+
     expect(tasksForDay.length).toBe(1);
     expect(tasksForDay[0].id).toBe(1);
   });
@@ -133,7 +133,7 @@ describe('useCalendarDays', () => {
   it('should get time logs for specific day', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const timeLogsForDay = result.current.getTimeLogsForDay(new Date('2024-01-15'));
-    
+
     expect(timeLogsForDay.length).toBe(2);
     expect(timeLogsForDay[0].id).toBe(1);
     expect(timeLogsForDay[1].id).toBe(2);
@@ -142,14 +142,14 @@ describe('useCalendarDays', () => {
   it('should calculate total time correctly', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, mockTasks, mockTimeLogs));
     const totalTime = result.current.calculateTotalTime(mockTimeLogs);
-    
+
     expect(totalTime).toBe(4); // 2.5 + 1.5 = 4
   });
 
   it('should handle empty tasks and time logs', () => {
     const { result } = renderHook(() => useCalendarDays(mockDate, [], []));
     const days = result.current.getDaysInMonth();
-    
+
     expect(days.length).toBe(42);
     expect(days[15].tasks).toEqual([]); // January 15th should have no tasks
     expect(days[15].timeLogs).toEqual([]);
@@ -188,7 +188,7 @@ describe('useCalendarDays', () => {
 
     const { result } = renderHook(() => useCalendarDays(mockDate, tasksWithMissingDates, []));
     const tasksForDay = result.current.getTasksForDay(new Date('2024-01-15'));
-    
+
     expect(tasksForDay).toEqual([]);
   });
 
@@ -207,7 +207,7 @@ describe('useCalendarDays', () => {
 
     const { result } = renderHook(() => useCalendarDays(mockDate, [], timeLogsWithInvalidTime));
     const totalTime = result.current.calculateTotalTime(timeLogsWithInvalidTime);
-    
+
     expect(totalTime).toBe(0);
   });
 });

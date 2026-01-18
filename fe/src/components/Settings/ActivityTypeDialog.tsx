@@ -44,7 +44,7 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
               {error}
             </Alert>
           )}
-          <ActivityTypeForm 
+          <ActivityTypeForm
             formData={formData}
             onChange={handleChange}
           />

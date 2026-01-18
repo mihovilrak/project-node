@@ -11,7 +11,7 @@ export interface FileListProps {
   onFileDeleted: (fileId: number) => void;
 }
 
-export interface TaskFile { 
+export interface TaskFile {
   id: number;
   task_id: number;
   user_id: number;

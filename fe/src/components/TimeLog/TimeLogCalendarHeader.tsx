@@ -4,7 +4,7 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
-import { 
+import {
   CalendarMonth,
   NavigateBefore,
   NavigateNext,
@@ -19,9 +19,9 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 }) => {
   return (
     <>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         mb: 2
       }}>

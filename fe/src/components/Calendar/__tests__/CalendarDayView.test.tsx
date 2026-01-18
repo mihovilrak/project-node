@@ -8,9 +8,9 @@ import { TimeLog } from '../../../types/timeLog';
 jest.mock('../../../hooks/calendar/useTasksByHour', () => ({
   useTasksByHour: (tasks: Task[], timeLogs: TimeLog[]) => ({
     hours: Array.from({ length: 24 }, (_, i) => i),
-    getTasksForHour: (hour: number) => 
+    getTasksForHour: (hour: number) =>
       tasks.filter(task => new Date(task.start_date!).getHours() === hour),
-    getTimeLogsForHour: (hour: number) => 
+    getTimeLogsForHour: (hour: number) =>
       timeLogs.filter(timeLog => new Date(timeLog.created_on).getHours() === hour),
   }),
 }));
@@ -117,7 +117,7 @@ describe('CalendarDayView', () => {
 
   it('renders all 24 hours', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     for (let i = 0; i < 24; i++) {
       const hourText = `${i.toString().padStart(2, '0')}:00`;
       expect(screen.getByText(hourText)).toBeInTheDocument();
@@ -126,42 +126,42 @@ describe('CalendarDayView', () => {
 
   it('displays tasks in correct hour slots', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     expect(screen.getByText('Test Task 2')).toBeInTheDocument();
   });
 
   it('displays time logs in correct hour slots', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     expect(screen.getByText('Test TimeLog 1 - 30 minutes')).toBeInTheDocument();
     expect(screen.getByText('Test TimeLog 2 - 45 minutes')).toBeInTheDocument();
   });
 
   it('handles task clicks', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     fireEvent.click(screen.getByText('Test Task 1'));
     expect(mockProps.onTaskClick).toHaveBeenCalledWith(1);
   });
 
   it('handles time log clicks', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     fireEvent.click(screen.getByText('Test TimeLog 1 - 30 minutes'));
     expect(mockProps.onTimeLogClick).toHaveBeenCalledWith(1);
   });
 
   it('displays priority chips with correct colors', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     expect(screen.getByText(/high\/should/i)).toBeInTheDocument();
     expect(screen.getByText(/normal\/could/i)).toBeInTheDocument();
   });
 
   it('displays status chips', () => {
     render(<CalendarDayView {...mockProps} />);
-    
+
     expect(screen.getByText('In Progress')).toBeInTheDocument();
     expect(screen.getByText('To Do')).toBeInTheDocument();
   });

@@ -26,7 +26,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    
+
     const roleData: Partial<Role> = {
       name: formData.name,
       description: formData.description,

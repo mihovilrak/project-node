@@ -6,7 +6,7 @@ import { TimeLog } from '../../../types/timeLog';
 describe('useCalendarWeek', () => {
   // Using a Wednesday to test week generation
   const mockDate = new Date('2024-01-17'); // Wednesday, January 17, 2024
-  
+
   const mockTasks: Task[] = [
     {
       id: 1,
@@ -93,7 +93,7 @@ describe('useCalendarWeek', () => {
 
   it('should return calendar utility functions', () => {
     const { result } = renderHook(() => useCalendarWeek(mockDate, mockTasks, mockTimeLogs));
-    
+
     expect(result.current.getWeekDays).toBeDefined();
     expect(result.current.getTasksForDay).toBeDefined();
     expect(result.current.getTimeLogsForDay).toBeDefined();
@@ -102,13 +102,13 @@ describe('useCalendarWeek', () => {
   it('should generate correct week days', () => {
     const { result } = renderHook(() => useCalendarWeek(mockDate, mockTasks, mockTimeLogs));
     const weekDays = result.current.getWeekDays();
-    
+
     expect(weekDays.length).toBe(7);
     expect(weekDays[0].getDay()).toBe(0); // Sunday
     expect(weekDays[6].getDay()).toBe(6); // Saturday
-    
+
     // Check if the week contains our reference date (Wednesday)
-    const hasReferenceDate = weekDays.some(day => 
+    const hasReferenceDate = weekDays.some(day =>
       day.toDateString() === mockDate.toDateString()
     );
     expect(hasReferenceDate).toBe(true);
@@ -117,7 +117,7 @@ describe('useCalendarWeek', () => {
   it('should get tasks for specific day', () => {
     const { result } = renderHook(() => useCalendarWeek(mockDate, mockTasks, mockTimeLogs));
     const tasksForDay = result.current.getTasksForDay(new Date('2024-01-17'));
-    
+
     expect(tasksForDay.length).toBe(1);
     expect(tasksForDay[0].id).toBe(1);
   });
@@ -125,7 +125,7 @@ describe('useCalendarWeek', () => {
   it('should get time logs for specific day', () => {
     const { result } = renderHook(() => useCalendarWeek(mockDate, mockTasks, mockTimeLogs));
     const timeLogsForDay = result.current.getTimeLogsForDay(new Date('2024-01-17'));
-    
+
     expect(timeLogsForDay.length).toBe(2);
     expect(timeLogsForDay[0].id).toBe(1);
     expect(timeLogsForDay[1].id).toBe(2);
@@ -134,11 +134,11 @@ describe('useCalendarWeek', () => {
   it('should handle empty tasks and time logs', () => {
     const { result } = renderHook(() => useCalendarWeek(mockDate, [], []));
     const weekDays = result.current.getWeekDays();
-    
+
     expect(weekDays.length).toBe(7);
     const tasksForDay = result.current.getTasksForDay(weekDays[3]); // Wednesday
     const timeLogsForDay = result.current.getTimeLogsForDay(weekDays[3]);
-    
+
     expect(tasksForDay).toEqual([]);
     expect(timeLogsForDay).toEqual([]);
   });
@@ -175,7 +175,7 @@ describe('useCalendarWeek', () => {
 
     const { result } = renderHook(() => useCalendarWeek(mockDate, tasksWithMissingDates, []));
     const tasksForDay = result.current.getTasksForDay(new Date('2024-01-17'));
-    
+
     expect(tasksForDay).toEqual([]);
   });
 
@@ -183,11 +183,11 @@ describe('useCalendarWeek', () => {
     const endOfMonthDate = new Date('2024-01-31'); // Wednesday, January 31, 2024
     const { result } = renderHook(() => useCalendarWeek(endOfMonthDate, [], []));
     const weekDays = result.current.getWeekDays();
-    
+
     // Check if week contains days from both January and February
     const hasJanuaryDays = weekDays.some(day => day.getMonth() === 0); // January is 0
     const hasFebruaryDays = weekDays.some(day => day.getMonth() === 1); // February is 1
-    
+
     expect(hasJanuaryDays).toBe(true);
     expect(hasFebruaryDays).toBe(true);
   });

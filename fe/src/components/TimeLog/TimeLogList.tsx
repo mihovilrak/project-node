@@ -26,7 +26,7 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
 
   const formatTime = (hours: number | string): string => {
     const numHours = typeof hours === 'string' ? parseFloat(hours) : hours;
-    
+
     if (typeof numHours !== 'number' || isNaN(numHours)) {
       console.log('Invalid hours value:', hours);
       return '0:00';

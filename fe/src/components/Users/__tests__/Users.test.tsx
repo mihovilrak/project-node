@@ -193,7 +193,7 @@ describe('Users Component', () => {
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     expect(console.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
   });
 });

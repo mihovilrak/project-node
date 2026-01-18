@@ -105,9 +105,9 @@ describe('Layout Components Performance', () => {
       // Mock window scroll event
       global.scrollY = 100;
       window.dispatchEvent(new Event('scroll'));
-      
+
       render(measurePerformance(Header));
-      
+
       // Reset scroll position
       global.scrollY = 0;
       window.dispatchEvent(new Event('scroll'));

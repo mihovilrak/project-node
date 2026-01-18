@@ -6,7 +6,7 @@ import { TaskFormState } from '../../../../types/task';
 
 describe('TaskDescriptionField', () => {
   const mockHandleChange = jest.fn();
-  
+
   const defaultFormData: TaskFormState = {
     name: '',
     description: '',
@@ -28,12 +28,12 @@ describe('TaskDescriptionField', () => {
 
   it('renders with correct label', () => {
     render(
-      <TaskDescriptionField 
-        formData={defaultFormData} 
-        handleChange={mockHandleChange} 
+      <TaskDescriptionField
+        formData={defaultFormData}
+        handleChange={mockHandleChange}
       />
     );
-    
+
     expect(screen.getByLabelText('Description')).toBeInTheDocument();
   });
 
@@ -44,12 +44,12 @@ describe('TaskDescriptionField', () => {
     };
 
     render(
-      <TaskDescriptionField 
-        formData={testFormData} 
-        handleChange={mockHandleChange} 
+      <TaskDescriptionField
+        formData={testFormData}
+        handleChange={mockHandleChange}
       />
     );
-    
+
     expect(screen.getByLabelText('Description')).toHaveValue('Test description');
   });
 
@@ -60,12 +60,12 @@ describe('TaskDescriptionField', () => {
     };
 
     render(
-      <TaskDescriptionField 
-        formData={emptyFormData} 
-        handleChange={mockHandleChange} 
+      <TaskDescriptionField
+        formData={emptyFormData}
+        handleChange={mockHandleChange}
       />
     );
-    
+
     expect(screen.getByLabelText('Description')).toHaveValue('');
   });
 
@@ -76,15 +76,15 @@ describe('TaskDescriptionField', () => {
     };
 
     render(
-      <TaskDescriptionField 
-        formData={testFormData} 
-        handleChange={mockHandleChange} 
+      <TaskDescriptionField
+        formData={testFormData}
+        handleChange={mockHandleChange}
       />
     );
-    
+
     const input = screen.getByLabelText('Description');
     await userEvent.type(input, 'New description');
-    
+
     await waitFor(() => expect(mockHandleChange).toHaveBeenCalled());
   });
 });

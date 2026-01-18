@@ -23,7 +23,7 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
 }) => {
   const { currentUser, hasPermission } = useAuth();
   const hasAdminPermission = hasPermission('Admin') || hasPermission('Project Manager');
-  
+
   const {
     selectedProjectId,
     selectedTaskId,
@@ -60,8 +60,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   });
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       maxWidth="sm"
       fullWidth
@@ -75,8 +75,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       <DialogTitle sx={{ pb: 0, mb: 0 }}>
         {timeLog ? 'Edit Time Log' : 'Log Time'}
       </DialogTitle>
-      <DialogContent 
-        sx={{ 
+      <DialogContent
+        sx={{
           pt: '8px',
           '&.MuiDialogContent-root': {
             paddingTop: '8px'
@@ -118,9 +118,9 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-        <Button 
+        <Button
           onClick={handleSubmit}
-          variant="contained" 
+          variant="contained"
           color="primary"
           disabled={isLoading}
         >

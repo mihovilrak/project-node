@@ -72,7 +72,7 @@ describe('UserManager', () => {
   it('shows loading state initially', () => {
     (getUsers as jest.Mock).mockImplementation(() => new Promise(() => {}));
     render(<UserManager />);
-    
+
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
@@ -100,7 +100,7 @@ describe('UserManager', () => {
     render(<UserManager />);
 
     fireEvent.click(screen.getByText('Create User'));
-    
+
     expect(screen.getByTestId('user-dialog')).toBeInTheDocument();
   });
 
@@ -139,7 +139,7 @@ describe('UserManager', () => {
 
     // Open create dialog
     fireEvent.click(screen.getByText('Create User'));
-    
+
     // Save new user
     await waitFor(() => {
       fireEvent.click(screen.getByText('Save'));
@@ -155,7 +155,7 @@ describe('UserManager', () => {
 
     // Open create dialog
     fireEvent.click(screen.getByText('Create User'));
-    
+
     // Close dialog
     fireEvent.click(screen.getByText('Close'));
 

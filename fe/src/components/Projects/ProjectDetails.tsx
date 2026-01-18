@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -54,10 +54,48 @@ const ProjectDetails: React.FC = () => {
     setManageMembersOpen
   } = useProjectDetails(id!);
 
-  const handleCreateTask = () => {
+  const handleCreateTask = useCallback(() => {
     navigate(`/tasks/new?projectId=${id}`);
     setTaskFormOpen(false);
-  };
+  }, [navigate, id, setTaskFormOpen]);
+
+  const handleTabChange = useCallback((_e: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  }, []);
+
+  const handleEdit = useCallback(() => {
+    setState(prev => ({ ...prev, editDialogOpen: true }));
+  }, [setState]);
+
+  const handleDelete = useCallback(() => {
+    setState(prev => ({ ...prev, deleteDialogOpen: true }));
+  }, [setState]);
+
+  const handleManageMembers = useCallback(() => {
+    setManageMembersOpen(true);
+  }, [setManageMembersOpen]);
+
+  const handleTimeLogCreate = useCallback(() => {
+    setSelectedTimeLog(null);
+    setTimeLogDialogOpen(true);
+  }, [setSelectedTimeLog, setTimeLogDialogOpen]);
+
+  const handleEditDialogClose = useCallback(() => {
+    setState(prev => ({ ...prev, editDialogOpen: false }));
+  }, [setState]);
+
+  const handleDeleteDialogClose = useCallback(() => {
+    setState(prev => ({ ...prev, deleteDialogOpen: false }));
+  }, [setState]);
+
+  const handleTimeLogDialogClose = useCallback(() => {
+    setTimeLogDialogOpen(false);
+    setSelectedTimeLog(null);
+  }, [setTimeLogDialogOpen, setSelectedTimeLog]);
+
+  const handleEditMembersDialogClose = useCallback(() => {
+    setManageMembersOpen(false);
+  }, [setManageMembersOpen]);
 
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -97,11 +135,8 @@ const ProjectDetails: React.FC = () => {
           canManageMembers={canManageMembers}
           projectId={id!}
           onCreateTask={handleCreateTask}
-          onManageMembers={() => setManageMembersOpen(true)}
-          onTimeLogCreate={() => {
-            setSelectedTimeLog(null);
-            setTimeLogDialogOpen(true);
-          }}
+          onManageMembers={handleManageMembers}
+          onTimeLogCreate={handleTimeLogCreate}
           onTimeLogEdit={handleTimeLogEdit}
           onTimeLogDelete={handleTimeLogDelete}
           onMemberRemove={handleMemberRemove}
@@ -111,7 +146,7 @@ const ProjectDetails: React.FC = () => {
       <ProjectEditDialog
         open={editDialogOpen}
         project={project}
-        onClose={() => setState(prev => ({ ...prev, editDialogOpen: false }))}
+        onClose={handleEditDialogClose}
         onSaved={handleProjectUpdate}
       />
 
@@ -119,16 +154,13 @@ const ProjectDetails: React.FC = () => {
         open={deleteDialogOpen}
         title="Delete Project"
         content="Are you sure you want to delete this project? This action cannot be undone."
-        onClose={() => setState(prev => ({ ...prev, deleteDialogOpen: false }))}
+        onClose={handleDeleteDialogClose}
         onConfirm={handleProjectDelete}
       />
 
       <TimeLogDialog
         open={timeLogDialogOpen}
-        onClose={() => {
-          setTimeLogDialogOpen(false);
-          setSelectedTimeLog(null);
-        }}
+        onClose={handleTimeLogDialogClose}
         onSubmit={handleTimeLogSubmit}
         timeLog={selectedTimeLog}
         projectId={Number(id)}
@@ -136,7 +168,7 @@ const ProjectDetails: React.FC = () => {
 
       <EditMembersDialog
         open={manageMembersOpen}
-        onClose={() => setManageMembersOpen(false)}
+        onClose={handleEditMembersDialogClose}
         projectId={Number(id)}
         currentMembers={members}
         onSave={handleMembersUpdate}

@@ -82,12 +82,12 @@ describe('UserTable', () => {
     // Get the table by its data-testid
     const table = screen.getByTestId('user-table');
     const cells = within(table).getAllByRole('cell');
-    
+
     // Find cells containing the expected text (avoiding direct text matching)
     expect(cells.some(cell => cell.textContent === 'johndoe')).toBe(true);
     expect(cells.some(cell => cell.textContent === 'John Doe')).toBe(true);
     expect(cells.some(cell => cell.textContent === 'john@example.com')).toBe(true);
-    
+
     // For the Chip component, use a more specific approach
     const adminChip = screen.getByText('Admin');
     expect(adminChip).toBeInTheDocument();
@@ -95,19 +95,19 @@ describe('UserTable', () => {
 
   test('renders pagination component', () => {
     renderUserTable();
-    
+
     // Verify pagination component is rendered
     const pagination = screen.getByTestId('pagination');
     expect(pagination).toBeInTheDocument();
-    
+
     // Check that the pagination contains rows per page selector
     const rowsPerPageText = within(pagination).getByText(/rows per page/i);
     expect(rowsPerPageText).toBeInTheDocument();
-    
+
     // Verify that pagination shows correct total count
     expect(pagination.textContent).toContain(`${mockUsers.length}`);
   });
-  
+
   test('has functional pagination controls', () => {
     // Create a test case with more users to make pagination meaningful
     const manyUsers = [...Array(25)].map((_, index) => ({
@@ -124,7 +124,7 @@ describe('UserTable', () => {
       updated_on: null,
       last_login: null
     }));
-    
+
     // Render with custom users array
     render(
       <UserTable
@@ -133,15 +133,15 @@ describe('UserTable', () => {
         onUserDeleted={mockOnUserDeleted}
       />
     );
-    
+
     // Get the pagination component
     const pagination = screen.getByTestId('pagination');
     expect(pagination).toBeInTheDocument();
-    
+
     // Verify pagination controls exist
     const paginationButtons = within(pagination).getAllByRole('button');
     expect(paginationButtons.length).toBeGreaterThan(0);
-    
+
     // Check that the component correctly displays the number of users
     expect(pagination.textContent).toContain(String(manyUsers.length));
   });
@@ -159,7 +159,7 @@ describe('UserTable', () => {
     // Using data-testid to find the delete button
     const deleteButton = screen.getByTestId('delete-user-1');
     fireEvent.click(deleteButton);
-    
+
     // Check that dialog content is displayed using data-testid
     const dialogContent = screen.getByTestId('delete-confirmation-text');
     expect(dialogContent).toHaveTextContent(/Are you sure you want to delete user/);
@@ -169,16 +169,16 @@ describe('UserTable', () => {
   test('handles user deletion', async () => {
     (deleteUser as jest.Mock).mockResolvedValueOnce(undefined);
     renderUserTable();
-    
+
     // Click delete button using data-testid
     const deleteButton = screen.getByTestId('delete-user-1');
     fireEvent.click(deleteButton);
-    
+
     // Wait for the dialog to be fully rendered
     await waitFor(() => {
       expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
     });
-    
+
     // Find the confirm button in the dialog by data-testid and click it
     const confirmButton = screen.getByTestId('confirm-delete-button');
     fireEvent.click(confirmButton);
@@ -193,17 +193,17 @@ describe('UserTable', () => {
   test('handles deletion error', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (deleteUser as jest.Mock).mockRejectedValueOnce(new Error('Delete failed'));
-    
+
     renderUserTable();
     // Find delete button by data-testid
     const deleteButton = screen.getByTestId('delete-user-1');
     fireEvent.click(deleteButton);
-    
+
     // Wait for the dialog to appear
     await waitFor(() => {
       expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
     });
-    
+
     // Find and click the dialog's delete button by data-testid
     const confirmButton = screen.getByTestId('confirm-delete-button');
     fireEvent.click(confirmButton);
@@ -221,19 +221,19 @@ describe('UserTable', () => {
     // Find delete button by data-testid
     const deleteButton = screen.getByTestId('delete-user-1');
     fireEvent.click(deleteButton);
-    
+
     // Wait for the dialog to appear
     await waitFor(() => {
       expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
-    });
-    
+    }, { timeout: 10000 });
+
     // Find and click the cancel button by data-testid
     const cancelButton = screen.getByTestId('cancel-delete-button');
     fireEvent.click(cancelButton);
-    
+
     // Check that the dialog is closed
     await waitFor(() => {
       expect(screen.queryByTestId('delete-confirmation-text')).not.toBeInTheDocument();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 15000);
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   TextField,
   Grid,
@@ -14,7 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { ProjectDetailsFormProps } from '../../types/project';
 
-const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
+const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
   formData,
   errors,
   dateError,
@@ -124,9 +124,9 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
 
         {dateError && (
           <Grid item xs={12}>
-            <Typography 
-              color="error" 
-              sx={{ 
+            <Typography
+              color="error"
+              sx={{
                 mt: 1,
                 position: 'relative',
                 animation: 'fadeIn 0.3s ease-in'
@@ -138,16 +138,16 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
         )}
 
         <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button 
-            onClick={handleCancel} 
+          <Button
+            onClick={handleCancel}
             color="inherit"
             data-testid="cancel-button"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={onSubmit} 
-            variant="contained" 
+          <Button
+            onClick={onSubmit}
+            variant="contained"
             color="primary"
             data-testid="next-button"
           >
@@ -157,6 +157,8 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = ({
       </Grid>
     </>
   );
-};
+});
+
+ProjectDetailsForm.displayName = 'ProjectDetailsForm';
 
 export default ProjectDetailsForm;

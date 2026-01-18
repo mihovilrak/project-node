@@ -24,8 +24,8 @@ export const useRoleDialog = (role: Role | undefined) => {
         name: role.name,
         description: role.description || '',
         active: role.active ?? true,
-        permissions: role.permissions 
-        ? role.permissions.map(p => typeof p === 'number' ? p : p.id) 
+        permissions: role.permissions
+        ? role.permissions.map(p => typeof p === 'number' ? p : p.id)
         || []
         : []
       });

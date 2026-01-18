@@ -9,12 +9,12 @@ export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
   parentIdFromUrl
 }) => (
   formData.project_id ? (
-    <TextField 
-      select 
-      fullWidth 
-      label="Parent Task" 
-      name="parent_id" 
-      value={formData.parent_id || ''} 
+    <TextField
+      select
+      fullWidth
+      label="Parent Task"
+      name="parent_id"
+      value={formData.parent_id || ''}
       onChange={handleChange}
       disabled={Boolean(parentIdFromUrl)}
       sx={{ mb: 2 }}

@@ -158,17 +158,17 @@ describe('CalendarWeekView', () => {
     jest.setSystemTime(new Date('2023-01-01'));
 
     renderCalendarWeekView();
-    
+
     const papers = screen.getAllByRole('presentation');
     const todayPaper = papers.find(
       paper => paper.textContent?.includes('Sunday, January 1')
     );
-    
+
     expect(todayPaper).toBeTruthy();
     expect(todayPaper).toHaveStyle({
       backgroundColor: theme.palette.action.hover
     });
-    
+
     jest.useRealTimers();
   });
 

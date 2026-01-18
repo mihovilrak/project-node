@@ -11,7 +11,7 @@ export const getTaskWatchers = async (taskId: number): Promise<TaskWatcher[]> =>
     throw error;
   }
   };
-  
+
 // Add task watcher
 export const addTaskWatcher = async (taskId: number, userId: number): Promise<TaskWatcher> => {
   try {
@@ -22,7 +22,7 @@ export const addTaskWatcher = async (taskId: number, userId: number): Promise<Ta
     throw error;
   }
   };
-  
+
 // Remove task watcher
 export const removeTaskWatcher = async (taskId: number, userId: number): Promise<void> => {
   try {

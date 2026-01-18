@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TimeLogCreate, UseTimeLogDialogProps } from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
 import { Task } from '../../types/task';
@@ -22,6 +22,9 @@ export const useTimeLogDialog = ({
   const [spentTime, setSpentTime] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [logDate, setLogDate] = useState<Dayjs>(dayjs());
+  
+  // Track if form has been initialized to prevent infinite loops
+  const isInitialized = useRef(false);
 
   const { timeError, validateTime, validateAndFormatTime } = useTimeLogValidation();
   const {
@@ -33,12 +36,21 @@ export const useTimeLogDialog = ({
     handleProjectSelect: handleProjectDataFetch
   } = useTimeLogData({ open, projectId: selectedProjectId, hasAdminPermission });
 
-  // Initialize form when dialog opens
+  // Reset initialization flag when dialog closes
   useEffect(() => {
-    if (open) {
+    if (!open) {
+      isInitialized.current = false;
+    }
+  }, [open]);
+
+  // Initialize form when dialog opens (only once per open)
+  useEffect(() => {
+    if (open && !isInitialized.current) {
+      isInitialized.current = true;
       if (timeLog) {
-        const project = tasks.find(t => t.id === timeLog.task_id)?.project_id;
-        setSelectedProjectId(project);
+        // For editing, set the task_id directly - we don't need to look up project from tasks
+        // The project_id should come from the timeLog or be passed as prop
+        setSelectedProjectId(projectId);
         setSelectedTaskId(timeLog.task_id);
         setSelectedUserId(timeLog.user_id);
         setSelectedActivityTypeId(timeLog.activity_type_id);
@@ -56,7 +68,7 @@ export const useTimeLogDialog = ({
         setLogDate(dayjs());
       }
     }
-  }, [open, timeLog, projectId, taskId, currentUser, tasks]);
+  }, [open, timeLog, projectId, taskId, currentUser]);
 
   const handleProjectChange = (id: number | null) => {
     setSelectedProjectId(id || undefined);

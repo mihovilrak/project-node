@@ -90,22 +90,22 @@ describe('SubtaskList', () => {
 
   it('renders list of subtasks', () => {
     render(<SubtaskList {...defaultProps} />);
-    
+
     expect(screen.getByText('Test Subtask 1')).toBeInTheDocument();
     expect(screen.getByText('Test Subtask 2')).toBeInTheDocument();
   });
 
   it('displays empty state when no subtasks', () => {
     render(<SubtaskList {...defaultProps} subtasks={[]} />);
-    
+
     expect(screen.getByText('No subtasks found')).toBeInTheDocument();
   });
 
   it('handles delete action', async () => {
     (deleteTask as jest.Mock).mockResolvedValueOnce(undefined);
-    
+
     render(<SubtaskList {...defaultProps} />);
-    
+
     const deleteButtons = screen.getAllByLabelText('Delete');
     fireEvent.click(deleteButtons[0]);
 
@@ -117,7 +117,7 @@ describe('SubtaskList', () => {
 
   it('handles edit navigation', () => {
     render(<SubtaskList {...defaultProps} />);
-    
+
     const editButtons = screen.getAllByLabelText('Edit');
     fireEvent.click(editButtons[0]);
 
@@ -126,14 +126,14 @@ describe('SubtaskList', () => {
 
   it('applies correct styling for completed tasks', () => {
     render(<SubtaskList {...defaultProps} />);
-    
+
     const completedTask = screen.getByText('Test Subtask 2');
     expect(completedTask).toHaveStyle({ textDecoration: 'line-through' });
   });
 
   it('displays priority chips', () => {
     render(<SubtaskList {...defaultProps} />);
-    
+
     expect(screen.getByText('High/Should')).toBeInTheDocument();
     expect(screen.getByText('Normal/Could')).toBeInTheDocument();
   });
@@ -141,23 +141,23 @@ describe('SubtaskList', () => {
   it('displays due dates correctly', () => {
 
     const { container } = render(<SubtaskList {...defaultProps} />);
-    
+
     // Get all ListItem elements
     const listItems = container.querySelectorAll('.MuiListItem-root');
     expect(listItems.length).toBe(2);
-    
+
     const componentText = container.textContent;
     expect(componentText).toContain('Due:');
-    
+
     expect(componentText).toContain('2024');
   });
 
   it('handles delete error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     (deleteTask as jest.Mock).mockRejectedValueOnce(new Error('Delete failed'));
-    
+
     render(<SubtaskList {...defaultProps} />);
-    
+
     const deleteButtons = screen.getAllByLabelText('Delete');
     fireEvent.click(deleteButtons[0]);
 

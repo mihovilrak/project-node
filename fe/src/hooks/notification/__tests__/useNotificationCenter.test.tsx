@@ -62,7 +62,7 @@ describe('useNotificationCenter', () => {
 
   it('should initialize with default values', () => {
     const { result } = renderHook(() => useNotificationCenter(undefined, 0), { wrapper });
-    
+
     expect(result.current.notifications).toEqual([]);
     expect(result.current.loading).toBe(false);
     expect(result.current.unreadCount).toBe(0);

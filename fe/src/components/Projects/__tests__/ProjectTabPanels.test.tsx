@@ -108,11 +108,11 @@ describe('ProjectTabPanels', () => {
   it('hides tabs content when activeTab does not match', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={0} />);
     expect(screen.getByTestId('project-overview')).toBeVisible();
-    
+
     // The first tab panel should be visible (not hidden) with activeTab=0
     const tabPanels = screen.getAllByRole('tabpanel');
     expect(tabPanels[0]).not.toHaveAttribute('hidden');
-    
+
     // Other content should be hidden
     expect(screen.queryByTestId('project-task-list')).not.toBeInTheDocument();
     expect(screen.queryByTestId('project-members-list')).not.toBeInTheDocument();

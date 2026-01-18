@@ -44,7 +44,7 @@ const mockTimeLogs: TimeLog[] = [
 const mockProps = {
   days: mockDays,
   timeLogs: mockTimeLogs,
-  getTimeLogsForDate: jest.fn((date) => 
+  getTimeLogsForDate: jest.fn((date) =>
     mockTimeLogs.filter(log => log.log_date === '2023-01-01')
   ),
   getTotalHoursForDate: jest.fn(() => 6),
@@ -115,17 +115,17 @@ describe('TimeLogCalendarGrid', () => {
   test('applies different elevation for today', () => {
     const today = new Date();
     const mockDaysWithToday = [today];
-    
+
     renderWithTheme(
-      <TimeLogCalendarGrid 
+      <TimeLogCalendarGrid
         {...mockProps}
         days={mockDaysWithToday}
       />
     );
-    
+
     const paper = screen.getByRole('gridcell')
       .querySelector('.MuiPaper-root');
-    
+
     expect(paper).toHaveStyle({
       border: `2px solid ${mockTheme.palette.primary.main}`
     });

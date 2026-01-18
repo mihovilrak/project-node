@@ -15,11 +15,11 @@ jest.mock('../../../context/AuthContext', () => ({
 describe('useLogin', () => {
   const mockNavigate = jest.fn();
   const mockLogin = jest.fn();
-  
+
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
-    
+
     // Setup mocks
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useAuth as jest.Mock).mockReturnValue({ login: mockLogin });

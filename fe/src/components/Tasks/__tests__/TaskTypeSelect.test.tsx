@@ -26,14 +26,14 @@ const mockTaskTypes: TaskType[] = [
 
 describe('TaskTypeSelect', () => {
   const mockOnChange = jest.fn();
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('shows loading state initially', () => {
     (getTaskTypes as jest.Mock).mockImplementation(() => new Promise(() => {}));
-    
+
     render(
       <TaskTypeSelect
         value={1}
@@ -71,7 +71,7 @@ describe('TaskTypeSelect', () => {
 
   it('handles API errors gracefully', async () => {
     (getTaskTypes as jest.Mock).mockRejectedValue(new Error('Failed to fetch'));
-    
+
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     render(

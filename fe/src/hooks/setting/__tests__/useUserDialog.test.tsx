@@ -30,7 +30,7 @@ describe('useUserDialog', () => {
   });
 
   it('should initialize with default values when no user is provided', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -47,7 +47,7 @@ describe('useUserDialog', () => {
   });
 
   it('should initialize with user data when provided', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(mockUser, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -63,7 +63,7 @@ describe('useUserDialog', () => {
   });
 
   it('should handle text input changes', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -71,7 +71,7 @@ describe('useUserDialog', () => {
       const mockEvent = {
         target: { name: 'name', value: 'New Name' }
       } as React.ChangeEvent<HTMLInputElement>;
-      
+
       result.current.handleTextChange(mockEvent);
     });
 
@@ -79,7 +79,7 @@ describe('useUserDialog', () => {
   });
 
   it('should handle role selection changes', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -87,7 +87,7 @@ describe('useUserDialog', () => {
       const mockEvent = {
         target: { value: 2 }
       } as SelectChangeEvent<number>;
-      
+
       result.current.handleRoleChange(mockEvent);
     });
 
@@ -107,7 +107,7 @@ describe('useUserDialog', () => {
 
     (createUser as jest.Mock).mockResolvedValueOnce({ ...newUser, id: 2 });
 
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -126,7 +126,7 @@ describe('useUserDialog', () => {
       const mockEvent = {
         preventDefault: jest.fn()
       } as unknown as React.FormEvent<HTMLFormElement>;
-      
+
       await result.current.handleSubmit(mockEvent);
     });
 
@@ -139,7 +139,7 @@ describe('useUserDialog', () => {
   it('should update existing user successfully', async () => {
     (updateUser as jest.Mock).mockResolvedValueOnce({ ...mockUser, name: 'Updated Name' });
 
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(mockUser, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -156,7 +156,7 @@ describe('useUserDialog', () => {
       const mockEvent = {
         preventDefault: jest.fn()
       } as unknown as React.FormEvent<HTMLFormElement>;
-      
+
       await result.current.handleSubmit(mockEvent);
     });
 
@@ -173,7 +173,7 @@ describe('useUserDialog', () => {
     const error = new Error('Failed to save user');
     (createUser as jest.Mock).mockRejectedValueOnce(error);
 
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
@@ -181,7 +181,7 @@ describe('useUserDialog', () => {
       const mockEvent = {
         preventDefault: jest.fn()
       } as unknown as React.FormEvent<HTMLFormElement>;
-      
+
       await result.current.handleSubmit(mockEvent);
     });
 

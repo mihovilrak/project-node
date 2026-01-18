@@ -31,7 +31,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -41,7 +41,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle menu open', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -57,7 +57,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle menu close', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -79,7 +79,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle edit click', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -92,7 +92,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle edit close', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -111,7 +111,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle edit save', async () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -125,7 +125,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should handle delete click', async () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 
@@ -148,7 +148,7 @@ describe('useCommentMenu', () => {
   });
 
   it('should not call delete if no comment is selected', async () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
     );
 

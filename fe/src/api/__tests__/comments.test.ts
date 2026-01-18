@@ -30,7 +30,7 @@ describe('Comments API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockComment] });
 
       const comments = await getTaskComments(1);
-      
+
       expect(mockedApi.get).toHaveBeenCalledWith('/tasks/1/comments');
       expect(comments).toEqual([mockComment]);
     });
@@ -48,7 +48,7 @@ describe('Comments API', () => {
       mockedApi.post.mockResolvedValueOnce({ data: mockComment });
 
       const comment = await createComment(1, { comment: 'Test comment' });
-      
+
       expect(mockedApi.post).toHaveBeenCalledWith('/tasks/1/comments', { comment: 'Test comment' });
       expect(comment).toEqual(mockComment);
     });
@@ -66,7 +66,7 @@ describe('Comments API', () => {
       mockedApi.put.mockResolvedValueOnce({ data: mockComment });
 
       const comment = await editComment(1, 1, { comment: 'Updated comment' });
-      
+
       expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/comments/1', { comment: 'Updated comment' });
       expect(comment).toEqual(mockComment);
     });
@@ -84,7 +84,7 @@ describe('Comments API', () => {
       mockedApi.delete.mockResolvedValueOnce({ data: undefined });
 
       await deleteComment(1, 1);
-      
+
       expect(mockedApi.delete).toHaveBeenCalledWith('/tasks/1/comments/1');
     });
 

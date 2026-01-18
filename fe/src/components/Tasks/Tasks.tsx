@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTasks, deleteTask } from '../../api/tasks';
-import { 
-  Grid, 
-  Button, 
-  Card, 
-  CardContent, 
-  Typography, 
+import {
+  Grid,
+  Button,
+  Card,
+  CardContent,
+  Typography,
   Box,
   CircularProgress,
   Chip,
@@ -31,7 +31,7 @@ const Tasks: React.FC = () => {
     fetchTasks();
   }, []);
 
-  const fetchTasks = async (): Promise<void> => {
+  const fetchTasks = useCallback(async (): Promise<void> => {
     try {
       setError(null);
       const taskList = await getTasks();
@@ -42,9 +42,9 @@ const Tasks: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleDelete = async (taskId: number): Promise<void> => {
+  const handleDelete = useCallback(async (taskId: number): Promise<void> => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         await deleteTask(taskId);
@@ -54,50 +54,55 @@ const Tasks: React.FC = () => {
         setError('Failed to delete task. Please try again.');
       }
     }
-  };
+  }, [fetchTasks]);
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
-  };
+  }, []);
 
-  const handleSortChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
+  const handleSortChange = useCallback((event: SelectChangeEvent<'asc' | 'desc'>) => {
     setSortOrder(event.target.value as 'asc' | 'desc');
-  };
+  }, []);
 
-  const filterOptions = {
+  const filterOptions = useMemo(() => ({
     search: true,
     showDateFilters: true,
     statuses: [], // This should be populated with actual status options from your API
     priorities: [], // This should be populated with actual priority options from your API
     projects: [] // This should be populated with actual project options from your API
-  };
+  }), []);
 
-  const filteredTasks = tasks
-    .filter(task => {
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        return (
-          task.name.toLowerCase().includes(searchTerm) ||
-          task.description?.toLowerCase().includes(searchTerm) ||
-          task.project_name?.toLowerCase().includes(searchTerm)
-        );
-      }
-      if (filters.status_id) {
-        return task.status_id === Number(filters.status_id);
-      }
-      if (filters.priority_id) {
-        return task.priority_id === Number(filters.priority_id);
-      }
-      if (filters.project_id) {
-        return task.project_id === Number(filters.project_id);
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      return sortOrder === 'asc' 
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name);
-    });
+  const filteredTasks = useMemo(() => {
+    return tasks
+      .filter(task => {
+        if (filters.search) {
+          const searchTerm = filters.search.toLowerCase();
+          return (
+            task.name.toLowerCase().includes(searchTerm) ||
+            task.description?.toLowerCase().includes(searchTerm) ||
+            task.project_name?.toLowerCase().includes(searchTerm)
+          );
+        }
+        if (filters.status_id) {
+          return task.status_id === Number(filters.status_id);
+        }
+        if (filters.priority_id) {
+          return task.priority_id === Number(filters.priority_id);
+        }
+        if (filters.project_id) {
+          return task.project_id === Number(filters.project_id);
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        // Handle cases where name might be undefined or null
+        const nameA = a?.name || '';
+        const nameB = b?.name || '';
+        return sortOrder === 'asc'
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+  }, [tasks, filters, sortOrder]);
 
   if (loading) {
     return (
@@ -120,16 +125,16 @@ const Tasks: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>Tasks</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={() => navigate('/tasks/new')}
           >
             Create New Task
           </Button>
-          <Select 
-            value={sortOrder} 
-            onChange={handleSortChange} 
+          <Select
+            value={sortOrder}
+            onChange={handleSortChange}
             size="small"
             sx={{ minWidth: 120 }}
           >
@@ -154,14 +159,14 @@ const Tasks: React.FC = () => {
                 <Typography variant="h6">{task.name}</Typography>
                 <Typography variant="body2">Project: {task.project_name}</Typography>
                 <Box sx={{ mt: 1 }}>
-                  <Chip 
+                  <Chip
                     label={task.status_name}
                     size="small"
                     color={task.status_name === 'Done' ? 'success' : 'default'}
                     sx={{ mr: 1 }}
                     data-testid="status-chip"
                   />
-                  <Chip 
+                  <Chip
                     label={task.priority_name}
                     size="small"
                     color={getPriorityColor(task.priority_name || '')}
@@ -175,15 +180,15 @@ const Tasks: React.FC = () => {
                   <Button onClick={() => navigate(`/tasks/${task.id}`)}>
                     Details
                   </Button>
-                  <Button 
-                    color="warning" 
+                  <Button
+                    color="warning"
                     onClick={() => navigate(`/tasks/${task.id}/edit`)}
                     sx={{ ml: 1 }}
                   >
                     Edit
                   </Button>
-                  <Button 
-                    color="error" 
+                  <Button
+                    color="error"
                     onClick={() => handleDelete(task.id)}
                     sx={{ ml: 1 }}
                   >

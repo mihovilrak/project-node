@@ -27,7 +27,7 @@ describe('TaskNameField', () => {
 
   it('renders the task name input field', () => {
     render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
-    
+
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toBeInTheDocument();
     expect(inputElement).toBeRequired();
@@ -36,14 +36,14 @@ describe('TaskNameField', () => {
   it('displays the current value from formData', () => {
     const formDataWithName = { ...mockFormData, name: 'Test Task' };
     render(<TaskNameField formData={formDataWithName} handleChange={mockHandleChange} />);
-    
+
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toHaveValue('Test Task');
   });
 
   it('calls handleChange with correct data when input changes', () => {
     render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
-    
+
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     fireEvent.change(inputElement, { target: { value: 'New Task Name' } });
 
@@ -57,7 +57,7 @@ describe('TaskNameField', () => {
 
   it('has required attribute', () => {
     render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
-    
+
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toHaveAttribute('required');
   });

@@ -57,7 +57,7 @@ jest.mock('@mui/material', () => {
       {endIcon}
     </button>
   );
-  
+
   return {
     AppBar: ({ children }: any) => <div data-testid="app-bar">{children}</div>,
     Toolbar: ({ children }: any) => <div data-testid="toolbar">{children}</div>,

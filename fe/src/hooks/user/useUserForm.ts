@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   fetchRoles,
@@ -71,16 +71,16 @@ export const useUserForm = ({ userId }: UserFormProps) => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues(prev => ({
       ...prev,
       [name]: name === 'role_id' ? Number(value) : value,
     }));
     setError(prev => (prev ? null : prev));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     console.log('DEBUG formValues at submit:', formValues);
     e.preventDefault();
 
@@ -98,7 +98,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
     }
 
     const isEditMode = window.location.pathname.includes('/edit');
-    
+
     // Validate passwords based on mode
     if (isEditMode) {
       // Edit mode
@@ -143,7 +143,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
           password: formValues.password
         })
       };
-      
+
       if (userId) {
         await updateUser(parseInt(userId), userData as UserUpdate);
       } else {
@@ -154,7 +154,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       console.error('Failed to save user', error);
       setError(error.response?.data?.message || 'Failed to save user');
     }
-  };
+  }, [formValues, userId, navigate]);
 
   return {
     loading,

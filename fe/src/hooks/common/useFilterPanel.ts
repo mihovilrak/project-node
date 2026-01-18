@@ -28,7 +28,7 @@ export const useFilterPanel = (filters: FilterValues, onFilterChange: (filters: 
 
     const optionField = fieldMappings[field] || field;
     const fieldOption = options[optionField as keyof FilterPanelOptions];
-    
+
     if (Array.isArray(fieldOption)) {
       const option = fieldOption.find((opt: FilterOption) => String(opt.id) === String(value));
       return option?.name || String(value);

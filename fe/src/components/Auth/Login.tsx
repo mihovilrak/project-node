@@ -33,7 +33,7 @@ const Login: React.FC = () => {
           Login
         </Typography>
         {error && (
-          <Typography variant="body2" color="error" align="center">
+          <Typography variant="body2" color="error" align="center" data-testid="login-error">
             {error}
           </Typography>
         )}
@@ -47,6 +47,7 @@ const Login: React.FC = () => {
               value={loginDetails.login}
               onChange={handleInputChange}
               autoComplete="username"
+              inputProps={{ 'data-testid': 'login-input' }}
               InputLabelProps={{
                 sx: { background: 'white', px: 1 }
               }}
@@ -62,6 +63,7 @@ const Login: React.FC = () => {
               value={loginDetails.password}
               onChange={handleInputChange}
               autoComplete="current-password"
+              inputProps={{ 'data-testid': 'password-input' }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -69,6 +71,7 @@ const Login: React.FC = () => {
                       aria-label="toggle password visibility"
                       onClick={handleClickShowPassword}
                       edge="end"
+                      data-testid="toggle-password-visibility"
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -85,7 +88,8 @@ const Login: React.FC = () => {
             variant="contained"
             color="primary"
             fullWidth
-            size="large"
+            sx={{ mt: 2 }}
+            data-testid="login-submit"
           >
             Login
           </Button>

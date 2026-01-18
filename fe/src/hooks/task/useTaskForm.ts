@@ -20,12 +20,12 @@ import { ProjectMember } from '../../types/project';
 import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
 
-export const useTaskForm = ({ 
-  taskId, 
-  projectId, 
-  projectIdFromQuery, 
+export const useTaskForm = ({
+  taskId,
+  projectId,
+  projectIdFromQuery,
   parentTaskId,
-  currentUserId 
+  currentUserId
 }: UseTaskFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +54,10 @@ export const useTaskForm = ({
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
 
-  const { 
-    projects, 
-    projectMembers: fetchedProjectMembers, 
-    projectTasks 
+  const {
+    projects,
+    projectMembers: fetchedProjectMembers,
+    projectTasks
   } = useProjectSelect(formData.project_id, taskId);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export const useTaskForm = ({
         if (taskData) {
           setIsEditing(true);
           const taskTags = await getTaskTags(Number(taskId));
-          
+
           // Format dates properly
           const formattedStartDate = taskData.start_date ? dayjs(taskData.start_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
           const formattedDueDate = taskData.due_date ? dayjs(taskData.due_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
@@ -133,7 +133,7 @@ export const useTaskForm = ({
   const handleChange = async (e: { target: { name: string; value: any } }) => {
     const { name, value } = e.target;
     const newValue = value === '' ? null : value;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: newValue

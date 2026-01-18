@@ -7,14 +7,14 @@ import {
 import { usePermission } from '../../hooks/common/usePermission';
 import { PermissionIconButtonProps } from '../../types/common';
 
-const PermissionIconButton: React.FC<PermissionIconButtonProps> = ({ 
-  requiredPermission, 
-  children, 
+const PermissionIconButton: React.FC<PermissionIconButtonProps> = ({
+  requiredPermission,
+  children,
   tooltipText = "You don't have permission for this action",
   showLoading = true,
   placement = "top",
   disabled,
-  ...props 
+  ...props
 }) => {
   const { hasPermission, loading } = usePermission(requiredPermission);
 

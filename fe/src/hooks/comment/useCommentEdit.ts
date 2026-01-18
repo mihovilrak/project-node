@@ -14,7 +14,7 @@ export const useCommentEdit = (comment: Comment | null, onSave: (id: number, tex
 
   const handleSave = async (): Promise<void> => {
     if (!comment) return;
-    
+
     try {
       setIsSubmitting(true);
       await onSave(comment.id, editedText);

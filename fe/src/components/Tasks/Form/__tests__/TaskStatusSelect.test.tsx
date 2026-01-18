@@ -80,7 +80,7 @@ describe('TaskStatusSelect', () => {
   it('calls handleChange when a new status is selected', () => {
     render(<TaskStatusSelect {...defaultProps} />);
     const select = screen.getByRole('combobox', { name: /Status/i });
-    
+
     fireEvent.mouseDown(select);
     fireEvent.click(screen.getByText('In Progress'));
 

@@ -64,26 +64,26 @@ describe('ProjectOverview Component', () => {
 
     const descriptionText = container.textContent;
     expect(descriptionText).toContain('Test Description');
-    
+
     expect(descriptionText).toContain('Active');
-    
+
     const parentLink = container.querySelector('a[href="/projects/2"]');
     expect(parentLink).not.toBeNull();
     expect(parentLink?.textContent).toContain('Parent Project');
-    
+
     const creatorLink = container.querySelector('a[href="/users/1"]');
     expect(creatorLink).not.toBeNull();
     expect(creatorLink?.textContent).toContain('John Doe');
-    
+
     expect(descriptionText).toContain('50%');
-    
+
     expect(descriptionText).toContain('100 hours');
     expect(descriptionText).toContain('1.00 hours');
   });
 
   test('renders subprojects list correctly', () => {
     renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
-    
+
     expect(screen.getByText('Subproject 1')).toBeInTheDocument();
     expect(screen.getByText('Subproject 2')).toBeInTheDocument();
   });
@@ -100,14 +100,14 @@ describe('ProjectOverview Component', () => {
 
   test('renders parent project link correctly', () => {
     renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
-    
+
     const parentLink = screen.getByText('Parent Project');
     expect(parentLink).toHaveAttribute('href', '/projects/2');
   });
 
   test('renders created by link correctly', () => {
     renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
-    
+
     const createdByLink = screen.getByText('John Doe');
     expect(createdByLink).toHaveAttribute('href', '/users/1');
   });
@@ -120,7 +120,7 @@ describe('ProjectOverview Component', () => {
     });
 
     renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
-    
+
     const addButton = screen.getByTestId('permission-button');
     fireEvent.click(addButton);
     expect(mockHandleAddSubproject).toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('ProjectOverview Component', () => {
 
     const progressBar = container.querySelector('[role="progressbar"]');
     expect(progressBar).not.toBeNull();
-    
+
     if (progressBar) {
       expect(progressBar.getAttribute('aria-valuenow')).toBe('50');
     }

@@ -111,7 +111,7 @@ describe('ProjectGantt component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Default hook mock implementation
     const { useProjectGantt } = require('../../../hooks/project/useProjectGantt');
     useProjectGantt.mockImplementation((tasks: Task[] = []) => {
@@ -162,7 +162,7 @@ describe('ProjectGantt component', () => {
       renderAppointmentContent: jest.fn(),
       renderTooltipContent: jest.fn()
     });
-    
+
     renderWithTheme({ projectId: 1, tasks: [] });
     const alertElements = document.querySelectorAll('[role="alert"]');
     expect(alertElements.length).toBeGreaterThan(0);

@@ -9,31 +9,31 @@ import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
 import { useTasksByHour } from '../../hooks/calendar/useTasksByHour';
 
-const CalendarDayView: React.FC<CalendarViewProps> = ({ 
+const CalendarDayView: React.FC<CalendarViewProps> = ({
   tasks,
   timeLogs,
   onTaskClick,
-  onTimeLogClick 
+  onTimeLogClick
 }) => {
   const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(tasks, timeLogs);
 
   return (
-    <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }}>
+    <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }} data-testid="day-grid">
       {hours.map(hour => (
-        <Paper 
+        <Paper
           key={hour}
           variant="outlined"
-          sx={{ 
-            p: 2, 
-            mb: 1, 
+          sx={{
+            p: 2,
+            mb: 1,
             display: 'flex',
             minHeight: 80,
             backgroundColor: hour % 2 === 0 ? 'background.default' : 'background.paper'
           }}
         >
-          <Typography 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            variant="body2"
+            sx={{
               width: 50,
               color: 'text.secondary',
               fontWeight: 'medium'
@@ -45,23 +45,24 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
             {getTasksForHour(hour).map(task => (
               <Paper
                 key={task.id}
-                sx={{ 
-                  p: 1, 
-                  mb: 1, 
+                sx={{
+                  p: 1,
+                  mb: 1,
                   cursor: 'pointer',
                   '&:hover': { backgroundColor: 'action.hover' }
                 }}
                 onClick={() => onTaskClick(task.id)}
+                data-testid={`task-chip-${task.id}`}
               >
                 <Typography variant="subtitle2">{task.name}</Typography>
                 <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                  <Chip 
-                    label={task.priority_name} 
+                  <Chip
+                    label={task.priority_name}
                     size="small"
                     color={getPriorityColor(task.priority_name)}
                   />
-                  <Chip 
-                    label={task.status_name} 
+                  <Chip
+                    label={task.status_name}
                     size="small"
                     variant="outlined"
                   />
@@ -71,9 +72,9 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
             {getTimeLogsForHour(hour).map(timeLog => (
               <Paper
                 key={timeLog.id}
-                sx={{ 
-                  p: 1, 
-                  mb: 1, 
+                sx={{
+                  p: 1,
+                  mb: 1,
                   cursor: 'pointer',
                   backgroundColor: timeLog.activity_type_color,
                   '&:hover': { opacity: 0.9 }

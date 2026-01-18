@@ -112,7 +112,7 @@ describe('useTaskComments', () => {
     const { result } = renderHook(() => useTaskComments('1'));
     await waitFor(() => {
       expect(result.current.comments).toEqual(mockComments);
-    });
+    }, { timeout: 10000 });
 
     await act(async () => {
       await result.current.handleCommentDelete(1);
@@ -120,7 +120,7 @@ describe('useTaskComments', () => {
 
     expect(deleteComment).toHaveBeenCalledWith(1, 1);
     expect(result.current.comments).toEqual([mockComments[1]]);
-  });
+  }, 15000);
 
   it('should handle error when adding comment', async () => {
     const error = new Error('Failed to add comment');

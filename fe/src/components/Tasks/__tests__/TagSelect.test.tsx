@@ -58,7 +58,7 @@ describe('TagSelect Component', () => {
   test('renders tags after loading', async () => {
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
 
-    // Wait for loading to finish
+    // Wait for loading to finish - mock resolves immediately
     await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
 
     // Open the dropdown
@@ -82,7 +82,12 @@ describe('TagSelect Component', () => {
     // Open the dropdown
     fireEvent.mouseDown(screen.getByRole('combobox'));
 
-    // Use a robust query for the option (Material-UI splits text)
+    // Wait for options to appear and use a robust query for the option (Material-UI splits text)
+    await waitFor(() => {
+      const options = screen.getAllByRole('option');
+      expect(options.length).toBeGreaterThan(0);
+    });
+
     const bugOption = screen.getAllByRole('option').find(opt => /bug/i.test(opt.textContent || ''));
     expect(bugOption).toBeDefined();
     fireEvent.click(bugOption!);

@@ -15,10 +15,10 @@ import {
 import { Edit as EditIcon } from '@mui/icons-material';
 import { TaskType, TaskTypesTableProps } from '../../types/setting';
 
-const TaskTypesTable: React.FC<TaskTypesTableProps> = ({ 
+const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
   taskTypes: propTaskTypes,
   onEdit,
-  loading: propLoading 
+  loading: propLoading
 }) => {
   const [taskTypes, setTaskTypes] = useState<TaskType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

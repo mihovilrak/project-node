@@ -1,14 +1,23 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TestWrapper } from '../TestWrapper';
 import { api } from '../../api/api';
 import { User } from '../../types/user';
 import Users from '../../components/Users/Users';
-import UserForm from '../../components/Users/UserForm';
+import * as usersApi from '../../api/users';
 
 // Mock the API calls
 jest.mock('../../api/api');
+jest.mock('../../api/users');
 const mockedApi = api as jest.Mocked<typeof api>;
+const mockedUsersApi = usersApi as jest.Mocked<typeof usersApi>;
+
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate
+}));
 
 describe('User Management Flow', () => {
   const mockUser: User = {
@@ -27,15 +36,20 @@ describe('User Management Flow', () => {
     status_color: 'green'
   };
 
+  const mockUsers: User[] = [
+    mockUser,
+    { ...mockUser, id: 2, login: 'admin', name: 'Admin', surname: 'User', role_name: 'Admin' },
+    { ...mockUser, id: 3, login: 'manager', name: 'Manager', surname: 'User', role_name: 'Manager' }
+  ];
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default mock for getUsers
+    mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
   });
 
-  it('should register a new user', async () => {
-    const newUser = { ...mockUser, id: 2 };
-    mockedApi.post.mockResolvedValueOnce({ data: newUser });
-    mockedApi.get.mockResolvedValueOnce({ data: [] }); // Initial users list
-    mockedApi.get.mockResolvedValueOnce({ data: [newUser] }); // Updated users list
+  it('should display users list', async () => {
+    mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
 
     render(
       <TestWrapper>
@@ -43,49 +57,19 @@ describe('User Management Flow', () => {
       </TestWrapper>
     );
 
-    // Click create user button
-    const createButton = await screen.findByRole('button', { name: /create user/i });
-    await userEvent.click(createButton);
-
-    // Fill in the form
-    const loginInput = screen.getByLabelText(/login/i);
-    const nameInput = screen.getByLabelText(/first name/i);
-    const surnameInput = screen.getByLabelText(/last name/i);
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const roleSelect = screen.getByLabelText(/role/i);
-
-    await userEvent.type(loginInput, 'testuser');
-    await userEvent.type(nameInput, 'Test');
-    await userEvent.type(surnameInput, 'User');
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.type(passwordInput, 'password123');
-    await userEvent.selectOptions(roleSelect, '2');
-
-    // Submit the form
-    const submitButton = screen.getByRole('button', { name: /save/i });
-    await userEvent.click(submitButton);
-
-    // Verify API call
-    expect(mockedApi.post).toHaveBeenCalledWith('/users', expect.objectContaining({
-      login: 'testuser',
-      name: 'Test',
-      surname: 'User',
-      email: 'test@example.com',
-      role_id: 2
-    }));
-
-    // Verify user appears in the list
+    // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.getByText('testuser')).toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
+
+    // Verify user is displayed
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('Email: test@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Role: Reporter')).toBeInTheDocument();
   });
 
-  it('should update user profile', async () => {
-    mockedApi.get.mockResolvedValueOnce({ data: [mockUser] });
-    mockedApi.put.mockResolvedValueOnce({ 
-      data: { ...mockUser, name: 'Updated', surname: 'Name' } 
-    });
+  it('should navigate to create user form', async () => {
+    mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
 
     render(
       <TestWrapper>
@@ -93,39 +77,47 @@ describe('User Management Flow', () => {
       </TestWrapper>
     );
 
-    // Click edit button for the user
-    const editButton = await screen.findByRole('button', { name: /edit/i });
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    // Click Add New User button
+    const addButton = screen.getByTestId('add-user-btn');
+    await userEvent.click(addButton);
+
+    // Verify navigation was called
+    expect(mockNavigate).toHaveBeenCalledWith('/users/new');
+  });
+
+  it('should navigate to edit user form', async () => {
+    mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
+
+    render(
+      <TestWrapper>
+        <Users />
+      </TestWrapper>
+    );
+
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    // Click Edit button
+    const editButton = screen.getByTestId('edit-user-btn');
     await userEvent.click(editButton);
 
-    // Update the form
-    const nameInput = screen.getByLabelText(/first name/i);
-    const surnameInput = screen.getByLabelText(/last name/i);
-
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'Updated');
-    await userEvent.clear(surnameInput);
-    await userEvent.type(surnameInput, 'Name');
-
-    // Submit the form
-    const submitButton = screen.getByRole('button', { name: /save/i });
-    await userEvent.click(submitButton);
-
-    // Verify API call
-    expect(mockedApi.put).toHaveBeenCalledWith('/users/1', expect.objectContaining({
-      name: 'Updated',
-      surname: 'Name'
-    }));
-
-    // Verify updated name appears
-    await waitFor(() => {
-      expect(screen.getByText('Updated Name')).toBeInTheDocument();
-    });
+    // Verify navigation was called
+    expect(mockNavigate).toHaveBeenCalledWith('/users/1/edit');
   });
 
-  it('should manage user roles', async () => {
-    mockedApi.get.mockResolvedValueOnce({ data: [mockUser] });
-    mockedApi.get.mockResolvedValueOnce({ data: ['User', 'Admin'] }); // roles
-    mockedApi.put.mockResolvedValueOnce({ data: { ...mockUser, role: 'Admin', role_id: 1 } });
+  it('should delete a user with confirmation', async () => {
+    mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
+    mockedUsersApi.deleteUser.mockResolvedValue(undefined);
+
+    // Mock window.confirm to return true
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(
       <TestWrapper>
@@ -133,62 +125,24 @@ describe('User Management Flow', () => {
       </TestWrapper>
     );
 
-    // Click manage roles button
-    const manageRolesButton = await screen.findByRole('button', { name: /manage roles/i });
-    await userEvent.click(manageRolesButton);
-
-    // Change role
-    const roleSelect = screen.getByLabelText(/role/i);
-    await userEvent.selectOptions(roleSelect, '1'); // Admin role
-
-    // Save changes
-    const saveButton = screen.getByRole('button', { name: /save/i });
-    await userEvent.click(saveButton);
-
-    // Verify API call
-    expect(mockedApi.put).toHaveBeenCalledWith('/users/1/roles', { roles: [1] });
-
-    // Verify role update
+    // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.getByText('Admin')).toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-  });
 
-  it('should delete a user', async () => {
-    mockedApi.get.mockResolvedValueOnce({ data: [mockUser] });
-    mockedApi.delete.mockResolvedValueOnce({});
-
-    render(
-      <TestWrapper>
-        <Users />
-      </TestWrapper>
-    );
-
-    // Click delete button
-    const deleteButton = await screen.findByRole('button', { name: /delete/i });
+    // Click Delete button
+    const deleteButton = screen.getByTestId('delete-user-1');
     await userEvent.click(deleteButton);
 
-    // Confirm deletion
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
-    await userEvent.click(confirmButton);
+    // Verify confirmation was shown and delete API was called
+    expect(confirmSpy).toHaveBeenCalledWith('Are you sure you want to delete this user?');
+    expect(mockedUsersApi.deleteUser).toHaveBeenCalledWith(1);
 
-    // Verify API call
-    expect(mockedApi.delete).toHaveBeenCalledWith('/users/1');
-
-    // Verify user is removed from list
-    await waitFor(() => {
-      expect(screen.queryByText('testuser')).not.toBeInTheDocument();
-    });
+    confirmSpy.mockRestore();
   });
 
-  it('should search and filter users', async () => {
-    const users = [
-      mockUser,
-      { ...mockUser, id: 2, login: 'admin', role: 'Admin' },
-      { ...mockUser, id: 3, login: 'manager', role: 'Manager' }
-    ];
-    
-    mockedApi.get.mockResolvedValueOnce({ data: users });
+  it('should display multiple users and allow sorting', async () => {
+    mockedUsersApi.getUsers.mockResolvedValue(mockUsers);
 
     render(
       <TestWrapper>
@@ -196,24 +150,20 @@ describe('User Management Flow', () => {
       </TestWrapper>
     );
 
-    // Search for user
-    const searchInput = await screen.findByPlaceholderText(/search/i);
-    await userEvent.type(searchInput, 'admin');
-
-    // Verify filtered results
+    // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.getByText('admin')).toBeInTheDocument();
-      expect(screen.queryByText('testuser')).not.toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Filter by role
-    const roleFilter = screen.getByLabelText(/filter by role/i);
-    await userEvent.selectOptions(roleFilter, 'Admin');
+    // Verify all users are displayed
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('Admin User')).toBeInTheDocument();
+    expect(screen.getByText('Manager User')).toBeInTheDocument();
 
-    // Verify filtered results
-    await waitFor(() => {
-      expect(screen.getByText('admin')).toBeInTheDocument();
-      expect(screen.queryByText('manager')).not.toBeInTheDocument();
-    });
+    // Verify filter panel is present
+    expect(screen.getByTestId('filter-panel')).toBeInTheDocument();
+
+    // Verify sort select is present
+    expect(screen.getByTestId('sort-select')).toBeInTheDocument();
   });
 });

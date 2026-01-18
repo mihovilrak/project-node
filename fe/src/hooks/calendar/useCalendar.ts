@@ -44,7 +44,7 @@ export const useCalendar = () => {
   useEffect(() => {
     const start = new Date(selectedDate);
     const end = new Date(selectedDate);
-    
+
     if (view === 'month') {
       start.setDate(1);
       end.setMonth(end.getMonth() + 1, 0);
@@ -52,7 +52,7 @@ export const useCalendar = () => {
       start.setDate(start.getDate() - start.getDay());
       end.setDate(end.getDate() + (6 - end.getDay()));
     }
-    
+
     fetchTasks(start, end);
   }, [selectedDate, view]);
 

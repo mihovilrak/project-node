@@ -13,8 +13,8 @@ export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleCh
   };
 
   return (
-    <TextField 
-      fullWidth 
+    <TextField
+      fullWidth
       label="Name"
       name="name"
       value={formData.name}

@@ -86,7 +86,7 @@ export const updateUserRoles = async (id: number, roles: number[]): Promise<void
     console.error('Failed to update user roles:', error);
     throw error;
   }
-}; 
+};
 
 // Get all roles
 export const fetchRoles = async (): Promise<Role[]> => {

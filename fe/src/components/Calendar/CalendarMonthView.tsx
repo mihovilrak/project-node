@@ -11,7 +11,7 @@ import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarDays } from '../../hooks/calendar/useCalendarDays';
 
-const CalendarMonthView: React.FC<CalendarViewProps> = ({ 
+const CalendarMonthView: React.FC<CalendarViewProps> = ({
   date,
   tasks,
   timeLogs,
@@ -22,7 +22,7 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
   const { getDaysInMonth } = useCalendarDays(date, tasks, timeLogs);
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} data-testid="month-grid">
       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
         <Grid item xs key={day}>
           <Typography variant="subtitle2" align="center" sx={{ mb: 1 }}>
@@ -67,11 +67,12 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
                     e.stopPropagation();
                     onTaskClick(task.id);
                   }}
-                  sx={{ 
-                    mb: 0.5, 
+                  sx={{
+                    mb: 0.5,
                     width: '100%',
                     backgroundColor: getPriorityColor(task.priority_name)
                   }}
+                  data-testid={`task-chip-${task.id}`}
                 />
               ))}
               {day.tasks.length > 3 && (

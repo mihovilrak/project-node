@@ -48,7 +48,7 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   const formatTime = (time: string | number): string => {
     const hours = typeof time === 'string' ? parseFloat(time) : time;
     if (isNaN(hours)) return '0h 0m';
-    
+
     const wholeHours = Math.floor(hours);
     const minutes = Math.round((hours - wholeHours) * 60);
     return `${wholeHours}h ${minutes}m`;

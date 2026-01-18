@@ -12,12 +12,12 @@ module.exports = {
     "^.+\\.(ts|tsx)$": ['ts-jest', {
       tsconfig: 'tsconfig.json',
       useESM: false
-    }]
+    }],
+    "^.+\\.(js|jsx|mjs|cjs|es\\.js)$": ['babel-jest', { rootMode: 'upward' }]
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(@mui|@emotion|mui-color-input|react-router-dom)/).+\\.js$"
+    "/node_modules/(?!(@mui|@emotion|mui-color-input|react-router-dom)).+"
   ],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.[tj]sx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  extensionsToTreatAsEsm: ['.ts', '.tsx']
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
 };

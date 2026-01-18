@@ -59,7 +59,7 @@ describe('useProjectDetails', () => {
   };
 
   const mockNavigate = jest.fn();
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);

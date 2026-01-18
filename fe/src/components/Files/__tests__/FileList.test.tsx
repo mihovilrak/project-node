@@ -52,7 +52,7 @@ describe('FileList', () => {
     renderFileList();
     expect(screen.getByText('test file.pdf')).toBeInTheDocument();
     const fileSizeElement = screen.getByTestId('file-size');
-    expect(fileSizeElement.textContent).toBe('0.98 MB');
+    expect(fileSizeElement.textContent).toBe('1000.6 KB');
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText(/Uploaded on:/)).toBeInTheDocument();
   });

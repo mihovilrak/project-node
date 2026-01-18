@@ -5,9 +5,9 @@ import { useHeader } from '../../hooks/layout/useHeader';
 
 const Header: React.FC = () => {
   const { currentUser, isScrolled } = useHeader();
-  
+
   return (
-    <AppBar 
+    <AppBar
       position="fixed"
       elevation={isScrolled ? 4 : 0}
     >

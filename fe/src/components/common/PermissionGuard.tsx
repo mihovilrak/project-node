@@ -16,7 +16,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     if (loadingComponent) {
       return loadingComponent;
     }
-    return (  
+    return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
         <Typography>Loading permissions...</Typography>
       </Box>

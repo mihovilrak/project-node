@@ -11,7 +11,7 @@ export const getRoles = async (): Promise<Role[]> => {
     throw error;
   }
 };
-  
+
 // Create role
 export const createRole = async (roleData: Partial<Role>): Promise<Role> => {
   try {
@@ -22,7 +22,7 @@ export const createRole = async (roleData: Partial<Role>): Promise<Role> => {
     throw error;
   }
 };
-  
+
 // Update role
 export const updateRole = async (id: number, roleData: Partial<Role>): Promise<Role> => {
   try {

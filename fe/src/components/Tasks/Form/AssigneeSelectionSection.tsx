@@ -8,20 +8,20 @@ export const AssigneeSelectionSection: React.FC<AssigneeSelectionSectionProps> =
   handleChange
 }) => (
   <>
-    <AssigneeSelect 
-      label="Holder" 
-      name="holder_id" 
-      projectMembers={projectMembers} 
-      formData={formData} 
-      handleChange={handleChange} 
+    <AssigneeSelect
+      label="Holder"
+      name="holder_id"
+      projectMembers={projectMembers}
+      formData={formData}
+      handleChange={handleChange}
     />
 
-    <AssigneeSelect 
-      label="Assignee" 
-      name="assignee_id" 
-      projectMembers={projectMembers} 
-      formData={formData} 
-      handleChange={handleChange} 
+    <AssigneeSelect
+      label="Assignee"
+      name="assignee_id"
+      projectMembers={projectMembers}
+      formData={formData}
+      handleChange={handleChange}
     />
   </>
 );

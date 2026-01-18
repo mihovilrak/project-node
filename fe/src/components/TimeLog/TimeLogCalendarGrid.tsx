@@ -27,7 +27,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
       {days.map(day => {
         const totalHours = getTotalHoursForDate(day, timeLogs);
         const logs = getTimeLogsForDate(day, timeLogs);
-        
+
         return (
           <Grid item xs={12/7} key={day.toString()} role="gridcell">
             <Tooltip title={
@@ -62,7 +62,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
                   size="small"
                   icon={<AccessTime />}
                   label={`${totalHours.toFixed(1)}h`}
-                  sx={{ 
+                  sx={{
                     position: 'absolute',
                     bottom: 4,
                     right: 4,

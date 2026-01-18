@@ -25,7 +25,7 @@ const onRenderCallback = (
 // Helper function to measure hook performance
 const measureHookPerformance = (useHook: Function, props: any = {}) => {
   let duration = 0;
-  
+
   const TestComponent = () => {
     const result = useHook(props);
     return null;
@@ -85,7 +85,7 @@ describe('Common Hooks Performance Tests', () => {
   describe('useFilterPanel Performance Tests', () => {
     const mockFilters: FilterValues = {};
     const mockOnFilterChange = jest.fn();
-    
+
     test('useFilterPanel initial render performance', () => {
       const renderTime = measureHookPerformance(useFilterPanel, [mockFilters, mockOnFilterChange]);
       expect(renderTime).toBeLessThan(100);
@@ -124,7 +124,7 @@ describe('Common Hooks Performance Tests', () => {
   describe('useDeleteConfirm Performance Tests', () => {
     const mockOnConfirm = jest.fn();
     const mockOnClose = jest.fn();
-    
+
     test('useDeleteConfirm initial render performance', () => {
       const renderTime = measureHookPerformance(useDeleteConfirm, [mockOnConfirm, mockOnClose]);
       expect(renderTime).toBeLessThan(100);

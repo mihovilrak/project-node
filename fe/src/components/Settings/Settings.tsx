@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Box,
   Paper,
@@ -12,9 +12,31 @@ import UserManager from './UserManager';
 import TypesAndRolesManager from './TypesAndRolesManager';
 import SystemSettings from './SystemSettings';
 
+// Memoize tab components to prevent unnecessary re-renders
+const MemoizedUserManager = React.memo(UserManager);
+const MemoizedTypesAndRolesManager = React.memo(TypesAndRolesManager);
+const MemoizedSystemSettings = React.memo(SystemSettings);
+
 const Settings: React.FC = () => {
   const { permissionsLoading } = useAuth();
   const [activeTab, setActiveTab] = React.useState<number>(0);
+
+  const handleTabChange = useCallback((_event: React.SyntheticEvent, newValue: number): void => {
+    setActiveTab(newValue);
+  }, []);
+
+  const activeTabContent = useMemo(() => {
+    switch (activeTab) {
+      case 0:
+        return <MemoizedUserManager />;
+      case 1:
+        return <MemoizedTypesAndRolesManager />;
+      case 2:
+        return <MemoizedSystemSettings />;
+      default:
+        return null;
+    }
+  }, [activeTab]);
 
   if (permissionsLoading) {
     return (
@@ -23,10 +45,6 @@ const Settings: React.FC = () => {
       </Box>
     );
   }
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number): void => {
-    setActiveTab(newValue);
-  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -42,9 +60,7 @@ const Settings: React.FC = () => {
         </Tabs>
       </Paper>
 
-      {activeTab === 0 && <UserManager />}
-      {activeTab === 1 && <TypesAndRolesManager />}
-      {activeTab === 2 && <SystemSettings />}
+      {activeTabContent}
     </Box>
   );
 };

@@ -76,12 +76,12 @@ describe('SystemSettings', () => {
 
   it('renders form with initial values', () => {
     const { container } = render(<SystemSettings />);
-    
+
     // Find inputs by name
     const appNameInput = container.querySelector('input[name="app_name"]');
     expect(appNameInput).toBeTruthy();
     expect(appNameInput).toHaveValue('Test App');
-    
+
     // Check that other inputs exist
     expect(container.querySelector('input[name="company_name"]')).toBeTruthy();
     expect(container.querySelector('input[name="sender_email"]')).toBeTruthy();
@@ -89,11 +89,11 @@ describe('SystemSettings', () => {
 
   it('handles form submission', () => {
     const { container } = render(<SystemSettings />);
-    
+
     // Find form using DOM query
     const form = container.querySelector('form');
     expect(form).toBeTruthy();
-    
+
     // Submit form and check handler was called
     fireEvent.submit(form!);
     expect(mockHandleSubmit).toHaveBeenCalled();
@@ -133,10 +133,10 @@ describe('SystemSettings', () => {
 
   it('renders the component with tabs', () => {
     const { container } = render(<SystemSettings />);
-    
+
     // Verify the SystemSettings component renders
     expect(screen.getByText(/System Settings/i)).toBeInTheDocument();
-    
+
     // Verify tabs exist by checking for tab elements
     const tabs = container.querySelectorAll('[role="tab"]');
     expect(tabs.length).toBeGreaterThan(0);
@@ -144,17 +144,17 @@ describe('SystemSettings', () => {
 
   it('handles theme change', () => {
     const { container } = render(<SystemSettings />);
-    
+
     // Find select by name attribute
     const inputs = container.querySelectorAll('input, select');
     const themeInput = Array.from(inputs).find(
       input => input.getAttribute('name') === 'theme'
     );
-    
+
     // Verify input exists and simulate change
     expect(themeInput).toBeTruthy();
     fireEvent.change(themeInput!, { target: { value: 'dark' } });
-    
+
     // Verify handler was called
     expect(mockHandleChange).toHaveBeenCalled();
   });
@@ -166,12 +166,12 @@ describe('SystemSettings', () => {
 
   it('calls submit handler even when fields are empty', () => {
     const { container } = render(<SystemSettings />);
-    
+
     // Find and clear app name input
     const appNameInput = container.querySelector('input[name="app_name"]');
     expect(appNameInput).toBeTruthy();
     fireEvent.change(appNameInput!, { target: { value: '' } });
-    
+
     // Submit form and verify handler was called
     const form = container.querySelector('form');
     expect(form).toBeTruthy();

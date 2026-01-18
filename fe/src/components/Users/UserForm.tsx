@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  TextField, 
-  Button, 
-  MenuItem, 
-  Box, 
-  Typography, 
+import {
+  TextField,
+  Button,
+  MenuItem,
+  Box,
+  Typography,
   Paper,
   Grid,
   Alert,
@@ -39,7 +39,7 @@ const UserForm: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           {isEditMode ? `Edit User ${formValues.name} ${formValues.surname}` : 'Add New User'}
         </Typography>
-        
+
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -89,7 +89,7 @@ const UserForm: React.FC = () => {
                 required
               />
             </Grid>
-            
+
             {isEditMode ? (
               <>
                 <Grid item xs={12}>

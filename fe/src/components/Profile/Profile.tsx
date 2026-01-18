@@ -19,11 +19,11 @@ import PasswordChangeDialog from './PasswordChangeDialog';
 import ProfileProjectList from './ProfileProjectList';
 
 const Profile: React.FC = () => {
-  const { 
-    profile, 
-    recentTasks, 
-    recentProjects, 
-    loading, 
+  const {
+    profile,
+    recentTasks,
+    recentProjects,
+    loading,
     error,
     editDialogOpen,
     passwordDialogOpen,
@@ -63,8 +63,8 @@ const Profile: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {updateSuccess && (
-        <Alert 
-          severity="success" 
+        <Alert
+          severity="success"
           sx={{ mb: 2 }}
           onClose={() => setUpdateSuccess(false)}
         >
@@ -90,7 +90,7 @@ const Profile: React.FC = () => {
       </Box>
 
       <ProfileHeader user={profile} />
-      
+
       <ProfileStats
         stats={stats}
         loading={loading}
@@ -99,8 +99,8 @@ const Profile: React.FC = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Paper elevation={1} sx={{ p: 3 }}>
-            <ProfileTaskList 
-              tasks={recentTasks} 
+            <ProfileTaskList
+              tasks={recentTasks}
               loading={loading}
               onTaskClick={handleTaskClick}
             />
@@ -108,7 +108,7 @@ const Profile: React.FC = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Paper elevation={1} sx={{ p: 3 }}>
-            <ProfileProjectList 
+            <ProfileProjectList
               projects={recentProjects}
               loading={loading}
             />

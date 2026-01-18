@@ -81,7 +81,7 @@ describe('TimeLogList', () => {
     renderComponent();
     const editButton = screen.getByRole('button', { name: /edit time log/i });
     expect(editButton).toBeInTheDocument();
-    
+
     fireEvent.click(editButton);
     expect(defaultProps.onEdit).toHaveBeenCalledWith(mockTimeLogs[0]);
   });
@@ -90,7 +90,7 @@ describe('TimeLogList', () => {
     renderComponent();
     const deleteButton = screen.getByRole('button', { name: /delete time log/i });
     expect(deleteButton).toBeInTheDocument();
-    
+
     fireEvent.click(deleteButton);
     expect(defaultProps.onDelete).toHaveBeenCalledWith(mockTimeLogs[0].id);
   });
@@ -100,7 +100,7 @@ describe('TimeLogList', () => {
       hasPermission: false,
       loading: false
     });
-    
+
     renderComponent();
     expect(screen.queryByRole('button', { name: /edit time log/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /delete time log/i })).toBeInTheDocument();

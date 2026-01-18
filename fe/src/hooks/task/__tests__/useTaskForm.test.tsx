@@ -1,12 +1,12 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskForm } from '../useTaskForm';
-import { 
-  getTaskById, 
-  createTask, 
-  updateTask, 
-  getTaskStatuses, 
+import {
+  getTaskById,
+  createTask,
+  updateTask,
+  getTaskStatuses,
   getPriorities,
-  changeTaskStatus 
+  changeTaskStatus
 } from '../../../api/tasks';
 import { getTaskTags, getTags } from '../../../api/tags';
 import { Task, TaskStatus, TaskPriority } from '../../../types/task';
@@ -56,7 +56,7 @@ jest.mock('../../../api/tags');
 
 describe('useTaskForm', () => {
   const currentUserId = 1;
-  
+
   const mockTask: Task = {
     id: 1,
     name: 'Test Task',
@@ -87,18 +87,18 @@ describe('useTaskForm', () => {
   };
 
   const mockStatuses: TaskStatus[] = [
-    { 
-      id: 1, 
-      name: 'To Do', 
+    {
+      id: 1,
+      name: 'To Do',
       color: '#000000',
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null
     },
-    { 
-      id: 2, 
-      name: 'In Progress', 
+    {
+      id: 2,
+      name: 'In Progress',
       color: '#0000FF',
       description: null,
       active: true,
@@ -108,8 +108,8 @@ describe('useTaskForm', () => {
   ];
 
   const mockPriorities: TaskPriority[] = [
-    { 
-      id: 1, 
+    {
+      id: 1,
       name: 'Low',
       color: '#00FF00',
       description: null,
@@ -117,8 +117,8 @@ describe('useTaskForm', () => {
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       name: 'Medium',
       color: '#FFFF00',
       description: null,
@@ -129,8 +129,8 @@ describe('useTaskForm', () => {
   ];
 
   const mockTags: Tag[] = [
-    { 
-      id: 1, 
+    {
+      id: 1,
       name: 'Frontend',
       color: '#FF0000',
       description: null,
@@ -138,8 +138,8 @@ describe('useTaskForm', () => {
       created_on: '2024-01-25T00:00:00Z',
       created_by: 1
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       name: 'Backend',
       color: '#00FF00',
       description: null,
@@ -159,7 +159,7 @@ describe('useTaskForm', () => {
   });
 
   it('should initialize with default values for new task', async () => {
-    const { result } = renderHook(() => useTaskForm({ 
+    const { result } = renderHook(() => useTaskForm({
       currentUserId,
       projectId: undefined,
       projectIdFromQuery: null,
@@ -220,7 +220,7 @@ describe('useTaskForm', () => {
   });
 
   it('should handle form field changes', async () => {
-    const { result } = renderHook(() => useTaskForm({ 
+    const { result } = renderHook(() => useTaskForm({
       currentUserId,
       projectId: undefined,
       projectIdFromQuery: null,
@@ -240,7 +240,7 @@ describe('useTaskForm', () => {
     const newTask = { ...mockTask, id: 2 };
     (createTask as jest.Mock).mockResolvedValue(newTask);
 
-    const { result } = renderHook(() => useTaskForm({ 
+    const { result } = renderHook(() => useTaskForm({
       currentUserId,
       projectId: undefined,
       projectIdFromQuery: null,

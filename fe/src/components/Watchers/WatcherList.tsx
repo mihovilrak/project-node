@@ -47,12 +47,12 @@ const WatcherList: React.FC<WatcherListProps> = ({
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 3,
-        px: 2 
+        px: 2
       }}>
         <Typography variant="h5" component="h2">
           Watchers:
@@ -72,7 +72,7 @@ const WatcherList: React.FC<WatcherListProps> = ({
       <List sx={{ py: 1 }}>
         {watchers.map((watcher) => (
           <ListItem key={watcher.user_id} sx={{ py: 1 }}>
-            <ListItemText 
+            <ListItemText
               primary={<Link
                         component={RouterLink}
                         to={`/users/${watcher.user_id}`}

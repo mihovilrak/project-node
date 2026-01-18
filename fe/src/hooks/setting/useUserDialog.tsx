@@ -80,7 +80,7 @@ export const useUserDialog = (
         if (formData.email !== user.email) updates.email = formData.email;
         if (formData.password) updates.password = formData.password;
         if (formData.role_id !== user.role_id) updates.role_id = formData.role_id;
-        
+
         savedUser = await updateUser(user.id, updates);
       } else {
         savedUser = await createUser(formData as UserCreate);

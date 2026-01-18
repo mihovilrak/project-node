@@ -28,24 +28,24 @@ const TaskFiles: React.FC<TaskFilesProps> = ({ taskId, onFileUploaded, onFileDel
 
   return (
     <Paper sx={{ mt: 3, p: 3 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 3 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        mb: 3
       }}>
         <Typography variant="h6" gutterBottom>
           Files ({files.length})
         </Typography>
-        
-        <FileUpload 
-          taskId={taskId} 
-          onFileUploaded={handleFileUploaded} 
+
+        <FileUpload
+          taskId={taskId}
+          onFileUploaded={handleFileUploaded}
         />
       </Box>
-      
-      <FileList 
-        files={files} 
+
+      <FileList
+        files={files}
         taskId={taskId}
         onFileDeleted={handleFileDeleted}
       />

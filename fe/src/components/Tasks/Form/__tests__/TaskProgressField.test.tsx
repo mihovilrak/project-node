@@ -25,9 +25,9 @@ describe('TaskProgressField', () => {
   it('calls handleChange when value changes', () => {
     render(<TaskProgressField {...defaultProps} />);
     const input = screen.getByLabelText('Progress (%)');
-    
+
     fireEvent.change(input, { target: { value: '75' } });
-    
+
     expect(defaultProps.handleChange).toHaveBeenCalled();
     expect(defaultProps.handleChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -42,7 +42,7 @@ describe('TaskProgressField', () => {
   it('enforces min and max constraints', () => {
     render(<TaskProgressField {...defaultProps} />);
     const input = screen.getByLabelText('Progress (%)');
-    
+
     expect(input).toHaveAttribute('min', '0');
     expect(input).toHaveAttribute('max', '100');
     expect(input).toHaveAttribute('step', '1');

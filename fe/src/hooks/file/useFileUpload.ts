@@ -15,7 +15,7 @@ export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) =
     try {
       setUploading(true);
       setError(null);
-      
+
       const formData = new FormData();
       formData.append('file', selectedFile);
 
@@ -30,7 +30,7 @@ export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) =
       if (response) {
         onFileUploaded(response);
       }
-      
+
       setProgress(0);
       event.target.value = '';
     } catch (err) {

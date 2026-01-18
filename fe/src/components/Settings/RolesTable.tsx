@@ -16,10 +16,10 @@ import {
 import { Edit as EditIcon } from '@mui/icons-material';
 import { RolesTableProps } from '../../types/role';
 
-const RolesTable: React.FC<RolesTableProps> = ({ 
-  roles, 
+const RolesTable: React.FC<RolesTableProps> = ({
+  roles,
   onEdit,
-  loading 
+  loading
 }) => {
   if (loading) {
     return (

@@ -131,7 +131,7 @@ describe('TaskCommentSection', () => {
       editingComment: mockComments[0]
     };
     renderComponent(propsWithEditingComment);
-    
+
     expect(screen.getByTestId('edit-dialog')).toBeInTheDocument();
   });
 
@@ -141,7 +141,7 @@ describe('TaskCommentSection', () => {
       editingComment: mockComments[0]
     };
     renderComponent(propsWithEditingComment);
-    
+
     const closeButton = screen.getByText('Close');
     fireEvent.click(closeButton);
 
@@ -154,7 +154,7 @@ describe('TaskCommentSection', () => {
       editingComment: mockComments[0]
     };
     renderComponent(propsWithEditingComment);
-    
+
     const saveButton = screen.getByText('Save');
     fireEvent.click(saveButton);
 
@@ -164,7 +164,7 @@ describe('TaskCommentSection', () => {
   test('passes correct props to CommentList', () => {
     renderComponent();
     const commentList = screen.getByTestId('comment-list');
-    
+
     expect(commentList).toBeInTheDocument();
     mockComments.forEach(comment => {
       expect(screen.getByTestId(`comment-${comment.id}`)).toHaveTextContent(comment.comment);

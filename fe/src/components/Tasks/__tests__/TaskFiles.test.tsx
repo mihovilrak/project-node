@@ -9,10 +9,10 @@ jest.mock('../../../hooks/task/useTaskFiles');
 jest.mock('../../Files/FileUpload', () => ({
   __esModule: true,
   default: ({ onFileUploaded }: { onFileUploaded: (file: TaskFile) => void }) => (
-    <button 
-      onClick={() => onFileUploaded({ 
-        id: 1, 
-        task_id: 1, 
+    <button
+      onClick={() => onFileUploaded({
+        id: 1,
+        task_id: 1,
         name: 'test.txt',
         original_name: 'test.txt',
         mime_type: 'text/plain',
@@ -80,10 +80,10 @@ describe('TaskFiles', () => {
 
   it('renders correctly with files', () => {
     render(
-      <TaskFiles 
-        taskId={1} 
-        onFileUploaded={jest.fn()} 
-        onFileDeleted={jest.fn()} 
+      <TaskFiles
+        taskId={1}
+        onFileUploaded={jest.fn()}
+        onFileDeleted={jest.fn()}
       />
     );
 
@@ -95,10 +95,10 @@ describe('TaskFiles', () => {
   it('handles file upload correctly', async () => {
     const onFileUploaded = jest.fn();
     render(
-      <TaskFiles 
-        taskId={1} 
-        onFileUploaded={onFileUploaded} 
-        onFileDeleted={jest.fn()} 
+      <TaskFiles
+        taskId={1}
+        onFileUploaded={onFileUploaded}
+        onFileDeleted={jest.fn()}
       />
     );
 
@@ -117,10 +117,10 @@ describe('TaskFiles', () => {
   it('handles file deletion correctly', async () => {
     const onFileDeleted = jest.fn();
     render(
-      <TaskFiles 
-        taskId={1} 
-        onFileUploaded={jest.fn()} 
-        onFileDeleted={onFileDeleted} 
+      <TaskFiles
+        taskId={1}
+        onFileUploaded={jest.fn()}
+        onFileDeleted={onFileDeleted}
       />
     );
 
@@ -140,10 +140,10 @@ describe('TaskFiles', () => {
     });
 
     render(
-      <TaskFiles 
-        taskId={1} 
-        onFileUploaded={jest.fn()} 
-        onFileDeleted={jest.fn()} 
+      <TaskFiles
+        taskId={1}
+        onFileUploaded={jest.fn()}
+        onFileDeleted={jest.fn()}
       />
     );
 
@@ -153,10 +153,10 @@ describe('TaskFiles', () => {
   it('passes correct props to child components', () => {
     const taskId = 1;
     render(
-      <TaskFiles 
-        taskId={taskId} 
-        onFileUploaded={jest.fn()} 
-        onFileDeleted={jest.fn()} 
+      <TaskFiles
+        taskId={taskId}
+        onFileUploaded={jest.fn()}
+        onFileDeleted={jest.fn()}
       />
     );
 

@@ -11,10 +11,10 @@ import {
 import { DeleteConfirmDialogProps } from '../../types/common';
 import { useDeleteConfirm } from '../../hooks/common/useDeleteConfirm';
 
-const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({ 
-  open, 
-  title = 'Confirm Delete', 
-  content = 'Are you sure you want to delete this item?', 
+const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
+  open,
+  title = 'Confirm Delete',
+  content = 'Are you sure you want to delete this item?',
   onClose,
   onConfirm
 }) => {
@@ -39,9 +39,9 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
         <Button onClick={onClose} disabled={isDeleting}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleConfirm} 
-          color="error" 
+        <Button
+          onClick={handleConfirm}
+          color="error"
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={20} /> : null}
         >

@@ -21,7 +21,7 @@ const TaskCommentSection: React.FC<TaskCommentSectionProps> = ({
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
-      <CommentForm 
+      <CommentForm
         taskId={taskId}
         onCommentAdded={handleCommentAdded}
       />

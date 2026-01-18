@@ -32,13 +32,13 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
 }) => (
   <Grid item xs={12} md={8}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 3,
         px: 2,
-        py: 1 
+        py: 1
       }}>
         <Typography variant="h5" component="h2">
           Subtasks:
@@ -60,11 +60,11 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onSubtaskUpdated={onSubtaskUpdated}
       />
     </Paper>
-    
+
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         mb: 3,
         px: 2,
@@ -96,9 +96,9 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
     </Paper>
 
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         mb: 3,
         px: 2,

@@ -72,7 +72,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockTaskType}
       />
     );
-    
+
     expect(screen.getByTestId('mock-task-type-dialog')).toBeInTheDocument();
     expect(screen.queryByTestId('mock-activity-type-dialog')).not.toBeInTheDocument();
     expect(screen.queryByTestId('mock-role-dialog')).not.toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockActivityType}
       />
     );
-    
+
     expect(screen.queryByTestId('mock-task-type-dialog')).not.toBeInTheDocument();
     expect(screen.getByTestId('mock-activity-type-dialog')).toBeInTheDocument();
     expect(screen.queryByTestId('mock-role-dialog')).not.toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockRole}
       />
     );
-    
+
     expect(screen.queryByTestId('mock-task-type-dialog')).not.toBeInTheDocument();
     expect(screen.queryByTestId('mock-activity-type-dialog')).not.toBeInTheDocument();
     expect(screen.getByTestId('mock-role-dialog')).toBeInTheDocument();
@@ -113,14 +113,14 @@ describe('TypesAndRolesDialog', () => {
         activeTab={999}
       />
     );
-    
+
     expect(container.firstChild).toBeNull();
   });
 
   it('passes correct props to TaskTypeDialog', () => {
     const onClose = jest.fn();
     const onSave = jest.fn();
-    
+
     render(
       <TypesAndRolesDialog
         activeTab={0}
@@ -138,7 +138,7 @@ describe('TypesAndRolesDialog', () => {
   it('passes correct props to ActivityTypeDialog', () => {
     const onClose = jest.fn();
     const onSave = jest.fn();
-    
+
     render(
       <TypesAndRolesDialog
         activeTab={1}
@@ -156,7 +156,7 @@ describe('TypesAndRolesDialog', () => {
   it('passes correct props to RoleDialog', () => {
     const onClose = jest.fn();
     const onSave = jest.fn();
-    
+
     render(
       <TypesAndRolesDialog
         activeTab={2}

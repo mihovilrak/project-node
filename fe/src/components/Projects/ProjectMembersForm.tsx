@@ -27,16 +27,16 @@ const ProjectMembersForm: React.FC<ProjectMembersFormProps> = ({
         </Typography>
       )}
       <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button 
-          onClick={onBack} 
+        <Button
+          onClick={onBack}
           color="inherit"
           data-testid="back-button"
         >
           Back
         </Button>
-        <Button 
-          onClick={onSubmit} 
-          variant="contained" 
+        <Button
+          onClick={onSubmit}
+          variant="contained"
           color="primary"
           data-testid="create-project-button"
         >

@@ -134,7 +134,7 @@ const TaskDetails: React.FC = () => {
         canEdit={true}
         canDelete={true}
       />
-      
+
       <TaskDetailsContent
         id={id!}
         task={task}
@@ -185,7 +185,7 @@ const TaskDetails: React.FC = () => {
           selectedTimeLog: null
         }))}
       />
-      
+
       <TaskDetailsSidebar
         id={id!}
         projectId={task.project_id}

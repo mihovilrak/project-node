@@ -94,7 +94,7 @@ describe('Profile', () => {
       ...mockUseProfileData,
       loading: true
     });
-    
+
     render(<Profile />);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
@@ -106,7 +106,7 @@ describe('Profile', () => {
       loading: false,
       error: 'Error message'
     });
-    
+
     render(<Profile />);
     expect(screen.getByRole('alert')).toHaveTextContent('Error message');
   });
@@ -139,7 +139,7 @@ describe('Profile', () => {
       ...mockUseProfileData,
       updateSuccess: true
     });
-    
+
     render(<Profile />);
     expect(screen.getByText('Profile updated successfully')).toBeInTheDocument();
   });
@@ -150,7 +150,7 @@ describe('Profile', () => {
       ...mockUseProfileData,
       updateSuccess: true
     });
-    
+
     render(<Profile />);
     const closeButton = screen.getByRole('button', { name: /close/i });
     fireEvent.click(closeButton);

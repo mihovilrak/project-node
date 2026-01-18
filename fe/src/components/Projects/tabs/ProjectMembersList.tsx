@@ -39,14 +39,14 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
       // Remove users that are no longer selected
       const removedUsers = members
         .filter(member => !selectedUsers.includes(member.user_id));
-      
+
       // Add new users
       const newUsers = selectedUsers
         .filter(userId => !members.find(member => member.user_id === userId));
 
       // Process removals
       await Promise.all(
-        removedUsers.map(member => 
+        removedUsers.map(member =>
           removeProjectMember(projectId, member.user_id)
           .then(() => onMemberRemove(member.user_id))
         )
@@ -54,7 +54,7 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
 
       // Process additions
       await Promise.all(
-        newUsers.map(userId => 
+        newUsers.map(userId =>
           addProjectMember(projectId, userId)
         )
       );
@@ -77,7 +77,7 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
   return (
     <>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      
+
       {canManageMembers && (
         <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
           <Button
@@ -97,8 +97,8 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
             key={member.user_id}
             secondaryAction={
               canManageMembers && (
-                <IconButton 
-                  edge="end" 
+                <IconButton
+                  edge="end"
                   onClick={() => onMemberRemove(member.user_id)}
                   aria-label="delete"
                 >

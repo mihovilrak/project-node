@@ -29,9 +29,9 @@ const TaskFileSection: React.FC<TaskFileSectionProps> = ({
 
   return (
     <Paper sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         mb: 2
       }}>
@@ -43,9 +43,9 @@ const TaskFileSection: React.FC<TaskFileSectionProps> = ({
           onFileUploaded={handleFileUploaded}
         />
       </Box>
-      
+
       <Divider sx={{ my: 2 }} />
-      
+
       <Box sx={{ mt: 2 }}>
         <FileList
           files={files}

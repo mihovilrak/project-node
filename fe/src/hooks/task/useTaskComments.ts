@@ -28,7 +28,7 @@ export const useTaskComments = (taskId: string) => {
   const handleCommentSubmit = async (content: string) => {
     try {
       if (!currentUser?.id) throw new Error('User not authenticated');
-      
+
       const newComment = await createComment(Number(taskId), {
         comment: content
       });
@@ -43,11 +43,11 @@ export const useTaskComments = (taskId: string) => {
 
   const handleCommentUpdate = async (commentId: number, newText: string) => {
     try {
-      const updatedComment = await editComment(commentId, Number(taskId), { 
-        comment: newText 
+      const updatedComment = await editComment(commentId, Number(taskId), {
+        comment: newText
       });
 
-      setComments(prev => prev.map(c => 
+      setComments(prev => prev.map(c =>
         c.id === commentId ? updatedComment : c
       ));
       return updatedComment;

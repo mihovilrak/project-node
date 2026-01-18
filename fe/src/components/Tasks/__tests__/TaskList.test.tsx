@@ -161,9 +161,11 @@ describe('TaskList Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    // Find all PermissionButtons with 'Edit' as children
-    const editButtons = await screen.findAllByRole('button', { name: 'Edit' });
-    fireEvent.click(editButtons[0]);
+    // Find Edit buttons by text content (PermissionButton uses aria-label for tooltip, not button name)
+    const editButtonTexts = await screen.findAllByText('Edit');
+    // Click the button element (the text's parent)
+    const editButton = editButtonTexts[0].closest('button')!;
+    fireEvent.click(editButton);
 
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1/edit');
   });
@@ -171,7 +173,7 @@ describe('TaskList Component', () => {
   test('displays error handling when API call fails', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetTasks.mockRejectedValue(new Error('API Error'));
-    
+
     renderTaskList();
 
     await waitFor(() => {
@@ -200,7 +202,7 @@ describe('TaskList Component', () => {
   test('handles tasks with no due date', async () => {
     const tasksWithNoDueDate = [{ ...mockTasks[0], due_date: null }];
     mockedGetTasks.mockResolvedValue(tasksWithNoDueDate);
-    
+
     renderTaskList();
 
     await waitFor(() => {
@@ -211,7 +213,7 @@ describe('TaskList Component', () => {
   test('handles tasks with no assignee', async () => {
     const tasksWithNoAssignee = [{ ...mockTasks[0], assignee_name: '' }];
     mockedGetTasks.mockResolvedValue(tasksWithNoAssignee);
-    
+
     renderTaskList();
 
     await waitFor(() => {

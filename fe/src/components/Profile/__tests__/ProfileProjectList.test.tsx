@@ -65,18 +65,18 @@ describe('ProfileProjectList', () => {
 
   it('should render project details correctly', () => {
     render(<ProfileProjectList projects={mockProjects} loading={false} />);
-    
+
     // Use more flexible date text matching
     const listItems = screen.getAllByRole('listitem');
-    
+
     // Check first project
     const firstItem = listItems[0];
     expect(within(firstItem).getByText(/due:/i)).toBeInTheDocument();
-    
+
     // Check second project
     const secondItem = listItems[1];
     expect(within(secondItem).getByText(/due:/i)).toBeInTheDocument();
-    
+
     // Check for progress bars by test id
     const progressBars = screen.getAllByTestId('project-progress');
     expect(progressBars).toHaveLength(2);

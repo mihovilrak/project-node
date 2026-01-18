@@ -114,12 +114,12 @@ describe('ProjectEditDialog', () => {
       due_date: '2023-12-31T00:00:00'
     };
     (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
-    
+
     render(<ProjectEditDialog {...defaultProps} />);
-    
+
     const saveButton = screen.getByText('Save Changes');
     fireEvent.click(saveButton);
-    
+
     await waitFor(() => {
       expect(updateProject).toHaveBeenCalledWith(
         mockProject.id,
@@ -130,10 +130,10 @@ describe('ProjectEditDialog', () => {
       );
     });
   });
-  
+
   it('prevents submission with invalid dates', () => {
     jest.clearAllMocks();
-    
+
     const invalidDateProps = {
       ...defaultProps,
       project: {
@@ -142,19 +142,19 @@ describe('ProjectEditDialog', () => {
         due_date: '2023-12-31T00:00:00'
       }
     };
-    
+
     render(<ProjectEditDialog {...invalidDateProps} />);
-    
+
     const saveButton = screen.getByText('Save Changes');
     fireEvent.click(saveButton);
-    
+
     expect(updateProject).toHaveBeenCalledTimes(1);
   });
 
   it('updates status correctly', async () => {
     const updatedProject = { ...mockProject, status_id: 2, status_name: 'On Hold' };
     (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
-    
+
     const customProps = {
       ...defaultProps,
       project: {
@@ -162,12 +162,12 @@ describe('ProjectEditDialog', () => {
         status_id: 2
       }
     };
-    
+
     render(<ProjectEditDialog {...customProps} />);
-    
+
     const saveButton = screen.getByText('Save Changes');
     fireEvent.click(saveButton);
-    
+
     await waitFor(() => {
       expect(updateProject).toHaveBeenCalledWith(
         mockProject.id,

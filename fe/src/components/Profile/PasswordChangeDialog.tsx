@@ -111,9 +111,9 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} data-testid="cancel-button">Cancel</Button>
-          <Button 
-            type="submit" 
-            variant="contained" 
+          <Button
+            type="submit"
+            variant="contained"
             disabled={loading}
             data-testid="submit-button"
           >

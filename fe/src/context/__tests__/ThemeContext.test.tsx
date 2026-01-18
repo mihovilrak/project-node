@@ -26,7 +26,7 @@ describe('ThemeContext', () => {
 
   beforeEach(() => {
     localStorageMock = {};
-    
+
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: jest.fn(key => localStorageMock[key]),

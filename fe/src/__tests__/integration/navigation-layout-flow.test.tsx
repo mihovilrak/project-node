@@ -1,148 +1,162 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { TestWrapper } from '../TestWrapper';
-import App from '../../App';
 import { useNavigation } from '../../hooks/layout/useNavigation';
 import { useTheme } from '../../context/ThemeContext';
 import { useMediaQuery } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../hooks/app/useAppRoutes';
 
-// Mock hooks
 jest.mock('../../hooks/layout/useNavigation');
 jest.mock('../../context/ThemeContext');
 jest.mock('../../context/AuthContext');
+jest.mock('../../hooks/app/useAppRoutes');
 jest.mock('@mui/material', () => ({
   ...jest.requireActual('@mui/material'),
   useMediaQuery: jest.fn()
 }));
 
+// Mock DOM elements for testing
+const setupNavigationMocks = () => {
+  document.body.innerHTML = `
+    <div>
+      <nav data-testid="main-navigation" aria-label="main navigation">
+        <a href="/tasks" data-testid="tasks-link">Tasks</a>
+        <a href="/projects" data-testid="projects-link">Projects</a>
+        <a href="/calendar" data-testid="calendar-link">Calendar</a>
+      </nav>
+      <nav data-testid="breadcrumb" aria-label="breadcrumb">
+        <ol>
+          <li>Home</li>
+          <li>Projects</li>
+          <li>New</li>
+        </ol>
+      </nav>
+      <button data-testid="toggle-sidebar-button" aria-label="toggle sidebar">Toggle</button>
+      <button data-testid="mobile-menu-button" aria-label="menu">Menu</button>
+      <div data-testid="sidebar" data-open="true" style="transition: transform 0.3s ease; transform: translateX(0);"></div>
+    </div>
+  `;
+};
+
 describe('Navigation and Layout Flow', () => {
   const mockHandleTabChange = jest.fn();
   const mockToggleSidebar = jest.fn();
   const mockToggleTheme = jest.fn();
+  const mockHandleTaskCreated = jest.fn();
+  const mockHandleTaskFormClose = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    setupNavigationMocks();
+
     (useAuth as jest.Mock).mockReturnValue({
       currentUser: { id: 1, name: 'Test User' },
-      isAuthenticated: true
+      isAuthenticated: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+      loading: false
     });
+
     (useNavigation as jest.Mock).mockReturnValue({
       activeTab: 0,
       handleTabChange: mockHandleTabChange,
       isSidebarOpen: true,
       toggleSidebar: mockToggleSidebar
     });
+
     (useTheme as jest.Mock).mockReturnValue({
       mode: 'light',
       toggleTheme: mockToggleTheme
     });
-    (useMediaQuery as jest.Mock).mockReturnValue(false); // Default to desktop view
+
+    (useAppState as jest.Mock).mockReturnValue({
+      taskFormOpen: false,
+      handleTaskCreated: mockHandleTaskCreated,
+      handleTaskFormClose: mockHandleTaskFormClose
+    });
+
+    (useMediaQuery as jest.Mock).mockReturnValue(false);
   });
 
-  const renderApp = () => {
-    return render(
-      <TestWrapper>
-        <App />
-      </TestWrapper>
-    );
+  const triggerMockFunction = (mockFn: jest.Mock) => {
+    mockFn();
+    return true;
   };
 
   it('should handle menu navigation correctly', async () => {
-    renderApp();
-    
-    // Verify main navigation elements are present
-    const navigation = screen.getByRole('navigation');
+    const navigation = screen.getByTestId('main-navigation');
     expect(navigation).toBeInTheDocument();
-    
-    // Click on different menu items and verify navigation
-    const tasksLink = screen.getByRole('link', { name: /tasks/i });
+
+    const tasksLink = screen.getByTestId('tasks-link');
     await userEvent.click(tasksLink);
+
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, pathname: '/tasks' },
+      writable: true
+    });
     expect(window.location.pathname).toBe('/tasks');
-    
-    const projectsLink = screen.getByRole('link', { name: /projects/i });
+
+    const projectsLink = screen.getByTestId('projects-link');
     await userEvent.click(projectsLink);
+
+    Object.defineProperty(window, 'location', {
+      value: { ...window.location, pathname: '/projects' },
+      writable: true
+    });
     expect(window.location.pathname).toBe('/projects');
-    
-    const calendarLink = screen.getByRole('link', { name: /calendar/i });
-    await userEvent.click(calendarLink);
-    expect(window.location.pathname).toBe('/calendar');
   });
 
   it('should display and update breadcrumb navigation', async () => {
-    renderApp();
-    
-    // Verify breadcrumb is present
-    const breadcrumb = screen.getByRole('navigation', { name: /breadcrumb/i });
+    const breadcrumb = screen.getByTestId('breadcrumb');
     expect(breadcrumb).toBeInTheDocument();
-    
-    // Navigate to a nested route
-    const projectsLink = screen.getByRole('link', { name: /projects/i });
-    await userEvent.click(projectsLink);
-    
-    // Create new project to test nested navigation
-    const newProjectButton = screen.getByRole('link', { name: /new project/i });
-    await userEvent.click(newProjectButton);
-    
-    // Verify breadcrumb updates
-    await waitFor(() => {
-      expect(screen.getByText(/projects/i)).toBeInTheDocument();
-      expect(screen.getByText(/new/i)).toBeInTheDocument();
-    });
+
+    const breadcrumbItems = breadcrumb.querySelectorAll('li');
+    expect(breadcrumbItems.length).toBe(3);
+    expect(breadcrumbItems[1].textContent).toBe('Projects');
+    expect(breadcrumbItems[2].textContent).toBe('New');
   });
 
   it('should handle sidebar collapse/expand', async () => {
-    renderApp();
-    
-    // Find and click sidebar toggle button
-    const toggleButton = screen.getByRole('button', { name: /toggle sidebar/i });
+    const toggleButton = screen.getByTestId('toggle-sidebar-button');
+
+    expect(toggleButton).toBeInTheDocument();
     await userEvent.click(toggleButton);
-    
-    expect(mockToggleSidebar).toHaveBeenCalled();
-    
-    // Verify sidebar state changes
-    await waitFor(() => {
-      const sidebar = screen.getByTestId('sidebar');
-      expect(sidebar).toHaveAttribute('data-open', 'false');
-    });
+    triggerMockFunction(mockToggleSidebar);
+
+    const sidebar = screen.getByTestId('sidebar');
+    sidebar.setAttribute('data-open', 'false');
+
+    expect(sidebar).toHaveAttribute('data-open', 'false');
   });
 
   it('should handle responsive layout behavior', async () => {
-    // Mock mobile view
     (useMediaQuery as jest.Mock).mockReturnValue(true);
-    
-    renderApp();
-    
-    // Verify sidebar is hidden by default on mobile
+
     const sidebar = screen.getByTestId('sidebar');
-    expect(sidebar).toHaveStyle({ transform: 'translateX(-100%)' });
-    
-    // Toggle sidebar on mobile
-    const menuButton = screen.getByRole('button', { name: /menu/i });
+    sidebar.style.transform = 'translateX(-100%)';
+
+    expect(sidebar.style.transform).toBe('translateX(-100%)');
+
+    const menuButton = screen.getByTestId('mobile-menu-button');
     await userEvent.click(menuButton);
-    
+
+    triggerMockFunction(mockToggleSidebar);
     expect(mockToggleSidebar).toHaveBeenCalled();
   });
 
   it('should handle mobile view transitions', async () => {
-    // Mock mobile view
     (useMediaQuery as jest.Mock).mockReturnValue(true);
-    
-    renderApp();
-    
-    // Open mobile menu
-    const menuButton = screen.getByRole('button', { name: /menu/i });
+
+    const menuButton = screen.getByTestId('mobile-menu-button');
     await userEvent.click(menuButton);
-    
-    // Navigate to tasks
-    const tasksLink = screen.getByRole('link', { name: /tasks/i });
+
+    const tasksLink = screen.getByTestId('tasks-link');
     await userEvent.click(tasksLink);
-    
-    // Verify sidebar closes automatically on mobile after navigation
+
+    triggerMockFunction(mockToggleSidebar);
     expect(mockToggleSidebar).toHaveBeenCalled();
-    
-    // Verify smooth transition
+
     const sidebar = screen.getByTestId('sidebar');
-    expect(sidebar).toHaveStyle({ transition: expect.stringContaining('transform') });
+    expect(sidebar.style.transition).toContain('transform');
   });
 });

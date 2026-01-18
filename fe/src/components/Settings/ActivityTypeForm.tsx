@@ -33,9 +33,9 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
     <FormControl fullWidth margin="normal">
       <InputLabel shrink>Icon</InputLabel>
       <Box mt={2}>
-        <IconButton 
+        <IconButton
           onClick={handleOpen}
-          sx={{ 
+          sx={{
             border: '1px dashed grey',
             borderRadius: 1,
             width: '100%',
@@ -57,7 +57,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
                     handleSelect(iconName);
                     onChange(iconName);
                   }}
-                  sx={{ 
+                  sx={{
                     border: value === iconName ? '2px solid primary.main' : 'none',
                     borderRadius: 1
                   }}

@@ -76,9 +76,9 @@ describe('TaskTagsSection', () => {
     render(<TaskTagsSection {...defaultProps} />);
     const tagSelectProps = (TagSelect as jest.Mock).mock.calls[0][0];
     const newTags = [{ ...mockTag, id: 2 }];
-    
+
     tagSelectProps.onTagsChange(newTags);
-    
+
     expect(defaultProps.handleChange).toHaveBeenCalledWith({
       target: {
         name: 'tags',

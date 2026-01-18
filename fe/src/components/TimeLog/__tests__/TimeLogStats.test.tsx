@@ -51,7 +51,7 @@ describe('TimeLogStats', () => {
       ...mockTimeLogs[0],
       spent_time: 2.5 // 2 hours 30 minutes
     }];
-    
+
     renderTimeLogStats(numberTimeLogs);
     expect(screen.getByText('2h 30m')).toBeInTheDocument();
   });
@@ -61,7 +61,7 @@ describe('TimeLogStats', () => {
       ...mockTimeLogs[0],
       spent_time: 1.75
     }];
-    
+
     renderTimeLogStats(stringTimeLogs);
     expect(screen.getByText('1h 45m')).toBeInTheDocument();
   });
@@ -76,7 +76,7 @@ describe('TimeLogStats', () => {
       ...mockTimeLogs[0],
       spent_time: Number('invalid')
     }];
-    
+
     renderTimeLogStats(invalidTimeLogs);
     expect(screen.getByText('0h 0m')).toBeInTheDocument();
   });
@@ -86,7 +86,7 @@ describe('TimeLogStats', () => {
       ...mockTimeLogs[0],
       spent_time: 1.99
     }];
-    
+
     renderTimeLogStats(roundingTimeLogs);
     expect(screen.getByText('1h 59m')).toBeInTheDocument();
   });
@@ -96,7 +96,7 @@ describe('TimeLogStats', () => {
       ...mockTimeLogs[0],
       spent_time: null as any
     }];
-    
+
     renderTimeLogStats(nullTimeLogs);
     expect(screen.getByText('0h 0m')).toBeInTheDocument();
   });

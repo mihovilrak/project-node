@@ -163,7 +163,7 @@ describe('TaskDetailsContent', () => {
 
   it('renders all sections correctly', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     expect(screen.getByText('Subtasks:')).toBeInTheDocument();
     expect(screen.getByText('Time Logs:')).toBeInTheDocument();
     expect(screen.getByText('Comments:')).toBeInTheDocument();
@@ -173,10 +173,10 @@ describe('TaskDetailsContent', () => {
 
   it('handles subtask interactions correctly', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     const subtaskList = screen.getByTestId('subtask-list');
     expect(subtaskList).toBeInTheDocument();
-    
+
     mockSubtasks.forEach(subtask => {
       expect(screen.getByTestId(`subtask-${subtask.id}`)).toBeInTheDocument();
     });
@@ -184,10 +184,10 @@ describe('TaskDetailsContent', () => {
 
   it('handles time log interactions correctly', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     const timeLogging = screen.getByTestId('time-logging');
     expect(timeLogging).toBeInTheDocument();
-    
+
     mockTimeLogs.forEach(log => {
       expect(screen.getByTestId(`time-log-${log.id}`)).toBeInTheDocument();
     });
@@ -195,10 +195,10 @@ describe('TaskDetailsContent', () => {
 
   it('handles comment interactions correctly', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     const commentSection = screen.getByTestId('comment-section');
     expect(commentSection).toBeInTheDocument();
-    
+
     mockComments.forEach(comment => {
       expect(screen.getByTestId(`comment-${comment.id}`)).toBeInTheDocument();
     });
@@ -206,31 +206,31 @@ describe('TaskDetailsContent', () => {
 
   it('calls onAddSubtaskClick when Add Subtask button is clicked', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     const addSubtaskButton = screen.getByText('Add Subtask');
     fireEvent.click(addSubtaskButton);
-    
+
     expect(mockProps.onAddSubtaskClick).toHaveBeenCalledTimes(1);
   });
 
   it('calls onTimeLogClick when Log Time button is clicked', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     const logTimeButton = screen.getByText('Log Time');
     fireEvent.click(logTimeButton);
-    
+
     expect(mockProps.onTimeLogClick).toHaveBeenCalledTimes(1);
   });
 
   it('passes correct props to child components', () => {
     render(<TaskDetailsContent {...mockProps} />);
-    
+
     // SubtaskList props
     expect(screen.getByTestId('subtask-list')).toBeInTheDocument();
-    
+
     // TaskTimeLogging props
     expect(screen.getByTestId('time-logging')).toBeInTheDocument();
-    
+
     // TaskCommentSection props
     expect(screen.getByTestId('comment-section')).toBeInTheDocument();
   });

@@ -89,7 +89,7 @@ describe('useCommentForm', () => {
   it('should handle submission error', async () => {
     const mockError = { error: 'Failed to create comment' };
     mockedCreateComment.mockRejectedValueOnce(mockError);
-    
+
     const { result } = renderHook(() => useCommentForm(mockTaskId, mockOnCommentAdded));
 
     // Set up form data

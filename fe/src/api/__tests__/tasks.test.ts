@@ -119,14 +119,14 @@ describe('updateTask', () => {
     const taskId = 1;
     const updateData = { name: 'Updated Task' };
     const mockResponse = { data: { ...mockTask, name: 'Updated Task' } };
-    
+
     // Clear any previous calls and setup the mock
     jest.clearAllMocks();
     mockedApi.put.mockResolvedValue(mockResponse);
-    
+
     // Execute the function
     const result = await updateTask(taskId, updateData);
-    
+
     // Assertions
     expect(mockedApi.put).toHaveBeenCalledTimes(1);
     expect(result).toBe(mockResponse.data);

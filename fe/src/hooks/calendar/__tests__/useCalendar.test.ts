@@ -52,7 +52,7 @@ describe('useCalendar', () => {
 
   it('should initialize with default values', () => {
     const { result } = renderHook(() => useCalendar());
-    
+
     expect(result.current.tasks).toEqual([]);
     expect(result.current.loading).toBe(true);
     expect(result.current.view).toBe('month');
@@ -105,7 +105,7 @@ describe('useCalendar', () => {
 
   it('should fetch tasks for month view', async () => {
     const { result } = renderHook(() => useCalendar());
-    
+
     // Wait for the initial fetch
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));

@@ -113,7 +113,7 @@ describe('Settings', () => {
 
   it('should render correctly with all tab navigation', () => {
     render(<Settings />);
-    
+
     const tabPanels = [
       { tab: 'Users', testId: 'user-manager' },
       { tab: 'Types & Roles', testId: 'types-roles-manager' },
@@ -128,7 +128,7 @@ describe('Settings', () => {
 
   it('should handle tab changes with correct aria-selected state', () => {
     render(<Settings />);
-    
+
     const userTab = screen.getByText('Users').closest('[role="tab"]');
     const typesRolesTab = screen.getByText('Types & Roles').closest('[role="tab"]');
     const systemTab = screen.getByText('System').closest('[role="tab"]');

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  getProjects, 
-  getProjectMembers 
+import {
+  getProjects,
+  getProjectMembers
 } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
-import { 
-  Project, 
-  ProjectMember 
+import {
+  Project,
+  ProjectMember
 } from '../../types/project';
 import { Task } from '../../types/task';
 
@@ -36,7 +36,7 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
             getProjectMembers(projectId),
             getProjectTasks(projectId)
           ]);
-          
+
           setProjectMembers(membersData);
           setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
         } catch (error) {

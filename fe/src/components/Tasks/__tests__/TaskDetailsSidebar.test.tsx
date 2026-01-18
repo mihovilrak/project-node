@@ -55,7 +55,7 @@ describe('TaskDetailsSidebar', () => {
 
   it('renders all sections correctly', () => {
     renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
-    
+
     expect(screen.getByTestId('task-file-section')).toBeInTheDocument();
     expect(screen.getByTestId('watcher-list')).toBeInTheDocument();
     expect(screen.getByTestId('watcher-dialog')).toBeInTheDocument();
@@ -64,21 +64,21 @@ describe('TaskDetailsSidebar', () => {
   it('passes correct props to TaskFileSection', () => {
     const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
     const fileSection = container.querySelector('[data-testid="task-file-section"]');
-    
+
     expect(fileSection).toBeInTheDocument();
   });
 
   it('passes correct props to WatcherList', () => {
     const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
     const watcherList = container.querySelector('[data-testid="watcher-list"]');
-    
+
     expect(watcherList).toBeInTheDocument();
   });
 
   it('passes correct props to WatcherDialog', () => {
     const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
     const watcherDialog = container.querySelector('[data-testid="watcher-dialog"]');
-    
+
     expect(watcherDialog).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('TaskDetailsSidebar', () => {
     const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
     const gridItem = container.querySelector('.MuiGrid-item');
     const boxes = container.querySelectorAll('.MuiBox-root');
-    
+
     expect(gridItem).toBeInTheDocument();
     expect(boxes).toHaveLength(2);
   });
@@ -99,7 +99,7 @@ describe('TaskDetailsSidebar', () => {
   it('applies correct grid props', () => {
     const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
     const gridItem = container.querySelector('.MuiGrid-item');
-    
+
     expect(gridItem).toHaveClass('MuiGrid-grid-xs-12');
     expect(gridItem).toHaveClass('MuiGrid-grid-md-4');
   });

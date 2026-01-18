@@ -120,11 +120,11 @@ describe('TaskTimeLogs', () => {
 
   it('renders time logs after loading', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     expect(screen.getByText('Time Logs')).toBeInTheDocument();
     expect(screen.getByTestId('time-log-stats')).toBeInTheDocument();
     expect(screen.getByTestId('time-log-list')).toBeInTheDocument();
@@ -132,9 +132,9 @@ describe('TaskTimeLogs', () => {
 
   it('handles API error correctly', async () => {
     (getTaskTimeLogs as jest.Mock).mockRejectedValue(new Error('API Error'));
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Failed to load time logs')).toBeInTheDocument();
     });
@@ -142,54 +142,54 @@ describe('TaskTimeLogs', () => {
 
   it('opens time log dialog when Log Time button is clicked', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     fireEvent.click(screen.getByText('Log Time'));
-    
+
     expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
   });
 
   it('handles time log deletion', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     // Simulate delete callback from TimeLogList (mock button)
     fireEvent.click(screen.getByTestId('mock-delete'));
-    
+
     expect(deleteTimeLog).toHaveBeenCalledWith(1);
     await waitFor(() => expect(getTaskTimeLogs).toHaveBeenCalledTimes(2)); // Initial + after deletion
   });
 
   it('handles time log edit', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     // Simulate edit callback from TimeLogList (mock button)
     fireEvent.click(screen.getByTestId('mock-edit'));
-    
+
     expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
   });
 
   it('closes dialog and resets selected time log', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     // Open dialog
     fireEvent.click(screen.getByText('Log Time'));
     expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
-    
+
     // Close dialog
     fireEvent.click(screen.getByTestId('mock-close-dialog'));
     // We can't assert open='false' on the mock, but this click simulates closing.
@@ -197,11 +197,11 @@ describe('TaskTimeLogs', () => {
 
   it('handles time log submission', async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
-    
+
     // Simulate dialog submit
     fireEvent.click(screen.getByTestId('mock-submit-dialog'));
     expect(getTaskTimeLogs).toHaveBeenCalledTimes(2); // Initial + after submission

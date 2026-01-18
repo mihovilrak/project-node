@@ -48,7 +48,7 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
       if (changes.changed) {
         const taskId = Object.keys(changes.changed)[0];
         const updatedTask = changes.changed[taskId];
-        
+
         if (updatedTask.startDate || updatedTask.endDate) {
           await updateTaskDates(parseInt(taskId), {
             start_date: updatedTask.startDate?.toISOString().split('T')[0],

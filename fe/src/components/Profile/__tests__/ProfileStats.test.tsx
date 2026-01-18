@@ -26,16 +26,16 @@ describe('ProfileStats', () => {
 
   it('renders all stat cards with correct values', () => {
     render(<ProfileStats stats={mockStats} loading={false} />);
-    
+
     expect(screen.getByText('Total Tasks')).toBeInTheDocument();
     expect(screen.getByText('10')).toBeInTheDocument();
-    
+
     expect(screen.getByText('Completed Tasks')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
-    
+
     expect(screen.getByText('Active Projects')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
-    
+
     expect(screen.getByText('Hours Logged')).toBeInTheDocument();
     expect(screen.getByText('40h')).toBeInTheDocument();
   });

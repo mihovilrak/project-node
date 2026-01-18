@@ -64,9 +64,9 @@ jest.mock('../Form/TaskDescriptionField', () => ({
     />
   ),
 }));
-// 
+//
 
-// 
+//
 jest.mock('../Form/TaskPrioritySelect', () => ({
   TaskPrioritySelect: ({ handleChange, formData }: any) => (
     <select
@@ -210,7 +210,7 @@ describe('TaskForm', () => {
 
   it('renders create task form correctly', () => {
     renderTaskForm();
-    
+
     expect(screen.getByText('Create Task')).toBeInTheDocument();
     expect(screen.getByTestId('task-name')).toBeInTheDocument();
     expect(screen.getByTestId('task-description')).toBeInTheDocument();
@@ -222,7 +222,7 @@ describe('TaskForm', () => {
       ...mockTaskFormHook,
       isLoading: true,
     });
-    
+
     renderTaskForm();
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -232,7 +232,7 @@ describe('TaskForm', () => {
       ...mockTaskFormHook,
       isEditing: true,
     });
-    
+
     renderTaskForm('/tasks/1');
     expect(screen.getByText('Edit Task')).toBeInTheDocument();
   });
@@ -248,7 +248,7 @@ describe('TaskForm', () => {
 
   it('sets project ID from query parameters', () => {
     renderTaskForm('/tasks/new?projectId=123');
-    
+
     expect(mockHandleChange).toHaveBeenCalledWith({
       target: {
         name: 'project_id',
@@ -259,7 +259,7 @@ describe('TaskForm', () => {
 
   it('sets parent task ID from query parameters', () => {
     renderTaskForm('/tasks/new?parentId=456');
-    
+
     expect(mockHandleChange).toHaveBeenCalledWith({
       target: {
         name: 'parent_id',
@@ -280,10 +280,10 @@ describe('TaskForm', () => {
 
   it('prevents project and parent task changes when IDs come from URL', () => {
     renderTaskForm('/tasks/new?projectId=123&parentId=456');
-    
+
     const projectSelect = screen.getByTestId('project-select');
     fireEvent.change(projectSelect, { target: { name: 'project_id', value: 789 } });
-    
+
     expect(mockHandleChange).not.toHaveBeenCalledWith({
       target: { name: 'project_id', value: 789 }
     });
@@ -296,7 +296,7 @@ describe('TaskForm', () => {
       formData: { ...mockTaskFormHook.formData }
     });
     const { unmount } = renderTaskForm();
-    
+
     const taskName = screen.getByTestId('task-name');
     fireEvent.change(taskName, {
       target: { name: 'name', value: 'New Task' }

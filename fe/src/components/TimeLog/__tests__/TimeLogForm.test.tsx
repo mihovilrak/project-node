@@ -9,7 +9,7 @@ import { TimeLogFormProps } from '../../../types/timeLog';
 const mockProps: TimeLogFormProps = {
   projects: [
     {
-        id: 1, 
+        id: 1,
         name: 'Project 1',
         description: '',
         parent_id: null,
@@ -29,7 +29,7 @@ const mockProps: TimeLogFormProps = {
 
     },
     {
-        id: 2, 
+        id: 2,
         name: 'Project 2',
         description: '',
         parent_id: null,
@@ -190,7 +190,7 @@ describe('TimeLogForm', () => {
 
   it('renders all form elements correctly', () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
-    
+
     expect(screen.getByLabelText(/Project/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Task/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Activity Type/i)).toBeInTheDocument();
@@ -225,7 +225,7 @@ describe('TimeLogForm', () => {
   it('validates time spent input', () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
     const timeInput = screen.getByLabelText(/Time Spent/i);
-    
+
     // Valid input (divisible by 0.25)
     fireEvent.change(timeInput, { target: { value: '1.75' } });
     expect(mockProps.onSpentTimeChange).toHaveBeenCalled();
@@ -249,14 +249,14 @@ describe('TimeLogForm', () => {
 
   it('respects read-only states', () => {
     render(
-      <TimeLogForm 
-        {...mockProps} 
-        isProjectReadOnly={true} 
-        isTaskReadOnly={true} 
-      />, 
+      <TimeLogForm
+        {...mockProps}
+        isProjectReadOnly={true}
+        isTaskReadOnly={true}
+      />,
       { wrapper }
     );
-    
+
     expect(screen.getByLabelText(/Project/i)).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByLabelText(/Task/i)).toHaveAttribute('aria-disabled', 'true');
   });

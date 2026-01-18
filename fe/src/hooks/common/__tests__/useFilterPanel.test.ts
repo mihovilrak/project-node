@@ -4,7 +4,7 @@ import { FilterValues, FilterPanelOptions } from '../../../types/filterPanel';
 
 describe('useFilterPanel', () => {
   const mockOnFilterChange = jest.fn();
-  
+
   const initialFilters: FilterValues = {
     search: 'test',
     status_id: 1,
@@ -28,7 +28,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should initialize with correct default values', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange)
     );
 
@@ -36,7 +36,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should handle filter changes correctly', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange)
     );
 
@@ -51,7 +51,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should get applied filters correctly', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange)
     );
 
@@ -65,7 +65,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should handle display value for non-existing option', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel({ status_id: 999 }, mockOnFilterChange)
     );
 
@@ -74,7 +74,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should clear filters correctly', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange)
     );
 
@@ -87,7 +87,7 @@ describe('useFilterPanel', () => {
   });
 
   it('should toggle expanded state', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange)
     );
 
@@ -111,7 +111,7 @@ describe('useFilterPanel', () => {
       priority_id: undefined
     };
 
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useFilterPanel(filtersWithEmpty, mockOnFilterChange)
     );
 

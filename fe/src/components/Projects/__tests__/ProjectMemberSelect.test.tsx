@@ -75,7 +75,7 @@ describe('ProjectMemberSelect', () => {
         onUserSelect={mockOnUserSelect}
       />
     );
-    
+
     // Check for user names using test ids
     const primaryTextElements = screen.getAllByTestId('list-item-primary');
     expect(primaryTextElements[0].textContent).toBe('John Doe');
@@ -90,7 +90,7 @@ describe('ProjectMemberSelect', () => {
         onUserSelect={mockOnUserSelect}
       />
     );
-    
+
     // Check for user roles using test ids
     const secondaryTextElements = screen.getAllByTestId('list-item-secondary');
     expect(secondaryTextElements[0].textContent).toBe('Role: Developer');
@@ -105,7 +105,7 @@ describe('ProjectMemberSelect', () => {
         onUserSelect={mockOnUserSelect}
       />
     );
-    
+
     // Get all checkboxes
     const checkboxes = screen.getAllByTestId('checkbox');
     expect(checkboxes[0]).toBeChecked();
@@ -120,11 +120,11 @@ describe('ProjectMemberSelect', () => {
         onUserSelect={mockOnUserSelect}
       />
     );
-    
+
     // Click on list items directly
     const listItems = screen.getAllByTestId('list-item');
     fireEvent.click(listItems[1]);
-    
+
     expect(mockOnUserSelect).toHaveBeenCalledWith(2);
   });
 });

@@ -61,7 +61,7 @@ describe('Home', () => {
     });
 
     renderWithProviders(<Home />);
-    
+
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     // Check that there's no welcome message content
     expect(screen.queryByTestId('welcome-message')).not.toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('Home', () => {
     });
 
     renderWithProviders(<Home />);
-    
+
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome');
     expect(screen.getByText('Test message')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('Home', () => {
     });
 
     renderWithProviders(<Home />);
-    
+
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Title');
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Subtitle');
@@ -128,7 +128,7 @@ describe('Home', () => {
     });
 
     renderWithProviders(<Home />);
-    
+
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByTestId('active-tasks')).toBeInTheDocument();
   });
@@ -149,7 +149,7 @@ describe('Home', () => {
     });
 
     renderWithProviders(<Home />);
-    
+
     await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Safe');
     expect(screen.queryByText('alert("unsafe")')).not.toBeInTheDocument();
