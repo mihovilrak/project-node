@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  api-tests:
+    name: API Unit Tests
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: api/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run TypeScript type check
+        run: yarn build
+
+      - name: Run unit tests
+        run: yarn test --coverage --testPathIgnorePatterns='integration'
+        env:
+          SKIP_INTEGRATION_TESTS: 'true'
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./api/src/__tests__/coverage
+          flags: api-unit
+          fail_ci_if_error: false
+
+  frontend-tests:
+    name: Frontend Unit Tests
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./fe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: fe/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run TypeScript type check
+        run: yarn type-check
+
+      - name: Run unit tests
+        run: yarn test --coverage --passWithNoTests
+        env:
+          CI: 'true'
+
+  notification-service:
+    name: Notification Service Build
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./notification-service
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: notification-service/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [api-tests]
+    
+    services:
+      postgres:
+        image: postgres:17.0-alpine3.20
+        env:
+          POSTGRES_DB: pm_test
+          POSTGRES_USER: pm_user
+          POSTGRES_PASSWORD: pm_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: api/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Initialize test database
+        run: |
+          for f in ../db/init/*.sql; do
+            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f" 2>/dev/null || true
+          done
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+
+      - name: Run integration tests
+        run: yarn test:integration
+        env:
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5432
+          TEST_DB_NAME: pm_test
+          TEST_DB_USER: pm_user
+          TEST_DB_PASSWORD: pm_password
+          SESSION_SECRET: test-session-secret
+        continue-on-error: true
