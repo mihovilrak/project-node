@@ -7,8 +7,8 @@ export const getNotificationsByUserId = async (
   user_id: string
 ): Promise<NotificationWithDetails[]> => {
   const result = await pool.query(
-    `SELECT * FROM notifications 
-    WHERE user_id = $1 
+    `SELECT * FROM notifications
+    WHERE user_id = $1
     ORDER BY created_on DESC`,
     [user_id]
   );
@@ -21,10 +21,10 @@ export const markNotificationsAsRead = async (
   user_id: string
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `UPDATE notifications 
-    SET (is_read, read_on) = (true, current_timestamp) 
-    WHERE user_id = $1 
-    AND is_read = false 
+    `UPDATE notifications
+    SET (is_read, read_on) = (true, current_timestamp)
+    WHERE user_id = $1
+    AND is_read = false
     RETURNING *`,
     [user_id]
   );
@@ -37,7 +37,7 @@ export const deleteNotification = async (
   id: string
 ): Promise<void> => {
   await pool.query(
-    `UPDATE notifications 
+    `UPDATE notifications
     SET active = false
     WHERE id = $1`,
     [id]

@@ -133,7 +133,7 @@ export const createTask = async (
       ...taskData,
       // Convert estimated_time from string to number if present
       estimated_time: estimated_time ? Number(estimated_time) : null,
-      
+
       priority_id: taskData.priority_id,
       status_id: taskData.status_id,
       type_id: taskData.type_id,
@@ -151,7 +151,7 @@ export const createTask = async (
 
     // Debug log
     console.log('Created task:', task);
-    
+
     if (!task || !task.task_id) {
       throw new Error('Task creation failed - no task ID returned');
     }

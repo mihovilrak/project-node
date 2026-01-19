@@ -23,6 +23,6 @@ export const hasPermission = async (
     'SELECT permission_check($1, $2)',
     [userId, requiredPermission]
   );
-  
+
   return result.rows[0].permission_check;
 };

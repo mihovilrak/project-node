@@ -35,14 +35,14 @@ export default (pool: Pool): Router => {
     timeLogController.getUserTimeLogs(req, res, pool)) as RequestHandler);
 
   // Update time log
-  router.put('/:timeLogId', 
-    checkPermission(pool, 'Edit log'), 
+  router.put('/:timeLogId',
+    checkPermission(pool, 'Edit log'),
     ((req, res) =>
     timeLogController.updateTimeLog(req, res, pool)) as RequestHandler);
 
   // Delete time log
-  router.delete('/:timeLogId', 
-    checkPermission(pool, 'Delete log'), 
+  router.delete('/:timeLogId',
+    checkPermission(pool, 'Delete log'),
     ((req, res) =>
     timeLogController.deleteTimeLog(req, res, pool)) as RequestHandler);
 

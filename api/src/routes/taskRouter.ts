@@ -14,40 +14,40 @@ import * as watcherController from '../controllers/watcherController';
 
 export default (pool: Pool): Router => {
   const router = Router();
-  
+
   // Task routes
-  router.get('/', ((req, res) => 
+  router.get('/', ((req, res) =>
     taskController.getTasks(req, res, pool)) as RequestHandler);
 
-  router.get('/statuses', ((req, res) => 
+  router.get('/statuses', ((req, res) =>
     taskController.getTaskStatuses(req, res, pool)) as RequestHandler);
 
-  router.get('/priorities', ((req, res) => 
+  router.get('/priorities', ((req, res) =>
     taskController.getPriorities(req, res, pool)) as RequestHandler);
 
-  router.get('/active', ((req, res) => 
+  router.get('/active', ((req, res) =>
     taskController.getActiveTasks(req, res, pool)) as RequestHandler);
 
-  router.get('/?assignee=:assignee_id', 
+  router.get('/?assignee=:assignee_id',
     ((req, res) => taskController.getTaskByAssignee(req, res, pool)) as RequestHandler);
 
-  router.get('/?holder=:holder_id', 
+  router.get('/?holder=:holder_id',
     ((req, res) => taskController.getTaskByHolder(req, res, pool)) as RequestHandler);
 
   // Parameterized routes should come after specific routes
-  router.get('/:id', ((req, res) => 
+  router.get('/:id', ((req, res) =>
     taskController.getTaskById(req, res, pool)) as RequestHandler);
 
-  router.post('/', checkPermission(pool, 'Create tasks'), 
+  router.post('/', checkPermission(pool, 'Create tasks'),
     ((req, res) => taskController.createTask(req, res, pool)) as RequestHandler);
 
-  router.put('/:id', checkPermission(pool, 'Edit tasks'), 
+  router.put('/:id', checkPermission(pool, 'Edit tasks'),
     ((req, res) => taskController.updateTask(req, res, pool)) as RequestHandler);
 
-  router.delete('/:id', checkPermission(pool, 'Delete tasks'), 
+  router.delete('/:id', checkPermission(pool, 'Delete tasks'),
     ((req, res) => taskController.deleteTask(req, res, pool)) as RequestHandler);
 
-  router.get('/:id/subtasks', 
+  router.get('/:id/subtasks',
     ((req, res) => taskController.getSubtasks(req, res, pool)) as RequestHandler);
 
   // Comment routes
@@ -63,40 +63,40 @@ export default (pool: Pool): Router => {
   }) as RequestHandler, fileRouter(pool));
 
   // Update task status
-  router.patch('/:id', checkPermission(pool, 'Edit tasks'), 
+  router.patch('/:id', checkPermission(pool, 'Edit tasks'),
     ((req, res) => taskController.updateTask(req, res, pool)) as RequestHandler);
 
   // Change task status
-  router.patch('/:id/change-status', 
+  router.patch('/:id/change-status',
     ((req, res) => taskController.changeTaskStatus(req, res, pool)) as RequestHandler);
 
   // Tag routes
-  router.get('/:id/tags', ((req, res) => 
+  router.get('/:id/tags', ((req, res) =>
     getTaskTags(req, res, pool)) as RequestHandler);
 
-  router.post('/:id/tags', ((req, res) => 
+  router.post('/:id/tags', ((req, res) =>
     addTaskTags(req, res, pool)) as RequestHandler);
 
-  router.delete('/:id/tags/:tagId', ((req, res) => 
+  router.delete('/:id/tags/:tagId', ((req, res) =>
     removeTaskTag(req, res, pool)) as RequestHandler);
 
   // Time log related routes
-  router.get('/:id/time-logs', ((req, res) => 
+  router.get('/:id/time-logs', ((req, res) =>
     timeLogController.getTaskTimeLogs(req, res, pool)) as RequestHandler);
 
-  router.get('/:id/spent-time', ((req, res) => 
+  router.get('/:id/spent-time', ((req, res) =>
     timeLogController.getTaskSpentTime(req, res, pool)) as RequestHandler);
 
-  router.post('/:id/time-logs', ((req, res) => 
+  router.post('/:id/time-logs', ((req, res) =>
     timeLogController.createTimeLog(req, res, pool)) as RequestHandler);
 
-  router.get('/:id/watchers', ((req, res) => 
+  router.get('/:id/watchers', ((req, res) =>
     watcherController.getTaskWatchers(req, res, pool)) as RequestHandler);
 
-  router.post('/:id/watchers', ((req, res) => 
+  router.post('/:id/watchers', ((req, res) =>
     watcherController.addTaskWatcher(req, res, pool)) as RequestHandler);
 
-  router.delete('/:id/watchers/:userId', 
+  router.delete('/:id/watchers/:userId',
     ((req, res) => watcherController.removeTaskWatcher(req, res, pool)) as RequestHandler);
 
   return router;

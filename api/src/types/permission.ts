@@ -1,4 +1,4 @@
-export type Permission = 
+export type Permission =
 | 'Admin'
 | 'Create projects'
 | 'Edit projects'

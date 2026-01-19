@@ -4,9 +4,9 @@ import { Tag, TagCreateInput, TagUpdateInput } from '../types/tag';
 // Get all tags
 export const getTags = async (pool: Pool): Promise<Tag[]> => {
   const result = await pool.query(
-    `SELECT * FROM tags 
-    WHERE active = true 
-    ORDER BY name ASC` 
+    `SELECT * FROM tags
+    WHERE active = true
+    ORDER BY name ASC`
   );
   return result.rows;
 };
@@ -19,8 +19,8 @@ export const createTag = async (
   userId: string
 ): Promise<Tag> => {
   const result = await pool.query(
-    `INSERT INTO tags (name, color, created_by) 
-    VALUES ($1, $2, $3) 
+    `INSERT INTO tags (name, color, created_by)
+    VALUES ($1, $2, $3)
     RETURNING *`,
     [name, color, userId]
   );
@@ -46,7 +46,7 @@ export const removeTaskTag = async (
   tagId: string
 ): Promise<void> => {
   await pool.query(
-    `DELETE FROM task_tags 
+    `DELETE FROM task_tags
     WHERE task_id = $1 AND tag_id = $2`,
     [taskId, tagId]
   );
@@ -58,7 +58,7 @@ export const getTaskTags = async (
   taskId: string
 ): Promise<Tag[]> => {
   const result = await pool.query(
-    `SELECT t.* 
+    `SELECT t.*
     FROM tags t
     JOIN task_tags tt ON t.id = tt.tag_id
     WHERE tt.task_id = $1 AND t.active = true
@@ -76,7 +76,7 @@ export const updateTag = async (
   color: string
 ): Promise<Tag | null> => {
   const result = await pool.query(
-    `UPDATE tags 
+    `UPDATE tags
     SET (name, color, updated_on) = ($1, $2, CURRENT_TIMESTAMP)
     WHERE id = $3
     RETURNING *`,
@@ -88,9 +88,9 @@ export const updateTag = async (
 // Delete tag
 export const deleteTag = async (pool: Pool, id: string): Promise<Tag | null> => {
   const result = await pool.query(
-    `UPDATE tags 
+    `UPDATE tags
     SET (active, updated_on) = (false, CURRENT_TIMESTAMP)
-    WHERE id = $1 
+    WHERE id = $1
     RETURNING *`,
     [id]
   );

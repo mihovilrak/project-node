@@ -12,7 +12,7 @@ export const getProfile = async (
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({
         error: 'User not authenticated'
@@ -38,7 +38,7 @@ export const updateProfile = async (
   try {
     const userId = req.session?.user?.id;
     const profileData = req.body as ProfileUpdateInput;
-    
+
     if (!userId) {
       return res.status(401).json({
         error: 'User not authenticated'
@@ -68,7 +68,7 @@ export const changePassword = async (
   try {
     const userId = req.session?.user?.id;
     const { old_password, new_password } = req.body as PasswordUpdateInput;
-    
+
     if (!userId) {
       return res.status(401).json({
         error: 'User not authenticated'
@@ -111,7 +111,7 @@ export const getRecentTasks = async (
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({
         error: 'User not authenticated'
@@ -136,7 +136,7 @@ export const getRecentProjects = async (
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }

@@ -24,12 +24,12 @@ export const updateProfile = async (
   profileData: ProfileUpdateInput
 ): Promise<Profile | null> => {
   const { email, name, surname } = profileData;
-  
+
   const result = await pool.query(
-    `UPDATE users 
-     SET (email, name, surname, updated_on) 
+    `UPDATE users
+     SET (email, name, surname, updated_on)
      = ($1, $2, $3, CURRENT_TIMESTAMP)
-     WHERE id = $4 
+     WHERE id = $4
      RETURNING *`,
     [email, name, surname, userId]
   );
@@ -56,8 +56,8 @@ export const changePassword = async (
   password: string
 ): Promise<Profile | null> => {
   const result = await pool.query(
-    `UPDATE users 
-     SET (password, updated_on) 
+    `UPDATE users
+     SET (password, updated_on)
      = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
      WHERE id = $2
      RETURNING *`,

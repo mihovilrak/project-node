@@ -11,8 +11,8 @@ export const getUsers = async (
   pool: Pool
 ): Promise<Response | void> => {
   try {
-    const whereParams = typeof req.query.whereParams === 'string' 
-      ? JSON.parse(req.query.whereParams) 
+    const whereParams = typeof req.query.whereParams === 'string'
+      ? JSON.parse(req.query.whereParams)
       : undefined;
     const users = await userModel.getUsers(pool, { whereParams });
     res.status(200).json(users);
@@ -142,7 +142,7 @@ export const getUserPermissions = async (
     if (!userId) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-    
+
     const permissions = await permissionModel.getUserPermissions(pool, userId);
     res.json(permissions);
   } catch (error) {

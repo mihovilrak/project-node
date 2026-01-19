@@ -1,7 +1,7 @@
-import { 
-  Project, 
-  ProjectDetails, 
-  ProjectMember, 
+import {
+  Project,
+  ProjectDetails,
+  ProjectMember,
   ProjectStatus,
   ProjectTaskFilters
 } from '../types/project';
@@ -37,7 +37,7 @@ export const getProjectById = async (
   id: string
 ): Promise<Project | null> => {
   const result: QueryResult<Project> = await pool.query(
-    `SELECT * FROM projects 
+    `SELECT * FROM projects
     WHERE id = $1`,
     [id]
   );
@@ -67,9 +67,9 @@ export const createProject = async (
   parent_id?: string
 ): Promise<Project> => {
   const result: QueryResult<Project> = await pool.query(
-    `INSERT INTO projects 
-    (name, description, start_date, due_date, created_by, parent_id) 
-    VALUES ($1, $2, $3, $4, $5, $6) 
+    `INSERT INTO projects
+    (name, description, start_date, due_date, created_by, parent_id)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *`,
     [name, description, start_date, due_date, created_by, parent_id]
   );
@@ -97,14 +97,14 @@ export const updateProject = async (
 ): Promise<number | null> => {
   const columns = Object.keys(updates);
   const values = Object.values(updates);
-  
-  let query = `UPDATE projects SET (${columns.join(', ')}) = 
+
+  let query = `UPDATE projects SET (${columns.join(', ')}) =
   (${columns.map((_, index) => `$${index + 1}`).join(', ')})`;
-  
+
   query += ` WHERE id = $${columns.length + 1}`;
-  
+
   values.push(id);
-  
+
   const result: QueryResult = await pool.query(query, values);
   return result.rowCount;
 }
@@ -127,7 +127,7 @@ export const getProjectMembers = async (
   projectId: string
 ): Promise<ProjectMember[]> => {
   const result: QueryResult<ProjectMember> = await pool.query(
-    `SELECT * FROM v_project_members 
+    `SELECT * FROM v_project_members
     WHERE project_id = $1`,
     [projectId]
   );
@@ -140,7 +140,7 @@ export const getSubprojects = async (
   parentId: string
 ): Promise<Project[]> => {
   const result: QueryResult<Project> = await pool.query(
-    `SELECT * FROM v_subprojects 
+    `SELECT * FROM v_subprojects
     WHERE parent_id = $1`,
     [parentId]
   );
@@ -154,9 +154,9 @@ export const addProjectMember = async (
   userId: string
 ): Promise<ProjectMember | null> => {
   const result: QueryResult<ProjectMember> = await pool.query(
-    `INSERT INTO project_users 
-    (project_id, user_id) 
-    VALUES ($1, $2) 
+    `INSERT INTO project_users
+    (project_id, user_id)
+    VALUES ($1, $2)
     RETURNING *`,
     [projectId, userId]
   );
@@ -170,8 +170,8 @@ export const deleteProjectMember = async (
   userId: string
 ): Promise<number | null> => {
   const result: QueryResult = await pool.query(
-    `DELETE FROM project_users 
-    WHERE project_id = $1 
+    `DELETE FROM project_users
+    WHERE project_id = $1
     AND user_id = $2`,
     [projectId, userId]
   );
@@ -185,14 +185,14 @@ export const getProjectTasks = async (
   filters: ProjectTaskFilters = {}
 ): Promise<any[]> => {
   const query = `
-    SELECT * FROM v_tasks 
-    WHERE project_id = $1 
-    ${Object.keys(filters).length > 0 
-      ? `AND ${Object.keys(filters).map((key, index) => `${key} = $${index + 2}`).join(' AND ')}` 
+    SELECT * FROM v_tasks
+    WHERE project_id = $1
+    ${Object.keys(filters).length > 0
+      ? `AND ${Object.keys(filters).map((key, index) => `${key} = $${index + 2}`).join(' AND ')}`
       : ''}
     ORDER BY created_on DESC
   `;
-  
+
   const values = [id, ...Object.values(filters)];
   const result: QueryResult = await pool.query(query, values);
   return result.rows;
@@ -203,7 +203,7 @@ export const getProjectStatuses = async (
   pool: Pool
 ): Promise<ProjectStatus[]> => {
   const result: QueryResult<ProjectStatus> = await pool.query(
-    `SELECT id, name FROM project_statuses 
+    `SELECT id, name FROM project_statuses
     ORDER BY id`
   );
   return result.rows;

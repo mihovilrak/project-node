@@ -33,7 +33,7 @@ export const createFile = async (
       size,
       mime_type,
       file_path
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *`,
     [taskId, userId, originalName, storedName, size, mimeType, filePath]
   );
@@ -46,7 +46,7 @@ export const getFileById = async (
   fileId: string
 ): Promise<File | null> => {
   const result = await pool.query(
-    `SELECT * FROM files 
+    `SELECT * FROM files
     WHERE id = $1`,
     [fileId]
   );
@@ -59,7 +59,7 @@ export const deleteFile = async (
   fileId: string
 ): Promise<void> => {
   await pool.query(
-    `DELETE FROM files 
+    `DELETE FROM files
     WHERE id = $1`,
     [fileId]
   );

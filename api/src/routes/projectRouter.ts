@@ -28,33 +28,33 @@ export default (pool: Pool): Router => {
   // Create project route
   router.post('/',
     checkPermission(pool, 'Create projects'),
-    (req: ProjectRequest, res) => 
+    (req: ProjectRequest, res) =>
       projectController.createProject(req, res, pool)
   );
 
   // Change project status route
   router.patch('/:id/status',
     checkPermission(pool, 'Edit projects'),
-    (req: Request<{ id: string }, {}, { status: string }>, res) => 
+    (req: Request<{ id: string }, {}, { status: string }>, res) =>
       projectController.changeProjectStatus(req, res, pool)
   );
 
   // Update project route
   router.put('/:id',
     checkPermission(pool, 'Edit projects'),
-    (req: Request<{ id: string }, {}, ProjectUpdateInput>, res) => 
+    (req: Request<{ id: string }, {}, ProjectUpdateInput>, res) =>
       projectController.updateProject(req, res, pool)
   );
 
   // Delete project route
   router.delete('/:id',
     checkPermission(pool, 'Delete projects'),
-    (req: Request<{ id: string }>, res) => 
+    (req: Request<{ id: string }>, res) =>
       projectController.deleteProject(req, res, pool)
   );
 
   // Get tasks by project ID
-  router.get('/:id/tasks', 
+  router.get('/:id/tasks',
     (req: Request<{ id: string }, {}, {}, ProjectTaskFilters>, res) =>
     projectController.getProjectTasks(req, res, pool));
 

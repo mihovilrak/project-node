@@ -1,7 +1,7 @@
-import { 
-  Task, 
-  TaskDetails, 
-  TaskStatus, 
+import {
+  Task,
+  TaskDetails,
+  TaskStatus,
   TaskPriority,
   TaskCreateInput,
   TaskUpdateInput,
@@ -21,7 +21,7 @@ export const getTasks = async (
     query += ' WHERE ';
     const conditions: string[] = [];
     const whereParams = filters.whereParams;
-    
+
     Object.entries(whereParams).forEach(([param, value], index) => {
       conditions.push(`${param} = $${index + 1}`);
       values.push(value);
@@ -40,7 +40,7 @@ export const getTaskById = async (
   id: string
 ): Promise<TaskDetails | null> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks 
+    `SELECT * FROM v_tasks
     WHERE id = $1`,
     [id]
   );
@@ -91,11 +91,11 @@ export const createTask = async (
       watchers
     ]
   );
-  
+
   if (!result.rows[0]) {
     throw new Error('Task creation failed - no task ID returned');
   }
-  
+
   return result.rows[0];
 }
 
@@ -135,7 +135,7 @@ export const updateTask = async (
     .join(', ');
 
   const result: QueryResult<Task> = await pool.query(
-    `UPDATE tasks 
+    `UPDATE tasks
      SET ${setClause}
      WHERE id = $${Object.keys(updates).length + 1}
      RETURNING *`,
@@ -152,9 +152,9 @@ export const changeTaskStatus = async (
   statusId: number
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
-    `UPDATE tasks 
+    `UPDATE tasks
     SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
-    WHERE id = $2 
+    WHERE id = $2
     RETURNING *`,
     [statusId, id]
   );
@@ -167,9 +167,9 @@ export const deleteTask = async (
   id: string
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
-    `UPDATE tasks 
+    `UPDATE tasks
     SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
-    WHERE id = $1 
+    WHERE id = $1
     RETURNING *`,
     [id]
   );
@@ -181,7 +181,7 @@ export const getTaskStatuses = async (
   pool: Pool
 ): Promise<TaskStatus[]> => {
   const result: QueryResult<TaskStatus> = await pool.query(
-    `SELECT id, name 
+    `SELECT id, name
     FROM task_statuses`
   );
   return result.rows;
@@ -192,7 +192,7 @@ export const getPriorities = async (
   pool: Pool
 ): Promise<TaskPriority[]> => {
   const result: QueryResult<TaskPriority> = await pool.query(
-    `SELECT id, name 
+    `SELECT id, name
     FROM priorities`
   );
   return result.rows;
@@ -204,7 +204,7 @@ export const getActiveTasks = async (
   userId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks 
+    `SELECT * FROM v_tasks
     WHERE assignee_id = $1
     AND status_name NOT IN ('Done', 'Cancelled', 'Deleted')`,
     [userId]
@@ -218,8 +218,8 @@ export const getTasksByProject = async (
   project_id: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks 
-    WHERE project_id = $1 
+    `SELECT * FROM v_tasks
+    WHERE project_id = $1
     ORDER BY created_on DESC`,
     [project_id]
   );
@@ -232,8 +232,8 @@ export const getSubtasks = async (
   parentId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks 
-    WHERE parent_id = $1 
+    `SELECT * FROM v_tasks
+    WHERE parent_id = $1
     ORDER BY created_on ASC`,
     [parentId]
   );

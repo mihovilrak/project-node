@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import * as loginController from '../controllers/loginController';
 
 // Login routes
-export default (pool: Pool): Router => {  
+export default (pool: Pool): Router => {
   const router = Router();
 
   // Login

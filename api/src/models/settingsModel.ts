@@ -27,8 +27,8 @@ export const updateSystemSettings = async (
     welcome_message
   } = settings;
   const result = await pool.query(
-    `UPDATE app_settings 
-     SET (app_name, company_name, sender_email, time_zone, theme, welcome_message, updated_on) 
+    `UPDATE app_settings
+     SET (app_name, company_name, sender_email, time_zone, theme, welcome_message, updated_on)
         = ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
      WHERE id = 1
      RETURNING *`,

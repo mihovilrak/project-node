@@ -20,7 +20,7 @@ export const app_logins = async (
   id: string
 ): Promise<void> => {
   await pool.query(
-    `INSERT INTO app_logins (user_id) 
+    `INSERT INTO app_logins (user_id)
     VALUES ($1)`,
     [id]
   );

@@ -135,7 +135,7 @@ export const updateTimeLog = async (
       description,
       activity_type_id
     } = req.body;
-    
+
     const timeLog = await timeLogModel.updateTimeLog(pool, timeLogId, {
       log_date,
       spent_time,

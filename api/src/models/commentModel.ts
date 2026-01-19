@@ -7,8 +7,8 @@ export const getTaskComments = async (
   taskId: string
 ): Promise<CommentWithUser[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_comments 
-    WHERE task_id = $1 
+    `SELECT * FROM v_comments
+    WHERE task_id = $1
     ORDER BY created_on DESC`,
     [taskId]
   );
@@ -23,8 +23,8 @@ export const createComment = async (
   comment: string
 ): Promise<Comment> => {
   const result = await pool.query(
-    `INSERT INTO comments (task_id, user_id, comment) 
-     VALUES ($1, $2, $3) 
+    `INSERT INTO comments (task_id, user_id, comment)
+     VALUES ($1, $2, $3)
      RETURNING *`,
     [taskId, userId, comment]
   );
@@ -37,7 +37,7 @@ export const commentWithUser = async (
   id: string
 ): Promise<CommentWithUser | null> => {
   const result = await pool.query(
-    `SELECT * FROM v_comments 
+    `SELECT * FROM v_comments
     WHERE id = $1`,
     [id]
   );
@@ -52,8 +52,8 @@ export const editComment = async (
   comment: string
 ): Promise<Comment | null> => {
   const result = await pool.query(
-    `UPDATE comments 
-    SET (comment, updated_on) = ($2, current_timestamp) 
+    `UPDATE comments
+    SET (comment, updated_on) = ($2, current_timestamp)
     WHERE id = $1`,
     [id, comment]
   );
@@ -66,8 +66,8 @@ export const deleteComment = async (
   id: string
 ): Promise<Comment | null> => {
   const result = await pool.query(
-    `UPDATE comments 
-    SET (active, updated_on) = (false, current_timestamp) 
+    `UPDATE comments
+    SET (active, updated_on) = (false, current_timestamp)
     WHERE id = $1`,
     [id]
   );

@@ -31,7 +31,7 @@ export const getTaskTypeById = async (
     if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
-    
+
     res.json(result);
   } catch (error) {
     console.error('Error fetching task type:', error);
@@ -53,7 +53,7 @@ export const createTaskType = async (
       icon,
       active = true
     } = req.body as TaskTypeCreateInput;
-    
+
     // Validate required fields
     if (!name || !color) {
       return res.status(400).json({ error: 'Name and color are required' });
@@ -72,7 +72,7 @@ export const createTaskType = async (
       icon || null,
       active
     );
-    
+
     res.status(201).json(result);
   } catch (error) {
     console.error('Error creating task type:', error);
@@ -89,7 +89,7 @@ export const updateTaskType = async (
   try {
     const { id } = req.params;
     const { name, description, color, icon, active } = req.body as TaskTypeUpdateInput;
-    
+
     const result = await taskTypeModel.updateTaskType(
       pool,
       id,
@@ -99,11 +99,11 @@ export const updateTaskType = async (
       icon || null,
       active || null
     );
-    
+
     if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
-    
+
     res.json(result);
   } catch (error) {
     console.error('Error updating task type:', error);
@@ -120,11 +120,11 @@ export const deleteTaskType = async (
   try {
     const { id } = req.params;
     const result = await taskTypeModel.deleteTaskType(pool, id);
-    
+
     if (!result) {
       return res.status(404).json({ error: 'Task type not found' });
     }
-    
+
     res.json({ message: 'Task type deleted successfully' });
   } catch (error) {
     console.error('Error deleting task type:', error);

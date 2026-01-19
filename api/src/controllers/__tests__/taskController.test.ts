@@ -572,7 +572,7 @@ describe('TaskController', () => {
           role_id: 1
         };
       }
-      
+
       (taskModel.getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
 
       await taskController.getActiveTasks(

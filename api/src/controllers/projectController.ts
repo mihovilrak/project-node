@@ -76,14 +76,14 @@ export const createProject = async (
   res: Response,
   pool: Pool
 ): Promise<void> => {
-  const { 
-    name, 
-    description, 
-    start_date, 
+  const {
+    name,
+    description,
+    start_date,
     due_date,
-    parent_id 
+    parent_id
   } = req.body;
-  
+
   const created_by = req.session.user?.id;
 
   if (!created_by) {
@@ -93,11 +93,11 @@ export const createProject = async (
 
   try {
     const project = await projectModel.createProject(
-      pool, 
-      name, 
-      description, 
-      start_date, 
-      due_date, 
+      pool,
+      name,
+      description,
+      start_date,
+      due_date,
       created_by,
       parent_id
     );
@@ -263,7 +263,7 @@ export const getProjectTasks = async (
   try {
     const { id: projectId } = req.params;
     const { status, priority, assignee } = req.query;
-    
+
     const filters: ProjectTaskFilters = {};
     if (status) filters.status = status;
     if (priority) filters.priority = priority;

@@ -10,7 +10,7 @@ export default (pool: Pool, requiredPermission: Permission) => {
 
     console.log('Session check - Session:', req.session);
     console.log('Session check - User:', req.session?.user);
-    
+
     if (!userId) {
       res.status(401).json({ error: 'Not authenticated' });
       return;

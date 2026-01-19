@@ -76,13 +76,13 @@ export const downloadFile = async (
   try {
     const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);
-    
+
     if (!file) {
       return res.status(404).json({ error: 'File not found' });
     }
 
     const filePath = path.resolve(__dirname, '../../uploads', file.stored_name);
-    
+
     try {
       // Check if file exists using sync version to avoid race conditions
       if (!fsSync.existsSync(filePath)) {
@@ -108,13 +108,13 @@ export const deleteFile = async (
   try {
     const { fileId } = req.params;
     const file = await fileModel.getFileById(pool, fileId);
-    
+
     if (!file) {
       return res.status(404).json({ error: 'File not found' });
     }
 
     await fileModel.deleteFile(pool, fileId);
-    
+
     const filePath = path.resolve(__dirname, '../../uploads', file.stored_name);
     try {
       await fs.unlink(filePath);

@@ -85,7 +85,7 @@ describe('Profile Controller', () => {
 
     it('should return profile data when authenticated', async () => {
       jest.spyOn(profileModel, 'getProfile').mockResolvedValue(mockProfile);
-      
+
       await getProfile(mockRequest as Request, mockResponse, mockPool);
 
       expect(profileModel.getProfile).toHaveBeenCalledWith(mockPool, '1');
@@ -112,7 +112,7 @@ describe('Profile Controller', () => {
         touch: (callback: (err: any) => void) => callback(null),
         save: (callback: (err: any) => void) => callback(null)
       } as Session & Partial<SessionData>;
-      
+
       await getProfile(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(401);
@@ -121,7 +121,7 @@ describe('Profile Controller', () => {
 
     it('should handle internal server errors', async () => {
       jest.spyOn(profileModel, 'getProfile').mockRejectedValue(new Error('DB error'));
-      
+
       await getProfile(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
@@ -130,9 +130,9 @@ describe('Profile Controller', () => {
 
     it('should handle case when profile is not found', async () => {
       const getProfileSpy = jest.spyOn(profileModel, 'getProfile').mockResolvedValueOnce(null);
-      
+
       await getProfile(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(getProfileSpy).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(404);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Profile not found' });
@@ -157,11 +157,11 @@ describe('Profile Controller', () => {
         surname: 'User',
         email: 'updated@example.com'
       };
-      
+
       jest.spyOn(profileModel, 'updateProfile').mockResolvedValue(mockUpdatedProfile);
-      
+
       await updateProfile(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(profileModel.updateProfile).toHaveBeenCalledWith(
         mockPool,
         '1',
@@ -178,9 +178,9 @@ describe('Profile Controller', () => {
     it('should handle partial updates', async () => {
       mockRequest.body = { name: 'New Name' };
       jest.spyOn(profileModel, 'updateProfile').mockResolvedValue(mockUpdatedProfile);
-      
+
       await updateProfile(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(profileModel.updateProfile).toHaveBeenCalledWith(
         mockPool,
         '1',
@@ -207,9 +207,9 @@ describe('Profile Controller', () => {
         touch: (callback: (err: any) => void) => callback(null),
         save: (callback: (err: any) => void) => callback(null)
       } as Session & Partial<SessionData>;
-      
+
       await updateProfile(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(mockStatus).toHaveBeenCalledWith(401);
       expect(mockJson).toHaveBeenCalledWith({ error: 'User not authenticated' });
     });
@@ -217,9 +217,9 @@ describe('Profile Controller', () => {
     it('should handle case when profile update fails', async () => {
       mockRequest.body = { name: 'New Name' };
       const updateProfileSpy = jest.spyOn(profileModel, 'updateProfile').mockResolvedValueOnce(null);
-      
+
       await updateProfile(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(updateProfileSpy).toHaveBeenCalledWith(
         mockPool,
         '1',
@@ -252,9 +252,9 @@ describe('Profile Controller', () => {
 
     it('should fetch recent tasks', async () => {
       jest.spyOn(profileModel, 'getRecentTasks').mockResolvedValue(mockTasks);
-      
+
       await getRecentTasks(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(profileModel.getRecentTasks).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith(mockTasks);
@@ -262,9 +262,9 @@ describe('Profile Controller', () => {
 
     it('should handle empty task list', async () => {
       jest.spyOn(profileModel, 'getRecentTasks').mockResolvedValue([]);
-      
+
       await getRecentTasks(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(mockJson).toHaveBeenCalledWith([]);
     });
   });
@@ -285,9 +285,9 @@ describe('Profile Controller', () => {
 
     it('should fetch recent projects', async () => {
       jest.spyOn(profileModel, 'getRecentProjects').mockResolvedValue(mockProjects);
-      
+
       await getRecentProjects(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(profileModel.getRecentProjects).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith(mockProjects);
@@ -295,9 +295,9 @@ describe('Profile Controller', () => {
 
     it('should handle database errors', async () => {
       jest.spyOn(profileModel, 'getRecentProjects').mockRejectedValue(new Error('DB error'));
-      
+
       await getRecentProjects(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(mockStatus).toHaveBeenCalledWith(500);
     });
   });
@@ -308,11 +308,11 @@ describe('Profile Controller', () => {
         old_password: 'oldPass123',
         new_password: 'newPass123'
       };
-      
+
       jest.spyOn(profileModel, 'changePassword').mockResolvedValue(null);
-      
+
       await changePassword(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(profileModel.changePassword).toHaveBeenCalledWith(
         mockPool,
         '1',
@@ -324,9 +324,9 @@ describe('Profile Controller', () => {
 
     it('should return 400 with invalid passwords', async () => {
       mockRequest.body = { old_password: ' ', new_password: '  ' };
-      
+
       await changePassword(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid password format' });
     });
@@ -337,9 +337,9 @@ describe('Profile Controller', () => {
         new_password: 'newPass123'
       };
       jest.spyOn(profileModel, 'changePassword').mockResolvedValue(null);
-      
+
       await changePassword(mockRequest as Request, mockResponse, mockPool);
-      
+
       expect(mockStatus).toHaveBeenCalledWith(401);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid old password' });
     });

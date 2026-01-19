@@ -10,7 +10,7 @@ import {
 // Time log model
 export const getAllTimeLogs = async (pool: Pool): Promise<TimeLog[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_time_logs 
+    `SELECT * FROM v_time_logs
     ORDER BY created_on DESC`
   );
   return result.rows;
@@ -30,7 +30,7 @@ export const createTimeLog = async (
     activity_type_id,
   } = timeLogData;
   const result = await pool.query(
-    `INSERT INTO time_logs 
+    `INSERT INTO time_logs
     (task_id, user_id, log_date, spent_time, description, activity_type_id)
     VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *`,
@@ -52,7 +52,7 @@ export const updateTimeLog = async (
     activity_type_id
   } = timeLogData;
   const result = await pool.query(
-    `UPDATE time_logs 
+    `UPDATE time_logs
     SET (log_date, spent_time, description, activity_type_id) = ($1, $2, $3, $4)
     WHERE id = $5
     RETURNING *`,
@@ -79,13 +79,13 @@ export const getUserTimeLogs = async (
   params: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_time_logs 
-    WHERE user_id = $1 
+    `SELECT * FROM v_time_logs
+    WHERE user_id = $1
     ORDER BY created_on DESC`,
     [userId]
   );
   return result.rows;
-}; 
+};
 
 // Get project time logs
 export const getProjectTimeLogs = async (
@@ -94,8 +94,8 @@ export const getProjectTimeLogs = async (
   params: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_time_logs 
-    WHERE project_id = $1 
+    `SELECT * FROM v_time_logs
+    WHERE project_id = $1
     ORDER BY created_on DESC`,
     [projectId]
   );
@@ -108,7 +108,7 @@ export const getProjectSpentTime = async (
   projectId: string
 ): Promise<SpentTime> => {
   const result = await pool.query(
-    `SELECT * FROM v_project_spent_time 
+    `SELECT * FROM v_project_spent_time
     WHERE project_id = $1`,
     [projectId]
   );
@@ -121,10 +121,10 @@ export const getTaskTimeLogs = async (
   taskId: string,
   params?: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
-  
+
   const result = await pool.query(
-    `SELECT * FROM v_time_logs 
-    WHERE task_id = $1 
+    `SELECT * FROM v_time_logs
+    WHERE task_id = $1
     ORDER BY created_on DESC`,
     [taskId]
   );
@@ -137,7 +137,7 @@ export const getTaskSpentTime = async (
   taskId: string
 ): Promise<SpentTime> => {
   const result = await pool.query(
-    `SELECT * FROM v_task_spent_time 
+    `SELECT * FROM v_task_spent_time
     WHERE task_id = $1`,
     [taskId]
   );

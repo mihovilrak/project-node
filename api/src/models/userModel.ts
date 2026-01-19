@@ -35,11 +35,11 @@ export const getUserById = async (
   id: string
 ): Promise<User | null> => {
   const result = await pool.query(
-    'SELECT * FROM v_users WHERE id = $1', 
+    'SELECT * FROM v_users WHERE id = $1',
     [id]);
   return result.rows[0] || null;
 };
-  
+
 // Create a user
 export const createUser = async (
   pool: Pool,
@@ -51,15 +51,15 @@ export const createUser = async (
   role_id: number
 ): Promise<User> => {
   const result = await pool.query(
-    `INSERT INTO users 
-    (login, name, surname, email, password, role_id) 
-    VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6) 
+    `INSERT INTO users
+    (login, name, surname, email, password, role_id)
+    VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6)
     RETURNING *`,
       [login, name, surname, email, password, role_id]
   );
   return result.rows[0];
 };
-  
+
 // Update a user
 export const updateUser = async (
   pool: Pool,
@@ -78,12 +78,12 @@ export const updateUser = async (
       return `$${index + 1}`;
     }
   });
-  
-  let query = `UPDATE users SET (${columns.join(', ')}) = 
+
+  let query = `UPDATE users SET (${columns.join(', ')}) =
     (${setExpressions.join(', ')}) WHERE id = $${columns.length + 1}`;
-  
+
   values.push(id);
-  
+
   const result = await pool.query(query, values);
 
   return result.rowCount;
@@ -96,24 +96,24 @@ export const changeUserStatus = async (
   status: number
 ): Promise<User | null> => {
   const result = await pool.query(
-    `UPDATE users 
-    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP) 
-    WHERE id = $2 
+    `UPDATE users
+    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
+    WHERE id = $2
     RETURNING *`,
     [status, id]
   );
   return result.rows[0] || null;
 };
-  
+
 // Delete a user
 export const deleteUser = async (
   pool: Pool,
   id: string
 ): Promise<User | null> => {
   const result = await pool.query(
-    `UPDATE users 
-    SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP) 
-    WHERE id = $1 
+    `UPDATE users
+    SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
+    WHERE id = $1
     RETURNING *`,
     [id]
   );

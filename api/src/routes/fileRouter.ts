@@ -39,20 +39,20 @@ export default (pool: Pool): Router => {
   });
 
   // Get task files
-  router.get('/', ((req, res) => 
+  router.get('/', ((req, res) =>
     fileController.getTaskFiles(req, res, pool)) as RequestHandler);
 
   // Upload a file
-  router.post('/', 
+  router.post('/',
     upload.single('file'),
     ((req, res) => fileController.uploadFile(req, res, pool)) as RequestHandler);
 
   // Download a file
-  router.get('/:fileId/download', ((req, res) => 
+  router.get('/:fileId/download', ((req, res) =>
     fileController.downloadFile(req, res, pool)) as RequestHandler);
 
   // Delete a file
-  router.delete('/:fileId', checkPermission(pool, 'Delete files'), ((req, res) => 
+  router.delete('/:fileId', checkPermission(pool, 'Delete files'), ((req, res) =>
     fileController.deleteFile(req, res, pool)) as RequestHandler);
 
   return router;

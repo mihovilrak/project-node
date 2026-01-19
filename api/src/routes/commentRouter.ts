@@ -7,19 +7,19 @@ export default (pool: Pool): Router => {
   const router = Router();
 
   // Get task comments
-  router.get('/', ((req, res) => 
+  router.get('/', ((req, res) =>
     commentController.getTaskComments(req, res, pool)) as RequestHandler);
 
   // Create a comment
-  router.post('/', ((req, res) => 
+  router.post('/', ((req, res) =>
     commentController.createComment(req, res, pool)) as RequestHandler);
 
   // Edit a comment
-  router.put('/:id', ((req, res) => 
+  router.put('/:id', ((req, res) =>
     commentController.editComment(req, res, pool)) as RequestHandler);
 
   // Delete a comment
-  router.delete('/:id', ((req, res) => 
+  router.delete('/:id', ((req, res) =>
     commentController.deleteComment(req, res, pool)) as RequestHandler);
 
   return router;

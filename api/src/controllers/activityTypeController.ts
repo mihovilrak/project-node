@@ -103,11 +103,11 @@ export const deleteActivityType = async (
   try {
     const { id } = req.params;
     const result = await activityTypeModel.deleteActivityType(pool, id);
-    
+
     if (!result) {
       return res.status(404).json({ error: 'Activity type not found' });
     }
-    
+
     res.status(200).json({ message: 'Activity type deleted successfully' });
   } catch (error) {
     console.error('Error deleting activity type:', error);

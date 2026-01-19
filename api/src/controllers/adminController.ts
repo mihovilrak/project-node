@@ -12,13 +12,13 @@ export const checkAdminAccess = async (
 ): Promise<boolean | Response> => {
   try {
     const userId = req.session?.user?.id;
-    
+
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
     const isAdmin = await adminModel.isUserAdmin(pool, userId);
-    
+
     if (!isAdmin) {
       return res.status(403).json({ error: 'Access denied' });
     }

@@ -81,7 +81,7 @@ describe('ActivityTypeController', () => {
             }
         ];
         (activityTypeModel.getActivityTypes as jest.Mock).mockResolvedValue(mockActivityTypes);
-        
+
         await activityTypeController.getActivityTypes(
             mockReq as Request,
             mockRes as Response,
@@ -121,7 +121,7 @@ describe('ActivityTypeController', () => {
         };
 
         (activityTypeModel.createActivityType as jest.Mock).mockResolvedValue(createdActivityType);
-        
+
         await activityTypeController.createActivityType(
             mockReq as Request,
             mockRes as Response,
@@ -155,10 +155,10 @@ describe('ActivityTypeController', () => {
 
     it('should return 400 when color is not a valid hex color', async () => {
       const mockInvalidColors = ['#0000008', 'white', 'rgb(0,0,0)'];
-      
+
       for (const color of mockInvalidColors) {
         mockReq.body = { name: 'Test Activity Type', color, icon: 'test-icon' };
-        
+
         await activityTypeController.createActivityType(
           mockReq as Request,
           mockRes as Response,
@@ -257,12 +257,12 @@ describe('ActivityTypeController', () => {
   describe('getAvailableIcons', () => {
     it('should return a list of available icons', async () => {
       const mockIcons = [
-        'work', 'code', 'bug_report', 'build', 'meeting_room', 
-        'description', 'schedule', 'search', 'analytics', 'design_services', 
+        'work', 'code', 'bug_report', 'build', 'meeting_room',
+        'description', 'schedule', 'search', 'analytics', 'design_services',
         'cloud', 'support', 'more_horiz'
     ];
       (activityTypeController.getAvailableIcons as jest.Mock).mockResolvedValue(mockIcons);
-      
+
       await activityTypeController.getAvailableIcons(
         mockReq as Request,
         mockRes as Response
