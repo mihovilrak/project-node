@@ -43,7 +43,7 @@ describe('AdminController', () => {
 
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn().mockReturnThis()
     };
 
     mockReq = {
@@ -170,6 +170,8 @@ describe('AdminController', () => {
     }];
 
     it('should return system logs successfully', async () => {
+      (adminModel.getSystemLogs as jest.Mock).mockResolvedValue(mockLogs);
+
       await adminController.getSystemLogs(
         { ...mockReq, query: mockQuery } as unknown as Request<{}, {}, {}, SystemLogQuery>,
         mockRes as Response,
@@ -187,6 +189,8 @@ describe('AdminController', () => {
     });
 
     it('should handle empty query parameters', async () => {
+      (adminModel.getSystemLogs as jest.Mock).mockResolvedValue(mockLogs);
+
       await adminController.getSystemLogs(
         { ...mockReq, query: {} } as unknown as Request<{}, {}, {}, SystemLogQuery>,
         mockRes as Response,

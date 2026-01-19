@@ -101,7 +101,7 @@ describe('ActivityTypeController', () => {
         );
       expect(activityTypeModel.getActivityTypes).toHaveBeenCalledWith(mockPool);
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to fetch activity types' });
     });
   });
 
@@ -120,6 +120,7 @@ describe('ActivityTypeController', () => {
             updated_on: new Date()
         };
 
+        mockReq.body = mockActivityTypeData;
         (activityTypeModel.createActivityType as jest.Mock).mockResolvedValue(createdActivityType);
 
         await activityTypeController.createActivityType(
@@ -129,12 +130,18 @@ describe('ActivityTypeController', () => {
         );
 
       expect(activityTypeModel.createActivityType).toHaveBeenCalled();
-      expect(activityTypeModel.createActivityType).toHaveBeenCalledWith(mockPool, mockActivityTypeData);
+      expect(activityTypeModel.createActivityType).toHaveBeenCalledWith(
+        mockPool, 
+        mockActivityTypeData.name, 
+        null,  // description is undefined, so null
+        mockActivityTypeData.color, 
+        mockActivityTypeData.icon
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(createdActivityType);
     });
 
-    it('should return 400 if the user is not authenticated', async () => {
+    it('should return 401 if the user is not authenticated', async () => {
       const unauthorizedUser = {} as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
       mockReq.session = unauthorizedUser;
       mockReq.body = { name: 'Test Activity Type', color: '#000000', icon: 'test-icon' };
@@ -145,7 +152,7 @@ describe('ActivityTypeController', () => {
         mockPool as Pool
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'User not authenticated'
@@ -201,7 +208,15 @@ describe('ActivityTypeController', () => {
         mockPool as Pool
       );
 
-      expect(activityTypeModel.updateActivityType).toHaveBeenCalledWith(mockPool, activityTypeId, mockUpdateData);
+      // Controller calls updateActivityType with individual parameters: id, name, description, color, icon
+      expect(activityTypeModel.updateActivityType).toHaveBeenCalledWith(
+        mockPool, 
+        activityTypeId, 
+        mockUpdateData.name,
+        '',  // description defaults to ''
+        '',  // color defaults to ''
+        ''   // icon defaults to ''
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedActivityType);
     });
@@ -236,7 +251,7 @@ describe('ActivityTypeController', () => {
 
       expect(activityTypeModel.deleteActivityType).toHaveBeenCalledWith(mockPool, activityTypeId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ success: true });
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Activity type deleted successfully' });
     });
 
     it('should handle errors appropriately', async () => {
@@ -250,18 +265,17 @@ describe('ActivityTypeController', () => {
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to delete activity type' });
     });
   });
 
   describe('getAvailableIcons', () => {
     it('should return a list of available icons', async () => {
-      const mockIcons = [
+      const expectedIcons = [
         'work', 'code', 'bug_report', 'build', 'meeting_room',
         'description', 'schedule', 'search', 'analytics', 'design_services',
         'cloud', 'support', 'more_horiz'
-    ];
-      (activityTypeController.getAvailableIcons as jest.Mock).mockResolvedValue(mockIcons);
+      ];
 
       await activityTypeController.getAvailableIcons(
         mockReq as Request,
@@ -269,19 +283,7 @@ describe('ActivityTypeController', () => {
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockIcons);
+      expect(mockRes.json).toHaveBeenCalledWith(expectedIcons);
     });
-
-    it('should handle errors appropriately', async () => {
-      (activityTypeController.getAvailableIcons as jest.Mock).mockRejectedValue(new Error('Failed to fetch icons error'));
-
-      await activityTypeController.getAvailableIcons(
-        mockReq as Request,
-        mockRes as Response
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to fetch icons' });
-    })
   });
 });

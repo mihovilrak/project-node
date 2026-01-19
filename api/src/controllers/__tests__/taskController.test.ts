@@ -211,7 +211,7 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { assignee_id: assigneeId });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { assignee_id: Number(assigneeId) });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
@@ -259,7 +259,7 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { holder_id: holderId });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { holder_id: Number(holderId) });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
@@ -397,9 +397,9 @@ describe('TaskController', () => {
   describe('changeTaskStatus', () => {
     it('should change task status successfully', async () => {
       const taskId = '123';
-      const newStatusId = '2';
+      const newStatusId = 2;
       mockReq.params = { id: taskId };
-      mockReq.body = { status_id: newStatusId };
+      mockReq.body = { statusId: newStatusId };
       const updatedTask = {
         id: taskId,
         name: 'Test Task',
@@ -416,7 +416,7 @@ describe('TaskController', () => {
         created_on: new Date(),
         updated_on: new Date()
       };
-      (taskModel.updateTask as jest.Mock).mockResolvedValue(updatedTask);
+      (taskModel.changeTaskStatus as jest.Mock).mockResolvedValue(updatedTask);
 
       await taskController.changeTaskStatus(
         mockReq as CustomRequest,
@@ -424,15 +424,15 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.updateTask).toHaveBeenCalledWith(mockPool, taskId, { status_id: newStatusId });
+      expect(taskModel.changeTaskStatus).toHaveBeenCalledWith(mockPool, Number(taskId), newStatusId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedTask);
     });
 
     it('should return 404 when task is not found', async () => {
       mockReq.params = { id: '123' };
-      mockReq.body = { status_id: '2' };
-      (taskModel.updateTask as jest.Mock).mockResolvedValue(null);
+      mockReq.body = { statusId: 2 };
+      (taskModel.changeTaskStatus as jest.Mock).mockResolvedValue(null);
 
       await taskController.changeTaskStatus(
         mockReq as CustomRequest,
@@ -441,7 +441,7 @@ describe('TaskController', () => {
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Task not found' });
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unable to update task status' });
     });
   });
 

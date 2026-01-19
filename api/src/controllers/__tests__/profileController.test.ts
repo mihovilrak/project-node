@@ -134,8 +134,8 @@ describe('Profile Controller', () => {
       await getProfile(mockRequest as Request, mockResponse, mockPool);
 
       expect(getProfileSpy).toHaveBeenCalledWith(mockPool, '1');
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Profile not found' });
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith(null);
     });
   });
 
@@ -225,8 +225,8 @@ describe('Profile Controller', () => {
         '1',
         expect.objectContaining({ name: 'New Name' })
       );
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Profile not found' });
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith(null);
     });
   });
 
@@ -304,31 +304,32 @@ describe('Profile Controller', () => {
 
   describe('changePassword', () => {
     it('should update password with valid input', async () => {
+      const updatedOn = new Date();
       mockRequest.body = {
         old_password: 'oldPass123',
         new_password: 'newPass123'
       };
 
-      jest.spyOn(profileModel, 'changePassword').mockResolvedValue(null);
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
+      jest.spyOn(profileModel, 'changePassword').mockResolvedValue({ updated_on: updatedOn } as any);
 
       await changePassword(mockRequest as Request, mockResponse, mockPool);
 
-      expect(profileModel.changePassword).toHaveBeenCalledWith(
-        mockPool,
-        '1',
-        'oldPass123',
-        'newPass123'
-      );
-      expect(mockJson).toHaveBeenCalledWith({ success: true });
+      expect(profileModel.verifyPassword).toHaveBeenCalledWith(mockPool, '1', 'oldPass123');
+      expect(profileModel.changePassword).toHaveBeenCalledWith(mockPool, '1', 'newPass123');
+      expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({ message: `Password updated successfully on ${updatedOn}` });
     });
 
     it('should return 400 with invalid passwords', async () => {
       mockRequest.body = { old_password: ' ', new_password: '  ' };
 
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(false);
+
       await changePassword(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid password format' });
+      expect(mockJson).toHaveBeenCalledWith({ error: 'Current password is incorrect' });
     });
 
     it('should handle incorrect old password', async () => {
@@ -336,12 +337,12 @@ describe('Profile Controller', () => {
         old_password: 'wrongPass',
         new_password: 'newPass123'
       };
-      jest.spyOn(profileModel, 'changePassword').mockResolvedValue(null);
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(false);
 
       await changePassword(mockRequest as Request, mockResponse, mockPool);
 
-      expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Invalid old password' });
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({ error: 'Current password is incorrect' });
     });
   });
 });

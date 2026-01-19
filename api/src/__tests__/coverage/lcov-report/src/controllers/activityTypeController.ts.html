@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75.51% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>37/49</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">65% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>13/20</span>
+                <span class='fraction'>42/49</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">80% </span>
-                <span class="quiet">Functions</span>
-                <span class='fraction'>4/5</span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>16/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.72% </span>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>5/5</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">84.09% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>32/44</span>
+                <span class='fraction'>37/44</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -242,17 +242,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -320,14 +320,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -380,14 +380,14 @@ export const createActivityType = async (
       return res.status(400).json({ error: 'Invalid color format' });
     }
 &nbsp;
-    const activityType = <span class="cstat-no" title="statement not covered" >await activityTypeModel.createActivityType(</span>
+    const activityType = await activityTypeModel.createActivityType(
       pool,
       name,
       description || null,
       color,
-      icon || null
+      icon || <span class="branch-1 cbranch-no" title="branch not covered" >null</span>
     );
-<span class="cstat-no" title="statement not covered" >    res.status(201).json(activityType);</span>
+    res.status(201).json(activityType);
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error('Error creating activity type:', error);</span>
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ error: 'Failed to create activity type' });</span>
@@ -451,18 +451,18 @@ export const deleteActivityType = async (
 };
 &nbsp;
 // Get available icons
-export const getAvailableIcons = <span class="fstat-no" title="function not covered" >async </span>(
+export const getAvailableIcons = async (
   req: Request,
   res: Response
 ): Promise&lt;Response | void&gt; =&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
+  try {
     // You can customize this list based on your icon library
-    const icons = <span class="cstat-no" title="statement not covered" >[</span>
+    const icons = [
       'work', 'code', 'bug_report', 'build', 'meeting_room',
       'description', 'schedule', 'search', 'analytics', 'design_services',
       'cloud', 'support', 'more_horiz'
     ];
-<span class="cstat-no" title="statement not covered" >    res.status(200).json(icons);</span>
+    res.status(200).json(icons);
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error('Error fetching icons:', error);</span>
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ error: 'Failed to fetch icons' });</span>
@@ -475,7 +475,7 @@ export const getAvailableIcons = <span class="fstat-no" title="function not cove
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-19T06:16:28.102Z
+                at 2026-01-19T06:25:25.535Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
