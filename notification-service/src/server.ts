@@ -17,7 +17,7 @@ app.get('/health', async (req: Request, res: Response) => {
   try {
     await pool.query('SELECT 1');
     await emailService.transporter.verify();
-    
+
     res.json({
       status: 'healthy',
       database: 'connected',

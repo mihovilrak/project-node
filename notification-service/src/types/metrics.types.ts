@@ -3,6 +3,7 @@ export type MetricType = 'notificationsSent' | 'emailErrors' | 'notificationErro
 export interface Metrics {
   notificationsSent: number;
   emailErrors: number;
+  notificationErrors: number;
   lastProcessingTime: Date | null;
   increment(metric: MetricType): void;
   setProcessingTime(): void;

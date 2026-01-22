@@ -5,8 +5,8 @@ import { logger } from '../utils/logger';
 const cleanupOldNotifications = async (): Promise<void> => {
   try {
     const result = await pool.query(
-      `UPDATE notifications 
-       SET active = false 
+      `UPDATE notifications
+       SET active = false
        WHERE created_on < NOW() - INTERVAL '30 days'
        AND is_read = true`
     );

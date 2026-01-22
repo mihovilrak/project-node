@@ -3,15 +3,15 @@ import { pool } from '../db';
 import { rateLimiter } from '../middleware/rateLimiter';
 import { validateNotification } from '../middleware/validation';
 import { notificationService } from '../services/notificationService';
-import { 
-  NotificationWithType, 
+import {
+  NotificationWithType,
   NotificationCreateRequest
 } from '../types/notification-routes.types';
 
 const router = Router();
 
 router.get('/:userId', async (
-  req: Request<{ userId: string }>, 
+  req: Request<{ userId: string }>,
   res: Response
 ): Promise<void> => {
   try {
@@ -22,12 +22,12 @@ router.get('/:userId', async (
     res.json(result.rows);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      id: '', 
-      type_id: 0, 
-      user_id: '', 
-      created_on: new Date(), 
-      error: errorMessage 
+    res.status(500).json({
+      id: '',
+      type_id: 0,
+      user_id: '',
+      created_on: new Date(),
+      error: errorMessage
     });
   }
 });
@@ -42,12 +42,12 @@ router.post('/', rateLimiter, validateNotification, async (
     res.status(201).json(notification);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      id: '', 
-      type_id: 0, 
-      user_id: '', 
-      created_on: new Date(), 
-      error: errorMessage 
+    res.status(500).json({
+      id: '',
+      type_id: 0,
+      user_id: '',
+      created_on: new Date(),
+      error: errorMessage
     });
   }
 });

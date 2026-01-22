@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2196f3; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2196f3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Task Assigned to You</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{userName}},</p>
+            <p>You have been assigned to a new task.</p>
+            {{#if taskName}}
+            <p>Task Details:</p>
+            <ul>
+                <li>Task: {{taskName}}</li>
+                {{#if projectName}}<li>Project: {{projectName}}</li>{{/if}}
+                {{#if priority}}<li>Priority: {{priority}}</li>{{/if}}
+                {{#if dueDate}}<li>Due Date: {{dueDate}}</li>{{/if}}
+            </ul>
+            {{/if}}
+            <p>
+                <a href="{{taskUrl}}" class="button">View Task</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

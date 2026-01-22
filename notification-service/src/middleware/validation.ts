@@ -8,12 +8,12 @@ export const validateNotification = (
 ): Promise<void> | void => {
   const { type, userId, data } = req.body;
   if (!type || !userId || !data) {
-    res.status(400).json({ 
-      id: '', 
-      type_id: 0, 
-      user_id: '', 
-      created_on: new Date(), 
-      error: 'Invalid notification data' 
+    res.status(400).json({
+      id: '',
+      type_id: 0,
+      user_id: '',
+      created_on: new Date(),
+      error: 'Invalid notification data'
     });
     return;
   }

@@ -11,7 +11,7 @@ export interface DatabaseNotification {
   login: string;
 }
 
-export type NotificationTemplateType = 
+export type NotificationTemplateType =
   | 'taskDueSoon'
   | 'taskAssigned'
   | 'taskUpdated'

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4caf50; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; }
+        .success-icon {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Task Completed</h2>
+        </div>
+        <div class="content">
+            <div class="success-icon">&#10004;</div>
+            <p>Hello {{userName}},</p>
+            <p>Great news! A task has been completed.</p>
+            {{#if taskName}}
+            <p>Task Details:</p>
+            <ul>
+                <li>Task: {{taskName}}</li>
+                {{#if projectName}}<li>Project: {{projectName}}</li>{{/if}}
+                {{#if completedBy}}<li>Completed by: {{completedBy}}</li>{{/if}}
+                {{#if completedOn}}<li>Completed on: {{completedOn}}</li>{{/if}}
+            </ul>
+            {{/if}}
+            <p>
+                <a href="{{taskUrl}}" class="button">View Task</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

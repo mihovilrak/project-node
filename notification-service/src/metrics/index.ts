@@ -13,9 +13,10 @@ const metricsLogger = winston.createLogger({
 const metrics: Metrics = {
   notificationsSent: 0,
   emailErrors: 0,
+  notificationErrors: 0,
   lastProcessingTime: null,
-  
-  increment(metric: 'notificationsSent' | 'emailErrors'): void {
+
+  increment(metric: 'notificationsSent' | 'emailErrors' | 'notificationErrors'): void {
     this[metric]++;
     this.logMetrics();
   },

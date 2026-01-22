@@ -2,10 +2,10 @@ import { pool } from '../db';
 import { logger } from '../utils/logger';
 import { emailService } from './emailService';
 import { metrics } from '../metrics';
-import { 
-  DatabaseNotification, 
-  NotificationTemplateType, 
-  NotificationEmailData 
+import {
+  DatabaseNotification,
+  NotificationTemplateType,
+  NotificationEmailData
 } from '../types/notification-service.types';
 import { NotificationCreateResponse } from '../types/notification-routes.types';
 
@@ -13,9 +13,9 @@ class NotificationService {
   async processNewNotifications(): Promise<void> {
     try {
       const query = `SELECT * FROM v_notification_service`;
-      
+
       const result = await pool.query<DatabaseNotification>(query);
-      
+
       for (const notification of result.rows) {
         await this.sendNotificationEmail(notification);
         metrics.increment('notificationsSent');
@@ -42,8 +42,8 @@ class NotificationService {
 
       // Mark as read after sending email
       await pool.query(
-        `UPDATE notifications 
-        SET read_on = NOW() 
+        `UPDATE notifications
+        SET read_on = NOW()
         WHERE id = $1`,
         [notification.id]
       );
@@ -77,7 +77,7 @@ class NotificationService {
          RETURNING id, type_id, user_id, created_on`,
         [type, userId, data]
       );
-      
+
       return result.rows[0];
     } catch (error) {
       logger.error('Failed to generate notification:', error);

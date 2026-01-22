@@ -29,9 +29,9 @@ class EmailService implements IEmailService {
 
   async initializeTemplates(): Promise<void> {
     try {
-      const templateDir = path.join(__dirname, './templates');
+      const templateDir = path.join(__dirname, '../templates');
       const files = await fs.readdir(templateDir);
-      
+
       for (const file of files) {
         if (file.endsWith('.hbs')) {
           const templateName = path.basename(file, '.hbs');
@@ -48,7 +48,7 @@ class EmailService implements IEmailService {
       return this.templates[name];
     }
 
-    const templatePath = path.join(__dirname, './templates', `${name}.hbs`);
+    const templatePath = path.join(__dirname, '../templates', `${name}.hbs`);
     const templateContent = await fs.readFile(templatePath, 'utf-8');
     this.templates[name] = handlebars.compile(templateContent);
     return this.templates[name];
