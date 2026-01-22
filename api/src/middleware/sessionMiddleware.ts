@@ -11,7 +11,7 @@ export default (
 ): RequestHandler => {
   return session({
     store: new pgSession({
-      pool: pool,
+      pool: pool as any, // Type assertion to handle version mismatch between @types/pg versions
       tableName: 'session',
       createTableIfMissing: false, // Table is created by DB init scripts
       errorLog: (error: Error) => {

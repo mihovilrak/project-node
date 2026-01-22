@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
+import nodemailer from 'nodemailer';
 import * as settingsController from '../settingsController';
 import * as settingsModel from '../../models/settingsModel';
 import { Session } from 'express-session';
 import { CustomRequest } from '../../types/express';
 
 jest.mock('../../models/settingsModel');
+jest.mock('nodemailer');
 
 describe('SettingsController', () => {
   let mockReq: any;
@@ -94,6 +96,150 @@ describe('SettingsController', () => {
       mockReq.body = { theme: 'dark' };
       await settingsController.updateUserSettings(mockReq, mockRes as Response, mockPool as Pool);
       expect(mockRes.status).toHaveBeenCalledWith(401);
+    });
+  });
+
+  describe('testSmtpConnection', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = {
+        ...originalEnv,
+        EMAIL_ENABLED: 'true',
+        EMAIL_HOST: 'smtp.test.com',
+        EMAIL_PORT: '587',
+        EMAIL_SECURE: 'false',
+        EMAIL_USER: 'test@test.com',
+        EMAIL_PASSWORD: 'testpassword',
+        EMAIL_FROM: 'Test <test@test.com>',
+      };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should return 400 when email is missing', async () => {
+      mockReq.body = {};
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Email address is required'
+      });
+    });
+
+    it('should return 400 for invalid email format', async () => {
+      mockReq.body = { email: 'invalid-email' };
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Invalid email address format'
+      });
+    });
+
+    it('should return 400 when email is disabled', async () => {
+      process.env.EMAIL_ENABLED = 'false';
+      mockReq.body = { email: 'test@example.com' };
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Email sending is disabled. Set EMAIL_ENABLED=true in environment.'
+      });
+    });
+
+    it('should send test email successfully', async () => {
+      const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-message-id' });
+      const mockVerify = jest.fn().mockResolvedValue(true);
+      const mockTransporter = {
+        sendMail: mockSendMail,
+        verify: mockVerify,
+      };
+
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+
+      mockReq.body = { email: 'recipient@example.com' };
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+
+      expect(mockVerify).toHaveBeenCalled();
+      expect(mockSendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'recipient@example.com',
+          subject: 'SMTP Test - Project Management App',
+        })
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: true,
+        message: 'Test email sent successfully to recipient@example.com',
+        messageId: 'test-message-id'
+      });
+    });
+
+    it('should handle SMTP connection failure', async () => {
+      const mockVerify = jest.fn().mockRejectedValue(new Error('Connection refused'));
+      const mockTransporter = {
+        verify: mockVerify,
+        sendMail: jest.fn(),
+      };
+
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+
+      mockReq.body = { email: 'recipient@example.com' };
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'SMTP test failed: Connection refused'
+      });
+    });
+
+    it('should handle email sending failure', async () => {
+      const mockVerify = jest.fn().mockResolvedValue(true);
+      const mockSendMail = jest.fn().mockRejectedValue(new Error('Authentication failed'));
+      const mockTransporter = {
+        verify: mockVerify,
+        sendMail: mockSendMail,
+      };
+
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+
+      mockReq.body = { email: 'recipient@example.com' };
+      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'SMTP test failed: Authentication failed'
+      });
+    });
+
+    it('should validate various email formats correctly', async () => {
+      const validEmails = ['user@example.com', 'user.name@domain.org', 'user+tag@sub.domain.com'];
+      const invalidEmails = ['invalid', '@example.com', 'user@', 'user @example.com'];
+
+      for (const email of validEmails) {
+        mockReq.body = { email };
+        const mockVerify = jest.fn().mockResolvedValue(true);
+        const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-id' });
+        (nodemailer.createTransport as jest.Mock).mockReturnValue({ verify: mockVerify, sendMail: mockSendMail });
+        
+        await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        jest.clearAllMocks();
+        mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      }
+
+      for (const email of invalidEmails) {
+        mockReq.body = { email };
+        await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        jest.clearAllMocks();
+        mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      }
     });
   });
 });

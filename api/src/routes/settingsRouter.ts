@@ -24,5 +24,11 @@ export default (pool: Pool): Router => {
     ((req, res) => settingsController.updateUserSettings(req, res, pool)) as RequestHandler
   );
 
+  // Test SMTP Connection
+  router.post('/test-smtp',
+    checkPermission(pool, 'Admin'),
+    ((req, res) => settingsController.testSmtpConnection(req, res, pool)) as RequestHandler
+  );
+
   return router;
 };
