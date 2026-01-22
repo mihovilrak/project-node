@@ -18,7 +18,7 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
   onWatcherDialogClose,
   onManageWatchers
 }) => (
-  <Grid item xs={12} md={4}>
+  <Grid size={{ xs: 12, md: 4 }}>
     <Box sx={{ mb: 5, p: 3 }}>
       <TaskFileSection
         taskId={Number(id)}

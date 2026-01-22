@@ -48,8 +48,11 @@ describe('ProfileStats', () => {
 
   it('renders correct grid layout', () => {
     const { container } = render(<ProfileStats stats={mockStats} loading={false} />);
-    const gridItems = container.getElementsByClassName('MuiGrid-item');
-    expect(gridItems.length).toBe(4);
+    // In Grid v2, we check for Grid container children instead of MuiGrid-item class
+    const gridContainer = container.querySelector('.MuiGrid-container');
+    expect(gridContainer).toBeInTheDocument();
+    const statCards = screen.getAllByText(/Total Tasks|Completed Tasks|Active Projects|Hours Logged/);
+    expect(statCards.length).toBe(4);
   });
 
   describe('StatCard', () => {

@@ -16,7 +16,7 @@ const TaskDetailsHeader: React.FC<TaskDetailsHeaderProps> = ({
   canEdit,
   canDelete
 }) => (
-  <Grid item xs={12}>
+  <Grid size={{ xs: 12 }}>
     <TaskHeader
       task={task}
       statuses={statuses}

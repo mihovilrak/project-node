@@ -15,7 +15,8 @@ import {
   Tabs,
   SelectChangeEvent,
   Tooltip,
-  IconButton
+  IconButton,
+  Divider
 } from '@mui/material';
 import {
   FormatBold,
@@ -23,12 +24,14 @@ import {
   FormatUnderlined,
   LooksOne,
   LooksTwo,
-  Looks3
+  Looks3,
+  Send as SendIcon
 } from '@mui/icons-material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
+import { testSmtpConnection, SmtpTestResult } from '../../api/settings';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -121,6 +124,28 @@ const MenuBar = ({ editor }: { editor: any }) => {
 const SystemSettings: React.FC = () => {
   const { state, handleSubmit, handleChange } = useSystemSettings();
   const [tabValue, setTabValue] = React.useState(0);
+  const [smtpTestEmail, setSmtpTestEmail] = React.useState('');
+  const [smtpTestLoading, setSmtpTestLoading] = React.useState(false);
+  const [smtpTestResult, setSmtpTestResult] = React.useState<SmtpTestResult | null>(null);
+
+  const handleSmtpTest = async () => {
+    if (!smtpTestEmail) {
+      setSmtpTestResult({ success: false, message: 'Please enter an email address' });
+      return;
+    }
+
+    setSmtpTestLoading(true);
+    setSmtpTestResult(null);
+
+    try {
+      const result = await testSmtpConnection(smtpTestEmail);
+      setSmtpTestResult(result);
+    } catch (error) {
+      setSmtpTestResult({ success: false, message: 'Failed to test SMTP connection' });
+    } finally {
+      setSmtpTestLoading(false);
+    }
+  };
 
   const editor = useEditor({
     extensions: [
@@ -273,6 +298,52 @@ const SystemSettings: React.FC = () => {
           </Button>
         </Box>
       </form>
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* SMTP Test Section */}
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Test Email Configuration
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Send a test email to verify your SMTP configuration is working correctly.
+        </Typography>
+
+        {smtpTestResult && (
+          <Alert 
+            severity={smtpTestResult.success ? 'success' : 'error'} 
+            sx={{ mb: 2 }}
+            onClose={() => setSmtpTestResult(null)}
+          >
+            {smtpTestResult.message}
+          </Alert>
+        )}
+
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+          <TextField
+            label="Test Email Address"
+            type="email"
+            value={smtpTestEmail}
+            onChange={(e) => setSmtpTestEmail(e.target.value)}
+            placeholder="recipient@example.com"
+            size="small"
+            sx={{ minWidth: 300 }}
+            disabled={smtpTestLoading}
+            data-testid="smtp-test-email"
+          />
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleSmtpTest}
+            disabled={smtpTestLoading || !smtpTestEmail}
+            startIcon={smtpTestLoading ? <CircularProgress size={20} /> : <SendIcon />}
+            data-testid="smtp-test-button"
+          >
+            {smtpTestLoading ? 'Sending...' : 'Send Test Email'}
+          </Button>
+        </Box>
+      </Box>
     </Paper>
   );
 };

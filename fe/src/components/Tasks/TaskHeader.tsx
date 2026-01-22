@@ -55,7 +55,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             {task.name}
           </Typography>
           <Grid container spacing={2} sx={{ color: 'text.secondary', mb: 2 }}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <FolderIcon fontSize="small" />
                 <Typography variant="body2" data-testid="project-name">
@@ -70,7 +70,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2" data-testid="holder-name">
@@ -85,7 +85,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2">
@@ -100,7 +100,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2" data-testid="assignee-name">
@@ -115,67 +115,67 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
                 Created: {new Date(task.created_on).toLocaleDateString()}
               </Typography>
             </Grid>
             {task.due_date && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Due: {new Date(task.due_date).toLocaleDateString()}
                 </Typography>
               </Grid>
             )}
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
                 Task ID: #{task.id}
               </Typography>
             </Grid>
             {task.type_name && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Type: {task.type_name}
                 </Typography>
               </Grid>
             )}
             {task.priority_name && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Priority: {task.priority_name}
                 </Typography>
               </Grid>
             )}
             {task.estimated_time && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Estimated Time: {task.estimated_time} hours
                 </Typography>
               </Grid>
             )}
             {task.spent_time && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Time Spent: {task.spent_time} hours
                 </Typography>
               </Grid>
             )}
             {task.progress !== undefined && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Progress: {task.progress}%
                 </Typography>
               </Grid>
             )}
             {task.start_date && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Start Date: {new Date(task.start_date).toLocaleDateString()}
                 </Typography>
               </Grid>
             )}
             {task.end_date && (
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   End Date: {new Date(task.end_date).toLocaleDateString()}
                 </Typography>

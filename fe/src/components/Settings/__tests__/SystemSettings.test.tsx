@@ -1,11 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SystemSettings from '../SystemSettings';
 import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
 import { AppSettings } from '../../../types/setting';
+import * as settingsApi from '../../../api/settings';
 
 // Mock the hooks
 jest.mock('../../../hooks/setting/useSystemSettings');
+
+// Mock the settings API
+jest.mock('../../../api/settings', () => ({
+  testSmtpConnection: jest.fn(),
+}));
 
 // Mock TipTap editor and extensions
 jest.mock('@tiptap/react', () => ({
@@ -177,5 +183,169 @@ describe('SystemSettings', () => {
     expect(form).toBeTruthy();
     fireEvent.submit(form!);
     expect(mockHandleSubmit).toHaveBeenCalled();
+  });
+
+  describe('SMTP Test Feature', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('renders SMTP test section', () => {
+      render(<SystemSettings />);
+      
+      expect(screen.getByText(/Test Email Configuration/i)).toBeInTheDocument();
+      expect(screen.getByTestId('smtp-test-email')).toBeInTheDocument();
+      expect(screen.getByTestId('smtp-test-button')).toBeInTheDocument();
+    });
+
+    it('disables send button when email field is empty', () => {
+      render(<SystemSettings />);
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      expect(sendButton).toBeDisabled();
+    });
+
+    it('enables send button when email is entered', () => {
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      expect(sendButton).not.toBeDisabled();
+    });
+
+    it('calls testSmtpConnection API when send button is clicked', async () => {
+      (settingsApi.testSmtpConnection as jest.Mock).mockResolvedValue({
+        success: true,
+        message: 'Test email sent successfully',
+      });
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(settingsApi.testSmtpConnection).toHaveBeenCalledWith('test@example.com');
+      });
+    });
+
+    it('displays success message when email is sent successfully', async () => {
+      (settingsApi.testSmtpConnection as jest.Mock).mockResolvedValue({
+        success: true,
+        message: 'Test email sent successfully to test@example.com',
+      });
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Test email sent successfully/i)).toBeInTheDocument();
+      });
+    });
+
+    it('displays error message when email sending fails', async () => {
+      (settingsApi.testSmtpConnection as jest.Mock).mockResolvedValue({
+        success: false,
+        message: 'SMTP connection failed',
+      });
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/SMTP connection failed/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows error when trying to send without email', async () => {
+      render(<SystemSettings />);
+      
+      // The button should be disabled, but if somehow clicked
+      const sendButton = screen.getByTestId('smtp-test-button');
+      expect(sendButton).toBeDisabled();
+    });
+
+    it('disables input and button while sending', async () => {
+      let resolvePromise: (value: any) => void;
+      const pendingPromise = new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+      
+      (settingsApi.testSmtpConnection as jest.Mock).mockReturnValue(pendingPromise);
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      // Check button shows loading state
+      await waitFor(() => {
+        expect(screen.getByText(/Sending.../i)).toBeInTheDocument();
+      });
+
+      // Resolve the promise to cleanup
+      resolvePromise!({ success: true, message: 'Done' });
+    });
+
+    it('handles API exception gracefully', async () => {
+      (settingsApi.testSmtpConnection as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Failed to test SMTP connection/i)).toBeInTheDocument();
+      });
+    });
+
+    it('allows closing the result alert', async () => {
+      (settingsApi.testSmtpConnection as jest.Mock).mockResolvedValue({
+        success: true,
+        message: 'Test email sent successfully',
+      });
+
+      render(<SystemSettings />);
+      
+      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+      fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
+      
+      const sendButton = screen.getByTestId('smtp-test-button');
+      fireEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Test email sent successfully/i)).toBeInTheDocument();
+      });
+
+      // Find and click the close button on the alert
+      const closeButton = screen.getByRole('button', { name: /close/i });
+      fireEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
+      });
+    });
   });
 });

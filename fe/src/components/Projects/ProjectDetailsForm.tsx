@@ -33,7 +33,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
         Project Details
       </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Project Name"
@@ -46,7 +46,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
             label="Description"
@@ -58,7 +58,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <DatePicker
             label="Start Date"
             value={formData.start_date ? dayjs(formData.start_date) : null}
@@ -72,7 +72,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <DatePicker
             label="Due Date"
             value={formData.due_date ? dayjs(formData.due_date) : null}
@@ -86,7 +86,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
           />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <FormControl fullWidth>
             <InputLabel>Status</InputLabel>
             <Select
@@ -101,7 +101,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
           </FormControl>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <FormControl fullWidth>
             <InputLabel>Parent Project</InputLabel>
             <Select
@@ -123,7 +123,7 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
         </Grid>
 
         {dateError && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography
               color="error"
               sx={{

@@ -30,7 +30,7 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onAddSubtaskClick,
   onTimeLogClick
 }) => (
-  <Grid item xs={12} md={8}>
+  <Grid size={{ xs: 12, md: 8 }}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
       <Box sx={{
         display: 'flex',

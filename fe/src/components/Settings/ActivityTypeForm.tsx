@@ -51,7 +51,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         <DialogContent>
           <Grid container spacing={1} sx={{ p: 2 }}>
             {icons.map((iconName) => (
-              <Grid item key={iconName}>
+              <Grid key={iconName}>
                 <IconButton
                   onClick={() => {
                     handleSelect(iconName);
@@ -76,7 +76,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
 export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, onChange }) => {
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <TextField
           label="Name"
           value={formData.name}
@@ -85,7 +85,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
           required
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <MuiColorInput
           label="Color"
           value={formData.color}
@@ -94,13 +94,13 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
           required
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <IconSelector
           value={formData.icon}
           onChange={(icon) => onChange('icon', icon)}
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <TextField
           label="Description"
           value={formData.description}
@@ -110,7 +110,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
           rows={3}
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <FormControlLabel
           control={
             <Switch

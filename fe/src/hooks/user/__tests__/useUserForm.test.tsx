@@ -15,12 +15,6 @@ const mockNavigate = jest.fn();
 (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
 
 describe('useUserForm', () => {
-  beforeEach(() => {
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/create' },
-      writable: true
-    });
-  });
   const mockRoles: Role[] = [
     { id: 1, name: 'Admin' },
     { id: 2, name: 'User' }
@@ -131,12 +125,6 @@ describe('useUserForm', () => {
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
-    // Mock window.location.pathname
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/create' },
-      writable: true
-    });
-
     const mockEvent = {
       preventDefault: jest.fn()
     };
@@ -162,12 +150,6 @@ describe('useUserForm', () => {
     // Wait for initial data load
     await act(async () => {
       await Promise.resolve();
-    });
-
-    // Mock window.location.pathname
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/edit/1' },
-      writable: true
     });
 
     // Update password
@@ -232,12 +214,6 @@ describe('useUserForm', () => {
       result.current.handleInputChange({
         target: { name: 'confirmPassword', value: 'password123' }
       } as React.ChangeEvent<HTMLInputElement>);
-    });
-
-    // Mock window.location.pathname
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/create' },
-      writable: true
     });
 
     const mockEvent = {

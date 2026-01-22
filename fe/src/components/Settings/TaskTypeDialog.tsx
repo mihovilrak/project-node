@@ -74,7 +74,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
           )}
 
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="Name"
                 value={formData.name}
@@ -83,7 +83,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <MuiColorInput
                 label="Color"
                 value={formData.color}
@@ -92,7 +92,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 label="Description"
                 value={formData.description}
@@ -102,7 +102,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
                 rows={3}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControlLabel
                 control={
                   <Switch

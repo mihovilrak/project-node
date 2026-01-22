@@ -40,7 +40,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, loading }
 const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, loading }) => {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <StatCard
           icon={TaskIcon}
           title="Total Tasks"
@@ -48,7 +48,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, loading }) => {
           loading={loading}
         />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <StatCard
           icon={CompletedIcon}
           title="Completed Tasks"
@@ -56,7 +56,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, loading }) => {
           loading={loading}
         />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <StatCard
           icon={ProjectIcon}
           title="Active Projects"
@@ -64,7 +64,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({ stats, loading }) => {
           loading={loading}
         />
       </Grid>
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <StatCard
           icon={TimeIcon}
           title="Hours Logged"

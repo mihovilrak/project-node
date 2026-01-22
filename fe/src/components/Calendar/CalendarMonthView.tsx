@@ -24,14 +24,14 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
   return (
     <Grid container spacing={1} data-testid="month-grid">
       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-        <Grid item xs key={day}>
+        <Grid size={{ xs: 'auto' }} key={day}>
           <Typography variant="subtitle2" align="center" sx={{ mb: 1 }}>
             {day}
           </Typography>
         </Grid>
       ))}
       {getDaysInMonth().map((day, index) => (
-        <Grid item xs={12 / 7} key={index}>
+        <Grid size={{ xs: 12 / 7 }} key={`${day.date.toISOString()}-${index}`}>
           <Paper
             sx={{
               p: 1,

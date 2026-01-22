@@ -62,7 +62,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
           </Alert>
         )}
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               label="Name"
               name="name"
@@ -73,7 +73,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               data-testid="project-name-input"
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               label="Description"
               name="description"
@@ -85,7 +85,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               data-testid="project-description-input"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Start Date"
               type="date"
@@ -98,7 +98,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               data-testid="project-start-date-input"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Due Date"
               type="date"
@@ -111,7 +111,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               data-testid="project-due-date-input"
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select

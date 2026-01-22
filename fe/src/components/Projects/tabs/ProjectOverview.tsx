@@ -22,34 +22,34 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Typography variant="body1" paragraph>
           <strong>Description:</strong> {projectDetails.description || 'No description provided'}
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Start Date:</strong>{' '}
           {format(new Date(projectDetails.start_date), 'dd/MM/yyyy')}
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Due Date:</strong>{' '}
           {format(new Date(projectDetails.due_date), 'dd/MM/yyyy')}
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Status:</strong>{' '}
           {projectDetails.status_name}
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Parent Project:</strong>{' '}
           {projectDetails.parent_id ? (
@@ -66,7 +66,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Created By:</strong>{' '}
           {projectDetails.created_by_name ? (
@@ -81,14 +81,14 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Created On:</strong>{' '}
           {format(new Date(projectDetails.created_on), 'dd/MM/yyyy')}
         </Typography>
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Typography gutterBottom>
           <strong>Progress:</strong> {projectDetails.progress}%
         </Typography>
@@ -99,19 +99,19 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         />
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Estimated Time:</strong> {projectDetails.estimated_time} hours
         </Typography>
       </Grid>
 
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Spent Time:</strong> {(projectDetails.spent_time / 60).toFixed(2)} hours
         </Typography>
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
           Subprojects
         </Typography>

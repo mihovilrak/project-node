@@ -66,9 +66,8 @@ export const useTaskForm = ({
 
   useEffect(() => {
     const loadTaskData = async () => {
-      // Check if we're in edit mode by looking at the URL path
-      const isEditPath = window.location.pathname.includes('/edit');
-      if (!isEditPath || !taskId) {
+      // If taskId exists, we're in edit mode
+      if (!taskId) {
         setIsEditing(false);
         return;
       }

@@ -5,6 +5,7 @@ import { TaskFile } from '../../types/file';
 import { getTaskById } from '../../api/tasks';
 
 export const useTaskFileWrapper = () => {
+  const { id } = useParams<{ id: string }>();
   const handleFileUploaded = (file: TaskFile) => {
     console.log('File uploaded:', file);
   };
@@ -13,7 +14,7 @@ export const useTaskFileWrapper = () => {
     console.log('File deleted:', fileId);
   };
 
-  const taskId = parseInt(window.location.pathname.split('/')[2]);
+  const taskId = id ? parseInt(id) : 0;
 
   return {
     taskId,
@@ -23,8 +24,8 @@ export const useTaskFileWrapper = () => {
 };
 
 export const useTimeLogCalendarWrapper = () => {
-  const projectId = parseInt(window.location.pathname.split('/')[2]);
-  return { projectId };
+  const { projectId } = useParams<{ projectId: string }>();
+  return { projectId: projectId ? parseInt(projectId) : 0 };
 };
 
 export const useTaskTimeLogsWrapper = () => {

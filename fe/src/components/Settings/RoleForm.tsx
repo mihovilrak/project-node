@@ -18,7 +18,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
 }) => {
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <TextField
           label="Name"
           value={formData.name}
@@ -27,7 +27,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
           required
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <TextField
           label="Description"
           value={formData.description}
@@ -37,7 +37,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
           rows={3}
         />
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Typography variant="subtitle1" gutterBottom>
           Permissions
         </Typography>
@@ -63,7 +63,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
           </Box>
         ))}
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <FormControlLabel
           control={
             <Switch

@@ -34,7 +34,7 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
   return (
     <Grid container spacing={2} data-testid="week-grid">
       {days.map((day, index) => (
-        <Grid item xs={12} key={index}>
+        <Grid size={{ xs: 12 }} key={index}>
           <Paper
             role="presentation"
             sx={{

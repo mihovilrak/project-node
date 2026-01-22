@@ -56,9 +56,10 @@ const FileList: React.FC<FileListProps> = ({
                   {decodeURIComponent(escape(file.original_name))}
                 </Typography>
               }
+              secondaryTypographyProps={{ component: 'div' }}
               secondary={
-                <Box>
-                  <Typography variant="caption" display="block">
+                <Box component="div">
+                  <Typography variant="caption" component="div" display="block">
                     Uploaded by: <Link
                       component={RouterLink}
                       to={`/users/${file.user_id}`}
@@ -67,10 +68,10 @@ const FileList: React.FC<FileListProps> = ({
                       {file.uploaded_by}
                     </Link>
                   </Typography>
-                  <Typography variant="caption" display="block">
+                  <Typography variant="caption" component="div" display="block">
                     Size: <span data-testid="file-size">{formatFileSize(file.size)}</span>
                   </Typography>
-                  <Typography variant="caption" display="block">
+                  <Typography variant="caption" component="div" display="block">
                     Uploaded on: {new Date(file.uploaded_on).toLocaleString()}
                   </Typography>
                 </Box>

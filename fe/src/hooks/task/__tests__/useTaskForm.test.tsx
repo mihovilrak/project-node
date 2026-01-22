@@ -20,14 +20,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-// Mock window.location
-const mockLocation = {
-  pathname: '/tasks/1/edit'
-};
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true
-    });
+// No need to mock window.location - taskId is passed as prop
 
 // Mock data
 const mockProjectMembers: ProjectMember[] = [

@@ -31,12 +31,12 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="h6" gutterBottom>
                   {task.name}
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Box>
                   <Typography variant="body1">
                     Status: {task.status_name || 'Not set'}
@@ -48,7 +48,7 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Typography variant="body1">
                   Holder: <Link component={RouterLink} to={`/users/${task.holder_id}`}>
                     {task.holder_name}
@@ -62,7 +62,7 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
                   ) : 'Unassigned'}
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Typography variant="body2" color="text.secondary">
                   Start: {task.start_date ? dayjs(task.start_date).format('MMM D, YYYY') : 'Not started'}
                 </Typography>
@@ -70,7 +70,7 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks, onCreateTask }
                   Due: {task.due_date ? dayjs(task.due_date).format('MMM D, YYYY') : 'No due date'}
                 </Typography>
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid size={{ xs: 12, md: 3 }}>
                 <Typography variant="body1">
                   Estimated time: {task.estimated_time || 0} hours
                 </Typography>

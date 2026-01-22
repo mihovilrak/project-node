@@ -153,7 +153,7 @@ const Tasks: React.FC = () => {
 
       <Grid container spacing={3}>
         {filteredTasks.map((task) => (
-          <Grid item xs={12} sm={6} lg={4} key={task.id}>
+          <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={task.id}>
             <Card>
               <CardContent>
                 <Typography variant="h6">{task.name}</Typography>

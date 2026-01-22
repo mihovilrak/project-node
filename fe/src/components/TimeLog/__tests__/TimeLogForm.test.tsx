@@ -196,7 +196,9 @@ describe('TimeLogForm', () => {
     expect(screen.getByLabelText(/Activity Type/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Time Spent/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Description/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Log Date/i)).toBeInTheDocument();
+    // DatePicker may have multiple elements with "Log Date" label, so use getAllByLabelText
+    const logDateElements = screen.getAllByLabelText(/Log Date/i);
+    expect(logDateElements.length).toBeGreaterThan(0);
   });
 
   it('shows user select when showUserSelect is true', () => {

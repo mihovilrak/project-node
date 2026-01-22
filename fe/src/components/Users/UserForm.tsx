@@ -13,11 +13,12 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useUserForm } from '../../hooks/user/useUserForm';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const UserForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     loading,
     error,
@@ -27,7 +28,7 @@ const UserForm: React.FC = () => {
     handleSubmit,
   } = useUserForm({ userId: id });
 
-  const isEditMode = window.location.pathname.includes('/edit');
+  const isEditMode = location.pathname.includes('/edit');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,7 +49,7 @@ const UserForm: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Login"
@@ -58,7 +59,7 @@ const UserForm: React.FC = () => {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="First Name"
@@ -68,7 +69,7 @@ const UserForm: React.FC = () => {
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Last Name"
@@ -78,7 +79,7 @@ const UserForm: React.FC = () => {
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Email"
@@ -92,7 +93,7 @@ const UserForm: React.FC = () => {
 
             {isEditMode ? (
               <>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     label="Current Password"
@@ -113,7 +114,7 @@ const UserForm: React.FC = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     label="New Password"
@@ -138,7 +139,7 @@ const UserForm: React.FC = () => {
                   />
                 </Grid>
                 {formValues.password && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <TextField
                       fullWidth
                       label="Confirm New Password"
@@ -163,7 +164,7 @@ const UserForm: React.FC = () => {
               </>
             ) : (
               <>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     label="Password"
@@ -184,7 +185,7 @@ const UserForm: React.FC = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     label="Confirm Password"
@@ -208,7 +209,7 @@ const UserForm: React.FC = () => {
               </>
             )}
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 select
                 fullWidth
@@ -227,7 +228,7 @@ const UserForm: React.FC = () => {
               </TextField>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                 <Button
                   variant="outlined"

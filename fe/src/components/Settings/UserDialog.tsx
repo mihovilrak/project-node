@@ -38,7 +38,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
             </Alert>
           )}
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 name="login"
                 label="Login"
@@ -49,7 +49,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 disabled={!!user}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 name="name"
                 label="First Name"
@@ -59,7 +59,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 name="surname"
                 label="Last Name"
@@ -69,7 +69,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 name="email"
                 label="Email"
@@ -80,7 +80,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 name="password"
                 label={user ? "New Password (leave empty to keep current)" : "Password"}
@@ -91,7 +91,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                 required={!user}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel id="role-label">Role</InputLabel>
                 <Select

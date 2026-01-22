@@ -15,18 +15,19 @@ jest.mock('../../../api/tasks');
 const mockedGetTaskById = getTaskById as jest.MockedFunction<typeof getTaskById>;
 
 
-// Mock window.location
-const mockLocation = {
-  pathname: '/tasks/1',
-};
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true,
-});
+// No need to mock window.location - useParams is used instead
 
 describe('useTaskFileWrapper', () => {
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <MemoryRouter initialEntries={['/tasks/1/files']}>
+      <Routes>
+        <Route path="/tasks/:id/files" element={children} />
+      </Routes>
+    </MemoryRouter>
+  );
+
   it('should return correct taskId and handlers', () => {
-    const { result } = renderHook(() => useTaskFileWrapper());
+    const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     expect(result.current.taskId).toBe(1);
     expect(typeof result.current.handleFileUploaded).toBe('function');
@@ -35,7 +36,7 @@ describe('useTaskFileWrapper', () => {
 
   it('should handle file upload correctly', () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    const { result } = renderHook(() => useTaskFileWrapper());
+    const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     act(() => {
       result.current.handleFileUploaded({
@@ -62,7 +63,7 @@ describe('useTaskFileWrapper', () => {
 
   it('should handle file deletion correctly', () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    const { result } = renderHook(() => useTaskFileWrapper());
+    const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     act(() => {
       result.current.handleFileDeleted(1);
@@ -73,9 +74,16 @@ describe('useTaskFileWrapper', () => {
 });
 
 describe('useTimeLogCalendarWrapper', () => {
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <MemoryRouter initialEntries={['/projects/2/time-logs/calendar']}>
+      <Routes>
+        <Route path="/projects/:projectId/time-logs/calendar" element={children} />
+      </Routes>
+    </MemoryRouter>
+  );
+
   it('should return correct projectId from URL', () => {
-    mockLocation.pathname = '/projects/2';
-    const { result } = renderHook(() => useTimeLogCalendarWrapper());
+    const { result } = renderHook(() => useTimeLogCalendarWrapper(), { wrapper });
 
     expect(result.current.projectId).toBe(2);
   });

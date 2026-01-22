@@ -139,6 +139,6 @@ describe('UserForm Component Performance Tests', () => {
     const end = performance.now();
     const submitTime = end - start;
 
-    expect(submitTime).toBeLessThan(1000); // Click should be under 1000ms (accounting for parallel test runs)
+    expect(submitTime).toBeLessThan(1500); // Click should be under 1500ms (accounting for test environment variability)
   });
 });

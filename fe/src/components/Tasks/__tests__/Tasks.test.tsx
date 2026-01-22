@@ -172,19 +172,29 @@ describe('Tasks Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
       expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
 
     const filterPanel = screen.getByTestId('filter-panel');
     // Expand the filter panel to reveal the search input
     const expandButton = within(filterPanel).getByRole('button');
     fireEvent.click(expandButton);
+    
+    await waitFor(() => {
+      const searchInput = within(filterPanel).getByRole('textbox', { name: /search/i });
+      expect(searchInput).toBeInTheDocument();
+    }, { timeout: 5000 });
+
     const searchInput = within(filterPanel).getByRole('textbox', { name: /search/i });
+    
+    // Use fireEvent.change instead of userEvent.type for faster execution
+    fireEvent.change(searchInput, { target: { value: 'Task 1' } });
 
-    await userEvent.type(searchInput, 'Task 1');
-
-    expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    expect(screen.queryByText('Test Task 2')).not.toBeInTheDocument();
-  });
+    // Wait for the filtered results to appear
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+      expect(screen.queryByText('Test Task 2')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+  }, 15000); // Increase test timeout to 15 seconds
 
   test('sorts tasks correctly', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);

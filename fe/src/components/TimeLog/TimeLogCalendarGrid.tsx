@@ -29,7 +29,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
         const logs = getTimeLogsForDate(day, timeLogs);
 
         return (
-          <Grid item xs={12/7} key={day.toString()} role="gridcell">
+          <Grid size={{ xs: 12/7 }} key={day.toString()} role="gridcell">
             <Tooltip title={
               <Box data-testid="timelog-tooltip">
                 <Typography variant="subtitle2">

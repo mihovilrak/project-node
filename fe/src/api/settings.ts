@@ -42,3 +42,26 @@ export const updateSystemSettings = async (settings: AppSettings): Promise<void>
     throw error;
   }
 };
+
+// Test SMTP Connection
+export interface SmtpTestResult {
+  success: boolean;
+  message: string;
+  messageId?: string;
+}
+
+export const testSmtpConnection = async (email: string): Promise<SmtpTestResult> => {
+  try {
+    const response = await api.post('/settings/test-smtp', { email });
+    return response.data;
+  } catch (error: any) {
+    // Return error response if available, otherwise create one
+    if (error.response?.data) {
+      return error.response.data;
+    }
+    return {
+      success: false,
+      message: 'Failed to test SMTP connection'
+    };
+  }
+};

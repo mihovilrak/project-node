@@ -110,7 +110,7 @@ const Users: React.FC = () => {
 
       <Grid container spacing={2} marginTop={2}>
         {filteredUsers.map(user => (
-          <Grid item xs={12} sm={6} md={4} key={user.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user.id}>
             <Card>
               <CardContent>
                 <Typography variant="h6">{user.name} {user.surname}</Typography>

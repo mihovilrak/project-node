@@ -44,7 +44,7 @@ const ActiveTasks: React.FC = () => {
       ) : (
         <Grid container spacing={2}>
           {tasks.map((task) => (
-            <Grid item xs={12} sm={6} md={4} key={task.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task.id}>
               <Card
                 onClick={() => navigate(`/tasks/${task.id}`)}
                 sx={{ cursor: 'pointer' }}

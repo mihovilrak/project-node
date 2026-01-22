@@ -67,12 +67,6 @@ describe('UserForm', () => {
   });
 
   test('renders edit user form correctly', () => {
-    // Set window.location.pathname so isEditMode is true
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/users/1/edit' },
-      writable: true,
-    });
-
     mockedUseUserForm.mockReturnValue({
       loading: false,
       error: null,

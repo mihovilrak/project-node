@@ -77,7 +77,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       <Collapse in={expanded}>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {Object.entries(options).map(([field, fieldOption]) => (
-            <Grid item xs={12} sm={6} md={4} key={field}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={field}>
               {Array.isArray(fieldOption) ? (
                 <FormControl fullWidth size="small">
                   <InputLabel id={`${field}-label`}>{field}</InputLabel>

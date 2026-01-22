@@ -97,7 +97,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       return;
     }
 
-    const isEditMode = window.location.pathname.includes('/edit');
+    const isEditMode = !!userId;
 
     // Validate passwords based on mode
     if (isEditMode) {
