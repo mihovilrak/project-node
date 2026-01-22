@@ -15,6 +15,7 @@ A modern, full-stack project management application built with React, TypeScript
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - React 19
 - TypeScript
 - Material-UI (MUI) v6
@@ -24,18 +25,20 @@ A modern, full-stack project management application built with React, TypeScript
 - Axios for API calls
 
 ### Backend
+
 - Node.js
 - TypeScript
 - PostgreSQL 17
 - Docker for containerization
 
 ### Services
+
 - Notification service
 - Email service (SMTP integration)
 
 ## 📦 Project Structure
 
-```
+```bash
 project_management_app/
 ├── api/               # Backend API service
 ├── fe/                # Frontend React application
@@ -47,6 +50,7 @@ project_management_app/
 ## 🚦 Getting Started
 
 ### Prerequisites
+
 - Docker and Docker Compose
 - Node.js (for local development)
 
@@ -67,12 +71,14 @@ docker-compose up -d
 ```
 
 The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+
+- Frontend: <http://localhost:3000>
+- Backend API: <http://localhost:5000>
 
 ## 💻 Development
 
 ### Frontend Development
+
 ```bash
 cd fe
 npm install
@@ -80,6 +86,7 @@ npm start
 ```
 
 ### Backend Development
+
 ```bash
 cd api
 npm install
@@ -89,6 +96,7 @@ npm run dev
 ## 🔒 Environment Variables
 
 Key environment variables needed:
+
 - `POSTGRES_DB`: Database name
 - `POSTGRES_USER`: Database user
 - `POSTGRES_PASSWORD`: Database password
@@ -99,14 +107,16 @@ Key environment variables needed:
 ## 🐳 Docker
 
 The application is containerized using Docker and includes:
+
 - PostgreSQL database
 - Node.js application server
 - Frontend static file serving
 - Notification service
 
-### docker-compose.yml example:
+### docker-compose.yml example
+
 ```yaml
-x-db: &db 
+x-db: &db
   POSTGRES_DB: pm_db
   POSTGRES_USER: pm_user
   POSTGRES_PASSWORD: pm_password
