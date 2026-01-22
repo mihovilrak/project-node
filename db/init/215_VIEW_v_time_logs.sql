@@ -1,5 +1,5 @@
 create or replace view v_time_logs as
-select 
+select
     tl.id,
     t.project_id,
     p.name as project_name,

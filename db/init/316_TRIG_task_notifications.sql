@@ -3,7 +3,7 @@ declare
     v_type_id integer;
 begin
     -- Task Due Soon
-    if (TG_OP = 'INSERT' or NEW.due_date <> OLD.due_date) and 
+    if (TG_OP = 'INSERT' or NEW.due_date <> OLD.due_date) and
        NEW.due_date between now() and now() + interval '24 hours' and
        NEW.status_id NOT IN (5, 6, 7) then
         select id into v_type_id from notification_types where name = 'Task Due Soon';
@@ -17,7 +17,7 @@ begin
     end if;
 
     -- Task Assigned
-    if (TG_OP = 'UPDATE' and NEW.assignee_id IS NOT NULL and 
+    if (TG_OP = 'UPDATE' and NEW.assignee_id IS NOT NULL and
         (OLD.assignee_id IS NULL or NEW.assignee_id <> OLD.assignee_id)) then
         select id into v_type_id from notification_types where name = 'Task Assigned';
         perform create_notification(

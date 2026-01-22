@@ -1,4 +1,4 @@
-create or replace function get_task_files(t_id integer) 
+create or replace function get_task_files(t_id integer)
 returns table(
     id integer,
     task_id integer,
@@ -14,12 +14,12 @@ returns table(
 begin
 
     return query
-    SELECT 
+    SELECT
       f.*,
       u.name || ' ' || u.surname as uploaded_by
     FROM files f
     LEFT JOIN users u ON f.user_id = u.id
-    WHERE f.task_id = $1 
+    WHERE f.task_id = $1
     ORDER BY f.uploaded_on DESC;
 
 end;

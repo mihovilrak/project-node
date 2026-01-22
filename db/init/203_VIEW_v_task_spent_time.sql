@@ -1,5 +1,5 @@
 create or replace view v_task_spent_time as
-select 
+select
     task_id,
     sum(spent_time) as spent_time
 from time_logs

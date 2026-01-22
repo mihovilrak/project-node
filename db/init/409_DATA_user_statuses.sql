@@ -1,4 +1,4 @@
-insert into user_statuses(name) values 
+insert into user_statuses(name) values
     ('Active'),
     ('Inactive'),
     ('Deleted')

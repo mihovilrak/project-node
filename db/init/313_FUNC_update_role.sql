@@ -7,13 +7,13 @@ create or replace function update_role(
 ) returns void as $$
 
     declare
-        p_permission integer;   
+        p_permission integer;
 
 begin
 
     -- Update role
-    update roles 
-    set (name, description, active) 
+    update roles
+    set (name, description, active)
         = (p_name, p_description, p_active)
     where id = p_id;
 
@@ -22,9 +22,9 @@ begin
 
     -- Insert new permissions
     if p_permissions is not null then
-            insert into roles_permissions 
-            (role_id, permission_id) 
-            values 
+            insert into roles_permissions
+            (role_id, permission_id)
+            values
             (p_id, unnest(p_permissions));
     end if;
 

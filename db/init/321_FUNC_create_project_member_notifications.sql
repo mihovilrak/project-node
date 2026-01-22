@@ -18,16 +18,16 @@ RETURNS TABLE (
 BEGIN
     -- Verify notification type exists
     IF NOT EXISTS (
-        SELECT 1 
-        FROM notification_types notype 
+        SELECT 1
+        FROM notification_types notype
         WHERE notype.id = p_type_id
-        ) THEN 
+        ) THEN
         RAISE EXCEPTION 'Invalid notification type ID: %', p_type_id;
     END IF;
 
     RETURN QUERY
     WITH project_info AS (
-        SELECT 
+        SELECT
             p.name as project_name,
             p.description,
             u.name as action_user_name,
@@ -47,7 +47,7 @@ BEGIN
         active,
         created_on
     )
-    SELECT 
+    SELECT
         pu.user_id,
         p_type_id,
         CASE p_type_id
@@ -55,12 +55,12 @@ BEGIN
             WHEN 8 THEN 'Added to Project'
             ELSE 'Project Notification'
         END,
-        action_user_name || ' ' || 
+        action_user_name || ' ' ||
         CASE p_type_id
             WHEN 6 THEN 'updated'
             WHEN 8 THEN 'added to'
             ELSE 'modified'
-        END || 
+        END ||
         ' project "' || project_name || '"',
         '/projects/' || p_project_id,
         false,

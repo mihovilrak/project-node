@@ -18,8 +18,8 @@ RETURNS TABLE (
 BEGIN
     -- Verify notification type exists
     IF NOT EXISTS (
-        SELECT 1 
-        FROM notification_types notype 
+        SELECT 1
+        FROM notification_types notype
         WHERE notype.id = p_type_id
         ) THEN
         RAISE EXCEPTION 'Invalid notification type ID: %', p_type_id;
@@ -27,7 +27,7 @@ BEGIN
 
     RETURN QUERY
     WITH task_info AS (
-        SELECT 
+        SELECT
             t.name as task_name,
             t.description,
             p.name as project_name,
@@ -49,7 +49,7 @@ BEGIN
         active,
         created_on
     )
-    SELECT 
+    SELECT
         w.user_id,
         p_type_id,
         CASE p_type_id
@@ -58,13 +58,13 @@ BEGIN
             WHEN 5 THEN 'Status Changed'
             ELSE 'Task Notification'
         END,
-        action_user_name || ' ' || 
+        action_user_name || ' ' ||
         CASE p_type_id
             WHEN 3 THEN 'updated'
             WHEN 4 THEN 'commented on'
             WHEN 5 THEN 'changed status of'
             ELSE 'modified'
-        END || 
+        END ||
         ' task "' || task_name || '" in project "' || project_name || '"',
         '/tasks/' || p_task_id,
         false,

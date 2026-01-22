@@ -1,4 +1,4 @@
-insert into tags (name, color) values 
+insert into tags (name, color) values
     ('Frontend', '#e91e63'),
     ('Backend', '#2196f3'),
     ('Database', '#ff9800'),

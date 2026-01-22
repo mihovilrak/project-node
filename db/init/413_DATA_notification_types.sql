@@ -1,4 +1,4 @@
-insert into notification_types (name, icon, color) values 
+insert into notification_types (name, icon, color) values
     ('Task Due Soon', 'AccessTime', '#ff9800'),
     ('Task Assigned', 'Assignment', '#2196f3'),
     ('Task Updated', 'Update', '#4caf50'),

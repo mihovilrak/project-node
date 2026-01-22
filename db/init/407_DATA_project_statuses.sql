@@ -1,4 +1,4 @@
-insert into project_statuses(name) values 
+insert into project_statuses(name) values
     ('Active'),
     ('Inactive'),
     ('Deleted')

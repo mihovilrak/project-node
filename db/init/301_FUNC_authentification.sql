@@ -1,11 +1,11 @@
 create or replace function authentification (
-    auth_login character varying, 
+    auth_login character varying,
     auth_password character varying
 )
 returns table (
-    id integer, 
-    login character varying, 
-    password character varying, 
+    id integer,
+    login character varying,
+    password character varying,
     role_id integer
 ) as $$
 

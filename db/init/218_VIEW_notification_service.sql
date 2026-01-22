@@ -1,7 +1,7 @@
 create or replace view v_notification_service as
-select  n.*, 
-        u.email, 
-        u.login 
+select  n.*,
+        u.email,
+        u.login
 from notifications n
 join users u on u.id = n.user_id
 where n.created_on > now() - interval '5 minutes'

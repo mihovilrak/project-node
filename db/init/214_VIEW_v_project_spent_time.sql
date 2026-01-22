@@ -1,5 +1,5 @@
 create or replace view v_project_spent_time as
-select 
+select
     t.project_id as id,
     sum(tl.spent_time) as spent_time
 from time_logs tl

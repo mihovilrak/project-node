@@ -1,4 +1,4 @@
-create or replace view v_tasks as 
+create or replace view v_tasks as
     select  t.id,
             t.name,
             t.project_id,
@@ -23,7 +23,7 @@ create or replace view v_tasks as
             c.name as created_by_name,
             t.created_on::timestamp(0),
             t.estimated_time
-    from tasks t 
+    from tasks t
     left join projects po on po.id = t.project_id
     left join users h on h.id = t.holder_id
     left join users a on a.id = t.assignee_id

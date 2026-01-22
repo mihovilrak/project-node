@@ -1,5 +1,5 @@
 create or replace view v_subprojects as
-select 
+select
     p.*,
     ps.name as status,
     u.name as created_by_name,
@@ -8,4 +8,4 @@ from projects p
 left join project_statuses ps on ps.id = p.status_id
 left join users u on u.id = p.created_by
 left join projects parent on parent.id = p.parent_id
-where p.parent_id is not null; 
+where p.parent_id is not null;

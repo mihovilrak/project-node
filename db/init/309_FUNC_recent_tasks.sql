@@ -14,14 +14,14 @@ returns table(
 ) as $$
 begin
     return query
-        select t.id, 
+        select t.id,
                t.name,
                t.project_name,
                t.holder_name,
                t.estimated_time,
                t.start_date,
-               t.due_date, 
-               t.status_name, 
+               t.due_date,
+               t.status_name,
                t.priority_name,
                t.created_by_name,
                case

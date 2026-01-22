@@ -1,5 +1,5 @@
 create or replace view v_task_watchers as
-select 
+select
     w.task_id,
     w.user_id,
     u.name || ' ' || u.surname as user_name,

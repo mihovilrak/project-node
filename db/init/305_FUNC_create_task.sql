@@ -23,8 +23,8 @@ create or replace function create_task(
 
     begin
         -- Validate required fields
-        if p_name is null or p_start_date is null or p_due_date is null 
-           or p_priority_id is null or p_status_id is null or p_type_id is null 
+        if p_name is null or p_start_date is null or p_due_date is null
+           or p_priority_id is null or p_status_id is null or p_type_id is null
            or p_project_id is null or p_holder_id is null or p_assignee_id is null then
             return;
         end if;
@@ -62,18 +62,18 @@ create or replace function create_task(
 
         -- Insert tags if provided
         if p_tag_ids is not null then
-            insert into task_tags (task_id, tag_id) 
+            insert into task_tags (task_id, tag_id)
             values (v_task_id, unnest(p_tag_ids));
         end if;
 
         -- Insert watchers
         if p_watchers is not null then
-            insert into watchers (task_id, user_id) 
+            insert into watchers (task_id, user_id)
             values (v_task_id, unnest(p_watchers));
         end if;
 
         -- Return just the ID
-        return query 
+        return query
         select v_task_id;
     end;
 

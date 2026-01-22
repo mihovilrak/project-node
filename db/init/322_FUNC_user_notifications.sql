@@ -16,10 +16,10 @@ returns table (
 ) as $$
 begin
     return query
-        SELECT n.*, 
-        nt.name as type, 
-        nt.icon, 
-        nt.color 
+        SELECT n.*,
+        nt.name as type,
+        nt.icon,
+        nt.color
        FROM notifications n
        JOIN notification_types nt ON n.type_id = nt.id
        WHERE n.user_id = u_id AND n.active = true

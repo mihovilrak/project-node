@@ -3,7 +3,7 @@ create or replace function permission_check(
     required_permission character varying
 )
 returns boolean as $$
-declare 
+declare
     p_check boolean;
 begin
     -- First check if user is admin - if yes, allow everything
@@ -13,9 +13,9 @@ begin
 
     -- If not admin, check specific permissions
     select exists (
-        select 1 
-        from get_user_permissions(user_id) 
-        where permission = required_permission 
+        select 1
+        from get_user_permissions(user_id)
+        where permission = required_permission
     ) into p_check;
 
     return p_check;

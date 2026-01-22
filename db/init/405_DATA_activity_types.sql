@@ -1,4 +1,4 @@
-insert into activity_types (name, color, description) values 
+insert into activity_types (name, color, description) values
     ('Development', '#2196f3', 'General development work'),
     ('Testing', '#9c27b0', 'Testing and quality assurance'),
     ('Documentation', '#795548', 'Writing and updating documentation'),

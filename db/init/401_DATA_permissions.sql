@@ -1,4 +1,4 @@
-insert into permissions (name) values 
+insert into permissions (name) values
     ('Admin'),
     ('Create projects'),
     ('Edit projects'),

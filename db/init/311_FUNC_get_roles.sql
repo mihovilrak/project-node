@@ -7,8 +7,8 @@ returns table (
     permissions json
 ) as $$
 begin
-    return query 
-    select 
+    return query
+    select
       r.id,
       r.name,
       r.description,
