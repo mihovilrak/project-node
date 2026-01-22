@@ -1,4 +1,4 @@
-x-db: &db 
+x-db: &db
   POSTGRES_DB: pm_db
   POSTGRES_USER: pm_user
   POSTGRES_PASSWORD: pm_password
