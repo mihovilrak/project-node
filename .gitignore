@@ -4,3 +4,6 @@ instructions.md
 db/backup/
 .obsolete
 */run_tests.sh
+.env
+*/dist/
+*/coverage/
