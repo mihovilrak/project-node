@@ -1,5 +1,5 @@
 # Build frontend
-FROM node:23.5.0-alpine3.21 AS frontend-builder
+FROM node:25.4.0-alpine3.23 AS frontend-builder
 
 # Set working directory
 WORKDIR /app/fe
@@ -28,7 +28,7 @@ RUN yarn run type-check && \
     yarn run build --verbose
 
 # Build backend
-FROM node:23.5.0-alpine3.21 AS backend-builder
+FROM node:25.4.0-alpine3.23 AS backend-builder
 
 # Set working directory
 WORKDIR /app/api
@@ -53,7 +53,7 @@ RUN yarn run tsc && \
     ncc build dist/app.js -o dist --no-cache -q
 
 # Build notification service
-FROM node:23.5.0-alpine3.21 AS notification-builder
+FROM node:25.4.0-alpine3.23 AS notification-builder
 
 # Set working directory
 WORKDIR /app/service
@@ -82,7 +82,7 @@ RUN yarn run tsc && \
     cp -r src/templates/* dist/templates/
 
 # Final image
-FROM nginx:1.27.3-alpine3.20
+FROM nginx:1.29.4-alpine3.23
 
 # Copy built applications
 WORKDIR /app
