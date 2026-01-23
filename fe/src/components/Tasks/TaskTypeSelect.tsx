@@ -38,8 +38,8 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
     fetchTaskTypes();
   }, []);
 
-  const handleChange = (event: SelectChangeEvent<unknown>): void => {
-    onChange(event as SelectChangeEvent<number>);
+  const handleChange = (event: SelectChangeEvent<number>): void => {
+    onChange(event);
   };
 
   if (loading) {
@@ -53,9 +53,9 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
   return (
     <FormControl fullWidth error={error} required={required}>
       <InputLabel id="task-type-select-label">Task Type</InputLabel>
-      <Select
+      <Select<number>
         labelId="task-type-select-label"
-        value={value || ''}
+        value={value as number | ''}
         onChange={handleChange}
         label="Task Type"
       >

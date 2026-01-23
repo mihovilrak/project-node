@@ -64,7 +64,6 @@ export const useProjectDetails = (projectId: string) => {
     };
 
     fetchProjectData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const handleProjectUpdate = useCallback(async (updatedProject: Project) => {

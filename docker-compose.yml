@@ -11,13 +11,13 @@ x-defaults: &defaults
 services:
   db:
     <<: *defaults
-    image: postgres:17.0-alpine3.20
+    image: postgres:18.1-alpine3.23
     container_name: pm_db
     environment:
       <<: *db
       PGTZ: Europe/Zagreb
     volumes:
-      - ./db/db_data:/var/lib/postgresql/data
+      - ./db/db_data:/var/lib/data
       - ./db/backup:/backups
     ports:
       - "5432:5432"

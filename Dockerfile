@@ -5,14 +5,14 @@ FROM node:25.4.0-alpine3.23 AS frontend-builder
 WORKDIR /app/fe
 
 # Copy package and lock files
-COPY fe/package*.json fe/yarn.lock fe/tsconfig.json fe/.yarnrc ./
+COPY fe/package*.json fe/yarn.lock fe/tsconfig.json fe/.yarnrc fe/config-overrides.js ./
 
 # Install dependencies
 RUN mkdir node_modules && \
     yarn config set cache-folder /tmp/yarn-cache && \
-    yarn install --frozen-lockfile --prefer-offline \
-    --production=false && \
-    yarn add -D @babel/plugin-proposal-private-property-in-object && \
+    (yarn install --frozen-lockfile --prefer-offline --production=false || \
+     yarn install --prefer-offline --production=false) && \
+    yarn add -D @babel/plugin-proposal-private-property-in-object react-app-rewired && \
     yarn cache clean --all
 
 # Copy source code

@@ -14,6 +14,7 @@ import {
 class EmailService implements IEmailService {
   public transporter: nodemailer.Transporter;
   public templates: EmailTemplates;
+  private templateDir: string;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -24,13 +25,17 @@ class EmailService implements IEmailService {
     });
 
     this.templates = {};
+    // Use absolute path for templates - they're copied to /app/service/templates in Docker
+    // In development, use relative path; in production (Docker), use absolute path
+    this.templateDir = process.env.NODE_ENV === 'production' 
+      ? '/app/service/templates'
+      : path.join(__dirname, '../templates');
     this.initializeTemplates();
   }
 
   async initializeTemplates(): Promise<void> {
     try {
-      const templateDir = path.join(__dirname, '../templates');
-      const files = await fs.readdir(templateDir);
+      const files = await fs.readdir(this.templateDir);
 
       for (const file of files) {
         if (file.endsWith('.hbs')) {
@@ -48,7 +53,7 @@ class EmailService implements IEmailService {
       return this.templates[name];
     }
 
-    const templatePath = path.join(__dirname, '../templates', `${name}.hbs`);
+    const templatePath = path.join(this.templateDir, `${name}.hbs`);
     const templateContent = await fs.readFile(templatePath, 'utf-8');
     this.templates[name] = handlebars.compile(templateContent);
     return this.templates[name];

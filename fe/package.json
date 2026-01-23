@@ -5,8 +5,8 @@
     "description": "A Project Management Web App",
     "main": "src/index.ts",
     "scripts": {
-        "start": "react-scripts start",
-        "build": "GENERATE_SOURCEMAP=false react-scripts --max_old_space_size=4096 build",
+        "start": "react-app-rewired start",
+        "build": "GENERATE_SOURCEMAP=false react-app-rewired --max_old_space_size=4096 build",
         "test": "jest --config=jest.config.js",
         "test:watch": "jest --config=jest.config.js --watch",
         "eject": "react-scripts eject",
@@ -62,7 +62,8 @@
         "@babel/core": "^7.28.6",
         "@babel/preset-env": "^7.28.6",
         "@babel/preset-react": "^7.28.5",
-        "@babel/preset-typescript": "^7.28.5"
+        "@babel/preset-typescript": "^7.28.5",
+        "react-app-rewired": "^2.2.1"
     },
     "browserslist": {
         "production": [
