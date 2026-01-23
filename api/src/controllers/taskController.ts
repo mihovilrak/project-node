@@ -12,11 +12,27 @@ export const getTasks = async (
   res: Response,
   pool: Pool
 ): Promise<void> => {
-  const { project_id } = req.query;
+  const { project_id, assignee_id, holder_id } = req.query;
   try {
-    const tasks = project_id
-      ? await taskModel.getTasksByProject(pool, project_id as string)
-      : await taskModel.getTasks(pool);
+    if (project_id) {
+      const tasks = await taskModel.getTasksByProject(pool, project_id as string);
+      res.status(200).json(tasks);
+      return;
+    }
+    
+    if (assignee_id) {
+      const result = await taskModel.getTasks(pool, { whereParams: { assignee_id: Number(assignee_id) } });
+      res.status(200).json(result);
+      return;
+    }
+    
+    if (holder_id) {
+      const result = await taskModel.getTasks(pool, { whereParams: { holder_id: Number(holder_id) } });
+      res.status(200).json(result);
+      return;
+    }
+    
+    const tasks = await taskModel.getTasks(pool);
     res.status(200).json(tasks);
   } catch (error) {
     console.error(error);
@@ -52,8 +68,8 @@ export const getTaskByAssignee = async (
 ): Promise<void> => {
   try {
     const { assignee_id } = req.query;
-    const result = await taskModel.getTasks(pool, { assignee_id: Number(assignee_id) });
-    if (!result) {
+    const result = await taskModel.getTasks(pool, { whereParams: { assignee_id: Number(assignee_id) } });
+    if (!result || result.length === 0) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
     }
@@ -72,8 +88,8 @@ export const getTaskByHolder = async (
 ): Promise<void> => {
   try {
     const { holder_id } = req.query;
-    const result = await taskModel.getTasks(pool, { holder_id: Number(holder_id) });
-    if (!result) {
+    const result = await taskModel.getTasks(pool, { whereParams: { holder_id: Number(holder_id) } });
+    if (!result || result.length === 0) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
     }

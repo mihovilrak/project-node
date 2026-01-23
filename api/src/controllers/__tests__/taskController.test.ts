@@ -120,6 +120,70 @@ describe('TaskController', () => {
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
 
+    it('should return tasks filtered by assignee_id when provided', async () => {
+      const assigneeId = '123';
+      const mockTasks = [{
+        id: '1',
+        name: 'Assigned Task',
+        description: 'Test Description',
+        start_date: new Date(),
+        due_date: new Date(),
+        priority_id: '1',
+        status_id: '1',
+        type_id: '1',
+        project_id: '1',
+        holder_id: '1',
+        assignee_id: assigneeId,
+        created_by: '1',
+        created_on: new Date(),
+        updated_on: new Date()
+      }];
+      mockReq.query = { assignee_id: assigneeId };
+      (taskModel.getTasks as jest.Mock).mockResolvedValue(mockTasks);
+
+      await taskController.getTasks(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { assignee_id: Number(assigneeId) } });
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
+    });
+
+    it('should return tasks filtered by holder_id when provided', async () => {
+      const holderId = '123';
+      const mockTasks = [{
+        id: '1',
+        name: 'Held Task',
+        description: 'Test Description',
+        start_date: new Date(),
+        due_date: new Date(),
+        priority_id: '1',
+        status_id: '1',
+        type_id: '1',
+        project_id: '1',
+        holder_id: holderId,
+        assignee_id: '2',
+        created_by: '1',
+        created_on: new Date(),
+        updated_on: new Date()
+      }];
+      mockReq.query = { holder_id: holderId };
+      (taskModel.getTasks as jest.Mock).mockResolvedValue(mockTasks);
+
+      await taskController.getTasks(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { holder_id: Number(holderId) } });
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
+    });
+
     it('should handle errors appropriately', async () => {
       (taskModel.getTasks as jest.Mock).mockRejectedValue(new Error('Database error'));
 
@@ -211,14 +275,14 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { assignee_id: Number(assigneeId) });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { assignee_id: Number(assigneeId) } });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
 
     it('should return 404 when no tasks are found', async () => {
       mockReq.query = { assignee_id: '123' };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue(null);
+      (taskModel.getTasks as jest.Mock).mockResolvedValue([]);
 
       await taskController.getTaskByAssignee(
         mockReq as Request,
@@ -259,14 +323,14 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { holder_id: Number(holderId) });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { holder_id: Number(holderId) } });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
 
     it('should return 404 when no tasks are found', async () => {
       mockReq.query = { holder_id: '123' };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue(null);
+      (taskModel.getTasks as jest.Mock).mockResolvedValue([]);
 
       await taskController.getTaskByHolder(
         mockReq as Request,

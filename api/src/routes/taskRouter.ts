@@ -28,12 +28,6 @@ export default (pool: Pool): Router => {
   router.get('/active', ((req, res) =>
     taskController.getActiveTasks(req, res, pool)) as RequestHandler);
 
-  router.get('/?assignee=:assignee_id',
-    ((req, res) => taskController.getTaskByAssignee(req, res, pool)) as RequestHandler);
-
-  router.get('/?holder=:holder_id',
-    ((req, res) => taskController.getTaskByHolder(req, res, pool)) as RequestHandler);
-
   // Parameterized routes should come after specific routes
   router.get('/:id', ((req, res) =>
     taskController.getTaskById(req, res, pool)) as RequestHandler);
