@@ -1,7 +1,7 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { SelectChangeEvent } from '@mui/material';
 import { useUserDialog } from '../useUserDialog';
-import { createUser, updateUser } from '../../../api/users';
+import { createUser, updateUser, fetchRoles } from '../../../api/users';
 import { User } from '../../../types/user';
 
 // Mock the API calls
@@ -22,17 +22,28 @@ describe('useUserDialog', () => {
     updated_on: null
   };
 
+  const mockRoles = [
+    { id: 1, name: 'Admin', description: 'Administrator', active: true },
+    { id: 2, name: 'Manager', description: 'Manager', active: true },
+    { id: 3, name: 'User', description: 'User', active: true }
+  ];
+
   const mockOnClose = jest.fn();
   const mockOnUserSaved = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (fetchRoles as jest.Mock).mockResolvedValue(mockRoles);
   });
 
-  it('should initialize with default values when no user is provided', () => {
+  it('should initialize with default values when no user is provided', async () => {
     const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
 
     expect(result.current.formData).toEqual({
       login: '',
@@ -40,16 +51,22 @@ describe('useUserDialog', () => {
       surname: '',
       email: '',
       password: '',
-      role_id: 3,
+      role_id: expect.any(Number),
       status_id: 1
     });
     expect(result.current.error).toBeNull();
+    expect(result.current.roles).toEqual(mockRoles);
+    expect(fetchRoles).toHaveBeenCalled();
   });
 
-  it('should initialize with user data when provided', () => {
+  it('should initialize with user data when provided', async () => {
     const { result } = renderHook(() =>
       useUserDialog(mockUser, true, mockOnClose, mockOnUserSaved)
     );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
 
     expect(result.current.formData).toEqual({
       login: mockUser.login,
@@ -60,6 +77,38 @@ describe('useUserDialog', () => {
       role_id: mockUser.role_id,
       status_id: mockUser.status_id
     });
+    expect(result.current.roles).toEqual(mockRoles);
+  });
+
+  it('should fetch roles when dialog opens', async () => {
+    const { result } = renderHook(() =>
+      useUserDialog(null, true, mockOnClose, mockOnUserSaved)
+    );
+
+    expect(result.current.rolesLoading).toBe(true);
+    expect(fetchRoles).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    expect(result.current.roles).toEqual(mockRoles);
+  });
+
+  it('should handle roles fetch error', async () => {
+    const error = new Error('Failed to fetch roles');
+    (fetchRoles as jest.Mock).mockRejectedValueOnce(error);
+
+    const { result } = renderHook(() =>
+      useUserDialog(null, true, mockOnClose, mockOnUserSaved)
+    );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    expect(result.current.error).toBe('Failed to load roles');
+    expect(result.current.roles).toEqual([]);
   });
 
   it('should handle text input changes', () => {

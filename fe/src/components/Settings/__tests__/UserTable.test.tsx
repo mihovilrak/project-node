@@ -190,9 +190,10 @@ describe('UserTable', () => {
     });
   });
 
-  test('handles deletion error', async () => {
+  test('handles deletion error and shows error message', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    (deleteUser as jest.Mock).mockRejectedValueOnce(new Error('Delete failed'));
+    const errorMessage = 'Delete failed';
+    (deleteUser as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
     renderUserTable();
     // Find delete button by data-testid
@@ -208,12 +209,48 @@ describe('UserTable', () => {
     const confirmButton = screen.getByTestId('confirm-delete-button');
     fireEvent.click(confirmButton);
 
-    // Wait for the error to be logged
+    // Wait for the error message to appear in the dialog
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));
+      expect(screen.getByTestId('delete-error')).toBeInTheDocument();
+      expect(screen.getByTestId('delete-error')).toHaveTextContent(/Failed to delete user/i);
     });
 
+    // Verify error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));
+    
+    // Verify dialog stays open (doesn't close on error)
+    expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
+    
+    // Verify onUserDeleted was NOT called (since deletion failed)
+    expect(mockOnUserDeleted).not.toHaveBeenCalled();
+
     consoleErrorSpy.mockRestore();
+  });
+
+  test('shows loading state while deleting', async () => {
+    (deleteUser as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+
+    renderUserTable();
+    const deleteButton = screen.getByTestId('delete-user-1');
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
+    });
+
+    const confirmButton = screen.getByTestId('confirm-delete-button');
+    fireEvent.click(confirmButton);
+
+    // Check that button shows "Deleting..." and is disabled
+    await waitFor(() => {
+      expect(confirmButton).toHaveTextContent('Deleting...');
+      expect(confirmButton).toBeDisabled();
+    });
+
+    // Wait for deletion to complete
+    await waitFor(() => {
+      expect(deleteUser).toHaveBeenCalled();
+    });
   });
 
   test('closes delete dialog when cancel is clicked', async () => {

@@ -6,7 +6,8 @@ import {
   UserUpdate,
   UserCreate
 } from '../../types/user';
-import { createUser, updateUser } from '../../api/users';
+import { createUser, updateUser, fetchRoles } from '../../api/users';
+import { Role } from '../../types/role';
 
 export const useUserDialog = (
   user: User | null | undefined,
@@ -24,6 +25,34 @@ export const useUserDialog = (
     status_id: 1
   });
   const [error, setError] = useState<string | null>(null);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [rolesLoading, setRolesLoading] = useState<boolean>(true);
+
+  // Fetch roles from API when dialog opens
+  useEffect(() => {
+    if (open) {
+      const loadRoles = async () => {
+        try {
+          setRolesLoading(true);
+          const rolesData = await fetchRoles();
+          setRoles(rolesData);
+          // Set default role_id to first role if available, or keep current
+          if (rolesData.length > 0 && !user) {
+            setFormData(prev => ({
+              ...prev,
+              role_id: prev.role_id || rolesData[0].id
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch roles:', error);
+          setError('Failed to load roles');
+        } finally {
+          setRolesLoading(false);
+        }
+      };
+      loadRoles();
+    }
+  }, [open, user]);
 
   useEffect(() => {
     if (user) {
@@ -33,7 +62,7 @@ export const useUserDialog = (
         surname: user.surname || '',
         email: user.email || '',
         password: '',
-        role_id: user.role_id || 3,
+        role_id: user.role_id || (roles.length > 0 ? roles[0].id : 3),
         status_id: user.status_id
       });
     } else {
@@ -43,11 +72,11 @@ export const useUserDialog = (
         surname: '',
         email: '',
         password: '',
-        role_id: 3,
+        role_id: roles.length > 0 ? roles[0].id : 3,
         status_id: 1
       });
     }
-  }, [user, open]);
+  }, [user, open, roles]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -95,6 +124,8 @@ export const useUserDialog = (
   return {
     formData,
     error,
+    roles,
+    rolesLoading,
     handleTextChange,
     handleRoleChange,
     handleSubmit

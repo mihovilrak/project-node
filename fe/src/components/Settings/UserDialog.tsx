@@ -11,7 +11,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { UserDialogProps } from '../../types/user';
 import { useUserDialog } from '../../hooks/setting/useUserDialog';
@@ -20,6 +21,8 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
   const {
     formData,
     error,
+    roles,
+    rolesLoading,
     handleTextChange,
     handleRoleChange,
     handleSubmit
@@ -100,10 +103,22 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                   onChange={handleRoleChange}
                   label="Role"
                   required
+                  disabled={rolesLoading}
                 >
-                  <MenuItem value={1}>Admin</MenuItem>
-                  <MenuItem value={2}>Manager</MenuItem>
-                  <MenuItem value={3}>User</MenuItem>
+                  {rolesLoading ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={20} sx={{ mr: 1 }} />
+                      Loading roles...
+                    </MenuItem>
+                  ) : roles.length === 0 ? (
+                    <MenuItem disabled>No roles available</MenuItem>
+                  ) : (
+                    roles.map((role) => (
+                      <MenuItem key={role.id} value={role.id}>
+                        {role.name}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
             </Grid>

@@ -22,15 +22,32 @@ const UserManager: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+    
+    // Listen for user deletion events from other components
+    const handleUserDeleted = (event: Event) => {
+      // Refresh the user list when a user is deleted from another component
+      fetchUsers();
+    };
+    
+    window.addEventListener('userDeleted', handleUserDeleted);
+    
+    return () => {
+      window.removeEventListener('userDeleted', handleUserDeleted);
+    };
   }, []);
 
   const fetchUsers = async (): Promise<void> => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getUsers();
-      setUsers(data);
-    } catch (error) {
-      setError('Failed to fetch users');
+      setUsers(data || []);
+    } catch (error: any) {
+      console.error('Failed to fetch users:', error);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to fetch users';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

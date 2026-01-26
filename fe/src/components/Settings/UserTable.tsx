@@ -16,7 +16,8 @@ import {
   Button,
   Typography,
   Tooltip,
-  Chip
+  Chip,
+  Alert
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -31,6 +32,8 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   const handleChangePage = (_event: unknown, newPage: number): void => {
     setPage(newPage);
@@ -43,21 +46,38 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
 
   const handleDeleteClick = (user: User): void => {
     setUserToDelete(user);
+    setDeleteError(null);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async (): Promise<void> => {
+    if (!userToDelete) return;
+
     try {
-      if (userToDelete) {
-        await deleteUser(userToDelete.id);
-        onUserDeleted();
-      }
-    } catch (error) {
-      console.error('Failed to delete user:', error);
-    } finally {
+      setDeleting(true);
+      setDeleteError(null);
+      await deleteUser(userToDelete.id);
+      // Only refresh list and close dialog on success
+      onUserDeleted();
       setDeleteDialogOpen(false);
       setUserToDelete(null);
+    } catch (error: any) {
+      console.error('Failed to delete user:', error);
+      // Extract error message from API response
+      const errorMessage = error?.response?.data?.error || 
+                         error?.message || 
+                         'Failed to delete user. Please try again.';
+      setDeleteError(errorMessage);
+      // Keep dialog open so user can see the error
+    } finally {
+      setDeleting(false);
     }
+  };
+
+  const handleDeleteCancel = (): void => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+    setDeleteError(null);
   };
 
   return (
@@ -126,11 +146,16 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
 
       <Dialog
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        onClose={handleDeleteCancel}
         data-testid="delete-dialog"
       >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
+          {deleteError && (
+            <Alert severity="error" sx={{ mb: 2 }} data-testid="delete-error">
+              {deleteError}
+            </Alert>
+          )}
           <Typography data-testid="delete-confirmation-text">
             Are you sure you want to delete user {userToDelete?.name}?
             This action cannot be undone.
@@ -138,8 +163,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setDeleteDialogOpen(false)}
+            onClick={handleDeleteCancel}
             data-testid="cancel-delete-button"
+            disabled={deleting}
           >
             Cancel
           </Button>
@@ -147,8 +173,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
             onClick={handleDeleteConfirm}
             color="error"
             data-testid="confirm-delete-button"
+            disabled={deleting}
           >
-            Delete
+            {deleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -21,12 +21,11 @@ export const useRoleDialog = (role: Role | undefined) => {
   useEffect(() => {
     if (role) {
       setFormData({
-        name: role.name,
-        description: role.description || '',
-        active: role.active ?? true,
-        permissions: role.permissions
-        ? role.permissions.map(p => typeof p === 'number' ? p : p.id)
-        || []
+        name: role?.name || '',
+        description: role?.description || '',
+        active: role?.active ?? true,
+        permissions: role?.permissions
+        ? role.permissions.map(p => typeof p === 'number' ? p : (p?.id || 0)).filter(id => id > 0)
         : []
       });
     } else {
@@ -42,10 +41,14 @@ export const useRoleDialog = (role: Role | undefined) => {
   const fetchPermissions = async () => {
     try {
       const permissions = await getAllPermissions();
-      setAvailablePermissions(permissions);
-    } catch (error) {
+      setAvailablePermissions(permissions || []);
+    } catch (error: any) {
       console.error('Failed to fetch permissions:', error);
-      setError('Failed to load permissions');
+      setAvailablePermissions([]);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to load permissions';
+      setError(errorMessage);
     }
   };
 

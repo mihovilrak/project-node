@@ -40,12 +40,20 @@ const defaultProps = {
   user: undefined
 };
 
+const mockRoles = [
+  { id: 1, name: 'Admin', description: 'Administrator role', active: true },
+  { id: 2, name: 'Manager', description: 'Manager role', active: true },
+  { id: 3, name: 'User', description: 'User role', active: true }
+];
+
 describe('UserDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseUserDialog.mockReturnValue({
       formData: mockFormData,
       error: null,
+      roles: mockRoles,
+      rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
       handleSubmit: jest.fn()
@@ -83,6 +91,8 @@ describe('UserDialog', () => {
     mockUseUserDialog.mockReturnValue({
       formData: mockFormData,
       error: errorMessage,
+      roles: mockRoles,
+      rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
       handleSubmit: jest.fn()
@@ -98,6 +108,8 @@ describe('UserDialog', () => {
     mockUseUserDialog.mockReturnValue({
       formData: mockFormData,
       error: null,
+      roles: mockRoles,
+      rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
       handleSubmit: mockHandleSubmit
@@ -122,19 +134,65 @@ describe('UserDialog', () => {
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
-  it('shows correct role options', async () => {
+  it('shows correct role options from API', async () => {
+    mockUseUserDialog.mockReturnValue({
+      formData: mockFormData,
+      error: null,
+      roles: mockRoles,
+      rolesLoading: false,
+      handleTextChange: jest.fn(),
+      handleRoleChange: jest.fn(),
+      handleSubmit: jest.fn()
+    });
+
     render(<UserDialog {...defaultProps} />);
 
     // Open the select dropdown
     const roleSelect = screen.getByLabelText(/role/i);
     fireEvent.mouseDown(roleSelect);
 
-    // Wait for options to appear in the dropdown
+    // Wait for options to appear in the dropdown - these should come from API, not hardcoded
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Manager' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'User' })).toBeInTheDocument();
     });
+  });
+
+  it('shows loading state when roles are being fetched', () => {
+    mockUseUserDialog.mockReturnValue({
+      formData: mockFormData,
+      error: null,
+      roles: [],
+      rolesLoading: true,
+      handleTextChange: jest.fn(),
+      handleRoleChange: jest.fn(),
+      handleSubmit: jest.fn()
+    });
+
+    render(<UserDialog {...defaultProps} />);
+
+    const roleSelect = screen.getByLabelText(/role/i);
+    expect(roleSelect).toBeDisabled();
+  });
+
+  it('shows error message when no roles are available', () => {
+    mockUseUserDialog.mockReturnValue({
+      formData: mockFormData,
+      error: null,
+      roles: [],
+      rolesLoading: false,
+      handleTextChange: jest.fn(),
+      handleRoleChange: jest.fn(),
+      handleSubmit: jest.fn()
+    });
+
+    render(<UserDialog {...defaultProps} />);
+
+    const roleSelect = screen.getByLabelText(/role/i);
+    fireEvent.mouseDown(roleSelect);
+
+    expect(screen.getByText('No roles available')).toBeInTheDocument();
   });
 
   it('validates required fields in create mode', () => {

@@ -161,4 +161,24 @@ describe('UserManager', () => {
 
     expect(screen.queryByTestId('user-dialog')).not.toBeInTheDocument();
   });
+
+  it('refreshes user list when userDeleted event is dispatched', async () => {
+    (getUsers as jest.Mock)
+      .mockResolvedValueOnce(mockUsers)
+      .mockResolvedValueOnce([mockUsers[0]]); // After deletion, only first user remains
+
+    render(<UserManager />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-table')).toBeInTheDocument();
+    });
+
+    // Dispatch userDeleted event
+    window.dispatchEvent(new CustomEvent('userDeleted', { detail: { userId: 2 } }));
+
+    // Verify that getUsers was called again
+    await waitFor(() => {
+      expect(getUsers).toHaveBeenCalledTimes(2);
+    });
+  });
 });

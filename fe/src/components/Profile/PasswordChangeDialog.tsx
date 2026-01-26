@@ -62,8 +62,13 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
         confirm_password: formData.confirmPassword
       });
       onClose();
-    } catch (err) {
-      setError('Failed to change password. Please check your current password.');
+    } catch (err: any) {
+      console.error('Failed to change password:', err);
+      const errorMessage = err?.response?.data?.error || 
+                          err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to change password. Please check your current password.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
