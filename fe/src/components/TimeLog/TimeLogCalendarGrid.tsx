@@ -35,9 +35,9 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
                 <Typography variant="subtitle2">
                   {format(day, 'MMMM d, yyyy')}
                 </Typography>
-                {logs.map(log => (
-                  <Typography key={log.id} variant="body2">
-                    {log.task_name}: {formatTime(log.spent_time)}
+                {(logs || []).map(log => (
+                  <Typography key={log?.id || Math.random()} variant="body2">
+                    {log?.task_name || 'Unknown Task'}: {formatTime(log?.spent_time || 0)}
                   </Typography>
                 ))}
               </Box>
@@ -61,7 +61,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
                 <Chip
                   size="small"
                   icon={<AccessTime />}
-                  label={`${totalHours.toFixed(1)}h`}
+                  label={`${(typeof totalHours === 'number' && !isNaN(totalHours) ? totalHours : 0).toFixed(1)}h`}
                   sx={{
                     position: 'absolute',
                     bottom: 4,

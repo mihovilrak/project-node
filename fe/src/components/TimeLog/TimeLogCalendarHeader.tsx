@@ -34,7 +34,7 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
             <NavigateBefore />
           </IconButton>
           <Typography variant="h6" sx={{ mx: 2 }}>
-            {format(currentDate, 'MMMM yyyy')}
+            {currentDate ? format(currentDate, 'MMMM yyyy') : 'Invalid Date'}
           </Typography>
           <IconButton onClick={() => onNavigateMonth('next')}>
             <NavigateNext />
@@ -44,7 +44,7 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle2" color="textSecondary">
-          Total hours this month: {totalHours}h
+          Total hours this month: {(typeof totalHours === 'number' && !isNaN(totalHours) ? totalHours : 0).toFixed(1)}h
         </Typography>
       </Box>
     </>

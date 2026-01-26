@@ -32,13 +32,23 @@ const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
   }, [currentDate]);
 
   const fetchTimeLogs = async (): Promise<void> => {
+    if (!projectId) {
+      setError('Project ID is required');
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
+      setError(null);
       const logs = await getProjectTimeLogs(projectId);
-      setTimeLogs(logs);
-    } catch (error) {
+      setTimeLogs(logs || []);
+    } catch (error: any) {
       console.error('Failed to fetch time logs:', error);
-      setError('Failed to load time logs');
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to load time logs';
+      setError(errorMessage);
+      setTimeLogs([]);
     } finally {
       setLoading(false);
     }
@@ -64,12 +74,12 @@ const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
     <Paper sx={{ p: 3 }}>
       <TimeLogCalendarHeader
         currentDate={currentDate}
-        totalHours={getTotalMonthHours(timeLogs)}
+        totalHours={getTotalMonthHours(timeLogs || [])}
         onNavigateMonth={navigateMonth}
       />
       <TimeLogCalendarGrid
         days={getCalendarDays()}
-        timeLogs={timeLogs}
+        timeLogs={timeLogs || []}
         getTimeLogsForDate={getTimeLogsForDate}
         getTotalHoursForDate={getTotalHoursForDate}
         getDayColor={getDayColor}

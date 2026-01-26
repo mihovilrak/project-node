@@ -63,11 +63,15 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
           label="Project"
           required
         >
-          {projects.map(project => (
-            <MenuItem key={project.id} value={project.id}>
-              {project.name}
-            </MenuItem>
-          ))}
+          {projects.length === 0 ? (
+            <MenuItem disabled>No projects available</MenuItem>
+          ) : (
+            projects.map(project => (
+              <MenuItem key={project?.id} value={project?.id}>
+                {project?.name || 'Unknown'}
+              </MenuItem>
+            ))
+          )}
         </Select>
       </FormControl>
 
@@ -81,11 +85,15 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
           label="Task"
           required
         >
-          {tasks.map(task => (
-            <MenuItem key={task.id} value={task.id}>
-              {task.name}
-            </MenuItem>
-          ))}
+          {tasks.length === 0 ? (
+            <MenuItem disabled>No tasks available</MenuItem>
+          ) : (
+            tasks.map(task => (
+              <MenuItem key={task?.id} value={task?.id}>
+                {task?.name || 'Unknown'}
+              </MenuItem>
+            ))
+          )}
         </Select>
       </FormControl>
 
@@ -118,11 +126,15 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             label="User"
             required
           >
-            {users.map(user => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
-              </MenuItem>
-            ))}
+            {users.length === 0 ? (
+              <MenuItem disabled>No users available</MenuItem>
+            ) : (
+              users.map(user => (
+                <MenuItem key={user?.id} value={user?.id}>
+                  {user?.name || 'Unknown'}
+                </MenuItem>
+              ))
+            )}
           </Select>
         </FormControl>
       )}
