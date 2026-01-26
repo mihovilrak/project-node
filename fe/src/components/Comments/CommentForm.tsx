@@ -28,11 +28,11 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
         multiline
         rows={3}
         placeholder="Add a comment..."
-        value={comment}
+        value={comment || ''}
         onChange={(e) => setComment(e.target.value)}
         error={!!error}
-        helperText={error}
-        disabled={loading}
+        helperText={error || ''}
+        disabled={loading || !taskId}
       />
       <Box
         sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}
@@ -40,7 +40,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
         <Button
           type="submit"
           variant="contained"
-          disabled={loading || !comment.trim()}
+          disabled={loading || !taskId || !comment?.trim()}
         >
           {loading ? <CircularProgress size={24} /> : 'Add Comment'}
         </Button>

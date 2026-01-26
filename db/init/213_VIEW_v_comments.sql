@@ -4,8 +4,10 @@ create or replace view v_comments as
             c.user_id,
             u.name || ' ' || u.surname as user_name,
             c.comment,
-            c.created_on
+            c.active,
+            c.created_on,
+            c.updated_on
     from comments c
     left join users u on u.id = c.user_id
     where c.active = true
-    order by 6 desc;
+    order by 7 desc;

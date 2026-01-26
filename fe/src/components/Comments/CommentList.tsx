@@ -35,12 +35,22 @@ const CommentList: React.FC<CommentListProps> = ({
     handleDeleteClick
   } = useCommentMenu(onCommentUpdated, onCommentDeleted);
 
+  if (!comments || comments.length === 0) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography variant="body2" color="text.secondary" align="center">
+          No comments yet
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <>
       <List>
         {comments.map((comment) => (
           <Paper
-            key={comment.id}
+            key={comment?.id || Math.random()}
             elevation={0}
             sx={{ mb: 2, p: 2, backgroundColor: 'background.default' }}
           >
@@ -50,8 +60,8 @@ const CommentList: React.FC<CommentListProps> = ({
               mb: 1
             }}>
               <Avatar
-                src={comment.user_avatar || undefined}
-                alt={comment.user_name}
+                src={comment?.user_avatar || undefined}
+                alt={comment?.user_name || 'User'}
                 sx={{ width: 32, height: 32, mr: 2 }}
                 data-testid="avatar-test"
               />
@@ -64,36 +74,41 @@ const CommentList: React.FC<CommentListProps> = ({
                   }}
                 >
                   <Typography variant="subtitle2">
-                  <Link
-                    component={RouterLink}
-                    to={`/users/${comment.user_id}`}
-                    color="primary"
-                  >
-                    {comment.user_name}
-                  </Link>
+                  {comment?.user_id ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/users/${comment.user_id}`}
+                      color="primary"
+                    >
+                      {comment?.user_name || 'Unknown User'}
+                    </Link>
+                  ) : (
+                    <span>{comment?.user_name || 'Unknown User'}</span>
+                  )}
                 </Typography>
                   <Box>
                     <Typography
                       variant="caption"
                       color="text.secondary"
                     >
-                      {new Date(comment.created_on).toLocaleString()}
+                      {comment?.created_on ? new Date(comment.created_on).toLocaleString() : 'Unknown date'}
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={(e) => handleMenuOpen(e, comment)}
+                      onClick={(e) => comment && handleMenuOpen(e, comment)}
                       sx={{ ml: 1 }}
+                      disabled={!comment}
                     >
                       <MoreVertIcon fontSize="small" />
                     </IconButton>
                   </Box>
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  {comment.comment}
+                  {comment?.comment || 'No comment text'}
                 </Typography>
               </Box>
             </Box>
-            {comment.updated_on && (
+            {comment?.updated_on && (
               <Typography
                 variant="caption"
                 color="text.secondary"

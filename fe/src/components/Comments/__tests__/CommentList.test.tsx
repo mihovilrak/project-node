@@ -128,8 +128,8 @@ describe('CommentList Component', () => {
   test('renders empty list when no comments', () => {
     renderCommentList({ comments: [] });
 
-    const list = screen.getByRole('list');
-    expect(list.children).toHaveLength(0);
+    expect(screen.getByText('No comments yet')).toBeInTheDocument();
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
   test('formats dates correctly', () => {

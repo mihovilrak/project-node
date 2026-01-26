@@ -84,6 +84,34 @@ describe('useTaskComments', () => {
     expect(result.current.comments).toEqual([...mockComments, newComment]);
   });
 
+  it('should prevent duplicate comments', async () => {
+    const duplicateComment: Comment = {
+      id: 1, // Same ID as first comment
+      task_id: 1,
+      user_id: 1,
+      comment: 'Duplicate comment',
+      active: true,
+      created_on: '2024-01-25T00:00:00Z',
+      updated_on: null,
+      user_name: 'Test User'
+    };
+
+    (createComment as jest.Mock).mockResolvedValue(duplicateComment);
+
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
+
+    await act(async () => {
+      await result.current.handleCommentSubmit('Duplicate comment');
+    });
+
+    // Should update existing comment instead of adding duplicate
+    expect(result.current.comments).toHaveLength(2);
+    expect(result.current.comments[0].id).toBe(1);
+  });
+
   it('should update comment successfully', async () => {
     const updatedComment: Comment = {
       ...mockComments[0],

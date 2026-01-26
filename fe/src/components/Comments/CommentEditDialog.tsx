@@ -28,10 +28,18 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   } = useCommentEdit(comment, onSave);
 
   React.useEffect(() => {
-    if (comment) {
+    if (comment?.comment) {
       setEditedText(comment.comment);
+    } else {
+      setEditedText('');
     }
   }, [comment, setEditedText]);
+
+  React.useEffect(() => {
+    if (!open && comment) {
+      resetForm();
+    }
+  }, [open, comment, resetForm]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter' && event.ctrlKey) {

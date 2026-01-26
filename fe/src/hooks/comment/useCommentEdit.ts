@@ -13,15 +13,16 @@ export const useCommentEdit = (comment: Comment | null, onSave: (id: number, tex
   }, [comment]);
 
   const handleSave = async (): Promise<void> => {
-    if (!comment) return;
+    if (!comment || !editedText.trim()) return;
 
     try {
       setIsSubmitting(true);
-      await onSave(comment.id, editedText);
+      setError('');
+      await onSave(comment.id, editedText.trim());
       resetForm();
+      setIsSubmitting(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update comment');
-    } finally {
       setIsSubmitting(false);
     }
   };

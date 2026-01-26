@@ -50,13 +50,22 @@ export const editComment = async (
   pool: Pool,
   id: string,
   comment: string
-): Promise<Comment | null> => {
-  const result = await pool.query(
+): Promise<CommentWithUser | null> => {
+  // Update the comment
+  await pool.query(
     `UPDATE comments
     SET (comment, updated_on) = ($2, current_timestamp)
     WHERE id = $1`,
     [id, comment]
   );
+  
+  // Fetch the updated comment with user details from v_comments view
+  const result = await pool.query(
+    `SELECT * FROM v_comments
+    WHERE id = $1`,
+    [id]
+  );
+  
   return result.rows[0] || null;
 };
 

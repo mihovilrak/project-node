@@ -43,4 +43,5 @@ export interface TaskCommentSectionProps {
   onCommentDelete: (commentId: number) => Promise<void>;
   onEditStart: (comment: Comment) => void;
   onEditEnd: () => void;
+  onCommentRefresh?: () => Promise<void>;
 }
