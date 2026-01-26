@@ -4,9 +4,15 @@ export interface Profile {
   surname: string;
   email: string;
   login: string;
+  role_name?: string;
   created_on: Date;
-  updated_on: Date;
-  active: boolean;
+  updated_on?: Date;
+  last_login?: Date;
+  active?: boolean;
+  total_tasks?: number;
+  completed_tasks?: number;
+  active_projects?: number;
+  total_hours?: number;
 }
 
 export interface ProfileUpdateInput {

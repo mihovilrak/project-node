@@ -92,7 +92,7 @@ const Profile: React.FC = () => {
       <ProfileHeader user={profile} />
 
       <ProfileStats
-        stats={stats}
+        stats={stats || { totalTasks: 0, completedTasks: 0, activeProjects: 0, totalHours: 0 }}
         loading={loading}
       />
 
@@ -100,7 +100,7 @@ const Profile: React.FC = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={1} sx={{ p: 3 }}>
             <ProfileTaskList
-              tasks={recentTasks}
+              tasks={recentTasks || []}
               loading={loading}
               onTaskClick={handleTaskClick}
             />
@@ -109,7 +109,7 @@ const Profile: React.FC = () => {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={1} sx={{ p: 3 }}>
             <ProfileProjectList
-              projects={recentProjects}
+              projects={recentProjects || []}
               loading={loading}
             />
           </Paper>
@@ -119,7 +119,7 @@ const Profile: React.FC = () => {
       <ProfileEditDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        profile={typedProfile as ProfileData}
+        profile={typedProfile as ProfileData || undefined}
         onProfileUpdate={handleProfileUpdate}
       />
 

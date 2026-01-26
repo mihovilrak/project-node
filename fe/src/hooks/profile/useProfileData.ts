@@ -19,7 +19,7 @@ const DEFAULT_STATS: ProfileStats = {
 };
 
 export const useProfileData = () => {
-  const [profile, setProfile] = useState<User | null>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [recentTasks, setRecentTasks] = useState<Task[]>([]);
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,26 +34,42 @@ export const useProfileData = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const profileData = await getProfile();
+      
+      if (!profileData) {
+        setError('Profile data not found');
+        setLoading(false);
+        return;
+      }
+
       setProfile(profileData);
 
       setStats({
-        totalTasks: profileData?.total_tasks ?? 0,
-        completedTasks: profileData?.completed_tasks ?? 0,
-        activeProjects: profileData?.active_projects ?? 0,
-        totalHours: profileData?.total_hours ?? 0
+        totalTasks: profileData.total_tasks ?? 0,
+        completedTasks: profileData.completed_tasks ?? 0,
+        activeProjects: profileData.active_projects ?? 0,
+        totalHours: profileData.total_hours ?? 0
       });
 
       const [tasksData, projectsData] = await Promise.all([
-        getRecentTasks(),
-        getRecentProjects()
+        getRecentTasks().catch(err => {
+          console.error('Failed to fetch recent tasks:', err);
+          return [];
+        }),
+        getRecentProjects().catch(err => {
+          console.error('Failed to fetch recent projects:', err);
+          return [];
+        })
       ]);
 
-      setRecentTasks(tasksData);
-      setRecentProjects(projectsData);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load profile data');
+      setRecentTasks(tasksData || []);
+      setRecentProjects(projectsData || []);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.error || 
+                          err?.message || 
+                          'Failed to load profile data';
+      setError(errorMessage);
       console.error('Error fetching profile data:', err);
     } finally {
       setLoading(false);
@@ -77,18 +93,17 @@ export const useProfileData = () => {
   };
 
   const getTypedProfile = (): ProfileData | null => {
-    return profile as ProfileData;
+    return profile;
   };
 
-  const getProfileStats = () => {
-    const typedProfile = getTypedProfile();
-    if (!typedProfile) return DEFAULT_STATS;
+  const getProfileStats = (): ProfileStats => {
+    if (!profile) return DEFAULT_STATS;
 
     return {
-      totalTasks: typedProfile.total_tasks ?? 0,
-      completedTasks: typedProfile.completed_tasks ?? 0,
-      activeProjects: typedProfile.active_projects ?? 0,
-      totalHours: typedProfile.total_hours ?? 0
+      totalTasks: profile.total_tasks ?? 0,
+      completedTasks: profile.completed_tasks ?? 0,
+      activeProjects: profile.active_projects ?? 0,
+      totalHours: profile.total_hours ?? 0
     };
   };
 

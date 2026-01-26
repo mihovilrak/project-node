@@ -11,20 +11,20 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
       mb: 4
     }}>
       <Avatar
-        src={user.avatar_url || undefined}
-        alt={`${user.name} ${user.surname}`}
+        src={user?.avatar_url || undefined}
+        alt={`${user?.name || ''} ${user?.surname || ''}`}
         sx={{ width: 80, height: 80 }}
         data-testid="user-avatar"
       />
       <Box>
         <Typography variant="h4" gutterBottom>
-          {user.name} {user.surname}
+          {user?.name || ''} {user?.surname || ''}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {user.email}
+          {user?.email || 'No email'}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {user.role_name}
+          {user?.role_name || 'No role'}
         </Typography>
       </Box>
     </Box>

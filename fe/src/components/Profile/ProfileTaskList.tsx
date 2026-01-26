@@ -32,38 +32,44 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
       <Typography variant="h6" gutterBottom>
         Recent Tasks
       </Typography>
-      <List>
-        {tasks.map((task) => (
-          <ListItem key={task.id} divider onClick={() => handleTaskClick(task)}>
-            <ListItemText
-              primary={task.name}
-              secondary={
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                  <Chip
-                    label={task.project_name}
-                    size="small"
-                    variant="outlined"
-                    data-testid="project-chip"
-                  />
-                  <Chip
-                    label={task.status_name}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    data-testid="status-chip"
-                  />
-                  <Chip
-                    label={task.priority_name}
-                    size="small"
-                    sx={{ bgcolor: task.priority_color, color: 'white' }}
-                    data-testid="priority-chip"
-                  />
-                </Box>
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
+      {tasks.length === 0 ? (
+        <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+          No recent tasks
+        </Typography>
+      ) : (
+        <List>
+          {tasks.map((task) => (
+            <ListItem key={task?.id} divider onClick={() => task && handleTaskClick(task)}>
+              <ListItemText
+                primary={task?.name || 'Unnamed Task'}
+                secondary={
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                    <Chip
+                      label={task?.project_name || 'No Project'}
+                      size="small"
+                      variant="outlined"
+                      data-testid="project-chip"
+                    />
+                    <Chip
+                      label={task?.status_name || 'Unknown'}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      data-testid="status-chip"
+                    />
+                    <Chip
+                      label={task?.priority_name || 'Unknown'}
+                      size="small"
+                      sx={{ bgcolor: task?.priority_color || '#666', color: 'white' }}
+                      data-testid="priority-chip"
+                    />
+                  </Box>
+                }
+              />
+            </ListItem>
+          ))}
+        </List>
+      )}
     </>
   );
 };

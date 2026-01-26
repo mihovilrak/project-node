@@ -17,28 +17,27 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
   const { getActivityIcon, getActivityColor } = useActivityTimeline();
 
   const renderTimelineItem = (activity: Activity, index: number) => {
-    const Icon = getActivityIcon(activity.type);
+    if (!activity) return null;
+    
+    const Icon = getActivityIcon(activity?.type || 'default');
 
     return (
-      <TimelineItem key={activity.id}>
+      <TimelineItem key={activity?.id || index}>
         <TimelineOppositeContent sx={{ flex: 0.2 }}>
           <Typography variant="caption" color="text.secondary">
-            {new Date(activity.timestamp).toLocaleString()}
+            {activity?.timestamp ? new Date(activity.timestamp).toLocaleString() : 'Unknown date'}
           </Typography>
         </TimelineOppositeContent>
         <TimelineSeparator>
-          <TimelineDot color={getActivityColor(activity.type)}>
+          <TimelineDot color={getActivityColor(activity?.type || 'default')}>
             <Icon />
           </TimelineDot>
-          {index < activities.length - 1 && <TimelineConnector />}
+          {index < (activities?.length || 0) - 1 && <TimelineConnector />}
         </TimelineSeparator>
         <TimelineContent>
           <Box sx={{ pb: 2 }}>
             <Typography variant="body2">
-              {activity.description}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {activity.description}
+              {activity?.description || 'No description'}
             </Typography>
           </Box>
         </TimelineContent>
@@ -56,7 +55,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
 
   return (
     <Timeline>
-      {activities.map((activity, index) => renderTimelineItem(activity, index))}
+      {(activities || []).map((activity, index) => renderTimelineItem(activity, index))}
     </Timeline>
   );
 };

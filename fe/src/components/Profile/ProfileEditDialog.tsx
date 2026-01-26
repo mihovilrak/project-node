@@ -58,7 +58,12 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       await onProfileUpdate(updatedProfile);
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+      console.error('Failed to update profile:', err);
+      const errorMessage = err?.response?.data?.error || 
+                          err?.response?.data?.message || 
+                          err?.message || 
+                          'Failed to update profile';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

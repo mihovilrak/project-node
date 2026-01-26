@@ -24,12 +24,7 @@ begin
                t.status_name,
                t.priority_name,
                t.created_by_name,
-               case
-                   when t.priority_name in ('Very high/Must', 'Urgent/ASAP') then 'error'
-                   when t.priority_name = 'High/Should' then 'warning'
-                   when t.priority_name = 'Normal/Could' then 'info'
-                   else 'default'
-               end as priority_color
+               t.priority_color
         from v_tasks t
         where t.assignee_id = user_id
         and t.status_name not in ('Deleted', 'Cancelled', 'Done')

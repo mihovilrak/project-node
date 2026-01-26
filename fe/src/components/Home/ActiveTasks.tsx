@@ -20,10 +20,12 @@ const ActiveTasks: React.FC = () => {
   useEffect(() => {
     const fetchTasks = async (): Promise<void> => {
       try {
+        setLoading(true);
         const taskList = await getActiveTasks();
-        setTasks(taskList);
-      } catch (error) {
+        setTasks(taskList || []);
+      } catch (error: any) {
         console.error('Failed to fetch active tasks', error);
+        setTasks([]);
       } finally {
         setLoading(false);
       }
@@ -44,17 +46,17 @@ const ActiveTasks: React.FC = () => {
       ) : (
         <Grid container spacing={2}>
           {tasks.map((task) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
               <Card
-                onClick={() => navigate(`/tasks/${task.id}`)}
+                onClick={() => navigate(`/tasks/${task?.id}`)}
                 sx={{ cursor: 'pointer' }}
               >
                 <CardContent>
-                  <Typography variant="h6">{task.name}</Typography>
-                  <Typography variant="body2">Project: {task.project_name}</Typography>
-                  <Typography variant="body2">Priority: {task.priority_name}</Typography>
+                  <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
+                  <Typography variant="body2">Project: {task?.project_name || 'No Project'}</Typography>
+                  <Typography variant="body2">Priority: {task?.priority_name || 'Unknown'}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Due: {task.due_date ? dayjs(task.due_date).format('MMM D, YYYY') : 'No due date'}
+                    Due: {task?.due_date ? dayjs(task.due_date).format('MMM D, YYYY') : 'No due date'}
                   </Typography>
                 </CardContent>
               </Card>
