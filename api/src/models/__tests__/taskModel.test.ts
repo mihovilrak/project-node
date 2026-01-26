@@ -244,16 +244,16 @@ describe('TaskModel', () => {
   describe('getPriorities', () => {
     it('should return all priorities', async () => {
       const mockPriorities = [
-        { id: 1, name: 'Low' },
-        { id: 2, name: 'Medium' },
-        { id: 3, name: 'High' }
+        { id: 1, name: 'Low', color: '#4CAF50' },
+        { id: 2, name: 'Medium', color: '#2196F3' },
+        { id: 3, name: 'High', color: '#FFA726' }
       ];
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockPriorities));
 
       const result = await taskModel.getPriorities(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, name')
+        expect.stringContaining('SELECT id, name, color')
       );
       expect(result).toEqual(mockPriorities);
     });

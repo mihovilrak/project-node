@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTasks, deleteTask } from '../../api/tasks';
+import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../api/tasks';
+import { getProjects } from '../../api/projects';
 import {
   Grid,
   Button,
@@ -15,6 +16,7 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import FilterPanel from '../common/FilterPanel';
+import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import { Task } from '../../types/task';
 import { FilterValues } from '../../types/filterPanel';
 import { getPriorityColor } from '../../utils/taskUtils';
@@ -25,11 +27,14 @@ const Tasks: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>({});
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [statuses, setStatuses] = useState<any[]>([]);
+  const [priorities, setPriorities] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<boolean>(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   const fetchTasks = useCallback(async (): Promise<void> => {
     try {
@@ -44,17 +49,58 @@ const Tasks: React.FC = () => {
     }
   }, []);
 
-  const handleDelete = useCallback(async (taskId: number): Promise<void> => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
+  useEffect(() => {
+    fetchTasks();
+    // Fetch filter options
+    const fetchFilterOptions = async () => {
       try {
-        await deleteTask(taskId);
-        fetchTasks();
+        const [statusesData, prioritiesData, projectsData] = await Promise.all([
+          getTaskStatuses().catch(() => []),
+          getPriorities().catch(() => []),
+          getProjects().catch(() => [])
+        ]);
+        setStatuses(statusesData);
+        setPriorities(prioritiesData);
+        setProjects(projectsData);
       } catch (error) {
-        console.error('Failed to delete task', error);
-        setError('Failed to delete task. Please try again.');
+        console.error('Failed to fetch filter options:', error);
       }
-    }
+    };
+    fetchFilterOptions();
   }, [fetchTasks]);
+
+  const handleDeleteClick = useCallback((task: Task): void => {
+    setTaskToDelete(task);
+    setDeleteError(null);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async (): Promise<void> => {
+    if (!taskToDelete) return;
+
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+      await deleteTask(taskToDelete.id);
+      await fetchTasks();
+      setDeleteDialogOpen(false);
+      setTaskToDelete(null);
+    } catch (error: any) {
+      console.error('Failed to delete task:', error);
+      const errorMessage = error?.response?.data?.error || 
+                         error?.message || 
+                         'Failed to delete task. Please try again.';
+      setDeleteError(errorMessage);
+    } finally {
+      setDeleting(false);
+    }
+  }, [taskToDelete, fetchTasks]);
+
+  const handleDeleteCancel = useCallback((): void => {
+    setDeleteDialogOpen(false);
+    setTaskToDelete(null);
+    setDeleteError(null);
+  }, []);
 
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
@@ -67,10 +113,10 @@ const Tasks: React.FC = () => {
   const filterOptions = useMemo(() => ({
     search: true,
     showDateFilters: true,
-    statuses: [], // This should be populated with actual status options from your API
-    priorities: [], // This should be populated with actual priority options from your API
-    projects: [] // This should be populated with actual project options from your API
-  }), []);
+    statuses: statuses,
+    priorities: priorities,
+    projects: projects
+  }), [statuses, priorities, projects]);
 
   const filteredTasks = useMemo(() => {
     return tasks
@@ -78,9 +124,9 @@ const Tasks: React.FC = () => {
         if (filters.search) {
           const searchTerm = filters.search.toLowerCase();
           return (
-            task.name.toLowerCase().includes(searchTerm) ||
-            task.description?.toLowerCase().includes(searchTerm) ||
-            task.project_name?.toLowerCase().includes(searchTerm)
+            task?.name?.toLowerCase().includes(searchTerm) ||
+            task?.description?.toLowerCase().includes(searchTerm) ||
+            task?.project_name?.toLowerCase().includes(searchTerm)
           );
         }
         if (filters.status_id) {
@@ -152,44 +198,49 @@ const Tasks: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {filteredTasks.map((task) => (
-          <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={task.id}>
+        {filteredTasks.length === 0 ? (
+          <Grid size={{ xs: 12 }}>
+            <Typography>No tasks found.</Typography>
+          </Grid>
+        ) : (
+          filteredTasks.map((task) => (
+            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={task?.id}>
             <Card>
               <CardContent>
-                <Typography variant="h6">{task.name}</Typography>
-                <Typography variant="body2">Project: {task.project_name}</Typography>
+                <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
+                <Typography variant="body2">Project: {task?.project_name || 'No Project'}</Typography>
                 <Box sx={{ mt: 1 }}>
                   <Chip
-                    label={task.status_name}
+                    label={task?.status_name || 'Unknown'}
                     size="small"
-                    color={task.status_name === 'Done' ? 'success' : 'default'}
+                    color={task?.status_name === 'Done' ? 'success' : 'default'}
                     sx={{ mr: 1 }}
                     data-testid="status-chip"
                   />
                   <Chip
-                    label={task.priority_name}
+                    label={task?.priority_name || 'Unknown'}
                     size="small"
-                    color={getPriorityColor(task.priority_name || '')}
+                    color={getPriorityColor(task?.priority_name || '')}
                     data-testid="priority-chip"
                   />
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  Assignee: {task.assignee_name || 'Unassigned'}
+                  Assignee: {task?.assignee_name || 'Unassigned'}
                 </Typography>
                 <Box marginTop={2}>
-                  <Button onClick={() => navigate(`/tasks/${task.id}`)}>
+                  <Button onClick={() => navigate(`/tasks/${task?.id}`)}>
                     Details
                   </Button>
                   <Button
                     color="warning"
-                    onClick={() => navigate(`/tasks/${task.id}/edit`)}
+                    onClick={() => navigate(`/tasks/${task?.id}/edit`)}
                     sx={{ ml: 1 }}
                   >
                     Edit
                   </Button>
                   <Button
                     color="error"
-                    onClick={() => handleDelete(task.id)}
+                    onClick={() => handleDeleteClick(task)}
                     sx={{ ml: 1 }}
                   >
                     Delete
@@ -198,8 +249,19 @@ const Tasks: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-        ))}
+        ))
+        )}
       </Grid>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Task"
+        content={`Are you sure you want to delete task "${taskToDelete?.name}"? This action cannot be undone.`}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        loading={deleting}
+        error={deleteError || undefined}
+      />
     </Box>
   );
 };

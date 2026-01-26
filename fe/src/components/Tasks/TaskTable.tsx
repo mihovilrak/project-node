@@ -11,12 +11,24 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
-  Box
+  Box,
+  Typography
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
+import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TaskTableProps } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
+
+const getIconComponent = (iconName?: string): React.ReactElement | undefined => {
+  if (!iconName) return undefined;
+  try {
+    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+    return IconComponent ? React.createElement(IconComponent) : undefined;
+  } catch {
+    return undefined;
+  }
+};
 
 const TaskTable: React.FC<TaskTableProps> = ({
   tasks,
@@ -47,49 +59,60 @@ const TaskTable: React.FC<TaskTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {tasks.map((task) => (
-            <TableRow key={task.id}>
-              <TableCell>{task.name}</TableCell>
-              <TableCell>
-                <Chip
-                  label={task.type_name}
-                  size="small"
-                  style={{
-                    backgroundColor: task.type_color,
-                    color: '#fff'
-                  }}
-                />
-              </TableCell>
-              <TableCell>
-                <Chip
-                  label={task.status_name}
-                  size="small"
-                  color={task.status_name === 'Done' ? 'success' : 'default'}
-                />
-              </TableCell>
-              <TableCell>
-                <Chip
-                  label={task.priority_name}
-                  size="small"
-                  color={getPriorityColor(task.priority_name || '')}
-                />
-              </TableCell>
-              <TableCell>{task.holder_name}</TableCell>
-              <TableCell>
-                {task.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}
-              </TableCell>
-              <TableCell>
-                <Tooltip title="Edit Task">
-                  <IconButton
-                    size="small"
-                    onClick={() => navigate(`/tasks/${task.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
+          {tasks.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No tasks found
+                </Typography>
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            tasks.map((task) => (
+              <TableRow key={task?.id}>
+                <TableCell>{task?.name || 'Unnamed Task'}</TableCell>
+                <TableCell>
+                  <Chip
+                    icon={getIconComponent(task?.type_icon)}
+                    label={task?.type_name || 'Unknown'}
+                    size="small"
+                    style={{
+                      backgroundColor: task?.type_color || '#666',
+                      color: '#fff'
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={task?.status_name || 'Unknown'}
+                    size="small"
+                    color={task?.status_name === 'Done' ? 'success' : 'default'}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={task?.priority_name || 'Unknown'}
+                    size="small"
+                    color={getPriorityColor(task?.priority_name || '')}
+                  />
+                </TableCell>
+                <TableCell>{task?.holder_name || 'Unassigned'}</TableCell>
+                <TableCell>
+                  {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}
+                </TableCell>
+                <TableCell>
+                  <Tooltip title="Edit Task">
+                    <IconButton
+                      size="small"
+                      onClick={() => navigate(`/tasks/${task?.id}`)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>

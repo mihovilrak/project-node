@@ -10,11 +10,13 @@ export const useTaskWatchers = (taskId: string) => {
   const [watchers, setWatchers] = useState<TaskWatcher[]>([]);
 
   const fetchWatchers = async () => {
+    if (!taskId) return;
     try {
       const watcherData = await getTaskWatchers(Number(taskId));
-      setWatchers(watcherData);
-    } catch (error) {
+      setWatchers(watcherData || []);
+    } catch (error: any) {
       console.error('Failed to fetch watchers:', error);
+      setWatchers([]);
     }
   };
 
@@ -24,21 +26,33 @@ export const useTaskWatchers = (taskId: string) => {
 
   const handleAddWatcher = async (userId: number) => {
     try {
+      if (!taskId) throw new Error('Task ID is required');
+      if (!userId) throw new Error('User ID is required');
+
       await addTaskWatcher(Number(taskId), userId);
       await fetchWatchers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add watcher:', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to add watcher';
+      throw new Error(errorMessage);
     }
   };
 
   const handleRemoveWatcher = async (userId: number) => {
     try {
+      if (!taskId) throw new Error('Task ID is required');
+      if (!userId) throw new Error('User ID is required');
+
       await removeTaskWatcher(Number(taskId), userId);
       await fetchWatchers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to remove watcher:', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to remove watcher';
+      throw new Error(errorMessage);
     }
   };
 

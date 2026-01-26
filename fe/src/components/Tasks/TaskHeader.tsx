@@ -13,9 +13,20 @@ import {
   Grid
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import * as Icons from '@mui/icons-material';
 import { TaskHeaderProps } from '../../types/task';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
+
+const getIconComponent = (iconName?: string, color?: string): React.ReactElement | undefined => {
+  if (!iconName) return undefined;
+  try {
+    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+    return IconComponent ? React.createElement(IconComponent, { sx: { color } }) : undefined;
+  } catch {
+    return undefined;
+  }
+};
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({
   task,
@@ -42,7 +53,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   return (
     <Paper
       elevation={3}
-      sx={{ p: 4, mb: 4, backgroundColor: '#f8f9fa' }}
+      sx={{ p: 4, mb: 4, bgcolor: 'background.default' }}
     >
       <Box sx={{
         display: 'flex',
@@ -52,7 +63,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
         >
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
-            {task.name}
+            {task?.name || 'Unnamed Task'}
           </Typography>
           <Grid container spacing={2} sx={{ color: 'text.secondary', mb: 2 }}>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -60,13 +71,17 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <FolderIcon fontSize="small" />
                 <Typography variant="body2" data-testid="project-name">
                   Project:{' '}
-                  <Link
-                    component={RouterLink}
-                    to={`/projects/${task.project_id}`}
-                    color="primary"
-                  >
-                    {task.project_name}
-                  </Link>
+                  {task?.project_id ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/projects/${task.project_id}`}
+                      color="primary"
+                    >
+                      {task?.project_name || 'Unknown'}
+                    </Link>
+                  ) : (
+                    'No project'
+                  )}
                 </Typography>
               </Box>
             </Grid>
@@ -75,13 +90,17 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2" data-testid="holder-name">
                   Holder:{' '}
-                  <Link
-                    component={RouterLink}
-                    to={`/users/${task.holder_id}`}
-                    color="primary"
-                  >
-                    {task.holder_name}
-                  </Link>
+                  {task?.holder_id ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/users/${task.holder_id}`}
+                      color="primary"
+                    >
+                      {task?.holder_name || 'Unknown'}
+                    </Link>
+                  ) : (
+                    'Not assigned'
+                  )}
                 </Typography>
               </Box>
             </Grid>
@@ -90,13 +109,17 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2">
                   Created by:{' '}
-                  <Link
-                    component={RouterLink}
-                    to={`/users/${task.created_by}`}
-                    color="primary"
-                  >
-                    {task.created_by_name}
-                  </Link>
+                  {task?.created_by ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/users/${task.created_by}`}
+                      color="primary"
+                    >
+                      {task?.created_by_name || 'Unknown'}
+                    </Link>
+                  ) : (
+                    'Unknown'
+                  )}
                 </Typography>
               </Box>
             </Grid>
@@ -105,22 +128,26 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 <PersonIcon fontSize="small" />
                 <Typography variant="body2" data-testid="assignee-name">
                   Assignee:{' '}
-                  <Link
-                    component={RouterLink}
-                    to={`/users/${task.assignee_id}`}
-                    color="primary"
-                  >
-                    {task.assignee_name}
-                  </Link>
+                  {task?.assignee_id ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/users/${task.assignee_id}`}
+                      color="primary"
+                    >
+                      {task?.assignee_name || 'Unknown'}
+                    </Link>
+                  ) : (
+                    'Unassigned'
+                  )}
                 </Typography>
               </Box>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
-                Created: {new Date(task.created_on).toLocaleDateString()}
+                Created: {task?.created_on ? new Date(task.created_on).toLocaleDateString() : 'Unknown'}
               </Typography>
             </Grid>
-            {task.due_date && (
+            {task?.due_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Due: {new Date(task.due_date).toLocaleDateString()}
@@ -129,52 +156,55 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             )}
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
-                Task ID: #{task.id}
+                Task ID: #{task?.id || 'Unknown'}
               </Typography>
             </Grid>
-            {task.type_name && (
+            {task?.type_name && (
               <Grid size={{ xs: 12, sm: 6 }}>
-                <Typography variant="body2">
-                  Type: {task.type_name}
-                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  {task?.type_icon && getIconComponent(task.type_icon, task?.type_color)}
+                  <Typography variant="body2">
+                    Type: <span style={{ color: task?.type_color || '#666' }}>{task.type_name}</span>
+                  </Typography>
+                </Box>
               </Grid>
             )}
-            {task.priority_name && (
+            {task?.priority_name && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Priority: {task.priority_name}
                 </Typography>
               </Grid>
             )}
-            {task.estimated_time && (
+            {task?.estimated_time !== undefined && task?.estimated_time !== null && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Estimated Time: {task.estimated_time} hours
                 </Typography>
               </Grid>
             )}
-            {task.spent_time && (
+            {task?.spent_time !== undefined && task?.spent_time !== null && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Time Spent: {task.spent_time} hours
                 </Typography>
               </Grid>
             )}
-            {task.progress !== undefined && (
+            {task?.progress !== undefined && task?.progress !== null && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Progress: {task.progress}%
                 </Typography>
               </Grid>
             )}
-            {task.start_date && (
+            {task?.start_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   Start Date: {new Date(task.start_date).toLocaleDateString()}
                 </Typography>
               </Grid>
             )}
-            {task.end_date && (
+            {task?.end_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
                   End Date: {new Date(task.end_date).toLocaleDateString()}

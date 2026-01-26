@@ -102,11 +102,22 @@ describe('TaskCommentSection', () => {
   });
 
   test('handles new comment submission', async () => {
-    renderComponent();
+    const mockOnCommentRefresh = jest.fn();
+    const propsWithRefresh = {
+      ...mockProps,
+      onCommentRefresh: mockOnCommentRefresh
+    };
+    renderComponent(propsWithRefresh);
     const addButton = screen.getByText('Add Comment');
     fireEvent.click(addButton);
 
-    expect(mockProps.onCommentSubmit).toHaveBeenCalledWith('New comment');
+    // After fix: onCommentRefresh should be called instead of onCommentSubmit
+    // to avoid duplicate comment creation
+    await waitFor(() => {
+      expect(mockOnCommentRefresh).toHaveBeenCalled();
+    });
+    // onCommentSubmit should NOT be called since comment is already created
+    expect(mockProps.onCommentSubmit).not.toHaveBeenCalled();
   });
 
   test('handles comment update', async () => {

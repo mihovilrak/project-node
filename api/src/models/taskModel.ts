@@ -192,7 +192,7 @@ export const getPriorities = async (
   pool: Pool
 ): Promise<TaskPriority[]> => {
   const result: QueryResult<TaskPriority> = await pool.query(
-    `SELECT id, name
+    `SELECT id, name, color
     FROM priorities`
   );
   return result.rows;

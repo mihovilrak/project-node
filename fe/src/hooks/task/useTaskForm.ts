@@ -117,11 +117,14 @@ export const useTaskForm = ({
           getTags()
         ]);
 
-        setStatuses(statusesData);
-        setPriorities(prioritiesData);
-        setAvailableTags(tagsData);
-      } catch (error) {
+        setStatuses(statusesData || []);
+        setPriorities(prioritiesData || []);
+        setAvailableTags(tagsData || []);
+      } catch (error: any) {
         console.error('Error fetching data:', error);
+        setStatuses([]);
+        setPriorities([]);
+        setAvailableTags([]);
       }
     };
 
@@ -174,13 +177,22 @@ export const useTaskForm = ({
 
       if (isEditing) {
         await updateTask(Number(taskId), taskData);
+        navigate(`/tasks/${taskId}`);
       } else {
-        await createTask(taskData);
+        const newTask = await createTask(taskData);
+        if (newTask && newTask.id) {
+          navigate(`/tasks/${newTask.id}`);
+        } else {
+          navigate(-1);
+        }
       }
-      navigate(-1);
-    } catch (error) {
-      console.error('Error saving task:', error);
-    }
+      } catch (error: any) {
+        console.error('Error saving task:', error);
+        const errorMessage = error?.response?.data?.error || 
+                            error?.message || 
+                            'Failed to save task';
+        throw new Error(errorMessage);
+      }
   };
 
   return {

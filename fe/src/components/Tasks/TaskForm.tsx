@@ -81,7 +81,7 @@ const TaskForm: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleSubmit(e);
-    navigate(-1);
+    // Navigation is handled in handleSubmit
   };
 
   return (

@@ -28,7 +28,8 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onEditStart,
   onEditEnd,
   onAddSubtaskClick,
-  onTimeLogClick
+  onTimeLogClick,
+  onCommentRefresh
 }) => (
   <Grid size={{ xs: 12, md: 8 }}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
@@ -54,8 +55,8 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         </Button>
       </Box>
       <SubtaskList
-        subtasks={subtasks}
-        parentTaskId={task.id}
+        subtasks={subtasks || []}
+        parentTaskId={task?.id}
         onSubtaskDeleted={onSubtaskDeleted}
         onSubtaskUpdated={onSubtaskUpdated}
       />
@@ -117,6 +118,7 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onCommentDelete={onCommentDelete}
         onEditStart={onEditStart}
         onEditEnd={onEditEnd}
+        onCommentRefresh={onCommentRefresh}
       />
     </Paper>
   </Grid>

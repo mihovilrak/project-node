@@ -252,7 +252,8 @@ describe('useTaskForm', () => {
       expect(createTask).toHaveBeenCalled();
     });
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith(-1);
+      // After fix: should navigate to task details page instead of -1
+      expect(mockNavigate).toHaveBeenCalledWith(`/tasks/${newTask.id}`);
     });
   });
 
@@ -287,7 +288,8 @@ describe('useTaskForm', () => {
       expect(updateTask).toHaveBeenCalled();
     });
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith(-1);
+      // After fix: should navigate to task details page instead of -1
+      expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
     });
   });
 

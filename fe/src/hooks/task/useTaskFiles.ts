@@ -6,11 +6,13 @@ export const useTaskFiles = (taskId: string) => {
   const [files, setFiles] = useState<TaskFile[]>([]);
 
   const refreshFiles = useCallback(async () => {
+    if (!taskId) return;
     try {
       const filesData = await getTaskFiles(Number(taskId));
-      setFiles(filesData);
-    } catch (error) {
+      setFiles(filesData || []);
+    } catch (error: any) {
       console.error('Failed to fetch files:', error);
+      setFiles([]);
     }
   }, [taskId]);
 
@@ -20,26 +22,41 @@ export const useTaskFiles = (taskId: string) => {
 
   const handleFileUpload = async (file: File) => {
     try {
+      if (!taskId) throw new Error('Task ID is required');
+      if (!file) throw new Error('File is required');
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('task_id', taskId);
 
       const uploadedFile = await uploadFile(Number(taskId), formData);
+      if (!uploadedFile) {
+        throw new Error('Failed to upload file');
+      }
       await refreshFiles(); // Refresh files after upload
       return uploadedFile;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to upload file:', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to upload file';
+      throw new Error(errorMessage);
     }
   };
 
   const handleFileDelete = async (fileId: number) => {
     try {
+      if (!taskId) throw new Error('Task ID is required');
+      if (!fileId) throw new Error('File ID is required');
+
       await deleteFile(Number(taskId), fileId);
-      setFiles(prev => prev.filter(file => file.id !== fileId));
-    } catch (error) {
+      setFiles(prev => prev.filter(file => file?.id !== fileId));
+    } catch (error: any) {
       console.error('Failed to delete file:', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to delete file';
+      throw new Error(errorMessage);
     }
   };
 

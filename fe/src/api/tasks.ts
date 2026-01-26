@@ -30,7 +30,7 @@ export const getTasks = async (filters: TaskFilters = {}): Promise<Task[]> => {
 // Get task by id
 export const getTaskById = async (id: number): Promise<Task> => {
   try {
-    const response = await api.get(`tasks/${id}`);
+    const response = await api.get(`/tasks/${id}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching task:', error);
@@ -41,7 +41,7 @@ export const getTaskById = async (id: number): Promise<Task> => {
 // Create task
 export const createTask = async (taskData: Partial<Task>): Promise<Task> => {
   try {
-    const response = await api.post('tasks', taskData);
+    const response = await api.post('/tasks', taskData);
     return response.data;
   } catch (error) {
     console.error('Error creating task:', error);
@@ -52,7 +52,7 @@ export const createTask = async (taskData: Partial<Task>): Promise<Task> => {
 // Update task
 export const updateTask = async (taskId: number, data: Partial<TaskFormState>): Promise<ApiResponse<Task>> => {
   try {
-    const response = await api.put(`tasks/${taskId}`, data);
+    const response = await api.put(`/tasks/${taskId}`, data);
     return response.data;
   } catch (error) {
     console.error('Error updating task:', error);
@@ -63,7 +63,7 @@ export const updateTask = async (taskId: number, data: Partial<TaskFormState>): 
 // Delete task
 export const deleteTask = async (id: number): Promise<void> => {
   try {
-    await api.delete(`tasks/${id}`);
+    await api.delete(`/tasks/${id}`);
   } catch (error) {
     console.error('Error deleting task:', error);
     throw error;
@@ -168,7 +168,7 @@ export const getPriorities = async (): Promise<TaskPriority[]> => {
 // Update task tags
 export const updateTaskTags = async (taskId: number, tags: Tag[]): Promise<ApiResponse<void>> => {
   try {
-    const response = await api.put(`tasks/${taskId}/tags`, { tags });
+    const response = await api.put(`/tasks/${taskId}/tags`, { tags });
     return response.data;
   } catch (error) {
     console.error('Error updating task tags:', error);

@@ -4,7 +4,8 @@ import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
   getTaskTimeLogs,
   deleteTimeLog as deleteTimeLogApi,
-  createTimeLog
+  createTimeLog,
+  updateTimeLog
 } from '../../api/timeLogs';
 
 export const useTaskTimeLogs = (taskId: string) => {
@@ -12,12 +13,14 @@ export const useTaskTimeLogs = (taskId: string) => {
   const { currentUser } = useAuth();
 
   const fetchTimeLogs = useCallback(async () => {
+    if (!taskId) return;
     try {
       const timeLogsData = await getTaskTimeLogs(Number(taskId));
       console.log('Fetched time logs:', timeLogsData);
-      setTimeLogs(timeLogsData);
-    } catch (error) {
+      setTimeLogs(timeLogsData || []);
+    } catch (error: any) {
       console.error('Failed to fetch time logs:', error);
+      setTimeLogs([]);
     }
   }, [taskId]);
 
@@ -26,20 +29,35 @@ export const useTaskTimeLogs = (taskId: string) => {
     fetchTimeLogs();
   }, [fetchTimeLogs]);
 
-  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
+  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate, timeLogId?: number) => {
     try {
       if (!currentUser?.id) {
         throw new Error('User not authenticated');
       }
+      if (!taskId) {
+        throw new Error('Task ID is required');
+      }
 
-      console.log('Submitting time log:', timeLogData);
-      const newTimeLog = await createTimeLog(Number(taskId), timeLogData);
-      console.log('Created time log:', newTimeLog);
+      console.log('Submitting time log:', timeLogData, 'timeLogId:', timeLogId);
+      let result: TimeLog;
+      
+      // Check if we're updating an existing time log
+      if (timeLogId) {
+        result = await updateTimeLog(timeLogId, timeLogData);
+        console.log('Updated time log:', result);
+      } else {
+        result = await createTimeLog(Number(taskId), timeLogData);
+        console.log('Created time log:', result);
+      }
+      
       await fetchTimeLogs(); // Refresh time logs after submission
-      return newTimeLog;
-    } catch (error) {
-      console.error('Failed to add time log:', error);
-      throw error;
+      return result;
+    } catch (error: any) {
+      console.error('Failed to submit time log:', error);
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to submit time log';
+      throw new Error(errorMessage);
     }
   };
 
@@ -47,9 +65,12 @@ export const useTaskTimeLogs = (taskId: string) => {
     try {
       await deleteTimeLogApi(timeLogId);
       await fetchTimeLogs(); // Refresh time logs after deletion
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete time log:', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to delete time log';
+      throw new Error(errorMessage);
     }
   };
 
