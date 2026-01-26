@@ -1,67 +1,73 @@
+// @ts-nocheck - MSW v1 handlers don't have perfect TypeScript support
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Login from '../../components/Auth/Login';
-import { api } from '../../api/api';
 import { TestWrapper } from '../TestWrapper';
+import { server } from '../mocks/server';
+import { defaultUser, defaultPermissions } from '../mocks/handlers';
 
-// Mock the api module
-jest.mock('../../api/api', () => ({
-  api: {
-    get: jest.fn(),
-    post: jest.fn(),
-  }
-}));
-
-const mockedApi = api as jest.Mocked<typeof api>;
+// MSW v1 API
+const { rest } = require('msw');
 
 describe('Authentication Flow', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    // Default mock for check-session (called by AuthProvider on mount)
-    mockedApi.get.mockResolvedValue({ status: 200, data: {} });
+    // Reset handlers to defaults before each test
+    server.resetHandlers();
   });
 
   it('should handle login flow correctly', async () => {
-    // Mock successful login
-    mockedApi.post.mockResolvedValueOnce({
-      status: 200,
-      data: { user: { id: 1, name: 'Test User' } }
-    });
-    // Mock permissions fetch after login
-    mockedApi.get.mockResolvedValueOnce({ status: 200, data: {} }); // check-session
-    mockedApi.get.mockResolvedValueOnce({ status: 200, data: [] }); // permissions
+    const user = userEvent.setup();
+
+    // Override login handler for successful login
+    server.use(
+      rest.post('/api/login', async (req, res, ctx) => {
+        const body = await req.json() as { login: string; password: string };
+        if (body.login === 'testuser' && body.password === 'password123') {
+          return res(ctx.json({ user: defaultUser }));
+        }
+        return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
+      })
+    );
 
     render(
       <TestWrapper>
         <Login />
       </TestWrapper>
     );
+
+    // Wait for initial loading to complete
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
 
     // Get form elements
     const loginInput = screen.getByTestId('login-input');
     const passwordInput = screen.getByTestId('password-input');
     const submitButton = screen.getByTestId('login-submit');
 
-    // Fill in the form using fireEvent.change (faster than userEvent.type)
-    fireEvent.change(loginInput, { target: { value: 'testuser' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    // Fill in the form
+    await user.type(loginInput, 'testuser');
+    await user.type(passwordInput, 'password123');
 
     // Submit the form
-    fireEvent.click(submitButton);
+    await user.click(submitButton);
 
-    // Wait for and verify success state - redirects to root (/) as per useLogin hook
+    // Wait for navigation to root (/) as per useLogin hook
     await waitFor(() => {
       expect(window.location.pathname).toBe('/');
-    });
+    }, { timeout: 3000 });
   });
 
   it('should display error message for invalid credentials', async () => {
-    // Mock /check-session to resolve with no user
-    mockedApi.get.mockResolvedValueOnce({ status: 200, data: {} });
-    // Mock /login to reject with a 401 error (simulate missing user)
-    mockedApi.post.mockRejectedValueOnce({
-      response: { status: 401, data: {} }
-    });
+    const user = userEvent.setup();
+
+    // Override login handler to return 401
+    server.use(
+      rest.post('/api/login', (req, res, ctx) => {
+        return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
+      })
+    );
 
     render(
       <TestWrapper>
@@ -69,28 +75,26 @@ describe('Authentication Flow', () => {
       </TestWrapper>
     );
 
+    // Wait for initial loading
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
     const loginInput = screen.getByTestId('login-input');
     const passwordInput = screen.getByTestId('password-input');
     const submitButton = screen.getByTestId('login-submit');
 
-    // Fill in the form using fireEvent.change (faster than userEvent.type)
-    fireEvent.change(loginInput, { target: { value: 'wronguser' } });
-    fireEvent.change(passwordInput, { target: { value: 'wrongpass' } });
-    fireEvent.click(submitButton);
+    // Fill in the form with wrong credentials
+    await user.type(loginInput, 'wronguser');
+    await user.type(passwordInput, 'wrongpass');
+    await user.click(submitButton);
 
-    let errorElem: HTMLElement | null = null;
-    try {
-      await waitFor(() => {
-        errorElem = screen.getByTestId('login-error');
-        expect(errorElem).toBeInTheDocument();
-        expect(errorElem!.textContent).not.toBe("");
-      });
-    } catch (e) {
-      // Log DOM for diagnosis if error element not found
-      // eslint-disable-next-line no-console
-      console.log('DEBUG: Rendered DOM:', document.body.innerHTML);
-      throw e;
-    }
+    // Wait for error message to appear
+    await waitFor(() => {
+      const errorElem = screen.getByTestId('login-error');
+      expect(errorElem).toBeInTheDocument();
+      expect(errorElem.textContent).not.toBe('');
+    });
   });
 
   it('should validate required fields', async () => {
@@ -109,6 +113,8 @@ describe('Authentication Flow', () => {
   });
 
   it('should toggle password visibility', async () => {
+    const user = userEvent.setup();
+
     render(
       <TestWrapper>
         <Login />
@@ -122,15 +128,110 @@ describe('Authentication Flow', () => {
     expect(passwordInput).toHaveAttribute('type', 'password');
 
     // Click toggle button
-    fireEvent.click(toggleButton);
+    await user.click(toggleButton);
 
     // Password should be visible
     expect(passwordInput).toHaveAttribute('type', 'text');
 
     // Click toggle button again
-    fireEvent.click(toggleButton);
+    await user.click(toggleButton);
 
     // Password should be hidden again
     expect(passwordInput).toHaveAttribute('type', 'password');
+  });
+
+  it('should handle network errors', async () => {
+    const user = userEvent.setup();
+
+    // Override login handler to simulate network error
+    server.use(
+      rest.post('/api/login', () => {
+        throw new Error('Network Error');
+      })
+    );
+
+    render(
+      <TestWrapper>
+        <Login />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    const loginInput = screen.getByTestId('login-input');
+    const passwordInput = screen.getByTestId('password-input');
+    const submitButton = screen.getByTestId('login-submit');
+
+    await user.type(loginInput, 'testuser');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+
+    // Should display error message
+    await waitFor(() => {
+      const errorElem = screen.getByTestId('login-error');
+      expect(errorElem).toBeInTheDocument();
+    });
+  });
+
+  it('should handle 500 server error', async () => {
+    const user = userEvent.setup();
+
+    // Override login handler to return 500
+    server.use(
+      rest.post('/api/login', (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({ error: 'Internal server error' }));
+      })
+    );
+
+    render(
+      <TestWrapper>
+        <Login />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    const loginInput = screen.getByTestId('login-input');
+    const passwordInput = screen.getByTestId('password-input');
+    const submitButton = screen.getByTestId('login-submit');
+
+    await user.type(loginInput, 'testuser');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+
+    // Should display error message
+    await waitFor(() => {
+      const errorElem = screen.getByTestId('login-error');
+      expect(errorElem).toBeInTheDocument();
+    });
+  });
+
+  it('should handle empty credentials', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TestWrapper>
+        <Login />
+      </TestWrapper>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    const submitButton = screen.getByTestId('login-submit');
+    const loginInput = screen.getByTestId('login-input');
+    const passwordInput = screen.getByTestId('password-input');
+
+    // Try to submit with empty fields
+    await user.click(submitButton);
+
+    // Form validation should prevent submission
+    expect(loginInput).toBeRequired();
+    expect(passwordInput).toBeRequired();
   });
 });

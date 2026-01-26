@@ -1,7 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jsdom', // MSW v1 works with standard jsdom
   roots: ['<rootDir>/src'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
@@ -16,7 +16,7 @@ module.exports = {
     "^.+\\.(js|jsx|mjs|cjs|es\\.js)$": ['babel-jest', { rootMode: 'upward' }]
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(@mui|@emotion|mui-color-input|react-router-dom)).+"
+    "/node_modules/(?!(@mui|@emotion|mui-color-input|react-router-dom|@mswjs|msw|web-streams-polyfill|@open-draft|outvariant|headers-polyfill|until-async|rettime|tagged-tag|yoctocolors-cjs|@inquirer)).+"
   ],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.[tj]sx?$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']

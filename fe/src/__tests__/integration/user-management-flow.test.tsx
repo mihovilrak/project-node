@@ -116,9 +116,6 @@ describe('User Management Flow', () => {
     mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
     mockedUsersApi.deleteUser.mockResolvedValue(undefined);
 
-    // Mock window.confirm to return true
-    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-
     render(
       <TestWrapper>
         <Users />
@@ -134,11 +131,19 @@ describe('User Management Flow', () => {
     const deleteButton = screen.getByTestId('delete-user-1');
     await userEvent.click(deleteButton);
 
-    // Verify confirmation was shown and delete API was called
-    expect(confirmSpy).toHaveBeenCalledWith('Are you sure you want to delete this user?');
-    expect(mockedUsersApi.deleteUser).toHaveBeenCalledWith(1);
+    // Wait for dialog to open
+    await waitFor(() => {
+      expect(screen.getByText(/Are you sure you want to delete user/)).toBeInTheDocument();
+    });
 
-    confirmSpy.mockRestore();
+    // Click confirm button in dialog
+    const confirmButton = screen.getByRole('button', { name: /delete/i });
+    await userEvent.click(confirmButton);
+
+    // Verify delete API was called
+    await waitFor(() => {
+      expect(mockedUsersApi.deleteUser).toHaveBeenCalledWith(1);
+    });
   });
 
   it('should display multiple users and allow sorting', async () => {
