@@ -1,10 +1,10 @@
-insert into tags (name, color) values
-    ('Frontend', '#e91e63'),
-    ('Backend', '#2196f3'),
-    ('Database', '#ff9800'),
-    ('UI/UX', '#9c27b0'),
-    ('API', '#4caf50'),
-    ('Security', '#f44336'),
-    ('Performance', '#ff5722'),
-    ('DevOps', '#795548')
+insert into tags (name, color, icon) values
+    ('Frontend', '#e91e63', 'Web'),
+    ('Backend', '#2196f3', 'Storage'),
+    ('Database', '#ff9800', 'Database'),
+    ('UI/UX', '#9c27b0', 'Palette'),
+    ('API', '#4caf50', 'Api'),
+    ('Security', '#f44336', 'Security'),
+    ('Performance', '#ff5722', 'Speed'),
+    ('DevOps', '#795548', 'Settings')
     on conflict (name) do nothing;
