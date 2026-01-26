@@ -23,10 +23,12 @@ export const useNotificationCenter = (
     try {
       setLoading(true);
       const data = await getNotifications(userId);
-      setNotifications(data);
-      setUnreadCount(data.filter(n => !n.is_read).length);
-    } catch (error) {
+      setNotifications(data || []);
+      setUnreadCount((data || []).filter(n => !n?.is_read).length);
+    } catch (error: any) {
       console.error('Failed to fetch notifications:', error);
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -53,27 +55,35 @@ export const useNotificationCenter = (
   const handleNotificationClick = async (notification: Notification): Promise<void> => {
     try {
       if (!userId) return;
+      if (!notification) return;
 
       if (!notification.is_read) {
         await markAsRead(userId);
         await fetchNotifications();
       }
       handleClose();
-      if (notification.link) {
+      if (notification?.link) {
         navigate(notification.link);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to handle notification click:', error);
+      // Don't prevent navigation if marking as read fails
+      handleClose();
+      if (notification?.link) {
+        navigate(notification.link);
+      }
     }
   };
 
   const handleDeleteNotification = async (id: number, event: React.MouseEvent): Promise<void> => {
     event.stopPropagation();
     try {
+      if (!id) return;
       await deleteNotification(id);
       await fetchNotifications();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete notification:', error);
+      // Continue - user can try again
     }
   };
 
