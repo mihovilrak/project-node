@@ -16,13 +16,15 @@ export const createTag = async (
   pool: Pool,
   name: string,
   color: string,
-  userId: string
+  userId: string,
+  icon?: string
 ): Promise<Tag> => {
+  const defaultIcon = icon || 'Label';
   const result = await pool.query(
-    `INSERT INTO tags (name, color, created_by)
-    VALUES ($1, $2, $3)
+    `INSERT INTO tags (name, color, icon, created_by)
+    VALUES ($1, $2, $3, $4)
     RETURNING *`,
-    [name, color, userId]
+    [name, color, defaultIcon, userId]
   );
   return result.rows[0];
 };
@@ -72,15 +74,47 @@ export const getTaskTags = async (
 export const updateTag = async (
   pool: Pool,
   id: string,
-  name: string,
-  color: string
+  name?: string,
+  color?: string,
+  icon?: string
 ): Promise<Tag | null> => {
+  const updates: string[] = [];
+  const values: any[] = [];
+  let paramIndex = 1;
+
+  if (name !== undefined) {
+    updates.push(`name = $${paramIndex}`);
+    values.push(name);
+    paramIndex++;
+  }
+
+  if (color !== undefined) {
+    updates.push(`color = $${paramIndex}`);
+    values.push(color);
+    paramIndex++;
+  }
+
+  if (icon !== undefined) {
+    updates.push(`icon = $${paramIndex}`);
+    values.push(icon);
+    paramIndex++;
+  }
+
+  if (updates.length === 0) {
+    // No updates to make
+    const result = await pool.query(`SELECT * FROM tags WHERE id = $1`, [id]);
+    return result.rows[0] || null;
+  }
+
+  updates.push(`updated_on = CURRENT_TIMESTAMP`);
+  values.push(id);
+
   const result = await pool.query(
     `UPDATE tags
-    SET (name, color, updated_on) = ($1, $2, CURRENT_TIMESTAMP)
-    WHERE id = $3
+    SET ${updates.join(', ')}
+    WHERE id = $${paramIndex}
     RETURNING *`,
-    [name, color, id]
+    values
   );
   return result.rows[0] || null;
 };

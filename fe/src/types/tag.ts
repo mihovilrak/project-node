@@ -2,6 +2,7 @@ export interface Tag {
   id: number;
   name: string;
   color: string;
+  icon?: string;
   description: string | null;
   created_by: number;
   active: boolean;

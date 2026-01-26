@@ -2,6 +2,7 @@ export interface Tag {
   id: number;
   name: string;
   color: string;
+  icon: string;
   created_on: Date;
   updated_on: Date;
   active: boolean;
@@ -10,11 +11,13 @@ export interface Tag {
 export interface TagCreateInput {
   name: string;
   color: string;
+  icon?: string;
 }
 
 export interface TagUpdateInput {
   name?: string;
   color?: string;
+  icon?: string;
   active?: boolean;
 }
 

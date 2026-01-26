@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as tagModel from '../models/tagModel';
 import { CustomRequest } from '../types/express';
-import { TagCreateInput } from '../types/tag';
+import { TagCreateInput, TagUpdateInput } from '../types/tag';
 
 // Get all tags
 export const getTags = async (
@@ -26,14 +26,14 @@ export const createTag = async (
   pool: Pool
 ): Promise<Response | void> => {
   try {
-    const { name, color } = req.body as TagCreateInput;
+    const { name, color, icon } = req.body as TagCreateInput;
     const userId = req.session?.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const tag = await tagModel.createTag(pool, name, color, userId);
+    const tag = await tagModel.createTag(pool, name, color, userId, icon);
     res.status(201).json(tag);
   } catch (error) {
     console.error(error);
@@ -104,8 +104,8 @@ export const updateTag = async (
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
-    const { name, color } = req.body as { name: string; color: string };
-    const tag = await tagModel.updateTag(pool, id, name, color);
+    const { name, color, icon } = req.body as TagUpdateInput;
+    const tag = await tagModel.updateTag(pool, id, name, color, icon);
     res.status(200).json(tag);
   } catch (error) {
     console.error(error);

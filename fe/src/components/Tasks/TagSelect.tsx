@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Box
 } from '@mui/material';
+import * as Icons from '@mui/icons-material';
 import { getTags } from '../../api/tags';
 import { Tag, TagSelectProps } from '../../types/tag';
 
@@ -18,21 +19,23 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
       try {
         setLoading(true);
         const fetchedTags = await getTags() as Tag[];
-        const activeTags = fetchedTags
-          .filter(tag => tag.active)
+        const activeTags = (fetchedTags || [])
+          .filter(tag => tag?.active)
           .map(tag => ({
-            id: tag.id,
-            name: tag.name,
-            color: tag.color,
-            description: tag.description || null,
-            created_by: tag.created_by,
-            active: tag.active,
-            created_on: tag.created_on,
-            creator_name: tag.creator_name
+            id: tag?.id || 0,
+            name: tag?.name || 'Unknown',
+            color: tag?.color || '#666',
+            icon: tag?.icon || 'Label',
+            description: tag?.description || null,
+            created_by: tag?.created_by || 0,
+            active: tag?.active || false,
+            created_on: tag?.created_on || '',
+            creator_name: tag?.creator_name || ''
           }));
         setTags(activeTags);
       } catch (error) {
         console.error('Failed to fetch tags:', error);
+        setTags([]);
       } finally {
         setLoading(false);
       }
@@ -47,6 +50,12 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
       </Box>
     );
   }
+
+  const getIconComponent = (iconName?: string): React.ReactElement => {
+    const name = iconName || 'Label';
+    const IconComponent = Icons[name as keyof typeof Icons] as React.ComponentType<any>;
+    return IconComponent ? React.createElement(IconComponent) : React.createElement(Icons.Label);
+  };
 
   return (
     <Autocomplete
@@ -63,24 +72,38 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
           placeholder="Select tags"
         />
       )}
+      renderOption={(props, tag) => (
+        <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {getIconComponent(tag?.icon)}
+          <span>{tag?.name || 'Unknown'}</span>
+        </Box>
+      )}
       renderTags={(tagValue, getTagProps) =>
-        tagValue.map((tag, index) => (
-          <Chip
-            {...getTagProps({ index })}
-            key={tag.id}
-            label={tag.name}
-            sx={{
-              backgroundColor: tag.color || '#666',
-              color: 'white',
-              '& .MuiChip-deleteIcon': {
+        (tagValue || []).map((tag, index) => {
+          const Icon = getIconComponent(tag?.icon);
+          
+          return (
+            <Chip
+              {...getTagProps({ index })}
+              key={tag?.id || index}
+              icon={Icon}
+              label={tag?.name || 'Unknown'}
+              sx={{
+                backgroundColor: tag?.color || '#666',
                 color: 'white',
-                '&:hover': {
-                  color: 'rgba(255, 255, 255, 0.7)'
+                '& .MuiChip-icon': {
+                  color: 'white !important'
+                },
+                '& .MuiChip-deleteIcon': {
+                  color: 'white',
+                  '&:hover': {
+                    color: 'rgba(255, 255, 255, 0.7)'
+                  }
                 }
-              }
-            }}
-          />
-        ))
+              }}
+            />
+          );
+        })
       }
     />
   );

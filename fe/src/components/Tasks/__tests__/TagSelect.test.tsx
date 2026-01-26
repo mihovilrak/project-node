@@ -100,7 +100,7 @@ describe('TagSelect Component', () => {
     });
   });
 
-  test('renders selected tags as chips with correct colors', async () => {
+  test('renders selected tags as chips with correct colors and icons', async () => {
     render(
       <TagSelect
         selectedTags={[mockTags[0]]}
@@ -114,6 +114,10 @@ describe('TagSelect Component', () => {
 
     const chip = screen.getByText('Bug').closest('.MuiChip-root');
     expect(chip).toHaveStyle({ backgroundColor: '#ff0000' });
+    
+    // Check that icon is present (LabelIcon)
+    const icon = chip?.querySelector('svg');
+    expect(icon).toBeInTheDocument();
   });
 
   test('handles API error', async () => {
