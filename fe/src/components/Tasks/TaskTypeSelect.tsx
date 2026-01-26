@@ -28,9 +28,10 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
     const fetchTaskTypes = async (): Promise<void> => {
       try {
         const types = await getTaskTypes();
-        setTaskTypes(types);
-      } catch (error) {
+        setTaskTypes(types || []);
+      } catch (error: any) {
         console.error('Failed to fetch task types:', error);
+        setTaskTypes([]);
       } finally {
         setLoading(false);
       }
@@ -59,17 +60,24 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
         onChange={handleChange}
         label="Task Type"
       >
-        {taskTypes.map((type) => {
-          const Icon = type.icon ? Icons[type.icon as keyof typeof Icons] : null;
-          return (
-            <MenuItem key={type.id} value={type.id}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {Icon && <Icon sx={{ color: type.color }} />}
-                <span style={{ color: type.color }}>{type.name}</span>
-              </Box>
-            </MenuItem>
-          );
-        })}
+        {(!taskTypes || taskTypes.length === 0) ? (
+          <MenuItem value="" disabled>
+            No task types available
+          </MenuItem>
+        ) : (
+          taskTypes.map((type) => {
+            if (!type?.id) return null;
+            const Icon = type?.icon ? Icons[type.icon as keyof typeof Icons] : null;
+            return (
+              <MenuItem key={type.id} value={type.id}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {Icon && <Icon sx={{ color: type?.color || '#666' }} />}
+                  <span style={{ color: type?.color || '#666' }}>{type?.name || 'Unknown'}</span>
+                </Box>
+              </MenuItem>
+            );
+          })
+        )}
       </Select>
     </FormControl>
   );

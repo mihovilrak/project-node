@@ -3,6 +3,18 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TaskTypeDialog from '../TaskTypeDialog';
 import { TaskType } from '../../../types/setting';
 
+// Mock the useIconSelector hook
+jest.mock('../../../hooks/setting/useIconSelector', () => ({
+  useIconSelector: (initialValue: string | undefined) => ({
+    icons: ['Task', 'Bug', 'Feature'],
+    open: false,
+    handleOpen: jest.fn(),
+    handleClose: jest.fn(),
+    handleSelect: jest.fn(),
+    value: initialValue
+  })
+}));
+
 const mockTaskType: TaskType = {
   id: 1,
   name: 'Test Task',
@@ -31,6 +43,8 @@ describe('TaskTypeDialog', () => {
       expect(screen.getByLabelText(/^Name/)).toHaveValue('');
       expect(screen.getByLabelText(/^Color/)).toHaveValue('#2196f3');
       expect(screen.getByLabelText(/^Description/)).toHaveValue('');
+      // Icon selector should be present - check for the label
+      expect(screen.getByText('Icon')).toBeInTheDocument();
     });
 
     it('renders edit mode correctly', () => {
@@ -40,6 +54,8 @@ describe('TaskTypeDialog', () => {
       expect(screen.getByLabelText(/^Name/)).toHaveValue('Test Task');
       expect(screen.getByLabelText(/^Color/)).toHaveValue('#2196f3');
       expect(screen.getByLabelText(/^Description/)).toHaveValue('Test Description');
+      // Icon selector should be present - check for the label
+      expect(screen.getByText('Icon')).toBeInTheDocument();
     });
   });
 
@@ -82,11 +98,30 @@ describe('TaskTypeDialog', () => {
       const submitButton = screen.getByText('Create');
       fireEvent.click(submitButton);
 
-      expect(mockProps.onSave).toHaveBeenCalledWith({
-        name: 'New Task',
-        color: '#2196f3',
-        description: 'New Description',
-        active: true
+      expect(mockProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'New Task',
+          color: '#2196f3',
+          description: 'New Description',
+          icon: 'Task',
+          active: true
+        })
+      );
+    });
+
+    it('includes icon field in form submission', async () => {
+      render(<TaskTypeDialog {...mockProps} />);
+
+      // Submit form with default 'Task' icon
+      const form = screen.getByRole('dialog').querySelector('form')!;
+      fireEvent.submit(form);
+      
+      await waitFor(() => {
+        expect(mockProps.onSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon: 'Task'
+          })
+        );
       });
     });
   });

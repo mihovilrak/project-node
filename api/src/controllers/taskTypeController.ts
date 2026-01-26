@@ -64,12 +64,15 @@ export const createTaskType = async (
       return res.status(400).json({ error: 'Invalid color format' });
     }
 
+    // Provide default icon if not specified (database requires NOT NULL)
+    const defaultIcon = icon || 'Task';
+    
     const result = await taskTypeModel.createTaskType(
       pool,
       name,
       description || null,
       color,
-      icon || null,
+      defaultIcon,
       active
     );
 
