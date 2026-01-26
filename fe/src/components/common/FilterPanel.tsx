@@ -96,9 +96,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                     <MenuItem value="">
                       <em>None</em>
                     </MenuItem>
-                    {fieldOption.map((opt: FilterOption) => (
-                      <MenuItem key={opt.id} value={String(opt.id)}>
-                        {opt.name}
+                    {(fieldOption || []).map((opt: FilterOption) => (
+                      <MenuItem key={opt?.id} value={String(opt?.id || '')}>
+                        {opt?.name || 'Unknown'}
                       </MenuItem>
                     ))}
                   </Select>

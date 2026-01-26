@@ -13,7 +13,9 @@ const Header: React.FC = () => {
     >
       <Toolbar>
         <Box sx={{ flexGrow: 1 }} />
-        <NotificationCenter userId={currentUser?.id} />
+        {currentUser?.id && (
+          <NotificationCenter userId={currentUser.id} />
+        )}
       </Toolbar>
     </AppBar>
   );

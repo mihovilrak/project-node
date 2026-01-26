@@ -8,7 +8,7 @@ const Home: React.FC = (): React.ReactElement => {
 
   return (
     <Box>
-      {state.settings.welcome_message && (
+      {state?.settings?.welcome_message && (
         <Box
           data-testid="welcome-message"
           sx={{

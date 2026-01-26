@@ -51,7 +51,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 startIcon={<AccountCircle />}
                 sx={{ ml: 2 }}
               >
-                {currentUser.login}
+                {currentUser?.login || 'User'}
               </Button>
               <Button
                 color="inherit"

@@ -44,12 +44,12 @@ const Login: React.FC = () => {
               name="login"
               fullWidth
               required
-              value={loginDetails.login}
+              value={loginDetails?.login || ''}
               onChange={handleInputChange}
               autoComplete="username"
               inputProps={{ 'data-testid': 'login-input' }}
               InputLabelProps={{
-                sx: { background: 'white', px: 1 }
+                sx: { bgcolor: 'background.paper', px: 1 }
               }}
             />
           </Box>
@@ -60,7 +60,7 @@ const Login: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               fullWidth
               required
-              value={loginDetails.password}
+              value={loginDetails?.password || ''}
               onChange={handleInputChange}
               autoComplete="current-password"
               inputProps={{ 'data-testid': 'password-input' }}
@@ -79,7 +79,7 @@ const Login: React.FC = () => {
                 ),
               }}
               InputLabelProps={{
-                sx: { background: 'white', px: 1 }
+                sx: { bgcolor: 'background.paper', px: 1 }
               }}
             />
           </Box>

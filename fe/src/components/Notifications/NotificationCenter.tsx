@@ -10,7 +10,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  CircularProgress
+  CircularProgress,
+  Paper
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -107,26 +108,27 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         <List sx={{ p: 0 }}>
           {notifications.map((notification) => (
             <ListItem
-              key={notification.id}
-              onClick={() => handleNotificationClick(notification)}
+              key={notification?.id}
+              onClick={() => notification && handleNotificationClick(notification)}
               sx={{
-                backgroundColor: notification.is_read ? 'inherit' : 'action.hover',
+                backgroundColor: notification?.is_read ? 'inherit' : 'action.hover',
                 '&:hover': {
                   cursor: 'pointer'
                 }
               }}
             >
               <ListItemIcon>
-                {getIcon(notification.type_name || '')}
+                {getIcon(notification?.type_name || '')}
               </ListItemIcon>
               <ListItemText
-                primary={notification.title}
-                secondary={notification.message}
+                primary={notification?.title || 'No title'}
+                secondary={notification?.message || 'No message'}
               />
               <IconButton
-                onClick={(e) => handleDeleteNotification(notification.id, e)}
+                onClick={(e) => notification?.id && handleDeleteNotification(notification.id, e)}
                 size="small"
                 aria-label="delete notification"
+                disabled={!notification?.id}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -159,9 +161,18 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
 
       {/* In test mode, render menu content directly for easier testing */}
       {testMode && (
-        <div data-testid="test-menu-content" style={{ position: 'absolute', zIndex: 1000, width: '360px', backgroundColor: 'white', boxShadow: '0px 5px 5px -3px rgba(0,0,0,0.2), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)' }}>
+        <Paper 
+          data-testid="test-menu-content" 
+          sx={{ 
+            position: 'absolute', 
+            zIndex: 1000, 
+            width: '360px',
+            bgcolor: 'background.paper'
+          }}
+          className="notification-menu"
+        >
           {renderMenuContent()}
-        </div>
+        </Paper>
       )}
 
       {/* Real menu for production use */}
