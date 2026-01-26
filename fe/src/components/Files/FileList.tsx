@@ -39,7 +39,7 @@ const FileList: React.FC<FileListProps> = ({
     <List>
       {files.map((file) => (
         <ListItem
-          key={file.id}
+          key={file?.id}
           sx={{
             borderBottom: '1px solid',
             borderColor: 'divider',
@@ -53,26 +53,30 @@ const FileList: React.FC<FileListProps> = ({
             <ListItemText
               primary={
                 <Typography variant="body1" component="div">
-                  {decodeURIComponent(escape(file.original_name))}
+                  {file?.original_name ? decodeURIComponent(escape(file.original_name)) : 'Unknown file'}
                 </Typography>
               }
               secondaryTypographyProps={{ component: 'div' }}
               secondary={
                 <Box component="div">
                   <Typography variant="caption" component="div" display="block">
-                    Uploaded by: <Link
-                      component={RouterLink}
-                      to={`/users/${file.user_id}`}
-                      color="primary"
-                    >
-                      {file.uploaded_by}
-                    </Link>
+                    Uploaded by: {file?.user_id ? (
+                      <Link
+                        component={RouterLink}
+                        to={`/users/${file.user_id}`}
+                        color="primary"
+                      >
+                        {file?.uploaded_by || 'Unknown'}
+                      </Link>
+                    ) : (
+                      file?.uploaded_by || 'Unknown'
+                    )}
                   </Typography>
                   <Typography variant="caption" component="div" display="block">
-                    Size: <span data-testid="file-size">{formatFileSize(file.size)}</span>
+                    Size: <span data-testid="file-size">{formatFileSize(file?.size || 0)}</span>
                   </Typography>
                   <Typography variant="caption" component="div" display="block">
-                    Uploaded on: {new Date(file.uploaded_on).toLocaleString()}
+                    Uploaded on: {file?.uploaded_on ? new Date(file.uploaded_on).toLocaleString() : 'Unknown'}
                   </Typography>
                 </Box>
               }
@@ -82,8 +86,9 @@ const FileList: React.FC<FileListProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="download"
-                  onClick={() => downloadFile(taskId, file.id)}
+                  onClick={() => file?.id && taskId && downloadFile(taskId, file.id)}
                   sx={{ mr: 1 }}
+                  disabled={!file?.id || !taskId}
                 >
                   <DownloadIcon />
                 </IconButton>
@@ -92,7 +97,8 @@ const FileList: React.FC<FileListProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="delete"
-                  onClick={() => onFileDeleted(file.id)}
+                  onClick={() => file?.id && onFileDeleted(file.id)}
+                  disabled={!file?.id}
                 >
                   <DeleteIcon />
                 </IconButton>

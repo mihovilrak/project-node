@@ -344,8 +344,34 @@ describe('SystemSettings', () => {
       fireEvent.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
-      });
+      expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
     });
   });
+
+  it('updates document.title when app_name changes', () => {
+    const originalTitle = document.title;
+    
+    const { rerender } = render(<SystemSettings />);
+    
+    // Simulate app_name change
+    (useSystemSettings as jest.Mock).mockReturnValue({
+      state: {
+        settings: { ...mockSettings, app_name: 'New App Name' },
+        loading: false,
+        error: null,
+        success: false
+      },
+      handleSubmit: mockHandleSubmit,
+      handleChange: mockHandleChange
+    });
+
+    rerender(<SystemSettings />);
+
+    // Check that document.title was updated
+    expect(document.title).toBe('New App Name');
+    
+    // Restore original title
+    document.title = originalTitle;
+  });
+});
 });

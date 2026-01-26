@@ -70,33 +70,41 @@ const WatcherList: React.FC<WatcherListProps> = ({
         )}
       </Box>
       <List sx={{ py: 1 }}>
-        {watchers.map((watcher) => (
-          <ListItem key={watcher.user_id} sx={{ py: 1 }}>
-            <ListItemText
-              primary={<Link
-                        component={RouterLink}
-                        to={`/users/${watcher.user_id}`}
-                        color="primary"
-                      >
-                        {watcher.user_name}
-                      </Link>}
-              secondary={watcher.role}
-            />
-            {canManageWatchers && (
-              <ListItemSecondaryAction>
-                <Tooltip title="Remove watcher">
-                  <IconButton
-                    edge="end"
-                    onClick={() => onRemoveWatcher(watcher.user_id)}
-                    size="small"
+        {(watchers || []).map((watcher) => {
+          if (!watcher?.user_id) return null;
+          return (
+            <ListItem key={watcher.user_id} sx={{ py: 1 }}>
+              <ListItemText
+                primary={watcher.user_id ? (
+                  <Link
+                    component={RouterLink}
+                    to={`/users/${watcher.user_id}`}
+                    color="primary"
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </ListItemSecondaryAction>
-            )}
-          </ListItem>
-        ))}
+                    {watcher?.user_name || 'Unknown User'}
+                  </Link>
+                ) : (
+                  <span>{watcher?.user_name || 'Unknown User'}</span>
+                )}
+                secondary={watcher?.role || 'No role'}
+              />
+              {canManageWatchers && (
+                <ListItemSecondaryAction>
+                  <Tooltip title="Remove watcher">
+                    <IconButton
+                      edge="end"
+                      onClick={() => onRemoveWatcher(watcher.user_id)}
+                      size="small"
+                      disabled={!watcher.user_id}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </ListItemSecondaryAction>
+              )}
+            </ListItem>
+          );
+        })}
       </List>
     </Paper>
   );

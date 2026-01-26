@@ -11,7 +11,8 @@ import {
   ListItemSecondaryAction,
   Checkbox,
   CircularProgress,
-  Box
+  Box,
+  Typography
 } from '@mui/material';
 import { WatcherDialogProps } from '../../types/watcher';
 import { ProjectMember } from '../../types/project';
@@ -35,9 +36,10 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
       try {
         setLoading(true);
         const members = await getProjectMembers(projectId);
-        setProjectMembers(members);
+        setProjectMembers(members || []);
       } catch (error) {
         console.error('Failed to fetch project members:', error);
+        setProjectMembers([]);
       } finally {
         setLoading(false);
       }
@@ -49,7 +51,8 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
   }, [projectId, open]);
 
   const handleToggle = (userId: number) => {
-    const isCurrentWatcher = currentWatchers.some(w => w.user_id === userId);
+    if (!userId) return;
+    const isCurrentWatcher = (currentWatchers || []).some(w => w?.user_id === userId);
     if (isCurrentWatcher) {
       onRemoveWatcher(userId);
     } else {
@@ -73,10 +76,17 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
+        ) : projectMembers.length === 0 ? (
+          <Box sx={{ p: 2 }}>
+            <Typography variant="body2" color="text.secondary" align="center">
+              No project members available
+            </Typography>
+          </Box>
         ) : (
           <List>
             {projectMembers.map((member) => {
-              const isWatcher = currentWatchers.some(w => w.user_id === member.user_id);
+              if (!member?.user_id) return null;
+              const isWatcher = (currentWatchers || []).some(w => w?.user_id === member.user_id);
               return (
                 <ListItem
                   component="div"
@@ -85,8 +95,8 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
                   sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
                   <ListItemText
-                    primary={`${member.name} ${member.surname}`}
-                    secondary={member.role}
+                    primary={`${member?.name || ''} ${member?.surname || ''}`.trim() || 'Unknown User'}
+                    secondary={member?.role || 'No role'}
                   />
                   <ListItemSecondaryAction>
                     <Checkbox

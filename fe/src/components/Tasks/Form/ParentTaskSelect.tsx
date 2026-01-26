@@ -20,11 +20,20 @@ export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
       sx={{ mb: 2 }}
     >
       <MenuItem value="">None</MenuItem>
-      {projectTasks.map((task) => (
-        <MenuItem key={task.id} value={task.id}>
-          {task.name}
+      {(!projectTasks || projectTasks.length === 0) ? (
+        <MenuItem value="" disabled>
+          No tasks available
         </MenuItem>
-      ))}
+      ) : (
+        projectTasks.map((task) => {
+          if (!task?.id) return null;
+          return (
+            <MenuItem key={task.id} value={task.id}>
+              {task?.name || 'Unnamed Task'}
+            </MenuItem>
+          );
+        })
+      )}
     </TextField>
   ) : null
 );

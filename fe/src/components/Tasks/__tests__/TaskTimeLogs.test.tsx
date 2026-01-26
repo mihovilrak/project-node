@@ -136,7 +136,7 @@ describe('TaskTimeLogs', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load time logs')).toBeInTheDocument();
+      expect(screen.getByText('API Error')).toBeInTheDocument();
     });
   });
 

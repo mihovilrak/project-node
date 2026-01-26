@@ -33,13 +33,23 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   }, [id]);
 
   const fetchTimeLogs = async (): Promise<void> => {
+    if (!id) {
+      setError('Task ID is required');
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
-      const logs = await getTaskTimeLogs(parseInt(id!));
-      setTimeLogs(logs);
-    } catch (error) {
+      setError(null);
+      const logs = await getTaskTimeLogs(parseInt(id));
+      setTimeLogs(logs || []);
+    } catch (error: any) {
       console.error('Failed to fetch time logs:', error);
-      setError('Failed to load time logs');
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to load time logs';
+      setError(errorMessage);
+      setTimeLogs([]);
     } finally {
       setLoading(false);
     }
@@ -55,12 +65,16 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   };
 
   const handleTimeLogDelete = async (timeLogId: number): Promise<void> => {
+    if (!timeLogId) return;
     try {
       await deleteTimeLog(timeLogId);
       fetchTimeLogs();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete time log:', error);
-      setError('Failed to delete time log');
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to delete time log';
+      setError(errorMessage);
     }
   };
 
@@ -122,8 +136,8 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
             setTimeLogDialogOpen(false);
             setSelectedTimeLog(null);
           }}
-          taskId={parseInt(id!)}
-          projectId={task.project_id}
+          taskId={id ? parseInt(id) : undefined}
+          projectId={task?.project_id || undefined}
           timeLog={selectedTimeLog}
           onSubmit={handleTimeLogSubmit}
         />

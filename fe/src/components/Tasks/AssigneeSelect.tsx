@@ -23,10 +23,13 @@ export const AssigneeSelect: React.FC<{
     sx={{ mb: 2 }}
   >
     <MenuItem value={0}>Unassigned</MenuItem>
-    {projectMembers.map((member) => (
-      <MenuItem key={member.user_id} value={member.user_id}>
-        {member.name} {member.surname}
-      </MenuItem>
-    ))}
+    {(projectMembers || []).map((member) => {
+      if (!member?.user_id) return null;
+      return (
+        <MenuItem key={member.user_id} value={member.user_id}>
+          {`${member?.name || ''} ${member?.surname || ''}`.trim() || 'Unknown User'}
+        </MenuItem>
+      );
+    })}
   </TextField>
 );
