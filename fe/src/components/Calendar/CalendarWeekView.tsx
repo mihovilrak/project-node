@@ -61,53 +61,53 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
             </Typography>
             {getTasksForDay(day).map(task => (
               <Paper
-                key={task.id}
+                key={task?.id}
                 sx={{
                   p: 1,
                   mb: 1,
                   cursor: 'pointer',
                   '&:hover': { backgroundColor: 'action.hover' }
                 }}
-                onClick={() => onTaskClick(task.id)}
-                data-testid={`task-chip-${task.id}`}
+                onClick={() => task?.id && onTaskClick(task.id)}
+                data-testid={`task-chip-${task?.id}`}
               >
                 <Typography variant="subtitle2">
-                  {task.start_date ? dayjs(task.start_date).format('HH:mm') : 'No time'} - {task.name}
+                  {task?.start_date ? dayjs(task.start_date).format('HH:mm') : 'No time'} - {task?.name || 'Unnamed Task'}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                   <Chip
-                    label={task.priority_name}
+                    label={task?.priority_name || 'Unknown'}
                     size="small"
-                    color={getPriorityColor(task.priority_name)}
+                    color={getPriorityColor(task?.priority_name || '')}
                   />
                   <Chip
-                    label={task.status_name}
+                    label={task?.status_name || 'Unknown'}
                     size="small"
                     variant="outlined"
                   />
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                  {task.due_date ? dayjs(task.due_date).format('HH:mm') : 'No due date'}
+                  {task?.due_date ? dayjs(task.due_date).format('HH:mm') : 'No due date'}
                 </Typography>
               </Paper>
             ))}
             {getTimeLogsForDay(day).map(timeLog => (
               <Paper
-                key={timeLog.id}
+                key={timeLog?.id}
                 sx={{
                   p: 1,
                   mb: 1,
                   cursor: 'pointer',
-                  backgroundColor: timeLog.activity_type_color,
+                  backgroundColor: timeLog?.activity_type_color || 'background.paper',
                   '&:hover': { opacity: 0.9 }
                 }}
-                onClick={() => onTimeLogClick(timeLog.id)}
+                onClick={() => timeLog?.id && onTimeLogClick(timeLog.id)}
               >
                 <Typography variant="subtitle2">
-                  {new Date(timeLog.created_on).toLocaleTimeString('en-US', {
+                  {timeLog?.created_on ? new Date(timeLog.created_on).toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit'
-                  })} - {timeLog.task_name} ({formatTime(timeLog.spent_time)} hours)
+                  }) : 'Unknown'} - {timeLog?.task_name || 'Unknown Task'} ({timeLog?.spent_time ? formatTime(timeLog.spent_time) : '0'} hours)
                 </Typography>
               </Paper>
             ))}

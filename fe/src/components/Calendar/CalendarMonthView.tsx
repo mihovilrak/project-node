@@ -58,29 +58,35 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
               {day.date.getDate()}
             </Typography>
             <Box sx={{ overflow: 'hidden' }}>
-              {day.tasks.slice(0, 3).map((task: Task) => (
-                <Chip
-                  key={task.id}
-                  label={task.name}
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onTaskClick(task.id);
-                  }}
-                  sx={{
-                    mb: 0.5,
-                    width: '100%',
-                    backgroundColor: getPriorityColor(task.priority_name)
-                  }}
-                  data-testid={`task-chip-${task.id}`}
-                />
-              ))}
-              {day.tasks.length > 3 && (
-                <Typography variant="caption" color="text.secondary">
-                  +{day.tasks.length - 3} more
-                </Typography>
-              )}
-              {day.totalTime > 0 && (
+              {day.tasks && day.tasks.length > 0 ? (
+                <>
+                  {day.tasks.slice(0, 3).map((task: Task) => (
+                    <Chip
+                      key={task?.id}
+                      label={task?.name || 'Unnamed Task'}
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (task?.id) {
+                          onTaskClick(task.id);
+                        }
+                      }}
+                      sx={{
+                        mb: 0.5,
+                        width: '100%',
+                        backgroundColor: getPriorityColor(task?.priority_name || '')
+                      }}
+                      data-testid={`task-chip-${task?.id}`}
+                    />
+                  ))}
+                  {day.tasks.length > 3 && (
+                    <Typography variant="caption" color="text.secondary">
+                      +{day.tasks.length - 3} more
+                    </Typography>
+                  )}
+                </>
+              ) : null}
+              {day.totalTime && day.totalTime > 0 && (
                 <Typography variant="caption" display="block" color="text.secondary">
                   Time logged: {Math.round(day.totalTime / 60)}h {day.totalTime % 60}m
                 </Typography>

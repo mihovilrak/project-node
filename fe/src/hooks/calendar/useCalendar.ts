@@ -33,9 +33,10 @@ export const useCalendar = () => {
     try {
       setLoading(true);
       const tasksData = await getTasksByDateRange(start, end);
-      setTasks(tasksData);
-    } catch (error) {
+      setTasks(tasksData || []);
+    } catch (error: any) {
       console.error('Failed to fetch tasks:', error);
+      setTasks([]);
     } finally {
       setLoading(false);
     }
