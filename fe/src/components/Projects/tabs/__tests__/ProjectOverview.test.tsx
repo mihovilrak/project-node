@@ -78,7 +78,7 @@ describe('ProjectOverview Component', () => {
     expect(descriptionText).toContain('50%');
 
     expect(descriptionText).toContain('100 hours');
-    expect(descriptionText).toContain('1.00 hours');
+    expect(descriptionText).toContain('60.00 hours'); // spent_time is already in hours, no division needed
   });
 
   test('renders subprojects list correctly', () => {
@@ -135,5 +135,33 @@ describe('ProjectOverview Component', () => {
     if (progressBar) {
       expect(progressBar.getAttribute('aria-valuenow')).toBe('50');
     }
+  });
+
+  test('handles null spent_time correctly', () => {
+    const projectWithNullSpentTime = {
+      ...mockProject,
+      spent_time: null as any
+    };
+    const { container } = renderWithRouter(
+      <ProjectOverview project={projectWithNullSpentTime} projectDetails={projectWithNullSpentTime} />
+    );
+
+    const descriptionText = container.textContent;
+    // Should display 0.00 hours when spent_time is null
+    expect(descriptionText).toContain('0.00 hours');
+  });
+
+  test('handles undefined spent_time correctly', () => {
+    const projectWithUndefinedSpentTime = {
+      ...mockProject,
+      spent_time: undefined as any
+    };
+    const { container } = renderWithRouter(
+      <ProjectOverview project={projectWithUndefinedSpentTime} projectDetails={projectWithUndefinedSpentTime} />
+    );
+
+    const descriptionText = container.textContent;
+    // Should display 0.00 hours when spent_time is undefined
+    expect(descriptionText).toContain('0.00 hours');
   });
 });

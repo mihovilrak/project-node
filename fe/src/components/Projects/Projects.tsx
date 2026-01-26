@@ -21,6 +21,7 @@ const Projects: React.FC = () => {
   const [filter, setFilter] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -28,12 +29,18 @@ const Projects: React.FC = () => {
 
   const fetchProjects = async (): Promise<void> => {
     try {
+      setLoading(true);
+      setError(null);
       const projectList = await getProjects();
-      setProjects(projectList);
-      setLoading(false);
-    } catch (error) {
+      setProjects(projectList || []);
+    } catch (error: any) {
       console.error('Failed to fetch projects', error);
-      throw error;
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to load projects';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,10 +53,28 @@ const Projects: React.FC = () => {
   };
 
   const filteredProjects = projects
-    .filter((project) => project.name.toLowerCase().includes(filter.toLowerCase()))
-    .sort((a, b) => (sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)));
+    .filter((project) => project?.name?.toLowerCase().includes(filter.toLowerCase()))
+    .sort((a, b) => {
+      const nameA = a?.name || '';
+      const nameB = b?.name || '';
+      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
 
-  if (loading) return <Typography>Loading projects...</Typography>;
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <Typography>Loading projects...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error" data-testid="projects-error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%', p: 3 }} data-testid="projects-container">
@@ -93,16 +118,16 @@ const Projects: React.FC = () => {
         {filteredProjects.map((project) => (
           <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={project.id}>
             <Card
-              onClick={() => navigate(`/projects/${project.id}`)}
-              data-testid={`project-card-${project.id}`}
+              onClick={() => navigate(`/projects/${project?.id}`)}
+              data-testid={`project-card-${project?.id}`}
               role="button"
-              aria-label={`View project ${project.name}`}
+              aria-label={`View project ${project?.name || 'Unnamed'}`}
             >
               <CardContent>
-                <Typography variant="h6">{project.name}</Typography>
-                <Typography variant="body2">{project.description}</Typography>
+                <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
+                <Typography variant="body2">{project?.description || 'No description'}</Typography>
                 <Typography variant="caption">
-                  Due: {new Date(project.due_date).toLocaleDateString()}
+                  Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
                 </Typography>
               </CardContent>
             </Card>

@@ -18,11 +18,19 @@ const MemoizedProjectGantt = React.memo(ProjectGantt);
 const MemoizedProjectMembersList = React.memo(ProjectMembersList);
 const MemoizedTimeLogList = React.memo(TimeLogList);
 
-const TabPanel: React.FC<TabPanelProps> = React.memo(({ children, value, index }) => (
-  <div role="tabpanel" hidden={value !== index}>
-    {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-  </div>
-));
+const TabPanel: React.FC<TabPanelProps> = React.memo(({ children, value, index }) => {
+  return (
+    <div 
+      role="tabpanel" 
+      hidden={value !== index} 
+      style={{ width: '100%', display: value === index ? 'block' : 'none' }}
+      id={`project-tabpanel-${index}`}
+      aria-labelledby={`project-tab-${index}`}
+    >
+      {value === index && <Box sx={{ p: 3, width: '100%', overflow: 'auto' }}>{children}</Box>}
+    </div>
+  );
+});
 TabPanel.displayName = 'TabPanel';
 
 const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
@@ -43,7 +51,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
 }) => {
   // Memoize tab content to prevent re-computation on every render
   const overviewContent = useMemo(() => (
-    <MemoizedProjectOverview project={project} projectDetails={projectDetails} />
+    <MemoizedProjectOverview project={project || null} projectDetails={projectDetails || null} />
   ), [project, projectDetails]);
 
   const tasksContent = useMemo(() => (
@@ -58,7 +66,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
         </Button>
       </Box>
       <MemoizedProjectTaskList
-        tasks={tasks}
+        tasks={tasks || []}
         onTimeLogCreate={onTimeLogCreate}
       />
     </>
@@ -76,8 +84,8 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
         </Button>
       </Box>
       <MemoizedProjectMembersList
-        projectId={Number(projectId)}
-        members={members}
+        projectId={projectId ? Number(projectId) : 0}
+        members={members || []}
         canManageMembers={canManageMembers}
         onMemberRemove={onMemberRemove}
         onMembersChange={() => {}}
@@ -102,7 +110,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
         </Button>
       </Box>
       <MemoizedTimeLogList
-        timeLogs={timeLogs}
+        timeLogs={timeLogs || []}
         onEdit={onTimeLogEdit}
         onDelete={onTimeLogDelete}
       />
@@ -110,8 +118,8 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(({
   ), [timeLogs, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete]);
 
   const ganttContent = useMemo(() => (
-    <MemoizedProjectGantt projectId={project.id} tasks={tasks} />
-  ), [project.id, tasks]);
+    <MemoizedProjectGantt projectId={project?.id} tasks={tasks || []} />
+  ), [project?.id, tasks]);
 
   return (
     <>

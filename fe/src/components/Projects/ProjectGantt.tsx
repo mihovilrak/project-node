@@ -79,11 +79,12 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
   }
 
   return (
-    <Paper sx={{ height: 'calc(100vh - 200px)' }}>
-      <Scheduler
-        data={tasks}
-        height={600}
-      >
+    <Box sx={{ width: '100%', height: '100%', overflow: 'auto' }}>
+      <Paper sx={{ width: '100%', minHeight: '600px', p: 2 }}>
+        <Scheduler
+          data={tasks || []}
+          height={600}
+        >
         <ViewState
           currentDate={currentDate}
           currentViewName={currentViewName}
@@ -116,8 +117,9 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
           showCloseButton
         />
         <DragDropProvider />
-      </Scheduler>
-    </Paper>
+        </Scheduler>
+      </Paper>
+    </Box>
   );
 };
 

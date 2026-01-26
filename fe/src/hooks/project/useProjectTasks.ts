@@ -13,9 +13,11 @@ export const useProjectTasks = (projectId: string): ProjectTasksHook => {
     if (projectId) {
       try {
         const tasks = await getProjectTasks(Number(projectId));
-        setTasks(tasks);
-      } catch (error) {
+        setTasks(tasks || []);
+      } catch (error: any) {
         console.error('Failed to load tasks:', error);
+        setTasks([]);
+        // Don't throw - let parent component handle error display
       }
     }
   };

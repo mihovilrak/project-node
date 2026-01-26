@@ -28,6 +28,12 @@ const mockAvailableProjects = [
   { id: 2, name: 'Project 2' },
 ] as Project[];
 
+const mockStatuses = [
+  { id: 1, name: 'Active', color: '#00ff00', active: true },
+  { id: 2, name: 'On Hold', color: '#ffaa00', active: true },
+  { id: 3, name: 'Completed', color: '#0000ff', active: true }
+];
+
 const defaultProps = {
   formData: {
     name: '',
@@ -41,6 +47,8 @@ const defaultProps = {
   dateError: '',
   availableProjects: mockAvailableProjects,
   parentId: null,
+  statuses: mockStatuses,
+  statusesLoading: false,
   handleChange: jest.fn(),
   handleStatusChange: jest.fn(),
   handleDateChange: jest.fn(),

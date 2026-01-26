@@ -112,6 +112,43 @@ describe('useProjectTimeLogs', () => {
     expect(result.current.timeLogs).toEqual([...mockTimeLogs, newTimeLog]);
   });
 
+  it('should handle time log update', async () => {
+    const { result } = renderHook(() => useProjectTimeLogs('1'));
+    
+    // Set selected time log for editing
+    act(() => {
+      result.current.setSelectedTimeLog(mockTimeLogs[0]);
+    });
+
+    const updatedTimeLog = {
+      ...mockTimeLogs[0],
+      spent_time: 8,
+      description: 'Updated description'
+    };
+
+    (updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
+    (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
+      if (taskId === 1) return Promise.resolve([updatedTimeLog]);
+      return Promise.resolve(mockTimeLogs.filter(log => log.task_id === taskId));
+    });
+
+    await act(async () => {
+      await result.current.handleTimeLogSubmit({
+        task_id: 1,
+        log_date: '2024-01-01',
+        spent_time: 8,
+        activity_type_id: 1,
+        description: 'Updated description'
+      });
+    });
+
+    expect(updateTimeLog).toHaveBeenCalledWith(mockTimeLogs[0].id, expect.objectContaining({
+      spent_time: 8,
+      description: 'Updated description'
+    }));
+    expect(createTimeLog).not.toHaveBeenCalled();
+  });
+
   it('should handle time log deletion', async () => {
     const { result } = renderHook(() => useProjectTimeLogs('1'));
     (deleteTimeLog as jest.Mock).mockResolvedValue(undefined);

@@ -17,8 +17,8 @@ const ProjectMembersForm: React.FC<ProjectMembersFormProps> = ({
         Project Members
       </Typography>
       <ProjectMemberSelect
-        users={users}
-        selectedUsers={selectedUsers}
+        users={users || []}
+        selectedUsers={selectedUsers || []}
         onUserSelect={onUserSelect}
       />
       {memberError && (

@@ -260,6 +260,8 @@ export interface ProjectDetailsFormProps {
   dateError: string;
   availableProjects: Project[];
   parentId: string | null;
+  statuses?: ProjectStatus[];
+  statusesLoading?: boolean;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleStatusChange: (event: any) => void;
   handleDateChange: (field: 'start_date' | 'due_date', newValue: Dayjs | null) => void;

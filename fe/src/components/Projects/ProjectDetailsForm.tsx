@@ -8,7 +8,8 @@ import {
   MenuItem,
   Typography,
   Box,
-  Button
+  Button,
+  CircularProgress
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -20,6 +21,8 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
   dateError,
   availableProjects,
   parentId,
+  statuses = [],
+  statusesLoading = false,
   handleChange,
   handleStatusChange,
   handleDateChange,
@@ -93,10 +96,25 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
               value={formData.status_id}
               label="Status"
               onChange={handleStatusChange}
+              disabled={statusesLoading}
             >
-              <MenuItem value={1}>Active</MenuItem>
-              <MenuItem value={2}>On Hold</MenuItem>
-              <MenuItem value={3}>Completed</MenuItem>
+              {statusesLoading ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Loading statuses...
+                </MenuItem>
+              ) : (!statuses || statuses.length === 0) ? (
+                <MenuItem disabled>No statuses available</MenuItem>
+              ) : (
+                statuses.map((status) => {
+                  if (!status?.id) return null;
+                  return (
+                    <MenuItem key={status.id} value={status.id}>
+                      {status?.name || 'Unknown'}
+                    </MenuItem>
+                  );
+                })
+              )}
             </Select>
           </FormControl>
         </Grid>
@@ -113,11 +131,20 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              {availableProjects.map(p => (
-                <MenuItem key={p.id} value={p.id}>
-                  {p.name}
+              {(!availableProjects || availableProjects.length === 0) ? (
+                <MenuItem value="" disabled>
+                  No projects available
                 </MenuItem>
-              ))}
+              ) : (
+                availableProjects.map(p => {
+                  if (!p?.id) return null;
+                  return (
+                    <MenuItem key={p.id} value={p.id}>
+                      {p?.name || 'Unnamed Project'}
+                    </MenuItem>
+                  );
+                })
+              )}
             </Select>
           </FormControl>
         </Grid>

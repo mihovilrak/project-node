@@ -9,7 +9,8 @@ import {
   ListItem,
   FormControlLabel,
   Checkbox,
-  Alert
+  Alert,
+  Typography
 } from '@mui/material';
 import { User } from '../../types/user';
 import { EditMembersDialogProps } from '../../types/project';
@@ -23,7 +24,7 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>(
-    currentMembers.map(m => m.user_id)
+    (currentMembers || []).map(m => m?.user_id).filter((id): id is number => id !== undefined && id !== null)
   );
   const [error, setError] = useState<string>('');
 
@@ -31,17 +32,21 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
     const fetchUsers = async () => {
       try {
         const fetchedUsers = await getUsers();
-        setUsers(fetchedUsers);
-      } catch (error) {
+        setUsers(fetchedUsers || []);
+      } catch (error: any) {
         console.error('Failed to fetch users:', error);
-        setError('Failed to load users');
+        setUsers([]);
+        const errorMessage = error?.response?.data?.error || 
+                            error?.message || 
+                            'Failed to load users';
+        setError(errorMessage);
       }
     };
     fetchUsers();
   }, []);
 
   useEffect(() => {
-    setSelectedUsers(currentMembers.map(m => m.user_id));
+    setSelectedUsers((currentMembers || []).map(m => m?.user_id).filter((id): id is number => id !== undefined && id !== null));
   }, [currentMembers]);
 
   const handleToggleUser = (userId: number) => {
@@ -54,11 +59,15 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
 
   const handleSave = async () => {
     try {
-      onSave(selectedUsers);
+      setError('');
+      await onSave(selectedUsers);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save members:', error);
-      setError('Failed to save changes');
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to save changes';
+      setError(errorMessage);
     }
   };
 
@@ -67,21 +76,28 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
       <DialogTitle>Edit Project Members</DialogTitle>
       <DialogContent>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        <List>
-          {users.map(user => (
-            <ListItem key={user.id}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedUsers.includes(user.id)}
-                    onChange={() => handleToggleUser(user.id)}
-                  />
-                }
-                label={`${user.name} ${user.surname}`}
-              />
-            </ListItem>
-          ))}
-        </List>
+        {users.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+            No users available
+          </Typography>
+        ) : (
+          <List>
+            {users.map(user => (
+              <ListItem key={user?.id}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={user?.id ? selectedUsers.includes(user.id) : false}
+                      onChange={() => user?.id && handleToggleUser(user.id)}
+                      disabled={!user?.id}
+                    />
+                  }
+                  label={`${user?.name || ''} ${user?.surname || ''}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

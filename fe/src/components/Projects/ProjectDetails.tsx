@@ -106,7 +106,7 @@ const ProjectDetails: React.FC = () => {
       <Paper sx={{ p: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h5" component="h1">
-            {project.name}
+            {project?.name || 'Unnamed Project'}
           </Typography>
           <ProjectActions
             canEdit={canEdit}
@@ -117,7 +117,14 @@ const ProjectDetails: React.FC = () => {
           />
         </Box>
 
-        <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)} data-testid="project-tabs">
+        <Tabs 
+          value={activeTab} 
+          onChange={(e, newValue) => {
+            e.preventDefault();
+            setActiveTab(newValue);
+          }} 
+          data-testid="project-tabs"
+        >
           <Tab label="Overview" data-testid="tab-overview" />
           <Tab label="Tasks" data-testid="tab-tasks" />
           <Tab label="Members" data-testid="tab-members" />
@@ -129,11 +136,11 @@ const ProjectDetails: React.FC = () => {
           activeTab={activeTab}
           project={project}
           projectDetails={projectDetails}
-          tasks={tasks}
-          members={members}
-          timeLogs={timeLogs}
+          tasks={tasks || []}
+          members={members || []}
+          timeLogs={timeLogs || []}
           canManageMembers={canManageMembers}
-          projectId={id!}
+          projectId={id || ''}
           onCreateTask={handleCreateTask}
           onManageMembers={handleManageMembers}
           onTimeLogCreate={handleTimeLogCreate}
@@ -163,16 +170,18 @@ const ProjectDetails: React.FC = () => {
         onClose={handleTimeLogDialogClose}
         onSubmit={handleTimeLogSubmit}
         timeLog={selectedTimeLog}
-        projectId={Number(id)}
+        projectId={id ? Number(id) : undefined}
       />
 
-      <EditMembersDialog
-        open={manageMembersOpen}
-        onClose={handleEditMembersDialogClose}
-        projectId={Number(id)}
-        currentMembers={members}
-        onSave={handleMembersUpdate}
-      />
+      {id && (
+        <EditMembersDialog
+          open={manageMembersOpen}
+          onClose={handleEditMembersDialogClose}
+          projectId={Number(id)}
+          currentMembers={members || []}
+          onSave={handleMembersUpdate}
+        />
+      )}
     </Box>
   );
 };

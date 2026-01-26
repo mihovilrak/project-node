@@ -43,27 +43,57 @@ export const useProjectDetails = (projectId: string) => {
           getProjectDetails(Number(projectId))
         ]);
 
+        // Check if project was found
+        if (!projectData) {
+          setState(prev => ({
+            ...prev,
+            error: 'Project not found',
+            loading: false
+          }));
+          return;
+        }
+
+        // Ensure projectDetails has spent_time as a number (handle null/undefined)
+        const safeProjectDetails = projectDetails ? {
+          ...projectDetails,
+          spent_time: projectDetails.spent_time ?? 0
+        } : null;
+
         setState(prev => ({
           ...prev,
           project: projectData,
-          projectDetails: projectDetails,
-          loading: false
+          projectDetails: safeProjectDetails,
+          loading: false,
+          error: null
         }));
 
         // Load data from other hooks
-        memberHooks.loadMembers();
-        taskHooks.loadTasks();
-        timeLogHooks.loadTimeLogs();
-      } catch (error) {
+        try {
+          await Promise.all([
+            memberHooks.loadMembers(),
+            taskHooks.loadTasks(),
+            timeLogHooks.loadTimeLogs()
+          ]);
+        } catch (hookError) {
+          // Log hook errors but don't fail the whole page
+          console.error('Error loading project sub-data:', hookError);
+        }
+      } catch (error: any) {
+        console.error('Error fetching project data:', error);
+        const errorMessage = error?.response?.data?.error || 
+                           error?.message || 
+                           'Failed to load project details';
         setState(prev => ({
           ...prev,
-          error: 'Failed to load project details',
+          error: errorMessage,
           loading: false
         }));
       }
     };
 
-    fetchProjectData();
+    if (projectId) {
+      fetchProjectData();
+    }
   }, [projectId]);
 
   const handleProjectUpdate = useCallback(async (updatedProject: Project) => {

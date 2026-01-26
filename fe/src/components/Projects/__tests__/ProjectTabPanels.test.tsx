@@ -112,6 +112,7 @@ describe('ProjectTabPanels', () => {
     // The first tab panel should be visible (not hidden) with activeTab=0
     const tabPanels = screen.getAllByRole('tabpanel');
     expect(tabPanels[0]).not.toHaveAttribute('hidden');
+    expect(tabPanels[0]).toHaveStyle({ display: 'block' });
 
     // Other content should be hidden
     expect(screen.queryByTestId('project-task-list')).not.toBeInTheDocument();

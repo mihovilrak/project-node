@@ -14,7 +14,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({
 }) => {
   return (
     <Box>
-      {canEdit && (
+      {canEdit && onEdit && (
         <Button
           startIcon={<EditIcon />}
           onClick={onEdit}
@@ -24,7 +24,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({
           Edit
         </Button>
       )}
-      {canDelete && (
+      {canDelete && onDelete && (
         <Button
           startIcon={<DeleteIcon />}
           color="error"

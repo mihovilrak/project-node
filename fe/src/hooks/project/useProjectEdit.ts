@@ -19,10 +19,14 @@ export const useProjectEdit = (project: Project | null) => {
     const fetchStatuses = async () => {
       try {
         const statusList = await getProjectStatuses();
-        setStatuses(statusList);
-      } catch (err) {
+        setStatuses(statusList || []);
+      } catch (err: any) {
         console.error('Failed to fetch project statuses:', err);
-        setError('Failed to load project statuses');
+        setStatuses([]);
+        const errorMessage = err?.response?.data?.error || 
+                            err?.message || 
+                            'Failed to load project statuses';
+        setError(errorMessage);
       }
     };
     fetchStatuses();
@@ -31,11 +35,11 @@ export const useProjectEdit = (project: Project | null) => {
   useEffect(() => {
     if (project) {
       setFormData({
-        name: project.name,
-        description: project.description,
-        start_date: project.start_date.split('T')[0],
-        due_date: project.due_date.split('T')[0],
-        status_id: project.status_id
+        name: project?.name || '',
+        description: project?.description || null,
+        start_date: project?.start_date ? project.start_date.split('T')[0] : '',
+        due_date: project?.due_date ? project.due_date.split('T')[0] : '',
+        status_id: project?.status_id || 1
       });
     }
   }, [project]);

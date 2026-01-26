@@ -24,41 +24,41 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
     <Grid container spacing={2}>
       <Grid size={{ xs: 12 }}>
         <Typography variant="body1" paragraph>
-          <strong>Description:</strong> {projectDetails.description || 'No description provided'}
+          <strong>Description:</strong> {projectDetails?.description || 'No description provided'}
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Start Date:</strong>{' '}
-          {format(new Date(projectDetails.start_date), 'dd/MM/yyyy')}
+          {projectDetails?.start_date ? format(new Date(projectDetails.start_date), 'dd/MM/yyyy') : 'Not set'}
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Due Date:</strong>{' '}
-          {format(new Date(projectDetails.due_date), 'dd/MM/yyyy')}
+          {projectDetails?.due_date ? format(new Date(projectDetails.due_date), 'dd/MM/yyyy') : 'Not set'}
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Status:</strong>{' '}
-          {projectDetails.status_name}
+          {projectDetails?.status_name || 'Unknown'}
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Parent Project:</strong>{' '}
-          {projectDetails.parent_id ? (
+          {projectDetails?.parent_id ? (
             <Link
               component={RouterLink}
               to={`/projects/${projectDetails.parent_id}`}
               underline="hover"
             >
-              {projectDetails.parent_name}
+              {projectDetails?.parent_name || 'Unknown'}
             </Link>
           ) : (
             'None'
@@ -69,7 +69,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Created By:</strong>{' '}
-          {projectDetails.created_by_name ? (
+          {projectDetails?.created_by_name && projectDetails?.created_by ? (
             <Link
               component={RouterLink}
               to={`/users/${projectDetails.created_by}`}
@@ -84,30 +84,30 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
           <strong>Created On:</strong>{' '}
-          {format(new Date(projectDetails.created_on), 'dd/MM/yyyy')}
+          {projectDetails?.created_on ? format(new Date(projectDetails.created_on), 'dd/MM/yyyy') : 'Unknown'}
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12 }}>
         <Typography gutterBottom>
-          <strong>Progress:</strong> {projectDetails.progress}%
+          <strong>Progress:</strong> {projectDetails?.progress ?? 0}%
         </Typography>
         <LinearProgress
           variant="determinate"
-          value={projectDetails.progress}
+          value={projectDetails?.progress ?? 0}
           sx={{ height: 10, borderRadius: 1 }}
         />
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
-          <strong>Estimated Time:</strong> {projectDetails.estimated_time} hours
+          <strong>Estimated Time:</strong> {projectDetails?.estimated_time ?? 0} hours
         </Typography>
       </Grid>
 
       <Grid size={{ xs: 12, sm: 6 }}>
         <Typography>
-          <strong>Spent Time:</strong> {(projectDetails.spent_time / 60).toFixed(2)} hours
+          <strong>Spent Time:</strong> {(Number(projectDetails?.spent_time) || 0).toFixed(2)} hours
         </Typography>
       </Grid>
 
@@ -115,16 +115,16 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
           Subprojects
         </Typography>
-        {subprojects.length > 0 ? (
+        {subprojects && subprojects.length > 0 ? (
           <List>
             {subprojects.map((subproject) => (
-              <ListItem key={subproject.id}>
+              <ListItem key={subproject?.id}>
                 <Link
                   component={RouterLink}
-                  to={`/projects/${subproject.id}`}
+                  to={`/projects/${subproject?.id}`}
                   underline="hover"
                 >
-                  {subproject.name}
+                  {subproject?.name || 'Unnamed Project'}
                 </Link>
               </ListItem>
             ))}

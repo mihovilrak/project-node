@@ -39,14 +39,20 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
       setError(null);
       setLoading(true);
 
-      if (!project) return;
+      if (!project) {
+        setError('Project is required');
+        return;
+      }
 
       const updatedProject = await updateProject(project.id, formData);
       onSaved(updatedProject);
       onClose();
-    } catch (err) {
-      setError('Failed to update project');
+    } catch (err: any) {
       console.error('Error updating project:', err);
+      const errorMessage = err?.response?.data?.error || 
+                          err?.message || 
+                          'Failed to update project';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -121,11 +127,15 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
                 onChange={handleStatusChange}
                 data-testid="project-status-select"
               >
-                {statuses.map(status => (
-                  <MenuItem key={status.id} value={status.id}>
-                    {status.name}
-                  </MenuItem>
-                ))}
+                {statuses.length === 0 ? (
+                  <MenuItem disabled>No statuses available</MenuItem>
+                ) : (
+                  statuses.map(status => (
+                    <MenuItem key={status?.id} value={status?.id}>
+                      {status?.name || 'Unknown'}
+                    </MenuItem>
+                  ))
+                )}
               </Select>
             </FormControl>
           </Grid>

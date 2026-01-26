@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Paper } from '@mui/material';
+import { Paper, Box } from '@mui/material';
 import {
   createProject,
   addProjectMember,
@@ -31,6 +31,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     formData,
     errors,
     dateError,
+    statuses,
+    statusesLoading,
     handleChange,
     handleStatusChange,
     handleDateChange,
@@ -42,9 +44,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     const fetchProjects = async () => {
       try {
         const projects = await getProjects();
-        setAvailableProjects(projects);
-      } catch (error) {
+        setAvailableProjects(projects || []);
+      } catch (error: any) {
         console.error('Failed to fetch projects:', error);
+        setAvailableProjects([]);
       }
     };
     fetchProjects();
@@ -54,9 +57,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     const fetchUsers = async () => {
       try {
         const userList = await getUsers();
-        setUsers(userList);
-      } catch (error) {
+        setUsers(userList || []);
+      } catch (error: any) {
         console.error('Failed to fetch users:', error);
+        setUsers([]);
       }
     };
     fetchUsers();
@@ -110,8 +114,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
   }, [onClose, navigate]);
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <form onSubmit={(e) => e.preventDefault()}>
+    <Box sx={{ maxWidth: '800px', margin: '0 auto', p: 3 }}>
+      <Paper sx={{ p: 3 }}>
+        <form onSubmit={(e) => e.preventDefault()}>
         {step === 'details' ? (
           <ProjectDetailsForm
             formData={formData}
@@ -119,6 +124,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
             dateError={dateError}
             availableProjects={availableProjects}
             parentId={parentId}
+            statuses={statuses}
+            statusesLoading={statusesLoading}
             handleChange={handleChange}
             handleStatusChange={handleStatusChange}
             handleDateChange={handleDateChange}
@@ -129,8 +136,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
           />
         ) : (
           <ProjectMembersForm
-            users={users}
-            selectedUsers={selectedUsers}
+            users={users || []}
+            selectedUsers={selectedUsers || []}
             memberError={memberError}
             onUserSelect={handleUserSelect}
             onBack={() => setStep('details')}
@@ -139,7 +146,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
           />
         )}
       </form>
-    </Paper>
+      </Paper>
+    </Box>
   );
 };
 

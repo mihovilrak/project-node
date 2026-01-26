@@ -1,8 +1,19 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useProjectForm } from '../useProjectForm';
 import dayjs from 'dayjs';
 import { SelectChangeEvent } from '@mui/material';
-import { Project } from '../../../types/project'
+import { Project } from '../../../types/project';
+import { getProjectStatuses } from '../../../api/projects';
+
+jest.mock('../../../api/projects');
+
+const mockedGetProjectStatuses = getProjectStatuses as jest.MockedFunction<typeof getProjectStatuses>;
+
+const mockStatuses = [
+  { id: 1, name: 'Active' },
+  { id: 2, name: 'Inactive' },
+  { id: 3, name: 'Completed' }
+];
 
 describe('useProjectForm', () => {
   const mockProject: Project = {
@@ -25,22 +36,29 @@ describe('useProjectForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetProjectStatuses.mockResolvedValue(mockStatuses);
   });
 
-  it('should initialize with default values when no project is provided', () => {
+  it('should initialize with default values when no project is provided', async () => {
     const { result } = renderHook(() => useProjectForm());
     const today = new Date().toISOString().split('T')[0];
+
+    await waitFor(() => {
+      expect(result.current.statusesLoading).toBe(false);
+    });
 
     expect(result.current.formData).toEqual({
       name: '',
       description: null,
       start_date: today,
       due_date: '',
-      status_id: 1,
+      status_id: expect.any(Number),
       parent_id: null
     });
     expect(result.current.errors).toEqual({});
     expect(result.current.dateError).toBe('');
+    expect(result.current.statuses).toEqual(mockStatuses);
+    expect(getProjectStatuses).toHaveBeenCalled();
   });
 
   it('should initialize with project values when project is provided', () => {
