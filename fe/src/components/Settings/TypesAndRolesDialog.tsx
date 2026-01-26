@@ -13,12 +13,14 @@ export const TypesAndRolesDialog: React.FC<TypesAndRolesDialogProps> = ({
   onClose,
   onSave
 }) => {
+  if (!dialogOpen) return null;
+
   switch (activeTab) {
     case 0:
       return (
         <TaskTypeDialog
           open={dialogOpen}
-          taskType={selectedItem as TaskType}
+          taskType={selectedItem as TaskType || undefined}
           onClose={onClose}
           onSave={onSave}
         />
@@ -27,7 +29,7 @@ export const TypesAndRolesDialog: React.FC<TypesAndRolesDialogProps> = ({
       return (
         <ActivityTypeDialog
           open={dialogOpen}
-          activityType={selectedItem as ActivityType}
+          activityType={selectedItem as ActivityType || undefined}
           onClose={onClose}
           onSave={onSave}
         />
@@ -36,7 +38,7 @@ export const TypesAndRolesDialog: React.FC<TypesAndRolesDialogProps> = ({
       return (
         <RoleDialog
           open={dialogOpen}
-          role={selectedItem as AdminRole}
+          role={selectedItem as AdminRole || undefined}
           onClose={onClose}
           onSave={onSave}
         />

@@ -40,7 +40,7 @@ const TypesAndRolesManager: React.FC = () => {
       case 0:
         return (
           <TaskTypesTable
-            taskTypes={state.taskTypes}
+            taskTypes={state.taskTypes || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
             loading={state.loading}
@@ -49,7 +49,7 @@ const TypesAndRolesManager: React.FC = () => {
       case 1:
         return (
           <ActivityTypesTable
-            activityTypes={state.activityTypes}
+            activityTypes={state.activityTypes || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
             loading={state.loading}
@@ -58,7 +58,7 @@ const TypesAndRolesManager: React.FC = () => {
       case 2:
         return (
           <RolesTable
-            roles={state.roles}
+            roles={state.roles || []}
             onEdit={handleEdit}
             loading={state.loading}
           />

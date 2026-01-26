@@ -169,6 +169,13 @@ const SystemSettings: React.FC = () => {
     }
   }, [editor, state.settings.welcome_message]);
 
+  // Update document title when app_name changes
+  React.useEffect(() => {
+    if (state.settings.app_name) {
+      document.title = state.settings.app_name;
+    }
+  }, [state.settings.app_name]);
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -266,8 +273,10 @@ const SystemSettings: React.FC = () => {
             </Box>
             <TabPanel value={tabValue} index={0}>
               <Box sx={{
-                border: '1px solid #ddd',
+                border: 1,
+                borderColor: 'divider',
                 borderRadius: 1,
+                bgcolor: 'background.paper',
                 '.ProseMirror': {
                   minHeight: '200px',
                   padding: 2,
@@ -281,7 +290,14 @@ const SystemSettings: React.FC = () => {
               </Box>
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
-              <Box sx={{ p: 2, border: '1px solid #ddd', borderRadius: 1, minHeight: '200px' }}>
+              <Box sx={{ 
+                p: 2, 
+                border: 1, 
+                borderColor: 'divider', 
+                borderRadius: 1, 
+                minHeight: '200px',
+                bgcolor: 'background.paper'
+              }}>
                 <div dangerouslySetInnerHTML={{ __html: state.settings.welcome_message || '' }} />
               </Box>
             </TabPanel>

@@ -10,7 +10,8 @@ import {
   IconButton,
   Chip,
   Box,
-  CircularProgress
+  CircularProgress,
+  Typography
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { TaskType, TaskTypesTableProps } from '../../types/setting';
@@ -52,35 +53,45 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {taskTypes.map((type) => (
-            <TableRow key={type.id}>
-              <TableCell>{type.name}</TableCell>
-              <TableCell>{type.description}</TableCell>
-              <TableCell>
-                <Box
-                  data-testid={`color-box-${type.id}`}
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: type.color,
-                    borderRadius: 1
-                  }}
-                />
-              </TableCell>
-              <TableCell>
-                <Chip
-                  label={type.active ? 'Active' : 'Inactive'}
-                  color={type.active ? 'success' : 'error'}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell align="right">
-                <IconButton onClick={() => onEdit(type)} size="small">
-                  <EditIcon />
-                </IconButton>
+          {taskTypes.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                <Typography variant="body2" color="text.secondary">
+                  No task types found
+                </Typography>
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            taskTypes.map((type) => (
+              <TableRow key={type?.id}>
+                <TableCell>{type?.name || 'Unknown'}</TableCell>
+                <TableCell>{type?.description || 'No description'}</TableCell>
+                <TableCell>
+                  <Box
+                    data-testid={`color-box-${type?.id || 'unknown'}`}
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: type?.color || '#666',
+                      borderRadius: 1
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={type?.active ? 'Active' : 'Inactive'}
+                    color={type?.active ? 'success' : 'error'}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => type && onEdit(type)} size="small" disabled={!type}>
+                    <EditIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>

@@ -9,16 +9,79 @@ import {
   Grid,
   FormControlLabel,
   Switch,
-  Alert
+  Alert,
+  IconButton,
+  Box,
+  FormControl,
+  InputLabel
 } from '@mui/material';
+import { Icon } from '@mui/material';
 import { MuiColorInput } from 'mui-color-input';
-import { TaskTypeDialogProps } from '../../types/setting';
+import { TaskTypeDialogProps, IconSelectorProps } from '../../types/setting';
+import { useIconSelector } from '../../hooks/setting/useIconSelector';
+
+const IconSelector = ({ value, onChange }: IconSelectorProps) => {
+  const {
+    icons,
+    open,
+    handleOpen,
+    handleClose,
+    handleSelect
+  } = useIconSelector(value);
+
+  return (
+    <FormControl fullWidth margin="normal">
+      <InputLabel shrink>Icon</InputLabel>
+      <Box mt={2}>
+        <IconButton
+          onClick={handleOpen}
+          sx={{
+            border: '1px dashed grey',
+            borderRadius: 1,
+            width: '100%',
+            height: '56px'
+          }}
+        >
+          {value ? <Icon>{value}</Icon> : 'Select Icon'}
+        </IconButton>
+      </Box>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Select an Icon</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={1} sx={{ p: 2 }}>
+            {(icons || []).map((iconName) => (
+              <Grid key={iconName || Math.random()}>
+                <IconButton
+                  onClick={() => {
+                    if (iconName) {
+                      handleSelect(iconName);
+                      onChange(iconName);
+                    }
+                  }}
+                  disabled={!iconName}
+                  sx={{
+                    border: value === iconName ? '2px solid primary.main' : 'none',
+                    borderRadius: 1
+                  }}
+                >
+                  <Icon>{iconName || 'Unknown'}</Icon>
+                </IconButton>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+      </Dialog>
+    </FormControl>
+  );
+};
 
 const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
     color: '#2196f3',
     description: '',
+    icon: 'Task' as string | undefined,
     active: true
   });
   const [error, setError] = useState<string | null>(null);
@@ -26,16 +89,18 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
   useEffect(() => {
     if (taskType) {
       setFormData({
-        name: taskType.name,
-        color: taskType.color,
-        description: taskType.description || '',
-        active: taskType.active
+        name: taskType?.name || '',
+        color: taskType?.color || '#2196f3',
+        description: taskType?.description || '',
+        icon: taskType?.icon || 'Task',
+        active: taskType?.active ?? true
       });
     } else {
       setFormData({
         name: '',
         color: '#2196f3',
         description: '',
+        icon: 'Task',
         active: true
       });
     }
@@ -51,6 +116,12 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Ensure icon is provided (required by database)
+    if (!formData.icon || formData.icon.trim() === '') {
+      setError('Icon is required');
+      return;
+    }
 
     try {
       await onSave(formData);
@@ -90,6 +161,12 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
                 onChange={(value) => handleChange('color', value)}
                 fullWidth
                 required
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <IconSelector
+                value={formData.icon}
+                onChange={(icon) => handleChange('icon', icon)}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>

@@ -28,7 +28,10 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
       await onSave(formData);
       onClose();
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to save activity type');
+      const errorMessage = error?.response?.data?.error || 
+                          error?.message || 
+                          'Failed to save activity type';
+      setError(errorMessage);
     }
   };
 

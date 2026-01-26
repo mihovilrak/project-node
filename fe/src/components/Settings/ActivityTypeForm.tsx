@@ -50,19 +50,22 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         <DialogTitle>Select an Icon</DialogTitle>
         <DialogContent>
           <Grid container spacing={1} sx={{ p: 2 }}>
-            {icons.map((iconName) => (
-              <Grid key={iconName}>
+            {(icons || []).map((iconName) => (
+              <Grid key={iconName || Math.random()}>
                 <IconButton
                   onClick={() => {
-                    handleSelect(iconName);
-                    onChange(iconName);
+                    if (iconName) {
+                      handleSelect(iconName);
+                      onChange(iconName);
+                    }
                   }}
+                  disabled={!iconName}
                   sx={{
                     border: value === iconName ? '2px solid primary.main' : 'none',
                     borderRadius: 1
                   }}
                 >
-                  <Icon>{iconName}</Icon>
+                  <Icon>{iconName || 'Unknown'}</Icon>
                 </IconButton>
               </Grid>
             ))}
@@ -79,7 +82,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
       <Grid size={{ xs: 12 }}>
         <TextField
           label="Name"
-          value={formData.name}
+          value={formData?.name || ''}
           onChange={(e) => onChange('name', e.target.value)}
           fullWidth
           required
@@ -88,7 +91,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
       <Grid size={{ xs: 12 }}>
         <MuiColorInput
           label="Color"
-          value={formData.color}
+          value={formData?.color || '#2196f3'}
           onChange={(value) => onChange('color', value)}
           fullWidth
           required
@@ -96,14 +99,14 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
       </Grid>
       <Grid size={{ xs: 12 }}>
         <IconSelector
-          value={formData.icon}
+          value={formData?.icon}
           onChange={(icon) => onChange('icon', icon)}
         />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <TextField
           label="Description"
-          value={formData.description}
+          value={formData?.description || ''}
           onChange={(e) => onChange('description', e.target.value)}
           fullWidth
           multiline
@@ -114,7 +117,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
         <FormControlLabel
           control={
             <Switch
-              checked={formData.active}
+              checked={formData?.active ?? true}
               onChange={(e) => onChange('active', e.target.checked)}
             />
           }
