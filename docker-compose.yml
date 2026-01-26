@@ -24,7 +24,7 @@ services:
 
   app:
     <<: *defaults
-    image: pm:alpine
+    image: pm:latest
     container_name: pm_app
     environment:
       <<: *db
