@@ -227,14 +227,18 @@ describe('Comment Controller', () => {
   });
 
   describe('editComment', () => {
-    const mockEditedComment: Comment = {
+    const mockEditedComment: CommentWithUser = {
       id: 1,
       task_id: 1,
       user_id: 1,
       comment: 'Updated comment',
       created_on: new Date(),
       updated_on: new Date(),
-      active: true
+      active: true,
+      user_name: 'Test User',
+      user_surname: 'Name',
+      user_email: 'test@example.com',
+      user_login: 'testuser'
     };
 
     it('should edit comment successfully', async () => {

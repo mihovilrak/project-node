@@ -361,6 +361,7 @@ describe('TaskController', () => {
         id: 1,
         name: 'Test Tag',
         color: '#000000',
+        icon: 'Label',
         active: true,
         created_on: new Date(),
         updated_on: new Date()

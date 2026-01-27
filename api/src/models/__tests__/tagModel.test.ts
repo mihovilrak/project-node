@@ -35,7 +35,7 @@ describe('TagModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO tags'),
-        ['NewTag', '#00FF00', '1']
+        ['NewTag', '#00FF00', 'Label', '1']
       );
       expect(result).toEqual(mockTag);
     });

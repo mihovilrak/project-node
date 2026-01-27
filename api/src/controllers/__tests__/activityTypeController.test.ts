@@ -9,6 +9,7 @@ import {
   ActivityTypeCreateInput,
   ActivityTypeUpdateInput,
 } from '../../types/activityType';
+import { AVAILABLE_ICONS } from '../../utils/iconConstants';
 
 // Mock the models
 jest.mock('../../models/activityTypeModel');
@@ -271,19 +272,13 @@ describe('ActivityTypeController', () => {
 
   describe('getAvailableIcons', () => {
     it('should return a list of available icons', async () => {
-      const expectedIcons = [
-        'work', 'code', 'bug_report', 'build', 'meeting_room',
-        'description', 'schedule', 'search', 'analytics', 'design_services',
-        'cloud', 'support', 'more_horiz'
-      ];
-
       await activityTypeController.getAvailableIcons(
         mockReq as Request,
         mockRes as Response
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(expectedIcons);
+      expect(mockRes.json).toHaveBeenCalledWith(AVAILABLE_ICONS);
     });
   });
 });
