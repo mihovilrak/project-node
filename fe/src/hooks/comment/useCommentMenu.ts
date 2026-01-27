@@ -27,8 +27,14 @@ export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => P
   };
 
   const handleEditSave = async (commentId: number, newText: string): Promise<void> => {
-    await onCommentUpdated(commentId, newText);
-    handleEditClose();
+    try {
+      await onCommentUpdated(commentId, newText);
+      handleEditClose();
+    } catch (error) {
+      console.error('Failed to save comment:', error);
+      // Don't close the dialog on error so user can retry
+      throw error;
+    }
   };
 
   const handleDeleteClick = async (): Promise<void> => {

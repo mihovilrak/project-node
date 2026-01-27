@@ -7,10 +7,12 @@ export const useCommentEdit = (comment: Comment | null, onSave: (id: number, tex
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    if (comment) {
+    if (comment?.comment) {
       setEditedText(comment.comment);
+    } else {
+      setEditedText('');
     }
-  }, [comment]);
+  }, [comment?.id, comment?.comment]);
 
   const handleSave = async (): Promise<void> => {
     if (!comment || !editedText.trim()) return;
@@ -19,7 +21,7 @@ export const useCommentEdit = (comment: Comment | null, onSave: (id: number, tex
       setIsSubmitting(true);
       setError('');
       await onSave(comment.id, editedText.trim());
-      resetForm();
+      // Don't reset form here - let the dialog close handler do it
       setIsSubmitting(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update comment');

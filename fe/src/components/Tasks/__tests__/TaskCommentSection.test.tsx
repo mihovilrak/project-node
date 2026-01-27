@@ -35,17 +35,7 @@ jest.mock('../../Comments/CommentList', () => ({
   ),
 }));
 
-jest.mock('../../Comments/CommentEditDialog', () => ({
-  __esModule: true,
-  default: ({ open, onClose, onSave }: any) => (
-    open ? (
-      <div data-testid="edit-dialog">
-        <button onClick={() => onSave(1, 'Updated comment')}>Save</button>
-        <button onClick={onClose}>Close</button>
-      </div>
-    ) : null
-  ),
-}));
+// CommentEditDialog is now managed by CommentList, not TaskCommentSection
 
 const mockComments: Comment[] = [
   {
@@ -98,7 +88,7 @@ describe('TaskCommentSection', () => {
     renderComponent();
     expect(screen.getByTestId('comment-form')).toBeInTheDocument();
     expect(screen.getByTestId('comment-list')).toBeInTheDocument();
-    expect(screen.queryByTestId('edit-dialog')).not.toBeInTheDocument();
+    // Edit dialog is now managed by CommentList, not TaskCommentSection
   });
 
   test('handles new comment submission', async () => {
@@ -136,41 +126,8 @@ describe('TaskCommentSection', () => {
     expect(mockProps.onCommentDelete).toHaveBeenCalledWith(1);
   });
 
-  test('shows edit dialog when editingComment is provided', () => {
-    const propsWithEditingComment: TaskCommentSectionProps = {
-      ...mockProps,
-      editingComment: mockComments[0]
-    };
-    renderComponent(propsWithEditingComment);
-
-    expect(screen.getByTestId('edit-dialog')).toBeInTheDocument();
-  });
-
-  test('handles edit dialog close', () => {
-    const propsWithEditingComment: TaskCommentSectionProps = {
-      ...mockProps,
-      editingComment: mockComments[0]
-    };
-    renderComponent(propsWithEditingComment);
-
-    const closeButton = screen.getByText('Close');
-    fireEvent.click(closeButton);
-
-    expect(mockProps.onEditEnd).toHaveBeenCalled();
-  });
-
-  test('handles edit dialog save', () => {
-    const propsWithEditingComment: TaskCommentSectionProps = {
-      ...mockProps,
-      editingComment: mockComments[0]
-    };
-    renderComponent(propsWithEditingComment);
-
-    const saveButton = screen.getByText('Save');
-    fireEvent.click(saveButton);
-
-    expect(mockProps.onCommentUpdate).toHaveBeenCalledWith(1, 'Updated comment');
-  });
+  // Edit dialog is now managed by CommentList component, not TaskCommentSection
+  // These tests are no longer relevant as the edit dialog is handled internally by CommentList
 
   test('passes correct props to CommentList', () => {
     renderComponent();

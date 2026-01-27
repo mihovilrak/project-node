@@ -2,7 +2,6 @@ import React from 'react';
 import { Paper } from '@mui/material';
 import CommentForm from '../Comments/CommentForm';
 import CommentList from '../Comments/CommentList';
-import CommentEditDialog from '../Comments/CommentEditDialog';
 import { Comment, TaskCommentSectionProps } from '../../types/comment';
 
 const TaskCommentSection: React.FC<TaskCommentSectionProps> = ({
@@ -42,14 +41,7 @@ const TaskCommentSection: React.FC<TaskCommentSectionProps> = ({
         onCommentDeleted={onCommentDelete}
         currentUserId={0} // This should come from auth context
       />
-      {editingComment && (
-        <CommentEditDialog
-          comment={editingComment}
-          open={!!editingComment}
-          onClose={onEditEnd}
-          onSave={onCommentUpdate}
-        />
-      )}
+      {/* CommentList manages its own edit dialog, so we don't need the duplicate one here */}
     </Paper>
   );
 };
