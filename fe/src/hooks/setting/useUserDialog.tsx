@@ -21,6 +21,7 @@ export const useUserDialog = (
     surname: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role_id: 3,
     status_id: 1
   });
@@ -62,6 +63,7 @@ export const useUserDialog = (
         surname: user.surname || '',
         email: user.email || '',
         password: '',
+        confirmPassword: '',
         role_id: user.role_id || (roles.length > 0 ? roles[0].id : 3),
         status_id: user.status_id
       });
@@ -72,6 +74,7 @@ export const useUserDialog = (
         surname: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role_id: roles.length > 0 ? roles[0].id : 3,
         status_id: 1
       });
@@ -97,6 +100,31 @@ export const useUserDialog = (
     e.preventDefault();
     setError(null);
 
+    // Validate required fields
+    if (!formData.login || !formData.name || !formData.surname || !formData.email) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    // Validate passwords
+    if (user) {
+      // Edit mode: if password is provided, confirmPassword is required
+      if (formData.password && formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+    } else {
+      // Create mode: password and confirmPassword are required
+      if (!formData.password || !formData.confirmPassword) {
+        setError('Password and password confirmation are required');
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+    }
+
     try {
       let savedUser;
       if (user) {
@@ -112,7 +140,9 @@ export const useUserDialog = (
 
         savedUser = await updateUser(user.id, updates);
       } else {
-        savedUser = await createUser(formData as UserCreate);
+        // Exclude confirmPassword from API call
+        const { confirmPassword, ...userData } = formData;
+        savedUser = await createUser(userData as UserCreate);
       }
       onUserSaved(savedUser);
       onClose();

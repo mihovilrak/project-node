@@ -29,6 +29,7 @@ const mockFormData = {
   surname: 'User',
   email: 'test@example.com',
   password: '',
+  confirmPassword: '',
   role_id: 2,
   status_id: 1
 };
@@ -71,7 +72,9 @@ describe('UserDialog', () => {
 
     // For password fields, use direct DOM query
     const passwordInputs = document.querySelectorAll('input[type="password"]');
+    expect(passwordInputs.length).toBeGreaterThanOrEqual(2); // password and confirmPassword
     expect(passwordInputs[0]).toBeRequired();
+    expect(passwordInputs[1]).toBeRequired();
   });
 
   it('renders edit user dialog correctly', () => {
@@ -204,9 +207,60 @@ describe('UserDialog', () => {
     expect(screen.getByRole('textbox', { name: /last name/i })).toBeRequired();
     expect(screen.getByRole('textbox', { name: /email/i })).toBeRequired();
 
-    // For password field
+    // For password fields
     const passwordInputs = document.querySelectorAll('input[type="password"]');
+    expect(passwordInputs.length).toBeGreaterThanOrEqual(2); // password and confirmPassword
     expect(passwordInputs[0]).toBeRequired();
+    expect(passwordInputs[1]).toBeRequired();
+  });
+
+  it('renders password confirmation field in create mode', () => {
+    render(<UserDialog {...defaultProps} />);
+    
+    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+    expect(confirmPasswordInput).toBeInTheDocument();
+    expect(confirmPasswordInput).toBeRequired();
+  });
+
+  it('renders password confirmation field in edit mode when password is provided', () => {
+    mockUseUserDialog.mockReturnValue({
+      formData: { ...mockFormData, password: 'newpassword' },
+      error: null,
+      roles: mockRoles,
+      rolesLoading: false,
+      handleTextChange: jest.fn(),
+      handleRoleChange: jest.fn(),
+      handleSubmit: jest.fn()
+    });
+
+    render(<UserDialog {...defaultProps} user={mockUser} />);
+    
+    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+    expect(confirmPasswordInput).toBeInTheDocument();
+  });
+
+  it('toggles password visibility', () => {
+    render(<UserDialog {...defaultProps} />);
+    
+    const passwordInput = document.querySelector('input[name="password"]');
+    expect(passwordInput).toHaveAttribute('type', 'password');
+    
+    const toggleButton = screen.getByTestId('toggle-password-visibility');
+    fireEvent.click(toggleButton);
+    
+    expect(passwordInput).toHaveAttribute('type', 'text');
+  });
+
+  it('toggles confirm password visibility', () => {
+    render(<UserDialog {...defaultProps} />);
+    
+    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+    expect(confirmPasswordInput).toHaveAttribute('type', 'password');
+    
+    const toggleButton = screen.getByTestId('toggle-confirm-password-visibility');
+    fireEvent.click(toggleButton);
+    
+    expect(confirmPasswordInput).toHaveAttribute('type', 'text');
   });
 
   it('pre-fills form data for existing user', () => {

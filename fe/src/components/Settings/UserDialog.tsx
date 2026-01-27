@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -12,8 +12,11 @@ import {
   Select,
   MenuItem,
   Alert,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  InputAdornment
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { UserDialogProps } from '../../types/user';
 import { useUserDialog } from '../../hooks/setting/useUserDialog';
 
@@ -27,6 +30,9 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
     handleRoleChange,
     handleSubmit
   } = useUserDialog(user, open, onClose, onUserSaved);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -87,13 +93,52 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
               <TextField
                 name="password"
                 label={user ? "New Password (leave empty to keep current)" : "Password"}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleTextChange}
                 fullWidth
                 required={!user}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        data-testid="toggle-password-visibility"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
+            {(user ? formData.password : true) && (
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  name="confirmPassword"
+                  label={user ? "Confirm New Password" : "Confirm Password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword || ''}
+                  onChange={handleTextChange}
+                  fullWidth
+                  required={!user || !!formData.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                          data-testid="toggle-confirm-password-visibility"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            )}
             <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel id="role-label">Role</InputLabel>

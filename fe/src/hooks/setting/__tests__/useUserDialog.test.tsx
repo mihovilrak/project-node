@@ -51,6 +51,7 @@ describe('useUserDialog', () => {
       surname: '',
       email: '',
       password: '',
+      confirmPassword: '',
       role_id: expect.any(Number),
       status_id: 1
     });
@@ -74,6 +75,7 @@ describe('useUserDialog', () => {
       surname: mockUser.surname,
       email: mockUser.email,
       password: '',
+      confirmPassword: '',
       role_id: mockUser.role_id,
       status_id: mockUser.status_id
     });
@@ -150,15 +152,20 @@ describe('useUserDialog', () => {
       surname: 'User',
       email: 'new@example.com',
       password: 'password123',
+      confirmPassword: 'password123',
       role_id: 3,
       status_id: 1
     };
 
-    (createUser as jest.Mock).mockResolvedValueOnce({ ...newUser, id: 2 });
+    (createUser as jest.Mock).mockResolvedValueOnce({ ...newUser, id: 2, confirmPassword: undefined });
 
     const { result } = renderHook(() =>
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
 
     // Set form data
     act(() => {
@@ -179,7 +186,9 @@ describe('useUserDialog', () => {
       await result.current.handleSubmit(mockEvent);
     });
 
-    expect(createUser).toHaveBeenCalledWith(newUser);
+    // confirmPassword should not be sent to API
+    const { confirmPassword, ...userDataForAPI } = newUser;
+    expect(createUser).toHaveBeenCalledWith(userDataForAPI);
     expect(mockOnUserSaved).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();
     expect(result.current.error).toBeNull();
@@ -226,6 +235,32 @@ describe('useUserDialog', () => {
       useUserDialog(null, true, mockOnClose, mockOnUserSaved)
     );
 
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    // Set required fields including matching passwords
+    act(() => {
+      result.current.handleTextChange({
+        target: { name: 'login', value: 'testuser' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'name', value: 'Test' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'surname', value: 'User' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'email', value: 'test@example.com' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'password', value: 'password123' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'confirmPassword', value: 'password123' }
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
     await act(async () => {
       const mockEvent = {
         preventDefault: jest.fn()
@@ -237,5 +272,123 @@ describe('useUserDialog', () => {
     expect(result.current.error).toBe('Failed to save user');
     expect(mockOnUserSaved).not.toHaveBeenCalled();
     expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('should validate password matching in create mode', async () => {
+    const { result } = renderHook(() =>
+      useUserDialog(null, true, mockOnClose, mockOnUserSaved)
+    );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    // Set form data with mismatched passwords
+    act(() => {
+      result.current.handleTextChange({
+        target: { name: 'login', value: 'testuser' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'name', value: 'Test' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'surname', value: 'User' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'email', value: 'test@example.com' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'password', value: 'password123' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'confirmPassword', value: 'different' }
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      const mockEvent = {
+        preventDefault: jest.fn()
+      } as unknown as React.FormEvent<HTMLFormElement>;
+
+      await result.current.handleSubmit(mockEvent);
+    });
+
+    expect(result.current.error).toBe('Passwords do not match');
+    expect(createUser).not.toHaveBeenCalled();
+    expect(mockOnUserSaved).not.toHaveBeenCalled();
+  });
+
+  it('should validate password matching in edit mode when password is provided', async () => {
+    (updateUser as jest.Mock).mockResolvedValueOnce(mockUser);
+
+    const { result } = renderHook(() =>
+      useUserDialog(mockUser, true, mockOnClose, mockOnUserSaved)
+    );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    // Set password with mismatched confirmation
+    act(() => {
+      result.current.handleTextChange({
+        target: { name: 'password', value: 'newpassword' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'confirmPassword', value: 'different' }
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      const mockEvent = {
+        preventDefault: jest.fn()
+      } as unknown as React.FormEvent<HTMLFormElement>;
+
+      await result.current.handleSubmit(mockEvent);
+    });
+
+    expect(result.current.error).toBe('Passwords do not match');
+    expect(updateUser).not.toHaveBeenCalled();
+    expect(mockOnUserSaved).not.toHaveBeenCalled();
+  });
+
+  it('should require password confirmation in create mode', async () => {
+    const { result } = renderHook(() =>
+      useUserDialog(null, true, mockOnClose, mockOnUserSaved)
+    );
+
+    await waitFor(() => {
+      expect(result.current.rolesLoading).toBe(false);
+    });
+
+    // Set form data without confirmPassword
+    act(() => {
+      result.current.handleTextChange({
+        target: { name: 'login', value: 'testuser' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'name', value: 'Test' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'surname', value: 'User' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'email', value: 'test@example.com' }
+      } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleTextChange({
+        target: { name: 'password', value: 'password123' }
+      } as React.ChangeEvent<HTMLInputElement>);
+    });
+
+    await act(async () => {
+      const mockEvent = {
+        preventDefault: jest.fn()
+      } as unknown as React.FormEvent<HTMLFormElement>;
+
+      await result.current.handleSubmit(mockEvent);
+    });
+
+    expect(result.current.error).toBe('Password and password confirmation are required');
+    expect(createUser).not.toHaveBeenCalled();
   });
 });
