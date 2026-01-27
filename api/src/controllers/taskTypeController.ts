@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeModel from '../models/taskTypeModel';
 import { TaskTypeCreateInput, TaskTypeUpdateInput } from '../types/taskType';
+import { AVAILABLE_ICONS } from '../utils/iconConstants';
 
 // Task Type Controllers
 export const getTaskTypes = async (
@@ -132,5 +133,18 @@ export const deleteTaskType = async (
   } catch (error) {
     console.error('Error deleting task type:', error);
     res.status(500).json({ error: 'Failed to delete task type' });
+  }
+};
+
+// Get available icons
+export const getAvailableIcons = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+    res.status(200).json(AVAILABLE_ICONS);
+  } catch (error) {
+    console.error('Error fetching icons:', error);
+    res.status(500).json({ error: 'Failed to fetch icons' });
   }
 };

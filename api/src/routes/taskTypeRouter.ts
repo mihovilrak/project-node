@@ -26,5 +26,9 @@ export default (pool: Pool): Router => {
   router.delete('/:id', checkPermission(pool, 'Admin'), ((req, res) =>
     taskTypeController.deleteTaskType(req, res, pool)) as RequestHandler);
 
+  // Get available icons
+  router.get('/icons', ((req, res) =>
+    taskTypeController.getAvailableIcons(req, res)) as RequestHandler);
+
   return router;
 };

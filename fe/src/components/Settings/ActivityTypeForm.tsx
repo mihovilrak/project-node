@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogContent
 } from '@mui/material';
-import { Icon } from '@mui/material';
+import * as Icons from '@mui/icons-material';
 import { MuiColorInput } from 'mui-color-input';
 import { useIconSelector } from '../../hooks/setting/useIconSelector';
 import {
@@ -29,6 +29,16 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
     handleSelect
   } = useIconSelector(value);
 
+  const getIconComponent = (iconName?: string) => {
+    if (!iconName) return null;
+    try {
+      const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+      return IconComponent ? <IconComponent /> : null;
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <FormControl fullWidth margin="normal">
       <InputLabel shrink>Icon</InputLabel>
@@ -42,7 +52,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
             height: '56px'
           }}
         >
-          {value ? <Icon>{value}</Icon> : 'Select Icon'}
+          {value ? getIconComponent(value) || value : 'Select Icon'}
         </IconButton>
       </Box>
 
@@ -50,25 +60,28 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         <DialogTitle>Select an Icon</DialogTitle>
         <DialogContent>
           <Grid container spacing={1} sx={{ p: 2 }}>
-            {(icons || []).map((iconName) => (
-              <Grid key={iconName || Math.random()}>
-                <IconButton
-                  onClick={() => {
-                    if (iconName) {
-                      handleSelect(iconName);
-                      onChange(iconName);
-                    }
-                  }}
-                  disabled={!iconName}
-                  sx={{
-                    border: value === iconName ? '2px solid primary.main' : 'none',
-                    borderRadius: 1
-                  }}
-                >
-                  <Icon>{iconName || 'Unknown'}</Icon>
-                </IconButton>
-              </Grid>
-            ))}
+            {(icons || []).map((iconName) => {
+              const IconComponent = iconName ? getIconComponent(iconName) : null;
+              return (
+                <Grid key={iconName || Math.random()} item>
+                  <IconButton
+                    onClick={() => {
+                      if (iconName) {
+                        handleSelect(iconName);
+                        onChange(iconName);
+                      }
+                    }}
+                    disabled={!iconName}
+                    sx={{
+                      border: value === iconName ? '2px solid primary.main' : 'none',
+                      borderRadius: 1
+                    }}
+                  >
+                    {IconComponent || iconName || 'Unknown'}
+                  </IconButton>
+                </Grid>
+              );
+            })}
           </Grid>
         </DialogContent>
       </Dialog>

@@ -54,3 +54,14 @@ export const deleteTaskType = async (id: number): Promise<void> => {
     throw error;
   }
 };
+
+// Get available icons
+export const getAvailableIcons = async (): Promise<string[]> => {
+  try {
+    const response = await api.get('/admin/task-types/icons');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch available icons', error);
+    throw error;
+  }
+};

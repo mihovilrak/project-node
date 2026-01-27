@@ -6,6 +6,7 @@ import {
   ActivityTypeCreateInput,
   ActivityTypeUpdateInput,
 } from '../types/activityType';
+import { AVAILABLE_ICONS } from '../utils/iconConstants';
 
 // Get all activity types
 export const getActivityTypes = async (
@@ -121,13 +122,7 @@ export const getAvailableIcons = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    // You can customize this list based on your icon library
-    const icons = [
-      'work', 'code', 'bug_report', 'build', 'meeting_room',
-      'description', 'schedule', 'search', 'analytics', 'design_services',
-      'cloud', 'support', 'more_horiz'
-    ];
-    res.status(200).json(icons);
+    res.status(200).json(AVAILABLE_ICONS);
   } catch (error) {
     console.error('Error fetching icons:', error);
     res.status(500).json({ error: 'Failed to fetch icons' });
