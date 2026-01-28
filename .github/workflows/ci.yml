@@ -158,4 +158,3 @@ jobs:
           TEST_DB_USER: pm_user
           TEST_DB_PASSWORD: pm_password
           SESSION_SECRET: test-session-secret
-        continue-on-error: true
