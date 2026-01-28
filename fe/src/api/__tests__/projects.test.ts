@@ -66,7 +66,7 @@ describe('Projects API', () => {
 
       const result = await getProjects();
 
-      expect(mockedApi.get).toHaveBeenCalledWith('/projects');
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects', { params: undefined });
       expect(result).toEqual(mockProjects);
     });
   });

@@ -59,7 +59,7 @@ describe('Users API', () => {
     it('should fetch all users', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockUser] });
       const result = await getUsers();
-      expect(mockedApi.get).toHaveBeenCalledWith('/users');
+      expect(mockedApi.get).toHaveBeenCalledWith('/users', { params: {} });
       expect(result).toEqual([mockUser]);
     });
 

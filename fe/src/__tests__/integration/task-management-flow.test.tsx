@@ -134,6 +134,42 @@ describe('Task Management Flow', () => {
       // Normalize URL by removing leading slash for consistent matching
       const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
 
+      // Tasks active endpoint
+      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
+        return Promise.resolve({ data: [mockTask] });
+      }
+
+      // Tasks statuses endpoint
+      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'To Do', color: '#FF0000' },
+            { id: 2, name: 'In Progress', color: '#00FF00' },
+            { id: 3, name: 'Done', color: '#0000FF' }
+          ]
+        });
+      }
+
+      // Tasks priorities endpoint
+      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'High', color: '#FF0000' },
+            { id: 2, name: 'Medium', color: '#FFA500' },
+            { id: 3, name: 'Low', color: '#00FF00' }
+          ]
+        });
+      }
+
+      // Projects endpoint
+      if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'Test Project', description: 'Test Description' }
+          ]
+        });
+      }
+
       // Tasks listing endpoint
       if (normalizedUrl.startsWith('tasks') && !normalizedUrl.includes('/')) {
         return Promise.resolve({ data: [mockTask] });
@@ -214,9 +250,9 @@ describe('Task Management Flow', () => {
         });
       }
 
-      // Default fallback for any other endpoint
+      // Default fallback for any other endpoint - return empty array to prevent filter errors
       console.log(`Mock not found for GET ${url}`);
-      return Promise.resolve({ data: {} });
+      return Promise.resolve({ data: [] });
     });
 
     // Mock POST requests
@@ -731,13 +767,43 @@ describe('Task Management Flow', () => {
 
     // Set up specific mock for subtasks
     mockedApi.get.mockImplementation((url: string) => {
-      if (url === '/tasks/1/subtasks' || url === 'tasks/1/subtasks') {
+      const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
+      
+      if (normalizedUrl === 'tasks/1/subtasks' || normalizedUrl === '/tasks/1/subtasks') {
         return Promise.resolve({ data: mockSubtasks });
       }
-      if (url.includes('/tasks') && !url.includes('/tasks/')) {
+      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
         return Promise.resolve({ data: [mockTask] });
       }
-      if (url === '/check-session' || url === 'check-session') {
+      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'To Do', color: '#FF0000' },
+            { id: 2, name: 'In Progress', color: '#00FF00' },
+            { id: 3, name: 'Done', color: '#0000FF' }
+          ]
+        });
+      }
+      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'High', color: '#FF0000' },
+            { id: 2, name: 'Medium', color: '#FFA500' },
+            { id: 3, name: 'Low', color: '#00FF00' }
+          ]
+        });
+      }
+      if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'Test Project', description: 'Test Description' }
+          ]
+        });
+      }
+      if (normalizedUrl.includes('tasks') && !normalizedUrl.includes('/tasks/')) {
+        return Promise.resolve({ data: [mockTask] });
+      }
+      if (normalizedUrl === 'check-session' || normalizedUrl === '/check-session') {
         return Promise.resolve({
           data: {
             id: 1,
@@ -747,8 +813,26 @@ describe('Task Management Flow', () => {
           }
         });
       }
-      // Default fallback
-      return Promise.resolve({ data: {} });
+      if (normalizedUrl === 'users/permissions' || normalizedUrl === '/users/permissions') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'VIEW_TASKS' },
+            { id: 2, name: 'EDIT_TASKS' },
+            { id: 3, name: 'CREATE_COMMENT' }
+          ]
+        });
+      }
+      if (normalizedUrl === 'user' || normalizedUrl === '/user') {
+        return Promise.resolve({
+          data: {
+            id: 1,
+            username: 'testuser',
+            email: 'test@example.com'
+          }
+        });
+      }
+      // Default fallback - return empty array instead of empty object to prevent filter errors
+      return Promise.resolve({ data: [] });
     });
 
     const user = userEvent.setup();

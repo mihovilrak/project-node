@@ -72,6 +72,40 @@ describe('Comments and Notifications Flow', () => {
     jest.clearAllMocks();
     // Mock initial API responses
     mockedApi.get.mockImplementation((url: string) => {
+      const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
+      
+      // Mock tasks active endpoint
+      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
+        return Promise.resolve({ data: [mockTask] });
+      }
+      // Mock tasks statuses endpoint
+      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'To Do', color: '#FF0000' },
+            { id: 2, name: 'In Progress', color: '#00FF00' },
+            { id: 3, name: 'Done', color: '#0000FF' }
+          ]
+        });
+      }
+      // Mock tasks priorities endpoint
+      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'High', color: '#FF0000' },
+            { id: 2, name: 'Medium', color: '#FFA500' },
+            { id: 3, name: 'Low', color: '#00FF00' }
+          ]
+        });
+      }
+      // Mock projects endpoint
+      if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
+        return Promise.resolve({
+          data: [
+            { id: 1, name: 'Test Project', description: 'Test Description' }
+          ]
+        });
+      }
       // Mock tasks endpoint
       if (url.includes('/tasks') && !url.includes('/tasks/')) {
         return Promise.resolve({ data: [mockTask] });
