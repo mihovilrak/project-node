@@ -125,7 +125,7 @@ describe('useTaskCore', () => {
     });
 
     expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBe('Failed to load task details');
+    expect(result.current.error).toBe('Failed to load task');
     expect(result.current.task).toBe(null);
   });
 

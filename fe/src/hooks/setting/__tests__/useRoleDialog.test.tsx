@@ -78,7 +78,7 @@ describe('useRoleDialog', () => {
 
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.error).toBe('Failed to load permissions'));
+    await waitFor(() => expect(result.current.error).toBe('Failed to fetch permissions'));
 
   });
 

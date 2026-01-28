@@ -46,7 +46,9 @@ describe('DeleteConfirmDialog', () => {
   test('calls onConfirm when Delete button is clicked', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('Delete'));
+    // Find the Delete button by role and text
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
     expect(defaultProps.onConfirm).toHaveBeenCalledTimes(1);
   });
 
@@ -54,34 +56,45 @@ describe('DeleteConfirmDialog', () => {
     const onConfirmMock = jest.fn(() => new Promise(resolve => setTimeout(resolve, 100)));
     render(<DeleteConfirmDialog {...defaultProps} onConfirm={onConfirmMock} />);
 
-    fireEvent.click(screen.getByText('Delete'));
+    // Click delete button to trigger deletion
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
 
     // Check loading state
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeDisabled();
-    expect(screen.getByText('Delete')).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    });
+    
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    const deletingButton = screen.getByRole('button', { name: /deleting/i });
+    expect(cancelButton).toBeDisabled();
+    expect(deletingButton).toBeDisabled();
 
     // Wait for deletion to complete
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+    }, { timeout: 200 });
   });
 
   test('buttons are enabled after deletion completes', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('Delete'));
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Cancel')).not.toBeDisabled();
-      expect(screen.getByText('Delete')).not.toBeDisabled();
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      const deleteBtn = screen.getByRole('button', { name: /delete/i });
+      expect(cancelButton).not.toBeDisabled();
+      expect(deleteBtn).not.toBeDisabled();
     });
   });
 
   test('closes dialog after successful deletion', async () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('Delete'));
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(defaultProps.onClose).toHaveBeenCalled();

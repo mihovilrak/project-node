@@ -53,6 +53,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
           color="error"
           disabled={isDeletingState}
           startIcon={isDeletingState ? <CircularProgress size={20} /> : null}
+          data-testid="confirm-delete-button"
         >
           {isDeletingState ? 'Deleting...' : 'Delete'}
         </Button>

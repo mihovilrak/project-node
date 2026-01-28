@@ -91,7 +91,7 @@ describe('UserManager', () => {
     render(<UserManager />);
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to fetch users')).toBeInTheDocument();
+      expect(screen.getByText('API Error')).toBeInTheDocument();
     });
   });
 

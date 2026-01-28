@@ -19,5 +19,11 @@ module.exports = {
     "/node_modules/(?!(@mui|@emotion|mui-color-input|react-router-dom|@mswjs|msw|web-streams-polyfill|@open-draft|outvariant|headers-polyfill|until-async|rettime|tagged-tag|yoctocolors-cjs|@inquirer)).+"
   ],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.[tj]sx?$',
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/mocks/',
+    '/dist/',
+    '/build/'
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
 };

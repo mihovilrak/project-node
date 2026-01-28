@@ -57,6 +57,9 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
   };
 
   const getTasksForDay = (day: Date): Task[] => {
+    if (!tasks || !Array.isArray(tasks)) {
+      return [];
+    }
     return tasks.filter(task => {
       const startDate = task.start_date ? new Date(task.start_date) : null;
       const endDate = task.end_date ? new Date(task.end_date) : null;
@@ -68,6 +71,9 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
   };
 
   const getTimeLogsForDay = (day: Date): TimeLog[] => {
+    if (!timeLogs || !Array.isArray(timeLogs)) {
+      return [];
+    }
     return timeLogs.filter(timeLog => {
       const logDate = new Date(timeLog.created_on);
       return logDate.toDateString() === day.toDateString();

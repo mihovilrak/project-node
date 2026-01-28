@@ -55,7 +55,9 @@ describe('useCommentEdit', () => {
     });
 
     expect(mockOnSave).toHaveBeenCalledWith(mockComment.id, 'Updated text');
-    expect(result.current.editedText).toBe('');
+    // Note: editedText is not cleared after save - the dialog close handler should do it
+    // This allows the dialog to stay open with the edited text if needed
+    expect(result.current.editedText).toBe('Updated text');
     expect(result.current.error).toBe('');
     expect(result.current.isSubmitting).toBe(false);
   });

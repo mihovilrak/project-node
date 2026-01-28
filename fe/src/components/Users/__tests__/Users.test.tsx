@@ -135,8 +135,11 @@ describe('Users Component', () => {
   });
 
   test('handles user deletion', async () => {
-    window.confirm = jest.fn(() => true);
     mockedDeleteUser.mockResolvedValue(undefined);
+    // After deletion, the component calls fetchUsers again, so mock should return filtered list
+    mockedGetUsers
+      .mockResolvedValueOnce(mockUsers) // Initial load
+      .mockResolvedValueOnce(mockUsers.filter(u => u.id !== 1)); // After deletion
 
     await act(async () => {
       renderUsers();
@@ -149,11 +152,24 @@ describe('Users Component', () => {
     await waitFor(() => {
       fireEvent.click(deleteButton);
     });
-    expect(window.confirm).toHaveBeenCalled();
-    expect(mockedDeleteUser).toHaveBeenCalledWith(1);
+
+    // Wait for delete confirmation dialog to appear
+    await waitFor(() => {
+      expect(screen.getByText(/Are you sure you want to delete user/)).toBeInTheDocument();
+    });
+
+    // Click confirm button in dialog
+    const confirmButton = screen.getByTestId('confirm-delete-button');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockedDeleteUser).toHaveBeenCalledWith(1);
+    });
+    
+    // Wait for user to be removed from list (after API refresh)
     await waitFor(() => {
       expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   test('handles navigation', async () => {

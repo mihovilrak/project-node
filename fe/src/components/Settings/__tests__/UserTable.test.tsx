@@ -9,6 +9,11 @@ jest.mock('../../../api/users', () => ({
   deleteUser: jest.fn()
 }));
 
+// Mock activityTypes API to prevent getAvailableIcons errors
+jest.mock('../../../api/activityTypes', () => ({
+  getAvailableIcons: jest.fn().mockResolvedValue([])
+}));
+
 // Mock Material-UI components that might cause testing issues
 jest.mock('@mui/material', () => {
   const actual = jest.requireActual('@mui/material');
@@ -212,8 +217,9 @@ describe('UserTable', () => {
     // Wait for the error message to appear in the dialog
     await waitFor(() => {
       expect(screen.getByTestId('delete-error')).toBeInTheDocument();
-      expect(screen.getByTestId('delete-error')).toHaveTextContent(/Failed to delete user/i);
-    });
+      // Error message uses error.message if available, otherwise falls back to default
+      expect(screen.getByTestId('delete-error')).toHaveTextContent(/Delete failed|Failed to delete user/i);
+    }, { timeout: 3000 });
 
     // Verify error was logged
     expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));

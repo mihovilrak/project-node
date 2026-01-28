@@ -193,8 +193,9 @@ describe('useProfileData', () => {
     const { result } = renderHook(() => useProfileData());
 
     await waitFor(() => {
-      expect(result.current.error).toBe('Failed to load profile data');
-    });
+      // Error message uses error.message if available, otherwise falls back to default
+      expect(result.current.error).toBe('API Error');
+    }, { timeout: 3000 });
     expect(result.current.loading).toBe(false);
   });
 

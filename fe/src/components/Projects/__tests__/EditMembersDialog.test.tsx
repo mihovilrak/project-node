@@ -111,11 +111,13 @@ describe('EditMembersDialog', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load users')).toBeInTheDocument();
-    });
+      // Error message uses error.message if available, otherwise falls back to default
+      expect(screen.getByText('API Error')).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   it('saves selected members', async () => {
+    mockOnSave.mockResolvedValue(undefined);
     render(
       <EditMembersDialog
         open={true}
@@ -133,8 +135,10 @@ describe('EditMembersDialog', () => {
     const saveButton = screen.getByText('Save Changes');
     fireEvent.click(saveButton);
 
-    expect(mockOnSave).toHaveBeenCalledWith([1]);
-    expect(mockOnClose).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith([1]);
+      expect(mockOnClose).toHaveBeenCalled();
+    });
   });
 
   it('closes dialog on cancel', async () => {

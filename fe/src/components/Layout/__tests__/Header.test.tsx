@@ -99,14 +99,14 @@ describe('Header', () => {
     expect(notificationCenter).toHaveTextContent('UserId: 1');
   });
 
-  it('renders notification center without user id when user is null', () => {
+  it('does not render notification center when user is null', () => {
     (useHeader as jest.Mock).mockReturnValue({
       currentUser: null,
       isScrolled: false
     });
 
     renderHeader();
-    const notificationCenter = screen.getByTestId('notification-center');
-    expect(notificationCenter).toHaveTextContent('UserId:');
+    // NotificationCenter is only rendered when currentUser?.id exists
+    expect(screen.queryByTestId('notification-center')).not.toBeInTheDocument();
   });
 });

@@ -13,7 +13,12 @@ import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
 
 // Mock the API calls
-jest.mock('../../../api/tasks');
+jest.mock('../../../api/tasks', () => ({
+  getTasks: jest.fn(),
+  deleteTask: jest.fn(),
+  getTaskStatuses: jest.fn().mockResolvedValue([]),
+  getPriorities: jest.fn().mockResolvedValue([])
+}));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
 
@@ -121,7 +126,6 @@ describe('Tasks Component', () => {
   });
 
   test('handles task deletion', async () => {
-    window.confirm = jest.fn(() => true);
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockResolvedValue();
 
@@ -134,7 +138,14 @@ describe('Tasks Component', () => {
     const deleteButtons = await screen.findAllByText('Delete');
     fireEvent.click(deleteButtons[0]);
 
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this task?');
+    // Wait for delete confirmation dialog to appear
+    await waitFor(() => {
+      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
+    });
+
+    // Click confirm button in dialog
+    const confirmButton = screen.getByTestId('confirm-delete-button');
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
@@ -143,7 +154,6 @@ describe('Tasks Component', () => {
   });
 
   test('handles failed task deletion', async () => {
-    window.confirm = jest.fn(() => true);
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     mockedGetTasks.mockResolvedValue(mockTasks);
@@ -158,12 +168,27 @@ describe('Tasks Component', () => {
     const deleteButtons = await screen.findAllByText('Delete');
     fireEvent.click(deleteButtons[0]);
 
+    // Wait for delete confirmation dialog to appear
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task', expect.any(Error));
+      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
     });
 
+    // Click confirm button in dialog
+    const confirmButton = screen.getByTestId('confirm-delete-button');
+    fireEvent.click(confirmButton);
+
+    // Wait for error to be logged
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
+    });
+
+    // Note: The useDeleteConfirm hook closes the dialog even on error (in finally block),
+    // so we verify the error was logged rather than checking for error in dialog
+    // The error handling is working correctly - it's logged to console
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
+
     consoleErrorSpy.mockRestore();
-  });
+  }, 10000);
 
   test('filters tasks by search term', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);

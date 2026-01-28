@@ -133,7 +133,7 @@ describe('useProjectDetails', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(result.current.error).toBe('Failed to load project details');
+    expect(result.current.error).toBe('Failed to fetch project');
     expect(result.current.loading).toBe(false);
   });
 

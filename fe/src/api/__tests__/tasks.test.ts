@@ -86,7 +86,7 @@ describe('getTaskById', () => {
 
     const result = await getTaskById(1);
 
-    expect(mockedApi.get).toHaveBeenCalledWith(`tasks/1`);
+    expect(mockedApi.get).toHaveBeenCalledWith(`/tasks/1`);
     expect(result).toEqual(mockTask);
   });
 
@@ -108,7 +108,7 @@ describe('createTask', () => {
 
     const result = await createTask(taskData);
 
-    expect(mockedApi.post).toHaveBeenCalledWith('tasks', taskData);
+    expect(mockedApi.post).toHaveBeenCalledWith('/tasks', taskData);
     expect(result).toEqual(mockTask);
   });
 });
@@ -212,7 +212,7 @@ describe('updateTaskTags', () => {
 
     const result = await updateTaskTags(1, tags);
 
-    expect(mockedApi.put).toHaveBeenCalledWith('tasks/1/tags', { tags });
+    expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/tags', { tags });
     expect(result).toEqual(undefined);
   });
 });
@@ -291,7 +291,7 @@ describe('deleteTask', () => {
 
     await deleteTask(taskId);
 
-    expect(mockedApi.delete).toHaveBeenCalledWith(`tasks/${taskId}`);
+    expect(mockedApi.delete).toHaveBeenCalledWith(`/tasks/${taskId}`);
   });
 
   it('should handle error when deleting task', async () => {

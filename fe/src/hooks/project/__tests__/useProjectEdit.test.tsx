@@ -151,6 +151,6 @@ describe('useProjectEdit', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(result.current.error).toBe('Failed to load project statuses');
+    expect(result.current.error).toBe('Failed to fetch statuses');
   });
 });

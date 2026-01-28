@@ -47,6 +47,7 @@ jest.mock('../../../api/projects', () => ({
   createProject: jest.fn().mockResolvedValue({ id: 999 }),
   addProjectMember: jest.fn().mockResolvedValue({ success: true }),
   getProjects: jest.fn().mockResolvedValue([]),
+  getProjectStatuses: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('../../../api/users', () => ({

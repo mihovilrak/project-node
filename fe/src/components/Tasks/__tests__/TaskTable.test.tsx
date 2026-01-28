@@ -249,7 +249,8 @@ describe('TaskTable', () => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('row')).toBeTruthy();
-    expect(screen.queryAllByRole('row')).toHaveLength(1); // Only header row
+    // When empty, there's a header row and one row with "No tasks found"
+    expect(screen.queryAllByRole('row')).toHaveLength(2); // Header row + empty message row
+    expect(screen.getByText('No tasks found')).toBeInTheDocument();
   });
 });

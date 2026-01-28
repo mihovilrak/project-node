@@ -162,7 +162,7 @@ describe('UserDialog', () => {
     });
   });
 
-  it('shows loading state when roles are being fetched', () => {
+  it('shows loading state when roles are being fetched', async () => {
     mockUseUserDialog.mockReturnValue({
       formData: mockFormData,
       error: null,
@@ -175,8 +175,11 @@ describe('UserDialog', () => {
 
     render(<UserDialog {...defaultProps} />);
 
-    const roleSelect = screen.getByLabelText(/role/i);
-    expect(roleSelect).toBeDisabled();
+    // Wait for the select to render
+    const roleSelect = await screen.findByLabelText(/role/i);
+    // MUI Select uses aria-disabled / Mui-disabled instead of native disabled on the combobox div
+    expect(roleSelect).toHaveAttribute('aria-disabled', 'true');
+    expect(roleSelect).toHaveClass('Mui-disabled');
   });
 
   it('shows error message when no roles are available', () => {

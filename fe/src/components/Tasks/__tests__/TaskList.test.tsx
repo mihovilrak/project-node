@@ -118,8 +118,6 @@ describe('TaskList Component', () => {
   });
 
   test('handles task deletion', async () => {
-    const originalConfirm = window.confirm;
-    window.confirm = jest.fn(() => true);
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockResolvedValue();
 
@@ -132,11 +130,18 @@ describe('TaskList Component', () => {
     const deleteButtons = await screen.findAllByText('Delete');
     fireEvent.click(deleteButtons[0]);
 
-    expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this task?');
+    // Wait for delete confirmation dialog to appear
+    await waitFor(() => {
+      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
+    });
+
+    // Click confirm button in dialog
+    const confirmButton = screen.getByTestId('confirm-delete-button');
+    fireEvent.click(confirmButton);
+
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
     });
-    window.confirm = originalConfirm;
   });
 
   test('navigates to task details when clicking Details button', async () => {

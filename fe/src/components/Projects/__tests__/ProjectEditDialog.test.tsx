@@ -77,7 +77,7 @@ describe('ProjectEditDialog', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to update project')).toBeInTheDocument();
+      expect(screen.getByText('Update failed')).toBeInTheDocument();
     });
   });
 

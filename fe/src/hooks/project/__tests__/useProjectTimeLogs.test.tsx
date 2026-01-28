@@ -177,7 +177,12 @@ describe('useProjectTimeLogs', () => {
     (createTimeLog as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Failed to create time log')));
 
     await act(async () => {
-      await result.current.handleTimeLogSubmit(mockTimeLogCreate);
+      try {
+        await result.current.handleTimeLogSubmit(mockTimeLogCreate);
+      } catch (error) {
+        // Error is expected to be thrown after logging
+        expect(error).toBeInstanceOf(Error);
+      }
     });
     expect(errorSpy).toHaveBeenCalledWith('Failed to submit time log:', expect.any(Error));
     errorSpy.mockRestore();

@@ -44,7 +44,7 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle2" color="textSecondary">
-          Total hours this month: {(typeof totalHours === 'number' && !isNaN(totalHours) ? totalHours : 0).toFixed(1)}h
+          Total hours this month: {typeof totalHours === 'number' && !isNaN(totalHours) ? (totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1)) : 0}h
         </Typography>
       </Box>
     </>

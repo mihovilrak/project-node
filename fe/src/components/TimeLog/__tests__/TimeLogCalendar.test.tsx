@@ -75,9 +75,15 @@ describe('TimeLogCalendar', () => {
       </ThemeProvider>
     );
 
+    // Wait for loading to finish first
     await waitFor(() => {
-      expect(screen.getByText(/Failed to load time logs/)).toBeInTheDocument();
-    });
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Then wait for error message to appear (error.message is used if available)
+    await waitFor(() => {
+      expect(screen.getByText('API Error')).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 
   test('renders calendar components with data when API succeeds', async () => {

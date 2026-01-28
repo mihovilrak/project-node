@@ -155,7 +155,7 @@ describe('Projects API', () => {
 
       await deleteProject(1);
 
-      expect(mockedApi.delete).toHaveBeenCalledWith('projects/1');
+      expect(mockedApi.delete).toHaveBeenCalledWith('/projects/1');
     });
 
     it('should throw error when deletion fails', async () => {
@@ -197,7 +197,7 @@ describe('Projects API', () => {
     it('should fetch members successfully', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockProjectMember] });
       const result = await getProjectMembers(1);
-      expect(mockedApi.get).toHaveBeenCalledWith('projects/1/members');
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects/1/members');
       expect(result).toEqual([mockProjectMember]);
     });
   });
@@ -217,7 +217,7 @@ describe('Projects API', () => {
 
       const result = await addProjectMember(1, 1);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('projects/1/members', { userId: 1 });
+      expect(mockedApi.post).toHaveBeenCalledWith('/projects/1/members', { userId: 1 });
       expect(result).toEqual(mockProjectMember);
     });
 
@@ -235,7 +235,7 @@ describe('Projects API', () => {
 
       await removeProjectMember(1, 1);
 
-      expect(mockedApi.delete).toHaveBeenCalledWith('projects/1/members', { data: { userId: 1 } });
+      expect(mockedApi.delete).toHaveBeenCalledWith('/projects/1/members', { data: { userId: 1 } });
     });
 
     it('should throw error when removing member fails', async () => {
