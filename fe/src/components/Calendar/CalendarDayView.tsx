@@ -18,7 +18,7 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
   const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(tasks, timeLogs);
 
   return (
-    <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }} data-testid="day-grid">
+    <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }} data-testid="day-view">
       {hours.map(hour => (
         <Paper
           key={hour}

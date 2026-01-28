@@ -2,6 +2,10 @@ import { Task } from '../../types/task';
 import { TimeLog } from '../../types/timeLog';
 
 export const useCalendarWeek = (date: Date, tasks: Task[], timeLogs: TimeLog[]) => {
+  // Ensure tasks and timeLogs are always arrays
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const safeTimeLogs = Array.isArray(timeLogs) ? timeLogs : [];
+  
   const getWeekDays = (): Date[] => {
     return Array.from({ length: 7 }, (_, i) => {
       const day = new Date(date);
@@ -11,7 +15,7 @@ export const useCalendarWeek = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
   };
 
   const getTasksForDay = (day: Date): Task[] => {
-    return tasks.filter(task => {
+    return safeTasks.filter(task => {
       const startDate = task.start_date ? new Date(task.start_date) : null;
       const endDate = task.end_date ? new Date(task.end_date) : null;
       const dueDate = task.due_date ? new Date(task.due_date) : null;
@@ -23,7 +27,7 @@ export const useCalendarWeek = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
   };
 
   const getTimeLogsForDay = (day: Date): TimeLog[] => {
-    return timeLogs.filter(timeLog => {
+    return safeTimeLogs.filter(timeLog => {
       const logDate = new Date(timeLog.created_on);
       return logDate.toDateString() === day.toDateString();
     });

@@ -22,6 +22,10 @@ jest.mock('../api');
 const mockedApi = api as jest.Mocked<typeof api>;
 
 describe('Projects API', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Mock data
   const mockProject: Project = {
     id: 1,
@@ -77,7 +81,7 @@ describe('Projects API', () => {
 
       const result = await getProjectDetails(1);
 
-      expect(mockedApi.get).toHaveBeenCalledWith('projects/1/details');
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects/1/details');
       expect(result).toEqual(projectWithMembers);
     });
 
@@ -96,7 +100,7 @@ describe('Projects API', () => {
 
       const result = await getProjectById(1);
 
-      expect(mockedApi.get).toHaveBeenCalledWith('projects/1');
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects/1');
       expect(result).toEqual(mockProject);
     });
 
@@ -116,7 +120,7 @@ describe('Projects API', () => {
 
       const result = await createProject(newProject);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('projects', newProject);
+      expect(mockedApi.post).toHaveBeenCalledWith('/projects', newProject);
       expect(result).toEqual(mockProject);
     });
 
@@ -136,7 +140,7 @@ describe('Projects API', () => {
 
       const result = await updateProject(1, partialUpdate);
 
-      expect(mockedApi.put).toHaveBeenCalledWith('projects/1', partialUpdate);
+      expect(mockedApi.put).toHaveBeenCalledWith('/projects/1', partialUpdate);
       expect(result).toEqual(updatedProject);
     });
 
@@ -252,7 +256,7 @@ describe('Projects API', () => {
 
       const result = await updateProjectMember(1, 1, 'Manager');
 
-      expect(mockedApi.put).toHaveBeenCalledWith('projects/1/members/1', { role: 'Manager' });
+      expect(mockedApi.put).toHaveBeenLastCalledWith('/projects/1/members/1', { role: 'Manager' });
       expect(result).toEqual(mockProjectMember);
     });
 
