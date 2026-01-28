@@ -23,6 +23,7 @@ create or replace view v_tasks as
             t.end_date,
             tst.spent_time,
             t.progress,
+            t.created_by,
             c.name as created_by_name,
             t.created_on::timestamp(0),
             t.estimated_time
