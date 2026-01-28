@@ -9,11 +9,9 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Task } from '../../types/task';
-import { useNavigate } from 'react-router-dom';
 import { ProfileTaskListProps } from '../../types/profile';
 
 const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, loading }) => {
-  const navigate = useNavigate();
 
   const handleTaskClick = (task: Task) => {
     onTaskClick(task.id);

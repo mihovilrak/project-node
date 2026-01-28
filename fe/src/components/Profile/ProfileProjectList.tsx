@@ -6,8 +6,10 @@ import {
   ListItemText,
   LinearProgress,
   Box,
-  CircularProgress
+  CircularProgress,
+  Link,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { ProfileProjectListProps } from '../../types/profile';
 
 const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loading }) => {
@@ -28,7 +30,15 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({ projects, loadi
         {projects.map((project) => (
           <ListItem key={project.id} divider>
             <ListItemText
-              primary={project.name}
+              primary={
+                <Link
+                  component={RouterLink}
+                  to={`/projects/${project.id}`}
+                  underline="hover"
+                >
+                  {project.name}
+                </Link>
+              }
               secondary={
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="body2" color="text.secondary" gutterBottom>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { BrowserRouter } from 'react-router-dom';
 import ProfileProjectList from '../ProfileProjectList';
 import { Project } from '../../../types/project';
 
@@ -46,25 +47,33 @@ describe('ProfileProjectList', () => {
     }
   ];
 
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  };
+
   it('should show loading spinner when loading is true', () => {
-    render(<ProfileProjectList projects={[]} loading={true} />);
+    renderWithRouter(<ProfileProjectList projects={[]} loading={true} />);
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
   it('should render empty list when no projects are provided', () => {
-    render(<ProfileProjectList projects={[]} loading={false} />);
+    renderWithRouter(<ProfileProjectList projects={[]} loading={false} />);
     expect(screen.getByText('Active Projects')).toBeInTheDocument();
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   });
 
-  it('should render list of projects', () => {
-    render(<ProfileProjectList projects={mockProjects} loading={false} />);
+  it('should render list of projects with links', () => {
+    renderWithRouter(<ProfileProjectList projects={mockProjects} loading={false} />);
     expect(screen.getByText('Test Project 1')).toBeInTheDocument();
     expect(screen.getByText('Test Project 2')).toBeInTheDocument();
+
+    const projectLinks = screen.getAllByRole('link');
+    expect(projectLinks).toHaveLength(mockProjects.length);
+    expect(projectLinks[0]).toHaveAttribute('href', `/projects/${mockProjects[0].id}`);
   });
 
   it('should render project details correctly', () => {
-    render(<ProfileProjectList projects={mockProjects} loading={false} />);
+    renderWithRouter(<ProfileProjectList projects={mockProjects} loading={false} />);
 
     // Use more flexible date text matching
     const listItems = screen.getAllByRole('listitem');
