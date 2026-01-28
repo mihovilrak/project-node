@@ -1,6 +1,7 @@
 {
   "name": "project-management-backend",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "Backend for Project management application",
   "main": "dist/app.js",
   "scripts": {
