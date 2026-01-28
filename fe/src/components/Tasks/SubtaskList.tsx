@@ -81,8 +81,10 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
                     variant="body1"
                     sx={{
                       textDecoration: subtask.status_name === 'Done' ? 'line-through' : 'none',
-                      color: subtask.status_name === 'Done' ? 'text.secondary' : 'text.primary'
+                      color: subtask.status_name === 'Done' ? 'text.secondary' : 'text.primary',
+                      cursor: 'pointer'
                     }}
+                    onClick={() => navigate(`/tasks/${subtask.id}`)}
                   >
                     {subtask.name}
                   </Typography>

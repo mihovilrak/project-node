@@ -88,6 +88,25 @@ describe('TaskHeader', () => {
     expect(screen.getByTestId('assignee-name')).toHaveTextContent(`Assignee: ${mockTask.assignee_name}`);
   });
 
+  it('renders parent task as none when there is no parent', () => {
+    renderWithRouter(<TaskHeader {...defaultProps} />);
+
+    expect(screen.getByTestId('parent-task')).toHaveTextContent('Parent Task: None');
+  });
+
+  it('renders parent task link when parent exists', () => {
+    const taskWithParent: Task = {
+      ...mockTask,
+      parent_id: 2,
+      parent_name: 'Parent Task'
+    };
+
+    renderWithRouter(<TaskHeader {...defaultProps} task={taskWithParent} />);
+
+    const parentLink = screen.getByRole('link', { name: 'Parent Task' });
+    expect(parentLink).toHaveAttribute('href', '/tasks/2');
+  });
+
   it('renders status button with correct color', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 

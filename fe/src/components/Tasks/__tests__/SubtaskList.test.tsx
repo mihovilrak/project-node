@@ -124,6 +124,15 @@ describe('SubtaskList', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/tasks/1/edit');
   });
 
+  it('navigates to subtask details when name is clicked', () => {
+    render(<SubtaskList {...defaultProps} />);
+
+    const subtaskName = screen.getByText('Test Subtask 1');
+    fireEvent.click(subtaskName);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+  });
+
   it('applies correct styling for completed tasks', () => {
     render(<SubtaskList {...defaultProps} />);
 

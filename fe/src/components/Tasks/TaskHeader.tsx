@@ -143,6 +143,22 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
               </Box>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
+              <Typography variant="body2" data-testid="parent-task">
+                Parent Task:{' '}
+                {task?.parent_id ? (
+                  <Link
+                    component={RouterLink}
+                    to={`/tasks/${task.parent_id}`}
+                    color="primary"
+                  >
+                    {task?.parent_name || `Task #${task.parent_id}`}
+                  </Link>
+                ) : (
+                  'None'
+                )}
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
                 Created: {task?.created_on ? new Date(task.created_on).toLocaleDateString() : 'Unknown'}
               </Typography>
