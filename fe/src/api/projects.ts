@@ -2,9 +2,11 @@ import { api } from './api';
 import { Project, ProjectMember, ProjectStatus } from '../types/project';
 
 // Get all projects
-export const getProjects = async (): Promise<Project[]> => {
+export const getProjects = async (params?: { status_id?: number; created_by?: number; parent_id?: number }): Promise<Project[]> => {
   try {
-    const response = await api.get('/projects');
+    const response = await api.get('/projects', {
+      params
+    });
     return response.data;
   } catch (error) {
     console.error(error);

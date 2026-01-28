@@ -87,8 +87,10 @@ describe('Projects Component', () => {
     const filterInput = screen.getByTestId('project-filter').querySelector('input');
     fireEvent.change(filterInput!, { target: { value: 'Project A' } });
 
-    expect(screen.getByText('Project A')).toBeInTheDocument();
-    expect(screen.queryByText('Project B')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Project A')).toBeInTheDocument();
+      expect(screen.queryByText('Project B')).not.toBeInTheDocument();
+    });
   });
 
   it('renders projects in correct order based on sort selection', async () => {

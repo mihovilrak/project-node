@@ -57,7 +57,7 @@ describe('TaskController', () => {
   });
 
   describe('getTasks', () => {
-    it('should return all tasks when no project_id is provided', async () => {
+    it('should return all tasks when no filters are provided', async () => {
       const taskId = '123';
       const mockTask = {
         id: taskId,
@@ -83,7 +83,7 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool);
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, undefined);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith([mockTask]);
     });
@@ -147,7 +147,7 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { assignee_id: Number(assigneeId) } });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { assignee_id: Number(assigneeId) });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
@@ -179,7 +179,7 @@ describe('TaskController', () => {
         mockPool as Pool
       );
 
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { whereParams: { holder_id: Number(holderId) } });
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, { holder_id: Number(holderId) });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });

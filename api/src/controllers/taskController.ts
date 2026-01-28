@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
-import { TaskCreateInput, TaskUpdateInput } from '../types/task';
+import { TaskCreateInput, TaskUpdateInput, TaskQueryFilters } from '../types/task';
 import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
@@ -12,27 +12,47 @@ export const getTasks = async (
   res: Response,
   pool: Pool
 ): Promise<void> => {
-  const { project_id, assignee_id, holder_id } = req.query;
   try {
+    const {
+      project_id,
+      assignee_id,
+      holder_id,
+      status_id,
+      priority_id,
+      type_id,
+      parent_id
+    } = req.query;
+
+    // Preserve optimised path for fetching tasks by project
     if (project_id) {
       const tasks = await taskModel.getTasksByProject(pool, project_id as string);
       res.status(200).json(tasks);
       return;
     }
-    
+
+    const filters: TaskQueryFilters = {};
+
     if (assignee_id) {
-      const result = await taskModel.getTasks(pool, { whereParams: { assignee_id: Number(assignee_id) } });
-      res.status(200).json(result);
-      return;
+      filters.assignee_id = Number(assignee_id);
     }
-    
     if (holder_id) {
-      const result = await taskModel.getTasks(pool, { whereParams: { holder_id: Number(holder_id) } });
-      res.status(200).json(result);
-      return;
+      filters.holder_id = Number(holder_id);
     }
-    
-    const tasks = await taskModel.getTasks(pool);
+    if (status_id) {
+      filters.status_id = Number(status_id);
+    }
+    if (priority_id) {
+      filters.priority_id = Number(priority_id);
+    }
+    if (type_id) {
+      filters.type_id = Number(type_id);
+    }
+    if (parent_id) {
+      filters.parent_id = Number(parent_id);
+    }
+
+    const hasFilters = Object.keys(filters).length > 0;
+    const tasks = await taskModel.getTasks(pool, hasFilters ? filters : undefined);
     res.status(200).json(tasks);
   } catch (error) {
     console.error(error);

@@ -16,18 +16,60 @@ export const getTasks = async (
 ): Promise<TaskDetails[]> => {
   let query = 'SELECT * FROM v_tasks';
   const values: any[] = [];
+  const conditions: string[] = [];
 
+  // Backwards-compatible support for raw whereParams map
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
-    query += ' WHERE ';
-    const conditions: string[] = [];
-    const whereParams = filters.whereParams;
-
-    Object.entries(whereParams).forEach(([param, value], index) => {
-      conditions.push(`${param} = $${index + 1}`);
+    Object.entries(filters.whereParams).forEach(([param, value]) => {
+      conditions.push(`${param} = $${values.length + 1}`);
       values.push(value);
     });
+  }
 
-    query += conditions.join(' AND ');
+  // Typed filters – these are preferred going forward
+  if (filters) {
+    const {
+      project_id,
+      assignee_id,
+      holder_id,
+      status_id,
+      priority_id,
+      type_id,
+      parent_id
+    } = filters;
+
+    if (project_id !== undefined) {
+      conditions.push(`project_id = $${values.length + 1}`);
+      values.push(project_id);
+    }
+    if (assignee_id !== undefined) {
+      conditions.push(`assignee_id = $${values.length + 1}`);
+      values.push(assignee_id);
+    }
+    if (holder_id !== undefined) {
+      conditions.push(`holder_id = $${values.length + 1}`);
+      values.push(holder_id);
+    }
+    if (status_id !== undefined) {
+      conditions.push(`status_id = $${values.length + 1}`);
+      values.push(status_id);
+    }
+    if (priority_id !== undefined) {
+      conditions.push(`priority_id = $${values.length + 1}`);
+      values.push(priority_id);
+    }
+    if (type_id !== undefined) {
+      conditions.push(`type_id = $${values.length + 1}`);
+      values.push(type_id);
+    }
+    if (parent_id !== undefined) {
+      conditions.push(`parent_id = $${values.length + 1}`);
+      values.push(parent_id);
+    }
+  }
+
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
   }
 
   const result: QueryResult<TaskDetails> = await pool.query(query, values);

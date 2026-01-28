@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -34,11 +34,17 @@ const Users: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (currentFilters?: FilterValues) => {
     try {
       setLoading(true);
       setError(null);
-      const userList = await getUsers();
+
+      const whereParams: Record<string, any> = {};
+      if (currentFilters?.search) {
+        // search is still applied client-side
+      }
+
+      const userList = await getUsers(Object.keys(whereParams).length ? whereParams : undefined);
       setUsers(userList || []);
     } catch (error: any) {
       console.error('Failed to fetch users', error);
@@ -86,15 +92,18 @@ const Users: React.FC = () => {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
+    // In the future we can push more filters server-side via whereParams
+    // For now, search remains client-side but we keep this call for extensibility
+    fetchUsers(newFilters);
   };
 
   const handleSortChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
     setSortOrder(event.target.value as 'asc' | 'desc');
   };
 
-  const filterOptions = {
+  const filterOptions = useMemo(() => ({
     showSearch: true
-  };
+  }), []);
 
   const filteredUsers = users
     .filter(user => {

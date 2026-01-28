@@ -18,7 +18,43 @@ export const getProjects = async (
 ): Promise<void> => {
   try {
     const { whereParams } = req.query;
-    const projects = await projectModel.getProjects(pool, whereParams);
+
+    // Backwards compatibility: if whereParams is explicitly provided, pass it through
+    let effectiveWhereParams: Record<string, any> | undefined = whereParams;
+
+    // Otherwise, build whereParams from individual query params with an active-only default
+    if (!effectiveWhereParams) {
+      const builtWhereParams: Record<string, any> = {};
+
+      if (req.query && typeof req.query === 'object') {
+        const {
+          status_id,
+          created_by,
+          parent_id
+        } = req.query as any;
+
+        if (status_id !== undefined) {
+          builtWhereParams.status_id = Number(status_id);
+        }
+        if (created_by !== undefined) {
+          builtWhereParams.created_by = Number(created_by);
+        }
+        if (parent_id !== undefined) {
+          builtWhereParams.parent_id = Number(parent_id);
+        }
+      }
+
+      // Enforce active-only default when no explicit status filter is supplied
+      if (builtWhereParams.status_id === undefined) {
+        builtWhereParams.status_id = 1;
+      }
+
+      effectiveWhereParams = Object.keys(builtWhereParams).length > 0
+        ? builtWhereParams
+        : undefined;
+    }
+
+    const projects = await projectModel.getProjects(pool, effectiveWhereParams);
     if (projects.length === 0) {
       res.status(200).json([]);
       return;

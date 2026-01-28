@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProjects } from '../../api/projects';
 import {
@@ -14,24 +14,31 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import { Project } from '../../types/project';
+import FilterPanel from '../common/FilterPanel';
+import { FilterValues } from '../../types/filterPanel';
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filter, setFilter] = useState<string>('');
+  const [filters, setFilters] = useState<FilterValues>({});
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProjects();
-  }, [sortOrder]);
+    fetchProjects(filters);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const fetchProjects = async (): Promise<void> => {
+  const fetchProjects = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
-      const projectList = await getProjects();
+      const projectList = await getProjects({
+        status_id: currentFilters?.status_id
+          ? Number(currentFilters.status_id)
+          : 1 // default to active projects
+      });
       setProjects(projectList || []);
     } catch (error: any) {
       console.error('Failed to fetch projects', error);
@@ -42,7 +49,7 @@ const Projects: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleCreateProject = (): void => {
     navigate('/projects/new');
@@ -52,8 +59,30 @@ const Projects: React.FC = () => {
     setSortOrder(event.target.value as 'asc' | 'desc');
   };
 
+  const handleFilterChange = (newFilters: FilterValues): void => {
+    setFilters(newFilters);
+    fetchProjects(newFilters);
+  };
+
+  const filterOptions = useMemo(
+    () => ({
+      search: true
+    }),
+    []
+  );
+
   const filteredProjects = projects
-    .filter((project) => project?.name?.toLowerCase().includes(filter.toLowerCase()))
+    .filter((project) => {
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        const name = project?.name?.toLowerCase() || '';
+        const description = project?.description?.toLowerCase() || '';
+        if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
+          return false;
+        }
+      }
+      return true;
+    })
     .sort((a, b) => {
       const nameA = a?.name || '';
       const nameB = b?.name || '';
@@ -85,8 +114,8 @@ const Projects: React.FC = () => {
             label="Filter by Name"
             variant="outlined"
             size="small"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            value={filters.search || ''}
+            onChange={(e) => handleFilterChange({ ...filters, search: e.target.value })}
             data-testid="project-filter"
           />
           <Select
@@ -109,6 +138,13 @@ const Projects: React.FC = () => {
             Create New Project
           </Button>
         </Box>
+
+        <FilterPanel
+          type="projects"
+          filters={filters}
+          options={filterOptions}
+          onFilterChange={handleFilterChange}
+        />
       </Box>
 
       {filteredProjects.length === 0 ? (

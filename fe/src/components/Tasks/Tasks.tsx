@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../api/tasks';
+import { getTasks, deleteTask, getTaskStatuses, getPriorities, getActiveTasks } from '../../api/tasks';
 import { getProjects } from '../../api/projects';
 import {
   Grid,
@@ -36,10 +36,24 @@ const Tasks: React.FC = () => {
   const [deleting, setDeleting] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const fetchTasks = useCallback(async (): Promise<void> => {
+  const fetchTasks = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
       setError(null);
-      const taskList = await getTasks();
+
+      // Default to active tasks when no filters are applied
+      if (!currentFilters || Object.keys(currentFilters).length === 0) {
+        const activeTasks = await getActiveTasks();
+        setTasks(activeTasks);
+        return;
+      }
+
+      const taskList = await getTasks({
+        status: currentFilters.status_id ? Number(currentFilters.status_id) : undefined,
+        priority: currentFilters.priority_id ? Number(currentFilters.priority_id) : undefined,
+        assignee: currentFilters.assignee_id ? Number(currentFilters.assignee_id) : undefined,
+        holder: currentFilters.holder_id ? Number(currentFilters.holder_id) : undefined,
+        project: currentFilters.project_id ? Number(currentFilters.project_id) : undefined
+      });
       setTasks(taskList);
     } catch (error) {
       console.error('Failed to fetch tasks', error);
@@ -104,7 +118,9 @@ const Tasks: React.FC = () => {
 
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
-  }, []);
+    setLoading(true);
+    fetchTasks(newFilters);
+  }, [fetchTasks]);
 
   const handleSortChange = useCallback((event: SelectChangeEvent<'asc' | 'desc'>) => {
     setSortOrder(event.target.value as 'asc' | 'desc');
@@ -119,25 +135,35 @@ const Tasks: React.FC = () => {
   }), [statuses, priorities, projects]);
 
   const filteredTasks = useMemo(() => {
-    return tasks
+    const list = tasks || [];
+
+    return list
       .filter(task => {
         if (filters.search) {
           const searchTerm = filters.search.toLowerCase();
-          return (
+          const matchesSearch =
             task?.name?.toLowerCase().includes(searchTerm) ||
             task?.description?.toLowerCase().includes(searchTerm) ||
-            task?.project_name?.toLowerCase().includes(searchTerm)
-          );
+            task?.project_name?.toLowerCase().includes(searchTerm);
+          if (!matchesSearch) return false;
         }
-        if (filters.status_id) {
-          return task.status_id === Number(filters.status_id);
+
+        if (filters.status_id && task.status_id !== Number(filters.status_id)) {
+          return false;
         }
-        if (filters.priority_id) {
-          return task.priority_id === Number(filters.priority_id);
+        if (filters.priority_id && task.priority_id !== Number(filters.priority_id)) {
+          return false;
         }
-        if (filters.project_id) {
-          return task.project_id === Number(filters.project_id);
+        if (filters.project_id && task.project_id !== Number(filters.project_id)) {
+          return false;
         }
+        if (filters.assignee_id && task.assignee_id !== Number(filters.assignee_id)) {
+          return false;
+        }
+        if (filters.holder_id && task.holder_id !== Number(filters.holder_id)) {
+          return false;
+        }
+
         return true;
       })
       .sort((a, b) => {

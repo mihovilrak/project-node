@@ -3,9 +3,15 @@ import { User, UserCreate, UserUpdate } from '../types/user';
 import { Role } from '../types/role';
 
 // Get all users
-export const getUsers = async (): Promise<User[]> => {
+export const getUsers = async (whereParams?: Record<string, any>): Promise<User[]> => {
   try {
-    const response = await api.get('/users');
+    const params: Record<string, any> = {};
+
+    if (whereParams && Object.keys(whereParams).length > 0) {
+      params.whereParams = JSON.stringify(whereParams);
+    }
+
+    const response = await api.get('/users', { params });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch users:', error);

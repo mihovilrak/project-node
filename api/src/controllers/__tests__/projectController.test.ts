@@ -67,7 +67,7 @@ describe('ProjectController', () => {
   });
 
   describe('getProjects', () => {
-    it('should return all projects', async () => {
+    it('should return all projects with default active-only filter', async () => {
       const mockProjects = [
         { id: '1', name: 'Project 1', status_id: 1 },
         { id: '2', name: 'Project 2', status_id: 1 }
@@ -80,7 +80,7 @@ describe('ProjectController', () => {
         mockPool as Pool
       );
 
-      expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, undefined);
+      expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, { status_id: 1 });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockProjects);
     });
