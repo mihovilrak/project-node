@@ -129,7 +129,7 @@ x-defaults: &defaults
 services:
   db:
     <<: *defaults
-    image: postgres:17.0-alpine3.20
+    image: postgres:18.1-alpine3.23
     container_name: pm_db
     environment:
       <<: *db

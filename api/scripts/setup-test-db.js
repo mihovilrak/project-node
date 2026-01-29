@@ -10,7 +10,7 @@ const fs = require('fs');
 const { spawnSync, execSync } = require('child_process');
 
 const CONTAINER = 'pm_test_db';
-const IMAGE = 'postgres:17-alpine';
+const IMAGE = 'postgres:18.1-alpine3.23';
 const PORT = 5433;
 const USER = 'pm_user';
 const PASSWORD = 'pm_password';
