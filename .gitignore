@@ -1,9 +1,11 @@
 /db/db_data/
-*/node_modules/
+**/node_modules/
 instructions.md
 db/backup/
 .obsolete
-*/run_tests.sh
+**/run_tests.sh
 .env
-*/dist/
-*/coverage/
+.env.test
+**/dist/
+**/coverage/
+*.log
