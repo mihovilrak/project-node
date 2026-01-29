@@ -215,7 +215,7 @@ describe('UserController', () => {
       const mockUpdates = { name: 'Updated Name' };
       const updatedUser = { id: '1', login: 'user1', name: 'Updated Name', email: 'user1@test.com' };
       mockReq.params = { id: '1' };
-      mockReq.body = { updates: mockUpdates };
+      mockReq.body = mockUpdates;
       (userModel.updateUser as jest.Mock).mockResolvedValue(updatedUser);
 
       await userController.updateUser(
@@ -231,7 +231,7 @@ describe('UserController', () => {
 
     it('should return 404 when user not found', async () => {
       mockReq.params = { id: '999' };
-      mockReq.body = { updates: { name: 'Test' } };
+      mockReq.body = { name: 'Test' };
       (userModel.updateUser as jest.Mock).mockResolvedValue(null);
 
       await userController.updateUser(
@@ -246,7 +246,7 @@ describe('UserController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      mockReq.body = { updates: { name: 'Test' } };
+      mockReq.body = { name: 'Test' };
       (userModel.updateUser as jest.Mock).mockRejectedValue(new Error('Database error'));
 
       await userController.updateUser(

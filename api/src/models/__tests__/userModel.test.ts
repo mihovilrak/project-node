@@ -93,23 +93,50 @@ describe('UserModel', () => {
   });
 
   describe('updateUser', () => {
-    it('should update a user', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
+    it('should update a user and return the updated user', async () => {
+      const mockUser = { id: '1', login: 'user1', name: 'Updated', email: 'user1@test.com' };
+      (mockPool.query as jest.Mock)
+        .mockResolvedValueOnce({ rowCount: 1 })
+        .mockResolvedValueOnce(mockQueryResult([mockUser]));
 
       const result = await userModel.updateUser(mockPool, { name: 'Updated' }, '1');
 
-      expect(mockPool.query).toHaveBeenCalled();
-      expect(result).toBe(1);
+      expect(mockPool.query).toHaveBeenCalledTimes(2);
+      expect(result).toEqual(mockUser);
     });
 
     it('should handle password update with encryption', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
+      const mockUser = { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' };
+      (mockPool.query as jest.Mock)
+        .mockResolvedValueOnce({ rowCount: 1 })
+        .mockResolvedValueOnce(mockQueryResult([mockUser]));
 
-      await userModel.updateUser(mockPool, { password: 'newpassword' }, '1');
+      const result = await userModel.updateUser(mockPool, { password: 'newpassword' }, '1');
 
-      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
-      expect(query).toContain('crypt');
-      expect(query).toContain('gen_salt');
+      const updateQuery = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(updateQuery).toContain('crypt');
+      expect(updateQuery).toContain('gen_salt');
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should return user from getUserById when updates object is empty', async () => {
+      const mockUser = { id: '1', login: 'user1', name: 'User One' };
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+
+      const result = await userModel.updateUser(mockPool, {}, '1');
+
+      expect(mockPool.query).toHaveBeenCalledTimes(1);
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM v_users WHERE id = $1', ['1']);
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should return null when no row was updated', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValueOnce({ rowCount: 0 });
+
+      const result = await userModel.updateUser(mockPool, { name: 'Updated' }, '999');
+
+      expect(mockPool.query).toHaveBeenCalledTimes(1);
+      expect(result).toBeNull();
     });
   });
 

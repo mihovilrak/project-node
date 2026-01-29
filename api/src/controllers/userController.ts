@@ -72,14 +72,21 @@ export const createUser = async (
   }
 };
 
-// Update a user
+// Update a user (body is the update payload directly; id comes from URL)
 export const updateUser = async (
   req: Request,
   res: Response,
   pool: Pool
 ): Promise<Response | void> => {
   const { id } = req.params;
-  const { updates } = req.body;
+  const body = req.body || {};
+  const allowedKeys = ['login', 'name', 'surname', 'email', 'password', 'role_id', 'status_id'];
+  const updates = Object.keys(body)
+    .filter((key) => allowedKeys.includes(key))
+    .reduce<Record<string, unknown>>((acc, key) => {
+      acc[key] = body[key];
+      return acc;
+    }, {});
   try {
     const user = await userModel.updateUser(pool, updates, id);
     if (!user) {

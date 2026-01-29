@@ -63,30 +63,37 @@ export const createUser = async (
 // Update a user
 export const updateUser = async (
   pool: Pool,
-  updates: UserUpdateInput,
+  updates: UserUpdateInput | Record<string, unknown>,
   id: string
-): Promise<number | null> => {
-  const columns = Object.keys(updates) as Array<keyof UserUpdateInput>;
+): Promise<User | null> => {
+  const columns = Object.keys(updates).filter((k) =>
+    ['login', 'name', 'surname', 'email', 'password', 'role_id', 'status_id'].includes(k)
+  ) as Array<keyof UserUpdateInput>;
+  if (columns.length === 0) {
+    return getUserById(pool, id);
+  }
   const values: any[] = [];
-
-  let setExpressions = columns.map((column, index) => {
+  const setExpressions = columns.map((column, index) => {
     if (column === 'password') {
-      values.push(updates[column]);
+      values.push((updates as UserUpdateInput)[column]);
       return `password = crypt($${index + 1}, gen_salt('bf', 12))`;
     } else {
-      values.push(updates[column]);
+      values.push((updates as UserUpdateInput)[column]);
       return `$${index + 1}`;
     }
   });
 
-  let query = `UPDATE users SET (${columns.join(', ')}) =
+  const query = `UPDATE users SET (${columns.join(', ')}) =
     (${setExpressions.join(', ')}) WHERE id = $${columns.length + 1}`;
 
   values.push(id);
 
   const result = await pool.query(query, values);
 
-  return result.rowCount;
+  if (result.rowCount && result.rowCount > 0) {
+    return getUserById(pool, id);
+  }
+  return null;
 };
 
 // Change user status
