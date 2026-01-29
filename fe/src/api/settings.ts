@@ -43,6 +43,18 @@ export const updateSystemSettings = async (settings: AppSettings): Promise<void>
   }
 };
 
+// Get App Theme (public endpoint)
+export const getAppTheme = async (): Promise<{ theme: 'light' | 'dark' | 'system' }> => {
+  try {
+    const response = await api.get('/settings/app_theme');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch app theme', error);
+    // Return default theme on error
+    return { theme: 'light' };
+  }
+};
+
 // Test SMTP Connection
 export interface SmtpTestResult {
   success: boolean;

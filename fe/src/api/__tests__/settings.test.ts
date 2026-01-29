@@ -4,7 +4,8 @@ import {
   getUserSettings,
   updateUserSettings,
   getSystemSettings,
-  updateSystemSettings
+  updateSystemSettings,
+  getAppTheme
 } from '../settings';
 
 // Mock the api module
@@ -111,6 +112,27 @@ describe('Settings API', () => {
       mockedApi.put.mockRejectedValueOnce(error);
 
       await expect(updateSystemSettings(mockAppSettings)).rejects.toThrow(error);
+    });
+  });
+
+  describe('getAppTheme', () => {
+    it('should fetch app theme successfully', async () => {
+      const mockTheme = { theme: 'dark' };
+      mockedApi.get.mockResolvedValueOnce({ data: mockTheme });
+
+      const result = await getAppTheme();
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/settings/app_theme');
+      expect(result).toEqual(mockTheme);
+    });
+
+    it('should return default theme when fetch fails', async () => {
+      const error = new Error('Network error');
+      mockedApi.get.mockRejectedValueOnce(error);
+
+      const result = await getAppTheme();
+
+      expect(result).toEqual({ theme: 'light' });
     });
   });
 });

@@ -16,6 +16,11 @@ export default (pool: Pool): Router => {
     ((req, res) => settingsController.updateSystemSettings(req, res, pool)) as RequestHandler
   );
 
+  // Public endpoint to get app theme (no admin permission required)
+  router.get('/app_theme',
+    ((req, res) => settingsController.getAppTheme(req, res, pool)) as RequestHandler
+  );
+
   router.get('/user_settings',
     ((req, res) => settingsController.getUserSettings(req, res, pool)) as RequestHandler
   );

@@ -20,6 +20,24 @@ export const getSystemSettings = async (
   }
 };
 
+// Get App Theme (public endpoint, no admin permission required)
+export const getAppTheme = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
+  try {
+    const settings = await settingsModel.getSystemSettings(pool);
+    if (!settings) {
+      return res.status(200).json({ theme: 'light' });
+    }
+    res.status(200).json({ theme: settings.theme || 'light' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Update System Settings
 export const updateSystemSettings = async (
   req: Request,

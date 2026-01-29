@@ -53,6 +53,15 @@ export const useSystemSettings = () => {
         loading: false
       }));
       setTimeout(() => setState(prev => ({ ...prev, success: false })), 3000);
+      
+      // Dispatch event to notify ThemeContext about theme update
+      if (state.settings.theme) {
+        // Dispatch custom event for same tab
+        window.dispatchEvent(new Event('appThemeUpdated'));
+        // Dispatch storage event for other tabs
+        localStorage.setItem('appThemeUpdated', Date.now().toString());
+        localStorage.removeItem('appThemeUpdated');
+      }
     } catch (error) {
       setState(prev => ({
         ...prev,

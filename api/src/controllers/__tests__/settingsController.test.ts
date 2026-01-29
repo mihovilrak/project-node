@@ -43,6 +43,37 @@ describe('SettingsController', () => {
     });
   });
 
+  describe('getAppTheme', () => {
+    it('should return app theme', async () => {
+      const mockSettings = { app_name: 'Test App', theme: 'dark' };
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(mockSettings);
+      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ theme: 'dark' });
+    });
+
+    it('should return default theme when no settings found', async () => {
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(null);
+      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ theme: 'light' });
+    });
+
+    it('should return default theme when theme is not set', async () => {
+      const mockSettings = { app_name: 'Test App' };
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(mockSettings);
+      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ theme: 'light' });
+    });
+
+    it('should handle errors', async () => {
+      (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(new Error('DB error'));
+      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+    });
+  });
+
   describe('updateSystemSettings', () => {
     it('should update system settings', async () => {
       mockReq.body = { app_name: 'New App Name' };
