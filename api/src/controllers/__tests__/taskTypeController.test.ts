@@ -107,6 +107,15 @@ describe('TaskTypeController', () => {
       await taskTypeController.updateTaskType(mockReq, mockRes as Response, mockPool as Pool);
       expect(mockRes.status).toHaveBeenCalledWith(404);
     });
+
+    it('should return 400 when color format is invalid on update', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { name: 'Updated', color: 'rgb(255, 0, 0)' };
+      await taskTypeController.updateTaskType(mockReq, mockRes as Response, mockPool as Pool);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid color format' });
+      expect(taskTypeModel.updateTaskType).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteTaskType', () => {

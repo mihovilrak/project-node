@@ -103,6 +103,7 @@ export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, on
       </Grid>
       <Grid size={{ xs: 12 }}>
         <MuiColorInput
+          format="hex"
           label="Color"
           value={formData?.color || '#2196f3'}
           onChange={(value) => onChange('color', value)}

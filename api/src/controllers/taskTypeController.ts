@@ -94,6 +94,11 @@ export const updateTaskType = async (
     const { id } = req.params;
     const { name, description, color, icon, active } = req.body as TaskTypeUpdateInput;
 
+    // Validate color format when provided (must be hex #RRGGBB for DB varchar(7))
+    if (color != null && color !== '' && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
+      return res.status(400).json({ error: 'Invalid color format' });
+    }
+
     // Use ?? so that active: false is preserved (active || null would turn false into null)
     const activeValue = active ?? true;
 

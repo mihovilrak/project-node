@@ -75,6 +75,11 @@ export const updateActivityType = async (
       icon,
     } = req.body as ActivityTypeUpdateInput;
 
+    // Validate color format when provided (must be hex #RRGGBB for DB varchar(7))
+    if (color != null && color !== '' && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
+      return res.status(400).json({ error: 'Invalid color format' });
+    }
+
     const activityType = await activityTypeModel.updateActivityType(
       pool,
       id || '',

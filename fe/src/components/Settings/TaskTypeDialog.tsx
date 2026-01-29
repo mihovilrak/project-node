@@ -169,6 +169,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
             </Grid>
             <Grid size={{ xs: 12 }}>
               <MuiColorInput
+                format="hex"
                 label="Color"
                 value={formData.color}
                 onChange={(value) => handleChange('color', value)}

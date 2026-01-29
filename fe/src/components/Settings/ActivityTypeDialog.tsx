@@ -25,7 +25,7 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
     clearError();
 
     try {
-      await onSave(formData);
+      await onSave(activityType ? { ...formData, id: activityType.id } : formData);
       onClose();
     } catch (error: any) {
       const errorMessage = error?.response?.data?.error || 

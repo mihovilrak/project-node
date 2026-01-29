@@ -82,7 +82,7 @@ describe('ActivityTypeDialog', () => {
     expect(screen.getByText('Save Changes')).toBeInTheDocument();
   });
 
-  it('handles successful form submission', async () => {
+  it('handles successful form submission in create mode', async () => {
     const onSave = jest.fn().mockResolvedValue(undefined);
     render(<ActivityTypeDialog {...defaultProps} onSave={onSave} />);
 
@@ -91,6 +91,27 @@ describe('ActivityTypeDialog', () => {
 
     await waitFor(() => {
       expect(onSave).toHaveBeenCalledWith(mockFormData);
+      expect(defaultProps.onClose).toHaveBeenCalled();
+    });
+  });
+
+  it('includes id when submitting in edit mode', async () => {
+    const activityType: ActivityType = {
+      id: 1,
+      name: 'Test Activity',
+      color: '#000000',
+      description: 'Test Description',
+      active: true,
+      icon: 'test_icon'
+    };
+    const onSave = jest.fn().mockResolvedValue(undefined);
+    render(<ActivityTypeDialog {...defaultProps} activityType={activityType} onSave={onSave} />);
+
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ ...mockFormData, id: activityType.id }));
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });

@@ -236,6 +236,19 @@ describe('ActivityTypeController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'Activity type not found' });
     });
+
+    it('should return 400 when color format is invalid on update', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { name: 'Updated', color: 'rgb(255, 0, 0)' };
+      await activityTypeController.updateActivityType(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid color format' });
+      expect(activityTypeModel.updateActivityType).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteActivityType', () => {
