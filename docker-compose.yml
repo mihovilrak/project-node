@@ -15,7 +15,7 @@ services:
     container_name: pm_db
     environment:
       <<: *db
-      PGTZ: ${PGTZ}
+      PGTZ: ${TZ}
     volumes:
       - ./db/db_data:/var/lib/data
       - ./db/backup:/backups
