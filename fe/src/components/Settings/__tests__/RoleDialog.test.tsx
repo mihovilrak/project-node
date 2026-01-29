@@ -95,6 +95,39 @@ describe('RoleDialog', () => {
     });
   });
 
+  test('when editing a role, calls onSave with role id so backend updates existing record', async () => {
+    mockUseRoleDialog.mockReturnValue({
+      formData: {
+        name: 'Updated Role Name',
+        description: 'Updated desc',
+        active: true,
+        permissions: [1, 2]
+      },
+      error: undefined,
+      groupedPermissions: mockGroupedPermissions,
+      handleChange: jest.fn(),
+      handlePermissionToggle: jest.fn(),
+      clearError: jest.fn(),
+      setError: jest.fn()
+    });
+
+    render(<RoleDialog {...defaultProps} role={mockRole} />);
+
+    fireEvent.submit(screen.getByRole('form'));
+
+    await waitFor(() => {
+      expect(defaultProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockRole.id,
+          name: 'Updated Role Name',
+          description: 'Updated desc',
+          active: true,
+          permissions: [1, 2]
+        })
+      );
+    });
+  });
+
   test('handles form submission error', async () => {
     const errorMessage = 'Failed to save role';
     defaultProps.onSave.mockRejectedValueOnce({

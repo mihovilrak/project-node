@@ -28,6 +28,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
     clearError();
 
     const roleData: Partial<Role> = {
+      ...(role?.id != null && { id: role.id }),
       name: formData.name,
       description: formData.description,
       active: formData.active,

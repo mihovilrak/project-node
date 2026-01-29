@@ -81,22 +81,31 @@ export const useTypesAndRoles = () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
 
+      // Use item.id or selectedItem.id so we update existing record when editing (e.g. role dialog may not pass id)
+      const resolveId = (): number | undefined => {
+        const id = item.id ?? (state.selectedItem as { id?: number })?.id;
+        return id != null ? Number(id) : undefined;
+      };
+
       if (state.activeTab === 0) {
-        if (item.id) {
-          await updateTaskType(item.id, item as TaskType);
+        const id = resolveId();
+        if (id != null) {
+          await updateTaskType(id, item as TaskType);
         } else {
           await createTaskType(item as TaskType);
         }
       } else if (state.activeTab === 1) {
-        if (item.id) {
-          await updateActivityType(item.id, item as ActivityType);
+        const id = resolveId();
+        if (id != null) {
+          await updateActivityType(id, item as ActivityType);
         } else {
           await createActivityType(item as ActivityType);
         }
       } else if (state.activeTab === 2) {
         const roleData = item as Partial<AdminRole>;
-        if (item.id) {
-          await updateRole(item.id, roleData);
+        const id = resolveId();
+        if (id != null) {
+          await updateRole(id, roleData);
         } else {
           await createRole(roleData);
         }

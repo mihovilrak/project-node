@@ -196,4 +196,55 @@ describe('useTypesAndRoles', () => {
       ])
     }));
   });
+
+  it('should update existing role when item has no id but selectedItem is set (edit mode)', async () => {
+    const roleDataWithoutId = {
+      name: 'Renamed Role',
+      description: 'Desc',
+      active: true,
+      permissions: [1]
+    };
+    (updateRole as jest.Mock).mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+
+    act(() => {
+      result.current.handleTabChange({} as React.SyntheticEvent, 2);
+    });
+    act(() => {
+      result.current.handleEdit(mockRoles[0]);
+    });
+
+    await act(async () => {
+      await result.current.handleSave(roleDataWithoutId);
+    });
+
+    expect(updateRole).toHaveBeenCalledWith(1, roleDataWithoutId);
+    expect(createRole).not.toHaveBeenCalled();
+  });
+
+  it('should update existing activity type when item has id', async () => {
+    const updatedActivityType = {
+      id: 1,
+      name: 'Updated Activity Type',
+      color: '#123456',
+      active: true
+    };
+    (updateActivityType as jest.Mock).mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+
+    act(() => {
+      result.current.handleTabChange({} as React.SyntheticEvent, 1);
+    });
+
+    await act(async () => {
+      await result.current.handleSave(updatedActivityType);
+    });
+
+    expect(updateActivityType).toHaveBeenCalledWith(1, updatedActivityType);
+    expect(createActivityType).not.toHaveBeenCalled();
+  });
 });
