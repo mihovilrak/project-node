@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, seedTestProject, seedTestTask, cleanupTables } from '../setup/integration.setup';
+import { seedTestUser, seedTestProject, seedTestTask, cleanupTables, cookieHeader } from '../setup/integration.setup';
 
 let app: Express;
-let authCookies: string[] = [];
+let authCookies = '';
 let testUser: any = null;
 let testProject: any = null;
 
@@ -15,7 +15,7 @@ beforeAll(async () => {
 describe('Task CRUD Operations', () => {
   beforeEach(async () => {
     // Clean up and seed test data
-    await cleanupTables(['tasks', 'task_tags', 'watchers', 'projects', 'project_users', 'users', 'sessions']);
+    await cleanupTables(['tasks', 'task_tags', 'watchers', 'projects', 'project_users', 'users', 'session']);
     testUser = await seedTestUser();
     testProject = await seedTestProject(testUser.id);
 
@@ -27,7 +27,7 @@ describe('Task CRUD Operations', () => {
         password: 'password123'
       });
 
-    authCookies = (loginResponse.headers['set-cookie'] as unknown as string[]) || [];
+    authCookies = cookieHeader(loginResponse.headers['set-cookie']);
   });
 
   describe('GET /api/tasks', () => {
@@ -157,7 +157,7 @@ describe('Task CRUD Operations', () => {
     });
   });
 
-  describe('PATCH /api/tasks/:id/status', () => {
+  describe('PATCH /api/tasks/:id/change-status', () => {
     let taskId: number;
 
     beforeEach(async () => {
@@ -167,7 +167,7 @@ describe('Task CRUD Operations', () => {
 
     it('should update task status', async () => {
       const response = await request(app)
-        .patch(`/api/tasks/${taskId}/status`)
+        .patch(`/api/tasks/${taskId}/change-status`)
         .set('Cookie', authCookies)
         .send({ statusId: 2 });
 

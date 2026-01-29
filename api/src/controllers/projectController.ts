@@ -127,6 +127,14 @@ export const createProject = async (
     return;
   }
 
+  if (!name || !start_date || !due_date) {
+    res.status(400).json({
+      error: 'Missing required fields',
+      required: ['name', 'start_date', 'due_date']
+    });
+    return;
+  }
+
   try {
     const project = await projectModel.createProject(
       pool,

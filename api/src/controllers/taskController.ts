@@ -128,10 +128,10 @@ export const createTask = async (
 ): Promise<void> => {
   try {
     const taskData: TaskCreateInput = req.body;
+    const created_by = taskData.created_by ?? req.session?.user?.id;
     const {
       holder_id,
       assignee_id,
-      created_by,
       tag_ids,
       estimated_time
     } = taskData;
@@ -176,7 +176,7 @@ export const createTask = async (
       project_id: taskData.project_id,
       holder_id: taskData.holder_id,
       assignee_id: taskData.assignee_id,
-      created_by: taskData.created_by,
+      created_by: created_by ?? taskData.created_by,
       parent_id: taskData.parent_id || undefined,
       // Extract tag IDs and ensure they are numbers
       tag_ids: (taskData.tags || []).map(tag => Number(tag.id))

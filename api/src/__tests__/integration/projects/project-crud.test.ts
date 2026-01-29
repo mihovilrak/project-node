@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, seedTestProject, cleanupTables } from '../setup/integration.setup';
+import { seedTestUser, seedTestProject, cleanupTables, cookieHeader } from '../setup/integration.setup';
 
 let app: Express;
-let authCookies: string[] = [];
+let authCookies = '';
 let testUser: any = null;
 
 beforeAll(async () => {
@@ -14,7 +14,7 @@ beforeAll(async () => {
 describe('Project CRUD Operations', () => {
   beforeEach(async () => {
     // Clean up and seed test data
-    await cleanupTables(['projects', 'project_users', 'tasks', 'users', 'sessions']);
+    await cleanupTables(['projects', 'project_users', 'tasks', 'users', 'session']);
     testUser = await seedTestUser();
 
     // Login to get auth cookies
@@ -25,7 +25,7 @@ describe('Project CRUD Operations', () => {
         password: 'password123'
       });
 
-    authCookies = (loginResponse.headers['set-cookie'] as unknown as string[]) || [];
+    authCookies = cookieHeader(loginResponse.headers['set-cookie']);
   });
 
   describe('GET /api/projects', () => {
@@ -153,7 +153,11 @@ describe('Project CRUD Operations', () => {
         .send(updateData);
 
       expect(response.status).toBe(200);
-      expect(response.body.name).toBe(updateData.name);
+      // API returns row count; verify update by fetching project
+      const getResponse = await request(app)
+        .get(`/api/projects/${projectId}`)
+        .set('Cookie', authCookies);
+      expect(getResponse.body.name).toBe(updateData.name);
     });
   });
 
@@ -172,12 +176,13 @@ describe('Project CRUD Operations', () => {
 
       expect(response.status).toBe(200);
 
-      // Verify project is deleted
+      // Delete is soft (status_id = 3); project still exists with deleted status
       const getResponse = await request(app)
         .get(`/api/projects/${projectId}`)
         .set('Cookie', authCookies);
 
-      expect(getResponse.status).toBe(404);
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body.status_id).toBe(3);
     });
   });
 });

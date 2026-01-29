@@ -242,8 +242,28 @@ describe('ProjectController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not authenticated' });
     });
 
+    it('should return 400 when required fields are missing', async () => {
+      mockReq.body = { description: 'Missing name and dates' };
+
+      await projectController.createProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Missing required fields', required: expect.any(Array) })
+      );
+      expect(projectModel.createProject).not.toHaveBeenCalled();
+    });
+
     it('should handle errors', async () => {
-      mockReq.body = { name: 'New Project' };
+      mockReq.body = {
+        name: 'New Project',
+        start_date: new Date(),
+        due_date: new Date()
+      };
       (projectModel.createProject as jest.Mock).mockRejectedValue(new Error('Database error'));
 
       await projectController.createProject(

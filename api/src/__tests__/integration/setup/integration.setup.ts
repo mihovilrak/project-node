@@ -1,4 +1,9 @@
+import path from 'path';
+import dotenv from 'dotenv';
 import { Pool } from 'pg';
+
+// Force load .env.test so the app (when imported by tests) uses the test DB
+dotenv.config({ path: path.join(process.cwd(), '.env.test') });
 
 // Integration test database pool
 export let testPool: Pool;
@@ -42,6 +47,13 @@ afterAll(async () => {
   }
 });
 
+// Supertest Cookie header expects a string; set-cookie from response is an array
+export const cookieHeader = (setCookie: string[] | string | undefined): string => {
+  if (!setCookie) return '';
+  const arr = Array.isArray(setCookie) ? setCookie : [setCookie];
+  return arr.map((c) => String(c).split(';')[0].trim()).join('; ');
+};
+
 // Database cleanup utilities
 export const cleanupTables = async (tables: string[]) => {
   if (!testPool) return;
@@ -57,7 +69,9 @@ export const seedTestUser = async () => {
   const result = await testPool.query(`
     INSERT INTO users (login, email, password, name, surname, role_id, status_id)
     VALUES ('testuser', 'test@example.com', crypt('password123', gen_salt('bf', 12)), 'Test', 'User', 2, 1)
-    ON CONFLICT (login) DO UPDATE SET updated_on = CURRENT_TIMESTAMP
+    ON CONFLICT (login) DO UPDATE SET
+      password = EXCLUDED.password,
+      updated_on = CURRENT_TIMESTAMP
     RETURNING *
   `);
   return result.rows[0];
@@ -83,7 +97,7 @@ export const seedTestTask = async (projectId: number, userId: number) => {
       'Test task description',
       8,
       CURRENT_DATE,
-      CURRENT_DATE + INTERVAL '7 days',
+      (CURRENT_DATE + INTERVAL '7 days')::date,
       2,
       1,
       1,

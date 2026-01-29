@@ -12,6 +12,6 @@ export default async (
     next();
   } else {
     console.log('Auth check - No session or user found');
-    res.status(403).json({ error: 'Access denied' });
+    res.status(401).json({ error: 'Access denied' });
   }
 }

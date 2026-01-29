@@ -30,23 +30,23 @@ describe('AuthMiddleware', () => {
     expect(mockRes.status).not.toHaveBeenCalled();
   });
 
-  it('should return 403 when no session exists', async () => {
+  it('should return 401 when no session exists', async () => {
     mockReq.session = undefined as any;
 
     await authMiddleware(mockReq as CustomRequest, mockRes as Response, mockNext);
 
-    expect(mockRes.status).toHaveBeenCalledWith(403);
+    expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Access denied' });
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it('should return 403 when session has no user', async () => {
+  it('should return 401 when session has no user', async () => {
     const mockSession = {} as unknown as Session;
     mockReq.session = mockSession;
 
     await authMiddleware(mockReq as CustomRequest, mockRes as Response, mockNext);
 
-    expect(mockRes.status).toHaveBeenCalledWith(403);
+    expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({ error: 'Access denied' });
     expect(mockNext).not.toHaveBeenCalled();
   });

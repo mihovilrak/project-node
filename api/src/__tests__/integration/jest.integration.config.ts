@@ -20,6 +20,8 @@ const config: Config.InitialOptions = {
   testPathIgnorePatterns: ['/node_modules/'],
   verbose: true,
   testTimeout: 30000, // Longer timeout for integration tests
+  // Run in band so app and test pool share same env and avoid DB deadlocks
+  maxWorkers: 1,
   // Don't collect coverage for integration tests
   collectCoverage: false,
 }

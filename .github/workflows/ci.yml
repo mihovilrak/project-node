@@ -161,7 +161,7 @@ jobs:
       - name: Initialize test database
         run: |
           for f in ../db/init/*.sql; do
-            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f" || true
+            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f"
           done
         env:
           PGHOST: localhost

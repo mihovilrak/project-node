@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, cleanupTables } from '../setup/integration.setup';
+import { seedTestUser, cleanupTables, cookieHeader } from '../setup/integration.setup';
 
 let app: Express;
 
@@ -12,7 +12,7 @@ beforeAll(async () => {
 describe('Authentication Flow', () => {
   beforeEach(async () => {
     // Clean up test data before each test
-    await cleanupTables(['users', 'sessions']);
+    await cleanupTables(['users', 'session']);
   });
 
   describe('POST /api/login', () => {
@@ -56,10 +56,10 @@ describe('Authentication Flow', () => {
     });
   });
 
-  describe('GET /api/session', () => {
+  describe('GET /api/check-session', () => {
     it('should return 401 when not logged in', async () => {
       const response = await request(app)
-        .get('/api/session');
+        .get('/api/check-session');
 
       expect(response.status).toBe(401);
     });
@@ -79,8 +79,8 @@ describe('Authentication Flow', () => {
 
       // Check session
       const sessionResponse = await request(app)
-        .get('/api/session')
-        .set('Cookie', cookies);
+        .get('/api/check-session')
+        .set('Cookie', cookieHeader(cookies));
 
       expect(sessionResponse.status).toBe(200);
       expect(sessionResponse.body).toHaveProperty('user');
@@ -101,18 +101,19 @@ describe('Authentication Flow', () => {
         });
 
       const cookies = loginResponse.headers['set-cookie'];
+      const cookie = cookieHeader(cookies);
 
       // Logout
       const logoutResponse = await request(app)
         .post('/api/logout')
-        .set('Cookie', cookies);
+        .set('Cookie', cookie);
 
       expect(logoutResponse.status).toBe(200);
 
       // Verify session is destroyed
       const sessionResponse = await request(app)
-        .get('/api/session')
-        .set('Cookie', cookies);
+        .get('/api/check-session')
+        .set('Cookie', cookie);
 
       expect(sessionResponse.status).toBe(401);
     });

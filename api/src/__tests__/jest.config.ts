@@ -13,7 +13,7 @@ const config: Config.InitialOptions = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/__tests__/jest.setup.ts'],
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/', 'integration'],
   coveragePathIgnorePatterns: ['/node_modules/'],
   verbose: true,
   collectCoverage: true,
