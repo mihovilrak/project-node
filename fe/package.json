@@ -12,8 +12,8 @@
         "eject": "react-scripts eject",
         "type-check": "tsc --noEmit",
         "type-check:watch": "tsc --noEmit --watch",
-        "lint": "eslint src --ext .ts,.tsx --max-warnings 0",
-        "lint:fix": "eslint src --ext .ts,.tsx --fix"
+        "lint": "eslint src -c eslint.config.mjs --max-warnings 0",
+        "lint:fix": "eslint src -c eslint.config.mjs --fix"
     },
     "dependencies": {
         "@devexpress/dx-react-core": "^4.0.11",
