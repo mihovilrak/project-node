@@ -1,7 +1,7 @@
 x-db: &db
-  POSTGRES_DB: pm_db
-  POSTGRES_USER: pm_user
-  POSTGRES_PASSWORD: pm_password
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
 x-defaults: &defaults
   networks:
@@ -15,7 +15,7 @@ services:
     container_name: pm_db
     environment:
       <<: *db
-      PGTZ: Europe/Zagreb
+      PGTZ: ${PGTZ}
     volumes:
       - ./db/db_data:/var/lib/data
       - ./db/backup:/backups
@@ -29,17 +29,17 @@ services:
     environment:
       <<: *db
       POSTGRES_HOST: db
-      NODE_ENV: production
-      SESSION_SECRET: lj6QgwWYYn/w18qduVrZij73+0SdYBqSyrg15lLKKDs=
-      EMAIL_ENABLED: true
-      EMAIL_HOST: smtp.gmail.com
-      EMAIL_PORT: 587
-      EMAIL_SECURE: false
-      EMAIL_USER: mihovil.1978@gmail.com
-      EMAIL_PASSWORD: hpdhinentplivqaj
-      EMAIL_FROM: Project Management <mihovil.1978@gmail.com>
-      NOTIFICATION_RATE_LIMIT: 100
-      LOG_LEVEL: info
+      NODE_ENV: ${NODE_ENV}
+      SESSION_SECRET: ${SESSION_SECRET}
+      EMAIL_ENABLED: ${EMAIL_ENABLED}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_SECURE: ${EMAIL_SECURE}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      NOTIFICATION_RATE_LIMIT: ${NOTIFICATION_RATE_LIMIT}
+      LOG_LEVEL: ${LOG_LEVEL}
     ports:
       - "3000:80"
       - "5000:5000"
