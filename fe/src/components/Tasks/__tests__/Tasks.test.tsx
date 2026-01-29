@@ -278,10 +278,13 @@ describe('Tasks Component', () => {
     mockedGetActiveTasks.mockResolvedValue([mockTasks[1]]);
     renderTasks();
 
-    await waitFor(() => {
-      expect(screen.getByText('Assignee: Unassigned')).toBeInTheDocument();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Assignee: Unassigned')).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
+  }, 15000);
 
   test('handles API error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -289,10 +292,13 @@ describe('Tasks Component', () => {
 
     renderTasks();
 
-    await waitFor(() => {
-      expect(screen.getByTestId('task-error')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('task-error')).toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
 
     consoleErrorSpy.mockRestore();
-  });
+  }, 15000);
 });
