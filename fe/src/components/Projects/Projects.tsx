@@ -66,7 +66,7 @@ const Projects: React.FC = () => {
 
   const filterOptions = useMemo(
     () => ({
-      search: true
+      showSearch: true
     }),
     []
   );

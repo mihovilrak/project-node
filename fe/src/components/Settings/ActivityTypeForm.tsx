@@ -63,7 +63,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
             {(icons || []).map((iconName) => {
               const IconComponent = iconName ? getIconComponent(iconName) : null;
               return (
-                <Grid key={iconName || Math.random()} item>
+                <Grid key={iconName || Math.random()} size={{ xs: 6, sm: 4 }}>
                   <IconButton
                     onClick={() => {
                       if (iconName) {
