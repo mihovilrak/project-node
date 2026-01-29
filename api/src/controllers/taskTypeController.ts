@@ -94,14 +94,17 @@ export const updateTaskType = async (
     const { id } = req.params;
     const { name, description, color, icon, active } = req.body as TaskTypeUpdateInput;
 
+    // Use ?? so that active: false is preserved (active || null would turn false into null)
+    const activeValue = active ?? true;
+
     const result = await taskTypeModel.updateTaskType(
       pool,
       id,
-      name || null,
-      description || null,
-      color || null,
-      icon || null,
-      active || null
+      name ?? null,
+      description ?? null,
+      color ?? null,
+      icon ?? null,
+      activeValue
     );
 
     if (!result) {

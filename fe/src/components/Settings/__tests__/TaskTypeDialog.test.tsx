@@ -109,6 +109,24 @@ describe('TaskTypeDialog', () => {
       );
     });
 
+    it('includes id when submitting in edit mode', () => {
+      render(<TaskTypeDialog {...mockProps} taskType={mockTaskType} />);
+
+      const submitButton = screen.getByText('Save Changes');
+      fireEvent.click(submitButton);
+
+      expect(mockProps.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockTaskType.id,
+          name: mockTaskType.name,
+          color: mockTaskType.color,
+          description: mockTaskType.description,
+          icon: mockTaskType.icon,
+          active: mockTaskType.active
+        })
+      );
+    });
+
     it('includes icon field in form submission', async () => {
       render(<TaskTypeDialog {...mockProps} />);
 

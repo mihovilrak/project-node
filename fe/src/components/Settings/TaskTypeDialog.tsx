@@ -137,7 +137,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
     }
 
     try {
-      await onSave(formData);
+      await onSave(taskType ? { ...formData, id: taskType.id } : formData);
       onClose();
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to save task type');

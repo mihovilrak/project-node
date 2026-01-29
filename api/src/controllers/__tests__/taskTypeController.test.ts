@@ -83,6 +83,23 @@ describe('TaskTypeController', () => {
       expect(mockRes.json).toHaveBeenCalledWith(updatedType);
     });
 
+    it('should pass active: false to model when body has active: false', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { name: 'Updated', color: '#000000', icon: 'Task', active: false };
+      const updatedType = { id: '1', name: 'Updated', active: false };
+      (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(updatedType);
+      await taskTypeController.updateTaskType(mockReq, mockRes as Response, mockPool as Pool);
+      expect(taskTypeModel.updateTaskType).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        'Updated',
+        null,
+        '#000000',
+        'Task',
+        false
+      );
+    });
+
     it('should return 404 when not found', async () => {
       mockReq.params = { id: '999' };
       mockReq.body = { name: 'Updated' };
