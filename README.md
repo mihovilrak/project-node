@@ -169,6 +169,24 @@ networks:
     driver: bridge
 ```
 
+## 🧪 Running integration tests locally
+
+Requires **Docker**. Env for tests lives in **api/.env.test** (not in package.json).
+
+From the **api** directory:
+
+```bash
+cd api
+cp .env.test.example .env.test   # then edit .env.test if needed
+yarn setup-test-db
+yarn test:integration:local
+```
+
+- **setup-test-db**: Starts a Postgres container (`pm_test_db`) on port **5433**, runs all `db/init/*.sql` scripts.
+- **test:integration:local**: Loads **.env.test** and runs integration tests (no env vars in package.json).
+
+To run tests with custom env: set `TEST_DB_*` and `SESSION_SECRET` in `.env.test`, or run `yarn test:integration` with env set in your shell.
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
