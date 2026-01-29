@@ -64,7 +64,7 @@ export interface FormData {
   email: string;
 }
 
-export interface ProfileUpdateData extends Pick<User, 'name' | 'surname' | 'email' > {}
+export type ProfileUpdateData = Pick<User, 'name' | 'surname' | 'email'>;
 
 export interface ProfileTaskListProps {
   tasks: Task[];

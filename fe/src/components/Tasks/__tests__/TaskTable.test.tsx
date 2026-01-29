@@ -208,7 +208,7 @@ describe('TaskTable', () => {
     // Accepts dates like 31.12.2023, 31. 12. 2023., 12/31/2023, etc.
     expect(
       screen.getByText((content) =>
-        /\b(31\s*[\./-]\s*12\s*[\./-]\s*2023\.?)+\b|\b(12\s*[\./-]\s*31\s*[\./-]\s*2023\.?)+\b|\b(2023\s*[\./-]\s*12\s*[\./-]\s*31\.?)+\b/.test(content)
+        /\b(31\s*[./-]\s*12\s*[./-]\s*2023\.?)+\b|\b(12\s*[./-]\s*31\s*[./-]\s*2023\.?)+\b|\b(2023\s*[./-]\s*12\s*[./-]\s*31\.?)+\b/.test(content)
       )
     ).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();

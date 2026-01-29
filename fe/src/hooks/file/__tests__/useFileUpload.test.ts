@@ -85,7 +85,7 @@ describe('useFileUpload', () => {
 
     // Complete the upload
     await act(async () => {
-      resolveUpload && resolveUpload();
+      if (resolveUpload) resolveUpload();
       await uploadTask;
     });
   });

@@ -110,12 +110,12 @@ describe('Tasks Component Performance Tests', () => {
 
     // The input uses label "Search" not placeholder
     const searchInput = screen.getByLabelText('Search');
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     fireEvent.change(searchInput, { target: { value: 'Task 1' } });
 
-    let endTime = performance.now();
-    let filterTime = endTime - startTime;
+    const endTime = performance.now();
+    const filterTime = endTime - startTime;
 
     expect(filterTime).toBeLessThan(2000); // Filtering should be under 2000ms (accounting for test environment and re-renders)
   }, 15000);
@@ -136,12 +136,12 @@ describe('Tasks Component Performance Tests', () => {
 
     // The sort button shows "A-Z" text
     const sortSelect = screen.getByRole('combobox');
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     fireEvent.mouseDown(sortSelect);
 
-    let endTime = performance.now();
-    let sortTime = endTime - startTime;
+    const endTime = performance.now();
+    const sortTime = endTime - startTime;
 
     expect(sortTime).toBeLessThan(1000); // Sorting should be under 1000ms
   }, 15000);
@@ -159,14 +159,14 @@ describe('Tasks Component Performance Tests', () => {
     await new Promise(resolve => setTimeout(resolve, 0));
 
     const deleteButtons = getAllByText('Delete');
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     fireEvent.click(deleteButtons[0]);
     // Tasks now uses a dialog-based confirm (not window.confirm). Measure time to open the dialog.
     await screen.findByTestId('confirm-delete-button');
 
-    let endTime = performance.now();
-    let deleteTime = endTime - startTime;
+    const endTime = performance.now();
+    const deleteTime = endTime - startTime;
 
     // UI timing is noisy in CI/jsdom; keep this threshold generous to avoid flakiness.
     expect(deleteTime).toBeLessThan(1000);

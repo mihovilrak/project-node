@@ -141,8 +141,7 @@ export interface ActivityTypeFormProps {
   onChange: (field: string, value: string | boolean) => void;
 }
 
-interface AdminRole extends Role {
-}
+type AdminRole = Role;
 
 export interface TypesAndRolesDialogProps {
   activeTab: number;
