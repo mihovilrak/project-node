@@ -34,7 +34,7 @@ FROM node:25.4.0-alpine3.23 AS backend-builder
 WORKDIR /app/api
 
 # Copy package and lock files
-COPY api/package*.json api/yarn.lock api/tsconfig.json ./
+COPY api/package*.json api/yarn.lock api/tsconfig.json api/eslint.config.mjs ./
 
 # Install dependencies
 RUN mkdir node_modules && \
@@ -47,8 +47,10 @@ RUN mkdir node_modules && \
 # Copy source code
 COPY api/src/ ./src/
 
-# Build the API
-RUN yarn run tsc && \
+# Type check and lint the API
+RUN yarn run type-check && \
+    yarn run lint && \
+    yarn run tsc && \
     npm install -g @vercel/ncc && \
     ncc build dist/app.js -o dist --no-cache -q
 
@@ -60,7 +62,7 @@ WORKDIR /app/service
 
 # Copy package and lock files
 COPY notification-service/package*.json notification-service/yarn.lock \
-    notification-service/tsconfig.json ./
+    notification-service/tsconfig.json notification-service/eslint.config.mjs ./
 
 # Install dependencies
 RUN mkdir node_modules && \
@@ -74,8 +76,10 @@ RUN mkdir node_modules && \
 # Copy source code
 COPY notification-service/src/ ./src/
 
-# Build the service
-RUN yarn run tsc && \
+# Type check and lint the notification service
+RUN yarn run type-check && \
+    yarn run lint && \
+    yarn run tsc && \
     npm install -g @vercel/ncc && \
     ncc build dist/index.js -o dist --no-cache -q && \
     mkdir -p dist/templates && \

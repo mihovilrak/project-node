@@ -8,7 +8,11 @@
     "start": "node dist/app.js",
     "dev": "nodemon",
     "build": "tsc",
+    "lint": "eslint src --max-warnings 0",
+    "lint:fix": "eslint src --fix",
     "watch": "tsc -w",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
     "test": "jest --config src/__tests__/jest.config.ts",
     "test:watch": "jest --config src/__tests__/jest.config.ts --watch",
     "test:coverage": "jest --config src/__tests__/jest.config.ts --coverage",
@@ -28,22 +32,25 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.18.2",
     "@types/jest": "^30.0.0",
+    "@types/k6": "^1.5.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.9",
     "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.3",
-    "@types/k6": "^1.5.0",
+    "eslint": "^9.39.2",
     "jest": "^30.2.0",
     "nodemon": "^3.1.11",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
   }
 }

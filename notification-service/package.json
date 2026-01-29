@@ -8,20 +8,25 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "lint": "eslint src --max-warnings 0",
+    "lint:fix": "eslint src --fix",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
-    "nodemailer": "^7.0.2",
+    "handlebars": "^4.7.8",
     "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.2",
     "pg": "^8.17.2",
-    "dotenv": "^17.2.3",
-    "winston": "^3.19.0",
-    "handlebars": "^4.7.8"
+    "winston": "^3.19.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/express": "^5.0.6",
     "@types/jest": "^29.5.12",
     "@types/node": "^25.0.9",
@@ -29,12 +34,14 @@
     "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.2",
+    "eslint": "^9.39.2",
     "jest": "^30.0.2",
     "nodemailer-mock": "^2.0.6",
+    "nodemon": "^3.1.11",
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3",
-    "nodemon": "^3.1.11"
+    "typescript-eslint": "^8.54.0"
   }
 }
