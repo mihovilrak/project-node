@@ -67,7 +67,10 @@ export const changePassword = async (
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
-    const { old_password, new_password } = req.body as PasswordUpdateInput;
+    const body = req.body as PasswordUpdateInput;
+    // Frontend sends current_password; accept both for compatibility
+    const currentPassword = body.current_password ?? body.old_password;
+    const new_password = body.new_password;
 
     if (!userId) {
       return res.status(401).json({
@@ -75,8 +78,14 @@ export const changePassword = async (
       });
     }
 
+    if (!currentPassword || !new_password) {
+      return res.status(400).json({
+        error: 'Current password and new password are required'
+      });
+    }
+
     // Verify current password
-    const verifyResult = await profileModel.verifyPassword(pool, userId, old_password);
+    const verifyResult = await profileModel.verifyPassword(pool, userId, currentPassword);
 
     if (!verifyResult) {
       return res.status(400).json({

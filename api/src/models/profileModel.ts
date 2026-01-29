@@ -36,14 +36,17 @@ export const updateProfile = async (
   return result.rows[0] || null;
 };
 
-// Verify user password
+// Verify user password (by user id; authentification() expects login, not id)
 export const verifyPassword = async (
   pool: Pool,
   userId: string,
   password: string
 ): Promise<boolean> => {
   const result = await pool.query(
-    `SELECT EXISTS(SELECT 1 FROM authentification($1, $2))`,
+    `SELECT EXISTS(
+      SELECT 1 FROM users
+      WHERE id = $1 AND password = crypt($2, password)
+    )`,
     [userId, password]
   );
   return result.rows[0].exists;

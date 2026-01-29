@@ -303,7 +303,7 @@ describe('Profile Controller', () => {
   });
 
   describe('changePassword', () => {
-    it('should update password with valid input', async () => {
+    it('should update password with valid input (old_password)', async () => {
       const updatedOn = new Date();
       mockRequest.body = {
         old_password: 'oldPass123',
@@ -319,6 +319,33 @@ describe('Profile Controller', () => {
       expect(profileModel.changePassword).toHaveBeenCalledWith(mockPool, '1', 'newPass123');
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({ message: `Password updated successfully on ${updatedOn}` });
+    });
+
+    it('should update password with valid input (current_password from frontend)', async () => {
+      const updatedOn = new Date();
+      mockRequest.body = {
+        current_password: 'currentPass123',
+        new_password: 'newPass456',
+        confirm_password: 'newPass456'
+      };
+
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
+      jest.spyOn(profileModel, 'changePassword').mockResolvedValue({ updated_on: updatedOn } as any);
+
+      await changePassword(mockRequest as Request, mockResponse, mockPool);
+
+      expect(profileModel.verifyPassword).toHaveBeenCalledWith(mockPool, '1', 'currentPass123');
+      expect(profileModel.changePassword).toHaveBeenCalledWith(mockPool, '1', 'newPass456');
+      expect(mockStatus).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 400 when current password or new password is missing', async () => {
+      mockRequest.body = { new_password: 'newPass123' };
+
+      await changePassword(mockRequest as Request, mockResponse, mockPool);
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({ error: 'Current password and new password are required' });
     });
 
     it('should return 400 with invalid passwords', async () => {

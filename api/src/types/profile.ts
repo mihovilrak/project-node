@@ -23,7 +23,10 @@ export interface ProfileUpdateInput {
 }
 
 export interface PasswordUpdateInput {
-  old_password: string;
+  /** Current password (sent by frontend as current_password) */
+  current_password?: string;
+  /** Legacy field name (old_password) - accepted for compatibility */
+  old_password?: string;
   new_password: string;
 }
 

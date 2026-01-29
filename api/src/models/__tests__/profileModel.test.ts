@@ -104,7 +104,7 @@ describe('ProfileModel', () => {
       const result = await profileModel.verifyPassword(mockPool, '1', 'correctpassword');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT EXISTS'),
+        expect.stringMatching(/SELECT EXISTS[\s\S]*FROM users[\s\S]*WHERE id = \$1 AND password = crypt\(\$2, password\)/),
         ['1', 'correctpassword']
       );
       expect(result).toBe(true);
