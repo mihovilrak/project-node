@@ -8,20 +8,18 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Tasks from '../Tasks';
-import { getTasks, deleteTask, getActiveTasks } from '../../../api/tasks';
+import { getTasks, deleteTask } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
 
 // Mock the API calls
 jest.mock('../../../api/tasks', () => ({
   getTasks: jest.fn(),
-  getActiveTasks: jest.fn(),
   deleteTask: jest.fn(),
   getTaskStatuses: jest.fn().mockResolvedValue([]),
   getPriorities: jest.fn().mockResolvedValue([])
 }));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
-const mockedGetActiveTasks = getActiveTasks as jest.MockedFunction<typeof getActiveTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
 
 // Mock useNavigate
@@ -109,13 +107,13 @@ describe('Tasks Component', () => {
   });
 
   test('shows loading state initially', () => {
-    mockedGetActiveTasks.mockImplementation(() => new Promise(() => {}));
+    mockedGetTasks.mockImplementation(() => new Promise(() => {}));
     renderTasks();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   test('renders tasks successfully', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
     await waitFor(() => {
@@ -128,7 +126,7 @@ describe('Tasks Component', () => {
   });
 
   test('handles task deletion', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockResolvedValue();
 
     renderTasks();
@@ -151,15 +149,15 @@ describe('Tasks Component', () => {
 
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
-      // After deletion we refetch tasks via getActiveTasks again
-      expect(mockedGetActiveTasks).toHaveBeenCalledTimes(2);
+// After deletion we refetch tasks via getTasks again
+    expect(mockedGetTasks).toHaveBeenCalledTimes(2);
     });
   }, 15000);
 
   test('handles failed task deletion', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockRejectedValue(new Error('Delete failed'));
 
     renderTasks();
@@ -194,7 +192,7 @@ describe('Tasks Component', () => {
   }, 10000);
 
   test('filters tasks by search term', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
     await waitFor(() => {
@@ -213,7 +211,7 @@ describe('Tasks Component', () => {
   });
 
   test('sorts tasks correctly', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
     await waitFor(() => {
@@ -234,7 +232,7 @@ describe('Tasks Component', () => {
   }, 15000);
 
   test('navigates to correct routes', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
     await waitFor(() => {
@@ -258,7 +256,7 @@ describe('Tasks Component', () => {
   });
 
   test('displays correct status and priority chips', async () => {
-    mockedGetActiveTasks.mockResolvedValue(mockTasks);
+    mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
     await waitFor(() => {
@@ -275,7 +273,7 @@ describe('Tasks Component', () => {
   });
 
   test('handles empty assignee correctly', async () => {
-    mockedGetActiveTasks.mockResolvedValue([mockTasks[1]]);
+    mockedGetTasks.mockResolvedValue([mockTasks[1]]);
     renderTasks();
 
     await waitFor(
@@ -288,7 +286,7 @@ describe('Tasks Component', () => {
 
   test('handles API error gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    mockedGetActiveTasks.mockRejectedValue(new Error('API error'));
+    mockedGetTasks.mockRejectedValue(new Error('API error'));
 
     renderTasks();
 
