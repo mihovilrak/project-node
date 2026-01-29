@@ -9,3 +9,9 @@ db/backup/
 **/dist/
 **/coverage/
 *.log
+.cursorrules
+CHANGELOG.md
+INTEGRATION_TEST_REVIEW.md
+MEMORY_BANK.md
+mcp-test-server/
+scripts/
