@@ -25,11 +25,6 @@ const Projects: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchProjects(filters);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchProjects = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
       setLoading(true);
@@ -50,6 +45,10 @@ const Projects: React.FC = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchProjects(filters);
+  }, [fetchProjects]);
 
   const handleCreateProject = (): void => {
     navigate('/projects/new');
