@@ -91,6 +91,28 @@ describe('useCommentMenu', () => {
     expect(result.current.anchorEl).toBeNull();
   });
 
+  it('should preserve selectedComment when opening edit dialog so dialog can show and save the comment', () => {
+    const { result } = renderHook(() =>
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+    );
+
+    const button = document.createElement('button');
+    const mockEvent = createMockMouseEvent(button);
+
+    act(() => {
+      result.current.handleMenuOpen(mockEvent, mockComment);
+    });
+    expect(result.current.selectedComment).toBe(mockComment);
+
+    act(() => {
+      result.current.handleEditClick();
+    });
+
+    expect(result.current.editDialogOpen).toBe(true);
+    expect(result.current.anchorEl).toBeNull();
+    expect(result.current.selectedComment).toBe(mockComment);
+  });
+
   it('should handle edit close', () => {
     const { result } = renderHook(() =>
       useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)

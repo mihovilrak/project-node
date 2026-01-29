@@ -17,8 +17,8 @@ export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => P
   };
 
   const handleEditClick = (): void => {
+    setAnchorEl(null); // Close the menu only; keep selectedComment for the dialog
     setEditDialogOpen(true);
-    handleMenuClose();
   };
 
   const handleEditClose = (): void => {
