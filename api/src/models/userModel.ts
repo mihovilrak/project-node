@@ -20,7 +20,7 @@ export const getUsers = async (
   filters?: UserQueryFilters
 ): Promise<User[]> => {
   let query = 'SELECT * FROM v_users';
-  let values: any[] = [];
+  const values: any[] = [];
 
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
     query += ' WHERE ';
