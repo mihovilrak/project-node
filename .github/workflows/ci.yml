@@ -143,10 +143,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
       - name: Initialize test database
         run: |
           for f in ../db/init/*.sql; do
-            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f" 2>/dev/null || true
+            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f" || true
           done
         env:
           PGHOST: localhost

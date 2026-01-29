@@ -12,7 +12,7 @@
     "test": "jest --config src/__tests__/jest.config.ts",
     "test:watch": "jest --config src/__tests__/jest.config.ts --watch",
     "test:coverage": "jest --config src/__tests__/jest.config.ts --coverage",
-    "test:integration": "jest --config src/__tests__/jest.config.ts --testMatch '**/__tests__/integration/**/*.test.ts'",
+    "test:integration": "jest --config src/__tests__/integration/jest.integration.config.ts",
     "test:unit": "jest --config src/__tests__/jest.config.ts --testMatch '**/__tests__/unit/**/*.test.ts'",
     "test:perf": "k6 run src/__tests__/performance/load/*.perf.ts"
   },

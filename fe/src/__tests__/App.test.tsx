@@ -80,13 +80,6 @@ jest.mock('../context/AuthContext', () => ({
   useAuth: jest.fn()
 }));
 
-// Mock child components
-jest.mock('../components/Home/Home', () => () => <div>Home</div>);
-jest.mock('../components/Auth/Login', () => () => <div>Login</div>);
-jest.mock('../components/Users/Users', () => () => <div>Users</div>);
-jest.mock('../components/Projects/Projects', () => () => <div>Projects</div>);
-jest.mock('../components/Tasks/Tasks', () => () => <div>Tasks</div>);
-
 describe('App Component', () => {
   const mockUseAuth = {
     currentUser: null,
@@ -194,21 +187,6 @@ describe('App Component', () => {
     // Verify LocalizationProvider is working
     expect(container.querySelector('.MuiPickersLayout-root')).toBeFalsy();
   });
-
-  // Mock useLocation and useNavigate
-  const mockUseLocation = {
-    pathname: '/tasks/1/files',
-    search: '',
-    hash: '',
-    state: null
-  };
-
-  jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useLocation: () => mockUseLocation,
-    useNavigate: () => jest.fn(),
-    useParams: () => ({ taskId: '1' })
-  }));
 
   test('renders task wrapper components correctly', async () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
