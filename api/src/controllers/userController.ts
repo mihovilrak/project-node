@@ -11,10 +11,17 @@ export const getUsers = async (
   pool: Pool
 ): Promise<Response | void> => {
   try {
-    const whereParams = typeof req.query.whereParams === 'string'
-      ? JSON.parse(req.query.whereParams)
-      : undefined;
-    const users = await userModel.getUsers(pool, { whereParams });
+    let whereParams: Record<string, unknown> | undefined =
+      typeof req.query.whereParams === 'string'
+        ? JSON.parse(req.query.whereParams)
+        : undefined;
+    // Default to active users only (status_id = 1) when no filter is supplied
+    if (!whereParams || Object.keys(whereParams).length === 0) {
+      whereParams = { status_id: 1 };
+    }
+    const users = await userModel.getUsers(pool, {
+      whereParams: whereParams as Record<string, string>
+    });
     res.status(200).json(users);
   } catch (error) {
     console.error(error);
@@ -132,6 +139,21 @@ export const deleteUser = async (
       return res.status(404).json({ error: 'User not found' });
     }
     res.status(200).json({ message: 'User deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get user statuses
+export const getUserStatuses = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
+  try {
+    const statuses = await userModel.getUserStatuses(pool);
+    res.status(200).json(statuses);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

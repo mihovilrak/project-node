@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -13,7 +13,7 @@ import {
   SelectChangeEvent,
   Alert
 } from '@mui/material';
-import { getUsers, deleteUser } from '../../api/users';
+import { getUsers, deleteUser, getUserStatuses } from '../../api/users';
 import { User } from '../../types/user';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
@@ -21,6 +21,7 @@ import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [statuses, setStatuses] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>({});
@@ -30,20 +31,15 @@ const Users: React.FC = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async (currentFilters?: FilterValues) => {
+  const fetchUsers = useCallback(async (currentFilters?: FilterValues) => {
     try {
       setLoading(true);
       setError(null);
 
       const whereParams: Record<string, any> = {};
-      if (currentFilters?.search) {
-        // search is still applied client-side
+      if (currentFilters?.status_id != null && currentFilters?.status_id !== '') {
+        whereParams.status_id = Number(currentFilters.status_id);
       }
-
       const userList = await getUsers(Object.keys(whereParams).length ? whereParams : undefined);
       setUsers(userList || []);
     } catch (error: any) {
@@ -55,7 +51,20 @@ const Users: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUsers(filters);
+    const loadStatuses = async () => {
+      try {
+        const data = await getUserStatuses().catch(() => []);
+        setStatuses(data);
+      } catch {
+        setStatuses([]);
+      }
+    };
+    loadStatuses();
+  }, [fetchUsers]);
 
   const handleDeleteClick = (user: User) => {
     setUserToDelete(user);
@@ -70,7 +79,7 @@ const Users: React.FC = () => {
       setDeleteError(null);
       await deleteUser(userToDelete.id);
       // Refresh users list from API to ensure consistency
-      await fetchUsers();
+      await fetchUsers(filters);
       // Dispatch custom event to notify other components (e.g., UserManager in Settings)
       window.dispatchEvent(new CustomEvent('userDeleted', { detail: { userId: userToDelete.id } }));
       setDeleteDialogOpen(false);
@@ -102,8 +111,9 @@ const Users: React.FC = () => {
   };
 
   const filterOptions = useMemo(() => ({
-    showSearch: true
-  }), []);
+    search: true,
+    statuses: statuses.map((s) => ({ id: s.id, name: s.name }))
+  }), [statuses]);
 
   const filteredUsers = users
     .filter(user => {

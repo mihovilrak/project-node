@@ -36,6 +36,7 @@ export interface FilterPanelOptions {
   users?: User[];
   projects?: FilterOption[];
   activities?: FilterOption[];
+  search?: boolean;
   showDateFilters?: boolean;
   showSearch?: boolean;
   showActiveOnly?: boolean;

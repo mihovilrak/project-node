@@ -4,13 +4,12 @@ import { Profiler } from 'react';
 import Tasks from '../../../components/Tasks/Tasks';
 import { TestWrapper } from '../../TestWrapper';
 import { Task } from '../../../types/task';
-import { getTasks, deleteTask, getActiveTasks } from '../../../api/tasks';
+import { getTasks, deleteTask } from '../../../api/tasks';
 
 // Mock API calls - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/tasks', () => ({
   getTasks: jest.fn(),
   deleteTask: jest.fn(),
-  getActiveTasks: jest.fn(),
   getTaskStatuses: jest.fn().mockResolvedValue([]),
   getPriorities: jest.fn().mockResolvedValue([])
 }));
@@ -87,7 +86,6 @@ describe('Tasks Component Performance Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getTasks as jest.Mock).mockResolvedValue(mockTasks);
-    (getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
     (deleteTask as jest.Mock).mockResolvedValue(true);
   });
 

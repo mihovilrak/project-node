@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTasks, deleteTask, getTaskStatuses, getPriorities, getActiveTasks } from '../../api/tasks';
+import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../api/tasks';
 import { getProjects } from '../../api/projects';
 import {
   Grid,
@@ -40,20 +40,15 @@ const Tasks: React.FC = () => {
     try {
       setError(null);
 
-      // Default to active tasks when no filters are applied
-      if (!currentFilters || Object.keys(currentFilters).length === 0) {
-        const activeTasks = await getActiveTasks();
-        setTasks(activeTasks);
-        return;
-      }
-
-      const taskList = await getTasks({
-        status: currentFilters.status_id ? Number(currentFilters.status_id) : undefined,
-        priority: currentFilters.priority_id ? Number(currentFilters.priority_id) : undefined,
-        assignee: currentFilters.assignee_id ? Number(currentFilters.assignee_id) : undefined,
-        holder: currentFilters.holder_id ? Number(currentFilters.holder_id) : undefined,
-        project: currentFilters.project_id ? Number(currentFilters.project_id) : undefined
-      });
+      // When no filters, getTasks() uses backend default (active tasks only)
+      const hasFilters = currentFilters && Object.keys(currentFilters).length > 0;
+      const taskList = await getTasks(hasFilters ? {
+        status_id: currentFilters!.status_id ? Number(currentFilters!.status_id) : undefined,
+        priority_id: currentFilters!.priority_id ? Number(currentFilters!.priority_id) : undefined,
+        assignee_id: currentFilters!.assignee_id ? Number(currentFilters!.assignee_id) : undefined,
+        holder_id: currentFilters!.holder_id ? Number(currentFilters!.holder_id) : undefined,
+        project_id: currentFilters!.project_id ? Number(currentFilters!.project_id) : undefined
+      } : {});
       setTasks(taskList);
     } catch (error) {
       console.error('Failed to fetch tasks', error);

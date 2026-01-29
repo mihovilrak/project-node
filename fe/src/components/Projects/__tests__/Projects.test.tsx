@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import Projects from '../Projects';
 import { getProjects } from '../../../api/projects';
 import { Project } from '../../../types/project';
@@ -57,7 +57,13 @@ describe('Projects Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const { getProjectStatuses } = require('../../../api/projects');
     (getProjects as jest.Mock).mockResolvedValue(mockProjects);
+    (getProjectStatuses as jest.Mock).mockResolvedValue([
+      { id: 1, name: 'Active' },
+      { id: 2, name: 'Inactive' },
+      { id: 3, name: 'Deleted' }
+    ]);
     jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
   });
 
@@ -84,8 +90,12 @@ describe('Projects Component', () => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
-    const filterInput = screen.getByTestId('project-filter').querySelector('input');
-    fireEvent.change(filterInput!, { target: { value: 'Project A' } });
+    const filterPanel = screen.getByTestId('filter-panel');
+    const expandButton = within(filterPanel).getAllByRole('button')[0];
+    fireEvent.click(expandButton);
+
+    const filterInput = await screen.findByLabelText('Search');
+    fireEvent.change(filterInput, { target: { value: 'Project A' } });
 
     await waitFor(() => {
       expect(screen.getByText('Project A')).toBeInTheDocument();

@@ -14,6 +14,24 @@ describe('UserModel', () => {
     jest.clearAllMocks();
   });
 
+  describe('getUserStatuses', () => {
+    it('should return all user statuses', async () => {
+      const mockStatuses = [
+        { id: 1, name: 'Active' },
+        { id: 2, name: 'Inactive' },
+        { id: 3, name: 'Deleted' }
+      ];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockStatuses));
+
+      const result = await userModel.getUserStatuses(mockPool);
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT id, name FROM user_statuses ORDER BY id'
+      );
+      expect(result).toEqual(mockStatuses);
+    });
+  });
+
   describe('getUsers', () => {
     it('should return all users without filters', async () => {
       const mockUsers = [

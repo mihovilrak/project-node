@@ -1,9 +1,18 @@
-import { Pool } from 'pg';
+import { Pool, QueryResult } from 'pg';
 import {
   User,
   UserQueryFilters,
   UserUpdateInput,
+  UserStatus,
 } from '../types/user';
+
+// Get user statuses
+export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
+  const result: QueryResult<UserStatus> = await pool.query(
+    'SELECT id, name FROM user_statuses ORDER BY id'
+  );
+  return result.rows;
+};
 
 // Get all users
 export const getUsers = async (

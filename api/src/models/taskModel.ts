@@ -9,6 +9,9 @@ import {
 } from '../types/task';
 import { Pool, QueryResult } from 'pg';
 
+// Active task status IDs: New (1), In Progress (2), On Hold (3), Review (4). Excludes Done, Cancelled, Deleted.
+const ACTIVE_TASK_STATUS_IDS = [1, 2, 3, 4];
+
 // Get all tasks
 export const getTasks = async (
   pool: Pool,
@@ -66,6 +69,13 @@ export const getTasks = async (
       conditions.push(`parent_id = $${values.length + 1}`);
       values.push(parent_id);
     }
+  }
+
+  // Default to active tasks only when no filters are applied (exclude Done, Cancelled, Deleted)
+  if (conditions.length === 0) {
+    const placeholders = ACTIVE_TASK_STATUS_IDS.map((_, i) => `$${i + 1}`).join(', ');
+    conditions.push(`status_id IN (${placeholders})`);
+    values.push(...ACTIVE_TASK_STATUS_IDS);
   }
 
   if (conditions.length > 0) {

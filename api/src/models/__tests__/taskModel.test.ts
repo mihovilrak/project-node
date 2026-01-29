@@ -43,13 +43,16 @@ describe('TaskModel', () => {
   });
 
   describe('getTasks', () => {
-    it('should return all tasks without filters', async () => {
+    it('should return active tasks only when no filters (default)', async () => {
       const mockTasks = [mockTask, { ...mockTask, id: 2, name: 'Task 2' }];
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
 
       const result = await taskModel.getTasks(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM v_tasks', []);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('status_id IN ($1, $2, $3, $4)'),
+        [1, 2, 3, 4]
+      );
       expect(result).toEqual(mockTasks);
     });
 
@@ -73,6 +76,10 @@ describe('TaskModel', () => {
 
       const result = await taskModel.getTasks(mockPool);
 
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('status_id IN'),
+        [1, 2, 3, 4]
+      );
       expect(result).toEqual([]);
     });
   });

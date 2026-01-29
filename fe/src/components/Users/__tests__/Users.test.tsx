@@ -2,13 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Users from '../Users';
-import { getUsers, deleteUser } from '../../../api/users';
+import { getUsers, deleteUser, getUserStatuses } from '../../../api/users';
 import { User } from '../../../types/user';
 
 // Mock the API calls
 jest.mock('../../../api/users');
 const mockedGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
 const mockedDeleteUser = deleteUser as jest.MockedFunction<typeof deleteUser>;
+const mockedGetUserStatuses = getUserStatuses as jest.MockedFunction<typeof getUserStatuses>;
 
 // Mock the navigate function
 const mockedNavigate = jest.fn();
@@ -68,6 +69,11 @@ describe('Users Component', () => {
     mockedGetUsers.mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve(mockUsers), 0))
     );
+    mockedGetUserStatuses.mockResolvedValue([
+      { id: 1, name: 'Active' },
+      { id: 2, name: 'Inactive' },
+      { id: 3, name: 'Deleted' }
+    ]);
   });
 
   const renderUsers = () => {

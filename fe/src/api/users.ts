@@ -1,6 +1,17 @@
 import { api } from './api';
-import { User, UserCreate, UserUpdate } from '../types/user';
+import { User, UserCreate, UserUpdate, UserStatus } from '../types/user';
 import { Role } from '../types/role';
+
+// Get user statuses
+export const getUserStatuses = async (): Promise<UserStatus[]> => {
+  try {
+    const response = await api.get('/users/statuses');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch user statuses', error);
+    throw error;
+  }
+};
 
 // Get all users
 export const getUsers = async (whereParams?: Record<string, any>): Promise<User[]> => {

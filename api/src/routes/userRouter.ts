@@ -11,6 +11,10 @@ export default (pool: Pool): Router => {
   router.get('/', ((req, res) =>
     userController.getUsers(req, res, pool)) as RequestHandler);
 
+  // Get user statuses (must be before /:id)
+  router.get('/statuses', ((req, res) =>
+    userController.getUserStatuses(req, res, pool)) as RequestHandler);
+
   // Get user permissions
   router.get('/permissions', ((req, res) =>
     userController.getUserPermissions(req, res, pool)) as RequestHandler);

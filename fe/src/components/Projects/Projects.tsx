@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjects } from '../../api/projects';
+import { getProjects, getProjectStatuses } from '../../api/projects';
 import {
   Grid,
   Card,
@@ -8,12 +8,12 @@ import {
   Typography,
   Box,
   Button,
-  TextField,
   Select,
   MenuItem,
   SelectChangeEvent
 } from '@mui/material';
 import { Project } from '../../types/project';
+import { ProjectStatus } from '../../types/project';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
 
@@ -21,6 +21,7 @@ const Projects: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filters, setFilters] = useState<FilterValues>({});
+  const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,7 @@ const Projects: React.FC = () => {
       setLoading(true);
       setError(null);
       const projectList = await getProjects({
-        status_id: currentFilters?.status_id
+        status_id: currentFilters?.status_id != null && currentFilters?.status_id !== ''
           ? Number(currentFilters.status_id)
           : 1 // default to active projects
       });
@@ -48,6 +49,15 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     fetchProjects(filters);
+    const loadStatuses = async () => {
+      try {
+        const data = await getProjectStatuses().catch(() => []);
+        setStatuses(data);
+      } catch {
+        setStatuses([]);
+      }
+    };
+    loadStatuses();
   }, [fetchProjects]);
 
   const handleCreateProject = (): void => {
@@ -65,9 +75,10 @@ const Projects: React.FC = () => {
 
   const filterOptions = useMemo(
     () => ({
-      showSearch: true
+      search: true,
+      statuses: statuses.map((s) => ({ id: s.id, name: s.name }))
     }),
-    []
+    [statuses]
   );
 
   const filteredProjects = projects
@@ -109,14 +120,6 @@ const Projects: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>Projects</Typography>
         <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <TextField
-            label="Filter by Name"
-            variant="outlined"
-            size="small"
-            value={filters.search || ''}
-            onChange={(e) => handleFilterChange({ ...filters, search: e.target.value })}
-            data-testid="project-filter"
-          />
           <Select
             value={sortOrder}
             onChange={handleSortChange}
