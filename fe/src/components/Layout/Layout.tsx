@@ -10,7 +10,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useNavigation } from '../../hooks/layout/useNavigation';
 import {
   Brightness4,
@@ -23,19 +23,19 @@ import { useTheme } from '../../context/ThemeContext';
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { logout, currentUser } = useAuth();
-  const { activeTab, handleTabChange } = useNavigation();
+  const { activeTab } = useNavigation();
   const { mode, toggleTheme } = useTheme();
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar position="fixed">
         <Toolbar>
-          <Tabs value={activeTab} onChange={handleTabChange} textColor="inherit" indicatorColor="secondary">
-            <Tab label="Home" />
-            <Tab label="Projects" />
-            <Tab label="Users" />
-            <Tab label="Tasks" />
-            <Tab label="Settings" />
+          <Tabs value={activeTab} textColor="inherit" indicatorColor="secondary">
+            <Tab label="Home" component={Link} to="/" />
+            <Tab label="Projects" component={Link} to="/projects" />
+            <Tab label="Users" component={Link} to="/users" />
+            <Tab label="Tasks" component={Link} to="/tasks" />
+            <Tab label="Settings" component={Link} to="/settings" />
           </Tabs>
           <Box sx={{ flexGrow: 1 }} />
           <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>

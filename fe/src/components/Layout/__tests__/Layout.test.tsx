@@ -7,7 +7,6 @@ import '@testing-library/jest-dom';
 // Create mocks for test
 let mockCurrentUser: any = null;
 const mockLogout = jest.fn();
-const mockHandleTabChange = jest.fn();
 const mockToggleTheme = jest.fn();
 
 // Mock the hooks
@@ -20,8 +19,7 @@ jest.mock('../../../context/AuthContext', () => ({
 
 jest.mock('../../../hooks/layout/useNavigation', () => ({
   useNavigation: () => ({
-    activeTab: 0,
-    handleTabChange: mockHandleTabChange
+    activeTab: 0
   })
 }));
 
@@ -61,12 +59,19 @@ jest.mock('@mui/material', () => {
   return {
     AppBar: ({ children }: any) => <div data-testid="app-bar">{children}</div>,
     Toolbar: ({ children }: any) => <div data-testid="toolbar">{children}</div>,
-    Tabs: ({ children, onChange, value }: any) => (
-      <div data-testid="tabs" onClick={onChange}>
+    Tabs: ({ children, value }: any) => (
+      <div data-testid="tabs" data-value={value}>
         {children}
       </div>
     ),
-    Tab: ({ label }: any) => <div data-testid="tab">{label}</div>,
+    Tab: ({ label, component: Component, to }: any) =>
+      Component ? (
+        <a data-testid={`tab-link-${label.toLowerCase()}`} href={to}>
+          {label}
+        </a>
+      ) : (
+        <div data-testid="tab">{label}</div>
+      ),
     Box: ({ children, component = 'div', sx }: any) => {
       const Component = component;
       return (
@@ -119,10 +124,13 @@ describe('Layout', () => {
     expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
-  it('handles tab changes', () => {
+  it('renders tabs as links so clicking always navigates', () => {
     renderLayout();
-    fireEvent.click(screen.getByTestId('tabs'));
-    expect(mockHandleTabChange).toHaveBeenCalled();
+    expect(screen.getByTestId('tab-link-home')).toHaveAttribute('href', '/');
+    expect(screen.getByTestId('tab-link-projects')).toHaveAttribute('href', '/projects');
+    expect(screen.getByTestId('tab-link-users')).toHaveAttribute('href', '/users');
+    expect(screen.getByTestId('tab-link-tasks')).toHaveAttribute('href', '/tasks');
+    expect(screen.getByTestId('tab-link-settings')).toHaveAttribute('href', '/settings');
   });
 
   it('shows theme toggle with correct tooltip', () => {
