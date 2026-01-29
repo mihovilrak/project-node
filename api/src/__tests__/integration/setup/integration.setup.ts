@@ -12,8 +12,10 @@ const shouldRunIntegration = () => {
 
 beforeAll(async () => {
   if (!shouldRunIntegration()) {
-    console.log('Skipping integration tests - database not configured');
-    return;
+    throw new Error(
+      'Integration tests require TEST_DB_HOST and TEST_DB_PASSWORD. ' +
+      'Set these env vars (e.g. in CI) or do not run the integration test suite.'
+    );
   }
 
   testPool = new Pool({
@@ -39,9 +41,6 @@ afterAll(async () => {
     await testPool.end();
   }
 });
-
-// Helper to check if we should skip
-export const skipIfNoDb = () => !shouldRunIntegration();
 
 // Database cleanup utilities
 export const cleanupTables = async (tables: string[]) => {

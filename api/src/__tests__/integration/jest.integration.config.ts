@@ -10,7 +10,11 @@ const config: Config.InitialOptions = {
   ],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
+    // uuid v13+ is ESM-only; transform its .js so Jest can load it (allowJs + module: commonjs)
+    'node_modules[/\\\\]uuid[/\\\\].+\\.js$': ['ts-jest', { tsconfig: { allowJs: true, module: 'commonjs' } }],
   },
+  // uuid must be transformed; default ignores all of node_modules
+  transformIgnorePatterns: ['/node_modules/(?!uuid/)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: ['<rootDir>/__tests__/integration/setup/integration.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/'],

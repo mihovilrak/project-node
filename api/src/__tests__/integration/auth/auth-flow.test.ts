@@ -1,23 +1,15 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { skipIfNoDb, seedTestUser, cleanupTables } from '../setup/integration.setup';
+import { seedTestUser, cleanupTables } from '../setup/integration.setup';
 
-// Dynamically import app only if DB is available
 let app: Express;
 
 beforeAll(async () => {
-  if (skipIfNoDb()) {
-    return;
-  }
-  
-  // Dynamically require app to avoid startup errors
   const appModule = await import('../../../app');
   app = appModule.default;
 });
 
-const describeOrSkip = skipIfNoDb() ? describe.skip : describe;
-
-describeOrSkip('Authentication Flow', () => {
+describe('Authentication Flow', () => {
   beforeEach(async () => {
     // Clean up test data before each test
     await cleanupTables(['users', 'sessions']);

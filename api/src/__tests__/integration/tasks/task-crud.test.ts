@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { skipIfNoDb, seedTestUser, seedTestProject, seedTestTask, cleanupTables } from '../setup/integration.setup';
+import { seedTestUser, seedTestProject, seedTestTask, cleanupTables } from '../setup/integration.setup';
 
 let app: Express;
 let authCookies: string[] = [];
@@ -8,17 +8,11 @@ let testUser: any = null;
 let testProject: any = null;
 
 beforeAll(async () => {
-  if (skipIfNoDb()) {
-    return;
-  }
-  
   const appModule = await import('../../../app');
   app = appModule.default;
 });
 
-const describeOrSkip = skipIfNoDb() ? describe.skip : describe;
-
-describeOrSkip('Task CRUD Operations', () => {
+describe('Task CRUD Operations', () => {
   beforeEach(async () => {
     // Clean up and seed test data
     await cleanupTables(['tasks', 'task_tags', 'watchers', 'projects', 'project_users', 'users', 'sessions']);
