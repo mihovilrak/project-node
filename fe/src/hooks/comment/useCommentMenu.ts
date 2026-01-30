@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Comment } from '../../types/comment';
+import logger from '../../utils/logger';
 
 export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => Promise<void>, onCommentDeleted: (id: number) => Promise<void>) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -31,7 +32,7 @@ export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => P
       await onCommentUpdated(commentId, newText);
       handleEditClose();
     } catch (error) {
-      console.error('Failed to save comment:', error);
+      logger.error('Failed to save comment:', error);
       // Don't close the dialog on error so user can retry
       throw error;
     }

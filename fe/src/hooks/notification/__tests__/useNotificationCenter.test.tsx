@@ -7,6 +7,7 @@ import {
 } from '../../../api/notifications';
 import { MemoryRouter } from 'react-router-dom';
 import { Notification } from '../../../types/notification';
+import logger from '../../../utils/logger';
 
 // Mock the API functions
 jest.mock('../../../api/notifications', () => ({
@@ -164,7 +165,6 @@ describe('useNotificationCenter', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getNotifications as jest.Mock).mockRejectedValue(new Error('API Error'));
 
     const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
@@ -176,11 +176,9 @@ describe('useNotificationCenter', () => {
     unmount();
     await flushPromises();
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
       expect(result.current.notifications).toEqual([]);
       expect(result.current.loading).toBe(false);
     });
-
-    consoleErrorSpy.mockRestore();
   });
 });

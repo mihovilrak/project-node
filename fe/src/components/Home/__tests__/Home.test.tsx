@@ -135,13 +135,13 @@ describe('Home', () => {
 
   it('sanitizes HTML in welcome message', async () => {
     const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
-    const testMessage = '<h1>Safe</h1><script>alert("unsafe")</script>';
+    const unsafeMessage = '<h1>Safe</h1><script>alert("unsafe")</script>';
     mockUseSystemSettings.mockReturnValue({
       state: {
         ...DEFAULT_SETTINGS,
         settings: {
           ...DEFAULT_SETTINGS.settings,
-          welcome_message: '<h1>Safe</h1>'
+          welcome_message: unsafeMessage
         }
       },
       handleSubmit: jest.fn(),

@@ -7,6 +7,8 @@ import {
   editComment,
   deleteComment
 } from '../../api/comments';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskComments = (taskId: string) => {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -17,8 +19,8 @@ export const useTaskComments = (taskId: string) => {
     try {
       const commentsData = await getTaskComments(Number(taskId));
       setComments(commentsData || []);
-    } catch (error: any) {
-      console.error('Failed to fetch comments:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch comments:', error);
       setComments([]);
     }
   };
@@ -50,12 +52,9 @@ export const useTaskComments = (taskId: string) => {
         return [...prev, newComment];
       });
       return newComment;
-    } catch (error: any) {
-      console.error('Failed to add comment:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to add comment';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to add comment:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to add comment'));
     }
   };
 
@@ -75,12 +74,9 @@ export const useTaskComments = (taskId: string) => {
         c?.id === commentId ? updatedComment : c
       ));
       return updatedComment;
-    } catch (error: any) {
-      console.error('Failed to update comment:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to update comment';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to update comment:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to update comment'));
     }
   };
 
@@ -90,12 +86,9 @@ export const useTaskComments = (taskId: string) => {
 
       await deleteComment(Number(taskId), commentId);
       setComments(prev => prev.filter(c => c?.id !== commentId));
-    } catch (error: any) {
-      console.error('Failed to delete comment:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete comment';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete comment:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to delete comment'));
     }
   };
 

@@ -3,15 +3,16 @@ import { useParams } from 'react-router-dom';
 import { Task } from '../../types/task';
 import { TaskFile } from '../../types/file';
 import { getTaskById } from '../../api/tasks';
+import logger from '../../utils/logger';
 
 export const useTaskFileWrapper = () => {
   const { id } = useParams<{ id: string }>();
   const handleFileUploaded = (file: TaskFile) => {
-    console.log('File uploaded:', file);
+    logger.info('File uploaded:', file);
   };
 
   const handleFileDeleted = (fileId: number) => {
-    console.log('File deleted:', fileId);
+    logger.info('File deleted:', fileId);
   };
 
   const taskId = id ? parseInt(id) : 0;
@@ -39,7 +40,7 @@ export const useTaskTimeLogsWrapper = () => {
           const taskData = await getTaskById(parseInt(id));
           setTask(taskData);
         } catch (error) {
-          console.error('Failed to fetch task:', error);
+          logger.error('Failed to fetch task:', error);
         }
       }
     };

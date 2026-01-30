@@ -19,6 +19,8 @@ import {
 import { ProjectMember } from '../../types/project';
 import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskForm = ({
   taskId,
@@ -102,7 +104,7 @@ export const useTaskForm = ({
           });
         }
       } catch (error) {
-        console.error('Error loading task:', error);
+        logger.error('Error loading task:', error);
         setIsEditing(false);
       } finally {
         setIsLoading(false);
@@ -120,8 +122,8 @@ export const useTaskForm = ({
         setStatuses(statusesData || []);
         setPriorities(prioritiesData || []);
         setAvailableTags(tagsData || []);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
+      } catch (error: unknown) {
+        logger.error('Error fetching data:', error);
         setStatuses([]);
         setPriorities([]);
         setAvailableTags([]);
@@ -132,7 +134,7 @@ export const useTaskForm = ({
     fetchData();
   }, [taskId, currentUserId]);
 
-  const handleChange = async (e: { target: { name: string; value: any } }) => {
+  const handleChange = async (e: { target: { name: string; value: string | number | boolean } }) => {
     const { name, value } = e.target;
     const newValue = value === '' ? null : value;
 
@@ -143,19 +145,22 @@ export const useTaskForm = ({
 
     // If we're editing and the status changes, update it immediately
     if (isEditing && name === 'status_id' && newValue !== null) {
+      const statusId = Number(newValue);
+      if (!Number.isNaN(statusId)) {
       try {
-        const updatedTask = await changeTaskStatus(Number(taskId), newValue);
+        const updatedTask = await changeTaskStatus(Number(taskId), statusId);
         setFormData(prev => ({
           ...prev,
           status_id: updatedTask.status_id
         }));
       } catch (error) {
-        console.error('Error updating task status:', error);
+        logger.error('Error updating task status:', error);
         // Revert the status if update fails
         setFormData(prev => ({
           ...prev,
           status_id: prev.status_id
         }));
+      }
       }
     }
   };
@@ -186,12 +191,9 @@ export const useTaskForm = ({
           navigate(-1);
         }
       }
-      } catch (error: any) {
-        console.error('Error saving task:', error);
-        const errorMessage = error?.response?.data?.error || 
-                            error?.message || 
-                            'Failed to save task';
-        throw new Error(errorMessage);
+      } catch (error: unknown) {
+        logger.error('Error saving task:', error);
+        throw new Error(getApiErrorMessage(error, 'Failed to save task'));
       }
   };
 

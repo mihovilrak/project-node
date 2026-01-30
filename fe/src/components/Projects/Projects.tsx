@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FixedSizeList as List } from 'react-window';
 import { getProjects, getProjectStatuses } from '../../api/projects';
 import {
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import { Project } from '../../types/project';
 import { ProjectStatus } from '../../types/project';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
 
@@ -36,12 +38,9 @@ const Projects: React.FC = () => {
           : 1 // default to active projects
       });
       setProjects(projectList || []);
-    } catch (error: any) {
-      console.error('Failed to fetch projects', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load projects';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch projects', error);
+      setError(getApiErrorMessage(error, 'Failed to load projects'));
     } finally {
       setLoading(false);
     }
@@ -58,7 +57,7 @@ const Projects: React.FC = () => {
       }
     };
     loadStatuses();
-  }, [fetchProjects]);
+  }, [fetchProjects, filters]);
 
   const handleCreateProject = (): void => {
     navigate('/projects/new');
@@ -70,7 +69,6 @@ const Projects: React.FC = () => {
 
   const handleFilterChange = (newFilters: FilterValues): void => {
     setFilters(newFilters);
-    fetchProjects(newFilters);
   };
 
   const filterOptions = useMemo(
@@ -152,26 +150,39 @@ const Projects: React.FC = () => {
       {filteredProjects.length === 0 ? (
         <Typography>No projects yet.</Typography>
       ) : (
-      <Grid container spacing={3}>
-        {filteredProjects.map((project) => (
-          <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={project.id}>
-            <Card
-              onClick={() => navigate(`/projects/${project?.id}`)}
-              data-testid={`project-card-${project?.id}`}
-              role="button"
-              aria-label={`View project ${project?.name || 'Unnamed'}`}
-            >
-              <CardContent>
-                <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
-                <Typography variant="body2">{project?.description || 'No description'}</Typography>
-                <Typography variant="caption">
-                  Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-        </Grid>
+      <Box sx={{ height: 600, mt: 2 }}>
+        <List
+          height={600}
+          itemCount={filteredProjects.length}
+          itemSize={140}
+          width="100%"
+          itemData={filteredProjects}
+        >
+          {({ index, style, data }) => {
+            const project = data[index];
+            return (
+              <div style={style}>
+                <Box sx={{ py: 1, px: 0.5 }}>
+                  <Card
+                    onClick={() => navigate(`/projects/${project?.id}`)}
+                    data-testid={`project-card-${project?.id}`}
+                    role="button"
+                    aria-label={`View project ${project?.name || 'Unnamed'}`}
+                  >
+                    <CardContent>
+                      <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
+                      <Typography variant="body2">{project?.description || 'No description'}</Typography>
+                      <Typography variant="caption">
+                        Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Box>
+              </div>
+            );
+          }}
+        </List>
+      </Box>
       )}
     </Box>
   );

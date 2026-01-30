@@ -8,6 +8,7 @@ import {
   deleteTimeLog
 } from '../../../api/timeLogs';
 import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
+import logger from '../../../utils/logger';
 
 // Mock dependencies
 jest.mock('../../../api/timeLogs');
@@ -169,7 +170,6 @@ describe('useProjectTimeLogs', () => {
   it('should handle error during time log operations', async () => {
     // Ensure the mock is resolved for initialization
     (createTimeLog as jest.Mock).mockResolvedValue(undefined);
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useProjectTimeLogs('1'));
 
@@ -184,8 +184,7 @@ describe('useProjectTimeLogs', () => {
         expect(error).toBeInstanceOf(Error);
       }
     });
-    expect(errorSpy).toHaveBeenCalledWith('Failed to submit time log:', expect.any(Error));
-    errorSpy.mockRestore();
+    expect(logger.error).toHaveBeenCalledWith('Failed to submit time log:', expect.any(Error));
     // Restore the resolved mock for other tests
     (createTimeLog as jest.Mock).mockResolvedValue(undefined);
   });

@@ -1,6 +1,7 @@
 import { api } from './api';
 import { TaskFile, FileUploadOptions } from '../types/file';
 import { AxiosProgressEvent } from 'axios';
+import logger from '../utils/logger';
 
 // Get task files
 export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
@@ -10,7 +11,7 @@ export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch files', error);
+    logger.error('Failed to fetch files', error);
     throw error;
   }
 };
@@ -32,7 +33,7 @@ export const uploadFile = async (
     const response = await api.post('/files', formData, options);
     return response.data;
   } catch (error) {
-    console.error('Failed to upload file', error);
+    logger.error('Failed to upload file', error);
     throw error;
   }
 };
@@ -60,7 +61,7 @@ export const downloadFile = async (taskId: number, fileId: number): Promise<void
     link.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Failed to download file', error);
+    logger.error('Failed to download file', error);
     throw error;
   }
 };
@@ -72,7 +73,7 @@ export const deleteFile = async (taskId: number, fileId: number): Promise<void> 
       params: { taskId: taskId.toString() }
     });
   } catch (error) {
-    console.error('Failed to delete file', error);
+    logger.error('Failed to delete file', error);
     throw error;
   }
 };

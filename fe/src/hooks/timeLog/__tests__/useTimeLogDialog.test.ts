@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { TimeLog } from '../../../types/timeLog';
 import { Task } from '../../../types/task';
 import { User } from '../../../types/user';
+import logger from '../../../utils/logger';
 
 // Mock dependencies
 // --- mockTask and mockUser must be declared before these mocks ---
@@ -217,7 +218,6 @@ describe('useTimeLogDialog', () => {
   });
 
   it('should handle submission error', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     const onSubmit = jest.fn().mockRejectedValue(new Error('Submit failed'));
     const props = {
       ...defaultProps,
@@ -237,9 +237,7 @@ describe('useTimeLogDialog', () => {
       await result.current.handleSubmit();
     });
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalled();
     expect(props.onClose).not.toHaveBeenCalled();
-
-    consoleError.mockRestore();
   });
 });

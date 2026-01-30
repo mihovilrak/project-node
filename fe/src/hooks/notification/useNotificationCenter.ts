@@ -6,6 +6,7 @@ import {
   deleteNotification
 } from '../../api/notifications';
 import { Notification } from '../../types/notification';
+import logger from '../../utils/logger';
 
 export const useNotificationCenter = (
   userId: number | undefined,
@@ -25,8 +26,8 @@ export const useNotificationCenter = (
       const data = await getNotifications(userId);
       setNotifications(data || []);
       setUnreadCount((data || []).filter(n => !n?.is_read).length);
-    } catch (error: any) {
-      console.error('Failed to fetch notifications:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch notifications:', error);
       setNotifications([]);
       setUnreadCount(0);
     } finally {
@@ -65,8 +66,8 @@ export const useNotificationCenter = (
       if (notification?.link) {
         navigate(notification.link);
       }
-    } catch (error: any) {
-      console.error('Failed to handle notification click:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to handle notification click:', error);
       // Don't prevent navigation if marking as read fails
       handleClose();
       if (notification?.link) {
@@ -81,8 +82,8 @@ export const useNotificationCenter = (
       if (!id) return;
       await deleteNotification(id);
       await fetchNotifications();
-    } catch (error: any) {
-      console.error('Failed to delete notification:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to delete notification:', error);
       // Continue - user can try again
     }
   };

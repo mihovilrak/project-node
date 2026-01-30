@@ -8,6 +8,8 @@ import {
   changeTaskStatus,
   deleteTask
 } from '../../api/tasks';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskCore = (taskId: string) => {
   const [state, setState] = useState<TaskCoreState>({
@@ -40,14 +42,11 @@ export const useTaskCore = (taskId: string) => {
           statuses: statusesData,
           loading: false
         }));
-      } catch (error: any) {
-        console.error('Error fetching task data:', error);
-        const errorMessage = error?.response?.data?.error || 
-                           error?.message || 
-                           'Failed to load task details';
+      } catch (error: unknown) {
+        logger.error('Error fetching task data:', error);
         setState(prev => ({
           ...prev,
-          error: errorMessage,
+          error: getApiErrorMessage(error, 'Failed to load task details'),
           loading: false
         }));
       }
@@ -66,14 +65,11 @@ export const useTaskCore = (taskId: string) => {
         task: updatedTask,
         error: null
       }));
-    } catch (error: any) {
-      console.error('Failed to update task status:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to update task status';
+    } catch (error: unknown) {
+      logger.error('Failed to update task status:', error);
       setState(prev => ({
         ...prev,
-        error: errorMessage
+        error: getApiErrorMessage(error, 'Failed to update task status')
       }));
     }
   };
@@ -84,14 +80,11 @@ export const useTaskCore = (taskId: string) => {
     try {
       await deleteTask(state.task.id);
       navigate('/tasks');
-    } catch (error: any) {
-      console.error('Failed to delete task:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete task';
+    } catch (error: unknown) {
+      logger.error('Failed to delete task:', error);
       setState(prev => ({
         ...prev,
-        error: errorMessage
+        error: getApiErrorMessage(error, 'Failed to delete task')
       }));
     }
   };

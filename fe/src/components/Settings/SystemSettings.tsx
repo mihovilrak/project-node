@@ -28,6 +28,7 @@ import {
   Send as SendIcon
 } from '@mui/icons-material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
+import { sanitizeHtml } from '../../utils/sanitize';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -298,7 +299,7 @@ const SystemSettings: React.FC = () => {
                 minHeight: '200px',
                 bgcolor: 'background.paper'
               }}>
-                <div dangerouslySetInnerHTML={{ __html: state.settings.welcome_message || '' }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(state.settings.welcome_message ?? '') }} />
               </Box>
             </TabPanel>
           </Box>

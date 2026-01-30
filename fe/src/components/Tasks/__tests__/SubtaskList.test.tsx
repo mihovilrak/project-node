@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SubtaskList from '../SubtaskList';
 import { deleteTask } from '../../../api/tasks';
 import { Task } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 // Mock dependencies
 jest.mock('react-router-dom', () => ({
@@ -162,7 +163,6 @@ describe('SubtaskList', () => {
   });
 
   it('handles delete error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     (deleteTask as jest.Mock).mockRejectedValueOnce(new Error('Delete failed'));
 
     render(<SubtaskList {...defaultProps} />);
@@ -171,9 +171,7 @@ describe('SubtaskList', () => {
     fireEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete subtask:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to delete subtask:', expect.any(Error));
     });
-
-    consoleErrorSpy.mockRestore();
   });
 });

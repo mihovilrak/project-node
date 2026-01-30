@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Project, ProjectMember, ProjectStatus } from '../types/project';
+import logger from '../utils/logger';
 
 // Get all projects
 export const getProjects = async (params?: { status_id?: number; created_by?: number; parent_id?: number }): Promise<Project[]> => {
@@ -9,7 +10,7 @@ export const getProjects = async (params?: { status_id?: number; created_by?: nu
     });
     return response.data;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };
@@ -20,7 +21,7 @@ export const getProjectById = async (id: number): Promise<Project> => {
     const response = await api.get(`/projects/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching project:', error);
+    logger.error('Error fetching project:', error);
     throw error;
   }
 };
@@ -30,10 +31,11 @@ export const getProjectDetails = async (id: number): Promise<Project | null> => 
   try {
     const response = await api.get(`/projects/${id}/details`);
     return response.data || null;
-  } catch (error: any) {
-    console.error('Error fetching project details:', error);
+  } catch (error: unknown) {
+    logger.error('Error fetching project details:', error);
     // Return null if project not found (404), throw for other errors
-    if (error?.response?.status === 404) {
+    const err = error as { response?: { status?: number } };
+    if (err?.response?.status === 404) {
       return null;
     }
     throw error;
@@ -46,7 +48,7 @@ export const createProject = async (values: Partial<Project>): Promise<Project> 
     const response = await api.post('/projects', values);
     return response.data;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };
@@ -57,7 +59,7 @@ export const changeProjectStatus = async (id: number): Promise<Project> => {
     const response = await api.patch(`/projects/${id}/status`);
     return response.data;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };
@@ -68,7 +70,7 @@ export const updateProject = async (id: number, updates: Partial<Project>): Prom
     const response = await api.put(`/projects/${id}`, updates);
     return response.data;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };
@@ -78,7 +80,7 @@ export const deleteProject = async (id: number): Promise<void> => {
   try {
     await api.delete(`/projects/${id}`);
   } catch (error) {
-    console.error('Error deleting project:', error);
+    logger.error('Error deleting project:', error);
     throw error;
   }
 };
@@ -89,7 +91,7 @@ export const getProjectMembers = async (id: number): Promise<ProjectMember[]> =>
     const response = await api.get(`/projects/${id}/members`);
     return response.data || [];
   } catch (error) {
-    console.error('Error fetching project members:', error);
+    logger.error('Error fetching project members:', error);
     throw error;
   }
 };
@@ -100,7 +102,7 @@ export const addProjectMember = async (projectId: number, userId: number): Promi
     const response = await api.post(`/projects/${projectId}/members`, { userId });
     return response.data;
   } catch (error) {
-    console.error('Error adding project member:', error);
+    logger.error('Error adding project member:', error);
     throw error;
   }
 };
@@ -110,7 +112,7 @@ export const removeProjectMember = async (projectId: number, userId: number): Pr
   try {
     await api.delete(`/projects/${projectId}/members`, { data: { userId } });
   } catch (error) {
-    console.error('Error removing project member:', error);
+    logger.error('Error removing project member:', error);
     throw error;
   }
 };
@@ -121,7 +123,7 @@ export const updateProjectMember = async (projectId: number, userId: number, rol
     const response = await api.put(`/projects/${projectId}/members/${userId}`, { role });
     return response.data;
   } catch (error) {
-    console.error('Error updating project member:', error);
+    logger.error('Error updating project member:', error);
     throw error;
   }
 };
@@ -132,7 +134,7 @@ export const getSubprojects = async (projectId: number): Promise<Project[]> => {
     const response = await api.get(`/projects/${projectId}/subprojects`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch subprojects', error);
+    logger.error('Failed to fetch subprojects', error);
     throw error;
   }
 };
@@ -143,7 +145,7 @@ export const getProjectSpentTime = async (projectId: number): Promise<number> =>
     const response = await api.get(`/projects/${projectId}/spent-time`);
     return response.data;
   } catch (error) {
-    console.error('Failed to get project spent time', error);
+    logger.error('Failed to get project spent time', error);
     throw error;
   }
 };
@@ -154,7 +156,7 @@ export const getProjectStatuses = async (): Promise<ProjectStatus[]> => {
     const response = await api.get('/projects/statuses');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch project statuses', error);
+    logger.error('Failed to fetch project statuses', error);
     throw error;
   }
 };

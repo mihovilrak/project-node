@@ -11,6 +11,7 @@ import {
   AuthProviderProps,
   Permission
 } from '../types/auth';
+import logger from '../utils/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -41,11 +42,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (response.status === 200) {
           setCurrentUser(response.data.user);
-          const permissionsResponse = await api.get('/users/permissions');
-          setUserPermissions(permissionsResponse.data);
+          setUserPermissions(response.data.permissions ?? []);
         }
       } catch (error) {
-        console.error('Session check failed:', error);
+        logger.error('Session check failed:', error);
         setCurrentUser(null);
         setUserPermissions([]);
         setError('Failed to load user session');
@@ -63,28 +63,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
 
-  const login = async (login: string, password: string): Promise<void> => {
+  const login = async (loginName: string, password: string): Promise<boolean> => {
     try {
       setPermissionsLoading(true);
       setError(null);
 
-      const response = await api.post('/login', { login, password });
+      const response = await api.post('/login', { login: loginName, password });
       if (response && response.data && response.data.user) {
         setCurrentUser(response.data.user);
-        const permissionsResponse = await api.get('/users/permissions');
-        setUserPermissions(permissionsResponse.data);
-      } else {
-        setCurrentUser(null);
-        setUserPermissions([]);
-        setError('Login failed. Please check your credentials.');
+        setUserPermissions(response.data.permissions ?? []);
+        setPermissionsLoading(false);
+        return true;
       }
-    } catch (error) {
-      console.error('Login failed:', error);
       setCurrentUser(null);
       setUserPermissions([]);
       setError('Login failed. Please check your credentials.');
-    } finally {
       setPermissionsLoading(false);
+      return false;
+    } catch (error) {
+      logger.error('Login failed:', error);
+      setCurrentUser(null);
+      setUserPermissions([]);
+      setError('Login failed. Please check your credentials.');
+      setPermissionsLoading(false);
+      return false;
     }
   };
 
@@ -93,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setPermissionsLoading(true);
       await api.post('/logout', {});
     } catch (error) {
-      console.error('Logout failed:', error);
+      logger.error('Logout failed:', error);
     } finally {
       setCurrentUser(null);
       setUserPermissions([]);

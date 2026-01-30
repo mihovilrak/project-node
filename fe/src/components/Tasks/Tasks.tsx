@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FixedSizeList as List } from 'react-window';
 import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../api/tasks';
+import logger from '../../utils/logger';
 import { getProjects } from '../../api/projects';
 import {
-  Grid,
   Button,
   Card,
   CardContent,
@@ -18,8 +19,9 @@ import {
 import FilterPanel from '../common/FilterPanel';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import { Task } from '../../types/task';
-import { FilterValues } from '../../types/filterPanel';
+import { FilterValues, FilterOption } from '../../types/filterPanel';
 import { getPriorityColor } from '../../utils/taskUtils';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -27,9 +29,9 @@ const Tasks: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>({});
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [statuses, setStatuses] = useState<any[]>([]);
-  const [priorities, setPriorities] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [statuses, setStatuses] = useState<FilterOption[]>([]);
+  const [priorities, setPriorities] = useState<FilterOption[]>([]);
+  const [projects, setProjects] = useState<FilterOption[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ const Tasks: React.FC = () => {
       } : {});
       setTasks(taskList);
     } catch (error) {
-      console.error('Failed to fetch tasks', error);
+      logger.error('Failed to fetch tasks', error);
       setError('Failed to load tasks. Please try again later.');
     } finally {
       setLoading(false);
@@ -59,7 +61,7 @@ const Tasks: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(filters);
     // Fetch filter options
     const fetchFilterOptions = async () => {
       try {
@@ -72,11 +74,11 @@ const Tasks: React.FC = () => {
         setPriorities(prioritiesData);
         setProjects(projectsData);
       } catch (error) {
-        console.error('Failed to fetch filter options:', error);
+        logger.error('Failed to fetch filter options:', error);
       }
     };
     fetchFilterOptions();
-  }, [fetchTasks]);
+  }, [fetchTasks, filters]);
 
   const handleDeleteClick = useCallback((task: Task): void => {
     setTaskToDelete(task);
@@ -94,12 +96,9 @@ const Tasks: React.FC = () => {
       await fetchTasks();
       setDeleteDialogOpen(false);
       setTaskToDelete(null);
-    } catch (error: any) {
-      console.error('Failed to delete task:', error);
-      const errorMessage = error?.response?.data?.error || 
-                         error?.message || 
-                         'Failed to delete task. Please try again.';
-      setDeleteError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete task:', error);
+      setDeleteError(getApiErrorMessage(error, 'Failed to delete task. Please try again.'));
     } finally {
       setDeleting(false);
     }
@@ -114,8 +113,7 @@ const Tasks: React.FC = () => {
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
     setLoading(true);
-    fetchTasks(newFilters);
-  }, [fetchTasks]);
+  }, []);
 
   const handleSortChange = useCallback((event: SelectChangeEvent<'asc' | 'desc'>) => {
     setSortOrder(event.target.value as 'asc' | 'desc');
@@ -218,61 +216,72 @@ const Tasks: React.FC = () => {
         />
       </Box>
 
-      <Grid container spacing={3}>
+      <Box sx={{ height: 600, mt: 2 }}>
         {filteredTasks.length === 0 ? (
-          <Grid size={{ xs: 12 }}>
-            <Typography>No tasks found.</Typography>
-          </Grid>
+          <Typography>No tasks found.</Typography>
         ) : (
-          filteredTasks.map((task) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={task?.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
-                <Typography variant="body2">Project: {task?.project_name || 'No Project'}</Typography>
-                <Box sx={{ mt: 1 }}>
-                  <Chip
-                    label={task?.status_name || 'Unknown'}
-                    size="small"
-                    color={task?.status_name === 'Done' ? 'success' : 'default'}
-                    sx={{ mr: 1 }}
-                    data-testid="status-chip"
-                  />
-                  <Chip
-                    label={task?.priority_name || 'Unknown'}
-                    size="small"
-                    color={getPriorityColor(task?.priority_name || '')}
-                    data-testid="priority-chip"
-                  />
-                </Box>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  Assignee: {task?.assignee_name || 'Unassigned'}
-                </Typography>
-                <Box marginTop={2}>
-                  <Button onClick={() => navigate(`/tasks/${task?.id}`)}>
-                    Details
-                  </Button>
-                  <Button
-                    color="warning"
-                    onClick={() => navigate(`/tasks/${task?.id}/edit`)}
-                    sx={{ ml: 1 }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    color="error"
-                    onClick={() => handleDeleteClick(task)}
-                    sx={{ ml: 1 }}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))
+          <List
+            height={600}
+            itemCount={filteredTasks.length}
+            itemSize={220}
+            width="100%"
+            itemData={filteredTasks}
+          >
+            {({ index, style, data }) => {
+              const task = data[index];
+              return (
+                <div style={style}>
+                  <Box sx={{ py: 1, px: 0.5 }}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
+                        <Typography variant="body2">Project: {task?.project_name || 'No Project'}</Typography>
+                        <Box sx={{ mt: 1 }}>
+                          <Chip
+                            label={task?.status_name || 'Unknown'}
+                            size="small"
+                            color={task?.status_name === 'Done' ? 'success' : 'default'}
+                            sx={{ mr: 1 }}
+                            data-testid="status-chip"
+                          />
+                          <Chip
+                            label={task?.priority_name || 'Unknown'}
+                            size="small"
+                            color={getPriorityColor(task?.priority_name || '')}
+                            data-testid="priority-chip"
+                          />
+                        </Box>
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          Assignee: {task?.assignee_name || 'Unassigned'}
+                        </Typography>
+                        <Box marginTop={2}>
+                          <Button onClick={() => navigate(`/tasks/${task?.id}`)}>
+                            Details
+                          </Button>
+                          <Button
+                            color="warning"
+                            onClick={() => navigate(`/tasks/${task?.id}/edit`)}
+                            sx={{ ml: 1 }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            color="error"
+                            onClick={() => handleDeleteClick(task)}
+                            sx={{ ml: 1 }}
+                          >
+                            Delete
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                </div>
+              );
+            }}
+          </List>
         )}
-      </Grid>
+      </Box>
 
       <DeleteConfirmDialog
         open={deleteDialogOpen}

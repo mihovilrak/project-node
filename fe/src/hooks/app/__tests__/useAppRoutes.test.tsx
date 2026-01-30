@@ -9,6 +9,7 @@ import { getTaskById } from '../../../api/tasks';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Task } from '../../../types/task';
 import { TaskFile } from '../../../types/file';
+import logger from '../../../utils/logger';
 
 // Mock the tasks API
 jest.mock('../../../api/tasks');
@@ -35,7 +36,6 @@ describe('useTaskFileWrapper', () => {
   });
 
   it('should handle file upload correctly', () => {
-    const consoleSpy = jest.spyOn(console, 'log');
     const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     act(() => {
@@ -50,7 +50,7 @@ describe('useTaskFileWrapper', () => {
       } as TaskFile);
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('File uploaded:', {
+    expect(logger.info).toHaveBeenCalledWith('File uploaded:', {
       id: 1,
       task_id: 1,
       user_id: 1,
@@ -62,14 +62,13 @@ describe('useTaskFileWrapper', () => {
   });
 
   it('should handle file deletion correctly', () => {
-    const consoleSpy = jest.spyOn(console, 'log');
     const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     act(() => {
       result.current.handleFileDeleted(1);
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('File deleted:', 1);
+    expect(logger.info).toHaveBeenCalledWith('File deleted:', 1);
   });
 });
 
@@ -144,13 +143,12 @@ describe('useTaskTimeLogsWrapper', () => {
   });
 
   it('should handle fetch error gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'error');
     mockedGetTaskById.mockRejectedValueOnce(new Error('Failed to fetch'));
 
     const { result } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch task:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch task:', expect.any(Error));
       expect(result.current.task).toBeNull();
     });
   });

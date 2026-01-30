@@ -11,6 +11,7 @@ import Tasks from '../Tasks';
 import { getTasks, deleteTask } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
+import logger from '../../../utils/logger';
 
 // Mock the API calls
 jest.mock('../../../api/tasks', () => ({
@@ -155,8 +156,6 @@ describe('Tasks Component', () => {
   }, 15000);
 
   test('handles failed task deletion', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockRejectedValue(new Error('Delete failed'));
 
@@ -178,17 +177,10 @@ describe('Tasks Component', () => {
     const confirmButton = screen.getByTestId('confirm-delete-button');
     fireEvent.click(confirmButton);
 
-    // Wait for error to be logged
+    // Wait for error to be logged (component uses logger.error, mocked in setupTests)
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
     });
-
-    // Note: The useDeleteConfirm hook closes the dialog even on error (in finally block),
-    // so we verify the error was logged rather than checking for error in dialog
-    // The error handling is working correctly - it's logged to console
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
-
-    consoleErrorSpy.mockRestore();
   }, 10000);
 
   test('filters tasks by search term', async () => {
@@ -285,7 +277,6 @@ describe('Tasks Component', () => {
   }, 15000);
 
   test('handles API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetTasks.mockRejectedValue(new Error('API error'));
 
     renderTasks();
@@ -296,7 +287,5 @@ describe('Tasks Component', () => {
       },
       { timeout: 10000 }
     );
-
-    consoleErrorSpy.mockRestore();
   }, 15000);
 });

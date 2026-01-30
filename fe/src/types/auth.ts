@@ -14,7 +14,7 @@ export interface AuthContextType {
   userPermissions: Permission[];
   permissionsLoading: boolean;
   error: string | null;
-  login: (login: string, password: string) => Promise<void>;
+  login: (login: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
 }

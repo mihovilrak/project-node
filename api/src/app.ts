@@ -46,7 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(sessionMiddleware(pool, config.sessionSecret, config.nodeEnv));
 
 // Routes
-app.use('/api/check-session', sessionRoute());
+app.use('/api/check-session', sessionRoute(pool));
 app.use('/api/login', loginRoute(pool));
 app.use('/api/logout', logoutRoute());
 

@@ -12,6 +12,8 @@ import UserTable from './UserTable';
 import UserDialog from './UserDialog';
 import { getUsers } from '../../api/users';
 import { User } from '../../types/user';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const UserManager: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -42,12 +44,9 @@ const UserManager: React.FC = () => {
       setError(null);
       const data = await getUsers();
       setUsers(data || []);
-    } catch (error: any) {
-      console.error('Failed to fetch users:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to fetch users';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch users:', error);
+      setError(getApiErrorMessage(error, 'Failed to fetch users'));
     } finally {
       setLoading(false);
     }

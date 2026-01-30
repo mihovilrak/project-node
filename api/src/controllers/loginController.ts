@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as loginModel from '../models/loginModel';
+import * as permissionModel from '../models/permissionModel';
 import { LoginInput } from '../types/login';
 
 const MAX_LOGIN_LENGTH = 255;
@@ -58,10 +59,13 @@ export const login = async (
   // Log login to table app_logins
   await loginModel.app_logins(pool, user.id);
 
-  // Put cookie on HTTP response
+  const permissions = await permissionModel.getUserPermissions(pool, String(user.id));
+
+  // Put cookie on HTTP response (include permissions so frontend doesn't need a follow-up check-session)
   res.status(200).json({
     message: 'Login successful',
-    user: req.session.user
+    user: req.session.user,
+    permissions
   });
 };
 

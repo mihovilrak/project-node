@@ -9,6 +9,7 @@ import {
   ProjectMember
 } from '../../types/project';
 import { Task } from '../../types/task';
+import logger from '../../utils/logger';
 
 export const useProjectSelect = (projectId?: number | null, taskId?: string | null) => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -21,7 +22,7 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
         const projectsData = await getProjects();
         setProjects(projectsData);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        logger.error('Error fetching projects:', error);
       }
     };
 
@@ -40,7 +41,7 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
           setProjectMembers(membersData);
           setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
         } catch (error) {
-          console.error('Error fetching project data:', error);
+          logger.error('Error fetching project data:', error);
         }
       }
     };

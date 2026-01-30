@@ -3,6 +3,7 @@ import { SelectChangeEvent } from '@mui/material';
 import dayjs from 'dayjs';
 import { Project, ProjectFormData, ProjectStatus } from '../../types/project';
 import { getProjectStatuses } from '../../api/projects';
+import logger from '../../utils/logger';
 
 export const useProjectForm = (project?: Project, parentId?: string | null) => {
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -33,7 +34,7 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
           }));
         }
       } catch (err) {
-        console.error('Failed to fetch project statuses:', err);
+        logger.error('Failed to fetch project statuses:', err);
         setStatuses([]);
       } finally {
         setStatusesLoading(false);

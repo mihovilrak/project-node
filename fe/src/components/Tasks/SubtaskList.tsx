@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { deleteTask } from '../../api/tasks';
 import { SubtaskListProps } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
+import logger from '../../utils/logger';
 
 const SubtaskList: React.FC<SubtaskListProps> = ({
   subtasks,
@@ -31,7 +32,7 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
       await deleteTask(subtaskId);
       onSubtaskDeleted(subtaskId);
     } catch (error) {
-      console.error('Failed to delete subtask:', error);
+      logger.error('Failed to delete subtask:', error);
     }
   };
 
@@ -96,14 +97,15 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
                 </Box>
               }
               secondary={
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
+                <span style={{ display: 'block', marginTop: 8 }}>
+                  <Typography component="span" variant="body2" color="text.secondary">
                     {subtask.description}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  {' · '}
+                  <Typography component="span" variant="caption" color="text.secondary">
                     Due: {subtask.due_date ? new Date(subtask.due_date).toLocaleDateString() : '-'}
                   </Typography>
-                </Box>
+                </span>
               }
             />
           </ListItem>

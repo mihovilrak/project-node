@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import ActiveTasks from '../ActiveTasks';
 import { getActiveTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 // Mock the dayjs module
 jest.mock('dayjs', () => {
@@ -173,18 +174,15 @@ describe('ActiveTasks', () => {
   });
 
   it('handles API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     (getActiveTasks as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
 
     renderActiveTasks();
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         'Failed to fetch active tasks',
         expect.any(Error)
       );
     });
-
-    consoleErrorSpy.mockRestore();
   });
 });

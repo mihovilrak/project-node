@@ -13,6 +13,8 @@ import {
   UserUpdate,
   UserFormProps
 } from '../../types/user';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useUserForm = ({ userId }: UserFormProps) => {
   const navigate = useNavigate();
@@ -38,7 +40,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         setRoles(roleData);
         setError(prev => (prev ? null : prev));
       } catch (error) {
-        console.error('Failed to fetch roles', error);
+        logger.error('Failed to fetch roles', error);
         setError('Failed to load roles');
       } finally {
         setLoading(false);
@@ -66,7 +68,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         role_id: Number(user.role_id) || 4
       });
     } catch (error) {
-      console.error('Failed to fetch user data', error);
+      logger.error('Failed to fetch user data', error);
       setError('Failed to fetch user data');
     }
   };
@@ -81,7 +83,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
   }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    console.log('DEBUG formValues at submit:', formValues);
+    logger.debug('DEBUG formValues at submit:', formValues);
     e.preventDefault();
 
     // Validate all required fields first, regardless of mode
@@ -150,9 +152,9 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         await createUser(userData as UserCreate);
       }
       navigate('/users');
-    } catch (error: any) {
-      console.error('Failed to save user', error);
-      setError(error.response?.data?.message || 'Failed to save user');
+    } catch (error: unknown) {
+      logger.error('Failed to save user', error);
+      setError(getApiErrorMessage(error, 'Failed to save user'));
     }
   }, [formValues, userId, navigate]);
 

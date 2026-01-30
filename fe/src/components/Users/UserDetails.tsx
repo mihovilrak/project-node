@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { getUserById } from '../../api/users';
 import { UserDetailsState } from '../../types/user';
+import logger from '../../utils/logger';
 
 const UserDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ const UserDetails: React.FC = () => {
         const userData = await getUserById(parseInt(id));
         setState(prev => ({ ...prev, user: userData, loading: false }));
       } catch (error) {
-        console.error('Failed to fetch user details', error);
+        logger.error('Failed to fetch user details', error);
         setState(prev => ({
           ...prev,
           error: error instanceof Error ? error.message : 'Failed to fetch user details',

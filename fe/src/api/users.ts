@@ -1,6 +1,7 @@
 import { api } from './api';
 import { User, UserCreate, UserUpdate, UserStatus } from '../types/user';
 import { Role } from '../types/role';
+import logger from '../utils/logger';
 
 // Get user statuses
 export const getUserStatuses = async (): Promise<UserStatus[]> => {
@@ -8,7 +9,7 @@ export const getUserStatuses = async (): Promise<UserStatus[]> => {
     const response = await api.get('/users/statuses');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user statuses', error);
+    logger.error('Failed to fetch user statuses', error);
     throw error;
   }
 };
@@ -25,7 +26,7 @@ export const getUsers = async (whereParams?: Record<string, any>): Promise<User[
     const response = await api.get('/users', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch users:', error);
+    logger.error('Failed to fetch users:', error);
     throw error;
   }
 };
@@ -36,7 +37,7 @@ export const getUserById = async (id: number): Promise<User> => {
     const response = await api.get(`/users/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
+    logger.error('Failed to fetch user:', error);
     throw error;
   }
 };
@@ -47,7 +48,7 @@ export const createUser = async (userData: UserCreate): Promise<User> => {
     const response = await api.post('/users', userData);
     return response.data;
   } catch (error) {
-    console.error('Failed to create user:', error);
+    logger.error('Failed to create user:', error);
     throw error;
   }
 };
@@ -58,7 +59,7 @@ export const updateUser = async (id: number, userData: UserUpdate): Promise<User
     const response = await api.put(`/users/${id}`, userData);
     return response.data;
   } catch (error) {
-    console.error('Failed to update user:', error);
+    logger.error('Failed to update user:', error);
     throw error;
   }
 };
@@ -68,7 +69,7 @@ export const deleteUser = async (id: number): Promise<void> => {
   try {
     await api.delete(`/users/${id}`);
   } catch (error) {
-    console.error('Failed to delete user:', error);
+    logger.error('Failed to delete user:', error);
     throw error;
   }
 };
@@ -79,7 +80,7 @@ export const changeUserStatus = async (id: number): Promise<User> => {
     const response = await api.patch(`/users/${id}/status`);
     return response.data;
   } catch (error) {
-    console.error('Failed to change user status:', error);
+    logger.error('Failed to change user status:', error);
     throw error;
   }
 };
@@ -90,7 +91,7 @@ export const getUserRoles = async (id: number): Promise<string[]> => {
     const response = await api.get(`/users/${id}/roles`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user roles:', error);
+    logger.error('Failed to fetch user roles:', error);
     throw error;
   }
 };
@@ -100,7 +101,7 @@ export const updateUserRoles = async (id: number, roles: number[]): Promise<void
   try {
     await api.put(`/users/${id}/roles`, { roles });
   } catch (error) {
-    console.error('Failed to update user roles:', error);
+    logger.error('Failed to update user roles:', error);
     throw error;
   }
 };
@@ -111,7 +112,7 @@ export const fetchRoles = async (): Promise<Role[]> => {
     const response = await api.get('/roles');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch roles:', error);
+    logger.error('Failed to fetch roles:', error);
     throw error;
   }
 };

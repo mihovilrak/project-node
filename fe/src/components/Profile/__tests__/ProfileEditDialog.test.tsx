@@ -77,8 +77,8 @@ describe('ProfileEditDialog', () => {
   });
 
   test('handles submission error', async () => {
-    const error = { response: { data: { message: 'Update failed' } } };
-    mockUpdateProfile.mockRejectedValueOnce(error);
+    // getApiErrorMessage reads response.data.error; fallback is 'Failed to update profile'
+    mockUpdateProfile.mockRejectedValueOnce({ response: { data: { error: 'Update failed' } } });
 
     render(<ProfileEditDialog {...mockProps} />);
 

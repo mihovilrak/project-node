@@ -23,6 +23,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
 import { UserTableProps } from '../../types/setting';
@@ -61,13 +63,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
       onUserDeleted();
       setDeleteDialogOpen(false);
       setUserToDelete(null);
-    } catch (error: any) {
-      console.error('Failed to delete user:', error);
-      // Extract error message from API response
-      const errorMessage = error?.response?.data?.error || 
-                         error?.message || 
-                         'Failed to delete user. Please try again.';
-      setDeleteError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete user:', error);
+      setDeleteError(getApiErrorMessage(error, 'Failed to delete user. Please try again.'));
       // Keep dialog open so user can see the error
     } finally {
       setDeleting(false);

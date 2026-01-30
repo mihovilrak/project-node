@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import {
   Route,
   Routes,
@@ -6,29 +6,33 @@ import {
 } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
-import Home from './components/Home/Home';
-import Login from './components/Auth/Login';
 import PrivateRoute from './utils/PrivateRoute';
-import Users from './components/Users/Users';
-import UserForm from './components/Users/UserForm';
-import UserDetails from './components/Users/UserDetails';
-import Projects from './components/Projects/Projects';
-import ProjectDetails from './components/Projects/ProjectDetails';
-import ProjectForm from './components/Projects/ProjectForm';
-import Tasks from './components/Tasks/Tasks';
-import TaskDetails from './components/Tasks/TaskDetails';
-import TaskForm from './components/Tasks/TaskForm';
-import ActiveTasks from './components/Home/ActiveTasks';
-import Settings from './components/Settings/Settings';
-import Profile from './components/Profile/Profile';
-import Calendar from './components/Calendar/Calendar';
-import TaskFiles from './components/Tasks/TaskFiles';
-import TaskTimeLogs from './components/Tasks/TaskTimeLogs';
-import TimeLogCalendar from './components/TimeLog/TimeLogCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+
+const Home = lazy(() => import('./components/Home/Home'));
+const Login = lazy(() => import('./components/Auth/Login'));
+const Users = lazy(() => import('./components/Users/Users'));
+const UserForm = lazy(() => import('./components/Users/UserForm'));
+const UserDetails = lazy(() => import('./components/Users/UserDetails'));
+const Projects = lazy(() => import('./components/Projects/Projects'));
+const ProjectDetails = lazy(() => import('./components/Projects/ProjectDetails'));
+const ProjectForm = lazy(() => import('./components/Projects/ProjectForm'));
+const Tasks = lazy(() => import('./components/Tasks/Tasks'));
+const TaskDetails = lazy(() => import('./components/Tasks/TaskDetails'));
+const TaskForm = lazy(() => import('./components/Tasks/TaskForm'));
+const ActiveTasks = lazy(() => import('./components/Home/ActiveTasks'));
+const Settings = lazy(() => import('./components/Settings/Settings'));
+const Profile = lazy(() => import('./components/Profile/Profile'));
+const Calendar = lazy(() => import('./components/Calendar/Calendar'));
+const TaskFiles = lazy(() => import('./components/Tasks/TaskFiles'));
+const TaskTimeLogs = lazy(() => import('./components/Tasks/TaskTimeLogs'));
+const TimeLogCalendar = lazy(() => import('./components/TimeLog/TimeLogCalendar'));
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ThemeProvider } from './context/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import {
   useTaskFileWrapper,
   useTimeLogCalendarWrapper,
@@ -75,33 +79,41 @@ const App: React.FC = () => {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <AuthProvider>
-          <Routes>
+          <ErrorBoundary>
+            <Suspense fallback={
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                <CircularProgress />
+              </Box>
+            }>
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Layout><Outlet /></Layout>}>
               <Route index element={<PrivateRoute element={<Home />} />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/users/new" element={<UserForm />} />
-              <Route path="/users/:id" element={<UserDetails />} />
-              <Route path="/users/:id/edit" element={<UserForm />} />
+              <Route path="/users" element={<PrivateRoute element={<Users />} />} />
+              <Route path="/users/new" element={<PrivateRoute element={<UserForm />} />} />
+              <Route path="/users/:id" element={<PrivateRoute element={<UserDetails />} />} />
+              <Route path="/users/:id/edit" element={<PrivateRoute element={<UserForm />} />} />
               <Route path="/projects" element={<PrivateRoute element={<Projects />} />} />
               <Route path="/projects/new" element={<PrivateRoute element={<ProjectForm />} />} />
               <Route path="/projects/:id" element={<PrivateRoute element={<ProjectDetails />} />} />
-              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/tasks" element={<PrivateRoute element={<Tasks />} />} />
               <Route
                 path="/tasks/new"
                 element={<PrivateRoute element={<TaskForm />} />}
               />
-              <Route path="/tasks/:id" element={<TaskDetails />} />
+              <Route path="/tasks/:id" element={<PrivateRoute element={<TaskDetails />} />} />
               <Route path="/tasks/:id/edit" element={<PrivateRoute element={<TaskForm />} />} />
-              <Route path="/tasks/active" element={<ActiveTasks />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/tasks/active" element={<PrivateRoute element={<ActiveTasks />} />} />
+              <Route path="/settings" element={<PrivateRoute element={<Settings />} />} />
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
               <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
-              <Route path="/tasks/:id/files" element={<TaskFileWrapper />} />
-              <Route path="/tasks/:id/time-logs" element={<TaskTimeLogsWrapper />} />
-              <Route path="/projects/:projectId/time-logs/calendar" element={<TimeLogCalendarWrapper />} />
+              <Route path="/tasks/:id/files" element={<PrivateRoute element={<TaskFileWrapper />} />} />
+              <Route path="/tasks/:id/time-logs" element={<PrivateRoute element={<TaskTimeLogsWrapper />} />} />
+              <Route path="/projects/:projectId/time-logs/calendar" element={<PrivateRoute element={<TimeLogCalendarWrapper />} />} />
             </Route>
           </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </LocalizationProvider>
     </ThemeProvider>

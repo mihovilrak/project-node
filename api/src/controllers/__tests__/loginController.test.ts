@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as loginController from '../loginController';
 import * as loginModel from '../../models/loginModel';
+import * as permissionModel from '../../models/permissionModel';
 import { Session } from 'express-session';
 
-// Mock the model
+// Mock the models
 jest.mock('../../models/loginModel');
+jest.mock('../../models/permissionModel');
 
 describe('LoginController', () => {
   let mockReq: Partial<Request>;
@@ -68,9 +70,11 @@ describe('LoginController', () => {
         login: 'testuser',
         role_id: 1
       };
+      const mockPermissions = [{ user_id: '1', permission: 'Create projects' as const }];
       mockReq.body = { login: 'testuser', password: 'password123' };
       (loginModel.login as jest.Mock).mockResolvedValue(mockUser);
       (loginModel.app_logins as jest.Mock).mockResolvedValue(undefined);
+      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(mockPermissions);
 
       await loginController.login(
         mockReq as Request,
@@ -80,11 +84,13 @@ describe('LoginController', () => {
 
       expect(loginModel.login).toHaveBeenCalledWith(mockPool, 'testuser', 'password123');
       expect(loginModel.app_logins).toHaveBeenCalledWith(mockPool, '1');
+      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(mockPool, '1');
       expect(mockReq.session!.user).toEqual(mockUser);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Login successful',
-        user: mockUser
+        user: mockUser,
+        permissions: mockPermissions
       });
     });
 

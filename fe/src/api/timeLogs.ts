@@ -4,6 +4,7 @@ import {
   TimeLogCreate,
   TimeSpent
 } from '../types/timeLog';
+import logger from '../utils/logger';
 
 // Get all time logs (admin only)
 export const getAllTimeLogs = async (): Promise<TimeLog[]> => {
@@ -11,7 +12,7 @@ export const getAllTimeLogs = async (): Promise<TimeLog[]> => {
     const response = await api.get('/time-logs');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch time logs', error);
+    logger.error('Failed to fetch time logs', error);
     throw error;
   }
 };
@@ -22,7 +23,7 @@ export const getTaskTimeLogs = async (taskId: number): Promise<TimeLog[]> => {
     const response = await api.get(`/time-logs/tasks/${taskId}/logs`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch task time logs', error);
+    logger.error('Failed to fetch task time logs', error);
     throw error;
   }
 };
@@ -33,7 +34,7 @@ export const getTaskSpentTime = async (taskId: number): Promise<TimeSpent> => {
     const response = await api.get(`/time-logs/tasks/${taskId}/spent-time`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch task spent time', error);
+    logger.error('Failed to fetch task spent time', error);
     throw error;
   }
 };
@@ -44,7 +45,7 @@ export const getProjectTimeLogs = async (projectId: number, params?: Record<stri
     const response = await api.get(`/time-logs/projects/${projectId}/logs`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch project time logs', error);
+    logger.error('Failed to fetch project time logs', error);
     throw error;
   }
 };
@@ -55,7 +56,7 @@ export const getProjectSpentTime = async (projectId: number): Promise<TimeSpent>
     const response = await api.get(`/time-logs/projects/${projectId}/spent-time`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch project spent time', error);
+    logger.error('Failed to fetch project spent time', error);
     throw error;
   }
 };
@@ -71,7 +72,7 @@ export const createTimeLog = async (taskId: number, timeLog: TimeLogCreate): Pro
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to create time log', error);
+    logger.error('Failed to create time log', error);
     throw error;
   }
 };
@@ -82,7 +83,7 @@ export const getUserTimeLogs = async (params?: Record<string, any>): Promise<Tim
     const response = await api.get('/time-logs/user/logs', { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user time logs', error);
+    logger.error('Failed to fetch user time logs', error);
     throw error;
   }
 };
@@ -98,7 +99,7 @@ export const updateTimeLog = async (timeLogId: number, timeLog: TimeLogCreate): 
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to update time log', error);
+    logger.error('Failed to update time log', error);
     throw error;
   }
 };
@@ -108,7 +109,7 @@ export const deleteTimeLog = async (timeLogId: number): Promise<void> => {
   try {
     await api.delete(`/time-logs/${timeLogId}`);
   } catch (error) {
-    console.error('Failed to delete time log', error);
+    logger.error('Failed to delete time log', error);
     throw error;
   }
 };

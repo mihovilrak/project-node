@@ -5,6 +5,7 @@ import AuthProvider from '../../../context/AuthContext';
 import TaskList from '../TaskList';
 import { getTasks, deleteTask } from '../../../api/tasks';
 import { Task } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 // Mock the API calls
 jest.mock('../../../api/tasks');
@@ -176,16 +177,13 @@ describe('TaskList Component', () => {
   });
 
   test('displays error handling when API call fails', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetTasks.mockRejectedValue(new Error('API Error'));
 
     renderTaskList();
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch tasks:', expect.any(Error));
-    });
-
-    consoleErrorSpy.mockRestore();
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch tasks:', expect.any(Error));
+    }, { timeout: 8000 });
   });
 
   test('renders correct chip colors based on status and priority', async () => {

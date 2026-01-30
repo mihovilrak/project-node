@@ -10,6 +10,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Task } from '../../types/task';
+import logger from '../../utils/logger';
 import dayjs from 'dayjs';
 
 const ActiveTasks: React.FC = () => {
@@ -23,8 +24,8 @@ const ActiveTasks: React.FC = () => {
         setLoading(true);
         const taskList = await getActiveTasks();
         setTasks(taskList || []);
-      } catch (error: any) {
-        console.error('Failed to fetch active tasks', error);
+      } catch (error: unknown) {
+        logger.error('Failed to fetch active tasks', error);
         setTasks([]);
       } finally {
         setLoading(false);

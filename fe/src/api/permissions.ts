@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Permission } from '../types/admin';
+import logger from '../utils/logger';
 
 // Get all permissions
 export const getAllPermissions = async (): Promise<Permission[]> => {
@@ -7,7 +8,7 @@ export const getAllPermissions = async (): Promise<Permission[]> => {
     const response = await api.get('/admin/permissions');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch permissions', error);
+    logger.error('Failed to fetch permissions', error);
     throw error;
   }
 };

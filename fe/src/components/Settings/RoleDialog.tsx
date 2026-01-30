@@ -10,6 +10,7 @@ import {
 import { Role } from '../../types/role';
 import { RoleDialogProps } from '../../types/role';
 import { useRoleDialog } from '../../hooks/setting/useRoleDialog';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { RoleForm } from './RoleForm';
 
 const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) => {
@@ -38,11 +39,8 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
     try {
       await onSave(roleData);
       onClose();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to save role';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Failed to save role'));
     }
   };
 

@@ -4,6 +4,7 @@ import WatcherDialog from '../WatcherDialog';
 import { getProjectMembers } from '../../../api/projects';
 import { ProjectMember } from '../../../types/project';
 import { TaskWatcher } from '../../../types/watcher';
+import logger from '../../../utils/logger';
 
 // Mock the API call
 jest.mock('../../../api/projects');
@@ -64,21 +65,17 @@ describe('WatcherDialog', () => {
   });
 
   it('handles API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-                                .mockImplementation();
     (getProjectMembers as jest.Mock)
       .mockRejectedValueOnce(new Error('API Error'));
 
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         'Failed to fetch project members:',
         expect.any(Error)
       );
     });
-
-    consoleErrorSpy.mockRestore();
   });
 
   it('calls onAddWatcher when adding a new watcher', async () => {

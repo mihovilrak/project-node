@@ -1,16 +1,22 @@
 import { Response } from 'express';
+import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
-import { SessionUser } from '../types/session';
+import * as permissionModel from '../models/permissionModel';
 import logger from '../utils/logger';
 
-// Get session user
+// Get session user and permissions (single round-trip)
 export const session = async (
   req: CustomRequest,
-  res: Response
+  res: Response,
+  pool: Pool
 ): Promise<void> => {
   try {
     if (req.session.user) {
-      res.status(200).json({ user: req.session.user });
+      const permissions = await permissionModel.getUserPermissions(
+        pool,
+        String(req.session.user.id)
+      );
+      res.status(200).json({ user: req.session.user, permissions });
     } else {
       res.status(401).json({ message: 'Not authenticated' });
     }

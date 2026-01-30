@@ -16,13 +16,14 @@ export const useLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-
+    setError('');
     try {
-      await login(loginDetails.login, loginDetails.password);
-      navigate('/');
-    } catch (error) {
-      console.error(error);
-      setError('Login error. Please try again.');
+      const success = await login(loginDetails.login, loginDetails.password);
+      if (success) {
+        navigate('/');
+      }
+    } catch {
+      setError('Login failed. Please check your credentials.');
     }
   };
 

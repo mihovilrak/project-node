@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import Users from '../Users';
 import { getUsers, deleteUser, getUserStatuses } from '../../../api/users';
 import { User } from '../../../types/user';
+import logger from '../../../utils/logger';
 
 // Mock the API calls
 jest.mock('../../../api/users');
@@ -207,7 +208,6 @@ describe('Users Component', () => {
   });
 
   test('handles API error', async () => {
-    console.error = jest.fn();
     mockedGetUsers.mockRejectedValue(new Error('API Error'));
 
     await act(async () => {
@@ -217,6 +217,6 @@ describe('Users Component', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(console.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
   });
 });
