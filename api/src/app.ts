@@ -28,6 +28,9 @@ import errorHandler from './middleware/errorHandler';
 // Create Express app
 const app: Express = express();
 
+// Trust first proxy (nginx) so X-Forwarded-* headers are used and rate-limit sees real client IP
+app.set('trust proxy', 1);
+
 // CORS configuration
 app.use(cors({
   credentials: true,
@@ -43,7 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session cookie middleware
-app.use(sessionMiddleware(pool, config.sessionSecret, config.nodeEnv));
+app.use(sessionMiddleware(pool, config.sessionSecret, config.nodeEnv, config.feUrl));
 
 // Routes
 app.use('/api/check-session', sessionRoute(pool));

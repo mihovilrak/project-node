@@ -9,8 +9,12 @@ const pgSession = pgConnect(session);
 export default (
   pool: Pool,
   sessionSecret: string,
-  nodeEnv: string = 'development'
+  nodeEnv: string = 'development',
+  feUrl: string = 'http://localhost:3000'
 ): RequestHandler => {
+  // Only set Secure when frontend is HTTPS; otherwise browser won't send cookie over HTTP (e.g. localhost)
+  const secureCookie = feUrl.startsWith('https://');
+
   return session({
     store: new pgSession({
       pool: pool as any, // connect-pg-simple uses a different @types/pg; Pool types are incompatible
@@ -28,7 +32,7 @@ export default (
     cookie: {
       sameSite: 'lax',
       maxAge: 60 * 60 * 1000, // 1 hour
-      secure: nodeEnv === 'production',
+      secure: secureCookie,
       httpOnly: true,
     },
   });

@@ -52,7 +52,7 @@ RUN yarn run type-check && \
     yarn run lint && \
     yarn run tsc && \
     npm install -g @vercel/ncc && \
-    ncc build dist/app.js -o dist --no-cache -q
+    ncc build dist/server.js -o dist --no-cache -q
 
 # Build notification service
 FROM node:25.4.0-alpine3.23 AS notification-builder

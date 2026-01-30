@@ -74,8 +74,8 @@ describe('SessionMiddleware', () => {
       expect(typeof middleware).toBe('function');
     });
 
-    it('should set secure cookie when nodeEnv is production', () => {
-      createSessionMiddleware(mockPool, 'secret', 'production');
+    it('should set secure cookie when feUrl is https', () => {
+      createSessionMiddleware(mockPool, 'secret', 'production', 'https://example.com');
 
       expect(session).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -87,8 +87,20 @@ describe('SessionMiddleware', () => {
       );
     });
 
-    it('should set secure false when nodeEnv is development', () => {
-      createSessionMiddleware(mockPool, 'secret', 'development');
+    it('should set secure false when feUrl is http (e.g. localhost)', () => {
+      createSessionMiddleware(mockPool, 'secret', 'development', 'http://localhost:3000');
+
+      expect(session).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cookie: expect.objectContaining({
+            secure: false
+          })
+        })
+      );
+    });
+
+    it('should set secure false when feUrl is http even in production', () => {
+      createSessionMiddleware(mockPool, 'secret', 'production', 'http://localhost:3000');
 
       expect(session).toHaveBeenCalledWith(
         expect.objectContaining({

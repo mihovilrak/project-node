@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Create or update the default admin user using ADMIN_PASSWORD from the environment.
 # Uses .pgpass for DB connection; password is written only to a temp SQL file then removed.
 
@@ -15,7 +15,7 @@ PGPASS_PATH="${PGPASS_PATH:-/tmp/.pgpass_seed_$$}"
 SQL_PATH="${SQL_PATH:-/tmp/seed_admin_$$.sql}"
 
 # Escape single quotes for SQL: ' -> ''
-escaped_pass="${ADMIN_PASSWORD//\'/\'\'}"
+escaped_pass=$(printf '%s' "${ADMIN_PASSWORD}" | sed "s/'/''/g")
 
 # Create .pgpass: host:port:database:username:password
 echo "${POSTGRES_HOST}:${POSTGRES_PORT}:${POSTGRES_DB}:${POSTGRES_USER}:${POSTGRES_PASSWORD}" > "${PGPASS_PATH}"

@@ -2,6 +2,7 @@ x-db: &db
   POSTGRES_DB: ${POSTGRES_DB}
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD}
 
 x-defaults: &defaults
   networks:
@@ -29,7 +30,6 @@ services:
     environment:
       <<: *db
       POSTGRES_HOST: db
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       NODE_ENV: ${NODE_ENV}
       SESSION_SECRET: ${SESSION_SECRET}
       FE_URL: ${FE_URL}

@@ -61,11 +61,19 @@ export const login = async (
 
   const permissions = await permissionModel.getUserPermissions(pool, String(user.id));
 
-  // Put cookie on HTTP response (include permissions so frontend doesn't need a follow-up check-session)
-  res.status(200).json({
-    message: 'Login successful',
-    user: req.session.user,
-    permissions
+  // Save session to store before sending response so the next request finds the session
+  req.session.save((err) => {
+    if (err) {
+      return res.status(500).json({
+        error: 'Session error',
+        message: 'Failed to save session'
+      });
+    }
+    res.status(200).json({
+      message: 'Login successful',
+      user: req.session.user,
+      permissions
+    });
   });
 };
 
