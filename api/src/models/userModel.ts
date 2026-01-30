@@ -21,22 +21,23 @@ export const getUsers = async (
   pool: Pool,
   filters?: UserQueryFilters
 ): Promise<User[]> => {
-  let query = 'SELECT * FROM v_users';
-  const values: any[] = [];
+  let status_id: number | null = null;
+  let role_id: number | null = null;
 
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
     const allowedEntries = Object.entries(filters.whereParams).filter(([key]) =>
       ALLOWED_USER_WHERE_KEYS.includes(key as typeof ALLOWED_USER_WHERE_KEYS[number])
     );
-    if (allowedEntries.length > 0) {
-      query += ' WHERE ';
-      const conditions = allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 1}`);
-      query += conditions.join(' AND ');
-      values.push(...allowedEntries.map(([, v]) => v));
+    for (const [key, value] of allowedEntries) {
+      if (key === 'status_id') status_id = Number(value);
+      if (key === 'role_id') role_id = Number(value);
     }
   }
 
-  const result = await pool.query(query, values);
+  const result = await pool.query(
+    'SELECT * FROM get_users($1, $2)',
+    [status_id, role_id]
+  );
   return result.rows;
 };
 
@@ -46,8 +47,9 @@ export const getUserById = async (
   id: string
 ): Promise<User | null> => {
   const result = await pool.query(
-    'SELECT * FROM v_users WHERE id = $1',
-    [id]);
+    'SELECT * FROM get_user_by_id($1)',
+    [id]
+  );
   return result.rows[0] || null;
 };
 

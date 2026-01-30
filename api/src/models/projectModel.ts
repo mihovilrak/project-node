@@ -137,8 +137,7 @@ export const getProjectMembers = async (
   projectId: string
 ): Promise<ProjectMember[]> => {
   const result: QueryResult<ProjectMember> = await pool.query(
-    `SELECT * FROM v_project_members
-    WHERE project_id = $1`,
+    'SELECT * FROM get_project_members($1)',
     [projectId]
   );
   return result.rows;
@@ -150,8 +149,7 @@ export const getSubprojects = async (
   parentId: string
 ): Promise<Project[]> => {
   const result: QueryResult<Project> = await pool.query(
-    `SELECT * FROM v_subprojects
-    WHERE parent_id = $1`,
+    'SELECT * FROM get_subprojects($1)',
     [parentId]
   );
   return result.rows;
@@ -196,21 +194,17 @@ export const getProjectTasks = async (
   id: string,
   filters: ProjectTaskFilters = {}
 ): Promise<any[]> => {
-  const allowedEntries = Object.entries(filters).filter(([key]) =>
-    ALLOWED_PROJECT_TASK_FILTER_KEYS.includes(key as typeof ALLOWED_PROJECT_TASK_FILTER_KEYS[number])
-  );
-  const filterClause = allowedEntries.length > 0
-    ? `AND ${allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 2}`).join(' AND ')}`
-    : '';
-  const query = `
-    SELECT * FROM v_tasks
-    WHERE project_id = $1
-    ${filterClause}
-    ORDER BY created_on DESC
-  `;
+  const status_id = filters.status != null ? Number(filters.status) : null;
+  const priority_id = filters.priority != null ? Number(filters.priority) : null;
+  const assignee_id = filters.assignee != null ? Number(filters.assignee) : null;
 
-  const values = [id, ...allowedEntries.map(([, v]) => v)];
-  const result: QueryResult = await pool.query(query, values);
+  const result: QueryResult = await pool.query(
+    `SELECT * FROM get_tasks(
+      null, $1, $2, null, $3, $4, null, null, false
+    )
+    ORDER BY created_on DESC`,
+    [id, assignee_id, status_id, priority_id]
+  );
   return result.rows;
 }
 

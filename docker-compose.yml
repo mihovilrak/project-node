@@ -29,6 +29,7 @@ services:
     environment:
       <<: *db
       POSTGRES_HOST: db
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       NODE_ENV: ${NODE_ENV}
       SESSION_SECRET: ${SESSION_SECRET}
       FE_URL: ${FE_URL}

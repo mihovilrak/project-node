@@ -94,6 +94,7 @@ WORKDIR /app
 # Copy and set up startup script
 COPY start-app.sh /start-app.sh
 COPY db/backup.sh /usr/local/bin/backup.sh
+COPY db/seed-admin.sh /app/seed-admin.sh
 COPY db/pg_dump_cron /dp_dump_cron
 
 # Install dependencies and set up startup script
@@ -105,6 +106,7 @@ RUN apk add --no-cache \
     chmod +x /start-app.sh && \
     mkdir -p api service db-init && \
     chmod +x /usr/local/bin/backup.sh && \
+    chmod +x /app/seed-admin.sh && \
     chmod 0644 /dp_dump_cron && \
     mv /dp_dump_cron /etc/cron.d/pg_dump_cron && \
     crontab /etc/cron.d/pg_dump_cron

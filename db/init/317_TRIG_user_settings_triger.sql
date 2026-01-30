@@ -9,4 +9,4 @@ $$ language plpgsql;
 create or replace trigger trg_user_settings_insert
 after insert on users
 for each row
-execute procedure user_settings_insert();
+execute function user_settings_insert();

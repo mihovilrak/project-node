@@ -7,8 +7,7 @@ export const getTaskWatchers = async (
   taskId: string
 ): Promise<TaskWatcher[]> => {
   const result: QueryResult<TaskWatcher> = await pool.query(
-    `SELECT * FROM v_task_watchers
-    WHERE task_id = $1`,
+    'SELECT * FROM get_task_watchers($1)',
     [taskId]
   );
   return result.rows;

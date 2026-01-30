@@ -36,6 +36,10 @@ init_database() {
             fi
         fi
     done
+    if [ -n "$ADMIN_PASSWORD" ]; then
+        echo "Seeding admin user..."
+        /app/seed-admin.sh
+    fi
     rm -rf /app/db-init
     echo "Database initialization completed successfully"
 }

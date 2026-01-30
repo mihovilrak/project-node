@@ -1,9 +1,10 @@
 import { Pool } from 'pg';
 
-// Mock dependencies before imports
+// Mock dependencies before imports (processNewNotifications uses pool.connect() for transaction)
 jest.mock('../../db', () => ({
   pool: {
     query: jest.fn(),
+    connect: jest.fn(),
   },
 }));
 
@@ -100,20 +101,30 @@ describe('NotificationService', () => {
     ];
 
     it('should query for new notifications', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      const mockQuery = jest.fn()
+        .mockResolvedValueOnce({})   // BEGIN
+        .mockResolvedValueOnce({ rows: [] })  // get_notifications_for_service
+        .mockResolvedValueOnce({});  // COMMIT
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 
-      expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM v_notification_service LIMIT $1',
-        [100]
-      );
+      expect(mockQuery).toHaveBeenNthCalledWith(2, 'SELECT * FROM get_notifications_for_service($1)', [100]);
     });
 
     it('should send email for each notification', async () => {
-      (pool.query as jest.Mock)
-        .mockResolvedValueOnce({ rows: mockNotifications })
-        .mockResolvedValueOnce({ rows: [] }); // For UPDATE query
+      const mockQuery = jest.fn()
+        .mockResolvedValueOnce({})   // BEGIN
+        .mockResolvedValueOnce({ rows: mockNotifications })  // get_notifications_for_service
+        .mockResolvedValueOnce({})   // UPDATE (per notification)
+        .mockResolvedValueOnce({}); // COMMIT
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 
@@ -126,9 +137,15 @@ describe('NotificationService', () => {
     });
 
     it('should increment notificationsSent metric', async () => {
-      (pool.query as jest.Mock)
+      const mockQuery = jest.fn()
+        .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: mockNotifications })
-        .mockResolvedValueOnce({ rows: [] });
+        .mockResolvedValueOnce({})
+        .mockResolvedValueOnce({});
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 
@@ -136,20 +153,30 @@ describe('NotificationService', () => {
     });
 
     it('should mark notification as read after sending', async () => {
-      (pool.query as jest.Mock)
+      const mockQuery = jest.fn()
+        .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: mockNotifications })
-        .mockResolvedValueOnce({ rows: [] });
+        .mockResolvedValueOnce({})
+        .mockResolvedValueOnce({});
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 
-      expect(pool.query).toHaveBeenCalledWith(
+      expect(mockQuery).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
         ['1']
       );
     });
 
     it('should handle errors gracefully', async () => {
-      (pool.query as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
+      const mockQuery = jest.fn().mockRejectedValueOnce(new Error('Database error'));
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 
@@ -162,9 +189,16 @@ describe('NotificationService', () => {
         { ...mockNotifications[0], id: '2', email: 'user2@test.com', login: 'testuser2' },
       ];
 
-      (pool.query as jest.Mock)
+      const mockQuery = jest.fn()
+        .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: multipleNotifications })
-        .mockResolvedValue({ rows: [] });
+        .mockResolvedValueOnce({})
+        .mockResolvedValueOnce({})
+        .mockResolvedValueOnce({});
+      (pool.connect as jest.Mock).mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      });
 
       await notificationService.processNewNotifications();
 

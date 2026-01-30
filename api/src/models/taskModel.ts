@@ -12,77 +12,28 @@ import { Pool, QueryResult } from 'pg';
 // Active task status IDs: New (1), In Progress (2), On Hold (3), Review (4). Excludes Done, Cancelled, Deleted.
 const ACTIVE_TASK_STATUS_IDS = [1, 2, 3, 4];
 
-// Get all tasks
+// Get all tasks (get_tasks params: p_id, p_project_id, p_assignee_id, p_holder_id, p_status_id, p_priority_id, p_type_id, p_parent_id, p_active_statuses_only)
 export const getTasks = async (
   pool: Pool,
   filters?: TaskQueryFilters
 ): Promise<TaskDetails[]> => {
-  let query = 'SELECT * FROM v_tasks';
-  const values: any[] = [];
-  const conditions: string[] = [];
+  const whereParams = filters?.whereParams ?? {};
+  const project_id = filters?.project_id ?? whereParams.project_id ?? null;
+  const assignee_id = filters?.assignee_id ?? whereParams.assignee_id ?? null;
+  const holder_id = filters?.holder_id ?? whereParams.holder_id ?? null;
+  const status_id = filters?.status_id ?? whereParams.status_id ?? null;
+  const priority_id = filters?.priority_id ?? whereParams.priority_id ?? null;
+  const type_id = filters?.type_id ?? whereParams.type_id ?? null;
+  const parent_id = filters?.parent_id ?? whereParams.parent_id ?? null;
+  const hasFilters = [project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id].some(
+    (v) => v != null
+  );
+  const active_statuses_only = !hasFilters;
 
-  // Backwards-compatible support for raw whereParams map
-  if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
-    Object.entries(filters.whereParams).forEach(([param, value]) => {
-      conditions.push(`${param} = $${values.length + 1}`);
-      values.push(value);
-    });
-  }
-
-  // Typed filters – these are preferred going forward
-  if (filters) {
-    const {
-      project_id,
-      assignee_id,
-      holder_id,
-      status_id,
-      priority_id,
-      type_id,
-      parent_id
-    } = filters;
-
-    if (project_id !== undefined) {
-      conditions.push(`project_id = $${values.length + 1}`);
-      values.push(project_id);
-    }
-    if (assignee_id !== undefined) {
-      conditions.push(`assignee_id = $${values.length + 1}`);
-      values.push(assignee_id);
-    }
-    if (holder_id !== undefined) {
-      conditions.push(`holder_id = $${values.length + 1}`);
-      values.push(holder_id);
-    }
-    if (status_id !== undefined) {
-      conditions.push(`status_id = $${values.length + 1}`);
-      values.push(status_id);
-    }
-    if (priority_id !== undefined) {
-      conditions.push(`priority_id = $${values.length + 1}`);
-      values.push(priority_id);
-    }
-    if (type_id !== undefined) {
-      conditions.push(`type_id = $${values.length + 1}`);
-      values.push(type_id);
-    }
-    if (parent_id !== undefined) {
-      conditions.push(`parent_id = $${values.length + 1}`);
-      values.push(parent_id);
-    }
-  }
-
-  // Default to active tasks only when no filters are applied (exclude Done, Cancelled, Deleted)
-  if (conditions.length === 0) {
-    const placeholders = ACTIVE_TASK_STATUS_IDS.map((_, i) => `$${i + 1}`).join(', ');
-    conditions.push(`status_id IN (${placeholders})`);
-    values.push(...ACTIVE_TASK_STATUS_IDS);
-  }
-
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
-
-  const result: QueryResult<TaskDetails> = await pool.query(query, values);
+  const result: QueryResult<TaskDetails> = await pool.query(
+    `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [null, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id, active_statuses_only]
+  );
   return result.rows;
 }
 
@@ -92,8 +43,7 @@ export const getTaskById = async (
   id: string
 ): Promise<TaskDetails | null> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks
-    WHERE id = $1`,
+    'SELECT * FROM get_tasks($1, null, null, null, null, null, null, null, false)',
     [id]
   );
   return result.rows[0] || null;
@@ -250,15 +200,13 @@ export const getPriorities = async (
   return result.rows;
 }
 
-// Get active tasks
+// Get active tasks (assignee_id + active statuses only)
 export const getActiveTasks = async (
   pool: Pool,
   userId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks
-    WHERE assignee_id = $1
-    AND status_name NOT IN ('Done', 'Cancelled', 'Deleted')`,
+    'SELECT * FROM get_tasks(null, null, $1, null, null, null, null, null, true)',
     [userId]
   );
   return result.rows;
@@ -270,9 +218,8 @@ export const getTasksByProject = async (
   project_id: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks
-    WHERE project_id = $1
-    ORDER BY created_on DESC`,
+    `SELECT * FROM get_tasks(null, $1, null, null, null, null, null, null, false)
+     ORDER BY created_on DESC`,
     [project_id]
   );
   return result.rows;
@@ -284,9 +231,8 @@ export const getSubtasks = async (
   parentId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM v_tasks
-    WHERE parent_id = $1
-    ORDER BY created_on ASC`,
+    `SELECT * FROM get_tasks(null, null, null, null, null, null, null, $1, false)
+     ORDER BY created_on ASC`,
     [parentId]
   );
   return result.rows;

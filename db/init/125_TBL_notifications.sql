@@ -15,3 +15,4 @@ create table if not exists notifications (
 create index if not exists notifications_user_idx on notifications(user_id);
 create index if not exists notifications_type_idx on notifications(type_id);
 create index if not exists notifications_created_idx on notifications(created_on);
+create index if not exists notifications_user_active_created_idx on notifications (user_id, active, created_on desc);

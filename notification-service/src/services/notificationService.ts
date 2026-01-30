@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { pool } from '../db';
 import { logger } from '../utils/logger';
 import { emailService } from './emailService';
@@ -30,9 +31,11 @@ async function runWithConcurrency<T, R>(
 
 class NotificationService {
   async processNewNotifications(): Promise<void> {
+    const client = await pool.connect();
     try {
-      const result = await pool.query<DatabaseNotification>(
-        'SELECT * FROM v_notification_service LIMIT $1',
+      await client.query('BEGIN');
+      const result = await client.query<DatabaseNotification>(
+        'SELECT * FROM get_notifications_for_service($1)',
         [BATCH_LIMIT]
       );
 
@@ -40,17 +43,26 @@ class NotificationService {
         result.rows,
         SEND_CONCURRENCY,
         async (notification) => {
-          await this.sendNotificationEmail(notification);
+          await this.sendNotificationEmail(notification, client);
           metrics.increment('notificationsSent');
         }
       );
+      await client.query('COMMIT');
     } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // ignore rollback errors
+      }
       logger.error({ err: error }, 'Failed to process notifications');
       metrics.increment('notificationErrors');
+    } finally {
+      client.release();
     }
   }
 
-  async sendNotificationEmail(notification: DatabaseNotification): Promise<void> {
+  async sendNotificationEmail(notification: DatabaseNotification, client?: PoolClient): Promise<void> {
+    const queryClient = client ?? pool;
     try {
       const emailData: NotificationEmailData = {
         userName: notification.login,
@@ -65,7 +77,7 @@ class NotificationService {
       );
 
       // Mark as read after sending email
-      await pool.query(
+      await queryClient.query(
         `UPDATE notifications
         SET read_on = NOW()
         WHERE id = $1`,

@@ -50,8 +50,8 @@ describe('TaskModel', () => {
       const result = await taskModel.getTasks(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('status_id IN ($1, $2, $3, $4)'),
-        [1, 2, 3, 4]
+        expect.stringContaining('get_tasks'),
+        [null, null, null, null, null, null, null, null, true]
       );
       expect(result).toEqual(mockTasks);
     });
@@ -65,8 +65,8 @@ describe('TaskModel', () => {
       });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE'),
-        [1, 1]
+        expect.stringContaining('get_tasks'),
+        [null, 1, null, null, 1, null, null, null, false]
       );
       expect(result).toEqual(mockTasks);
     });
@@ -77,8 +77,8 @@ describe('TaskModel', () => {
       const result = await taskModel.getTasks(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('status_id IN'),
-        [1, 2, 3, 4]
+        expect.stringContaining('get_tasks'),
+        [null, null, null, null, null, null, null, null, true]
       );
       expect(result).toEqual([]);
     });
@@ -91,7 +91,7 @@ describe('TaskModel', () => {
       const result = await taskModel.getTaskById(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM v_tasks'),
+        expect.stringContaining('get_tasks'),
         ['1']
       );
       expect(result).toEqual(mockTask);
@@ -274,7 +274,7 @@ describe('TaskModel', () => {
       const result = await taskModel.getActiveTasks(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM v_tasks'),
+        expect.stringContaining('get_tasks'),
         ['1']
       );
       expect(result).toEqual(activeTasks);
@@ -297,7 +297,7 @@ describe('TaskModel', () => {
       const result = await taskModel.getTasksByProject(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM v_tasks'),
+        expect.stringContaining('get_tasks'),
         ['1']
       );
       expect(result).toEqual(projectTasks);
@@ -315,7 +315,7 @@ describe('TaskModel', () => {
       const result = await taskModel.getSubtasks(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE parent_id = $1'),
+        expect.stringContaining('get_tasks'),
         ['1']
       );
       expect(result).toEqual(subtasks);

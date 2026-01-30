@@ -1,4 +1,4 @@
-create or replace function projects_for_users(user_id integer)
+create or replace function projects_for_user(user_id integer)
 returns table(
     id integer,
     name character varying,
@@ -16,7 +16,7 @@ begin
     select p.*
     from projects p
     left join project_users pu on pu.project_id = p.id
-    where user_id = $1
+    where (pu.user_id = $1 or p.created_by = $1)
     and p.status_id != 3;
 end;
 
