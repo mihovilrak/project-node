@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import * as settingsModel from '../models/settingsModel';
 import { CustomRequest } from '../types/express';
 import { SettingsUpdateInput } from '../types/settings';
+import logger from '../utils/logger';
 
 // Get System Settings
 export const getSystemSettings = async (
@@ -15,7 +16,7 @@ export const getSystemSettings = async (
     const settings = await settingsModel.getSystemSettings(pool);
     res.status(200).json(settings);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -33,7 +34,7 @@ export const getAppTheme = async (
     }
     res.status(200).json({ theme: settings.theme || 'light' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -48,7 +49,7 @@ export const updateSystemSettings = async (
     const settings = await settingsModel.updateSystemSettings(pool, req.body as SettingsUpdateInput);
     res.status(200).json(settings);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -67,7 +68,7 @@ export const getUserSettings = async (
     const settings = await settingsModel.getUserSettings(pool, userId);
     res.status(200).json(settings || {});
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -86,7 +87,7 @@ export const updateUserSettings = async (
     const settings = await settingsModel.updateUserSettings(pool, userId, req.body as SettingsUpdateInput);
     res.status(200).json(settings);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -179,7 +180,7 @@ export const testSmtpConnection = async (
       messageId: info.messageId
     });
   } catch (error) {
-    console.error('SMTP test failed:', error);
+    logger.error({ err: error }, 'SMTP test failed');
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ 
       success: false, 

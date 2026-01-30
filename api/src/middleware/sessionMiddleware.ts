@@ -2,20 +2,22 @@ import session from 'express-session';
 import pgConnect from 'connect-pg-simple';
 import { Pool } from 'pg';
 import { RequestHandler } from 'express';
+import logger from '../utils/logger';
 
 const pgSession = pgConnect(session);
 
 export default (
   pool: Pool,
-  sessionSecret: string
+  sessionSecret: string,
+  nodeEnv: string = 'development'
 ): RequestHandler => {
   return session({
     store: new pgSession({
-      pool: pool as any, // Type assertion to handle version mismatch between @types/pg versions
+      pool: pool as any, // connect-pg-simple uses a different @types/pg; Pool types are incompatible
       tableName: 'session',
       createTableIfMissing: false, // Table is created by DB init scripts
       errorLog: (error: Error) => {
-        console.error('Session store error:', error);
+        logger.error({ err: error }, 'Session store error');
       },
       pruneSessionInterval: 60 // Prune expired sessions every minute
     }),
@@ -26,7 +28,7 @@ export default (
     cookie: {
       sameSite: 'lax',
       maxAge: 60 * 60 * 1000, // 1 hour
-      secure: false,
+      secure: nodeEnv === 'production',
       httpOnly: true,
     },
   });

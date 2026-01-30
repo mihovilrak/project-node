@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../types/error';
+import logger from '../utils/logger';
 
 export default async (
   err: CustomError,
@@ -7,7 +8,7 @@ export default async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  console.error(err.stack);
+  logger.error({ err }, err.message ?? 'Unhandled error');
 
   // Default error status and message
   const status = err.status || 500;

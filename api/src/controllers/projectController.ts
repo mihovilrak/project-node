@@ -9,6 +9,7 @@ import { ProjectRequest } from '../types/express';
 import * as projectModel from '../models/projectModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
+import logger from '../utils/logger';
 
 // Get all projects
 export const getProjects = async (
@@ -61,7 +62,7 @@ export const getProjects = async (
     }
     res.status(200).json(projects);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching projects');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -81,7 +82,7 @@ export const getProjectById = async (
     }
     res.status(200).json(project);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching project by ID');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -101,10 +102,13 @@ export const getProjectDetails = async (
     }
     res.status(200).json(project);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching project details');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+const MAX_PROJECT_NAME_LENGTH = 500;
+const MAX_PROJECT_DESCRIPTION_LENGTH = 5000;
 
 // Create a project
 export const createProject = async (
@@ -118,7 +122,7 @@ export const createProject = async (
     start_date,
     due_date,
     parent_id
-  } = req.body;
+  } = req.body ?? {};
 
   const created_by = req.session.user?.id;
 
@@ -127,10 +131,33 @@ export const createProject = async (
     return;
   }
 
-  if (!name || !start_date || !due_date) {
+  if (typeof name !== 'string' || !name.trim()) {
     res.status(400).json({
-      error: 'Missing required fields',
-      required: ['name', 'start_date', 'due_date']
+      error: 'Invalid request',
+      message: 'name is required and must be a non-empty string'
+    });
+    return;
+  }
+  const trimmedName = name.trim();
+  if (trimmedName.length > MAX_PROJECT_NAME_LENGTH) {
+    res.status(400).json({
+      error: 'Invalid request',
+      message: `name must not exceed ${MAX_PROJECT_NAME_LENGTH} characters`
+    });
+    return;
+  }
+  if (description !== undefined && description !== null && typeof description !== 'string') {
+    res.status(400).json({
+      error: 'Invalid request',
+      message: 'description must be a string'
+    });
+    return;
+  }
+  const desc = typeof description === 'string' ? description : '';
+  if (desc.length > MAX_PROJECT_DESCRIPTION_LENGTH) {
+    res.status(400).json({
+      error: 'Invalid request',
+      message: `description must not exceed ${MAX_PROJECT_DESCRIPTION_LENGTH} characters`
     });
     return;
   }
@@ -138,17 +165,17 @@ export const createProject = async (
   try {
     const project = await projectModel.createProject(
       pool,
-      name,
-      description,
-      start_date,
-      due_date,
+      trimmedName,
+      desc,
+      start_date ?? null,
+      due_date ?? null,
       created_by,
       parent_id
     );
 
     res.status(201).json(project);
   } catch (error) {
-    console.error('Error creating project:', error);
+    logger.error({ err: error }, 'Error creating project');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -169,7 +196,7 @@ export const changeProjectStatus = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error changing project status');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -193,7 +220,7 @@ export const updateProject = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error updating project');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -213,7 +240,7 @@ export const deleteProject = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error deleting project');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -229,7 +256,7 @@ export const getProjectMembers = async (
     const members = await projectModel.getProjectMembers(pool, id);
     res.status(200).json(members);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching project members');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -256,7 +283,7 @@ export const addProjectMember = async (
     });
     res.status(201).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error adding project member');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -277,7 +304,7 @@ export const deleteProjectMember = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error deleting project member');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -293,7 +320,7 @@ export const getSubprojects = async (
     const subprojects = await projectModel.getSubprojects(pool, id);
     res.status(200).json(subprojects);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching subprojects');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -316,7 +343,7 @@ export const getProjectTasks = async (
     const tasks = await projectModel.getProjectTasks(pool, projectId, filters);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error('Error fetching project tasks:', error);
+    logger.error({ err: error }, 'Error fetching project tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -331,7 +358,7 @@ export const getProjectStatuses = async (
     const statuses = await projectModel.getProjectStatuses(pool);
     res.status(200).json(statuses);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching project statuses');
     res.status(500).json({ error: 'Internal server error' });
   }
 };

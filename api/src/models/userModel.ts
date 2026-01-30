@@ -14,6 +14,8 @@ export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
   return result.rows;
 };
 
+const ALLOWED_USER_WHERE_KEYS = ['status_id', 'role_id'] as const;
+
 // Get all users
 export const getUsers = async (
   pool: Pool,
@@ -23,15 +25,15 @@ export const getUsers = async (
   const values: any[] = [];
 
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
-    query += ' WHERE ';
-    const conditions: string[] = [];
-
-    Object.keys(filters.whereParams).forEach((param, index) => {
-      conditions.push(`${param} = $${index + 1}`);
-      values.push(filters.whereParams[param]);
-    });
-
-    query += conditions.join(' AND ');
+    const allowedEntries = Object.entries(filters.whereParams).filter(([key]) =>
+      ALLOWED_USER_WHERE_KEYS.includes(key as typeof ALLOWED_USER_WHERE_KEYS[number])
+    );
+    if (allowedEntries.length > 0) {
+      query += ' WHERE ';
+      const conditions = allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 1}`);
+      query += conditions.join(' AND ');
+      values.push(...allowedEntries.map(([, v]) => v));
+    }
   }
 
   const result = await pool.query(query, values);

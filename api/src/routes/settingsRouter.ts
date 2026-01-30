@@ -1,39 +1,18 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
 import * as settingsController from '../controllers/settingsController';
+import { withPool } from '../utils/withPool';
 
 export default (pool: Pool): Router => {
   const router = Router();
 
-  router.get('/app_settings',
-    checkPermission(pool, 'Admin'),
-    ((req, res) => settingsController.getSystemSettings(req, res, pool)) as RequestHandler
-  );
-
-  router.put('/app_settings',
-    checkPermission(pool, 'Admin'),
-    ((req, res) => settingsController.updateSystemSettings(req, res, pool)) as RequestHandler
-  );
-
-  // Public endpoint to get app theme (no admin permission required)
-  router.get('/app_theme',
-    ((req, res) => settingsController.getAppTheme(req, res, pool)) as RequestHandler
-  );
-
-  router.get('/user_settings',
-    ((req, res) => settingsController.getUserSettings(req, res, pool)) as RequestHandler
-  );
-
-  router.put('/user_settings',
-    ((req, res) => settingsController.updateUserSettings(req, res, pool)) as RequestHandler
-  );
-
-  // Test SMTP Connection
-  router.post('/test-smtp',
-    checkPermission(pool, 'Admin'),
-    ((req, res) => settingsController.testSmtpConnection(req, res, pool)) as RequestHandler
-  );
+  router.get('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getSystemSettings));
+  router.put('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.updateSystemSettings));
+  router.get('/app_theme', withPool(pool, settingsController.getAppTheme));
+  router.get('/user_settings', withPool(pool, settingsController.getUserSettings));
+  router.put('/user_settings', withPool(pool, settingsController.updateUserSettings));
+  router.post('/test-smtp', checkPermission(pool, 'Admin'), withPool(pool, settingsController.testSmtpConnection));
 
   return router;
 };

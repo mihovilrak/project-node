@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { CustomRequest } from '../types/express';
 import { SessionUser } from '../types/session';
+import logger from '../utils/logger';
 
 // Get session user
 export const session = async (
@@ -14,7 +15,7 @@ export const session = async (
       res.status(401).json({ message: 'Not authenticated' });
     }
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });

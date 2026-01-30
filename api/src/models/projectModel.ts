@@ -7,6 +7,8 @@ import {
 } from '../types/project';
 import { Pool, QueryResult } from 'pg';
 
+const ALLOWED_PROJECT_WHERE_KEYS = ['status_id', 'created_by', 'parent_id'] as const;
+
 // Get all projects
 export const getProjects = async (
   pool: Pool,
@@ -16,15 +18,15 @@ export const getProjects = async (
   const values: any[] = [];
 
   if (whereParams && Object.keys(whereParams).length > 0) {
-    query += ' WHERE ';
-    const conditions: string[] = [];
-
-    Object.keys(whereParams).forEach((param, index) => {
-      conditions.push(`${param} = $${index + 1}`);
-      values.push(whereParams[param]);
-    });
-
-    query += conditions.join(' AND ');
+    const allowedEntries = Object.entries(whereParams).filter(([key]) =>
+      ALLOWED_PROJECT_WHERE_KEYS.includes(key as typeof ALLOWED_PROJECT_WHERE_KEYS[number])
+    );
+    if (allowedEntries.length > 0) {
+      query += ' WHERE ';
+      const conditions = allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 1}`);
+      query += conditions.join(' AND ');
+      values.push(...allowedEntries.map(([, v]) => v));
+    }
   }
 
   const result: QueryResult<Project> = await pool.query(query, values);
@@ -89,14 +91,22 @@ export const changeProjectStatus = async (
   return result.rows[0] || null;
 }
 
+const ALLOWED_PROJECT_UPDATE_KEYS = ['name', 'description', 'start_date', 'due_date', 'parent_id', 'status_id'] as const;
+
 // Update a project
 export const updateProject = async (
   pool: Pool,
   updates: Partial<Project>,
   id: string
 ): Promise<number | null> => {
-  const columns = Object.keys(updates);
-  const values = Object.values(updates);
+  const filteredEntries = Object.entries(updates).filter(([key]) =>
+    ALLOWED_PROJECT_UPDATE_KEYS.includes(key as typeof ALLOWED_PROJECT_UPDATE_KEYS[number])
+  );
+  if (filteredEntries.length === 0) {
+    return null;
+  }
+  const columns = filteredEntries.map(([k]) => k);
+  const values = filteredEntries.map(([, v]) => v);
 
   let query = `UPDATE projects SET (${columns.join(', ')}) =
   (${columns.map((_, index) => `$${index + 1}`).join(', ')})`;
@@ -178,22 +188,28 @@ export const deleteProjectMember = async (
   return result.rowCount;
 }
 
+const ALLOWED_PROJECT_TASK_FILTER_KEYS = ['status', 'priority', 'assignee'] as const;
+
 // Get project tasks
 export const getProjectTasks = async (
   pool: Pool,
   id: string,
   filters: ProjectTaskFilters = {}
 ): Promise<any[]> => {
+  const allowedEntries = Object.entries(filters).filter(([key]) =>
+    ALLOWED_PROJECT_TASK_FILTER_KEYS.includes(key as typeof ALLOWED_PROJECT_TASK_FILTER_KEYS[number])
+  );
+  const filterClause = allowedEntries.length > 0
+    ? `AND ${allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 2}`).join(' AND ')}`
+    : '';
   const query = `
     SELECT * FROM v_tasks
     WHERE project_id = $1
-    ${Object.keys(filters).length > 0
-      ? `AND ${Object.keys(filters).map((key, index) => `${key} = $${index + 2}`).join(' AND ')}`
-      : ''}
+    ${filterClause}
     ORDER BY created_on DESC
   `;
 
-  const values = [id, ...Object.values(filters)];
+  const values = [id, ...allowedEntries.map(([, v]) => v)];
   const result: QueryResult = await pool.query(query, values);
   return result.rows;
 }

@@ -88,6 +88,40 @@ describe('LoginController', () => {
       });
     });
 
+    it('should return 400 when login is missing', async () => {
+      mockReq.body = { password: 'password123' };
+
+      await loginController.login(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Invalid request',
+        message: 'login and password must be non-empty strings'
+      });
+      expect(loginModel.login).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when password is empty', async () => {
+      mockReq.body = { login: 'testuser', password: '' };
+
+      await loginController.login(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Invalid request',
+        message: 'login and password are required'
+      });
+      expect(loginModel.login).not.toHaveBeenCalled();
+    });
+
     it('should return 401 for invalid credentials', async () => {
       mockReq.body = { login: 'testuser', password: 'wrongpassword' };
       (loginModel.login as jest.Mock).mockResolvedValue(null);
@@ -105,20 +139,20 @@ describe('LoginController', () => {
       });
     });
 
-    it('should return 500 on internal server error', async () => {
+    it('should pass error to next on internal server error', async () => {
+      const dbError = new Error('Database error');
       mockReq.body = { login: 'testuser', password: 'password123' };
-      (loginModel.login as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (loginModel.login as jest.Mock).mockRejectedValue(dbError);
 
-      await loginController.login(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error'
-      });
+      await expect(
+        loginController.login(
+          mockReq as Request,
+          mockRes as Response,
+          mockPool as Pool
+        )
+      ).rejects.toThrow('Database error');
+      expect(mockRes.status).not.toHaveBeenCalledWith(500);
+      expect(mockRes.json).not.toHaveBeenCalledWith({ error: 'Internal server error' });
     });
   });
 

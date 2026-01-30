@@ -37,6 +37,19 @@ describe('ProjectModel', () => {
       );
       expect(result).toEqual(mockProjects);
     });
+
+    it('should ignore disallowed whereParams keys', async () => {
+      const mockProjects = [{ id: '1', name: 'Project 1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+
+      const result = await projectModel.getProjects(mockPool, { status_id: 1, evil_key: 2 } as any);
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM projects WHERE status_id = $1',
+        [1]
+      );
+      expect(result).toEqual(mockProjects);
+    });
   });
 
   describe('getProjectById', () => {
@@ -110,6 +123,13 @@ describe('ProjectModel', () => {
 
       expect(result).toBe(1);
     });
+
+    it('should return null when no allowed update keys', async () => {
+      const result = await projectModel.updateProject(mockPool, { evil_key: 'x' } as any, '1');
+
+      expect(result).toBeNull();
+      expect(mockPool.query).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteProject', () => {
@@ -175,6 +195,17 @@ describe('ProjectModel', () => {
       const result = await projectModel.getProjectTasks(mockPool, '1');
 
       expect(result).toEqual(mockTasks);
+    });
+
+    it('should apply only allowed filter keys', async () => {
+      const mockTasks = [{ id: '1', title: 'Task 1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+
+      await projectModel.getProjectTasks(mockPool, '1', { status: '1', evil_key: 'x' } as any);
+
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('status = $2');
+      expect(query).not.toContain('evil_key');
     });
   });
 

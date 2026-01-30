@@ -70,6 +70,18 @@ describe('UserModel', () => {
       expect(query).toContain('WHERE');
       expect(query).toContain('AND');
     });
+
+    it('should ignore disallowed whereParams keys', async () => {
+      const mockUsers = [{ id: '1', login: 'user1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+
+      await userModel.getUsers(mockPool, { whereParams: { status_id: '1', evil_key: 'x' } as any });
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM v_users WHERE status_id = $1',
+        ['1']
+      );
+    });
   });
 
   describe('getUserById', () => {

@@ -1,26 +1,15 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import { Pool } from 'pg';
 import * as tagController from '../controllers/tagController';
+import { withPool } from '../utils/withPool';
 
-// Tag routes
 export default (pool: Pool): Router => {
   const router = Router();
 
-  // Get all tags
-  router.get('/', ((req, res) =>
-    tagController.getTags(req, res, pool)) as RequestHandler);
-
-  // Create tag
-  router.post('/', ((req, res) =>
-    tagController.createTag(req, res, pool)) as RequestHandler);
-
-  // Update tag
-  router.put('/:id', ((req, res) =>
-    tagController.updateTag(req, res, pool)) as RequestHandler);
-
-  // Delete tag
-  router.delete('/:id', ((req, res) =>
-    tagController.deleteTag(req, res, pool)) as RequestHandler);
+  router.get('/', withPool(pool, tagController.getTags));
+  router.post('/', withPool(pool, tagController.createTag));
+  router.put('/:id', withPool(pool, tagController.updateTag));
+  router.delete('/:id', withPool(pool, tagController.deleteTag));
 
   return router;
 };

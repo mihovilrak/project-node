@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as userModel from '../models/userModel';
 import * as permissionModel from '../models/permissionModel';
 import { CustomRequest } from '../types/express';
+import logger from '../utils/logger';
 
 // Get users
 export const getUsers = async (
@@ -24,7 +25,7 @@ export const getUsers = async (
     });
     res.status(200).json(users);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -43,10 +44,13 @@ export const getUserById = async (
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+const MAX_USER_STRING_LENGTH = 255;
+const MAX_PASSWORD_LENGTH = 1024;
 
 // Create a user
 export const createUser = async (
@@ -54,27 +58,70 @@ export const createUser = async (
   res: Response,
   pool: Pool
 ): Promise<Response | void> => {
-  const {
-    login,
-    name,
-    surname,
-    email,
-    password,
-    role_id
-  } = req.body;
+  const body = req.body ?? {};
+  const { login, name, surname, email, password, role_id } = body;
+
+  if (typeof login !== 'string' || !login.trim()) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'login is required and must be a non-empty string'
+    });
+  }
+  if (typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'name is required and must be a non-empty string'
+    });
+  }
+  if (typeof surname !== 'string' || !surname.trim()) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'surname is required and must be a non-empty string'
+    });
+  }
+  if (typeof email !== 'string' || !email.trim()) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'email is required and must be a non-empty string'
+    });
+  }
+  if (typeof password !== 'string' || !password) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'password is required and must be a non-empty string'
+    });
+  }
+  const roleIdNum = Number(role_id);
+  if (!Number.isInteger(roleIdNum) || roleIdNum < 1) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'role_id must be a positive integer'
+    });
+  }
+  if (login.trim().length > MAX_USER_STRING_LENGTH ||
+      name.trim().length > MAX_USER_STRING_LENGTH ||
+      surname.trim().length > MAX_USER_STRING_LENGTH ||
+      email.trim().length > MAX_USER_STRING_LENGTH ||
+      password.length > MAX_PASSWORD_LENGTH) {
+    return res.status(400).json({
+      error: 'Invalid request',
+      message: 'One or more fields exceed maximum length'
+    });
+  }
+
   try {
     const user = await userModel.createUser(
       pool,
-      login,
-      name,
-      surname,
-      email,
+      login.trim(),
+      name.trim(),
+      surname.trim(),
+      email.trim(),
       password,
-      role_id
+      roleIdNum
     );
     res.status(201).json(user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -101,7 +148,7 @@ export const updateUser = async (
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -121,7 +168,7 @@ export const changeUserStatus = async (
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -140,7 +187,7 @@ export const deleteUser = async (
     }
     res.status(200).json({ message: 'User deleted' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -155,7 +202,7 @@ export const getUserStatuses = async (
     const statuses = await userModel.getUserStatuses(pool);
     res.status(200).json(statuses);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -175,7 +222,7 @@ export const getUserPermissions = async (
     const permissions = await permissionModel.getUserPermissions(pool, userId);
     res.json(permissions);
   } catch (error) {
-    console.error('Failed to fetch permissions:', error);
+    logger.error({ err: error }, 'Failed to fetch permissions');
     res.status(500).json({ error: 'Internal server error' });
   }
 };

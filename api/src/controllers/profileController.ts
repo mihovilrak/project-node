@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as profileModel from '../models/profileModel';
 import { CustomRequest } from '../types/express';
 import { ProfileUpdateInput, PasswordUpdateInput } from '../types/profile';
+import logger from '../utils/logger';
 
 // Get user profile
 export const getProfile = async (
@@ -22,7 +23,7 @@ export const getProfile = async (
     const profile = await profileModel.getProfile(pool, userId);
     res.status(200).json(profile);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });
@@ -52,7 +53,7 @@ export const updateProfile = async (
     );
     res.status(200).json(profile);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });
@@ -105,7 +106,7 @@ export const changePassword = async (
     });
 
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });
@@ -130,7 +131,7 @@ export const getRecentTasks = async (
     const tasks = await profileModel.getRecentTasks(pool, userId);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });
@@ -153,7 +154,7 @@ export const getRecentProjects = async (
     const projects = await profileModel.getRecentProjects(pool, userId);
     res.status(200).json(projects);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({
       error: 'Internal server error'
     });

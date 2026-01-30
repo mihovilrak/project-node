@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "description": "Backend for Project management application",
-  "main": "dist/app.js",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node dist/server.js",
     "dev": "nodemon",
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
@@ -25,6 +25,9 @@
   "dependencies": {
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
+    "pino": "^9.5.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-session": "^1.18.2",

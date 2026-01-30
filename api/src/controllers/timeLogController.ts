@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as timeLogModel from '../models/timeLogModel';
 import { CustomRequest } from '../types/express';
 import { TimeLogCreateInput } from '../types/timeLog';
+import logger from '../utils/logger';
 
 // Get all time logs
 export const getAllTimeLogs = async (
@@ -14,7 +15,7 @@ export const getAllTimeLogs = async (
     const timeLogs = await timeLogModel.getAllTimeLogs(pool);
     res.status(200).json(timeLogs);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -30,7 +31,7 @@ export const getTaskTimeLogs = async (
     const timeLogs = await timeLogModel.getTaskTimeLogs(pool, taskId);
     res.status(200).json(timeLogs);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -46,7 +47,7 @@ export const getTaskSpentTime = async (
     const spentTime = await timeLogModel.getTaskSpentTime(pool, taskId);
     res.status(200).json(spentTime);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -63,7 +64,7 @@ export const getProjectTimeLogs = async (
     const timeLogs = await timeLogModel.getProjectTimeLogs(pool, projectId, params);
     res.status(200).json(timeLogs);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -79,7 +80,7 @@ export const getProjectSpentTime = async (
     const spentTime = await timeLogModel.getProjectSpentTime(pool, projectId);
     res.status(200).json(spentTime);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -116,7 +117,7 @@ export const createTimeLog = async (
     });
     res.status(201).json(timeLog);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -144,7 +145,7 @@ export const updateTimeLog = async (
     });
     res.status(200).json(timeLog);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -160,7 +161,7 @@ export const deleteTimeLog = async (
     await timeLogModel.deleteTimeLog(pool, timeLogId);
     res.status(200).json({ message: 'Time log deleted successfully' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -182,7 +183,7 @@ export const getUserTimeLogs = async (
     const timeLogs = await timeLogModel.getUserTimeLogs(pool, userId, params);
     res.status(200).json(timeLogs);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -73,5 +73,30 @@ describe('SessionMiddleware', () => {
 
       expect(typeof middleware).toBe('function');
     });
+
+    it('should set secure cookie when nodeEnv is production', () => {
+      createSessionMiddleware(mockPool, 'secret', 'production');
+
+      expect(session).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cookie: expect.objectContaining({
+            secure: true,
+            httpOnly: true
+          })
+        })
+      );
+    });
+
+    it('should set secure false when nodeEnv is development', () => {
+      createSessionMiddleware(mockPool, 'secret', 'development');
+
+      expect(session).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cookie: expect.objectContaining({
+            secure: false
+          })
+        })
+      );
+    });
   });
 });

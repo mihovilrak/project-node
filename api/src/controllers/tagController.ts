@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as tagModel from '../models/tagModel';
 import { CustomRequest } from '../types/express';
 import { TagCreateInput, TagUpdateInput } from '../types/tag';
+import logger from '../utils/logger';
 
 // Get all tags
 export const getTags = async (
@@ -14,7 +15,7 @@ export const getTags = async (
     const tags = await tagModel.getTags(pool);
     res.status(200).json(tags);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -36,7 +37,7 @@ export const createTag = async (
     const tag = await tagModel.createTag(pool, name, color, userId, icon);
     res.status(201).json(tag);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -59,7 +60,7 @@ export const addTaskTags = async (
     const result = await tagModel.addTaskTags(pool, taskId, tagIds);
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -75,7 +76,7 @@ export const removeTaskTag = async (
     await tagModel.removeTaskTag(pool, taskId, tagId);
     res.status(200).json({ message: 'Tag removed successfully' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -91,7 +92,7 @@ export const getTaskTags = async (
     const tags = await tagModel.getTaskTags(pool, taskId);
     res.status(200).json(tags);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -108,7 +109,7 @@ export const updateTag = async (
     const tag = await tagModel.updateTag(pool, id, name, color, icon);
     res.status(200).json(tag);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -124,7 +125,7 @@ export const deleteTag = async (
     await tagModel.deleteTag(pool, id);
     res.status(200).json({ message: 'Tag deleted successfully' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };

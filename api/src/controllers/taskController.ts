@@ -5,6 +5,7 @@ import { TaskCreateInput, TaskUpdateInput, TaskQueryFilters } from '../types/tas
 import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
+import logger from '../utils/logger';
 
 // Get tasks
 export const getTasks = async (
@@ -55,7 +56,7 @@ export const getTasks = async (
     const tasks = await taskModel.getTasks(pool, hasFilters ? filters : undefined);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -75,7 +76,7 @@ export const getTaskById = async (
     }
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching task by ID');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -95,7 +96,7 @@ export const getTaskByAssignee = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks by assignee');
     res.status(500).json({ error: 'Internal server error'});
   }
 }
@@ -115,7 +116,7 @@ export const getTaskByHolder = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks by holder');
     res.status(500).json({ error: 'Internal server error'});
   }
 }
@@ -185,8 +186,7 @@ export const createTask = async (
     // Create task with processed data
     const task = await taskModel.createTask(pool, processedData, watchers);
 
-    // Debug log
-    console.log('Created task:', task);
+    logger.debug({ task }, 'Created task');
 
     if (!task || !task.task_id) {
       throw new Error('Task creation failed - no task ID returned');
@@ -197,7 +197,7 @@ export const createTask = async (
     const actionUserId = Number(created_by);
 
     // Debug log
-    console.log('Converted IDs:', { taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by });
+    logger.debug({ taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by }, 'Converted IDs');
 
     if (isNaN(taskId)) {
       throw new Error(`Invalid task ID: ${task.task_id}`);
@@ -215,9 +215,8 @@ export const createTask = async (
 
     res.status(201).json(task);
   } catch (error) {
-    console.error('Error creating task:', error);
+    logger.error({ err: error, taskData: req.body }, 'Error creating task');
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    console.error('Full error details:', { error, taskData: req.body });
     res.status(500).json({ error: errorMessage });
   }
 }
@@ -249,7 +248,7 @@ export const updateTask = async (
 
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error updating task');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -281,7 +280,7 @@ export const changeTaskStatus = async (
 
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error changing task status');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -301,7 +300,7 @@ export const deleteTask = async (
     }
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error deleting task');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -316,7 +315,7 @@ export const getTaskStatuses = async (
     const statuses = await taskModel.getTaskStatuses(pool);
     res.status(200).json(statuses);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching task statuses');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -331,7 +330,7 @@ export const getPriorities = async (
     const priorities = await taskModel.getPriorities(pool);
     res.status(200).json(priorities);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching priorities');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -351,7 +350,7 @@ export const getActiveTasks = async (
     const tasks = await taskModel.getActiveTasks(pool, userId);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching active tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -367,7 +366,7 @@ export const getSubtasks = async (
     const subtasks = await taskModel.getSubtasks(pool, id);
     res.status(200).json(subtasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching subtasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
