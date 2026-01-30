@@ -9,19 +9,43 @@ import {
 } from '../types/notification-service.types';
 import { NotificationCreateResponse } from '../types/notification-routes.types';
 
+const BATCH_LIMIT = 100;
+const SEND_CONCURRENCY = 5;
+
+async function runWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = [];
+  let i = 0;
+  while (i < items.length) {
+    const chunk = items.slice(i, i + concurrency);
+    i += chunk.length;
+    const chunkResults = await Promise.all(chunk.map(fn));
+    results.push(...chunkResults);
+  }
+  return results;
+}
+
 class NotificationService {
   async processNewNotifications(): Promise<void> {
     try {
-      const query = `SELECT * FROM v_notification_service`;
+      const result = await pool.query<DatabaseNotification>(
+        'SELECT * FROM v_notification_service LIMIT $1',
+        [BATCH_LIMIT]
+      );
 
-      const result = await pool.query<DatabaseNotification>(query);
-
-      for (const notification of result.rows) {
-        await this.sendNotificationEmail(notification);
-        metrics.increment('notificationsSent');
-      }
+      await runWithConcurrency(
+        result.rows,
+        SEND_CONCURRENCY,
+        async (notification) => {
+          await this.sendNotificationEmail(notification);
+          metrics.increment('notificationsSent');
+        }
+      );
     } catch (error) {
-      logger.error('Failed to process notifications:', error);
+      logger.error({ err: error }, 'Failed to process notifications');
       metrics.increment('notificationErrors');
     }
   }
@@ -48,7 +72,7 @@ class NotificationService {
         [notification.id]
       );
     } catch (error) {
-      logger.error('Failed to send notification email:', error);
+      logger.error({ err: error }, 'Failed to send notification email');
       metrics.increment('emailErrors');
     }
   }
@@ -80,7 +104,7 @@ class NotificationService {
 
       return result.rows[0];
     } catch (error) {
-      logger.error('Failed to generate notification:', error);
+      logger.error({ err: error }, 'Failed to generate notification');
       throw error;
     }
   }

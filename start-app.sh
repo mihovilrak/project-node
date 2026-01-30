@@ -50,7 +50,7 @@ start_services() {
     BACKEND_PID=$!
 
     echo "Starting notification service..."
-    cd /app/service && node index.js &
+    cd /app/service && TEMPLATES_PATH=/app/service/templates node index.js &
     NOTIFICATION_PID=$!
 
     echo "Starting NGINX..."

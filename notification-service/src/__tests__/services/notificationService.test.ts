@@ -104,7 +104,10 @@ describe('NotificationService', () => {
 
       await notificationService.processNewNotifications();
 
-      expect(pool.query).toHaveBeenCalledWith('SELECT * FROM v_notification_service');
+      expect(pool.query).toHaveBeenCalledWith(
+        'SELECT * FROM v_notification_service LIMIT $1',
+        [100]
+      );
     });
 
     it('should send email for each notification', async () => {
