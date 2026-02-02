@@ -51,8 +51,8 @@ begin
           left join projects pt on pt.id = p.parent_id
           left join project_statuses ps on ps.id = p.status_id
           left join users u on u.id = p.created_by
-          left join v_project_spent_time pst on pst.id = p.id
-          left join v_project_progress pp on pp.id = p.id
+          left join lateral get_project_spent_time(p.id) pst on true
+          left join lateral get_project_progress(p.id) pp on true
           where p.id = proj_id;
 end;
 $$ language plpgsql;

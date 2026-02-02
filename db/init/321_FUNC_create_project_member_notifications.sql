@@ -10,6 +10,7 @@ RETURNS TABLE (
     title varchar(100),
     message text,
     link varchar(255),
+    data jsonb,
     is_read boolean,
     active boolean,
     read_on timestamptz,
