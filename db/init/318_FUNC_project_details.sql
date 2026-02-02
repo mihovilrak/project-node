@@ -46,7 +46,7 @@ begin
                p.created_on,
                coalesce(proj_estimated_time, 0) as estimated_time,
                coalesce(pst.spent_time, 0) as spent_time,
-               coalesce(pp.progress, 0) as progress
+               coalesce(pp.progress, 0)::numeric as progress
           from projects p
           left join projects pt on pt.id = p.parent_id
           left join project_statuses ps on ps.id = p.status_id
