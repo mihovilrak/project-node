@@ -24,7 +24,7 @@ begin
                ts.name as status_name,
                pi.name as priority_name,
                c.name as created_by_name,
-               pi.color as priority_color
+               pi.color::text as priority_color
         from tasks t
         left join projects po on po.id = t.project_id
         left join users h on h.id = t.holder_id
