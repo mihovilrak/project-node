@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   IconButton,
   Badge,
@@ -11,7 +11,9 @@ import {
   ListItemText,
   ListItemIcon,
   CircularProgress,
-  Paper
+  Paper,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -51,11 +53,14 @@ interface ExtendedNotificationCenterProps extends NotificationCenterProps {
   testMode?: boolean;
 }
 
+type TabValue = 'all' | 'read' | 'unread';
+
 const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   userId,
   className,
   testMode = false // Default to false for production use
 }) => {
+  const [tabValue, setTabValue] = useState<TabValue>('all');
   const {
     anchorEl,
     notifications,
@@ -66,6 +71,12 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
     handleNotificationClick,
     handleDeleteNotification
   } = useNotificationCenter(userId);
+
+  const filteredNotifications = useMemo(() => {
+    if (tabValue === 'read') return notifications.filter((n) => n?.is_read);
+    if (tabValue === 'unread') return notifications.filter((n) => !n?.is_read);
+    return notifications;
+  }, [notifications, tabValue]);
 
   const getIcon = (type: string): React.ReactElement => {
     const Icon = iconMap[type] || NotificationsIcon;
@@ -94,11 +105,21 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
       >
         <Typography variant="h6">Notifications</Typography>
       </Box>
+      <Tabs
+        value={tabValue}
+        onChange={(_, v: TabValue) => setTabValue(v)}
+        variant="fullWidth"
+        sx={{ borderBottom: 1, borderColor: 'divider', minHeight: 40 }}
+      >
+        <Tab label="All" value="all" data-testid="tab-all" />
+        <Tab label="Read" value="read" data-testid="tab-read" />
+        <Tab label="Unread" value="unread" data-testid="tab-unread" />
+      </Tabs>
       <Divider />
 
       {loading ? (
         renderLoadingComponent()
-      ) : notifications.length === 0 ? (
+      ) : filteredNotifications.length === 0 ? (
         <Box sx={{ p: 2, textAlign: 'center' }}>
           <Typography color="text.secondary">
             No notifications
@@ -106,7 +127,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         </Box>
       ) : (
         <List sx={{ p: 0 }}>
-          {notifications.map((notification) => (
+          {filteredNotifications.map((notification) => (
             <ListItem
               key={notification?.id}
               onClick={() => notification && handleNotificationClick(notification)}

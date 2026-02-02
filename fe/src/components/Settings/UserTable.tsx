@@ -88,6 +88,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -104,6 +105,13 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                       label={user.role_name || 'No Role'}
                       size="small"
                       color={user.role_name === 'Admin' ? 'primary' : 'default'}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={user.status_name || 'Unknown'}
+                      size="small"
+                      color={user.status_id === 1 ? 'success' : user.status_id === 3 ? 'error' : 'default'}
                     />
                   </TableCell>
                   <TableCell align="right">

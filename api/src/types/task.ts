@@ -119,6 +119,7 @@ export interface TaskQueryFilters {
   whereParams?: {
     [key: string]: number | string;
   };
+  id?: number;
   project_id?: number;
   assignee_id?: number;
   holder_id?: number;
@@ -126,4 +127,14 @@ export interface TaskQueryFilters {
   priority_id?: number;
   type_id?: number;
   parent_id?: number;
+  created_by?: number;
+  due_date_from?: string;
+  due_date_to?: string;
+  start_date_from?: string;
+  start_date_to?: string;
+  created_from?: string;
+  created_to?: string;
+  estimated_time_min?: number;
+  estimated_time_max?: number;
+  inactive_statuses_only?: boolean;
 }

@@ -42,7 +42,7 @@ const UserManager: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getUsers();
+      const data = await getUsers(undefined, { all: true });
       setUsers(data || []);
     } catch (error: unknown) {
       logger.error('Failed to fetch users:', error);

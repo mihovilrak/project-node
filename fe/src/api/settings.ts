@@ -56,6 +56,33 @@ export const getAppTheme = async (): Promise<{ theme: 'light' | 'dark' | 'system
   }
 };
 
+// Get env settings (Admin only; secrets masked)
+export interface EnvEntry {
+  key: string;
+  value: string;
+  masked: boolean;
+}
+
+export const getEnvSettings = async (): Promise<EnvEntry[]> => {
+  try {
+    const response = await api.get('/settings/env');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to fetch env settings', error);
+    throw error;
+  }
+};
+
+export const updateEnvSettings = async (updates: Record<string, string>): Promise<EnvEntry[]> => {
+  try {
+    const response = await api.patch('/settings/env', { updates });
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to update env settings', error);
+    throw error;
+  }
+};
+
 // Test SMTP Connection
 export interface SmtpTestResult {
   success: boolean;

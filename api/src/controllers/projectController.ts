@@ -31,7 +31,11 @@ export const getProjects = async (
         const {
           status_id,
           created_by,
-          parent_id
+          parent_id,
+          start_date_from,
+          start_date_to,
+          due_date_from,
+          due_date_to
         } = req.query as any;
 
         if (status_id !== undefined) {
@@ -42,6 +46,18 @@ export const getProjects = async (
         }
         if (parent_id !== undefined) {
           builtWhereParams.parent_id = Number(parent_id);
+        }
+        if (start_date_from !== undefined && start_date_from !== '') {
+          builtWhereParams.start_date_from = start_date_from;
+        }
+        if (start_date_to !== undefined && start_date_to !== '') {
+          builtWhereParams.start_date_to = start_date_to;
+        }
+        if (due_date_from !== undefined && due_date_from !== '') {
+          builtWhereParams.due_date_from = due_date_from;
+        }
+        if (due_date_to !== undefined && due_date_to !== '') {
+          builtWhereParams.due_date_to = due_date_to;
         }
       }
 

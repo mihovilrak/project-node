@@ -23,6 +23,7 @@ export const getUsers = async (
 ): Promise<User[]> => {
   let status_id: number | null = null;
   let role_id: number | null = null;
+  const includeDeleted = Boolean(filters?.includeDeleted);
 
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
     const allowedEntries = Object.entries(filters.whereParams).filter(([key]) =>
@@ -35,8 +36,8 @@ export const getUsers = async (
   }
 
   const result = await pool.query(
-    'SELECT * FROM get_users($1, $2)',
-    [status_id, role_id]
+    'SELECT * FROM get_users($1, $2, $3)',
+    [status_id, role_id, includeDeleted]
   );
   return result.rows;
 };

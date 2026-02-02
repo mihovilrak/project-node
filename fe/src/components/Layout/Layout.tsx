@@ -19,6 +19,7 @@ import {
   ExitToApp
 } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
+import NotificationCenter from '../Notifications/NotificationCenter';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
@@ -43,6 +44,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
             </IconButton>
           </Tooltip>
+          {currentUser?.id && (
+            <Tooltip title="Notifications">
+              <span>
+                <NotificationCenter userId={currentUser.id} />
+              </span>
+            </Tooltip>
+          )}
           {currentUser && (
             <>
               <Button
@@ -71,6 +79,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         sx={{
           flexGrow: 1,
           width: '100%',
+          maxWidth: 1400,
+          margin: '0 auto',
           minHeight: '100vh',
           pt: '64px', // AppBar height
           px: 3,

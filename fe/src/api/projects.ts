@@ -3,7 +3,15 @@ import { Project, ProjectMember, ProjectStatus } from '../types/project';
 import logger from '../utils/logger';
 
 // Get all projects
-export const getProjects = async (params?: { status_id?: number; created_by?: number; parent_id?: number }): Promise<Project[]> => {
+export const getProjects = async (params?: {
+  status_id?: number;
+  created_by?: number;
+  parent_id?: number;
+  start_date_from?: string;
+  start_date_to?: string;
+  due_date_from?: string;
+  due_date_to?: string;
+}): Promise<Project[]> => {
   try {
     const response = await api.get('/projects', {
       params

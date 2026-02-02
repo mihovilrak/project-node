@@ -12,12 +12,13 @@ import { Pool, QueryResult } from 'pg';
 // Active task status IDs: New (1), In Progress (2), On Hold (3), Review (4). Excludes Done, Cancelled, Deleted.
 const ACTIVE_TASK_STATUS_IDS = [1, 2, 3, 4];
 
-// Get all tasks (get_tasks params: p_id, p_project_id, p_assignee_id, p_holder_id, p_status_id, p_priority_id, p_type_id, p_parent_id, p_active_statuses_only)
+// Get all tasks (get_tasks params include date ranges and created_by)
 export const getTasks = async (
   pool: Pool,
   filters?: TaskQueryFilters
 ): Promise<TaskDetails[]> => {
   const whereParams = filters?.whereParams ?? {};
+  const id = filters?.id ?? whereParams.id ?? null;
   const project_id = filters?.project_id ?? whereParams.project_id ?? null;
   const assignee_id = filters?.assignee_id ?? whereParams.assignee_id ?? null;
   const holder_id = filters?.holder_id ?? whereParams.holder_id ?? null;
@@ -25,14 +26,34 @@ export const getTasks = async (
   const priority_id = filters?.priority_id ?? whereParams.priority_id ?? null;
   const type_id = filters?.type_id ?? whereParams.type_id ?? null;
   const parent_id = filters?.parent_id ?? whereParams.parent_id ?? null;
-  const hasFilters = [project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id].some(
-    (v) => v != null
-  );
-  const active_statuses_only = !hasFilters;
+  const created_by = filters?.created_by ?? whereParams.created_by ?? null;
+  const due_date_from = filters?.due_date_from ?? whereParams.due_date_from ?? null;
+  const due_date_to = filters?.due_date_to ?? whereParams.due_date_to ?? null;
+  const start_date_from = filters?.start_date_from ?? whereParams.start_date_from ?? null;
+  const start_date_to = filters?.start_date_to ?? whereParams.start_date_to ?? null;
+  const created_from = filters?.created_from ?? whereParams.created_from ?? null;
+  const created_to = filters?.created_to ?? whereParams.created_to ?? null;
+  const estimated_time_min = filters?.estimated_time_min ?? whereParams.estimated_time_min ?? null;
+  const estimated_time_max = filters?.estimated_time_max ?? whereParams.estimated_time_max ?? null;
+  const inactive_statuses_only = Boolean(filters?.inactive_statuses_only ?? whereParams.inactive_statuses_only);
+  const hasFilters = [
+    id, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
+    created_by, due_date_from, due_date_to, start_date_from, start_date_to,
+    created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only
+  ].some((v) => v != null);
+  const active_statuses_only = !hasFilters && !inactive_statuses_only;
 
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    [null, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id, active_statuses_only]
+    `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+    [
+      id ?? null, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
+      active_statuses_only,
+      created_by ?? null, due_date_from ?? null, due_date_to ?? null,
+      start_date_from ?? null, start_date_to ?? null,
+      created_from ?? null, created_to ?? null,
+      estimated_time_min ?? null, estimated_time_max ?? null,
+      inactive_statuses_only
+    ]
   );
   return result.rows;
 }
@@ -43,7 +64,7 @@ export const getTaskById = async (
   id: string
 ): Promise<TaskDetails | null> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    'SELECT * FROM get_tasks($1, null, null, null, null, null, null, null, false)',
+    'SELECT * FROM get_tasks($1, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false)',
     [id]
   );
   return result.rows[0] || null;
@@ -206,7 +227,7 @@ export const getActiveTasks = async (
   userId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    'SELECT * FROM get_tasks(null, null, $1, null, null, null, null, null, true)',
+    'SELECT * FROM get_tasks(null, null, $1, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false)',
     [userId]
   );
   return result.rows;
@@ -218,7 +239,7 @@ export const getTasksByProject = async (
   project_id: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks(null, $1, null, null, null, null, null, null, false)
+    `SELECT * FROM get_tasks(null, $1, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false)
      ORDER BY created_on DESC`,
     [project_id]
   );
@@ -231,7 +252,7 @@ export const getSubtasks = async (
   parentId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks(null, null, null, null, null, null, null, $1, false)
+    `SELECT * FROM get_tasks(null, null, null, null, null, null, null, $1, false, null, null, null, null, null, null, null, null, null, false)
      ORDER BY created_on ASC`,
     [parentId]
   );

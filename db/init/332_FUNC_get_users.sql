@@ -1,6 +1,7 @@
 create or replace function get_users(
     p_status_id int default null,
-    p_role_id int default null
+    p_role_id int default null,
+    p_include_deleted boolean default false
 )
 returns table (
     id int,
@@ -41,8 +42,7 @@ begin
         order by al.logged_on desc
         limit 1
     ) l on true
-    where u.status_id != 3
-    and (p_status_id is null or u.status_id = p_status_id)
+    where (p_include_deleted or ((p_status_id is null and u.status_id != 3) or u.status_id = p_status_id))
     and (p_role_id is null or u.role_id = p_role_id);
 end;
 $$ language plpgsql;

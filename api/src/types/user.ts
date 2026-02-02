@@ -40,6 +40,7 @@ export interface UserQueryFilters {
   whereParams: {
     [key: string]: string;
   };
+  includeDeleted?: boolean;
 }
 
 export interface UserStatus {

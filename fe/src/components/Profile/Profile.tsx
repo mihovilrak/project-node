@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
         loading={loading}
       />
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ mt: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={1} sx={{ p: 3 }}>
             <ProfileTaskList

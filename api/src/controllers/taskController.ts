@@ -15,17 +15,33 @@ export const getTasks = async (
 ): Promise<void> => {
   try {
     const {
+      id,
       project_id,
       assignee_id,
       holder_id,
       status_id,
       priority_id,
       type_id,
-      parent_id
+      parent_id,
+      created_by,
+      due_date_from,
+      due_date_to,
+      start_date_from,
+      start_date_to,
+      created_from,
+      created_to,
+      estimated_time_min,
+      estimated_time_max,
+      inactive_statuses_only
     } = req.query;
 
-    // Preserve optimised path for fetching tasks by project
-    if (project_id) {
+    // Only use getTasksByProject when project_id is the sole filter
+    const otherFilters = [
+      id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
+      created_by, due_date_from, due_date_to, start_date_from, start_date_to,
+      created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only
+    ].some(Boolean);
+    if (project_id && !otherFilters) {
       const tasks = await taskModel.getTasksByProject(pool, project_id as string);
       res.status(200).json(tasks);
       return;
@@ -33,6 +49,12 @@ export const getTasks = async (
 
     const filters: TaskQueryFilters = {};
 
+    if (id) {
+      filters.id = Number(id);
+    }
+    if (project_id) {
+      filters.project_id = Number(project_id);
+    }
     if (assignee_id) {
       filters.assignee_id = Number(assignee_id);
     }
@@ -50,6 +72,36 @@ export const getTasks = async (
     }
     if (parent_id) {
       filters.parent_id = Number(parent_id);
+    }
+    if (created_by) {
+      filters.created_by = Number(created_by);
+    }
+    if (due_date_from && typeof due_date_from === 'string') {
+      filters.due_date_from = due_date_from;
+    }
+    if (due_date_to && typeof due_date_to === 'string') {
+      filters.due_date_to = due_date_to;
+    }
+    if (start_date_from && typeof start_date_from === 'string') {
+      filters.start_date_from = start_date_from;
+    }
+    if (start_date_to && typeof start_date_to === 'string') {
+      filters.start_date_to = start_date_to;
+    }
+    if (created_from && typeof created_from === 'string') {
+      filters.created_from = created_from;
+    }
+    if (created_to && typeof created_to === 'string') {
+      filters.created_to = created_to;
+    }
+    if (estimated_time_min !== undefined) {
+      filters.estimated_time_min = Number(estimated_time_min);
+    }
+    if (estimated_time_max !== undefined) {
+      filters.estimated_time_max = Number(estimated_time_max);
+    }
+    if (inactive_statuses_only === '1' || inactive_statuses_only === 'true') {
+      filters.inactive_statuses_only = true;
     }
 
     const hasFilters = Object.keys(filters).length > 0;

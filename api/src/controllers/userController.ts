@@ -12,16 +12,18 @@ export const getUsers = async (
   pool: Pool
 ): Promise<Response | void> => {
   try {
+    const all = req.query.all === '1' || req.query.all === 'true';
     let whereParams: Record<string, unknown> | undefined =
       typeof req.query.whereParams === 'string'
         ? JSON.parse(req.query.whereParams)
         : undefined;
-    // Default to active users only (status_id = 1) when no filter is supplied
-    if (!whereParams || Object.keys(whereParams).length === 0) {
+    // Default to active users only (status_id = 1) when no filter is supplied, unless all=1 (e.g. Settings)
+    if (!all && (!whereParams || Object.keys(whereParams).length === 0)) {
       whereParams = { status_id: 1 };
     }
     const users = await userModel.getUsers(pool, {
-      whereParams: whereParams as Record<string, string>
+      whereParams: (whereParams || {}) as Record<string, string>,
+      includeDeleted: all
     });
     res.status(200).json(users);
   } catch (error) {

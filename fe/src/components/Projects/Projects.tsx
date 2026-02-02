@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FixedSizeList as List } from 'react-window';
 import { getProjects, getProjectStatuses } from '../../api/projects';
+import { getUsers } from '../../api/users';
 import {
   Card,
   CardContent,
@@ -17,13 +18,14 @@ import { ProjectStatus } from '../../types/project';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import FilterPanel from '../common/FilterPanel';
-import { FilterValues } from '../../types/filterPanel';
+import { FilterValues, FilterOption } from '../../types/filterPanel';
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filters, setFilters] = useState<FilterValues>({});
+  const [filters, setFilters] = useState<FilterValues>({ status_id: 1 });
   const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
+  const [users, setUsers] = useState<FilterOption[]>([]);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,11 +34,17 @@ const Projects: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const projectList = await getProjects({
-        status_id: currentFilters?.status_id != null && currentFilters?.status_id !== ''
-          ? Number(currentFilters.status_id)
-          : 1 // default to active projects
-      });
+      const f = currentFilters || {};
+      const params: Parameters<typeof getProjects>[0] = {
+        status_id: f.status_id != null && f.status_id !== '' ? Number(f.status_id) : 1
+      };
+      if (f.created_by != null && f.created_by !== '') params.created_by = Number(f.created_by);
+      if (f.parent_id != null && f.parent_id !== '') params.parent_id = Number(f.parent_id);
+      if (f.start_date_from) params.start_date_from = String(f.start_date_from);
+      if (f.start_date_to) params.start_date_to = String(f.start_date_to);
+      if (f.due_date_from) params.due_date_from = String(f.due_date_from);
+      if (f.due_date_to) params.due_date_to = String(f.due_date_to);
+      const projectList = await getProjects(params);
       setProjects(projectList || []);
     } catch (error: unknown) {
       logger.error('Failed to fetch projects', error);
@@ -48,15 +56,20 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     fetchProjects(filters);
-    const loadStatuses = async () => {
+    const loadOptions = async () => {
       try {
-        const data = await getProjectStatuses().catch(() => []);
-        setStatuses(data);
+        const [statusesData, usersData] = await Promise.all([
+          getProjectStatuses().catch(() => []),
+          getUsers().catch(() => [])
+        ]);
+        setStatuses(statusesData);
+        setUsers((usersData || []).map((u: { id: number; name?: string; login?: string }) => ({ id: u.id, name: u.name ? `${u.name} (${u.login || u.id})` : String(u.login || u.id) })));
       } catch {
         setStatuses([]);
+        setUsers([]);
       }
     };
-    loadStatuses();
+    loadOptions();
   }, [fetchProjects, filters]);
 
   const handleCreateProject = (): void => {
@@ -74,9 +87,15 @@ const Projects: React.FC = () => {
   const filterOptions = useMemo(
     () => ({
       search: true,
-      statuses: statuses.map((s) => ({ id: s.id, name: s.name }))
+      statuses: statuses.map((s) => ({ id: s.id, name: s.name })),
+      createdBy: users,
+      parent_id: projects.map((p) => ({ id: p.id, name: p.name })),
+      start_date_from: true,
+      start_date_to: true,
+      due_date_from: true,
+      due_date_to: true
     }),
-    [statuses]
+    [statuses, users, projects]
   );
 
   const filteredProjects = projects
@@ -150,7 +169,7 @@ const Projects: React.FC = () => {
       {filteredProjects.length === 0 ? (
         <Typography>No projects yet.</Typography>
       ) : (
-      <Box sx={{ height: 600, mt: 2 }}>
+      <Box sx={{ height: 600, mt: 2, width: '100%', maxWidth: 1400 }}>
         <List
           height={600}
           itemCount={filteredProjects.length}

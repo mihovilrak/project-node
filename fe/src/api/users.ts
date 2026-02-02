@@ -14,13 +14,19 @@ export const getUserStatuses = async (): Promise<UserStatus[]> => {
   }
 };
 
-// Get all users
-export const getUsers = async (whereParams?: Record<string, any>): Promise<User[]> => {
+// Get all users. Pass { all: true } to include inactive and deleted (e.g. Settings).
+export const getUsers = async (
+  whereParams?: Record<string, any>,
+  options?: { all?: boolean }
+): Promise<User[]> => {
   try {
     const params: Record<string, any> = {};
 
     if (whereParams && Object.keys(whereParams).length > 0) {
       params.whereParams = JSON.stringify(whereParams);
+    }
+    if (options?.all) {
+      params.all = '1';
     }
 
     const response = await api.get('/users', { params });

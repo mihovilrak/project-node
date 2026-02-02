@@ -25,9 +25,10 @@ const onRenderCallback = (
 // Helper function to measure hook performance
 const measureHookPerformance = (useHook: Function, props: any = {}) => {
   let duration = 0;
+  const args = Array.isArray(props) ? props : [props];
 
   const TestComponent = () => {
-    const result = useHook(props);
+    const result = useHook(...args);
     return null;
   };
 
@@ -85,16 +86,18 @@ describe('Common Hooks Performance Tests', () => {
   describe('useFilterPanel Performance Tests', () => {
     const mockFilters: FilterValues = {};
     const mockOnFilterChange = jest.fn();
+    const mockOptions = { statuses: [{ id: 1, name: 'Active' }], search: true };
+    const type = 'tasks' as const;
 
     test('useFilterPanel initial render performance', () => {
-      const renderTime = measureHookPerformance(useFilterPanel, [mockFilters, mockOnFilterChange]);
+      const renderTime = measureHookPerformance(useFilterPanel, [mockFilters, mockOnFilterChange, mockOptions, type]);
       expect(renderTime).toBeLessThan(100);
     });
 
     test('useFilterPanel state update performance', () => {
       let updateTime = 0;
       const TestComponent = () => {
-        const { expanded, setExpanded, handleFilterChange } = useFilterPanel(mockFilters, mockOnFilterChange);
+        const { expanded, setExpanded, handleFilterChange } = useFilterPanel(mockFilters, mockOnFilterChange, mockOptions, type);
         React.useEffect(() => {
           setExpanded(true);
           handleFilterChange('status_id', 1);

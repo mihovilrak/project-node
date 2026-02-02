@@ -12,6 +12,8 @@ export default (pool: Pool): Router => {
   router.get('/app_theme', withPool(pool, settingsController.getAppTheme));
   router.get('/user_settings', withPool(pool, settingsController.getUserSettings));
   router.put('/user_settings', withPool(pool, settingsController.updateUserSettings));
+  router.get('/env', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getEnvSettings));
+  router.patch('/env', checkPermission(pool, 'Admin'), withPool(pool, settingsController.updateEnvSettings));
   router.post('/test-smtp', checkPermission(pool, 'Admin'), withPool(pool, settingsController.testSmtpConnection));
 
   return router;

@@ -7,7 +7,17 @@ create or replace function get_tasks(
     p_priority_id int default null,
     p_type_id int default null,
     p_parent_id int default null,
-    p_active_statuses_only boolean default false
+    p_active_statuses_only boolean default false,
+    p_created_by int default null,
+    p_due_date_from date default null,
+    p_due_date_to date default null,
+    p_start_date_from date default null,
+    p_start_date_to date default null,
+    p_created_from date default null,
+    p_created_to date default null,
+    p_estimated_time_min numeric default null,
+    p_estimated_time_max numeric default null,
+    p_inactive_statuses_only boolean default false
 )
 returns table (
     id int,
@@ -97,6 +107,18 @@ begin
     and (p_priority_id is null or t.priority_id = p_priority_id)
     and (p_type_id is null or t.type_id = p_type_id)
     and (p_parent_id is null or t.parent_id = p_parent_id)
-    and (not p_active_statuses_only or t.status_id in (1, 2, 3, 4));
+    and (
+      (p_inactive_statuses_only and t.status_id in (5, 6, 7))
+      or (not p_inactive_statuses_only and (not p_active_statuses_only or t.status_id in (1, 2, 3, 4)))
+    )
+    and (p_created_by is null or t.created_by = p_created_by)
+    and (p_due_date_from is null or t.due_date >= p_due_date_from)
+    and (p_due_date_to is null or t.due_date <= p_due_date_to)
+    and (p_start_date_from is null or t.start_date >= p_start_date_from)
+    and (p_start_date_to is null or t.start_date <= p_start_date_to)
+    and (p_created_from is null or t.created_on::date >= p_created_from)
+    and (p_created_to is null or t.created_on::date <= p_created_to)
+    and (p_estimated_time_min is null or t.estimated_time >= p_estimated_time_min)
+    and (p_estimated_time_max is null or t.estimated_time <= p_estimated_time_max);
 end;
 $$ language plpgsql;

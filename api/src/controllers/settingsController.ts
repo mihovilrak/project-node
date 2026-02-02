@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import nodemailer from 'nodemailer';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as settingsModel from '../models/settingsModel';
 import { CustomRequest } from '../types/express';
 import { SettingsUpdateInput } from '../types/settings';
@@ -86,6 +88,157 @@ export const updateUserSettings = async (
     }
     const settings = await settingsModel.updateUserSettings(pool, userId, req.body as SettingsUpdateInput);
     res.status(200).json(settings);
+  } catch (error) {
+    logger.error({ err: error });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Allowed env keys to expose. Secrets are masked and not editable.
+const ALLOWED_ENV_KEYS = ['NODE_ENV', 'PORT', 'FE_URL', 'LOG_LEVEL', 'EMAIL_ENABLED', 'EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_FROM'];
+const EDITABLE_ENV_KEYS = ['PORT', 'FE_URL', 'LOG_LEVEL', 'EMAIL_ENABLED', 'EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_FROM'];
+const SECRET_PATTERNS = /PASSWORD|SECRET|KEY|TOKEN|CREDENTIAL/i;
+const LOG_LEVELS = ['error', 'warn', 'info', 'debug'];
+
+function validateEnvValue(key: string, value: string): { valid: boolean; message?: string } {
+  if (value === undefined || value === null) {
+    return { valid: false, message: 'Value is required' };
+  }
+  const v = String(value).trim();
+  switch (key) {
+    case 'PORT': {
+      const num = parseInt(v, 10);
+      if (Number.isNaN(num) || num < 1 || num > 65535) {
+        return { valid: false, message: 'PORT must be a number between 1 and 65535' };
+      }
+      return { valid: true };
+    }
+    case 'LOG_LEVEL':
+      if (!LOG_LEVELS.includes(v.toLowerCase())) {
+        return { valid: false, message: `LOG_LEVEL must be one of: ${LOG_LEVELS.join(', ')}` };
+      }
+      return { valid: true };
+    case 'EMAIL_PORT': {
+      const num = parseInt(v, 10);
+      if (Number.isNaN(num) || num < 1 || num > 65535) {
+        return { valid: false, message: 'EMAIL_PORT must be a number between 1 and 65535' };
+      }
+      return { valid: true };
+    }
+    case 'EMAIL_ENABLED':
+      if (v !== 'true' && v !== 'false') {
+        return { valid: false, message: 'EMAIL_ENABLED must be true or false' };
+      }
+      return { valid: true };
+    case 'FE_URL':
+    case 'EMAIL_HOST':
+    case 'EMAIL_FROM':
+      if (v.length === 0) {
+        return { valid: false, message: `${key} cannot be empty` };
+      }
+      return { valid: true };
+    default:
+      return { valid: true };
+  }
+}
+
+function getEnvFilePath(): string {
+  return process.env.ENV_FILE_PATH || path.join(process.cwd(), '.env');
+}
+
+function readEnvFile(filePath: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!fs.existsSync(filePath)) return out;
+  const content = fs.readFileSync(filePath, 'utf-8');
+  for (const line of content.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq > 0) {
+      const key = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
+function writeEnvFile(filePath: string, data: Record<string, string>): void {
+  const lines: string[] = [];
+  const keys = Object.keys(data).sort();
+  for (const key of keys) {
+    const value = data[key];
+    const needsQuote = /[\s#="']/.test(value);
+    lines.push(`${key}=${needsQuote ? `"${value.replace(/"/g, '\\"')}"` : value}`);
+  }
+  fs.writeFileSync(filePath, lines.join('\n') + '\n', 'utf-8');
+}
+
+export const getEnvSettings = async (
+  req: Request,
+  res: Response,
+  _pool: Pool
+): Promise<Response | void> => {
+  try {
+    const entries: { key: string; value: string; masked: boolean }[] = [];
+    for (const key of ALLOWED_ENV_KEYS) {
+      const value = process.env[key];
+      const masked = SECRET_PATTERNS.test(key) || !value;
+      entries.push({
+        key,
+        value: masked ? '****' : (value ?? ''),
+        masked
+      });
+    }
+    res.status(200).json(entries);
+  } catch (error) {
+    logger.error({ err: error });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updateEnvSettings = async (
+  req: Request,
+  res: Response,
+  _pool: Pool
+): Promise<Response | void> => {
+  try {
+    const body = req.body as { updates?: Record<string, string> };
+    const updates = body?.updates && typeof body.updates === 'object' ? body.updates : {};
+    const filePath = getEnvFilePath();
+
+    for (const key of Object.keys(updates)) {
+      if (!EDITABLE_ENV_KEYS.includes(key)) {
+        return res.status(400).json({ error: `Key "${key}" is not editable` });
+      }
+      const value = String(updates[key] ?? '').trim();
+      const validation = validateEnvValue(key, value);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.message || 'Invalid value' });
+      }
+    }
+
+    const current = readEnvFile(filePath);
+    for (const [key, value] of Object.entries(updates)) {
+      current[key] = String(value).trim();
+    }
+    writeEnvFile(filePath, current);
+
+    for (const [key, value] of Object.entries(updates)) {
+      process.env[key] = value;
+    }
+
+    const entries: { key: string; value: string; masked: boolean }[] = [];
+    for (const k of ALLOWED_ENV_KEYS) {
+      const value = process.env[k];
+      const masked = SECRET_PATTERNS.test(k) || !value;
+      entries.push({
+        key: k,
+        value: masked ? '****' : (value ?? ''),
+        masked
+      });
+    }
+    res.status(200).json(entries);
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });

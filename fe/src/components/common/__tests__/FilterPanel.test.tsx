@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FilterPanel from '../FilterPanel';
 import { FilterPanelProps, FilterValues } from '../../../types/filterPanel';
 
@@ -38,27 +38,27 @@ describe('FilterPanel', () => {
 
   it('expands when clicking expand button', () => {
     setup();
-    const expandButton = screen.getByTestId('ExpandMoreIcon').parentElement;
-    fireEvent.click(expandButton!);
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
     expect(screen.getByText('Apply Filters')).toBeVisible();
   });
 
   it('renders filter chips for applied filters', () => {
     const filters: FilterValues = {
-      status_id: '1'
+      status_id: 1
     };
     setup({ ...defaultProps, filters });
-    expect(screen.getByText('status_id: Active')).toBeInTheDocument();
+    expect(screen.getByText(/Status: Active/)).toBeInTheDocument();
   });
 
   it('calls onFilterChange when clearing filters', () => {
     const filters: FilterValues = {
-      status_id: '1'
+      status_id: 1
     };
     setup({ ...defaultProps, filters });
 
-    const expandButton = screen.getByTestId('ExpandMoreIcon').parentElement;
-    fireEvent.click(expandButton!);
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
 
     const clearButton = screen.getByText('Clear');
     fireEvent.click(clearButton);
@@ -66,41 +66,47 @@ describe('FilterPanel', () => {
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith({});
   });
 
-  it('updates filter when selecting a value', async () => {
+  it('adds filter and updates value when selecting from Add filter list and value dropdown', async () => {
     setup();
 
-    const expandButton = screen.getByTestId('ExpandMoreIcon').parentElement;
-    fireEvent.click(expandButton!);
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
 
-    // Wait for panel to expand and select to be visible - synchronous UI, no API calls
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /statuses/i })).toBeInTheDocument();
+      expect(screen.getByText('Add filter')).toBeInTheDocument();
     });
 
-    // Open select dropdown
-    const select = screen.getByRole('combobox', { name: /statuses/i });
-    fireEvent.mouseDown(select);
+    const statusFilterItem = screen.getByTestId('add-filter-status_id');
+    fireEvent.click(statusFilterItem);
 
-    // Find and click the Active option
-    const option = await screen.findByRole('option', { name: /Active/i });
-    fireEvent.click(option);
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Value/i)).toBeInTheDocument();
+    });
+
+    const valueSelect = screen.getByLabelText(/Value/i);
+    fireEvent.mouseDown(valueSelect);
+
+    const activeOption = await screen.findByRole('option', { name: /Active/i });
+    fireEvent.click(activeOption);
 
     await waitFor(() => {
       expect(defaultProps.onFilterChange).toHaveBeenCalledWith(
-        expect.objectContaining({ status_id: '1' })
+        expect.objectContaining({ status_id: 1 })
       );
     });
   });
 
-  it('collapses panel when clicking Apply Filters', () => {
+  it('collapses panel when clicking Apply Filters', async () => {
     setup();
 
-    const expandButton = screen.getByTestId('ExpandMoreIcon').parentElement;
-    fireEvent.click(expandButton!);
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
 
     const applyButton = screen.getByText('Apply Filters');
     fireEvent.click(applyButton);
 
-    expect(applyButton).not.toBeVisible();
+    await waitFor(() => {
+      expect(applyButton).not.toBeVisible();
+    });
   });
 });

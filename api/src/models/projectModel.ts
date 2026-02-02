@@ -8,6 +8,7 @@ import {
 import { Pool, QueryResult } from 'pg';
 
 const ALLOWED_PROJECT_WHERE_KEYS = ['status_id', 'created_by', 'parent_id'] as const;
+const RANGE_KEYS = ['start_date_from', 'start_date_to', 'due_date_from', 'due_date_to'] as const;
 
 // Get all projects
 export const getProjects = async (
@@ -16,17 +17,38 @@ export const getProjects = async (
 ): Promise<Project[]> => {
   let query = 'SELECT * FROM projects';
   const values: any[] = [];
+  const conditions: string[] = [];
 
   if (whereParams && Object.keys(whereParams).length > 0) {
     const allowedEntries = Object.entries(whereParams).filter(([key]) =>
       ALLOWED_PROJECT_WHERE_KEYS.includes(key as typeof ALLOWED_PROJECT_WHERE_KEYS[number])
     );
-    if (allowedEntries.length > 0) {
-      query += ' WHERE ';
-      const conditions = allowedEntries.map((_, index) => `${allowedEntries[index][0]} = $${index + 1}`);
-      query += conditions.join(' AND ');
-      values.push(...allowedEntries.map(([, v]) => v));
+    for (const [key, value] of allowedEntries) {
+      conditions.push(`${key} = $${values.length + 1}`);
+      values.push(value);
     }
+    const rangeEntries = Object.entries(whereParams).filter(([key]) =>
+      RANGE_KEYS.includes(key as typeof RANGE_KEYS[number])
+    );
+    for (const [key, value] of rangeEntries) {
+      if (key === 'start_date_from') {
+        conditions.push(`start_date >= $${values.length + 1}`);
+        values.push(value);
+      } else if (key === 'start_date_to') {
+        conditions.push(`start_date <= $${values.length + 1}`);
+        values.push(value);
+      } else if (key === 'due_date_from') {
+        conditions.push(`due_date >= $${values.length + 1}`);
+        values.push(value);
+      } else if (key === 'due_date_to') {
+        conditions.push(`due_date <= $${values.length + 1}`);
+        values.push(value);
+      }
+    }
+  }
+
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
   }
 
   const result: QueryResult<Project> = await pool.query(query, values);
@@ -200,7 +222,8 @@ export const getProjectTasks = async (
 
   const result: QueryResult = await pool.query(
     `SELECT * FROM get_tasks(
-      null, $1, $2, null, $3, $4, null, null, false
+      null, $1, $2, null, $3, $4, null, null, false,
+      null, null, null, null, null, null, null, null, null, false
     )
     ORDER BY created_on DESC`,
     [id, assignee_id, status_id, priority_id]
