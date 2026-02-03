@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Paper } from '@mui/material';
+import { useLocation, useParams } from 'react-router-dom';
+import { Box, Typography, Paper, Grid } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useTaskForm } from '../../hooks/task/useTaskForm';
 import { SimpleChangeEvent } from '../../types/task';
@@ -22,7 +22,6 @@ import { TaskProgressField } from './Form/TaskProgressField';
 const TaskForm: React.FC = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const projectIdFromQuery = queryParams.get('projectId');
   const parentId = queryParams.get('parentId');
@@ -90,78 +89,104 @@ const TaskForm: React.FC = () => {
         {isLoading ? 'Loading...' : (isEditing ? 'Edit Task' : 'Create Task')}
       </Typography>
       <form onSubmit={onSubmit} data-testid="task-form">
-        <TaskNameField
-          formData={formData}
-          handleChange={handleFormChange}
-        />
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12 }}>
+            <TaskNameField
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        <ProjectSelect
-          projects={projects}
-          formData={formData}
-          handleChange={handleFormChange}
-          projectIdFromQuery={projectIdFromQuery}
-        />
+          <Grid size={{ xs: 12 }}>
+            <ProjectSelect
+              projects={projects}
+              formData={formData}
+              handleChange={handleFormChange}
+              projectIdFromQuery={projectIdFromQuery}
+            />
+          </Grid>
 
-        <TaskDescriptionField
-          formData={formData}
-          handleChange={handleFormChange}
-        />
+          <Grid size={{ xs: 12 }}>
+            <TaskDescriptionField
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        {isEditing && (
-          <TaskProgressField
-            value={formData.progress || 0}
-            handleChange={handleFormChange}
-          />
-        )}
+          <Grid size={{ xs: 12 }}>
+            <DatePickerSection
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        <DatePickerSection
-          formData={formData}
-          handleChange={handleFormChange}
-        />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TaskPrioritySelect
+              formData={formData}
+              priorities={priorities}
+              handleChange={handleFormChange}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TaskStatusSelect
+              formData={formData}
+              statuses={statuses}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        <TaskPrioritySelect
-          formData={formData}
-          priorities={priorities}
-          handleChange={handleFormChange}
-        />
+          <Grid size={{ xs: 12 }}>
+            <AssigneeSelectionSection
+              formData={formData}
+              projectMembers={projectMembers}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        <TaskStatusSelect
-          formData={formData}
-          statuses={statuses}
-          handleChange={handleFormChange}
-        />
+          {formData.project_id && (
+            <Grid size={{ xs: 12 }}>
+              <ParentTaskSelect
+                formData={formData}
+                projectTasks={projectTasks}
+                handleChange={handleFormChange}
+                parentIdFromUrl={parentId}
+              />
+            </Grid>
+          )}
 
-        <AssigneeSelectionSection
-          formData={formData}
-          projectMembers={projectMembers}
-          handleChange={handleFormChange}
-        />
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TaskTypeSection
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <EstimatedTimeField
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        {formData.project_id && (
-          <ParentTaskSelect
-            formData={formData}
-            projectTasks={projectTasks}
-            handleChange={handleFormChange}
-            parentIdFromUrl={parentId}
-          />
-        )}
+          {isEditing && (
+            <Grid size={{ xs: 12 }}>
+              <TaskProgressField
+                value={formData.progress || 0}
+                handleChange={handleFormChange}
+              />
+            </Grid>
+          )}
 
-        <TaskTypeSection
-          formData={formData}
-          handleChange={handleFormChange}
-        />
+          <Grid size={{ xs: 12 }}>
+            <TaskTagsSection
+              formData={formData}
+              handleChange={handleFormChange}
+            />
+          </Grid>
 
-        <TaskTagsSection
-          formData={formData}
-          handleChange={handleFormChange}
-        />
-
-        <EstimatedTimeField
-          formData={formData}
-          handleChange={handleFormChange}
-        />
-
-        <TaskFormActionButtons isEditing={isEditing} />
+          <Grid size={{ xs: 12 }}>
+            <TaskFormActionButtons isEditing={isEditing} />
+          </Grid>
+        </Grid>
       </form>
     </Box>
   );
