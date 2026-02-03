@@ -53,22 +53,33 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                 }
               }}
             >
-              <Box sx={{ display: 'flex', width: '100%', gap: 1, flexWrap: 'wrap' }}>
-              <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography variant="body1" component="span">
-                    {formatTime(log?.spent_time || 0)} hours
+              <Box sx={{ display: 'flex', width: '100%', gap: 1 }}>
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    minWidth: 0,
+                    display: 'grid',
+                    gridTemplateColumns: '100px 130px 1fr',
+                    columnGap: 1.5,
+                    rowGap: 0.25,
+                    alignContent: 'start'
+                  }}
+                >
+                  <Typography variant="body1" sx={{ gridColumn: 1 }}>
+                    {formatTime(log?.spent_time || 0)} h
                   </Typography>
-                  <Chip
-                    label={log?.activity_type_name || 'Unknown'}
-                    size="small"
-                    sx={{
-                      backgroundColor: log?.activity_type_color || '#666',
-                      color: 'white'
-                    }}
-                  />
-                  <Typography variant="body2" color="text.secondary" component="span">
-                    Task: {log?.task_id ? (
+                  <Box sx={{ gridColumn: 2 }}>
+                    <Chip
+                      label={log?.activity_type_name || 'Unknown'}
+                      size="small"
+                      sx={{
+                        backgroundColor: log?.activity_type_color || '#666',
+                        color: 'white'
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ gridColumn: 3, minWidth: 0 }}>
+                    {log?.task_id ? (
                       <Link component={RouterLink} to={`/tasks/${log.task_id}`}>
                         {log?.task_name || 'Unknown Task'}
                       </Link>
@@ -76,13 +87,11 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                       <span>{log?.task_name || 'Unknown Task'}</span>
                     )}
                   </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {log?.log_date ? new Date(log.log_date).toLocaleDateString() : 'Unknown date'}
+                  <Typography variant="body2" color="text.secondary" sx={{ gridColumn: 1 }}>
+                    {log?.log_date ? new Date(log.log_date).toLocaleDateString() : '—'}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Logged by: {log?.user_id ? (
+                  <Typography variant="body2" color="text.secondary" sx={{ gridColumn: 2 }}>
+                    {log?.user_id ? (
                       <Link component={RouterLink} to={`/users/${log.user_id}`}>
                         {log?.user || 'Unknown User'}
                       </Link>
@@ -90,43 +99,42 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                       <span>{log?.user || 'Unknown User'}</span>
                     )}
                   </Typography>
+                  {log?.description && (
+                    <Typography variant="body2" sx={{ gridColumn: '1 / -1', mt: 0.5 }}>
+                      {log.description}
+                    </Typography>
+                  )}
                 </Box>
-                {log?.description && (
-                  <Typography variant="body2" sx={{ mt: 0.25 }}>
-                    {log.description}
-                  </Typography>
+                {(onEdit || onDelete) && (
+                  <Box sx={{ flexShrink: 0 }}>
+                    {onEdit && (
+                      <PermissionButton
+                        requiredPermission="Edit log"
+                        component={IconButton}
+                        onClick={() => log && onEdit(log)}
+                        tooltipText="Edit time log"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        disabled={!log}
+                      >
+                        <EditIcon />
+                      </PermissionButton>
+                    )}
+                    {onDelete && (
+                      <PermissionButton
+                        requiredPermission="Delete log"
+                        component={IconButton}
+                        onClick={() => log?.id && onDelete(log.id)}
+                        tooltipText="Delete time log"
+                        size="small"
+                        color="error"
+                        disabled={!log?.id}
+                      >
+                        <DeleteIcon />
+                      </PermissionButton>
+                    )}
+                  </Box>
                 )}
-              </Box>
-              {(onEdit || onDelete) && (
-                <Box sx={{ alignSelf: 'flex-start' }}>
-                  {onEdit && (
-                    <PermissionButton
-                      requiredPermission="Edit log"
-                      component={IconButton}
-                      onClick={() => log && onEdit(log)}
-                      tooltipText="Edit time log"
-                      size="small"
-                      sx={{ mr: 1 }}
-                      disabled={!log}
-                    >
-                      <EditIcon />
-                    </PermissionButton>
-                  )}
-                  {onDelete && (
-                    <PermissionButton
-                      requiredPermission="Delete log"
-                      component={IconButton}
-                      onClick={() => log?.id && onDelete(log.id)}
-                      tooltipText="Delete time log"
-                      size="small"
-                      color="error"
-                      disabled={!log?.id}
-                    >
-                      <DeleteIcon />
-                    </PermissionButton>
-                  )}
-                </Box>
-              )}
               </Box>
             </ListItem>
           );

@@ -134,43 +134,43 @@ const Projects: React.FC = () => {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          columnGap: 1.5,
+          gridTemplateColumns: 'minmax(0, 0.65fr) minmax(0, 0.65fr) minmax(0, 1.1fr)',
+          columnGap: 1,
           rowGap: 0.5,
           mb: 0.5
         }}
       >
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {project?.created_by_name ?? '—'}
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Estimated time </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {formatHours(project?.estimated_time)}
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {project?.status_name ?? '—'}
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent time </Typography>
           <Typography component="span" variant="body2" color="text.secondary">
             {formatHours(project?.spent_time)}
@@ -194,50 +194,42 @@ const Projects: React.FC = () => {
   const projectCardContentList = (project: Project) => (
     <>
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{project?.name || 'Unnamed Project'}</Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          columnGap: 1.5,
-          rowGap: 0.5
-        }}
-      >
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.created_by_name ?? '—'}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Estimated time </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {formatHours(project?.estimated_time)}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.status_name ?? '—'}
-          </Typography>
-        </Box>
-        <Box>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent time </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {formatHours(project?.spent_time)}
-          </Typography>
-        </Box>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'baseline', mb: 0.5 }}>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {project?.created_by_name ?? '—'}
+        </Typography>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Est. </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {formatHours(project?.estimated_time)}
+        </Typography>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {project?.status_name ?? '—'}
+        </Typography>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent </Typography>
+        <Typography component="span" variant="body2" color="text.secondary">
+          {formatHours(project?.spent_time)}
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>Progress</Typography>
+        <LinearProgress
+          variant="determinate"
+          value={Math.min(100, Math.max(0, project?.progress ?? 0))}
+          sx={{ mt: 0.5, height: 8, borderRadius: 1 }}
+        />
+        <Typography variant="caption" color="text.secondary">
+          {project?.progress ?? 0}%
+        </Typography>
       </Box>
     </>
   );
@@ -296,13 +288,13 @@ const Projects: React.FC = () => {
       ) : viewMode === 'grid' ? (
         <Grid container spacing={2} sx={{ mt: 2, width: '100%', maxWidth: 1400 }}>
           {filteredProjects.map((project) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project?.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project?.id} sx={{ minWidth: 0 }}>
               <Card
                 onClick={() => navigate(`/projects/${project?.id}`)}
                 data-testid={`project-card-${project?.id}`}
                 role="button"
                 aria-label={`View project ${project?.name || 'Unnamed'}`}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: 'pointer', minWidth: 262 }}
               >
                 <CardContent>
                   {projectCardContentGrid(project)}
@@ -316,7 +308,7 @@ const Projects: React.FC = () => {
           <List
             height={600}
             itemCount={filteredProjects.length}
-            itemSize={140}
+            itemSize={168}
             width="100%"
             itemData={filteredProjects}
           >

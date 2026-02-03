@@ -61,7 +61,7 @@ describe('TimeLogList', () => {
 
   it('renders time logs correctly', () => {
     renderComponent();
-    expect(screen.getByText('2:30 hours')).toBeInTheDocument();
+    expect(screen.getByText('2:30 h')).toBeInTheDocument();
     expect(screen.getByText('Development')).toBeInTheDocument();
     expect(screen.getByText('Test description')).toBeInTheDocument();
   });
@@ -74,7 +74,7 @@ describe('TimeLogList', () => {
         spent_time: 2.75
       }]
     });
-    expect(screen.getByText('2:45 hours')).toBeInTheDocument();
+    expect(screen.getByText('2:45 h')).toBeInTheDocument();
   });
 
   it('shows edit button when user has permission', () => {
@@ -131,6 +131,6 @@ describe('TimeLogList', () => {
         spent_time: Number('invalid')
       }]
     });
-    expect(screen.getByText('0:00 hours')).toBeInTheDocument();
+    expect(screen.getByText('0:00 h')).toBeInTheDocument();
   });
 });
