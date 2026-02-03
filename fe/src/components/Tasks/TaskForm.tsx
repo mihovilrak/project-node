@@ -97,7 +97,7 @@ const TaskForm: React.FC = () => {
             />
           </Grid>
 
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12, sm: formData.project_id ? 6 : 12 }}>
             <ProjectSelect
               projects={projects}
               formData={formData}
@@ -105,6 +105,17 @@ const TaskForm: React.FC = () => {
               projectIdFromQuery={projectIdFromQuery}
             />
           </Grid>
+
+          {formData.project_id && (
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <ParentTaskSelect
+                formData={formData}
+                projectTasks={projectTasks}
+                handleChange={handleFormChange}
+                parentIdFromUrl={parentId}
+              />
+            </Grid>
+          )}
 
           <Grid size={{ xs: 12 }}>
             <TaskDescriptionField
@@ -142,17 +153,6 @@ const TaskForm: React.FC = () => {
               handleChange={handleFormChange}
             />
           </Grid>
-
-          {formData.project_id && (
-            <Grid size={{ xs: 12 }}>
-              <ParentTaskSelect
-                formData={formData}
-                projectTasks={projectTasks}
-                handleChange={handleFormChange}
-                parentIdFromUrl={parentId}
-              />
-            </Grid>
-          )}
 
           <Grid size={{ xs: 12, sm: 6 }}>
             <TaskTypeSection

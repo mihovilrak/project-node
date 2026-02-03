@@ -137,4 +137,5 @@ export interface TaskQueryFilters {
   estimated_time_min?: number;
   estimated_time_max?: number;
   inactive_statuses_only?: boolean;
+  active_statuses_only?: boolean;
 }

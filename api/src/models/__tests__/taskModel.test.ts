@@ -51,7 +51,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, null, null, null, null, null, null, null, true]
+        [null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false]
       );
       expect(result).toEqual(mockTasks);
     });
@@ -66,7 +66,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, 1, null, null, 1, null, null, null, false]
+        [null, 1, null, null, 1, null, null, null, false, null, null, null, null, null, null, null, null, null, false]
       );
       expect(result).toEqual(mockTasks);
     });
@@ -78,7 +78,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, null, null, null, null, null, null, null, true]
+        [null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false]
       );
       expect(result).toEqual([]);
     });

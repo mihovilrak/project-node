@@ -21,7 +21,12 @@ describe('ProjectModel', () => {
 
       const result = await projectModel.getProjects(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM projects', []);
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('FROM projects p');
+      expect(query).toContain('project_details(p.id)');
+      expect(query).toContain('status_name');
+      expect(query).toContain('created_by_name');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -31,10 +36,9 @@ describe('ProjectModel', () => {
 
       const result = await projectModel.getProjects(mockPool, { status_id: 1 });
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM projects WHERE status_id = $1',
-        [1]
-      );
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('p.status_id = $1');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -44,10 +48,9 @@ describe('ProjectModel', () => {
 
       const result = await projectModel.getProjects(mockPool, { status_id: 1, evil_key: 2 } as any);
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM projects WHERE status_id = $1',
-        [1]
-      );
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('p.status_id = $1');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1]);
       expect(result).toEqual(mockProjects);
     });
   });

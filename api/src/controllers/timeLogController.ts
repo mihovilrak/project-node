@@ -105,14 +105,14 @@ export const createTimeLog = async (
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    if (!spent_time || !description || !activity_type_id) {
+    if (spent_time == null || !activity_type_id) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const timeLog = await timeLogModel.createTimeLog(pool, taskId, userId, {
       log_date,
       spent_time,
-      description,
+      description: description ?? '',
       activity_type_id
     });
     res.status(201).json(timeLog);

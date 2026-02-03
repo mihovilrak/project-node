@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import SystemSettings from '../SystemSettings';
 import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
 import { AppSettings } from '../../../types/setting';
@@ -339,14 +339,17 @@ describe('SystemSettings', () => {
         expect(screen.getByText(/Test email sent successfully/i)).toBeInTheDocument();
       });
 
-      // Find and click the close button on the alert
-      const closeButton = screen.getByRole('button', { name: /close/i });
+      // Find the success alert by its message (there may be another alert e.g. env error) and click close
+      const successMessage = screen.getByText(/Test email sent successfully/i);
+      const alert = successMessage.closest('[role="alert"]');
+      expect(alert).toBeTruthy();
+      const closeButton = within(alert!).getByRole('button', { name: /close/i });
       fireEvent.click(closeButton);
 
       await waitFor(() => {
-      expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
+      });
     });
-  });
 
   it('updates document.title when app_name changes', () => {
     const originalTitle = document.title;

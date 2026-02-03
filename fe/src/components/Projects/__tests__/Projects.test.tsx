@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Projects from '../Projects';
 import { getProjects } from '../../../api/projects';
 import { Project } from '../../../types/project';
@@ -90,18 +91,18 @@ describe('Projects Component', () => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
+    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+    await userEvent.click(screen.getByTestId('add-filter-search'));
     const filterPanel = screen.getByTestId('filter-panel');
-    const expandButton = within(filterPanel).getAllByRole('button')[0];
-    fireEvent.click(expandButton);
-
-    const filterInput = await screen.findByLabelText('Search');
-    fireEvent.change(filterInput, { target: { value: 'Project A' } });
+    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
+    await userEvent.type(searchValueInput, 'Project A');
+    await userEvent.click(screen.getByRole('button', { name: /apply filters/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Project A')).toBeInTheDocument();
       expect(screen.queryByText('Project B')).not.toBeInTheDocument();
-    });
-  });
+    }, { timeout: 8000 });
+  }, 10000);
 
   it('renders projects in correct order based on sort selection', async () => {
     render(<Projects />);
@@ -162,9 +163,9 @@ describe('Projects Component', () => {
     const card1 = screen.getByTestId('project-card-1');
     expect(within(card1).getByText('Project A')).toBeInTheDocument();
     expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
-    expect(within(card1).getByText(/Status: Active/)).toBeInTheDocument();
-    expect(within(card1).getByText(/Est: 100\.0 h/)).toBeInTheDocument();
-    expect(within(card1).getByText(/Spent: 50\.0 h/)).toBeInTheDocument();
+    expect(within(card1).getByText('Active')).toBeInTheDocument();
+    expect(within(card1).getByText('100.0 h')).toBeInTheDocument();
+    expect(within(card1).getByText('50.0 h')).toBeInTheDocument();
     expect(within(card1).getByText('Progress')).toBeInTheDocument();
   });
 
@@ -181,6 +182,6 @@ describe('Projects Component', () => {
     const card1 = screen.getByTestId('project-card-1');
     expect(within(card1).getByText('Project A')).toBeInTheDocument();
     expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
-    expect(within(card1).getByText(/Status: Active/)).toBeInTheDocument();
+    expect(within(card1).getByText('Active')).toBeInTheDocument();
   });
 });

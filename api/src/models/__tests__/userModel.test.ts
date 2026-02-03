@@ -42,7 +42,7 @@ describe('UserModel', () => {
 
       const result = await userModel.getUsers(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_users($1, $2)', [null, null]);
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_users($1, $2, $3)', [null, null, false]);
       expect(result).toEqual(mockUsers);
     });
 
@@ -53,8 +53,8 @@ describe('UserModel', () => {
       const result = await userModel.getUsers(mockPool, { whereParams: { status_id: '1' } });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM get_users($1, $2)',
-        [1, null]
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, null, false]
       );
       expect(result).toEqual(mockUsers);
     });
@@ -66,8 +66,8 @@ describe('UserModel', () => {
       await userModel.getUsers(mockPool, { whereParams: { status_id: '1', role_id: '2' } });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM get_users($1, $2)',
-        [1, 2]
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, 2, false]
       );
     });
 
@@ -78,8 +78,8 @@ describe('UserModel', () => {
       await userModel.getUsers(mockPool, { whereParams: { status_id: '1', evil_key: 'x' } as any });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM get_users($1, $2)',
-        [1, null]
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, null, false]
       );
     });
   });

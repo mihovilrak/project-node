@@ -122,8 +122,8 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 2')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Project: Project 1')).toBeInTheDocument();
-    expect(screen.getByText('Project: Project 2')).toBeInTheDocument();
+    expect(screen.getByText('Project 1')).toBeInTheDocument();
+    expect(screen.getByText('Project 2')).toBeInTheDocument();
   });
 
   test('handles task deletion', async () => {
@@ -265,12 +265,13 @@ describe('Tasks Component', () => {
   });
 
   test('handles empty assignee correctly', async () => {
-    mockedGetTasks.mockResolvedValue([mockTasks[1]]);
+    const taskWithUnassigned: Task = { ...mockTasks[1], id: 3, assignee_id: undefined, assignee_name: '' };
+    mockedGetTasks.mockResolvedValue([taskWithUnassigned]);
     renderTasks();
 
     await waitFor(
       () => {
-        expect(screen.getByText('Assignee: Unassigned')).toBeInTheDocument();
+        expect(screen.getByText('Unassigned')).toBeInTheDocument();
       },
       { timeout: 10000 }
     );

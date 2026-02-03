@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import { render, fireEvent, waitFor, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Profiler } from 'react';
 import Tasks from '../../../components/Tasks/Tasks';
 import { TestWrapper } from '../../TestWrapper';
@@ -105,14 +106,17 @@ describe('Tasks Component Performance Tests', () => {
 
     // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     }, { timeout: 10000 });
 
-    // The input uses label "Search" not placeholder
-    const searchInput = screen.getByLabelText('Search');
+    // Tasks use FilterPanel: expand filters, add Search filter, then type in value input
+    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+    await userEvent.click(screen.getByTestId('add-filter-search'));
+    const filterPanel = screen.getByTestId('filter-panel');
+    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
     const startTime = performance.now();
 
-    fireEvent.change(searchInput, { target: { value: 'Task 1' } });
+    fireEvent.change(searchValueInput, { target: { value: 'Task 1' } });
 
     const endTime = performance.now();
     const filterTime = endTime - startTime;
@@ -131,7 +135,7 @@ describe('Tasks Component Performance Tests', () => {
 
     // Wait for loading to complete
     await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     }, { timeout: 10000 });
 
     // The sort button shows "A-Z" text
@@ -147,7 +151,7 @@ describe('Tasks Component Performance Tests', () => {
   }, 15000);
 
   test('Tasks component delete performance', async () => {
-    const { getAllByText } = render(
+    render(
       <TestWrapper>
         <Profiler id="TasksDelete" onRender={onRenderCallback}>
           <Tasks />
@@ -156,9 +160,11 @@ describe('Tasks Component Performance Tests', () => {
     );
 
     // Wait for tasks to load
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await waitFor(() => {
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
 
-    const deleteButtons = getAllByText('Delete');
+    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
     const startTime = performance.now();
 
     fireEvent.click(deleteButtons[0]);
@@ -170,5 +176,5 @@ describe('Tasks Component Performance Tests', () => {
 
     // UI timing is noisy in CI/jsdom; keep this threshold generous to avoid flakiness.
     expect(deleteTime).toBeLessThan(1000);
-  });
+  }, 15000);
 });

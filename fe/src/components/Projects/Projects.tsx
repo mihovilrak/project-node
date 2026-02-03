@@ -130,31 +130,55 @@ const Projects: React.FC = () => {
 
   const projectCardContentGrid = (project: Project) => (
     <>
-      <Typography variant="h6" gutterBottom>{project?.name || 'Unnamed Project'}</Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 0.5 }}>
-        <Typography variant="body2" color="text.secondary">
-          Start: {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Created by: {project?.created_by_name ?? '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Est: {formatHours(project?.estimated_time)}
-        </Typography>
-      </Box>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 0.5 }}>
-        <Typography variant="body2" color="text.secondary">
-          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Status: {project?.status_name ?? '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Spent: {formatHours(project?.spent_time)}
-        </Typography>
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{project?.name || 'Unnamed Project'}</Typography>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          columnGap: 1.5,
+          rowGap: 0.5,
+          mb: 0.5
+        }}
+      >
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.created_by_name ?? '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Estimated time </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {formatHours(project?.estimated_time)}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.status_name ?? '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent time </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {formatHours(project?.spent_time)}
+          </Typography>
+        </Box>
       </Box>
       <Box sx={{ mt: 1 }}>
-        <Typography variant="caption" color="text.secondary">Progress</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 700 }}>Progress</Typography>
         <LinearProgress
           variant="determinate"
           value={Math.min(100, Math.max(0, project?.progress ?? 0))}
@@ -169,26 +193,51 @@ const Projects: React.FC = () => {
 
   const projectCardContentList = (project: Project) => (
     <>
-      <Typography variant="h6" gutterBottom>{project?.name || 'Unnamed Project'}</Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
-          Start: {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Created by: {project?.created_by_name ?? '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Est: {formatHours(project?.estimated_time)}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Status: {project?.status_name ?? '—'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Spent: {formatHours(project?.spent_time)}
-        </Typography>
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{project?.name || 'Unnamed Project'}</Typography>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          columnGap: 1.5,
+          rowGap: 0.5
+        }}
+      >
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.created_by_name ?? '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Estimated time </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {formatHours(project?.estimated_time)}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {project?.status_name ?? '—'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent time </Typography>
+          <Typography component="span" variant="body2" color="text.secondary">
+            {formatHours(project?.spent_time)}
+          </Typography>
+        </Box>
       </Box>
     </>
   );

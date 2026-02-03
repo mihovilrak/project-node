@@ -32,14 +32,15 @@ export const getTasks = async (
       created_to,
       estimated_time_min,
       estimated_time_max,
-      inactive_statuses_only
+      inactive_statuses_only,
+      active_statuses_only
     } = req.query;
 
     // Only use getTasksByProject when project_id is the sole filter
     const otherFilters = [
       id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
       created_by, due_date_from, due_date_to, start_date_from, start_date_to,
-      created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only
+      created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only, active_statuses_only
     ].some(Boolean);
     if (project_id && !otherFilters) {
       const tasks = await taskModel.getTasksByProject(pool, project_id as string);
@@ -102,6 +103,9 @@ export const getTasks = async (
     }
     if (inactive_statuses_only === '1' || inactive_statuses_only === 'true') {
       filters.inactive_statuses_only = true;
+    }
+    if (active_statuses_only === '1' || active_statuses_only === 'true') {
+      filters.active_statuses_only = true;
     }
 
     const hasFilters = Object.keys(filters).length > 0;

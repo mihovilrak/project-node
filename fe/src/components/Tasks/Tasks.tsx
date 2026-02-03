@@ -61,9 +61,11 @@ const Tasks: React.FC = () => {
       if (hasFilters && currentFilters) {
         if (statusId === -1) {
           params.inactive_statuses_only = 1;
+        } else if (statusId === 0) {
+          params.active_statuses_only = 1;
         } else if (statusIdStr.includes(',')) {
           params.status_id = statusIdStr;
-        } else if (statusId !== undefined && !Number.isNaN(statusId) && statusId !== 0) {
+        } else if (statusId !== undefined && !Number.isNaN(statusId)) {
           params.status_id = statusId;
         }
         if (f.priority_id != null && f.priority_id !== '') {
@@ -203,9 +205,11 @@ const Tasks: React.FC = () => {
           if (!matchesSearch) return false;
         }
 
-        const statusIds = filters.status_id != null && String(filters.status_id).includes(',')
+        let statusIds = filters.status_id != null && String(filters.status_id).includes(',')
           ? String(filters.status_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
           : filters.status_id != null && filters.status_id !== '' ? [Number(filters.status_id)] : null;
+        // "Active" (id 0): API already returned only active tasks; don't filter by status_id client-side
+        if (statusIds && statusIds.length > 0 && statusIds.every((id) => id === 0)) statusIds = null;
         if (statusIds && statusIds.length > 0 && !statusIds.includes(task.status_id)) return false;
 
         const priorityIds = filters.priority_id != null && String(filters.priority_id).includes(',')
@@ -284,7 +288,7 @@ const Tasks: React.FC = () => {
         {error ? (
           <Typography color="error" data-testid="task-error">{error}</Typography>
         ) : loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" data-testid="tasks-loading">
             <CircularProgress />
           </Box>
         ) : filteredTasks.length === 0 ? (

@@ -36,12 +36,13 @@ export const getTasks = async (
   const estimated_time_min = filters?.estimated_time_min ?? whereParams.estimated_time_min ?? null;
   const estimated_time_max = filters?.estimated_time_max ?? whereParams.estimated_time_max ?? null;
   const inactive_statuses_only = Boolean(filters?.inactive_statuses_only ?? whereParams.inactive_statuses_only);
-  const hasFilters = [
+  const hasFilters = filters != null && [
     id, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
     created_by, due_date_from, due_date_to, start_date_from, start_date_to,
     created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only
   ].some((v) => v != null);
-  const active_statuses_only = !hasFilters && !inactive_statuses_only;
+  const explicit_active_only = Boolean(filters?.active_statuses_only ?? whereParams.active_statuses_only);
+  const active_statuses_only = explicit_active_only || (!hasFilters && !inactive_statuses_only);
 
   const result: QueryResult<TaskDetails> = await pool.query(
     `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,

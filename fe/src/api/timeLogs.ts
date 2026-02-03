@@ -67,7 +67,7 @@ export const createTimeLog = async (taskId: number, timeLog: TimeLogCreate): Pro
     const response = await api.post(`/time-logs/tasks/${taskId}/logs`, {
       log_date: timeLog.log_date,
       spent_time: timeLog.spent_time,
-      description: timeLog.description,
+      description: timeLog.description ?? '',
       activity_type_id: timeLog.activity_type_id
     });
     return response.data;

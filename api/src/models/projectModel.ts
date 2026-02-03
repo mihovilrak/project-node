@@ -10,12 +10,11 @@ import { Pool, QueryResult } from 'pg';
 const ALLOWED_PROJECT_WHERE_KEYS = ['status_id', 'created_by', 'parent_id'] as const;
 const RANGE_KEYS = ['start_date_from', 'start_date_to', 'due_date_from', 'due_date_to'] as const;
 
-// Get all projects
+// Get all projects (with status_name, created_by_name, estimated_time, spent_time, progress from project_details)
 export const getProjects = async (
   pool: Pool,
   whereParams?: Record<string, any>
 ): Promise<Project[]> => {
-  let query = 'SELECT * FROM projects';
   const values: any[] = [];
   const conditions: string[] = [];
 
@@ -24,7 +23,7 @@ export const getProjects = async (
       ALLOWED_PROJECT_WHERE_KEYS.includes(key as typeof ALLOWED_PROJECT_WHERE_KEYS[number])
     );
     for (const [key, value] of allowedEntries) {
-      conditions.push(`${key} = $${values.length + 1}`);
+      conditions.push(`p.${key} = $${values.length + 1}`);
       values.push(value);
     }
     const rangeEntries = Object.entries(whereParams).filter(([key]) =>
@@ -32,24 +31,26 @@ export const getProjects = async (
     );
     for (const [key, value] of rangeEntries) {
       if (key === 'start_date_from') {
-        conditions.push(`start_date >= $${values.length + 1}`);
+        conditions.push(`p.start_date >= $${values.length + 1}`);
         values.push(value);
       } else if (key === 'start_date_to') {
-        conditions.push(`start_date <= $${values.length + 1}`);
+        conditions.push(`p.start_date <= $${values.length + 1}`);
         values.push(value);
       } else if (key === 'due_date_from') {
-        conditions.push(`due_date >= $${values.length + 1}`);
+        conditions.push(`p.due_date >= $${values.length + 1}`);
         values.push(value);
       } else if (key === 'due_date_to') {
-        conditions.push(`due_date <= $${values.length + 1}`);
+        conditions.push(`p.due_date <= $${values.length + 1}`);
         values.push(value);
       }
     }
   }
 
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
+  const whereClause = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
+  const query = `SELECT p.id, p.name, p.description, p.start_date, p.end_date, p.due_date, p.parent_id, p.status_id, p.created_by, p.created_on, p.updated_on,
+    pd.status_name, pd.created_by_name, pd.estimated_time, pd.spent_time, pd.progress
+FROM projects p
+LEFT JOIN LATERAL (SELECT status_name, created_by_name, estimated_time, spent_time, progress FROM project_details(p.id)) pd ON true${whereClause}`;
 
   const result: QueryResult<Project> = await pool.query(query, values);
   return result.rows;
