@@ -14,7 +14,8 @@ import {
   SelectChangeEvent,
   Grid,
   IconButton,
-  Tooltip
+  Tooltip,
+  LinearProgress
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -122,6 +123,76 @@ const Projects: React.FC = () => {
       return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
     });
 
+  const formatHours = (hours: number | undefined): string => {
+    const h = hours ?? 0;
+    return `${Number(h).toFixed(1)} h`;
+  };
+
+  const projectCardContentGrid = (project: Project) => (
+    <>
+      <Typography variant="h6" gutterBottom>{project?.name || 'Unnamed Project'}</Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 0.5 }}>
+        <Typography variant="body2" color="text.secondary">
+          Start: {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Created by: {project?.created_by_name ?? '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Est: {formatHours(project?.estimated_time)}
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 0.5 }}>
+        <Typography variant="body2" color="text.secondary">
+          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Status: {project?.status_name ?? '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Spent: {formatHours(project?.spent_time)}
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="caption" color="text.secondary">Progress</Typography>
+        <LinearProgress
+          variant="determinate"
+          value={Math.min(100, Math.max(0, project?.progress ?? 0))}
+          sx={{ mt: 0.5, height: 8, borderRadius: 1 }}
+        />
+        <Typography variant="caption" color="text.secondary">
+          {project?.progress ?? 0}%
+        </Typography>
+      </Box>
+    </>
+  );
+
+  const projectCardContentList = (project: Project) => (
+    <>
+      <Typography variant="h6" gutterBottom>{project?.name || 'Unnamed Project'}</Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          Start: {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Created by: {project?.created_by_name ?? '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Est: {formatHours(project?.estimated_time)}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Status: {project?.status_name ?? '—'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Spent: {formatHours(project?.spent_time)}
+        </Typography>
+      </Box>
+    </>
+  );
+
   return (
     <Box sx={{ width: '100%', p: 3 }} data-testid="projects-container">
       <Box sx={{ mb: 3 }}>
@@ -185,11 +256,7 @@ const Projects: React.FC = () => {
                 sx={{ cursor: 'pointer' }}
               >
                 <CardContent>
-                  <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
-                  <Typography variant="body2">{project?.description || 'No description'}</Typography>
-                  <Typography variant="caption">
-                    Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
-                  </Typography>
+                  {projectCardContentGrid(project)}
                 </CardContent>
               </Card>
             </Grid>
@@ -217,11 +284,7 @@ const Projects: React.FC = () => {
                       sx={{ cursor: 'pointer' }}
                     >
                       <CardContent>
-                        <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
-                        <Typography variant="body2">{project?.description || 'No description'}</Typography>
-                        <Typography variant="caption">
-                          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
-                        </Typography>
+                        {projectCardContentList(project)}
                       </CardContent>
                     </Card>
                   </Box>

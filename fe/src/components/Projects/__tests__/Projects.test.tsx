@@ -151,4 +151,36 @@ describe('Projects Component', () => {
       expect(screen.getByText('No projects yet.')).toBeInTheDocument();
     });
   });
+
+  it('displays project card with start date, created by, estimated time, due date, status, spent time and progress in grid view', async () => {
+    render(<Projects />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
+    });
+
+    const card1 = screen.getByTestId('project-card-1');
+    expect(within(card1).getByText('Project A')).toBeInTheDocument();
+    expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
+    expect(within(card1).getByText(/Status: Active/)).toBeInTheDocument();
+    expect(within(card1).getByText(/Est: 100\.0 h/)).toBeInTheDocument();
+    expect(within(card1).getByText(/Spent: 50\.0 h/)).toBeInTheDocument();
+    expect(within(card1).getByText('Progress')).toBeInTheDocument();
+  });
+
+  it('displays project card content in list view when toggled', async () => {
+    render(<Projects />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
+    });
+
+    const listViewButton = screen.getByRole('button', { name: /list view/i });
+    fireEvent.click(listViewButton);
+
+    const card1 = screen.getByTestId('project-card-1');
+    expect(within(card1).getByText('Project A')).toBeInTheDocument();
+    expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
+    expect(within(card1).getByText(/Status: Active/)).toBeInTheDocument();
+  });
 });

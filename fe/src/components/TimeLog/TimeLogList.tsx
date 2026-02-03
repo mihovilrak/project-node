@@ -3,12 +3,10 @@ import {
   Link,
   List,
   ListItem,
-  ListItemText,
   IconButton,
   Box,
   Typography,
-  Chip,
-  Paper
+  Chip
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -48,62 +46,59 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                 border: '1px solid #e0e0e0',
                 borderRadius: '4px',
                 mb: 1,
+                flexDirection: 'column',
+                alignItems: 'stretch',
                 '&:hover': {
                   backgroundColor: 'rgba(0, 0, 0, 0.04)'
                 }
               }}
             >
-              <Box sx={{ flexGrow: 1 }}>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography>
-                        {formatTime(log?.spent_time || 0)} hours
-                      </Typography>
-                      <Chip
-                        label={log?.activity_type_name || 'Unknown'}
-                        size="small"
-                        sx={{
-                          backgroundColor: log?.activity_type_color || '#666',
-                          color: 'white'
-                        }}
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {log?.log_date ? new Date(log.log_date).toLocaleDateString() : 'Unknown date'}
-                      </Typography>
-                      <Typography variant="body1">
-                        By: {log?.user_id ? (
-                          <Link component={RouterLink} to={`/users/${log.user_id}`}>
-                            {log?.user || 'Unknown User'}
-                          </Link>
-                        ) : (
-                          <span>{log?.user || 'Unknown User'}</span>
-                        )}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        Task: {log?.task_id ? (
-                          <Link component={RouterLink} to={`/tasks/${log.task_id}`}>
-                            {log?.task_name || 'Unknown Task'}
-                          </Link>
-                        ) : (
-                          <span>{log?.task_name || 'Unknown Task'}</span>
-                        )}
-                      </Typography>
-                      {log?.description && (
-                        <Typography variant="body2" sx={{ mt: 0.5 }}>
-                          {log.description}
-                        </Typography>
-                      )}
-                    </Box>
-                  }
-                />
+              <Box sx={{ display: 'flex', width: '100%', gap: 1, flexWrap: 'wrap' }}>
+              <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="body1" component="span">
+                    {formatTime(log?.spent_time || 0)} hours
+                  </Typography>
+                  <Chip
+                    label={log?.activity_type_name || 'Unknown'}
+                    size="small"
+                    sx={{
+                      backgroundColor: log?.activity_type_color || '#666',
+                      color: 'white'
+                    }}
+                  />
+                  <Typography variant="body2" color="text.secondary" component="span">
+                    Task: {log?.task_id ? (
+                      <Link component={RouterLink} to={`/tasks/${log.task_id}`}>
+                        {log?.task_name || 'Unknown Task'}
+                      </Link>
+                    ) : (
+                      <span>{log?.task_name || 'Unknown Task'}</span>
+                    )}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {log?.log_date ? new Date(log.log_date).toLocaleDateString() : 'Unknown date'}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Logged by: {log?.user_id ? (
+                      <Link component={RouterLink} to={`/users/${log.user_id}`}>
+                        {log?.user || 'Unknown User'}
+                      </Link>
+                    ) : (
+                      <span>{log?.user || 'Unknown User'}</span>
+                    )}
+                  </Typography>
+                </Box>
+                {log?.description && (
+                  <Typography variant="body2" sx={{ mt: 0.25 }}>
+                    {log.description}
+                  </Typography>
+                )}
               </Box>
               {(onEdit || onDelete) && (
-                <Box>
+                <Box sx={{ alignSelf: 'flex-start' }}>
                   {onEdit && (
                     <PermissionButton
                       requiredPermission="Edit log"
@@ -132,6 +127,7 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                   )}
                 </Box>
               )}
+              </Box>
             </ListItem>
           );
         })
