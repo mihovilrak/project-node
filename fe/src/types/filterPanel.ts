@@ -52,6 +52,8 @@ export interface ActiveFilter {
   operator: FilterOperator;
   value?: string | number | null;
   value2?: string | number | null;
+  /** For dropdown operator "includes": multiple selected option ids */
+  valueMulti?: number[];
 }
 
 /** Kind of filter field for operator and input UI */

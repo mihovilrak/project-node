@@ -57,12 +57,16 @@ function filtersToActiveFilters(filters: FilterValues): ActiveFilter[] {
     const k = key as keyof FilterValues;
     if (key === 'start_date_from' || key === 'start_date_to' || key === 'due_date_from' || key === 'due_date_to' || key === 'created_from' || key === 'created_to') continue;
     if (DROPDOWN_FIELDS.includes(k as ActiveFilterField)) {
-      result.push({
-        id: generateId(),
-        field: k,
-        operator: 'includes' as DropdownFilterOperator,
-        value: typeof value === 'number' ? value : Number(value) || value
-      });
+      const strVal = String(value);
+      const multi = strVal.includes(',') ? strVal.split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n)) : null;
+      if (multi && multi.length > 1) {
+        result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, valueMulti: multi });
+      } else if (multi && multi.length === 1) {
+        result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, value: multi[0], valueMulti: multi });
+      } else {
+        const num = typeof value === 'number' ? value : Number(value) || value;
+        result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, value: num });
+      }
       continue;
     }
     if (k === 'search') {
@@ -102,6 +106,10 @@ function activeFiltersToFilterValues(activeFilters: ActiveFilter[]): FilterValue
       continue;
     }
     if (af.operator === 'excludes') {
+      continue;
+    }
+    if (af.operator === 'includes' && af.valueMulti && af.valueMulti.length > 0) {
+      out[key] = af.valueMulti.length === 1 ? af.valueMulti[0] : af.valueMulti.join(',');
       continue;
     }
     if (af.value != null && af.value !== '') {
@@ -146,7 +154,7 @@ export function getAvailableFilters(
 
 const getDefaultOperator = (kind: AvailableFilterDef['kind']): ActiveFilter['operator'] => {
   if (kind === 'date') return 'from';
-  if (kind === 'dropdown') return 'includes';
+  if (kind === 'dropdown') return 'is';
   if (kind === 'number') return 'equals';
   return 'contains';
 };
@@ -165,7 +173,16 @@ export const useFilterPanel = (
     setActiveFilters((prev) => {
       if (Object.keys(filters).length === 0 && prev.length > 0) return prev;
       if (prev.length !== next.length) return next;
-      const same = next.length > 0 && prev.every((p, i) => i < next.length && p.field === next[i].field && p.operator === next[i].operator && String(p.value) === String(next[i].value) && String(p.value2 ?? '') === String(next[i].value2 ?? ''));
+      const same =
+        next.length > 0 &&
+        prev.every((p, i) => {
+          const n = next[i];
+          if (i >= next.length || p.field !== n.field || p.operator !== n.operator) return false;
+          if (String(p.value) !== String(n.value) || String(p.value2 ?? '') !== String(n.value2 ?? '')) return false;
+          const pMulti = (p as ActiveFilter).valueMulti?.slice().sort().join(',') ?? '';
+          const nMulti = n.valueMulti?.slice().sort().join(',') ?? '';
+          return pMulti === nMulti;
+        });
       return same ? prev : next;
     });
   }, [filters]);
@@ -205,14 +222,36 @@ export const useFilterPanel = (
 
   const getAppliedFilters = (optionsMap: FilterPanelOptions) => {
     return activeFilters
-      .filter((af) => (af.value != null && af.value !== '') || (af.operator === 'between' && af.value2 != null))
+      .filter(
+        (af) =>
+          (af.value != null && af.value !== '') ||
+          (af.valueMulti && af.valueMulti.length > 0) ||
+          (af.operator === 'between' && af.value2 != null)
+      )
       .map((af) => {
         const fieldKey = typeof af.field === 'string' && DATE_FIELD_TO_KEYS[af.field] ? af.field : af.field;
         const displayLabel = FILTER_FIELD_LABELS[fieldKey as string] || fieldKey;
         let displayValue = String(af.value ?? '');
         if (af.operator === 'between' && af.value2 != null) displayValue = `${af.value} – ${af.value2}`;
         else if (af.field === 'inactive_statuses_only') displayValue = af.value ? 'Inactive' : 'Active';
-        else if (DROPDOWN_FIELDS.includes(af.field as ActiveFilterField) && optionsMap) {
+        else if (af.operator === 'includes' && af.valueMulti && af.valueMulti.length > 0 && optionsMap) {
+          const optionKeyMap: Record<string, keyof FilterPanelOptions> = {
+            status_id: 'statuses',
+            priority_id: 'priorities',
+            type_id: 'types',
+            assignee_id: 'users',
+            holder_id: 'holders',
+            project_id: 'projects',
+            role_id: 'roles',
+            created_by: 'createdBy',
+            parent_id: 'parent_id'
+          };
+          const optionKey = optionKeyMap[af.field as string] ?? af.field;
+          const arr = optionsMap[optionKey];
+          if (Array.isArray(arr)) {
+            displayValue = af.valueMulti!.map((id) => arr.find((o: FilterOption) => String(o.id) === String(id))?.name ?? id).join(', ');
+          } else displayValue = af.valueMulti!.join(', ');
+        } else if (DROPDOWN_FIELDS.includes(af.field as ActiveFilterField) && optionsMap) {
           const optionKeyMap: Record<string, keyof FilterPanelOptions> = {
             status_id: 'statuses',
             priority_id: 'priorities',
@@ -235,10 +274,94 @@ export const useFilterPanel = (
       });
   };
 
+  /** Chips show applied state (from parent filters), not staged. */
+  const getAppliedFiltersFromValues = useCallback(
+    (appliedFilters: FilterValues, optionsMap: FilterPanelOptions) => {
+      const result: { id: string; field: string; displayLabel: string; displayValue: string }[] = [];
+      const optionKeyMap: Record<string, keyof FilterPanelOptions> = {
+        status_id: 'statuses',
+        priority_id: 'priorities',
+        type_id: 'types',
+        assignee_id: 'users',
+        holder_id: 'holders',
+        project_id: 'projects',
+        role_id: 'roles',
+        created_by: 'createdBy',
+        parent_id: 'parent_id'
+      };
+      for (const logical of DATE_LOGICAL_FIELDS) {
+        const keys = DATE_FIELD_TO_KEYS[logical];
+        const fromVal = appliedFilters[keys.from as keyof FilterValues];
+        const toVal = appliedFilters[keys.to as keyof FilterValues];
+        if (fromVal && toVal) {
+          result.push({
+            id: logical,
+            field: logical,
+            displayLabel: FILTER_FIELD_LABELS[logical] || logical,
+            displayValue: `${fromVal} – ${toVal}`
+          });
+        } else if (fromVal) {
+          result.push({
+            id: logical,
+            field: logical,
+            displayLabel: FILTER_FIELD_LABELS[logical] || logical,
+            displayValue: String(fromVal)
+          });
+        } else if (toVal) {
+          result.push({
+            id: logical,
+            field: logical,
+            displayLabel: FILTER_FIELD_LABELS[logical] || logical,
+            displayValue: String(toVal)
+          });
+        }
+      }
+      const dateKeys = new Set(['start_date_from', 'start_date_to', 'due_date_from', 'due_date_to', 'created_from', 'created_to']);
+      for (const [key, value] of Object.entries(appliedFilters)) {
+        if (value === null || value === undefined || value === '') continue;
+        if (dateKeys.has(key)) continue;
+        const k = key as keyof FilterValues;
+        const displayLabel = FILTER_FIELD_LABELS[key] || key;
+        let displayValue = String(value);
+        if (k === 'inactive_statuses_only') displayValue = value ? 'Inactive' : 'Active';
+        else if (DROPDOWN_FIELDS.includes(k as ActiveFilterField) && optionsMap) {
+          const optionKey = optionKeyMap[k as string] ?? k;
+          const arr = optionsMap[optionKey];
+          if (Array.isArray(arr)) {
+            const strVal = String(value);
+            if (strVal.includes(',')) {
+              const ids = strVal.split(',').map((s) => s.trim());
+              displayValue = ids.map((id) => arr.find((o: FilterOption) => String(o.id) === id)?.name ?? id).join(', ');
+            } else {
+              const opt = arr.find((o: FilterOption) => String(o.id) === String(value));
+              displayValue = opt?.name ?? displayValue;
+            }
+          }
+        }
+        result.push({ id: key, field: key, displayLabel, displayValue });
+      }
+      return result;
+    },
+    []
+  );
+
+  const removeAppliedFilter = useCallback(
+    (chipId: string) => {
+      const next = { ...filters };
+      if (DATE_FIELD_TO_KEYS[chipId]) {
+        const keys = DATE_FIELD_TO_KEYS[chipId];
+        delete next[keys.from as keyof FilterValues];
+        delete next[keys.to as keyof FilterValues];
+      } else {
+        delete next[chipId as keyof FilterValues];
+      }
+      onFilterChange(next);
+    },
+    [filters, onFilterChange]
+  );
+
   const handleClearFilters = (): void => {
     setActiveFilters([]);
-    onFilterChange({});
-    setExpanded(false);
   };
 
   const addFilter = (def: AvailableFilterDef): void => {
@@ -252,19 +375,34 @@ export const useFilterPanel = (
     };
     const next = [...activeFilters, newFilter];
     setActiveFilters(next);
-    flushToParent(next);
+    // Do not flush when adding a filter with no value - avoids parent re-render that can collapse the panel.
   };
+
+  const applyFilters = useCallback(() => {
+    flushToParent(activeFilters);
+  }, [activeFilters, flushToParent]);
 
   const removeFilter = (id: string): void => {
-    const next = activeFilters.filter((f) => f.id !== id);
-    setActiveFilters(next);
-    flushToParent(next);
+    setActiveFilters((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const updateFilter = (id: string, updates: Partial<Pick<ActiveFilter, 'operator' | 'value' | 'value2'>>): void => {
-    const next = activeFilters.map((f) => (f.id === id ? { ...f, ...updates } : f));
-    setActiveFilters(next);
-    flushToParent(next);
+  const updateFilter = (id: string, updates: Partial<Pick<ActiveFilter, 'operator' | 'value' | 'value2' | 'valueMulti'>>): void => {
+    setActiveFilters((prev) =>
+      prev.map((f) => {
+        if (f.id !== id) return f;
+        const next = { ...f, ...updates };
+        if (updates.operator === 'includes') {
+          if (next.valueMulti == null) next.valueMulti = next.value != null ? [Number(next.value)] : [];
+        }
+        if (updates.operator === 'is' || updates.operator === 'excludes') {
+          if (next.valueMulti != null) {
+            next.value = next.valueMulti[0] ?? next.value;
+            next.valueMulti = undefined;
+          }
+        }
+        return next;
+      })
+    );
   };
 
   const availableFilters = getAvailableFilters(type, options);
@@ -274,11 +412,14 @@ export const useFilterPanel = (
     setExpanded,
     handleFilterChange,
     getAppliedFilters,
+    getAppliedFiltersFromValues,
+    removeAppliedFilter,
     handleClearFilters,
     activeFilters,
     addFilter,
     removeFilter,
     updateFilter,
+    applyFilters,
     availableFilters
   };
 };

@@ -49,25 +49,43 @@ const Tasks: React.FC = () => {
 
   const fetchTasks = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
+      setLoading(true);
       setError(null);
 
       const f = currentFilters || {};
       const statusIdRaw = f.status_id;
-      const statusId = statusIdRaw != null && String(statusIdRaw) !== '' ? Number(statusIdRaw) : undefined;
-      const inactiveOnly = f.inactive_statuses_only === true || String(f.inactive_statuses_only) === 'true';
+      const statusIdStr = statusIdRaw != null ? String(statusIdRaw) : '';
+      const statusId = statusIdStr !== '' ? Number(statusIdStr) : undefined;
       const hasFilters = currentFilters && Object.keys(currentFilters).length > 0;
       const params: Record<string, string | number> = {};
       if (hasFilters && currentFilters) {
         if (statusId === -1) {
           params.inactive_statuses_only = 1;
-        } else if (statusId !== undefined && statusId !== 0) {
-          params.status_id = Number(statusId);
+        } else if (statusIdStr.includes(',')) {
+          params.status_id = statusIdStr;
+        } else if (statusId !== undefined && !Number.isNaN(statusId) && statusId !== 0) {
+          params.status_id = statusId;
         }
-        if (f.priority_id != null && f.priority_id !== '') params.priority_id = Number(f.priority_id);
-        if (f.assignee_id != null && f.assignee_id !== '') params.assignee_id = Number(f.assignee_id);
-        if (f.holder_id != null && f.holder_id !== '') params.holder_id = Number(f.holder_id);
-        if (f.project_id != null && f.project_id !== '') params.project_id = Number(f.project_id);
-        if (f.created_by != null && f.created_by !== '') params.created_by = Number(f.created_by);
+        if (f.priority_id != null && f.priority_id !== '') {
+          const p = String(f.priority_id);
+          params.priority_id = p.includes(',') ? p : Number(f.priority_id);
+        }
+        if (f.assignee_id != null && f.assignee_id !== '') {
+          const a = String(f.assignee_id);
+          params.assignee_id = a.includes(',') ? a : Number(f.assignee_id);
+        }
+        if (f.holder_id != null && f.holder_id !== '') {
+          const h = String(f.holder_id);
+          params.holder_id = h.includes(',') ? h : Number(f.holder_id);
+        }
+        if (f.project_id != null && f.project_id !== '') {
+          const pr = String(f.project_id);
+          params.project_id = pr.includes(',') ? pr : Number(f.project_id);
+        }
+        if (f.created_by != null && f.created_by !== '') {
+          const c = String(f.created_by);
+          params.created_by = c.includes(',') ? c : Number(f.created_by);
+        }
         if (f.id != null && f.id !== '') params.id = Number(f.id);
         if (f.parent_id != null && f.parent_id !== '') params.parent_id = Number(f.parent_id);
         if (f.due_date_from) params.due_date_from = String(f.due_date_from);
@@ -148,7 +166,6 @@ const Tasks: React.FC = () => {
 
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
-    setLoading(true);
   }, []);
 
   const handleSortChange = useCallback((event: SelectChangeEvent<'asc' | 'desc'>) => {
@@ -186,21 +203,30 @@ const Tasks: React.FC = () => {
           if (!matchesSearch) return false;
         }
 
-        if (filters.status_id && task.status_id !== Number(filters.status_id)) {
-          return false;
-        }
-        if (filters.priority_id && task.priority_id !== Number(filters.priority_id)) {
-          return false;
-        }
-        if (filters.project_id && task.project_id !== Number(filters.project_id)) {
-          return false;
-        }
-        if (filters.assignee_id && task.assignee_id !== Number(filters.assignee_id)) {
-          return false;
-        }
-        if (filters.holder_id && task.holder_id !== Number(filters.holder_id)) {
-          return false;
-        }
+        const statusIds = filters.status_id != null && String(filters.status_id).includes(',')
+          ? String(filters.status_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.status_id != null && filters.status_id !== '' ? [Number(filters.status_id)] : null;
+        if (statusIds && statusIds.length > 0 && !statusIds.includes(task.status_id)) return false;
+
+        const priorityIds = filters.priority_id != null && String(filters.priority_id).includes(',')
+          ? String(filters.priority_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.priority_id != null && filters.priority_id !== '' ? [Number(filters.priority_id)] : null;
+        if (priorityIds && priorityIds.length > 0 && !priorityIds.includes(task.priority_id)) return false;
+
+        const projectIds = filters.project_id != null && String(filters.project_id).includes(',')
+          ? String(filters.project_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.project_id != null && filters.project_id !== '' ? [Number(filters.project_id)] : null;
+        if (projectIds && projectIds.length > 0 && !projectIds.includes(task.project_id ?? 0)) return false;
+
+        const assigneeIds = filters.assignee_id != null && String(filters.assignee_id).includes(',')
+          ? String(filters.assignee_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.assignee_id != null && filters.assignee_id !== '' ? [Number(filters.assignee_id)] : null;
+        if (assigneeIds && assigneeIds.length > 0 && (task.assignee_id == null || !assigneeIds.includes(task.assignee_id))) return false;
+
+        const holderIds = filters.holder_id != null && String(filters.holder_id).includes(',')
+          ? String(filters.holder_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.holder_id != null && filters.holder_id !== '' ? [Number(filters.holder_id)] : null;
+        if (holderIds && holderIds.length > 0 && (task.holder_id == null || !holderIds.includes(task.holder_id))) return false;
 
         return true;
       })
@@ -213,22 +239,6 @@ const Tasks: React.FC = () => {
           : nameB.localeCompare(nameA);
       });
   }, [tasks, filters, sortOrder]);
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <Typography color="error" data-testid="task-error">{error}</Typography>
-      </Box>
-    );
-  }
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
@@ -271,7 +281,13 @@ const Tasks: React.FC = () => {
       </Box>
 
       <Box sx={{ mt: 2, width: '100%', maxWidth: 1400 }}>
-        {filteredTasks.length === 0 ? (
+        {error ? (
+          <Typography color="error" data-testid="task-error">{error}</Typography>
+        ) : loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : filteredTasks.length === 0 ? (
           <Typography>No tasks found.</Typography>
         ) : viewMode === 'grid' ? (
           <Grid container spacing={2}>
@@ -294,16 +310,17 @@ const Tasks: React.FC = () => {
                         data-testid="priority-chip"
                       />
                     </Box>
-                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 2, fontSize: '0.875rem' }}>
-                      <span>Assignee: {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</span>
-                      <span>Holder: {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</span>
-                      <span>Project: {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</span>
-                    </Box>
                     <Box sx={{ mt: 1, fontSize: '0.875rem' }}>
-                      <Typography variant="body2">Start: {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</Typography>
-                      <Typography variant="body2">Due: {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</Typography>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2px 16px', alignItems: 'start' }}>
+                        <Box><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</Box>
+                        <Box><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</Box>
+                        <Box><strong>Project</strong> {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</Box>
+                        <Box><strong>Assignee</strong> {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</Box>
+                        <Box><strong>Due</strong> {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</Box>
+                        <Box />
+                      </Box>
                       <Box sx={{ mt: 0.5 }}>
-                        <Typography variant="caption">Progress</Typography>
+                        <Typography variant="caption"><strong>Progress</strong></Typography>
                         <LinearProgress variant="determinate" value={task?.progress ?? 0} sx={{ mt: 0.25, height: 6, borderRadius: 1 }} />
                         <Typography variant="caption">{task?.progress ?? 0}%</Typography>
                       </Box>
@@ -339,16 +356,16 @@ const Tasks: React.FC = () => {
                             <Chip label={task?.status_name || 'Unknown'} size="small" color={task?.status_name === 'Done' ? 'success' : 'default'} data-testid="status-chip" />
                             <Chip label={task?.priority_name || 'Unknown'} size="small" color={getPriorityColor(task?.priority_name || '')} data-testid="priority-chip" />
                           </Box>
-                          <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 2, fontSize: '0.875rem' }}>
-                            <span>Assignee: {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</span>
-                            <span>Holder: {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</span>
-                            <span>Project: {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</span>
-                          </Box>
                           <Box sx={{ mt: 1, fontSize: '0.875rem' }}>
-                            <Typography variant="body2">Start: {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</Typography>
-                            <Typography variant="body2">Due: {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+                              <span><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</span>
+                              <span><strong>Assignee</strong> {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</span>
+                              <span><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</span>
+                              <span><strong>Due</strong> {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</span>
+                              <span><strong>Project</strong> {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</span>
+                            </Box>
                             <Box sx={{ mt: 0.5 }}>
-                              <Typography variant="caption">Progress</Typography>
+                              <Typography variant="caption"><strong>Progress</strong></Typography>
                               <LinearProgress variant="determinate" value={task?.progress ?? 0} sx={{ mt: 0.25, height: 6, borderRadius: 1 }} />
                               <Typography variant="caption">{task?.progress ?? 0}%</Typography>
                             </Box>

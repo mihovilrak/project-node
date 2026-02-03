@@ -51,7 +51,7 @@ describe('FilterPanel', () => {
     expect(screen.getByText(/Status: Active/)).toBeInTheDocument();
   });
 
-  it('calls onFilterChange when clearing filters', () => {
+  it('applies empty filters when user clicks Clear then Apply', () => {
     const filters: FilterValues = {
       status_id: 1
     };
@@ -63,10 +63,13 @@ describe('FilterPanel', () => {
     const clearButton = screen.getByText('Clear');
     fireEvent.click(clearButton);
 
+    const applyButton = screen.getByText('Apply Filters');
+    fireEvent.click(applyButton);
+
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith({});
   });
 
-  it('adds filter and updates value when selecting from Add filter list and value dropdown', async () => {
+  it('applies filter when user adds filter, selects value, and clicks Apply', async () => {
     setup();
 
     const expandButton = screen.getByRole('button', { name: /expand filters/i });
@@ -89,6 +92,9 @@ describe('FilterPanel', () => {
     const activeOption = await screen.findByRole('option', { name: /Active/i });
     fireEvent.click(activeOption);
 
+    const applyButton = screen.getByText('Apply Filters');
+    fireEvent.click(applyButton);
+
     await waitFor(() => {
       expect(defaultProps.onFilterChange).toHaveBeenCalledWith(
         expect.objectContaining({ status_id: 1 })
@@ -96,7 +102,7 @@ describe('FilterPanel', () => {
     });
   });
 
-  it('collapses panel when clicking Apply Filters', async () => {
+  it('keeps panel open when clicking Apply Filters', async () => {
     setup();
 
     const expandButton = screen.getByRole('button', { name: /expand filters/i });
@@ -106,7 +112,35 @@ describe('FilterPanel', () => {
     fireEvent.click(applyButton);
 
     await waitFor(() => {
-      expect(applyButton).not.toBeVisible();
+      expect(applyButton).toBeVisible();
+    });
+  });
+
+  it('collapses panel when clicking Apply & Close', async () => {
+    setup();
+
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
+
+    const applyCloseButton = screen.getByTestId('apply-close-filters-button');
+    fireEvent.click(applyCloseButton);
+
+    await waitFor(() => {
+      expect(applyCloseButton).not.toBeVisible();
+    });
+  });
+
+  it('collapses panel when clicking Close', async () => {
+    setup();
+
+    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    fireEvent.click(expandButton);
+
+    const closeButton = screen.getByTestId('close-filters-button');
+    fireEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(closeButton).not.toBeVisible();
     });
   });
 });

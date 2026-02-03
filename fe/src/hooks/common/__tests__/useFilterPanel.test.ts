@@ -80,7 +80,7 @@ describe('useFilterPanel', () => {
     expect(appliedFilters[0].displayValue).toBe('999');
   });
 
-  it('should clear filters correctly', () => {
+  it('should clear staged filters without applying until user clicks Apply', () => {
     const { result } = renderHook(() =>
       useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
     );
@@ -89,8 +89,8 @@ describe('useFilterPanel', () => {
       result.current.handleClearFilters();
     });
 
-    expect(mockOnFilterChange).toHaveBeenCalledWith({});
-    expect(result.current.expanded).toBe(false);
+    expect(result.current.activeFilters).toHaveLength(0);
+    expect(mockOnFilterChange).not.toHaveBeenCalled();
   });
 
   it('should toggle expanded state', () => {
@@ -126,7 +126,7 @@ describe('useFilterPanel', () => {
     expect(appliedFilters).toEqual([]);
   });
 
-  it('should add filter and update filter', () => {
+  it('should add filter and update filter; applyFilters sends to parent', () => {
     const { result } = renderHook(() => {
       const [filters, setFilters] = React.useState<FilterValues>({});
       return useFilterPanel(filters, (next) => { setFilters(next); mockOnFilterChange(next); }, mockOptions, type);
@@ -143,16 +143,22 @@ describe('useFilterPanel', () => {
 
     expect(result.current.activeFilters).toHaveLength(1);
     expect(result.current.activeFilters[0].field).toBe('status_id');
-    expect(result.current.activeFilters[0].operator).toBe('includes');
+    expect(result.current.activeFilters[0].operator).toBe('is');
 
     act(() => {
       result.current.updateFilter(result.current.activeFilters[0].id, { value: 1 });
     });
 
+    expect(mockOnFilterChange).not.toHaveBeenCalled();
+
+    act(() => {
+      result.current.applyFilters();
+    });
+
     expect(mockOnFilterChange).toHaveBeenCalledWith(expect.objectContaining({ status_id: 1 }));
   });
 
-  it('should remove filter', () => {
+  it('should remove filter from staged state without applying', () => {
     const { result } = renderHook(() => {
       const [filters, setFilters] = React.useState<FilterValues>({ status_id: 1 });
       return useFilterPanel(filters, (next) => { setFilters(next); mockOnFilterChange(next); }, mockOptions, type);
@@ -167,6 +173,6 @@ describe('useFilterPanel', () => {
     });
 
     expect(result.current.activeFilters).toHaveLength(0);
-    expect(mockOnFilterChange).toHaveBeenCalled();
+    expect(mockOnFilterChange).not.toHaveBeenCalled();
   });
 });

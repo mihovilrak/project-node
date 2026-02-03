@@ -11,8 +11,13 @@ import {
   Button,
   Select,
   MenuItem,
-  SelectChangeEvent
+  SelectChangeEvent,
+  Grid,
+  IconButton,
+  Tooltip
 } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import GridViewIcon from '@mui/icons-material/GridView';
 import { Project } from '../../types/project';
 import { ProjectStatus } from '../../types/project';
 import logger from '../../utils/logger';
@@ -29,6 +34,7 @@ const Projects: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const fetchProjects = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
@@ -116,22 +122,6 @@ const Projects: React.FC = () => {
       return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
     });
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <Typography>Loading projects...</Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography color="error" data-testid="projects-error">{error}</Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ width: '100%', p: 3 }} data-testid="projects-container">
       <Box sx={{ mb: 3 }}>
@@ -147,8 +137,17 @@ const Projects: React.FC = () => {
             <MenuItem value="asc">Ascending</MenuItem>
             <MenuItem value="desc">Descending</MenuItem>
           </Select>
+          <Tooltip title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}>
+            <IconButton
+              onClick={() => setViewMode((m) => (m === 'grid' ? 'list' : 'grid'))}
+              aria-label={viewMode === 'grid' ? 'List view' : 'Grid view'}
+            >
+              {viewMode === 'grid' ? <ViewListIcon /> : <GridViewIcon />}
+            </IconButton>
+          </Tooltip>
           <Box sx={{ flexGrow: 1 }} />
           <Button
+            type="button"
             variant="contained"
             color="primary"
             onClick={handleCreateProject}
@@ -166,42 +165,71 @@ const Projects: React.FC = () => {
         />
       </Box>
 
-      {filteredProjects.length === 0 ? (
+      {error ? (
+        <Typography color="error" data-testid="projects-error">{error}</Typography>
+      ) : loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <Typography>Loading projects...</Typography>
+        </Box>
+      ) : filteredProjects.length === 0 ? (
         <Typography>No projects yet.</Typography>
+      ) : viewMode === 'grid' ? (
+        <Grid container spacing={2} sx={{ mt: 2, width: '100%', maxWidth: 1400 }}>
+          {filteredProjects.map((project) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project?.id}>
+              <Card
+                onClick={() => navigate(`/projects/${project?.id}`)}
+                data-testid={`project-card-${project?.id}`}
+                role="button"
+                aria-label={`View project ${project?.name || 'Unnamed'}`}
+                sx={{ cursor: 'pointer' }}
+              >
+                <CardContent>
+                  <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
+                  <Typography variant="body2">{project?.description || 'No description'}</Typography>
+                  <Typography variant="caption">
+                    Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : (
-      <Box sx={{ height: 600, mt: 2, width: '100%', maxWidth: 1400 }}>
-        <List
-          height={600}
-          itemCount={filteredProjects.length}
-          itemSize={140}
-          width="100%"
-          itemData={filteredProjects}
-        >
-          {({ index, style, data }) => {
-            const project = data[index];
-            return (
-              <div style={style}>
-                <Box sx={{ py: 1, px: 0.5 }}>
-                  <Card
-                    onClick={() => navigate(`/projects/${project?.id}`)}
-                    data-testid={`project-card-${project?.id}`}
-                    role="button"
-                    aria-label={`View project ${project?.name || 'Unnamed'}`}
-                  >
-                    <CardContent>
-                      <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
-                      <Typography variant="body2">{project?.description || 'No description'}</Typography>
-                      <Typography variant="caption">
-                        Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Box>
-              </div>
-            );
-          }}
-        </List>
-      </Box>
+        <Box sx={{ height: 600, mt: 2, width: '100%', maxWidth: 1400 }}>
+          <List
+            height={600}
+            itemCount={filteredProjects.length}
+            itemSize={140}
+            width="100%"
+            itemData={filteredProjects}
+          >
+            {({ index, style, data }) => {
+              const project = data[index];
+              return (
+                <div style={style}>
+                  <Box sx={{ py: 1, px: 0.5 }}>
+                    <Card
+                      onClick={() => navigate(`/projects/${project?.id}`)}
+                      data-testid={`project-card-${project?.id}`}
+                      role="button"
+                      aria-label={`View project ${project?.name || 'Unnamed'}`}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <CardContent>
+                        <Typography variant="h6">{project?.name || 'Unnamed Project'}</Typography>
+                        <Typography variant="body2">{project?.description || 'No description'}</Typography>
+                        <Typography variant="caption">
+                          Due: {project?.due_date ? new Date(project.due_date).toLocaleDateString() : 'Not set'}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                </div>
+              );
+            }}
+          </List>
+        </Box>
       )}
     </Box>
   );

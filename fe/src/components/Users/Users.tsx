@@ -149,22 +149,6 @@ const Users: React.FC = () => {
       return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
     });
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box p={3}>
-        <Alert severity="error" data-testid="users-error">{error}</Alert>
-      </Box>
-    );
-  }
-
   return (
     <Box p={3}>
       <Typography variant="h4" gutterBottom>User Management</Typography>
@@ -200,7 +184,13 @@ const Users: React.FC = () => {
       />
 
       <Box marginTop={2} sx={{ width: '100%', maxWidth: 1400 }}>
-        {filteredUsers.length === 0 ? (
+        {error ? (
+          <Alert severity="error" data-testid="users-error">{error}</Alert>
+        ) : loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : filteredUsers.length === 0 ? (
           <Typography>No users found.</Typography>
         ) : viewMode === 'grid' ? (
           <Grid container spacing={2}>
