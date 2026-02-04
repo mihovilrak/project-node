@@ -20,6 +20,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [roles, setRoles] = useState<Role[]>([]);
   const [formValues, setFormValues] = useState<FormData>({
     login: '',
@@ -79,52 +80,51 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       ...prev,
       [name]: name === 'role_id' ? Number(value) : value,
     }));
-    setError(prev => (prev ? null : prev));
+    setError(null);
+    setFieldErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
   }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     logger.debug('DEBUG formValues at submit:', formValues);
     e.preventDefault();
 
-    // Validate all required fields first, regardless of mode
-    if (
-      !formValues.login ||
-      !formValues.name ||
-      !formValues.surname ||
-      !formValues.email ||
-      !formValues.password ||
-      !formValues.confirmPassword
-    ) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
     const isEditMode = !!userId;
+    const err: Record<string, string> = {};
 
-    // Validate passwords based on mode
+    if (!formValues.login?.trim()) err.login = 'Login is required';
+    if (!formValues.name?.trim()) err.name = 'First name is required';
+    if (!formValues.surname?.trim()) err.surname = 'Last name is required';
+    if (!formValues.email?.trim()) err.email = 'Email is required';
+
     if (isEditMode) {
-      // Edit mode
       if (formValues.password) {
-        if (!formValues.currentPassword) {
-          setError('Current password is required to change password');
-          return;
-        }
+        if (!formValues.currentPassword?.trim()) err.currentPassword = 'Current password is required to change password';
         if (formValues.password !== formValues.confirmPassword) {
-          setError('New passwords do not match');
-          return;
+          err.confirmPassword = 'New passwords do not match';
         }
       }
     } else {
-      // Create mode: validate all required fields first
-      if (!formValues.login || !formValues.name || !formValues.surname || !formValues.email || !formValues.password || !formValues.confirmPassword) {
-        setError('Please fill in all required fields');
-        return;
+      if (!formValues.password) err.password = 'Password is required';
+      else if (formValues.password !== formValues.confirmPassword) {
+        err.confirmPassword = 'Passwords do not match';
       }
-      if (formValues.password !== formValues.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
+      if (!formValues.confirmPassword && !err.confirmPassword) err.confirmPassword = 'Please confirm password';
     }
+
+    if (Object.keys(err).length > 0) {
+      setFieldErrors(err);
+      setError('Please fill in all required fields');
+      return;
+    }
+    setFieldErrors({});
+    setError(null);
 
     try {
       const userData = {
@@ -161,6 +161,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
   return {
     loading,
     error,
+    fieldErrors,
     roles,
     formValues,
     handleInputChange,

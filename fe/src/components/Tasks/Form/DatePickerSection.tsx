@@ -4,7 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { DatePickerSectionProps } from '../../../types/task';
 
-export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, handleChange }) => {
+export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, handleChange, errors = {} }) => {
   const datePickerStyle = {
     width: '100%'
   };
@@ -22,7 +22,9 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
           slotProps={{
             textField: {
               fullWidth: true,
-              required: true
+              required: true,
+              error: !!errors.start_date,
+              helperText: errors.start_date
             }
           }}
         />
@@ -38,7 +40,9 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
           slotProps={{
             textField: {
               fullWidth: true,
-              required: true
+              required: true,
+              error: !!errors.due_date,
+              helperText: errors.due_date
             }
           }}
         />

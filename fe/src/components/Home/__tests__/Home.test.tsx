@@ -56,6 +56,9 @@ describe('Home', () => {
           welcome_message: ''
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -79,6 +82,9 @@ describe('Home', () => {
           welcome_message: testMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -101,6 +107,9 @@ describe('Home', () => {
           welcome_message: testMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -123,6 +132,9 @@ describe('Home', () => {
           welcome_message: ''
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -144,6 +156,9 @@ describe('Home', () => {
           welcome_message: unsafeMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });

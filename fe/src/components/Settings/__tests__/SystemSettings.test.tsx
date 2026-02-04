@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import SystemSettings from '../SystemSettings';
 import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
-import { AppSettings } from '../../../types/setting';
+import { AppSettings, TimezoneOption } from '../../../types/setting';
 import * as settingsApi from '../../../api/settings';
 
 // Mock the hooks
@@ -41,10 +41,29 @@ const mockSettings: AppSettings = {
   app_name: 'Test App',
   company_name: 'Test Company',
   sender_email: 'test@example.com',
-  time_zone: 'UTC',
+  time_zone: 'Europe/Zagreb',
   theme: 'light',
   welcome_message: '<p>Welcome</p>'
 };
+
+const mockTimezones: TimezoneOption[] = [
+  {
+    name: 'Europe/Zagreb',
+    region: 'Europe',
+    abbrev: 'CET',
+    utcOffsetSeconds: 3600,
+    isDst: false,
+    label: 'Europe/Zagreb (UTC+01:00)'
+  },
+  {
+    name: 'America/New_York',
+    region: 'America',
+    abbrev: 'EST',
+    utcOffsetSeconds: -18000,
+    isDst: false,
+    label: 'America/New_York (UTC-05:00)'
+  }
+];
 
 describe('SystemSettings', () => {
   const mockHandleSubmit = jest.fn();
@@ -59,6 +78,9 @@ describe('SystemSettings', () => {
         error: null,
         success: false
       },
+      timezones: mockTimezones,
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: mockHandleSubmit,
       handleChange: mockHandleChange
     });
@@ -72,6 +94,9 @@ describe('SystemSettings', () => {
         error: null,
         success: false
       },
+      timezones: [],
+      timezonesLoading: true,
+      timezonesError: null,
       handleSubmit: mockHandleSubmit,
       handleChange: mockHandleChange
     });
@@ -113,6 +138,9 @@ describe('SystemSettings', () => {
         error: null,
         success: true
       },
+      timezones: mockTimezones,
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: mockHandleSubmit,
       handleChange: mockHandleChange
     });
@@ -129,6 +157,9 @@ describe('SystemSettings', () => {
         error: 'Update failed',
         success: false
       },
+      timezones: mockTimezones,
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: mockHandleSubmit,
       handleChange: mockHandleChange
     });
@@ -183,6 +214,20 @@ describe('SystemSettings', () => {
     expect(form).toBeTruthy();
     fireEvent.submit(form!);
     expect(mockHandleSubmit).toHaveBeenCalled();
+  });
+
+  it('renders timezone autocomplete and allows selecting a timezone', async () => {
+    render(<SystemSettings />);
+
+    const timezoneInput = screen.getByLabelText(/Time Zone/i) as HTMLInputElement;
+    expect(timezoneInput).toBeInTheDocument();
+
+    fireEvent.change(timezoneInput, { target: { value: 'America/New_York' } });
+
+    const option = await screen.findByText(/America\/New_York/);
+    fireEvent.click(option);
+
+    expect(mockHandleChange).toHaveBeenCalled();
   });
 
   describe('SMTP Test Feature', () => {
@@ -343,7 +388,7 @@ describe('SystemSettings', () => {
       const successMessage = screen.getByText(/Test email sent successfully/i);
       const alert = successMessage.closest('[role="alert"]');
       expect(alert).toBeTruthy();
-      const closeButton = within(alert!).getByRole('button', { name: /close/i });
+      const closeButton = within(alert as HTMLElement).getByRole('button', { name: /close/i });
       fireEvent.click(closeButton);
 
       await waitFor(() => {
@@ -364,6 +409,9 @@ describe('SystemSettings', () => {
         error: null,
         success: false
       },
+      timezones: mockTimezones,
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: mockHandleSubmit,
       handleChange: mockHandleChange
     });

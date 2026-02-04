@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   IconButton,
   Badge,
+  Button,
   Menu,
   Typography,
   Box,
@@ -22,8 +23,10 @@ import {
   Folder as FolderIcon,
   Comment as CommentIcon,
   Alarm as AlarmIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  List as ListIcon
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import { NotificationCenterProps } from '../../types/notification';
 import { useNotificationCenter } from '../../hooks/notification/useNotificationCenter';
 
@@ -104,6 +107,16 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         data-testid="notifications-menu"
       >
         <Typography variant="h6">Notifications</Typography>
+        <Button
+          component={Link}
+          to="/notifications"
+          onClick={handleClose}
+          size="small"
+          startIcon={<ListIcon />}
+          data-testid="view-all-notifications"
+        >
+          View all
+        </Button>
       </Box>
       <Tabs
         value={tabValue}

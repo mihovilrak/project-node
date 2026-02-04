@@ -23,11 +23,14 @@ import {
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import FilterPanel from '../common/FilterPanel';
+import { usePermission } from '../../hooks/common/usePermission';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import { Task } from '../../types/task';
 import { FilterValues, FilterOption } from '../../types/filterPanel';
-import { getPriorityColor } from '../../utils/taskUtils';
+import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const Tasks: React.FC = () => {
@@ -46,6 +49,8 @@ const Tasks: React.FC = () => {
   const [deleting, setDeleting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const navigate = useNavigate();
+  const { hasPermission: canEditTask } = usePermission('Edit tasks');
+  const { hasPermission: canDeleteTask } = usePermission('Delete tasks');
 
   const fetchTasks = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
@@ -244,6 +249,33 @@ const Tasks: React.FC = () => {
       });
   }, [tasks, filters, sortOrder]);
 
+  // Flat list in pre-order (parent then all descendants) with depth for indent; shows all levels
+  const tasksInPreOrder = useMemo(() => {
+    const list = filteredTasks || [];
+    const childrenByParentId = new Map<number, Task[]>();
+    list.forEach((t) => {
+      const pid = t?.parent_id ?? null;
+      if (pid != null) {
+        const arr = childrenByParentId.get(pid) ?? [];
+        arr.push(t);
+        childrenByParentId.set(pid, arr);
+      }
+    });
+    const nameSort = (a: Task, b: Task) =>
+      sortOrder === 'asc'
+        ? (a?.name ?? '').localeCompare(b?.name ?? '')
+        : (b?.name ?? '').localeCompare(a?.name ?? '');
+    const result: Array<{ task: Task; depth: number }> = [];
+    const visit = (task: Task, depth: number): void => {
+      result.push({ task, depth });
+      const children = (childrenByParentId.get(task?.id ?? 0) ?? []).sort(nameSort);
+      children.forEach((c) => visit(c, depth + 1));
+    };
+    const roots = list.filter((t) => t?.parent_id == null).sort(nameSort);
+    roots.forEach((r) => visit(r, 0));
+    return result;
+  }, [filteredTasks, sortOrder]);
+
   return (
     <Box sx={{ width: '100%', p: 3 }}>
       <Box sx={{ mb: 3 }}>
@@ -291,30 +323,48 @@ const Tasks: React.FC = () => {
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" data-testid="tasks-loading">
             <CircularProgress />
           </Box>
-        ) : filteredTasks.length === 0 ? (
+        ) : tasksInPreOrder.length === 0 ? (
           <Typography>No tasks found.</Typography>
         ) : viewMode === 'grid' ? (
           <Grid container spacing={2}>
-            {filteredTasks.map((task) => (
+            {tasksInPreOrder.map(({ task, depth }) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
                 <Card>
-                  <CardContent>
-                    <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
-                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      <Chip
-                        label={task?.status_name || 'Unknown'}
-                        size="small"
-                        color={task?.status_name === 'Done' ? 'success' : 'default'}
-                        data-testid="status-chip"
-                      />
-                      <Chip
-                        label={task?.priority_name || 'Unknown'}
-                        size="small"
-                        color={getPriorityColor(task?.priority_name || '')}
-                        data-testid="priority-chip"
-                      />
+                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
+                      <Typography
+                        component={Link}
+                        to={`/tasks/${task?.id}`}
+                        variant="h6"
+                        sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                      >
+                        {task?.name || 'Unnamed Task'}
+                      </Typography>
+                      {(canEditTask || canDeleteTask) && (
+                        <Box sx={{ display: 'flex', gap: 0 }}>
+                          {canEditTask && (
+                            <Tooltip title="Edit">
+                              <IconButton size="small" onClick={() => navigate(`/tasks/${task?.id}/edit`)} aria-label="Edit task">
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {canDeleteTask && (
+                            <Tooltip title="Delete">
+                              <IconButton size="small" color="error" onClick={() => handleDeleteClick(task)} aria-label="Delete task" data-testid="delete-task-icon">
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      )}
                     </Box>
-                    <Box sx={{ mt: 1, fontSize: '0.875rem' }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                      <Chip label={task?.status_name || 'Unknown'} size="small" data-testid="status-chip" {...chipPropsForStatus(task?.status_name, task?.status_color)} />
+                      <Chip label={task?.priority_name || 'Unknown'} size="small" data-testid="priority-chip" {...chipPropsForPriority(task?.priority_name, task?.priority_color)} />
+                    </Box>
+                    <Box sx={{ mt: 0.5, fontSize: '0.875rem' }}>
                       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2px 16px', alignItems: 'start' }}>
                         <Box><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</Box>
                         <Box><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</Box>
@@ -329,11 +379,6 @@ const Tasks: React.FC = () => {
                         <Typography variant="caption">{task?.progress ?? 0}%</Typography>
                       </Box>
                     </Box>
-                    <Box marginTop={2}>
-                      <Button type="button" onClick={() => navigate(`/tasks/${task?.id}`)}>Details</Button>
-                      <Button type="button" color="warning" onClick={() => navigate(`/tasks/${task?.id}/edit`)} sx={{ ml: 1 }}>Edit</Button>
-                      <Button type="button" color="error" onClick={() => handleDeleteClick(task)} sx={{ ml: 1 }}>Delete</Button>
-                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -343,25 +388,53 @@ const Tasks: React.FC = () => {
           <Box sx={{ height: 600 }}>
             <List
               height={600}
-              itemCount={filteredTasks.length}
-              itemSize={280}
+              itemCount={tasksInPreOrder.length}
+              itemSize={220}
               width="100%"
-              itemData={filteredTasks}
+              itemData={tasksInPreOrder}
             >
               {({ index, style, data }) => {
-                const task = data[index];
+                const { task, depth } = data[index];
                 return (
                   <div style={style}>
-                    <Box sx={{ py: 1, px: 0.5 }}>
+                    <Box sx={{ py: 0.5, px: 0.5 }}>
                       <Card>
-                        <CardContent>
-                          <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
-                          <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            <Chip label={task?.status_name || 'Unknown'} size="small" color={task?.status_name === 'Done' ? 'success' : 'default'} data-testid="status-chip" />
-                            <Chip label={task?.priority_name || 'Unknown'} size="small" color={getPriorityColor(task?.priority_name || '')} data-testid="priority-chip" />
+                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                            <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
+                            <Typography
+                              component={Link}
+                              to={`/tasks/${task?.id}`}
+                              variant="h6"
+                              sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                            >
+                              {task?.name || 'Unnamed Task'}
+                            </Typography>
+                            {(canEditTask || canDeleteTask) && (
+                              <Box sx={{ display: 'flex', gap: 0 }}>
+                                {canEditTask && (
+                                  <Tooltip title="Edit">
+                                    <IconButton size="small" onClick={() => navigate(`/tasks/${task?.id}/edit`)} aria-label="Edit task">
+                                      <EditIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                                {canDeleteTask && (
+                                  <Tooltip title="Delete">
+                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(task)} aria-label="Delete task" data-testid="delete-task-icon">
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            )}
                           </Box>
-                          <Box sx={{ mt: 1, fontSize: '0.875rem' }}>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                            <Chip label={task?.status_name || 'Unknown'} size="small" data-testid="status-chip" {...chipPropsForStatus(task?.status_name, task?.status_color)} />
+                            <Chip label={task?.priority_name || 'Unknown'} size="small" data-testid="priority-chip" {...chipPropsForPriority(task?.priority_name, task?.priority_color)} />
+                          </Box>
+                          <Box sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
                               <span><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</span>
                               <span><strong>Assignee</strong> {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</span>
                               <span><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</span>
@@ -373,11 +446,6 @@ const Tasks: React.FC = () => {
                               <LinearProgress variant="determinate" value={task?.progress ?? 0} sx={{ mt: 0.25, height: 6, borderRadius: 1 }} />
                               <Typography variant="caption">{task?.progress ?? 0}%</Typography>
                             </Box>
-                          </Box>
-                          <Box marginTop={2}>
-                            <Button type="button" onClick={() => navigate(`/tasks/${task?.id}`)}>Details</Button>
-                            <Button type="button" color="warning" onClick={() => navigate(`/tasks/${task?.id}/edit`)} sx={{ ml: 1 }}>Edit</Button>
-                            <Button type="button" color="error" onClick={() => handleDeleteClick(task)} sx={{ ml: 1 }}>Delete</Button>
                           </Box>
                         </CardContent>
                       </Card>

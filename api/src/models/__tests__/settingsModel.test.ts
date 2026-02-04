@@ -98,4 +98,44 @@ describe('SettingsModel', () => {
       expect(result).toEqual(mockSettings);
     });
   });
+
+  describe('getTimezones', () => {
+    it('should query pg_timezone_names and map results', async () => {
+      const rows = [
+        { name: 'Europe/Zagreb', abbrev: 'CET', utc_offset: '01:00:00', is_dst: false },
+        { name: 'America/New_York', abbrev: 'EST', utc_offset: '-05:00:00', is_dst: false }
+      ];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(rows));
+
+      const result = await settingsModel.getTimezones(mockPool);
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        `SELECT name, abbrev, utc_offset, is_dst FROM pg_timezone_names WHERE name LIKE '%/%' ORDER BY name`
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        name: 'Europe/Zagreb',
+        region: 'Europe',
+        abbrev: 'CET',
+        isDst: false
+      });
+      expect(result[0].label).toContain('Europe/Zagreb');
+      expect(result[0].label).toContain('UTC+01:00');
+    });
+
+    it('should cache results and not hit DB within TTL', async () => {
+      settingsModel._clearTimezoneCacheForTest();
+      const rows = [
+        { name: 'Europe/Zagreb', abbrev: 'CET', utc_offset: '01:00:00', is_dst: false }
+      ];
+
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(rows));
+
+      const first = await settingsModel.getTimezones(mockPool);
+      const second = await settingsModel.getTimezones(mockPool);
+
+      expect(first).toEqual(second);
+      expect(mockPool.query).toHaveBeenCalledTimes(1);
+    });
+  });
 });

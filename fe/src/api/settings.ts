@@ -1,5 +1,5 @@
 import { api } from './api';
-import { UserSettings, AppSettings } from '../types/setting';
+import { UserSettings, AppSettings, TimezoneOption } from '../types/setting';
 import logger from '../utils/logger';
 
 // Get User Settings
@@ -53,6 +53,17 @@ export const getAppTheme = async (): Promise<{ theme: 'light' | 'dark' | 'system
     logger.error('Failed to fetch app theme', error);
     // Return default theme on error
     return { theme: 'light' };
+  }
+};
+
+// Get list of available timezones
+export const getTimezones = async (): Promise<TimezoneOption[]> => {
+  try {
+    const response = await api.get('/settings/timezones');
+    return response.data;
+  } catch (error) {
+    logger.error('Failed to fetch timezones', error);
+    throw error;
   }
 };
 

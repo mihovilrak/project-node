@@ -22,6 +22,7 @@ const UserForm: React.FC = () => {
   const {
     loading,
     error,
+    fieldErrors,
     roles,
     formValues,
     handleInputChange,
@@ -57,6 +58,8 @@ const UserForm: React.FC = () => {
                 value={formValues.login}
                 onChange={handleInputChange}
                 required
+                error={!!fieldErrors.login}
+                helperText={fieldErrors.login}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -67,6 +70,8 @@ const UserForm: React.FC = () => {
                 value={formValues.name}
                 onChange={handleInputChange}
                 required
+                error={!!fieldErrors.name}
+                helperText={fieldErrors.name}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -77,6 +82,8 @@ const UserForm: React.FC = () => {
                 value={formValues.surname}
                 onChange={handleInputChange}
                 required
+                error={!!fieldErrors.surname}
+                helperText={fieldErrors.surname}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -88,6 +95,8 @@ const UserForm: React.FC = () => {
                 value={formValues.email}
                 onChange={handleInputChange}
                 required
+                error={!!fieldErrors.email}
+                helperText={fieldErrors.email}
               />
             </Grid>
 
@@ -103,6 +112,8 @@ const UserForm: React.FC = () => {
                     onChange={handleInputChange}
                     required={!!formValues.password}
                     placeholder="Enter current password"
+                    error={!!fieldErrors.currentPassword}
+                    helperText={fieldErrors.currentPassword}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -123,6 +134,8 @@ const UserForm: React.FC = () => {
                     value={formValues.password}
                     onChange={handleInputChange}
                     placeholder="Leave blank to keep current password"
+                    error={!!fieldErrors.password}
+                    helperText={fieldErrors.password}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -149,6 +162,8 @@ const UserForm: React.FC = () => {
                       onChange={handleInputChange}
                       required
                       placeholder="Confirm new password"
+                      error={!!fieldErrors.confirmPassword}
+                      helperText={fieldErrors.confirmPassword}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
@@ -174,6 +189,8 @@ const UserForm: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     placeholder="Enter password"
+                    error={!!fieldErrors.password}
+                    helperText={fieldErrors.password}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -195,6 +212,8 @@ const UserForm: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     placeholder="Confirm password"
+                    error={!!fieldErrors.confirmPassword}
+                    helperText={fieldErrors.confirmPassword}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">

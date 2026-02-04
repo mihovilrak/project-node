@@ -205,7 +205,7 @@ export const getTaskStatuses = async (
   pool: Pool
 ): Promise<TaskStatus[]> => {
   const result: QueryResult<TaskStatus> = await pool.query(
-    `SELECT id, name
+    `SELECT id, name, color
     FROM task_statuses`
   );
   return result.rows;

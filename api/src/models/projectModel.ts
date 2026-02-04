@@ -237,7 +237,7 @@ export const getProjectStatuses = async (
   pool: Pool
 ): Promise<ProjectStatus[]> => {
   const result: QueryResult<ProjectStatus> = await pool.query(
-    `SELECT id, name FROM project_statuses
+    `SELECT id, name, color FROM project_statuses
     ORDER BY id`
   );
   return result.rows;

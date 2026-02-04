@@ -16,6 +16,7 @@ import PermissionButton from '../common/PermissionButton';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
 
 const TaskList: React.FC = () => {
   const navigate = useNavigate();
@@ -107,11 +108,11 @@ const TaskList: React.FC = () => {
               <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip
                   label={task?.status_name || 'Unknown'}
-                  color={task?.status_name === 'Done' ? 'success' : 'default'}
+                  {...chipPropsForStatus(task?.status_name, task?.status_color)}
                 />
                 <Chip
                   label={task?.priority_name || 'Unknown'}
-                  color={task?.priority_name === 'High/Should' ? 'error' : 'default'}
+                  {...chipPropsForPriority(task?.priority_name, task?.priority_color)}
                 />
               </Box>
               <Typography variant="body2" sx={{ mt: 1 }}>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FixedSizeList as List } from 'react-window';
+import { useNavigate, Link } from 'react-router-dom';
 import { getProjects, getProjectStatuses } from '../../api/projects';
 import { getUsers } from '../../api/users';
 import {
@@ -19,6 +18,8 @@ import {
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Project } from '../../types/project';
 import { ProjectStatus } from '../../types/project';
 import logger from '../../utils/logger';
@@ -36,6 +37,7 @@ const Projects: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [expandedProjectIds, setExpandedProjectIds] = useState<Set<number>>(new Set());
 
   const fetchProjects = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
@@ -105,133 +107,89 @@ const Projects: React.FC = () => {
     [statuses, users, projects]
   );
 
-  const filteredProjects = projects
-    .filter((project) => {
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        const name = project?.name?.toLowerCase() || '';
-        const description = project?.description?.toLowerCase() || '';
-        if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
-          return false;
-        }
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      const nameA = a?.name || '';
-      const nameB = b?.name || '';
-      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-    });
-
-  const formatHours = (hours: number | undefined): string => {
-    const h = hours ?? 0;
-    return `${Number(h).toFixed(1)} h`;
-  };
-
-  const projectCardContentGrid = (project: Project) => (
-    <>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{project?.name || 'Unnamed Project'}</Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 0.65fr) minmax(0, 0.65fr) minmax(0, 1.1fr)',
-          columnGap: 1,
-          rowGap: 0.5,
-          mb: 0.5
-        }}
-      >
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
-          </Typography>
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.created_by_name ?? '—'}
-          </Typography>
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Estimated time </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {formatHours(project?.estimated_time)}
-          </Typography>
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
-          </Typography>
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {project?.status_name ?? '—'}
-          </Typography>
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent time </Typography>
-          <Typography component="span" variant="body2" color="text.secondary">
-            {formatHours(project?.spent_time)}
-          </Typography>
-        </Box>
-      </Box>
-      <Box sx={{ mt: 1 }}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>Progress</Typography>
-        <LinearProgress
-          variant="determinate"
-          value={Math.min(100, Math.max(0, project?.progress ?? 0))}
-          sx={{ mt: 0.5, height: 8, borderRadius: 1 }}
-        />
-        <Typography variant="caption" color="text.secondary">
-          {project?.progress ?? 0}%
-        </Typography>
-      </Box>
-    </>
+  const roots = useMemo(
+    () => projects.filter((p) => p?.parent_id == null),
+    [projects]
   );
 
-  const projectCardContentList = (project: Project) => (
-    <>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>{project?.name || 'Unnamed Project'}</Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'baseline', mb: 0.5 }}>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Start </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {project?.start_date ? new Date(project.start_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Created by </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {project?.created_by_name ?? '—'}
-        </Typography>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Est. </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {formatHours(project?.estimated_time)}
-        </Typography>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Due </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {project?.due_date ? new Date(project.due_date).toLocaleDateString() : '—'}
-        </Typography>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Status </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {project?.status_name ?? '—'}
-        </Typography>
-        <Typography component="span" variant="body2" sx={{ fontWeight: 700 }}>Spent </Typography>
-        <Typography component="span" variant="body2" color="text.secondary">
-          {formatHours(project?.spent_time)}
+  const childrenByParentId = useMemo(() => {
+    const rootIds = new Set(roots.map((r) => r?.id).filter((id): id is number => id != null));
+    const map = new Map<number, Project[]>();
+    projects.forEach((p) => {
+      if (p?.parent_id != null && rootIds.has(p.parent_id)) {
+        const list = map.get(p.parent_id) ?? [];
+        list.push(p);
+        map.set(p.parent_id, list);
+      }
+    });
+    map.forEach((list) => list.sort((a, b) => (a?.name ?? '').localeCompare(b?.name ?? '')));
+    return map;
+  }, [projects, roots]);
+
+  const filteredRoots = useMemo(
+    () =>
+      roots
+        .filter((project) => {
+          if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            const name = project?.name?.toLowerCase() ?? '';
+            const description = project?.description?.toLowerCase() ?? '';
+            if (!name.includes(searchTerm) && !description.includes(searchTerm)) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => {
+          const nameA = a?.name ?? '';
+          const nameB = b?.name ?? '';
+          return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        }),
+    [roots, filters.search, sortOrder]
+  );
+
+  const toggleExpanded = useCallback((projectId: number) => {
+    setExpandedProjectIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      return next;
+    });
+  }, []);
+
+  const projectCardContent = (project: Project, hasSubprojects: boolean, isExpanded: boolean, indent = 0) => (
+    <Box sx={{ pl: indent * 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+        {hasSubprojects && (
+          <IconButton
+            size="small"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleExpanded(project.id); }}
+            aria-label={isExpanded ? 'Collapse subprojects' : 'Expand subprojects'}
+            sx={{ p: 0.25 }}
+          >
+            {isExpanded ? <KeyboardArrowDownIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+          </IconButton>
+        )}
+        <Typography variant="body2" color="text.secondary">#{project?.id}</Typography>
+        <Typography
+          component={Link}
+          to={`/projects/${project?.id}`}
+          variant="h6"
+          sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {project?.name ?? 'Unnamed Project'}
         </Typography>
       </Box>
-      <Box sx={{ mt: 1 }}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>Progress</Typography>
-        <LinearProgress
-          variant="determinate"
-          value={Math.min(100, Math.max(0, project?.progress ?? 0))}
-          sx={{ mt: 0.5, height: 8, borderRadius: 1 }}
-        />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: 200, mt: 0.5 }}>
         <Typography variant="caption" color="text.secondary">
           {project?.progress ?? 0}%
         </Typography>
+        <LinearProgress
+          variant="determinate"
+          value={Math.min(100, Math.max(0, project?.progress ?? 0))}
+          sx={{ height: 8, borderRadius: 1, width: '100%' }}
+        />
       </Box>
-    </>
+    </Box>
   );
 
   return (
@@ -283,56 +241,57 @@ const Projects: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
           <Typography>Loading projects...</Typography>
         </Box>
-      ) : filteredProjects.length === 0 ? (
+      ) : filteredRoots.length === 0 ? (
         <Typography>No projects yet.</Typography>
       ) : viewMode === 'grid' ? (
         <Grid container spacing={2} sx={{ mt: 2, width: '100%', maxWidth: 1400 }}>
-          {filteredProjects.map((project) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project?.id} sx={{ minWidth: 0 }}>
-              <Card
-                onClick={() => navigate(`/projects/${project?.id}`)}
-                data-testid={`project-card-${project?.id}`}
-                role="button"
-                aria-label={`View project ${project?.name || 'Unnamed'}`}
-                sx={{ cursor: 'pointer', minWidth: 262 }}
-              >
-                <CardContent>
-                  {projectCardContentGrid(project)}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+          {filteredRoots.map((project) => {
+            const subprojects = childrenByParentId.get(project?.id ?? 0) ?? [];
+            const hasSubprojects = subprojects.length > 0;
+            const isExpanded = expandedProjectIds.has(project?.id ?? 0);
+            return (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project?.id} sx={{ minWidth: 0 }}>
+                <Card data-testid={`project-card-${project?.id}`} sx={{ minWidth: 262 }}>
+                  <CardContent>
+                    {projectCardContent(project, hasSubprojects, isExpanded)}
+                    {hasSubprojects && isExpanded && (
+                      <Box sx={{ mt: 1.5, pt: 1, borderTop: 1, borderColor: 'divider' }}>
+                        {subprojects.map((sub) => (
+                          <Box key={sub?.id} sx={{ mb: 0.5, pl: 1 }} data-testid={`project-card-${sub?.id}`}>
+                            {projectCardContent(sub, false, false, 1)}
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       ) : (
-        <Box sx={{ height: 600, mt: 2, width: '100%', maxWidth: 1400 }}>
-          <List
-            height={600}
-            itemCount={filteredProjects.length}
-            itemSize={168}
-            width="100%"
-            itemData={filteredProjects}
-          >
-            {({ index, style, data }) => {
-              const project = data[index];
-              return (
-                <div style={style}>
-                  <Box sx={{ py: 1, px: 0.5 }}>
-                    <Card
-                      onClick={() => navigate(`/projects/${project?.id}`)}
-                      data-testid={`project-card-${project?.id}`}
-                      role="button"
-                      aria-label={`View project ${project?.name || 'Unnamed'}`}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <CardContent>
-                        {projectCardContentList(project)}
-                      </CardContent>
-                    </Card>
-                  </Box>
-                </div>
-              );
-            }}
-          </List>
+        <Box sx={{ mt: 2, width: '100%', maxWidth: 1400, maxHeight: 600, overflow: 'auto' }}>
+          {filteredRoots.map((project) => {
+            const subprojects = childrenByParentId.get(project?.id ?? 0) ?? [];
+            const hasSubprojects = subprojects.length > 0;
+            const isExpanded = expandedProjectIds.has(project?.id ?? 0);
+            return (
+              <Card key={project?.id} data-testid={`project-card-${project?.id}`} sx={{ mb: 1 }}>
+                <CardContent sx={{ py: 1 }}>
+                  {projectCardContent(project, hasSubprojects, isExpanded)}
+                  {hasSubprojects && isExpanded && (
+                    <Box sx={{ mt: 1, pt: 1, borderTop: 1, borderColor: 'divider', pl: 1 }}>
+                      {subprojects.map((sub) => (
+                        <Box key={sub?.id} sx={{ mb: 0.5, pl: 1 }} data-testid={`project-card-${sub?.id}`}>
+                          {projectCardContent(sub, false, false, 1)}
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </Box>
       )}
     </Box>

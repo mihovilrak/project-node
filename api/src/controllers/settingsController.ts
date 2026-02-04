@@ -23,6 +23,21 @@ export const getSystemSettings = async (
   }
 };
 
+// Get available timezones (cached)
+export const getTimezones = async (
+  req: Request,
+  res: Response,
+  pool: Pool
+): Promise<Response | void> => {
+  try {
+    const timezones = await settingsModel.getTimezones(pool);
+    return res.status(200).json(timezones);
+  } catch (error) {
+    logger.error({ err: error });
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Get App Theme (public endpoint, no admin permission required)
 export const getAppTheme = async (
   req: Request,

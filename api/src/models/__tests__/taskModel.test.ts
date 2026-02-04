@@ -233,16 +233,16 @@ describe('TaskModel', () => {
   describe('getTaskStatuses', () => {
     it('should return all task statuses', async () => {
       const mockStatuses = [
-        { id: 1, name: 'To Do' },
-        { id: 2, name: 'In Progress' },
-        { id: 3, name: 'Done' }
+        { id: 1, name: 'To Do', color: '#2196F3' },
+        { id: 2, name: 'In Progress', color: '#FF9800' },
+        { id: 3, name: 'Done', color: '#4CAF50' }
       ];
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockStatuses));
 
       const result = await taskModel.getTaskStatuses(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, name')
+        expect.stringContaining('SELECT id, name, color')
       );
       expect(result).toEqual(mockStatuses);
     });

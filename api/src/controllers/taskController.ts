@@ -221,6 +221,18 @@ export const createTask = async (
       return;
     }
 
+    const startDate = taskData.start_date ? new Date(taskData.start_date as string).getTime() : NaN;
+    const dueDate = taskData.due_date ? new Date(taskData.due_date as string).getTime() : NaN;
+    if (!isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
+      res.status(400).json({ error: 'Due date must be on or after start date' });
+      return;
+    }
+    const endDate = taskData.end_date ? new Date(taskData.end_date as string).getTime() : NaN;
+    if (taskData.end_date != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
+      res.status(400).json({ error: 'End date must be on or after start date' });
+      return;
+    }
+
     // Convert types to match database expectations
     const processedData: TaskCreateInput = {
       ...taskData,
@@ -286,6 +298,18 @@ export const updateTask = async (
   const { id } = req.params;
   const userId = req.session.user?.id;
   const taskData: TaskUpdateInput = req.body;
+
+  const startDate = taskData.start_date != null ? new Date(taskData.start_date as string).getTime() : null;
+  const dueDate = taskData.due_date != null ? new Date(taskData.due_date as string).getTime() : null;
+  const endDate = taskData.end_date != null ? new Date(taskData.end_date as string).getTime() : null;
+  if (startDate != null && dueDate != null && !isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
+    res.status(400).json({ error: 'Due date must be on or after start date' });
+    return;
+  }
+  if (startDate != null && endDate != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
+    res.status(400).json({ error: 'End date must be on or after start date' });
+    return;
+  }
 
   try {
     const task = await taskModel.updateTask(pool, id, taskData);

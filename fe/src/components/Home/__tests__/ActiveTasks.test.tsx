@@ -6,12 +6,6 @@ import { getActiveTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import logger from '../../../utils/logger';
 
-// Mock the dayjs module
-jest.mock('dayjs', () => {
-  const originalDayjs = jest.requireActual('dayjs');
-  return (date: string) => originalDayjs(date);
-});
-
 const mockNavigate = jest.fn();
 
 jest.mock('react-router-dom', () => ({
@@ -21,6 +15,11 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('../../../api/tasks', () => ({
   getActiveTasks: jest.fn()
+}));
+
+jest.mock('../../../utils/logger', () => ({
+  __esModule: true,
+  default: { error: jest.fn() }
 }));
 
 const mockTasks: Task[] = [
@@ -122,55 +121,44 @@ describe('ActiveTasks', () => {
     });
   });
 
-  it('shows correct priority for tasks', async () => {
+  it('shows correct priority and status chips for tasks', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      expect(screen.getByText('Priority: High/Should')).toBeInTheDocument();
-      expect(screen.getByText('Priority: Normal/Could')).toBeInTheDocument();
+      expect(screen.getByText('High/Should')).toBeInTheDocument();
+      expect(screen.getByText('Normal/Could')).toBeInTheDocument();
+      expect(screen.getAllByText('New')).toHaveLength(2);
     });
   });
 
-  it('formats dates correctly or shows no date message', async () => {
+  it('displays project names and Details button in grid', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      const dueDates = screen.getAllByText(/Due:/);
-      expect(dueDates).toHaveLength(2);
-      expect(dueDates[0]).toHaveTextContent('Due: Jan 15, 2024');
-      expect(dueDates[1]).toHaveTextContent('Due: No due date');
+      expect(screen.getByText('Project A')).toBeInTheDocument();
+      expect(screen.getByText('Project B')).toBeInTheDocument();
     });
+    expect(screen.getAllByRole('button', { name: 'Details' }).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('displays project names correctly', async () => {
-    renderActiveTasks();
-
-    await waitFor(() => {
-      expect(screen.getByText('Project: Project A')).toBeInTheDocument();
-      expect(screen.getByText('Project: Project B')).toBeInTheDocument();
-    });
-  });
-
-  it('maintains correct grid layout', async () => {
+  it('maintains correct grid layout with task cards', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
       const cards = screen.getAllByText(/Test Task \d/).map(el => el.closest('.MuiCard-root'));
       expect(cards).toHaveLength(2);
-      cards.forEach(card => {
-        expect(card).toHaveStyle({ cursor: 'pointer' });
-      });
     });
   });
 
-  it('navigates to task detail when card is clicked', async () => {
+  it('navigates to task detail when Details button is clicked', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      const taskCard = screen.getByText('Test Task 1').closest('.MuiCard-root');
-      fireEvent.click(taskCard!);
-      expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
+    const detailsButtons = screen.getAllByRole('button', { name: /Details/i });
+    fireEvent.click(detailsButtons[0]);
+    expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
   });
 
   it('handles API error gracefully', async () => {

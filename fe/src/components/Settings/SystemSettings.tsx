@@ -17,7 +17,9 @@ import {
   Tooltip,
   IconButton,
   Divider,
-  Grid
+  Grid,
+  Autocomplete,
+  ListSubheader
 } from '@mui/material';
 import {
   FormatBold,
@@ -124,7 +126,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 const SystemSettings: React.FC = () => {
-  const { state, handleSubmit, handleChange } = useSystemSettings();
+  const { state, timezones, timezonesLoading, timezonesError, handleSubmit, handleChange } = useSystemSettings();
   const [tabValue, setTabValue] = React.useState(0);
   const [smtpTestEmail, setSmtpTestEmail] = React.useState('');
   const [smtpTestLoading, setSmtpTestLoading] = React.useState(false);
@@ -336,12 +338,36 @@ const SystemSettings: React.FC = () => {
                 fullWidth
                 type="email"
               />
-              <TextField
-                label="Time Zone"
-                name="time_zone"
-                value={state.settings.time_zone || ''}
-                onChange={handleChange}
-                fullWidth
+              <Autocomplete
+                options={timezones}
+                loading={timezonesLoading}
+                groupBy={(option) => option.region}
+                renderGroup={(params) => (
+                  <React.Fragment key={params.key}>
+                    <ListSubheader sx={{ fontWeight: 700 }}>{params.group}</ListSubheader>
+                    {params.children}
+                  </React.Fragment>
+                )}
+                getOptionLabel={(option) => option.label}
+                value={timezones.find((tz) => tz.name === state.settings.time_zone) || null}
+                onChange={(_, newValue) => {
+                  const value = newValue?.name || '';
+                  handleChange({
+                    target: {
+                      name: 'time_zone',
+                      value
+                    }
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Time Zone"
+                    fullWidth
+                    error={Boolean(timezonesError)}
+                    helperText={timezonesError || ''}
+                  />
+                )}
               />
               <FormControl fullWidth>
                 <InputLabel id="theme-label">Theme</InputLabel>

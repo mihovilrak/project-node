@@ -61,6 +61,7 @@ describe('TimeLogList', () => {
 
   it('renders time logs correctly', () => {
     renderComponent();
+    expect(screen.getByText('#1')).toBeInTheDocument();
     expect(screen.getByText('2:30 h')).toBeInTheDocument();
     expect(screen.getByText('Development')).toBeInTheDocument();
     expect(screen.getByText('Test description')).toBeInTheDocument();

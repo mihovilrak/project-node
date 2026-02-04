@@ -247,7 +247,7 @@ describe('Tasks Component', () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1/edit');
   });
 
-  test('displays correct status and priority chips', async () => {
+  test('displays correct status and priority chips and task ID', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
@@ -255,6 +255,8 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
+    expect(screen.getByText('#1')).toBeInTheDocument();
+    expect(screen.getByText('#2')).toBeInTheDocument();
     // Check status chip
     const statusChips = screen.getAllByTestId('status-chip');
     expect(statusChips.length).toBeGreaterThan(0);

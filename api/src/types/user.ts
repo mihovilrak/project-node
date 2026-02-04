@@ -46,6 +46,7 @@ export interface UserQueryFilters {
 export interface UserStatus {
   id: number;
   name: string;
+  color?: string;
 }
 
 export interface UserRole {

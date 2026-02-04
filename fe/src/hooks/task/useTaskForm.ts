@@ -51,6 +51,7 @@ export const useTaskForm = ({
     tags: []
   });
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
@@ -138,6 +139,14 @@ export const useTaskForm = ({
     const { name, value } = e.target;
     const newValue = value === '' ? null : value;
 
+    setFieldErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
     setFormData(prev => ({
       ...prev,
       [name]: newValue
@@ -167,6 +176,23 @@ export const useTaskForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const err: Record<string, string> = {};
+    if (!formData.name?.trim()) err.name = 'Name is required';
+    if (formData.project_id == null) err.project_id = 'Project is required';
+    if (!formData.start_date) err.start_date = 'Start date is required';
+    if (!formData.due_date) err.due_date = 'Due date is required';
+    if (formData.holder_id == null) err.holder_id = 'Holder is required';
+    if (formData.assignee_id == null) err.assignee_id = 'Assignee is required';
+    const start = formData.start_date ? dayjs(formData.start_date).valueOf() : null;
+    const due = formData.due_date ? dayjs(formData.due_date).valueOf() : null;
+    if (start != null && due != null && due < start) {
+      err.due_date = err.due_date || 'Due date must be on or after start date';
+    }
+    if (Object.keys(err).length > 0) {
+      setFieldErrors(err);
+      throw new Error('Please fill in all required fields');
+    }
+    setFieldErrors({});
     try {
       const taskData = {
         ...formData,
@@ -191,14 +217,15 @@ export const useTaskForm = ({
           navigate(-1);
         }
       }
-      } catch (error: unknown) {
-        logger.error('Error saving task:', error);
-        throw new Error(getApiErrorMessage(error, 'Failed to save task'));
-      }
+    } catch (error: unknown) {
+      logger.error('Error saving task:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to save task'));
+    }
   };
 
   return {
     formData,
+    fieldErrors,
     projects,
     projectMembers,
     projectTasks,

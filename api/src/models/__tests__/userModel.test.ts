@@ -26,7 +26,7 @@ describe('UserModel', () => {
       const result = await userModel.getUserStatuses(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT id, name FROM user_statuses ORDER BY id'
+        'SELECT id, name, color FROM user_statuses ORDER BY id'
       );
       expect(result).toEqual(mockStatuses);
     });

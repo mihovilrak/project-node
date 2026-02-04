@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FixedSizeList as List } from 'react-window';
 import {
   Box,
@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Select,
   MenuItem,
@@ -18,7 +19,10 @@ import {
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { getUsers, deleteUser, getUserStatuses, fetchRoles } from '../../api/users';
+import { usePermission } from '../../hooks/common/usePermission';
 import { User } from '../../types/user';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
@@ -39,6 +43,8 @@ const Users: React.FC = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const navigate = useNavigate();
+  const { hasPermission: canEditUser } = usePermission('Edit users');
+  const { hasPermission: canDeleteUser } = usePermission('Delete users');
 
   const fetchUsers = useCallback(async (currentFilters?: FilterValues) => {
     try {
@@ -198,14 +204,44 @@ const Users: React.FC = () => {
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user?.id}>
                 <Card data-testid={`user-card-${user?.id}`}>
                   <CardContent>
-                    <Typography variant="h6">{user?.name || ''} {user?.surname || ''}</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                      <Typography
+                        component={Link}
+                        to={`/users/${user?.id}`}
+                        variant="h6"
+                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                      >
+                        {user?.name || ''} {user?.surname || ''}
+                      </Typography>
+                      {(canEditUser || canDeleteUser) && (
+                        <Box sx={{ display: 'flex', gap: 0 }}>
+                          {canEditUser && (
+                            <Tooltip title="Edit">
+                              <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {canDeleteUser && (
+                            <Tooltip title="Delete">
+                              <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                    {user?.status_name && (
+                      <Chip
+                        label={user.status_name}
+                        size="small"
+                        sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                      />
+                    )}
                     <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
                     <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
-                    <Box marginTop={2}>
-                      <Button type="button" variant="contained" color="primary" onClick={() => navigate(`/users/${user?.id}`)} data-testid="view-user-btn">View</Button>
-                      <Button type="button" variant="contained" color="warning" onClick={() => navigate(`/users/${user?.id}/edit`)} sx={{ ml: 1 }} data-testid="edit-user-btn">Edit</Button>
-                      <Button type="button" variant="contained" color="error" onClick={() => handleDeleteClick(user)} sx={{ ml: 1 }} data-testid={`delete-user-${user?.id}`}>Delete</Button>
-                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -227,14 +263,44 @@ const Users: React.FC = () => {
                     <Box sx={{ py: 1, px: 0.5 }}>
                       <Card data-testid={`user-card-${user?.id}`}>
                         <CardContent>
-                          <Typography variant="h6">{user?.name || ''} {user?.surname || ''}</Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                            <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                            <Typography
+                              component={Link}
+                              to={`/users/${user?.id}`}
+                              variant="h6"
+                              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                            >
+                              {user?.name || ''} {user?.surname || ''}
+                            </Typography>
+                            {(canEditUser || canDeleteUser) && (
+                              <Box sx={{ display: 'flex', gap: 0 }}>
+                                {canEditUser && (
+                                  <Tooltip title="Edit">
+                                    <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                                      <EditIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                                {canDeleteUser && (
+                                  <Tooltip title="Delete">
+                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            )}
+                          </Box>
+                          {user?.status_name && (
+                            <Chip
+                              label={user.status_name}
+                              size="small"
+                              sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                            />
+                          )}
                           <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
                           <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
-                          <Box marginTop={2}>
-                            <Button type="button" variant="contained" color="primary" onClick={() => navigate(`/users/${user?.id}`)} data-testid="view-user-btn">View</Button>
-                            <Button type="button" variant="contained" color="warning" onClick={() => navigate(`/users/${user?.id}/edit`)} sx={{ ml: 1 }} data-testid="edit-user-btn">Edit</Button>
-                            <Button type="button" variant="contained" color="error" onClick={() => handleDeleteClick(user)} sx={{ ml: 1 }} data-testid={`delete-user-${user?.id}`}>Delete</Button>
-                          </Box>
                         </CardContent>
                       </Card>
                     </Box>

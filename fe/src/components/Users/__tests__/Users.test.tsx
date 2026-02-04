@@ -42,6 +42,8 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role_id: 1,
     status_id: 1,
+    status_name: 'Active',
+    status_color: '#4caf50',
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
@@ -56,6 +58,7 @@ const mockUsers: User[] = [
     email: 'jane@example.com',
     role_id: 4,
     status_id: 1,
+    status_name: 'Active',
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
@@ -90,7 +93,7 @@ describe('Users Component', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  test('renders users list after loading', async () => {
+  test('renders users list after loading with ID and status', async () => {
     await act(async () => {
       renderUsers();
     });
@@ -99,6 +102,9 @@ describe('Users Component', () => {
     });
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    expect(screen.getByText('#1')).toBeInTheDocument();
+    expect(screen.getByText('#2')).toBeInTheDocument();
+    expect(screen.getAllByText('Active').length).toBeGreaterThanOrEqual(1);
   });
 
   test('handles user filtering', async () => {

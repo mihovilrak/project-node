@@ -111,7 +111,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                     <Chip
                       label={user.status_name || 'Unknown'}
                       size="small"
-                      color={user.status_id === 1 ? 'success' : user.status_id === 3 ? 'error' : 'default'}
+                      {...(user.status_color
+                        ? { sx: { backgroundColor: user.status_color, color: '#fff' } }
+                        : { color: user.status_id === 1 ? 'success' : user.status_id === 3 ? 'error' : 'default' })}
                     />
                   </TableCell>
                   <TableCell align="right">

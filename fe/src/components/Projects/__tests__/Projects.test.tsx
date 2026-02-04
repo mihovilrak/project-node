@@ -130,17 +130,17 @@ describe('Projects Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/projects/new');
   }, 15000);
 
-  it('navigates to project details when clicking a project card', async () => {
+  it('project title links to project details', async () => {
     render(<Projects />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
-    const projectCard = screen.getByTestId('project-card-1');
-    fireEvent.click(projectCard);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/projects/1');
+    const card1 = screen.getByTestId('project-card-1');
+    const projectTitle = within(card1).getByRole('heading', { name: /Project A/i });
+    expect(projectTitle).toHaveTextContent('Project A');
+    expect(projectTitle.getAttribute('href') ?? projectTitle.getAttribute('to')).toBe('/projects/1');
   });
 
   it('displays "No projects yet" when project list is empty', async () => {
@@ -153,7 +153,7 @@ describe('Projects Component', () => {
     });
   });
 
-  it('displays project card with start date, created by, estimated time, due date, status, spent time and progress in grid view', async () => {
+  it('displays project card with title and progress bar only in grid view', async () => {
     render(<Projects />);
 
     await waitFor(() => {
@@ -161,15 +161,11 @@ describe('Projects Component', () => {
     });
 
     const card1 = screen.getByTestId('project-card-1');
-    expect(within(card1).getByText('Project A')).toBeInTheDocument();
-    expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
-    expect(within(card1).getByText('Active')).toBeInTheDocument();
-    expect(within(card1).getByText('100.0 h')).toBeInTheDocument();
-    expect(within(card1).getByText('50.0 h')).toBeInTheDocument();
-    expect(within(card1).getByText('Progress')).toBeInTheDocument();
+    expect(within(card1).getByRole('heading', { name: /Project A/i })).toBeInTheDocument();
+    expect(within(card1).getByText('50%')).toBeInTheDocument();
   });
 
-  it('displays project card content in list view when toggled', async () => {
+  it('displays project card with title and progress in list view when toggled', async () => {
     render(<Projects />);
 
     await waitFor(() => {
@@ -180,8 +176,37 @@ describe('Projects Component', () => {
     fireEvent.click(listViewButton);
 
     const card1 = screen.getByTestId('project-card-1');
-    expect(within(card1).getByText('Project A')).toBeInTheDocument();
-    expect(within(card1).getByText(/User 1/)).toBeInTheDocument();
-    expect(within(card1).getByText('Active')).toBeInTheDocument();
+    expect(within(card1).getByRole('heading', { name: /Project A/i })).toBeInTheDocument();
+    expect(within(card1).getByText('50%')).toBeInTheDocument();
+  });
+
+  it('shows expand arrow and subprojects inside same card when project has children', async () => {
+    const projectsWithChild = [
+      ...mockProjects,
+      {
+        ...mockProjects[0],
+        id: 3,
+        name: 'Subproject A1',
+        parent_id: 1
+      }
+    ];
+    (getProjects as jest.Mock).mockResolvedValue(projectsWithChild);
+
+    render(<Projects />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
+    });
+
+    const expandButton = screen.getByRole('button', { name: /expand subprojects/i });
+    expect(expandButton).toBeInTheDocument();
+    fireEvent.click(expandButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Subproject A1')).toBeInTheDocument();
+    });
+    const card1 = screen.getByTestId('project-card-1');
+    expect(within(card1).getByText('Subproject A1')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /collapse subprojects/i })).toBeInTheDocument();
   });
 });

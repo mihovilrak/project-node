@@ -9,7 +9,7 @@ import {
 // Get user statuses
 export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
   const result: QueryResult<UserStatus> = await pool.query(
-    'SELECT id, name FROM user_statuses ORDER BY id'
+    'SELECT id, name, color FROM user_statuses ORDER BY id'
   );
   return result.rows;
 };

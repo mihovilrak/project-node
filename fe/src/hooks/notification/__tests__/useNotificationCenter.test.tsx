@@ -164,6 +164,20 @@ describe('useNotificationCenter', () => {
     unmount();
   });
 
+  it('should mark all as read when handleMarkAllAsRead is called', async () => {
+    (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
+    (markAsRead as jest.Mock).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+
+    await act(async () => {
+      await result.current.handleMarkAllAsRead();
+    });
+
+    expect(markAsRead).toHaveBeenCalledWith(1);
+    expect(getNotifications).toHaveBeenCalledTimes(2); // Initial fetch + after mark all read
+  });
+
   it('should handle API errors gracefully', async () => {
     (getNotifications as jest.Mock).mockRejectedValue(new Error('API Error'));
 

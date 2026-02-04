@@ -29,6 +29,7 @@ const TaskForm: React.FC = () => {
 
   const {
     formData,
+    fieldErrors,
     projects,
     projectMembers,
     projectTasks,
@@ -128,6 +129,7 @@ const TaskForm: React.FC = () => {
             <DatePickerSection
               formData={formData}
               handleChange={handleFormChange}
+              errors={{ start_date: fieldErrors.start_date, due_date: fieldErrors.due_date }}
             />
           </Grid>
 

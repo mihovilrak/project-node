@@ -18,7 +18,7 @@ import { Edit as EditIcon } from '@mui/icons-material';
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TaskTableProps } from '../../types/task';
-import { getPriorityColor } from '../../utils/taskUtils';
+import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
 
 const getIconComponent = (iconName?: string): React.ReactElement | undefined => {
   if (!iconName) return undefined;
@@ -86,14 +86,14 @@ const TaskTable: React.FC<TaskTableProps> = ({
                   <Chip
                     label={task?.status_name || 'Unknown'}
                     size="small"
-                    color={task?.status_name === 'Done' ? 'success' : 'default'}
+                    {...chipPropsForStatus(task?.status_name, task?.status_color)}
                   />
                 </TableCell>
                 <TableCell>
                   <Chip
                     label={task?.priority_name || 'Unknown'}
                     size="small"
-                    color={getPriorityColor(task?.priority_name || '')}
+                    {...chipPropsForPriority(task?.priority_name, task?.priority_color)}
                   />
                 </TableCell>
                 <TableCell>{task?.holder_name || 'Unassigned'}</TableCell>

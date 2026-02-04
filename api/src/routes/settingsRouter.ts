@@ -10,6 +10,7 @@ export default (pool: Pool): Router => {
   router.get('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getSystemSettings));
   router.put('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.updateSystemSettings));
   router.get('/app_theme', withPool(pool, settingsController.getAppTheme));
+  router.get('/timezones', withPool(pool, settingsController.getTimezones));
   router.get('/user_settings', withPool(pool, settingsController.getUserSettings));
   router.put('/user_settings', withPool(pool, settingsController.updateUserSettings));
   router.get('/env', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getEnvSettings));

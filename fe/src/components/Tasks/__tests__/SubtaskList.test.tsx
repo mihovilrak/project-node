@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
 import SubtaskList from '../SubtaskList';
-import { deleteTask } from '../../../api/tasks';
+import { deleteTask, getSubtasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import logger from '../../../utils/logger';
 
@@ -13,6 +13,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('../../../api/tasks', () => ({
   deleteTask: jest.fn(),
+  getSubtasks: jest.fn()
 }));
 
 const mockNavigate = jest.fn();
@@ -89,11 +90,16 @@ describe('SubtaskList', () => {
     jest.clearAllMocks();
   });
 
-  it('renders list of subtasks', () => {
+  it('renders list of subtasks with ID and metadata', () => {
     render(<SubtaskList {...defaultProps} />);
 
     expect(screen.getByText('Test Subtask 1')).toBeInTheDocument();
     expect(screen.getByText('Test Subtask 2')).toBeInTheDocument();
+    expect(screen.getByText('#1')).toBeInTheDocument();
+    expect(screen.getByText('#2')).toBeInTheDocument();
+    expect(screen.getAllByText('Task').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('In Progress')).toBeInTheDocument();
+    expect(screen.getByText('Done')).toBeInTheDocument();
   });
 
   it('displays empty state when no subtasks', () => {
@@ -170,8 +176,36 @@ describe('SubtaskList', () => {
     const deleteButtons = screen.getAllByLabelText('Delete');
     fireEvent.click(deleteButtons[0]);
 
+    await waitFor(
+      () => {
+        expect(logger.error).toHaveBeenCalledWith('Failed to delete subtask', expect.any(Error));
+      },
+      { timeout: 2000 }
+    );
+  }, 5000);
+
+  it('fetches and shows nested subtasks when expand is clicked', async () => {
+    const nestedTasks: Task[] = [
+      {
+        ...mockSubtasks[0],
+        id: 3,
+        name: 'Nested Subtask',
+        parent_id: 1
+      }
+    ];
+    (getSubtasks as jest.Mock).mockResolvedValue(nestedTasks);
+
+    render(<SubtaskList {...defaultProps} />);
+
+    const expandButtons = screen.getAllByRole('button', { name: /expand subtasks/i });
+    fireEvent.click(expandButtons[0]);
+
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to delete subtask:', expect.any(Error));
+      expect(getSubtasks).toHaveBeenCalledWith(1);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Nested Subtask')).toBeInTheDocument();
     });
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Layout from '../Layout';
 import '@testing-library/jest-dom';
@@ -42,7 +42,8 @@ jest.mock('@mui/icons-material', () => ({
   Brightness4: () => <span data-testid="dark-mode-icon">DarkModeIcon</span>,
   Brightness7: () => <span data-testid="light-mode-icon">LightModeIcon</span>,
   AccountCircle: () => <span data-testid="profile-icon">ProfileIcon</span>,
-  ExitToApp: () => <span data-testid="logout-icon">LogoutIcon</span>
+  ExitToApp: () => <span data-testid="logout-icon">LogoutIcon</span>,
+  KeyboardArrowUp: () => <span data-testid="keyboard-arrow-up">Up</span>
 }));
 
 // Simplified Material-UI mocks
@@ -88,6 +89,11 @@ jest.mock('@mui/material', () => {
     ),
     Tooltip: ({ children, title }: any) => (
       <div title={title}>{children}</div>
+    ),
+    Fab: ({ children, onClick, 'data-testid': testId }: any) => (
+      <button data-testid={testId || 'scroll-to-top'} onClick={onClick}>
+        {children}
+      </button>
     ),
   };
 });
@@ -179,5 +185,19 @@ describe('Layout', () => {
   it('applies correct styles to main content area', () => {
     renderLayout();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
+  });
+
+  it('shows scroll-to-top button when scrolled and scrolls to top on click', async () => {
+    const scrollToMock = jest.fn();
+    Object.defineProperty(window, 'scrollTo', { value: scrollToMock, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 500, configurable: true });
+    renderLayout();
+    window.dispatchEvent(new Event('scroll'));
+    await waitFor(() => {
+      expect(screen.getByTestId('scroll-to-top')).toBeInTheDocument();
+    });
+    const scrollTopButton = screen.getByTestId('scroll-to-top');
+    fireEvent.click(scrollTopButton);
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 });

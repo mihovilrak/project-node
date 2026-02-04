@@ -17,6 +17,7 @@ export interface Task {
   type_name?: string;
   status_id: number;
   status_name?: string;
+  status_color?: string;
   priority_id: number;
   priority_name?: string;
   start_date: Date;
@@ -46,8 +47,8 @@ export interface TaskStatus {
   name: string;
   color: string;
   description?: string | null;
-  active: boolean;
-  created_on: Date;
+  active?: boolean;
+  created_on?: Date;
   updated_on?: Date | null;
 }
 

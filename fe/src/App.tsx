@@ -29,6 +29,7 @@ const Calendar = lazy(() => import('./components/Calendar/Calendar'));
 const TaskFiles = lazy(() => import('./components/Tasks/TaskFiles'));
 const TaskTimeLogs = lazy(() => import('./components/Tasks/TaskTimeLogs'));
 const TimeLogCalendar = lazy(() => import('./components/TimeLog/TimeLogCalendar'));
+const NotificationsPage = lazy(() => import('./components/Notifications/NotificationsPage'));
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ThemeProvider } from './context/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -105,6 +106,7 @@ const App: React.FC = () => {
               <Route path="/tasks/:id/edit" element={<PrivateRoute element={<TaskForm />} />} />
               <Route path="/tasks/active" element={<PrivateRoute element={<ActiveTasks />} />} />
               <Route path="/settings" element={<PrivateRoute element={<Settings />} />} />
+              <Route path="/notifications" element={<PrivateRoute element={<NotificationsPage />} />} />
               <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
               <Route path="/calendar" element={<PrivateRoute element={<Calendar />} />} />
               <Route path="/tasks/:id/files" element={<PrivateRoute element={<TaskFileWrapper />} />} />
