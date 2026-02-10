@@ -204,7 +204,7 @@ const Users: React.FC = () => {
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user?.id}>
                 <Card data-testid={`user-card-${user?.id}`}>
                   <CardContent>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                       <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
                       <Typography
                         component={Link}
@@ -263,7 +263,7 @@ const Users: React.FC = () => {
                     <Box sx={{ py: 1, px: 0.5 }}>
                       <Card data-testid={`user-card-${user?.id}`}>
                         <CardContent>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                             <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
                             <Typography
                               component={Link}

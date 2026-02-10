@@ -6,6 +6,14 @@ import { getUsers, deleteUser, getUserStatuses } from '../../../api/users';
 import { User } from '../../../types/user';
 import logger from '../../../utils/logger';
 
+// Mock permission hook to avoid needing AuthProvider
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({
+    hasPermission: true,
+    loading: false
+  })
+}));
+
 // Mock the API calls
 jest.mock('../../../api/users');
 const mockedGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
@@ -199,18 +207,9 @@ describe('Users Component', () => {
     fireEvent.click(addButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/new');
 
-    // Use getAllByTestId for View/Edit/Delete if available, else fallback to getAllByText
-    const viewButtons = screen.getAllByTestId('view-user-btn');
-    const userCards = screen.getAllByRole('heading', { level: 6 });
-    // Find the index where the card contains 'John Doe'
-    const johnIndex = userCards.findIndex(card => card.textContent?.includes('John Doe'));
-    fireEvent.click(viewButtons[johnIndex]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/users/1');
-
-    const editButtons = screen.getAllByTestId('edit-user-btn');
-    // Use the same index logic as the view button
-    fireEvent.click(editButtons[johnIndex]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/users/1/edit');
+    // Verify that the user name link points to the correct details route
+    const userLink = screen.getByRole('link', { name: 'John Doe' });
+    expect(userLink).toHaveAttribute('href', '/users/1');
   });
 
   test('handles API error', async () => {

@@ -37,6 +37,12 @@ const mockProject: Project = {
   progress: 50,
 };
 
+const mockRootProject: Project = {
+  ...mockProject,
+  parent_id: null,
+  parent_name: null
+};
+
 const mockSubprojects = [
   { id: 3, name: 'Subproject 1' },
   { id: 4, name: 'Subproject 2' },
@@ -82,7 +88,7 @@ describe('ProjectOverview Component', () => {
   });
 
   test('renders subprojects list correctly', () => {
-    renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
 
     expect(screen.getByText('Subproject 1')).toBeInTheDocument();
     expect(screen.getByText('Subproject 2')).toBeInTheDocument();
@@ -94,7 +100,7 @@ describe('ProjectOverview Component', () => {
       handleAddSubproject: jest.fn(),
     });
 
-    renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
     expect(screen.getByText('No subprojects found')).toBeInTheDocument();
   });
 
@@ -119,7 +125,7 @@ describe('ProjectOverview Component', () => {
       handleAddSubproject: mockHandleAddSubproject,
     });
 
-    renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
 
     const addButton = screen.getByTestId('permission-button');
     fireEvent.click(addButton);

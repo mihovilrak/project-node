@@ -21,8 +21,7 @@ import { Task } from '../../../types/task';
 import { chipPropsForPriority, chipPropsForStatus } from '../../../utils/taskUtils';
 
 const COLUMNS = [
-  '#',
-  'Title',
+  'Task',
   'Type',
   'Status',
   'Priority',
@@ -78,8 +77,15 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks }) => {
               borderColor: 'divider'
             }}
           >
-            <TableCell sx={{ py: 0.75, px: 1, pl: 1 + indent * 3, whiteSpace: 'nowrap', width: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+            <TableCell sx={{ py: 0.75, px: 1, pl: 1 + indent * 3, whiteSpace: 'nowrap' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  minWidth: 0
+                }}
+              >
                 {hasSubtasks && (
                   <IconButton
                     size="small"
@@ -93,16 +99,23 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks }) => {
                 <Typography variant="body2" color="text.secondary">
                   #{task?.id}
                 </Typography>
+                <Typography
+                  component={RouterLink}
+                  to={`/tasks/${task?.id}`}
+                  sx={{
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    '&:hover': { textDecoration: 'underline' },
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    minWidth: 0
+                  }}
+                >
+                  {task?.name || 'Unnamed Task'}
+                </Typography>
               </Box>
-            </TableCell>
-            <TableCell sx={{ py: 0.75, px: 1 }}>
-              <Typography
-                component={RouterLink}
-                to={`/tasks/${task?.id}`}
-                sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
-              >
-                {task?.name || 'Unnamed Task'}
-              </Typography>
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1 }}>
               <Chip
@@ -117,8 +130,12 @@ const ProjectTaskList: React.FC<ProjectTaskListProps> = ({ tasks }) => {
             <TableCell sx={{ py: 0.75, px: 1 }}>
               <Chip label={task?.priority_name || '—'} size="small" sx={{ fontSize: '0.75rem' }} {...chipPropsForPriority(task?.priority_name, task?.priority_color)} />
             </TableCell>
-            <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>{task?.estimated_time ?? 0}h</TableCell>
-            <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>{task?.spent_time ?? 0}h</TableCell>
+            <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>
+              Estimated: {task?.estimated_time ?? 0}h
+            </TableCell>
+            <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>
+              Spent: {task?.spent_time ?? 0}h
+            </TableCell>
             <TableCell sx={{ py: 0.75, px: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 80 }}>
                 <LinearProgress variant="determinate" value={Math.min(100, task?.progress ?? 0)} sx={{ height: 6, borderRadius: 1, flex: 1 }} />

@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Tasks from '../Tasks';
-import { getTasks, deleteTask } from '../../../api/tasks';
+import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
 import logger from '../../../utils/logger';
@@ -22,6 +22,8 @@ jest.mock('../../../api/tasks', () => ({
 }));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
+const mockedGetTaskStatuses = getTaskStatuses as jest.MockedFunction<typeof getTaskStatuses>;
+const mockedGetPriorities = getPriorities as jest.MockedFunction<typeof getPriorities>;
 
 // Mock useNavigate
 const mockedNavigate = jest.fn();
@@ -105,6 +107,8 @@ const renderTasks = () => {
 describe('Tasks Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetTaskStatuses.mockResolvedValue([]);
+    mockedGetPriorities.mockResolvedValue([]);
   });
 
   test('shows loading state initially', () => {
@@ -201,6 +205,44 @@ describe('Tasks Component', () => {
     expect(filtered).toHaveLength(1);
     expect(filtered[0].name).toBe('Test Task 1');
   });
+
+  test('filters tasks by priority using filter panel', async () => {
+    mockedGetTasks.mockResolvedValue(mockTasks);
+    mockedGetTaskStatuses.mockResolvedValue([
+      { id: 1, name: 'In Progress', color: '#000000', description: null, active: true, created_on: '', updated_on: null },
+      { id: 5, name: 'Done', color: '#000000', description: null, active: true, created_on: '', updated_on: null }
+    ] as any);
+    mockedGetPriorities.mockResolvedValue([
+      { id: 3, name: 'High/Should' },
+      { id: 2, name: 'Normal/Could' }
+    ] as any);
+
+    renderTasks();
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+
+    const priorityFilterItem = await screen.findByTestId('add-filter-priority_id');
+    await userEvent.click(priorityFilterItem);
+
+    const valueSelect = await screen.findByLabelText(/Value/i);
+    await userEvent.click(valueSelect);
+
+    const normalCouldOption = await screen.findByRole('option', { name: /Normal\/Could/i });
+    await userEvent.click(normalCouldOption);
+
+    const applyAndCloseButton = screen.getByTestId('apply-close-filters-button');
+    await userEvent.click(applyAndCloseButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+    }, { timeout: 15000 });
+  }, 30000);
 
   test('sorts tasks correctly', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);

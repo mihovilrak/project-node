@@ -329,9 +329,9 @@ const Tasks: React.FC = () => {
           <Grid container spacing={2}>
             {tasksInPreOrder.map(({ task, depth }) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
-                <Card>
+                    <Card>
                   <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                       <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
                       <Typography
                         component={Link}
@@ -400,7 +400,7 @@ const Tasks: React.FC = () => {
                     <Box sx={{ py: 0.5, px: 0.5 }}>
                       <Card>
                         <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 0.5, mb: 0.5 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                             <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
                             <Typography
                               component={Link}

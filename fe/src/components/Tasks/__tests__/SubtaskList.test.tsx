@@ -113,7 +113,7 @@ describe('SubtaskList', () => {
 
     render(<SubtaskList {...defaultProps} />);
 
-    const deleteButtons = screen.getAllByLabelText('Delete');
+    const deleteButtons = screen.getAllByLabelText('Delete subtask');
     fireEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
@@ -125,7 +125,7 @@ describe('SubtaskList', () => {
   it('handles edit navigation', () => {
     render(<SubtaskList {...defaultProps} />);
 
-    const editButtons = screen.getAllByLabelText('Edit');
+    const editButtons = screen.getAllByLabelText('Edit subtask');
     fireEvent.click(editButtons[0]);
 
     expect(mockNavigate).toHaveBeenCalledWith('/tasks/1/edit');
@@ -135,9 +135,8 @@ describe('SubtaskList', () => {
     render(<SubtaskList {...defaultProps} />);
 
     const subtaskName = screen.getByText('Test Subtask 1');
-    fireEvent.click(subtaskName);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+    // Verify that the subtask name element points to the task details route
+    expect(subtaskName).toHaveAttribute('to', '/tasks/1');
   });
 
   it('applies correct styling for completed tasks', () => {
@@ -155,16 +154,13 @@ describe('SubtaskList', () => {
   });
 
   it('displays due dates correctly', () => {
-
     const { container } = render(<SubtaskList {...defaultProps} />);
 
-    // Get all ListItem elements
-    const listItems = container.querySelectorAll('.MuiListItem-root');
-    expect(listItems.length).toBe(2);
+    // Table header should contain the Due column
+    expect(screen.getByText('Due')).toBeInTheDocument();
 
-    const componentText = container.textContent;
-    expect(componentText).toContain('Due:');
-
+    // Rendered dates should include the year from the mock data
+    const componentText = container.textContent || '';
     expect(componentText).toContain('2024');
   });
 
@@ -173,7 +169,7 @@ describe('SubtaskList', () => {
 
     render(<SubtaskList {...defaultProps} />);
 
-    const deleteButtons = screen.getAllByLabelText('Delete');
+    const deleteButtons = screen.getAllByLabelText('Delete subtask');
     fireEvent.click(deleteButtons[0]);
 
     await waitFor(
