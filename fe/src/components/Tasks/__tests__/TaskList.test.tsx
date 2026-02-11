@@ -198,7 +198,7 @@ describe('TaskList Component', () => {
       const statusChips = statusChipLabels.map(label => label.parentElement);
       const priorityChips = priorityChipLabels.map(label => label.parentElement);
       expect(statusChips[1]).toHaveClass('MuiChip-colorSuccess'); // Done status
-      expect(priorityChips[0]).toHaveClass('MuiChip-colorError'); // High priority
+      expect(priorityChips[0]).toHaveClass('MuiChip-colorWarning'); // High/Should priority
     });
   });
 

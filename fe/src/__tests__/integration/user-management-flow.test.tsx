@@ -19,6 +19,11 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate
 }));
 
+// Mock usePermission so edit/delete buttons are rendered
+jest.mock('../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
+}));
+
 describe('User Management Flow', () => {
   const mockUser: User = {
     id: 1,

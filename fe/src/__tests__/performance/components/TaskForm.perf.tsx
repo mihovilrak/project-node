@@ -120,6 +120,7 @@ describe('TaskForm Performance Tests', () => {
         created_by: 1,
         tags: []
       },
+      fieldErrors: {},
       projects: [],
       projectMembers: mockProjectMembers,
       projectTasks: [],
@@ -184,6 +185,7 @@ describe('TaskForm Performance Tests', () => {
         created_by: 1,
         tags: []
       },
+      fieldErrors: {},
       projects: [],
       projectMembers: manyProjectMembers,
       projectTasks: [],

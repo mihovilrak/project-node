@@ -6,6 +6,7 @@ import { SystemSettingsState } from '../../../types/setting';
 import { BrowserRouter } from 'react-router-dom';
 import { getActiveTasks } from '../../../api/tasks';
 import { ThemeProvider, createTheme } from '@mui/material';
+import AuthProvider from '../../../context/AuthContext';
 
 jest.mock('../../../hooks/setting/useSystemSettings');
 jest.mock('../../../api/tasks');
@@ -40,7 +41,9 @@ describe('Home', () => {
     return render(
       <BrowserRouter>
         <ThemeProvider theme={mockTheme}>
-          {component}
+          <AuthProvider>
+            {component}
+          </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
     );

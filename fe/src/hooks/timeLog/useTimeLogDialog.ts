@@ -93,7 +93,7 @@ export const useTimeLogDialog = ({
       setSubmitError('Please select a task.');
       return;
     }
-    if (!selectedActivityTypeId) {
+    if (selectedActivityTypeId == null) {
       setSubmitError('Please select an activity type.');
       return;
     }

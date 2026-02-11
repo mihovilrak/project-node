@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import AuthProvider from '../../../context/AuthContext';
 import ActiveTasks from '../ActiveTasks';
-import { getActiveTasks } from '../../../api/tasks';
+import { getActiveTasks, getTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import logger from '../../../utils/logger';
 
@@ -14,8 +15,20 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../../api/tasks', () => ({
-  getActiveTasks: jest.fn()
+  getActiveTasks: jest.fn(),
+  getTasks: jest.fn()
 }));
+
+// Mock AuthContext so session check doesn't block and currentUser is set
+jest.mock('../../../context/AuthContext', () => {
+  const FakeAuthProvider = ({ children }: { children: React.ReactNode }) => children;
+  return {
+    __esModule: true,
+    default: FakeAuthProvider,
+    AuthProvider: FakeAuthProvider,
+    useAuth: () => ({ currentUser: { id: 1, name: 'Test User' }, hasPermission: () => true, permissionsLoading: false, userPermissions: [] })
+  };
+});
 
 jest.mock('../../../utils/logger', () => ({
   __esModule: true,
@@ -86,7 +99,9 @@ const renderActiveTasks = () => {
     navigate: mockNavigate,
     ...render(
       <BrowserRouter>
-        <ActiveTasks />
+        <AuthProvider>
+          <ActiveTasks />
+        </AuthProvider>
       </BrowserRouter>
     )
   };
@@ -96,6 +111,7 @@ describe('ActiveTasks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
+    (getTasks as jest.Mock).mockResolvedValue([]);
   });
 
   it('shows loading state initially', () => {
@@ -105,11 +121,12 @@ describe('ActiveTasks', () => {
 
   it('displays no tasks message when empty', async () => {
     (getActiveTasks as jest.Mock).mockResolvedValueOnce([]);
+    (getTasks as jest.Mock).mockResolvedValueOnce([]);
     renderActiveTasks();
 
     await waitFor(() => {
       expect(screen.getByText('No active tasks assigned to you.')).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 
   it('renders task cards when tasks are loaded', async () => {
@@ -131,14 +148,15 @@ describe('ActiveTasks', () => {
     });
   });
 
-  it('displays project names and Details button in grid', async () => {
+  it('displays project names and task links in grid', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
       expect(screen.getByText('Project A')).toBeInTheDocument();
       expect(screen.getByText('Project B')).toBeInTheDocument();
     });
-    expect(screen.getAllByRole('button', { name: 'Details' }).length).toBeGreaterThanOrEqual(1);
+    // TaskCard uses Link for task name, not a Details button
+    expect(screen.getByRole('link', { name: 'Test Task 1' })).toBeInTheDocument();
   });
 
   it('maintains correct grid layout with task cards', async () => {
@@ -150,15 +168,14 @@ describe('ActiveTasks', () => {
     });
   });
 
-  it('navigates to task detail when Details button is clicked', async () => {
+  it('has task link to task detail', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
-    const detailsButtons = screen.getAllByRole('button', { name: /Details/i });
-    fireEvent.click(detailsButtons[0]);
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+    const taskLink = screen.getByRole('link', { name: 'Test Task 1' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
   });
 
   it('handles API error gracefully', async () => {

@@ -250,6 +250,11 @@ describe('Task Management Flow', () => {
         });
       }
 
+      // Users endpoint (list)
+      if (normalizedUrl === 'users' || normalizedUrl.startsWith('users?')) {
+        return Promise.resolve({ data: [] });
+      }
+
       // Default fallback for any other endpoint - return empty array to prevent filter errors
       console.log(`Mock not found for GET ${url}`);
       return Promise.resolve({ data: [] });
@@ -320,7 +325,9 @@ describe('Task Management Flow', () => {
     // Instead of trying to create a task (which requires complex form interactions),
     // we'll verify that our mocked API data is properly displayed in the component
     expect(screen.getByText('Test Project')).toBeInTheDocument();
-    expect(screen.getByText('Details')).toBeInTheDocument();
+    // Task name is rendered as a link to task details in the current UI
+    const taskLink = screen.getByRole('link', { name: 'Test Task' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
 
     // Test that priority and status are displayed
     expect(screen.getByTestId('status-chip')).toHaveTextContent('To Do');
@@ -396,9 +403,9 @@ describe('Task Management Flow', () => {
       expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButton = await screen.findByText('Details');
-    await user.click(detailsButton);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Verify the task data is displayed correctly
     expect(screen.getByText('Test Task')).toBeInTheDocument();
@@ -460,9 +467,9 @@ describe('Task Management Flow', () => {
       expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButton = await screen.findByText('Details');
-    await user.click(detailsButton);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Because we are only mocking the task data and not rendering the full TaskDetails component in this test,
     // we'll verify the API was called correctly
@@ -848,9 +855,9 @@ describe('Task Management Flow', () => {
       expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButtons = await screen.findAllByRole('button', { name: /details/i });
-    await user.click(detailsButtons[0]);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Instead of testing exact API calls (which can be brittle),
     // verify that we can see our test task is displayed correctly

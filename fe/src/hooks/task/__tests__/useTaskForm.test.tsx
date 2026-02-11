@@ -1,4 +1,6 @@
+import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { useTaskForm } from '../useTaskForm';
 import {
   getTaskById,
@@ -13,12 +15,18 @@ import { Task, TaskStatus, TaskPriority } from '../../../types/task';
 import { Tag } from '../../../types/tag';
 import { ProjectMember } from '../../../types/project';
 
-// Mock react-router-dom
+// Mock useNavigate so no real navigation is triggered (jsdom throws on navigation)
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <MemoryRouter>
+    {children}
+  </MemoryRouter>
+);
 
 // No need to mock window.location - taskId is passed as prop
 
@@ -157,7 +165,7 @@ describe('useTaskForm', () => {
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
     await waitFor(() => {
       expect(result.current.formData).toMatchObject({
@@ -187,7 +195,7 @@ describe('useTaskForm', () => {
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
     await waitFor(() => {
       expect(result.current.formData).toMatchObject({
@@ -218,7 +226,7 @@ describe('useTaskForm', () => {
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
     act(() => {
       result.current.handleChange({ target: { name: 'name', value: 'New Task Name' } });
@@ -238,10 +246,16 @@ describe('useTaskForm', () => {
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
+    // Set required fields for validation (project_id, start_date, due_date, holder_id, assignee_id)
     act(() => {
       result.current.handleChange({ target: { name: 'name', value: 'New Task' } });
+      result.current.handleChange({ target: { name: 'project_id', value: 1 } });
+      result.current.handleChange({ target: { name: 'start_date', value: '2024-01-26T00:00:00Z' } });
+      result.current.handleChange({ target: { name: 'due_date', value: '2024-02-26T00:00:00Z' } });
+      result.current.handleChange({ target: { name: 'holder_id', value: currentUserId } });
+      result.current.handleChange({ target: { name: 'assignee_id', value: 1 } });
     });
 
     await act(async () => {
@@ -262,14 +276,13 @@ describe('useTaskForm', () => {
     (updateTask as jest.Mock).mockResolvedValue(updatedTask);
     (getTaskById as jest.Mock).mockResolvedValue(mockTask);
     (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
-    window.location.pathname = '/tasks/1/edit';
     const { result } = renderHook(() => useTaskForm({
       taskId: '1',
       currentUserId,
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
     // Wait for edit mode
     await waitFor(() => {
@@ -299,14 +312,13 @@ describe('useTaskForm', () => {
     (changeTaskStatus as jest.Mock).mockResolvedValue(updatedTask);
     (getTaskById as jest.Mock).mockResolvedValue(mockTask);
     (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
-    window.location.pathname = '/tasks/1/edit';
     const { result } = renderHook(() => useTaskForm({
       taskId: '1',
       currentUserId,
       projectId: undefined,
       projectIdFromQuery: null,
       parentTaskId: null
-    }));
+    }), { wrapper });
 
     // Wait for edit mode
     await waitFor(() => {

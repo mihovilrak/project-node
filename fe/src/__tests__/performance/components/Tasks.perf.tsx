@@ -15,6 +15,11 @@ jest.mock('../../../api/tasks', () => ({
   getPriorities: jest.fn().mockResolvedValue([])
 }));
 
+// Mock usePermission so delete/edit buttons are rendered
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
+}));
+
 // Mock task data
 const mockTasks: Task[] = Array.from({ length: 20 }, (_, index) => ({
   id: index + 1,
@@ -164,7 +169,7 @@ describe('Tasks Component Performance Tests', () => {
       expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     }, { timeout: 10000 });
 
-    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
+    const deleteButtons = screen.getAllByTestId('delete-task-icon');
     const startTime = performance.now();
 
     fireEvent.click(deleteButtons[0]);

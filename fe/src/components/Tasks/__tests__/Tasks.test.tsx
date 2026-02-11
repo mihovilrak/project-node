@@ -7,6 +7,7 @@ import {
     within
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import AuthProvider from '../../../context/AuthContext';
 import Tasks from '../Tasks';
 import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../../api/tasks';
 import { Task } from '../../../types/task';
@@ -30,6 +31,11 @@ const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigate
+}));
+
+// Mock usePermission so edit/delete buttons are rendered
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
 }));
 
 // Mock sample tasks
@@ -99,7 +105,9 @@ const mockTasks: Task[] = [
 const renderTasks = () => {
   return render(
     <MemoryRouter>
-      <Tasks />
+      <AuthProvider>
+        <Tasks />
+      </AuthProvider>
     </MemoryRouter>
   );
 };
@@ -140,7 +148,7 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    const deleteButtons = await screen.findAllByText('Delete');
+    const deleteButtons = screen.getAllByTestId('delete-task-icon');
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete confirmation dialog to appear
@@ -169,7 +177,7 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    const deleteButtons = await screen.findAllByText('Delete');
+    const deleteButtons = screen.getAllByTestId('delete-task-icon');
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete confirmation dialog to appear
@@ -229,8 +237,9 @@ describe('Tasks Component', () => {
     const priorityFilterItem = await screen.findByTestId('add-filter-priority_id');
     await userEvent.click(priorityFilterItem);
 
-    const valueSelect = await screen.findByLabelText(/Value/i);
-    await userEvent.click(valueSelect);
+    const filterPanel = screen.getByTestId('filter-panel');
+    const valueSelects = within(filterPanel).getAllByLabelText(/Value/i);
+    await userEvent.click(valueSelects[valueSelects.length - 1]);
 
     const normalCouldOption = await screen.findByRole('option', { name: /Normal\/Could/i });
     await userEvent.click(normalCouldOption);
@@ -258,10 +267,11 @@ describe('Tasks Component', () => {
     await userEvent.click(sortSelect);
     await userEvent.click(screen.getByText('Z-A'));
 
+    // Task names are rendered as links; verify order by link order (Z-A: Test Task 2 then Test Task 1)
     await waitFor(() => {
-      const taskElements = screen.getAllByRole('heading', { level: 6 });
-      expect(taskElements[0]).toHaveTextContent('Test Task 2');
-      expect(taskElements[1]).toHaveTextContent('Test Task 1');
+      const taskLinks = screen.getAllByRole('link', { name: /Test Task \d/ });
+      expect(taskLinks[0]).toHaveTextContent('Test Task 2');
+      expect(taskLinks[1]).toHaveTextContent('Test Task 1');
     }, { timeout: 10000 });
   }, 15000);
 
@@ -278,13 +288,12 @@ describe('Tasks Component', () => {
     fireEvent.click(createButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/new');
 
-    // Test details navigation
-    const detailsButtons = screen.getAllByText('Details');
-    fireEvent.click(detailsButtons[0]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1');
+    // Task name is a Link to task details
+    const taskLink = screen.getByRole('link', { name: 'Test Task 1' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
 
-    // Test edit navigation
-    const editButtons = screen.getAllByText('Edit');
+    // Test edit navigation (IconButton with aria-label "Edit task" - multiple tasks so use getAllByRole)
+    const editButtons = screen.getAllByRole('button', { name: /edit task/i });
     fireEvent.click(editButtons[0]);
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1/edit');
   });
