@@ -7,6 +7,12 @@ import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
 
+/** Convert date from request (Date or ISO string) to timestamp; null/undefined → NaN. */
+function toTimestamp(d: Date | string | null | undefined): number {
+  if (d == null) return NaN;
+  return d instanceof Date ? d.getTime() : new Date(d).getTime();
+}
+
 // Get tasks
 export const getTasks = async (
   req: Request,
@@ -221,13 +227,13 @@ export const createTask = async (
       return;
     }
 
-    const startDate = taskData.start_date ? new Date(taskData.start_date as string).getTime() : NaN;
-    const dueDate = taskData.due_date ? new Date(taskData.due_date as string).getTime() : NaN;
+    const startDate = taskData.start_date ? toTimestamp(taskData.start_date as Date | string) : NaN;
+    const dueDate = taskData.due_date ? toTimestamp(taskData.due_date as Date | string) : NaN;
     if (!isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
       res.status(400).json({ error: 'Due date must be on or after start date' });
       return;
     }
-    const endDate = taskData.end_date ? new Date(taskData.end_date as string).getTime() : NaN;
+    const endDate = taskData.end_date ? toTimestamp(taskData.end_date as Date | string) : NaN;
     if (taskData.end_date != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
       res.status(400).json({ error: 'End date must be on or after start date' });
       return;
@@ -299,9 +305,9 @@ export const updateTask = async (
   const userId = req.session.user?.id;
   const taskData: TaskUpdateInput = req.body;
 
-  const startDate = taskData.start_date != null ? new Date(taskData.start_date as string).getTime() : null;
-  const dueDate = taskData.due_date != null ? new Date(taskData.due_date as string).getTime() : null;
-  const endDate = taskData.end_date != null ? new Date(taskData.end_date as string).getTime() : null;
+  const startDate = taskData.start_date != null ? toTimestamp(taskData.start_date as Date | string) : null;
+  const dueDate = taskData.due_date != null ? toTimestamp(taskData.due_date as Date | string) : null;
+  const endDate = taskData.end_date != null ? toTimestamp(taskData.end_date as Date | string) : null;
   if (startDate != null && dueDate != null && !isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
     res.status(400).json({ error: 'Due date must be on or after start date' });
     return;
