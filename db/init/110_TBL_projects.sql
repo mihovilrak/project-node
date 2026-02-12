@@ -7,7 +7,7 @@ create table if not exists projects (
     due_date date not null,
     parent_id int references projects(id) null,
     status_id int2 references project_statuses(id) default 1 not null,
-    created_by int2 references users(id) not null,
+    created_by int references users(id) not null,
     created_on timestamptz default current_timestamp not null,
     updated_on timestamptz null default current_timestamp,
     check (due_date >= start_date),

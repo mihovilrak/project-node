@@ -96,18 +96,18 @@ export const seedTestTask = async (projectId: number, userId: number) => {
     SELECT * FROM create_task(
       'Test Task',
       'Test task description',
-      8,
+      8::numeric,
       CURRENT_DATE,
       (CURRENT_DATE + INTERVAL '7 days')::date,
-      2,
-      1,
-      1,
-      NULL,
+      2::smallint,
+      1::smallint,
+      1::smallint,
+      NULL::integer,
       $1,
       $2,
       $2,
       $2,
-      ARRAY[]::integer[],
+      ARRAY[]::smallint[],
       ARRAY[$2]::integer[]
     )
   `, [projectId, userId]);
