@@ -1,7 +1,7 @@
 create table if not exists notifications (
-    id serial primary key not null,
+    id int primary key generated always as identity not null,
     user_id int references users(id) on delete cascade not null,
-    type_id int references notification_types(id) not null,
+    type_id int2 references notification_types(id) not null,
     title varchar(100) not null,
     message text not null,
     link varchar(255) null,

@@ -1,13 +1,13 @@
 -- User "deletion" is soft: set status_id = 3. Tables referencing users(id) have no ON DELETE so hard deletes are restricted.
 create table if not exists users (
-    id serial primary key not null,
+    id int primary key generated always as identity not null,
     login varchar(255) unique not null,
     name varchar(255) not null,
     surname varchar(255) not null,
     email varchar(255) unique not null,
     password varchar(255) not null,
-    status_id int references user_statuses(id) default 1 not null,
-    role_id int references roles(id) default 4 not null,
+    status_id int2 references user_statuses(id) default 1 not null,
+    role_id int2 references roles(id) default 4 not null,
     created_on timestamptz default current_timestamp not null,
     updated_on timestamptz null
 );

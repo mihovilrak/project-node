@@ -1,1 +1,0 @@
--- Admin user is created by db/seed-admin.sh using ADMIN_PASSWORD (run after init).

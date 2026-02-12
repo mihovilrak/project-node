@@ -1,5 +1,5 @@
 create table if not exists app_logins (
-    id serial primary key not null,
+    id int primary key generated always as identity not null,
     user_id int references users(id) not null,
     logged_on timestamptz default current_timestamp not null
 );
