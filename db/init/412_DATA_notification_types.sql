@@ -7,4 +7,4 @@ insert into notification_types (name, icon, color) values
     ('Project Update', 'Folder', '#2196f3'),
     ('Task Created', 'AddTask', '#2196f3'),
     ('Added to Project', 'CreateNewFolder', '#4caf50')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

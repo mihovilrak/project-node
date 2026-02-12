@@ -6,4 +6,4 @@ insert into task_statuses (name, color) values
     ('Done', '#4CAF50'),
     ('Cancelled', '#757575'),
     ('Deleted', '#F44336')
-    on conflict (name) do update set color = excluded.color;
+on conflict (name) do update set color = excluded.color;
