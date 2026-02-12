@@ -5,7 +5,8 @@ returns table (
     name varchar,
     surname varchar,
     role varchar
-) as $$
+) as $function$
+
 begin
     return query
     select
@@ -18,5 +19,7 @@ begin
     join users u on u.id = pu.user_id
     join roles r on r.id = u.role_id
     where pu.project_id = p_project_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

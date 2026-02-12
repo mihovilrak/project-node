@@ -14,14 +14,16 @@ returns table (
     log_date date,
     spent_time numeric,
     description text,
-    activity_type_id int,
+    activity_type_id smallint,
     activity_type_name varchar,
     activity_type_color varchar,
     activity_type_icon varchar,
     created_on timestamptz,
     updated_on timestamptz
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         tl.id,
@@ -49,5 +51,7 @@ begin
     and (p_user_id is null or tl.user_id = p_user_id)
     and (p_project_id is null or t.project_id = p_project_id)
     order by tl.created_on desc;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

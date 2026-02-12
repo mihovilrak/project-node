@@ -4,19 +4,19 @@ create or replace function create_task(
     p_estimated_time numeric,
     p_start_date date,
     p_due_date date,
-    p_priority_id integer,
-    p_status_id integer,
-    p_type_id integer,
+    p_priority_id smallint,
+    p_status_id smallint,
+    p_type_id smallint,
     p_parent_id integer,
     p_project_id integer,
     p_holder_id integer,
     p_assignee_id integer,
     p_created_by integer,
-    p_tag_ids integer[],
+    p_tag_ids smallint[],
     p_watchers integer[]
 ) returns table(
     task_id integer
-) as $$
+) as $function$
 
     declare
         v_task_id integer;
@@ -77,4 +77,4 @@ create or replace function create_task(
         select v_task_id;
     end;
 
-$$ language plpgsql;
+$function$ language plpgsql;

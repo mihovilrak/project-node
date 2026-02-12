@@ -2,8 +2,10 @@ create or replace function get_task_spent_time(p_task_id int)
 returns table (
     task_id int,
     spent_time numeric
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         tl.task_id,
@@ -11,5 +13,7 @@ begin
     from time_logs tl
     where tl.task_id = p_task_id
     group by tl.task_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

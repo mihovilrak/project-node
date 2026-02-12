@@ -8,8 +8,10 @@ returns table (
     active boolean,
     created_on timestamptz,
     updated_on timestamptz
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         c.id,
@@ -24,5 +26,7 @@ begin
     left join users u on u.id = c.user_id
     where c.active = true
     and c.id = p_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

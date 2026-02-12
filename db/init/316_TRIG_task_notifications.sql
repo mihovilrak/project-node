@@ -1,11 +1,16 @@
-create or replace function task_notification_trigger() returns trigger as $$
+create or replace function task_notification_trigger()
+returns trigger as $function$
+
 declare
-    v_type_id integer;
+    v_type_id smallint;
+
 begin
     -- Task Due Soon
     if (TG_OP = 'INSERT' or NEW.due_date <> OLD.due_date) and
-       NEW.due_date between now() and now() + interval '24 hours' and
-       NEW.status_id NOT IN (5, 6, 7) then
+        NEW.due_date between now() and now() + interval '24 hours'
+        and not exists (
+            select 1 from (values (5), (6), (7)) as s(status_id) where s.status_id = NEW.status_id
+        ) then
         select id into v_type_id from notification_types where name = 'Task Due Soon';
         perform create_notification(
             NEW.assignee_id,
@@ -55,7 +60,7 @@ begin
 
     return NEW;
 end;
-$$ language plpgsql;
+$function$ language plpgsql;
 
 create or replace trigger task_notifications
     after insert or update on tasks

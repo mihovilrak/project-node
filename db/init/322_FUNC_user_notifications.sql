@@ -2,7 +2,7 @@ create or replace function user_notifications(u_id integer)
 returns table (
     id integer,
     user_id integer,
-    type_id integer,
+    type_id smallint,
     title character varying,
     message text,
     link character varying,
@@ -13,8 +13,10 @@ returns table (
     type character varying,
     icon character varying,
     color character varying
-) as $$
+) as $function$
+
 begin
+
     return query
         SELECT n.*,
         nt.name as type,
@@ -24,5 +26,7 @@ begin
        JOIN notification_types nt ON n.type_id = nt.id
        WHERE n.user_id = u_id AND n.active = true
        ORDER BY n.created_on DESC;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

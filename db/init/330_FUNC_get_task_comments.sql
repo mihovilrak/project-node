@@ -8,7 +8,8 @@ returns table (
     active boolean,
     created_on timestamptz,
     updated_on timestamptz
-) as $$
+) as $function$
+
 begin
     return query
     select
@@ -26,4 +27,5 @@ begin
     and c.task_id = p_task_id
     order by c.created_on desc;
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

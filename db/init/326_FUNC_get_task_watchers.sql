@@ -4,8 +4,10 @@ returns table (
     user_id int,
     user_name text,
     role varchar
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         w.task_id,
@@ -16,5 +18,7 @@ begin
     left join users u on u.id = w.user_id
     left join roles r on r.id = u.role_id
     where w.task_id = p_task_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

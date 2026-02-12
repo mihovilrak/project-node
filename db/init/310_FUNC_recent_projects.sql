@@ -4,13 +4,15 @@ returns table(
     name character varying,
     due_date date,
     progress integer
-) as $$
+) as $function$
+
 begin
+
     return query
         select p.id,
-               p.name,
-               p.due_date,
-               vp.progress::integer
+            p.name,
+            p.due_date,
+            vp.progress::integer
         from projects p
         join project_users pu on p.id = pu.project_id
         join lateral get_project_progress(p.id) vp on true
@@ -18,5 +20,7 @@ begin
         and p.status_id = 1
         order by p.created_on desc
         limit 10;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

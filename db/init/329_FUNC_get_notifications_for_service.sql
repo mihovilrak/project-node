@@ -2,7 +2,7 @@ create or replace function get_notifications_for_service(p_limit int)
 returns table (
     id int,
     user_id int,
-    type_id int,
+    type_id smallint,
     title varchar,
     message text,
     link varchar,
@@ -13,8 +13,10 @@ returns table (
     created_on timestamptz,
     email varchar,
     login varchar
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         n.id,
@@ -41,5 +43,7 @@ begin
     )
     for update of n skip locked
     limit p_limit;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

@@ -3,9 +3,9 @@ create or replace function get_tasks(
     p_project_id int default null,
     p_assignee_id int default null,
     p_holder_id int default null,
-    p_status_id int default null,
+    p_status_id smallint default null,
     p_priority_id int default null,
-    p_type_id int default null,
+    p_type_id smallint default null,
     p_parent_id int default null,
     p_active_statuses_only boolean default false,
     p_created_by int default null,
@@ -31,11 +31,11 @@ returns table (
     parent_id int,
     parent_name varchar,
     description text,
-    type_id int,
+    type_id smallint,
     type_name varchar,
     type_color varchar,
     type_icon varchar,
-    status_id int,
+    status_id smallint,
     status_name varchar,
     status_color varchar,
     priority_name varchar,
@@ -47,10 +47,12 @@ returns table (
     progress int,
     created_by int,
     created_by_name varchar,
-    created_on timestamp(0),
+    created_on timestamp with time zone,
     estimated_time numeric
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         t.id,
@@ -80,7 +82,7 @@ begin
         t.progress,
         t.created_by,
         c.name as created_by_name,
-        t.created_on::timestamp(0),
+        date_trunc('second', t.created_on) as created_on,
         t.estimated_time
     from tasks t
     left join projects po on po.id = t.project_id
@@ -122,5 +124,7 @@ begin
     and (p_created_to is null or t.created_on::date <= p_created_to)
     and (p_estimated_time_min is null or t.estimated_time >= p_estimated_time_min)
     and (p_estimated_time_max is null or t.estimated_time <= p_estimated_time_max);
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

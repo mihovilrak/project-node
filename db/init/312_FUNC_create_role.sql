@@ -2,11 +2,11 @@ create or replace function create_role(
     p_name character varying,
     p_description text,
     p_active boolean,
-    p_permissions integer[]
-) returns integer as $$
+    p_permissions smallint[]
+) returns smallint as $function$
 
     declare
-        v_role_id integer;
+        v_role_id smallint;
 
     begin
         -- Insert role
@@ -20,5 +20,5 @@ create or replace function create_role(
 
         return v_role_id;
     end;
-$$ language plpgsql;
 
+$function$ language plpgsql;

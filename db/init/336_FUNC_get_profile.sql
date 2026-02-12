@@ -12,8 +12,10 @@ returns table (
     completed_tasks bigint,
     active_projects bigint,
     total_hours numeric
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         u.id,
@@ -40,7 +42,10 @@ begin
     left join (
         select assignee_id, count(*)::bigint as total_tasks
         from tasks
-        where status_id not in (5, 6, 7)
+        where not exists (
+            select 1 from (values (5), (6), (7)) as excluded(status_id)
+            where tasks.status_id = excluded.status_id
+        )
         group by assignee_id
     ) tu on tu.assignee_id = u.id
     left join (
@@ -63,5 +68,7 @@ begin
     ) th on th.user_id = u.id
     where u.status_id != 3
     and u.id = p_user_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

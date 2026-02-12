@@ -1,12 +1,12 @@
 CREATE OR REPLACE FUNCTION create_watcher_notifications(
     p_task_id integer,
     p_action_user_id integer,
-    p_type_id integer
+    p_type_id smallint
 )
 RETURNS TABLE (
     id integer,
     user_id integer,
-    type_id integer,
+    type_id smallint,
     title varchar(100),
     message text,
     link varchar(255),
@@ -15,7 +15,8 @@ RETURNS TABLE (
     active boolean,
     read_on timestamptz,
     created_on timestamptz
-) AS $$
+) AS $function$
+
 BEGIN
     -- Verify notification type exists
     IF NOT EXISTS (
@@ -76,5 +77,7 @@ BEGIN
     WHERE w.task_id = p_task_id
     AND w.user_id != p_action_user_id
     RETURNING *;
+
 END;
-$$ LANGUAGE plpgsql;
+
+$function$ language plpgsql;

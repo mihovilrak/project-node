@@ -1,13 +1,13 @@
 create or replace function update_role(
-    p_id integer,
+    p_id smallint,
     p_name character varying,
     p_description text,
     p_active boolean,
-    p_permissions integer[]
-) returns void as $$
+    p_permissions smallint[]
+) returns void as $function$
 
     declare
-        p_permission integer;
+        p_permission smallint;
 
 begin
 
@@ -29,4 +29,5 @@ begin
     end if;
 
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

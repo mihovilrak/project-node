@@ -7,15 +7,17 @@ returns table (
     end_date date,
     due_date date,
     parent_id int,
-    status_id int,
+    status_id smallint,
     created_by int,
     created_on timestamptz,
     updated_on timestamptz,
     status varchar,
     created_by_name varchar,
     parent_name varchar
-) as $$
+) as $function$
+
 begin
+
     return query
     select
         p.id,
@@ -38,5 +40,7 @@ begin
     left join projects parent on parent.id = p.parent_id
     where p.parent_id is not null
     and p.parent_id = p_parent_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

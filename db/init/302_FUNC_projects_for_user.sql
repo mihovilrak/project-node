@@ -6,10 +6,10 @@ returns table(
     start_date date,
     end_date date,
     due_date date,
-    status_id integer,
+    status_id smallint,
     created_by integer,
     created_on timestamptz
-) as $$
+) as $function$
 
 begin
     return query
@@ -20,4 +20,4 @@ begin
     and p.status_id != 3;
 end;
 
-$$ language plpgsql;
+$function$ language plpgsql;
