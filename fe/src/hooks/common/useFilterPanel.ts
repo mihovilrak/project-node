@@ -65,7 +65,7 @@ function filtersToActiveFilters(filters: FilterValues): ActiveFilter[] {
         result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, value: multi[0], valueMulti: multi });
       } else {
         const num = typeof value === 'number' ? value : Number(value) || value;
-        result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, value: num });
+        result.push({ id: generateId(), field: k, operator: 'includes' as DropdownFilterOperator, value: num, valueMulti: [num] });
       }
       continue;
     }

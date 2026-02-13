@@ -71,6 +71,17 @@ describe('useFilterPanel', () => {
     });
   });
 
+  it('should rehydrate single dropdown value with valueMulti so dropdown shows selection', () => {
+    const { result } = renderHook(() =>
+      useFilterPanel({ priority_id: 2 }, mockOnFilterChange, mockOptions, type)
+    );
+
+    expect(result.current.activeFilters).toHaveLength(1);
+    expect(result.current.activeFilters[0].field).toBe('priority_id');
+    expect(result.current.activeFilters[0].operator).toBe('includes');
+    expect(result.current.activeFilters[0].valueMulti).toEqual([2]);
+  });
+
   it('should handle display value for non-existing option', () => {
     const { result } = renderHook(() =>
       useFilterPanel({ status_id: 999 }, mockOnFilterChange, mockOptions, type)
