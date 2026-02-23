@@ -44,11 +44,17 @@ const Projects: React.FC = () => {
       setLoading(true);
       setError(null);
       const f = currentFilters || {};
+      const statusNum =
+        f.status_id != null && f.status_id !== '' ? Number(f.status_id) : NaN;
       const params: Parameters<typeof getProjects>[0] = {
-        status_id: f.status_id != null && f.status_id !== '' ? Number(f.status_id) : 1
+        status_id: !Number.isNaN(statusNum) ? statusNum : 1
       };
-      if (f.created_by != null && f.created_by !== '') params.created_by = Number(f.created_by);
-      if (f.parent_id != null && f.parent_id !== '') params.parent_id = Number(f.parent_id);
+      const createdByNum =
+        f.created_by != null && f.created_by !== '' ? Number(f.created_by) : NaN;
+      if (!Number.isNaN(createdByNum)) params.created_by = createdByNum;
+      const parentNum =
+        f.parent_id != null && f.parent_id !== '' ? Number(f.parent_id) : NaN;
+      if (!Number.isNaN(parentNum)) params.parent_id = parentNum;
       if (f.start_date_from) params.start_date_from = String(f.start_date_from);
       if (f.start_date_to) params.start_date_to = String(f.start_date_to);
       if (f.due_date_from) params.due_date_from = String(f.due_date_from);

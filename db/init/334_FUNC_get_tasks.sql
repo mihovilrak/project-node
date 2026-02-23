@@ -17,7 +17,14 @@ create or replace function get_tasks(
     p_created_to date default null,
     p_estimated_time_min numeric default null,
     p_estimated_time_max numeric default null,
-    p_inactive_statuses_only boolean default false
+    p_inactive_statuses_only boolean default false,
+    p_status_ids smallint[] default null,
+    p_priority_ids int[] default null,
+    p_assignee_ids int[] default null,
+    p_holder_ids int[] default null,
+    p_project_ids int[] default null,
+    p_type_ids smallint[] default null,
+    p_created_by_ids int[] default null
 )
 returns table (
     id int,
@@ -38,6 +45,7 @@ returns table (
     status_id smallint,
     status_name varchar,
     status_color varchar,
+    priority_id int,
     priority_name varchar,
     priority_color varchar,
     start_date date,
@@ -73,6 +81,7 @@ begin
         t.status_id,
         ts.name as status_name,
         ts.color as status_color,
+        t.priority_id,
         pi.name as priority_name,
         pi.color as priority_color,
         t.start_date,
@@ -104,18 +113,18 @@ begin
         group by tl.task_id
     ) tst on tst.task_id = t.id
     where (p_id is null or t.id = p_id)
-    and (p_project_id is null or t.project_id = p_project_id)
-    and (p_assignee_id is null or t.assignee_id = p_assignee_id)
-    and (p_holder_id is null or t.holder_id = p_holder_id)
-    and (p_status_id is null or t.status_id = p_status_id)
-    and (p_priority_id is null or t.priority_id = p_priority_id)
-    and (p_type_id is null or t.type_id = p_type_id)
+    and ((p_project_id is null and (p_project_ids is null or t.project_id = any(p_project_ids))) or t.project_id = p_project_id)
+    and ((p_assignee_id is null and (p_assignee_ids is null or t.assignee_id = any(p_assignee_ids))) or t.assignee_id = p_assignee_id)
+    and ((p_holder_id is null and (p_holder_ids is null or t.holder_id = any(p_holder_ids))) or t.holder_id = p_holder_id)
+    and ((p_status_id is null and (p_status_ids is null or t.status_id = any(p_status_ids))) or t.status_id = p_status_id)
+    and ((p_priority_id is null and (p_priority_ids is null or t.priority_id = any(p_priority_ids))) or t.priority_id = p_priority_id)
+    and ((p_type_id is null and (p_type_ids is null or t.type_id = any(p_type_ids))) or t.type_id = p_type_id)
     and (p_parent_id is null or t.parent_id = p_parent_id)
+    and ((p_created_by is null and (p_created_by_ids is null or t.created_by = any(p_created_by_ids))) or t.created_by = p_created_by)
     and (
       (p_inactive_statuses_only and t.status_id in (5, 6, 7))
       or (not p_inactive_statuses_only and (not p_active_statuses_only or t.status_id in (1, 2, 3, 4)))
     )
-    and (p_created_by is null or t.created_by = p_created_by)
     and (p_due_date_from is null or t.due_date >= p_due_date_from)
     and (p_due_date_to is null or t.due_date <= p_due_date_to)
     and (p_start_date_from is null or t.start_date >= p_start_date_from)

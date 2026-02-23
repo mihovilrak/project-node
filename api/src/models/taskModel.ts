@@ -12,6 +12,15 @@ import { Pool, QueryResult } from 'pg';
 // Active task status IDs: New (1), In Progress (2), On Hold (3), Review (4). Excludes Done, Cancelled, Deleted.
 const ACTIVE_TASK_STATUS_IDS = [1, 2, 3, 4];
 
+/** Normalize number | number[] into single and array for get_tasks. */
+function singleOrArray(
+  val: number | number[] | null | undefined
+): { single: number | null; arr: number[] | null } {
+  if (val == null) return { single: null, arr: null };
+  if (Array.isArray(val)) return { single: null, arr: val.length > 0 ? val : null };
+  return { single: val, arr: null };
+}
+
 // Get all tasks (get_tasks params include date ranges and created_by)
 export const getTasks = async (
   pool: Pool,
@@ -36,24 +45,52 @@ export const getTasks = async (
   const estimated_time_min = filters?.estimated_time_min ?? whereParams.estimated_time_min ?? null;
   const estimated_time_max = filters?.estimated_time_max ?? whereParams.estimated_time_max ?? null;
   const inactive_statuses_only = Boolean(filters?.inactive_statuses_only ?? whereParams.inactive_statuses_only);
+  const hasFilter = (v: unknown) => v != null && (typeof v !== 'object' || (Array.isArray(v) && v.length > 0));
   const hasFilters = filters != null && [
     id, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
     created_by, due_date_from, due_date_to, start_date_from, start_date_to,
     created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only
-  ].some((v) => v != null);
+  ].some(hasFilter);
   const explicit_active_only = Boolean(filters?.active_statuses_only ?? whereParams.active_statuses_only);
   const active_statuses_only = explicit_active_only || (!hasFilters && !inactive_statuses_only);
 
+  const proj = singleOrArray(project_id as number | number[] | null);
+  const assignee = singleOrArray(assignee_id as number | number[] | null);
+  const holder = singleOrArray(holder_id as number | number[] | null);
+  const status = singleOrArray(status_id as number | number[] | null);
+  const priority = singleOrArray(priority_id as number | number[] | null);
+  const type = singleOrArray(type_id as number | number[] | null);
+  const createdBy = singleOrArray(created_by as number | number[] | null);
+
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+    `SELECT * FROM get_tasks($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
     [
-      id ?? null, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
+      id ?? null,
+      proj.single,
+      assignee.single,
+      holder.single,
+      status.single,
+      priority.single,
+      type.single,
+      parent_id ?? null,
       active_statuses_only,
-      created_by ?? null, due_date_from ?? null, due_date_to ?? null,
-      start_date_from ?? null, start_date_to ?? null,
-      created_from ?? null, created_to ?? null,
-      estimated_time_min ?? null, estimated_time_max ?? null,
-      inactive_statuses_only
+      createdBy.single ?? null,
+      due_date_from ?? null,
+      due_date_to ?? null,
+      start_date_from ?? null,
+      start_date_to ?? null,
+      created_from ?? null,
+      created_to ?? null,
+      estimated_time_min ?? null,
+      estimated_time_max ?? null,
+      inactive_statuses_only,
+      status.arr,
+      priority.arr,
+      assignee.arr,
+      holder.arr,
+      proj.arr,
+      type.arr,
+      createdBy.arr
     ]
   );
   return result.rows;
@@ -65,7 +102,7 @@ export const getTaskById = async (
   id: string
 ): Promise<TaskDetails | null> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    'SELECT * FROM get_tasks($1, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false)',
+    'SELECT * FROM get_tasks($1, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null)',
     [id]
   );
   return result.rows[0] || null;
@@ -228,7 +265,7 @@ export const getActiveTasks = async (
   userId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    'SELECT * FROM get_tasks(null, null, $1, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false)',
+    'SELECT * FROM get_tasks(null, null, $1, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null)',
     [userId]
   );
   return result.rows;
@@ -240,7 +277,7 @@ export const getTasksByProject = async (
   project_id: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks(null, $1, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false)
+    `SELECT * FROM get_tasks(null, $1, null, null, null, null, null, null, false, null, null, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null)
      ORDER BY created_on DESC`,
     [project_id]
   );
@@ -253,7 +290,7 @@ export const getSubtasks = async (
   parentId: string
 ): Promise<TaskDetails[]> => {
   const result: QueryResult<TaskDetails> = await pool.query(
-    `SELECT * FROM get_tasks(null, null, null, null, null, null, null, $1, false, null, null, null, null, null, null, null, null, null, false)
+    `SELECT * FROM get_tasks(null, null, null, null, null, null, null, $1, false, null, null, null, null, null, null, null, null, null, false, null, null, null, null, null, null, null)
      ORDER BY created_on ASC`,
     [parentId]
   );
