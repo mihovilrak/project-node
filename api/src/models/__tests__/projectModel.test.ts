@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import * as projectModel from '../projectModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: any[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: unknown[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
 
 describe('ProjectModel', () => {
   let mockPool: jest.Mocked<Pool>;
