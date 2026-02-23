@@ -13,6 +13,22 @@ function toTimestamp(d: Date | string | null | undefined): number {
   return d instanceof Date ? d.getTime() : new Date(d).getTime();
 }
 
+/**
+ * Parse a query param into a single number or array of numbers (comma-separated).
+ * Returns null if value is missing, invalid, or parses to empty (so caller should not set the filter).
+ */
+function parseIdParam(value: string | string[] | undefined): number | number[] | null {
+  if (value === undefined || value === null) return null;
+  const str = Array.isArray(value) ? value.join(',') : String(value).trim();
+  if (str === '') return null;
+  if (str.includes(',')) {
+    const arr = str.split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n));
+    return arr.length > 0 ? arr : null;
+  }
+  const num = Number(str);
+  return Number.isNaN(num) ? null : num;
+}
+
 // Get tasks
 export const getTasks = async (
   req: Request,
@@ -56,33 +72,25 @@ export const getTasks = async (
 
     const filters: TaskQueryFilters = {};
 
-    if (id) {
-      filters.id = Number(id);
-    }
-    if (project_id) {
-      filters.project_id = Number(project_id);
-    }
-    if (assignee_id) {
-      filters.assignee_id = Number(assignee_id);
-    }
-    if (holder_id) {
-      filters.holder_id = Number(holder_id);
-    }
-    if (status_id) {
-      filters.status_id = Number(status_id);
-    }
-    if (priority_id) {
-      filters.priority_id = Number(priority_id);
-    }
-    if (type_id) {
-      filters.type_id = Number(type_id);
-    }
-    if (parent_id) {
-      filters.parent_id = Number(parent_id);
-    }
-    if (created_by) {
-      filters.created_by = Number(created_by);
-    }
+    const parsedId = id !== undefined && id !== '' ? Number(id) : NaN;
+    if (!Number.isNaN(parsedId)) filters.id = parsedId;
+    const parsedProjectId = parseIdParam(project_id as string | string[] | undefined);
+    if (parsedProjectId !== null) filters.project_id = parsedProjectId;
+    const parsedAssigneeId = parseIdParam(assignee_id as string | string[] | undefined);
+    if (parsedAssigneeId !== null) filters.assignee_id = parsedAssigneeId;
+    const parsedHolderId = parseIdParam(holder_id as string | string[] | undefined);
+    if (parsedHolderId !== null) filters.holder_id = parsedHolderId;
+    const parsedStatusId = parseIdParam(status_id as string | string[] | undefined);
+    if (parsedStatusId !== null) filters.status_id = parsedStatusId;
+    const parsedPriorityId = parseIdParam(priority_id as string | string[] | undefined);
+    if (parsedPriorityId !== null) filters.priority_id = parsedPriorityId;
+    const parsedTypeId = parseIdParam(type_id as string | string[] | undefined);
+    if (parsedTypeId !== null) filters.type_id = parsedTypeId;
+    const parsedParentId =
+      parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
+    if (!Number.isNaN(parsedParentId)) filters.parent_id = parsedParentId;
+    const parsedCreatedBy = parseIdParam(created_by as string | string[] | undefined);
+    if (parsedCreatedBy !== null) filters.created_by = parsedCreatedBy;
     if (due_date_from && typeof due_date_from === 'string') {
       filters.due_date_from = due_date_from;
     }

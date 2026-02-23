@@ -52,12 +52,16 @@ const Users: React.FC = () => {
       setError(null);
 
       const whereParams: Record<string, number> = {};
-      if (currentFilters?.status_id != null && currentFilters?.status_id !== '') {
-        whereParams.status_id = Number(currentFilters.status_id);
-      }
-      if (currentFilters?.role_id != null && currentFilters?.role_id !== '') {
-        whereParams.role_id = Number(currentFilters.role_id);
-      }
+      const statusNum =
+        currentFilters?.status_id != null && currentFilters?.status_id !== ''
+          ? Number(currentFilters.status_id)
+          : NaN;
+      if (!Number.isNaN(statusNum)) whereParams.status_id = statusNum;
+      const roleNum =
+        currentFilters?.role_id != null && currentFilters?.role_id !== ''
+          ? Number(currentFilters.role_id)
+          : NaN;
+      if (!Number.isNaN(roleNum)) whereParams.role_id = roleNum;
       const includeAll = currentFilters?.status_id == null || currentFilters?.status_id === '';
       const userList = await getUsers(
         Object.keys(whereParams).length ? whereParams : undefined,

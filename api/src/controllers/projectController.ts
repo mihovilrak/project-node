@@ -38,14 +38,17 @@ export const getProjects = async (
           due_date_to
         } = req.query as any;
 
-        if (status_id !== undefined) {
-          builtWhereParams.status_id = Number(status_id);
+        const statusNum = status_id !== undefined && status_id !== '' ? Number(status_id) : NaN;
+        if (!Number.isNaN(statusNum)) {
+          builtWhereParams.status_id = statusNum;
         }
-        if (created_by !== undefined) {
-          builtWhereParams.created_by = Number(created_by);
+        const createdByNum = created_by !== undefined && created_by !== '' ? Number(created_by) : NaN;
+        if (!Number.isNaN(createdByNum)) {
+          builtWhereParams.created_by = createdByNum;
         }
-        if (parent_id !== undefined) {
-          builtWhereParams.parent_id = Number(parent_id);
+        const parentNum = parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
+        if (!Number.isNaN(parentNum)) {
+          builtWhereParams.parent_id = parentNum;
         }
         if (start_date_from !== undefined && start_date_from !== '') {
           builtWhereParams.start_date_from = start_date_from;
