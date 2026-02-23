@@ -49,9 +49,13 @@ describe('TaskModel', () => {
 
       const result = await taskModel.getTasks(mockPool);
 
+      const expectedNoFilter = [
+        null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false,
+        null, null, null, null, null, null, null
+      ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false]
+        expectedNoFilter
       );
       expect(result).toEqual(mockTasks);
     });
@@ -64,9 +68,13 @@ describe('TaskModel', () => {
         whereParams: { project_id: 1, status_id: 1 }
       });
 
+      const expectedWithFilter = [
+        null, 1, null, null, 1, null, null, null, false, null, null, null, null, null, null, null, null, null, false,
+        null, null, null, null, null, null, null
+      ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, 1, null, null, 1, null, null, null, false, null, null, null, null, null, null, null, null, null, false]
+        expectedWithFilter
       );
       expect(result).toEqual(mockTasks);
     });
@@ -76,11 +84,27 @@ describe('TaskModel', () => {
 
       const result = await taskModel.getTasks(mockPool);
 
+      const expectedNoFilter = [
+        null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false,
+        null, null, null, null, null, null, null
+      ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        [null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false]
+        expectedNoFilter
       );
       expect(result).toEqual([]);
+    });
+
+    it('should pass array params when filter is array', async () => {
+      const mockTasks = [mockTask];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+
+      const result = await taskModel.getTasks(mockPool, { status_id: [1, 2], priority_id: [2, 3] });
+
+      const args = (mockPool.query as jest.Mock).mock.calls[0][1];
+      expect(args[19]).toEqual([1, 2]);
+      expect(args[20]).toEqual([2, 3]);
+      expect(result).toEqual(mockTasks);
     });
   });
 

@@ -224,7 +224,8 @@ export const getProjectTasks = async (
   const result: QueryResult = await pool.query(
     `SELECT * FROM get_tasks(
       null, $1, $2, null, $3, $4, null, null, false,
-      null, null, null, null, null, null, null, null, null, false
+      null, null, null, null, null, null, null, null, null, false,
+      null, null, null, null, null, null, null
     )
     ORDER BY created_on DESC`,
     [id, assignee_id, status_id, priority_id]

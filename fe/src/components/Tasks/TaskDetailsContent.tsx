@@ -31,7 +31,7 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onTimeLogClick,
   onCommentRefresh
 }) => (
-  <Grid size={{ xs: 12 }}>
+  <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
       <Box sx={{
         display: 'flex',
