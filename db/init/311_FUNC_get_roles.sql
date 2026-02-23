@@ -1,6 +1,6 @@
 create or replace function get_roles()
 returns table (
-    id integer,
+    id smallint,
     name character varying,
     description text,
     active boolean,
