@@ -237,6 +237,31 @@ describe('useTaskForm', () => {
     });
   });
 
+  it('should store holder_id and assignee_id as numbers when value is string from select', async () => {
+    const { result } = renderHook(() => useTaskForm({
+      currentUserId,
+      projectId: undefined,
+      projectIdFromQuery: null,
+      parentTaskId: null
+    }), { wrapper });
+
+    act(() => {
+      result.current.handleChange({ target: { name: 'holder_id', value: '5' } });
+    });
+    await waitFor(() => {
+      expect(result.current.formData.holder_id).toBe(5);
+      expect(typeof result.current.formData.holder_id).toBe('number');
+    });
+
+    act(() => {
+      result.current.handleChange({ target: { name: 'assignee_id', value: '0' } });
+    });
+    await waitFor(() => {
+      expect(result.current.formData.assignee_id).toBe(0);
+      expect(typeof result.current.formData.assignee_id).toBe('number');
+    });
+  });
+
   it('should create new task successfully', async () => {
     const newTask = { ...mockTask, id: 2 };
     (createTask as jest.Mock).mockResolvedValue(newTask);
