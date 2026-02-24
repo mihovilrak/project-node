@@ -37,15 +37,18 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
         return;
       }
       try {
-        const [membersData, tasksData] = await Promise.all([
-          getProjectMembers(projectId),
-          getProjectTasks(projectId)
-        ]);
-
+        const membersData = await getProjectMembers(projectId);
         setProjectMembers(membersData);
+      } catch (error) {
+        logger.error('Error fetching project members:', error);
+        setProjectMembers([]);
+      }
+      try {
+        const tasksData = await getProjectTasks(projectId);
         setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
       } catch (error) {
-        logger.error('Error fetching project data:', error);
+        logger.error('Failed to fetch project tasks:', error);
+        setProjectTasks([]);
       }
     };
 
