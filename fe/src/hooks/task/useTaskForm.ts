@@ -137,7 +137,15 @@ export const useTaskForm = ({
 
   const handleChange = async (e: { target: { name: string; value: string | number | boolean } }) => {
     const { name, value } = e.target;
-    const newValue = value === '' ? null : value;
+    let newValue: string | number | boolean | null = value === '' ? null : value;
+    if (name === 'holder_id' || name === 'assignee_id') {
+      if (value === '') {
+        newValue = null;
+      } else {
+        const num = Number(value);
+        newValue = Number.isNaN(num) ? null : num;
+      }
+    }
 
     setFieldErrors(prev => {
       if (prev[name]) {

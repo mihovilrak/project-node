@@ -31,18 +31,21 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
 
   useEffect(() => {
     const fetchProjectData = async () => {
-      if (projectId) {
-        try {
-          const [membersData, tasksData] = await Promise.all([
-            getProjectMembers(projectId),
-            getProjectTasks(projectId)
-          ]);
+      if (!projectId) {
+        setProjectMembers([]);
+        setProjectTasks([]);
+        return;
+      }
+      try {
+        const [membersData, tasksData] = await Promise.all([
+          getProjectMembers(projectId),
+          getProjectTasks(projectId)
+        ]);
 
-          setProjectMembers(membersData);
-          setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
-        } catch (error) {
-          logger.error('Error fetching project data:', error);
-        }
+        setProjectMembers(membersData);
+        setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
+      } catch (error) {
+        logger.error('Error fetching project data:', error);
       }
     };
 
