@@ -217,9 +217,16 @@ export const getProjectTasks = async (
   id: string,
   filters: ProjectTaskFilters = {}
 ): Promise<any[]> => {
-  const status_id = filters.status != null ? Number(filters.status) : null;
-  const priority_id = filters.priority != null ? Number(filters.priority) : null;
-  const assignee_id = filters.assignee != null ? Number(filters.assignee) : null;
+  const projectId = id != null && id !== '' ? String(id).trim() : null;
+  if (!projectId) {
+    return [];
+  }
+  const rawStatus = filters.status != null ? Number(filters.status) : null;
+  const rawPriority = filters.priority != null ? Number(filters.priority) : null;
+  const rawAssignee = filters.assignee != null ? Number(filters.assignee) : null;
+  const status_id = rawStatus != null && !Number.isNaN(rawStatus) ? rawStatus : null;
+  const priority_id = rawPriority != null && !Number.isNaN(rawPriority) ? rawPriority : null;
+  const assignee_id = rawAssignee != null && !Number.isNaN(rawAssignee) ? rawAssignee : null;
 
   const result: QueryResult = await pool.query(
     `SELECT * FROM get_tasks(
@@ -228,7 +235,7 @@ export const getProjectTasks = async (
       null, null, null, null, null, null, null
     )
     ORDER BY created_on DESC`,
-    [id, assignee_id, status_id, priority_id]
+    [projectId, assignee_id, status_id, priority_id]
   );
   return result.rows;
 }

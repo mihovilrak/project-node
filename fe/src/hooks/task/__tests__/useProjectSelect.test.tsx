@@ -169,15 +169,28 @@ describe('useProjectSelect', () => {
     });
   });
 
-  it('should handle error when loading project data fails', async () => {
-    const error = new Error('Failed to fetch project data');
+  it('should handle error when loading project members fails', async () => {
+    const error = new Error('Failed to fetch project members');
     (getProjectMembers as jest.Mock).mockRejectedValue(error);
 
     const { result } = renderHook(() => useProjectSelect(1));
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Error fetching project data:', error);
+      expect(logger.error).toHaveBeenCalledWith('Error fetching project members:', error);
       expect(result.current.projectMembers).toEqual([]);
+    });
+    expect(result.current.projectTasks).toEqual(mockTasks);
+  });
+
+  it('should handle error when loading project tasks fails', async () => {
+    const error = new Error('Failed to fetch project tasks');
+    (getProjectTasks as jest.Mock).mockRejectedValue(error);
+
+    const { result } = renderHook(() => useProjectSelect(1));
+
+    await waitFor(() => {
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch project tasks:', error);
+      expect(result.current.projectMembers).toEqual(mockProjectMembers);
       expect(result.current.projectTasks).toEqual([]);
     });
   });
