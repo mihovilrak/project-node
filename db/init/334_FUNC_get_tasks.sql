@@ -45,7 +45,7 @@ returns table (
     status_id smallint,
     status_name varchar,
     status_color varchar,
-    priority_id int,
+    priority_id smallint,
     priority_name varchar,
     priority_color varchar,
     start_date date,
