@@ -27,8 +27,7 @@ import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils'
 import logger from '../../utils/logger';
 
 const COLUMNS = [
-  '#',
-  'Title',
+  'Task',
   'Type',
   'Status',
   'Priority',
@@ -107,8 +106,15 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
               backgroundColor: subtask.status_name === 'Done' ? 'action.hover' : 'inherit'
             }}
           >
-            <TableCell sx={{ py: 0.75, px: 1, pl: 1 + indent * 3, whiteSpace: 'nowrap', width: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+            <TableCell sx={{ py: 0.75, px: 1, pl: 1 + indent * 3, whiteSpace: 'nowrap' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  minWidth: 0
+                }}
+              >
                 <IconButton
                   size="small"
                   onClick={() => toggleExpanded(subtask.id)}
@@ -127,21 +133,23 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
                 <Typography variant="body2" color="text.secondary">
                   #{subtask.id}
                 </Typography>
+                <Typography
+                  component={RouterLink}
+                  to={`/tasks/${subtask.id}`}
+                  sx={{
+                    fontWeight: 600,
+                    textDecoration: subtask.status_name === 'Done' ? 'line-through' : 'none',
+                    color: subtask.status_name === 'Done' ? 'text.secondary' : 'inherit',
+                    '&:hover': { textDecoration: 'underline' },
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    minWidth: 0
+                  }}
+                >
+                  {subtask.name}
+                </Typography>
               </Box>
-            </TableCell>
-            <TableCell sx={{ py: 0.75, px: 1 }}>
-              <Typography
-                component={RouterLink}
-                to={`/tasks/${subtask.id}`}
-                sx={{
-                  fontWeight: 600,
-                  textDecoration: subtask.status_name === 'Done' ? 'line-through' : 'none',
-                  color: subtask.status_name === 'Done' ? 'text.secondary' : 'inherit',
-                  '&:hover': { textDecoration: 'underline' }
-                }}
-              >
-                {subtask.name}
-              </Typography>
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1 }}>
               <Chip
@@ -185,8 +193,8 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
             <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>
               {subtask.due_date ? new Date(subtask.due_date).toLocaleDateString() : '—'}
             </TableCell>
-            <TableCell sx={{ py: 0.75, px: 1 }} align="right">
-              <Box sx={{ display: 'flex', gap: 0, justifyContent: 'flex-end' }}>
+            <TableCell sx={{ py: 0.75, px: 1 }}>
+              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                 <Tooltip title="Edit">
                   <IconButton size="small" onClick={() => navigate(`/tasks/${subtask.id}/edit`)} aria-label="Edit subtask">
                     <EditIcon fontSize="small" />
@@ -215,11 +223,11 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
   }
 
   return (
-    <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.75, px: 1 } }}>
+    <Table size="small" sx={{ width: '100%', tableLayout: 'auto', '& .MuiTableCell-root': { py: 0.75, px: 1 } }}>
       <TableHead>
         <TableRow>
           {COLUMNS.map((col) => (
-            <TableCell key={col} sx={{ fontWeight: 600 }} align={col === 'Actions' ? 'right' : 'left'}>
+            <TableCell key={col} sx={{ fontWeight: 600 }}>
               {col}
             </TableCell>
           ))}
