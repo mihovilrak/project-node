@@ -25,7 +25,7 @@ services:
 
   app:
     <<: *defaults
-    image: pm:latest
+    image: ghcr.io/mihovilrak/pm:latest
     container_name: pm_app
     environment:
       <<: *db
