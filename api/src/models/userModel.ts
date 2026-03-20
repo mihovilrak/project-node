@@ -93,12 +93,11 @@ export const updateUser = async (
       return `password = crypt($${index + 1}, gen_salt('bf', 12))`;
     } else {
       values.push((updates as UserUpdateInput)[column]);
-      return `$${index + 1}`;
+      return `${column} = $${index + 1}`;
     }
   });
 
-  const query = `UPDATE users SET (${columns.join(', ')}) =
-    (${setExpressions.join(', ')}) WHERE id = $${columns.length + 1}`;
+  const query = `UPDATE users SET ${setExpressions.join(', ')} WHERE id = $${columns.length + 1}`;
 
   values.push(id);
 
