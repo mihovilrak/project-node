@@ -2,11 +2,11 @@ name: Docker Build
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     tags:
       - 'v*'
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -46,6 +46,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+            latest
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
