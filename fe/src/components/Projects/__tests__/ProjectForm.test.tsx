@@ -6,6 +6,7 @@ import { createProject, addProjectMember, getProjects } from '../../../api/proje
 import { getUsers } from '../../../api/users';
 import { Project } from '../../../types/project';
 import { User } from '../../../types/user';
+import logger from '../../../utils/logger';
 
 // Mock the DatePicker component to make testing easier
 jest.mock('@mui/x-date-pickers', () => ({
@@ -188,7 +189,6 @@ describe('ProjectForm Component', () => {
   });
 
   test('handles API errors during project creation', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (createProject as jest.Mock).mockRejectedValue(new Error('API Error'));
 
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
@@ -213,10 +213,8 @@ describe('ProjectForm Component', () => {
 
     // Verify error handling
     await waitFor(() => {
-      expect(consoleError).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
     });
-
-    consoleError.mockRestore();
   });
 
   // This test is split into two separate tests to isolate the functionality

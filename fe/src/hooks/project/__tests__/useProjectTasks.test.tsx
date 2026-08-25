@@ -3,6 +3,7 @@ import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { useProjectTasks } from '../useProjectTasks';
 import { getProjectTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 
 // Mock dependencies
@@ -123,7 +124,6 @@ describe('useProjectTasks', () => {
   it('should handle error during task fetch', async () => {
     const error = new Error('Failed to fetch tasks');
     (getProjectTasks as jest.Mock).mockRejectedValue(error);
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useProjectTasks('1'), { wrapper });
 
@@ -132,8 +132,7 @@ describe('useProjectTasks', () => {
     });
 
     expect(result.current.tasks).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load tasks:', error);
-    consoleErrorSpy.mockRestore();
+    expect(logger.error).toHaveBeenCalledWith('Failed to load tasks:', error);
   });
 
   it('should toggle task form dialog', () => {

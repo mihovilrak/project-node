@@ -1,12 +1,17 @@
 import axios from 'axios';
 import { api } from '../api';
 
-// Mock axios
+// Mock axios with interceptors so api.ts can attach 401 handler
 jest.mock('axios', () => ({
   create: jest.fn().mockReturnValue({
     defaults: {
       baseURL: '/api',
       withCredentials: true
+    },
+    interceptors: {
+      response: {
+        use: jest.fn()
+      }
     }
   })
 }));

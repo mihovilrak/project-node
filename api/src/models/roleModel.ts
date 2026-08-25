@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { Role, RoleCreateInput, RoleUpdateInput } from '../types/role';
+import logger from '../utils/logger';
 
 // Get all roles
 export const getRoles = async (pool: Pool): Promise<Role[]> => {
@@ -20,7 +21,7 @@ export const createRole = async (
     );
     return roleResult.rows[0].id;
   } catch (error) {
-    console.error('Error creating role:', error);
+    logger.error({ err: error }, 'Error creating role');
     throw error;
   }
 };
@@ -35,7 +36,7 @@ export const updateRole = async (
       [id, name, description, active, permissions]
     );
   } catch (error) {
-    console.error('Error updating role:', error);
+    logger.error({ err: error }, 'Error updating role');
     throw error;
   }
 };

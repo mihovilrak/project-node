@@ -237,6 +237,27 @@ describe('TimeLogForm', () => {
     expect(mockProps.onSpentTimeChange).not.toHaveBeenCalledWith('1.77');
   });
 
+  it('increments and decrements time in 0.25 hour steps when using spinbox controls', () => {
+    const onSpentTimeChange = jest.fn();
+    render(
+      <TimeLogForm
+        {...mockProps}
+        spentTime="1"
+        onSpentTimeChange={onSpentTimeChange}
+      />,
+      { wrapper }
+    );
+
+    const increaseButton = screen.getByLabelText(/Increase time/i);
+    const decreaseButton = screen.getByLabelText(/Decrease time/i);
+
+    fireEvent.click(increaseButton);
+    expect(onSpentTimeChange).toHaveBeenLastCalledWith('1.25');
+
+    fireEvent.click(decreaseButton);
+    expect(onSpentTimeChange).toHaveBeenLastCalledWith('0.75');
+  });
+
   it('displays time error when provided', () => {
     render(<TimeLogForm {...mockProps} timeError="Invalid time" />, { wrapper });
     expect(screen.getByText('Invalid time')).toBeInTheDocument();

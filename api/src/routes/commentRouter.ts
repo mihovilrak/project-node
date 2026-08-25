@@ -1,26 +1,15 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import { Pool } from 'pg';
 import * as commentController from '../controllers/commentController';
+import { withPool } from '../utils/withPool';
 
-// Comment routes
 export default (pool: Pool): Router => {
   const router = Router();
 
-  // Get task comments
-  router.get('/', ((req, res) =>
-    commentController.getTaskComments(req, res, pool)) as RequestHandler);
-
-  // Create a comment
-  router.post('/', ((req, res) =>
-    commentController.createComment(req, res, pool)) as RequestHandler);
-
-  // Edit a comment
-  router.put('/:id', ((req, res) =>
-    commentController.editComment(req, res, pool)) as RequestHandler);
-
-  // Delete a comment
-  router.delete('/:id', ((req, res) =>
-    commentController.deleteComment(req, res, pool)) as RequestHandler);
+  router.get('/', withPool(pool, commentController.getTaskComments));
+  router.post('/', withPool(pool, commentController.createComment));
+  router.put('/:id', withPool(pool, commentController.editComment));
+  router.delete('/:id', withPool(pool, commentController.deleteComment));
 
   return router;
 };

@@ -6,23 +6,22 @@ export const useNavigation = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<number>(0);
 
-  // Sync activeTab with current route
+  // Sync activeTab with current route (order: Home, Projects, Tasks, Users, Settings)
   useEffect(() => {
     const pathname = location.pathname;
-    
+
     if (pathname === '/' || pathname === '/home') {
       setActiveTab(0);
     } else if (pathname.startsWith('/projects')) {
       setActiveTab(1);
-    } else if (pathname.startsWith('/users')) {
-      setActiveTab(2);
     } else if (pathname.startsWith('/tasks')) {
+      setActiveTab(2);
+    } else if (pathname.startsWith('/users')) {
       setActiveTab(3);
     } else if (pathname === '/settings') {
       setActiveTab(4);
     } else if (pathname === '/profile') {
-      // Profile is not in the main tabs, but we can handle it
-      setActiveTab(0); // Default to Home
+      setActiveTab(0);
     }
   }, [location.pathname]);
 
@@ -36,10 +35,10 @@ export const useNavigation = () => {
         navigate('/projects');
         break;
       case 2:
-        navigate('/users');
+        navigate('/tasks');
         break;
       case 3:
-        navigate('/tasks');
+        navigate('/users');
         break;
       case 4:
         navigate('/settings');

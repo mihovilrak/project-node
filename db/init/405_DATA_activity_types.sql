@@ -12,4 +12,4 @@ insert into activity_types (name, color, description) values
     ('DevOps', '#795548', 'Infrastructure and deployment work'),
     ('Support', '#ff5722', 'User and system support'),
     ('Other', '#9e9e9e', 'Other activities')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

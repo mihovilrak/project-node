@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { ActivityTypeDialogProps } from '../../types/setting';
 import { useActivityTypeDialog } from '../../hooks/setting/useActivityTypeDialog';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { ActivityTypeForm } from './ActivityTypeForm';
 
 const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityType, onClose, onSave }) => {
@@ -27,11 +28,8 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
     try {
       await onSave(activityType ? { ...formData, id: activityType.id } : formData);
       onClose();
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to save activity type';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Failed to save activity type'));
     }
   };
 

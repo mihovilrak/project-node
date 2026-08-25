@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import { FormData, Project } from '../../types/project';
 import { getProjectStatuses } from '../../api/projects';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useProjectEdit = (project: Project | null) => {
   const [formData, setFormData] = useState<FormData>({
@@ -20,13 +22,10 @@ export const useProjectEdit = (project: Project | null) => {
       try {
         const statusList = await getProjectStatuses();
         setStatuses(statusList || []);
-      } catch (err: any) {
-        console.error('Failed to fetch project statuses:', err);
+      } catch (err: unknown) {
+        logger.error('Failed to fetch project statuses:', err);
         setStatuses([]);
-        const errorMessage = err?.response?.data?.error || 
-                            err?.message || 
-                            'Failed to load project statuses';
-        setError(errorMessage);
+        setError(getApiErrorMessage(err, 'Failed to load project statuses'));
       }
     };
     fetchStatuses();

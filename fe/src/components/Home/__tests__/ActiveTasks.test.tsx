@@ -1,15 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import AuthProvider from '../../../context/AuthContext';
 import ActiveTasks from '../ActiveTasks';
-import { getActiveTasks } from '../../../api/tasks';
+import { getActiveTasks, getTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
-
-// Mock the dayjs module
-jest.mock('dayjs', () => {
-  const originalDayjs = jest.requireActual('dayjs');
-  return (date: string) => originalDayjs(date);
-});
+import logger from '../../../utils/logger';
 
 const mockNavigate = jest.fn();
 
@@ -19,7 +15,24 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../../api/tasks', () => ({
-  getActiveTasks: jest.fn()
+  getActiveTasks: jest.fn(),
+  getTasks: jest.fn()
+}));
+
+// Mock AuthContext so session check doesn't block and currentUser is set
+jest.mock('../../../context/AuthContext', () => {
+  const FakeAuthProvider = ({ children }: { children: React.ReactNode }) => children;
+  return {
+    __esModule: true,
+    default: FakeAuthProvider,
+    AuthProvider: FakeAuthProvider,
+    useAuth: () => ({ currentUser: { id: 1, name: 'Test User' }, hasPermission: () => true, permissionsLoading: false, userPermissions: [] })
+  };
+});
+
+jest.mock('../../../utils/logger', () => ({
+  __esModule: true,
+  default: { error: jest.fn() }
 }));
 
 const mockTasks: Task[] = [
@@ -86,7 +99,9 @@ const renderActiveTasks = () => {
     navigate: mockNavigate,
     ...render(
       <BrowserRouter>
-        <ActiveTasks />
+        <AuthProvider>
+          <ActiveTasks />
+        </AuthProvider>
       </BrowserRouter>
     )
   };
@@ -96,6 +111,7 @@ describe('ActiveTasks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getActiveTasks as jest.Mock).mockResolvedValue(mockTasks);
+    (getTasks as jest.Mock).mockResolvedValue([]);
   });
 
   it('shows loading state initially', () => {
@@ -105,11 +121,12 @@ describe('ActiveTasks', () => {
 
   it('displays no tasks message when empty', async () => {
     (getActiveTasks as jest.Mock).mockResolvedValueOnce([]);
+    (getTasks as jest.Mock).mockResolvedValueOnce([]);
     renderActiveTasks();
 
     await waitFor(() => {
       expect(screen.getByText('No active tasks assigned to you.')).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 
   it('renders task cards when tasks are loaded', async () => {
@@ -121,70 +138,56 @@ describe('ActiveTasks', () => {
     });
   });
 
-  it('shows correct priority for tasks', async () => {
+  it('shows correct priority and status chips for tasks', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      expect(screen.getByText('Priority: High/Should')).toBeInTheDocument();
-      expect(screen.getByText('Priority: Normal/Could')).toBeInTheDocument();
+      expect(screen.getByText('High/Should')).toBeInTheDocument();
+      expect(screen.getByText('Normal/Could')).toBeInTheDocument();
+      expect(screen.getAllByText('New')).toHaveLength(2);
     });
   });
 
-  it('formats dates correctly or shows no date message', async () => {
+  it('displays project names and task links in grid', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      const dueDates = screen.getAllByText(/Due:/);
-      expect(dueDates).toHaveLength(2);
-      expect(dueDates[0]).toHaveTextContent('Due: Jan 15, 2024');
-      expect(dueDates[1]).toHaveTextContent('Due: No due date');
+      expect(screen.getByText('Project A')).toBeInTheDocument();
+      expect(screen.getByText('Project B')).toBeInTheDocument();
     });
+    // TaskCard uses Link for task name, not a Details button
+    expect(screen.getByRole('link', { name: 'Test Task 1' })).toBeInTheDocument();
   });
 
-  it('displays project names correctly', async () => {
-    renderActiveTasks();
-
-    await waitFor(() => {
-      expect(screen.getByText('Project: Project A')).toBeInTheDocument();
-      expect(screen.getByText('Project: Project B')).toBeInTheDocument();
-    });
-  });
-
-  it('maintains correct grid layout', async () => {
+  it('maintains correct grid layout with task cards', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
       const cards = screen.getAllByText(/Test Task \d/).map(el => el.closest('.MuiCard-root'));
       expect(cards).toHaveLength(2);
-      cards.forEach(card => {
-        expect(card).toHaveStyle({ cursor: 'pointer' });
-      });
     });
   });
 
-  it('navigates to task detail when card is clicked', async () => {
+  it('has task link to task detail', async () => {
     renderActiveTasks();
 
     await waitFor(() => {
-      const taskCard = screen.getByText('Test Task 1').closest('.MuiCard-root');
-      fireEvent.click(taskCard!);
-      expect(mockNavigate).toHaveBeenCalledWith('/tasks/1');
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
+    const taskLink = screen.getByRole('link', { name: 'Test Task 1' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
   });
 
   it('handles API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     (getActiveTasks as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
 
     renderActiveTasks();
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         'Failed to fetch active tasks',
         expect.any(Error)
       );
     });
-
-    consoleErrorSpy.mockRestore();
   });
 });

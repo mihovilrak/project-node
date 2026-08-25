@@ -4,6 +4,7 @@ import { getProjects } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
 import { getUsers } from '../../../api/users';
 import { getActivityTypes } from '../../../api/activityTypes';
+import logger from '../../../utils/logger';
 import { Project } from '../../../types/project';
 import { Task } from '../../../types/task';
 import { User } from '../../../types/user';
@@ -245,7 +246,6 @@ describe('useTimeLogData', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getProjects as jest.Mock).mockRejectedValue(new Error('API Error'));
 
     const { result } = renderHook(() => useTimeLogData({
@@ -256,9 +256,7 @@ describe('useTimeLogData', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
-
-    consoleError.mockRestore();
   });
 });

@@ -130,6 +130,36 @@ describe('SettingsController', () => {
     });
   });
 
+  describe('getTimezones', () => {
+    it('should return list of timezones', async () => {
+      const mockTimezones = [
+        {
+          name: 'Europe/Zagreb',
+          region: 'Europe',
+          abbrev: 'CET',
+          utcOffsetSeconds: 3600,
+          isDst: false,
+          label: 'Europe/Zagreb (UTC+01:00)'
+        }
+      ];
+      (settingsModel.getTimezones as jest.Mock).mockResolvedValue(mockTimezones);
+
+      await settingsController.getTimezones(mockReq as Request, mockRes as Response, mockPool as Pool);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(mockTimezones);
+    });
+
+    it('should handle errors', async () => {
+      (settingsModel.getTimezones as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+      await settingsController.getTimezones(mockReq as Request, mockRes as Response, mockPool as Pool);
+
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+    });
+  });
+
   describe('testSmtpConnection', () => {
     const originalEnv = process.env;
 

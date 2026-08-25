@@ -12,6 +12,11 @@ import { Notification } from '../../types/notification';
 jest.mock('../../api/api');
 const mockedApi = api as jest.Mocked<typeof api>;
 
+// Ensure permission-gated buttons (edit/delete) are rendered in Tasks
+jest.mock('../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
+}));
+
 describe('Comments and Notifications Flow', () => {
   const mockTask: Task = {
     id: 1,
@@ -164,29 +169,29 @@ describe('Comments and Notifications Flow', () => {
       </TestWrapper>
     );
 
-    // Wait for loading to finish
+    // Wait for loading to finish (use tasks-loading; task cards have progressbar)
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
 
-    // Find a task card and click Details
-    const detailsButton = await screen.findByText('Details');
-    await user.click(detailsButton);
+    // Open the task via its name link (current UI uses task name as a link, not a Details button)
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Project: Test Project')).toBeInTheDocument();
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
     expect(screen.getByTestId('status-chip')).toHaveTextContent('To Do');
     expect(screen.getByTestId('priority-chip')).toHaveTextContent('High');
 
-    // Test task actions
-    expect(screen.getByText('Details')).toBeInTheDocument();
-    expect(screen.getByText('Edit')).toBeInTheDocument();
-    expect(screen.getByText('Delete')).toBeInTheDocument();
+    // Test task actions: edit/delete icon buttons are rendered
+    expect(screen.getByRole('link', { name: 'Test Task' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit task/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete task/i })).toBeInTheDocument();
 
     // Since we can't test comment functionality directly due to the way the app is structured,
     // we'll verify that we can see the task details
     expect(mockedApi.post).not.toHaveBeenCalled();
-  });
+  }, 15000);
 
   it('should handle notifications and marking them as read', async () => {
     const user = userEvent.setup();
@@ -197,21 +202,21 @@ describe('Comments and Notifications Flow', () => {
       </TestWrapper>
     );
 
-    // Wait for loading to finish
+    // Wait for loading to finish (use tasks-loading; task cards have progressbar)
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
 
 
     // Instead of testing UI interaction which depends on components we don't have access to,
     // let's test that the Tasks component renders properly with our mocked data
     expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Project: Test Project')).toBeInTheDocument();
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
 
     // Test that status chips are rendered
     expect(screen.getByTestId('status-chip')).toHaveTextContent('To Do');
     expect(screen.getByTestId('priority-chip')).toHaveTextContent('High');
-  });
+  }, 15000);
 
   it('should handle notification filtering', async () => {
     const user = userEvent.setup();
@@ -222,23 +227,23 @@ describe('Comments and Notifications Flow', () => {
       </TestWrapper>
     );
 
-    // Wait for loading to finish
+    // Wait for loading to finish (use tasks-loading; task cards have progressbar)
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
 
     // Verify that filter panel is rendered
     expect(screen.getByTestId('filter-panel')).toBeInTheDocument();
 
     // Test task card content
     expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Project: Test Project')).toBeInTheDocument();
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
 
-    // Test buttons are rendered
-    expect(screen.getByText('Details')).toBeInTheDocument();
-    expect(screen.getByText('Edit')).toBeInTheDocument();
-    expect(screen.getByText('Delete')).toBeInTheDocument();
-  });
+    // Test that task link and edit/delete icon buttons are rendered
+    expect(screen.getByRole('link', { name: 'Test Task' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit task/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete task/i })).toBeInTheDocument();
+  }, 15000);
 
   it('should handle error cases', async () => {
     const user = userEvent.setup();

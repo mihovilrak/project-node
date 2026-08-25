@@ -1,12 +1,14 @@
 create or replace function get_roles()
 returns table (
-    id integer,
+    id smallint,
     name character varying,
     description text,
     active boolean,
     permissions json
-) as $$
+) as $function$
+
 begin
+
     return query
     select
       r.id,
@@ -27,5 +29,7 @@ begin
     left join permissions p on rp.permission_id = p.id
     group by r.id
     order by r.name;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

@@ -99,7 +99,7 @@ describe('App Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders without crashing', () => {
+  test('renders without crashing', async () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
       ...mockUseAuth,
       currentUser: { id: 1, name: 'Test User' }
@@ -110,16 +110,20 @@ describe('App Component', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByTestId('mock-layout')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-layout')).toBeInTheDocument();
+    });
   });
 
-  test('renders login page on /login route', () => {
+  test('renders login page on /login route', async () => {
     render(
       <MemoryRouter initialEntries={['/login']}>
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Login')).toBeInTheDocument();
+    });
   });
 
   test('redirects to login when accessing private route without auth', () => {

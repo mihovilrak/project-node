@@ -17,6 +17,7 @@ import {
 import { WatcherDialogProps } from '../../types/watcher';
 import { ProjectMember } from '../../types/project';
 import { getProjectMembers } from '../../api/projects';
+import logger from '../../utils/logger';
 
 const WatcherDialog: React.FC<WatcherDialogProps> = ({
   open,
@@ -38,7 +39,7 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
         const members = await getProjectMembers(projectId);
         setProjectMembers(members || []);
       } catch (error) {
-        console.error('Failed to fetch project members:', error);
+        logger.error('Failed to fetch project members:', error);
         setProjectMembers([]);
       } finally {
         setLoading(false);

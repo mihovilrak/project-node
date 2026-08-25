@@ -1,53 +1,76 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FixedSizeList as List } from 'react-window';
 import {
   Box,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   Select,
   MenuItem,
   SelectChangeEvent,
-  Alert
+  Alert,
+  Grid,
+  IconButton,
+  Tooltip
 } from '@mui/material';
-import { getUsers, deleteUser, getUserStatuses } from '../../api/users';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import GridViewIcon from '@mui/icons-material/GridView';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getUsers, deleteUser, getUserStatuses, fetchRoles } from '../../api/users';
+import { usePermission } from '../../hooks/common/usePermission';
 import { User } from '../../types/user';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [statuses, setStatuses] = useState<{ id: number; name: string }[]>([]);
+  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>({});
+  const [filters, setFilters] = useState<FilterValues>({ status_id: 1 });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const navigate = useNavigate();
+  const { hasPermission: canEditUser } = usePermission('Edit users');
+  const { hasPermission: canDeleteUser } = usePermission('Delete users');
 
   const fetchUsers = useCallback(async (currentFilters?: FilterValues) => {
     try {
       setLoading(true);
       setError(null);
 
-      const whereParams: Record<string, any> = {};
-      if (currentFilters?.status_id != null && currentFilters?.status_id !== '') {
-        whereParams.status_id = Number(currentFilters.status_id);
-      }
-      const userList = await getUsers(Object.keys(whereParams).length ? whereParams : undefined);
+      const whereParams: Record<string, number> = {};
+      const statusNum =
+        currentFilters?.status_id != null && currentFilters?.status_id !== ''
+          ? Number(currentFilters.status_id)
+          : NaN;
+      if (!Number.isNaN(statusNum)) whereParams.status_id = statusNum;
+      const roleNum =
+        currentFilters?.role_id != null && currentFilters?.role_id !== ''
+          ? Number(currentFilters.role_id)
+          : NaN;
+      if (!Number.isNaN(roleNum)) whereParams.role_id = roleNum;
+      const includeAll = currentFilters?.status_id == null || currentFilters?.status_id === '';
+      const userList = await getUsers(
+        Object.keys(whereParams).length ? whereParams : undefined,
+        includeAll ? { all: true } : undefined
+      );
       setUsers(userList || []);
-    } catch (error: any) {
-      console.error('Failed to fetch users', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load users';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch users', error);
+      setError(getApiErrorMessage(error, 'Failed to load users'));
     } finally {
       setLoading(false);
     }
@@ -55,16 +78,24 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     fetchUsers(filters);
-    const loadStatuses = async () => {
+  }, [fetchUsers, filters]);
+
+  useEffect(() => {
+    const loadOptions = async () => {
       try {
-        const data = await getUserStatuses().catch(() => []);
-        setStatuses(data);
+        const [statusesData, rolesData] = await Promise.all([
+          getUserStatuses().catch(() => []),
+          fetchRoles().catch(() => [])
+        ]);
+        setStatuses(statusesData);
+        setRoles(rolesData);
       } catch {
         setStatuses([]);
+        setRoles([]);
       }
     };
-    loadStatuses();
-  }, [fetchUsers]);
+    loadOptions();
+  }, []);
 
   const handleDeleteClick = (user: User) => {
     setUserToDelete(user);
@@ -84,12 +115,9 @@ const Users: React.FC = () => {
       window.dispatchEvent(new CustomEvent('userDeleted', { detail: { userId: userToDelete.id } }));
       setDeleteDialogOpen(false);
       setUserToDelete(null);
-    } catch (error: any) {
-      console.error('Failed to delete user', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete user. Please try again.';
-      setDeleteError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete user', error);
+      setDeleteError(getApiErrorMessage(error, 'Failed to delete user. Please try again.'));
     }
   };
 
@@ -101,9 +129,6 @@ const Users: React.FC = () => {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-    // In the future we can push more filters server-side via whereParams
-    // For now, search remains client-side but we keep this call for extensibility
-    fetchUsers(newFilters);
   };
 
   const handleSortChange = (event: SelectChangeEvent<'asc' | 'desc'>) => {
@@ -112,8 +137,9 @@ const Users: React.FC = () => {
 
   const filterOptions = useMemo(() => ({
     search: true,
-    statuses: statuses.map((s) => ({ id: s.id, name: s.name }))
-  }), [statuses]);
+    statuses: statuses.map((s) => ({ id: s.id, name: s.name })),
+    roles: roles.map((r) => ({ id: r.id, name: r.name }))
+  }), [statuses, roles]);
 
   const filteredUsers = users
     .filter(user => {
@@ -133,22 +159,6 @@ const Users: React.FC = () => {
       return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
     });
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box p={3}>
-        <Alert severity="error" data-testid="users-error">{error}</Alert>
-      </Box>
-    );
-  }
-
   return (
     <Box p={3}>
       <Typography variant="h4" gutterBottom>User Management</Typography>
@@ -166,6 +176,14 @@ const Users: React.FC = () => {
           <MenuItem value="asc">A-Z</MenuItem>
           <MenuItem value="desc">Z-A</MenuItem>
         </Select>
+        <Tooltip title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}>
+          <IconButton
+            onClick={() => setViewMode((m) => (m === 'grid' ? 'list' : 'grid'))}
+            aria-label={viewMode === 'grid' ? 'List view' : 'Grid view'}
+          >
+            {viewMode === 'grid' ? <ViewListIcon /> : <GridViewIcon />}
+          </IconButton>
+        </Tooltip>
       </Box>
 
       <FilterPanel
@@ -175,30 +193,128 @@ const Users: React.FC = () => {
         onFilterChange={handleFilterChange}
       />
 
-      <Grid container spacing={2} marginTop={2}>
-        {filteredUsers.length === 0 ? (
-          <Grid size={{ xs: 12 }}>
-            <Typography>No users found.</Typography>
+      <Box marginTop={2} sx={{ width: '100%', maxWidth: 1400 }}>
+        {error ? (
+          <Alert severity="error" data-testid="users-error">{error}</Alert>
+        ) : loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : filteredUsers.length === 0 ? (
+          <Typography>No users found.</Typography>
+        ) : viewMode === 'grid' ? (
+          <Grid container spacing={2}>
+            {filteredUsers.map((user) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user?.id}>
+                <Card data-testid={`user-card-${user?.id}`}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                      <Typography
+                        component={Link}
+                        to={`/users/${user?.id}`}
+                        variant="h6"
+                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                      >
+                        {user?.name || ''} {user?.surname || ''}
+                      </Typography>
+                      {(canEditUser || canDeleteUser) && (
+                        <Box sx={{ display: 'flex', gap: 0 }}>
+                          {canEditUser && (
+                            <Tooltip title="Edit">
+                              <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {canDeleteUser && (
+                            <Tooltip title="Delete">
+                              <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                    {user?.status_name && (
+                      <Chip
+                        label={user.status_name}
+                        size="small"
+                        sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                      />
+                    )}
+                    <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
+                    <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         ) : (
-          filteredUsers.map(user => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user?.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{user?.name || ''} {user?.surname || ''}</Typography>
-                  <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
-                  <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
-                  <Box marginTop={2}>
-                    <Button variant="contained" color="primary" onClick={() => navigate(`/users/${user?.id}`)} data-testid="view-user-btn">View</Button>
-                    <Button variant="contained" color="warning" onClick={() => navigate(`/users/${user?.id}/edit`)} sx={{ ml: 1 }} data-testid="edit-user-btn">Edit</Button>
-                    <Button variant="contained" color="error" onClick={() => handleDeleteClick(user)} sx={{ ml: 1 }} data-testid={`delete-user-${user?.id}`}>Delete</Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))
+          <Box sx={{ height: 600 }}>
+            <List
+              height={600}
+              itemCount={filteredUsers.length}
+              itemSize={200}
+              width="100%"
+              itemData={filteredUsers}
+            >
+              {({ index, style, data }) => {
+                const user = data[index];
+                return (
+                  <div style={style}>
+                    <Box sx={{ py: 1, px: 0.5 }}>
+                      <Card data-testid={`user-card-${user?.id}`}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                            <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                            <Typography
+                              component={Link}
+                              to={`/users/${user?.id}`}
+                              variant="h6"
+                              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                            >
+                              {user?.name || ''} {user?.surname || ''}
+                            </Typography>
+                            {(canEditUser || canDeleteUser) && (
+                              <Box sx={{ display: 'flex', gap: 0 }}>
+                                {canEditUser && (
+                                  <Tooltip title="Edit">
+                                    <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                                      <EditIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                                {canDeleteUser && (
+                                  <Tooltip title="Delete">
+                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            )}
+                          </Box>
+                          {user?.status_name && (
+                            <Chip
+                              label={user.status_name}
+                              size="small"
+                              sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                            />
+                          )}
+                          <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
+                          <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
+                        </CardContent>
+                      </Card>
+                    </Box>
+                  </div>
+                );
+              }}
+            </List>
+          </Box>
         )}
-      </Grid>
+      </Box>
 
       <DeleteConfirmDialog
         open={deleteDialogOpen}

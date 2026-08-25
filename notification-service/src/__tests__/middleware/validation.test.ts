@@ -25,7 +25,7 @@ describe('Validation Middleware', () => {
   describe('validateNotification', () => {
     it('should call next() when all required fields are present', () => {
       mockRequest.body = {
-        type: 'taskAssigned',
+        type: 'Task Assigned',
         userId: '123',
         data: { taskId: 1 },
       };
@@ -42,7 +42,7 @@ describe('Validation Middleware', () => {
 
     it('should return 400 when type is missing', () => {
       mockRequest.body = {
-        type: '',
+        type: '' as string,
         userId: '123',
         data: { taskId: 1 },
       };
@@ -64,7 +64,7 @@ describe('Validation Middleware', () => {
 
     it('should return 400 when userId is missing', () => {
       mockRequest.body = {
-        type: 'taskAssigned',
+        type: 'Task Assigned',
         userId: '',
         data: { taskId: 1 },
       };
@@ -86,7 +86,7 @@ describe('Validation Middleware', () => {
 
     it('should return 400 when data is missing', () => {
       mockRequest.body = {
-        type: 'taskAssigned',
+        type: 'Task Assigned',
         userId: '123',
         data: null as any,
       };
@@ -125,7 +125,7 @@ describe('Validation Middleware', () => {
     });
 
     it('should accept valid data with different notification types', () => {
-      const validTypes = ['taskDueSoon', 'taskAssigned', 'taskUpdated', 'taskComment', 'taskCompleted', 'projectUpdate'];
+      const validTypes = ['Task Due Soon', 'Task Assigned', 'Task Updated', 'Task Comment', 'Task Completed', 'Project Update'];
 
       validTypes.forEach((type) => {
         mockNext.mockClear();
@@ -167,6 +167,66 @@ describe('Validation Middleware', () => {
         created_on: expect.any(Date),
         error: 'Invalid notification data',
       });
+    });
+
+    it('should return 400 when type is invalid', () => {
+      mockRequest.body = {
+        type: 'unknownType',
+        userId: '123',
+        data: { taskId: 1 },
+      };
+
+      validateNotification(
+        mockRequest as Request<{}, {}, NotificationCreateRequest>,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Invalid notification type' })
+      );
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when userId is not a positive integer', () => {
+      mockRequest.body = {
+        type: 'Task Assigned',
+        userId: 'abc',
+        data: { taskId: 1 },
+      };
+
+      validateNotification(
+        mockRequest as Request<{}, {}, NotificationCreateRequest>,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Invalid user id' })
+      );
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when userId is negative', () => {
+      mockRequest.body = {
+        type: 'Task Assigned',
+        userId: '-1',
+        data: { taskId: 1 },
+      };
+
+      validateNotification(
+        mockRequest as Request<{}, {}, NotificationCreateRequest>,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Invalid user id' })
+      );
+      expect(mockNext).not.toHaveBeenCalled();
     });
   });
 });

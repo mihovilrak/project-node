@@ -253,7 +253,10 @@ describe('ProjectController', () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: 'Missing required fields', required: expect.any(Array) })
+        expect.objectContaining({
+          error: 'Invalid request',
+          message: 'name is required and must be a non-empty string'
+        })
       );
       expect(projectModel.createProject).not.toHaveBeenCalled();
     });

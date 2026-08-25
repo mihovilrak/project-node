@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { SystemSettingsState } from '../../types/setting';
+import { SystemSettingsState, TimezoneOption } from '../../types/setting';
 import {
   getSystemSettings,
-  updateSystemSettings
+  updateSystemSettings,
+  getTimezones
 } from '../../api/settings';
 
 export const useSystemSettings = () => {
@@ -20,6 +21,10 @@ export const useSystemSettings = () => {
     error: null,
     success: false
   });
+
+  const [timezones, setTimezones] = useState<TimezoneOption[]>([]);
+  const [timezonesLoading, setTimezonesLoading] = useState<boolean>(false);
+  const [timezonesError, setTimezonesError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -39,7 +44,22 @@ export const useSystemSettings = () => {
       }
     };
 
+    const fetchTimezones = async () => {
+      try {
+        setTimezonesLoading(true);
+        setTimezonesError(null);
+        const data = await getTimezones();
+        setTimezones(data || []);
+      } catch (error) {
+        setTimezones([]);
+        setTimezonesError('Failed to load timezones');
+      } finally {
+        setTimezonesLoading(false);
+      }
+    };
+
     fetchSettings();
+    fetchTimezones();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
@@ -81,6 +101,9 @@ export const useSystemSettings = () => {
 
   return {
     state,
+    timezones,
+    timezonesLoading,
+    timezonesError,
     handleSubmit,
     handleChange
   };

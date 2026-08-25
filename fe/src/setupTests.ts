@@ -13,6 +13,17 @@ configure({
 // @ts-ignore - Adding React 18 specific environment flag
 global.IS_REACT_ACT_ENVIRONMENT = true;
 
+// Mock logger so tests don't depend on real console and logger calls don't leak
+jest.mock('./utils/logger', () => ({
+  __esModule: true,
+  default: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 // Mock TouchRipple to prevent unwanted act warnings
 jest.mock('@mui/material/ButtonBase/TouchRipple', () => {
   return {

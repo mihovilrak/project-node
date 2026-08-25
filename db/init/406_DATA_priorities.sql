@@ -4,4 +4,4 @@ insert into priorities (name, color) values
     ('High/Should', '#FFA726'),
     ('Very high/Must', '#F44336'),
     ('Urgent/ASAP', '#F44336')
-    on conflict (name) do update set color = EXCLUDED.color;
+on conflict (name) do update set color = EXCLUDED.color;

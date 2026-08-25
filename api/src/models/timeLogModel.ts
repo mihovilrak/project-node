@@ -9,10 +9,7 @@ import {
 
 // Time log model
 export const getAllTimeLogs = async (pool: Pool): Promise<TimeLog[]> => {
-  const result = await pool.query(
-    `SELECT * FROM v_time_logs
-    ORDER BY created_on DESC`
-  );
+  const result = await pool.query('SELECT * FROM get_time_logs(null, null, null)');
   return result.rows;
 };
 
@@ -79,9 +76,7 @@ export const getUserTimeLogs = async (
   params: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_time_logs
-    WHERE user_id = $1
-    ORDER BY created_on DESC`,
+    'SELECT * FROM get_time_logs(null, $1, null)',
     [userId]
   );
   return result.rows;
@@ -94,9 +89,7 @@ export const getProjectTimeLogs = async (
   params: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_time_logs
-    WHERE project_id = $1
-    ORDER BY created_on DESC`,
+    'SELECT * FROM get_time_logs(null, null, $1)',
     [projectId]
   );
   return result.rows;
@@ -108,8 +101,7 @@ export const getProjectSpentTime = async (
   projectId: string
 ): Promise<SpentTime> => {
   const result = await pool.query(
-    `SELECT * FROM v_project_spent_time
-    WHERE project_id = $1`,
+    'SELECT * FROM get_project_spent_time($1)',
     [projectId]
   );
   return result.rows[0];
@@ -121,11 +113,8 @@ export const getTaskTimeLogs = async (
   taskId: string,
   params?: TimeLogQueryFilters
 ): Promise<TimeLog[]> => {
-
   const result = await pool.query(
-    `SELECT * FROM v_time_logs
-    WHERE task_id = $1
-    ORDER BY created_on DESC`,
+    'SELECT * FROM get_time_logs($1, null, null)',
     [taskId]
   );
   return result.rows;
@@ -137,8 +126,7 @@ export const getTaskSpentTime = async (
   taskId: string
 ): Promise<SpentTime> => {
   const result = await pool.query(
-    `SELECT * FROM v_task_spent_time
-    WHERE task_id = $1`,
+    'SELECT * FROM get_task_spent_time($1)',
     [taskId]
   );
   return result.rows[0];

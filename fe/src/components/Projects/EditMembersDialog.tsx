@@ -15,6 +15,8 @@ import {
 import { User } from '../../types/user';
 import { EditMembersDialogProps } from '../../types/project';
 import { getUsers } from '../../api/users';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
@@ -33,13 +35,10 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
       try {
         const fetchedUsers = await getUsers();
         setUsers(fetchedUsers || []);
-      } catch (error: any) {
-        console.error('Failed to fetch users:', error);
+      } catch (error: unknown) {
+        logger.error('Failed to fetch users:', error);
         setUsers([]);
-        const errorMessage = error?.response?.data?.error || 
-                            error?.message || 
-                            'Failed to load users';
-        setError(errorMessage);
+        setError(getApiErrorMessage(error, 'Failed to load users'));
       }
     };
     fetchUsers();
@@ -62,12 +61,9 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
       setError('');
       await onSave(selectedUsers);
       onClose();
-    } catch (error: any) {
-      console.error('Failed to save members:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to save changes';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to save members:', error);
+      setError(getApiErrorMessage(error, 'Failed to save changes'));
     }
   };
 

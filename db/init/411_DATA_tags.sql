@@ -7,4 +7,4 @@ insert into tags (name, color, icon) values
     ('Security', '#f44336', 'Security'),
     ('Performance', '#ff5722', 'Speed'),
     ('DevOps', '#795548', 'Settings')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

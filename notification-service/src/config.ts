@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 import { Config } from './types/config.types';
 
 export const config: Config = {
@@ -25,3 +29,18 @@ export const config: Config = {
     port: parseInt(process.env.PORT || '5001')
   }
 };
+
+export function validateConfig(): void {
+  const missing: string[] = [];
+  if (!process.env.POSTGRES_HOST) missing.push('POSTGRES_HOST');
+  if (!process.env.POSTGRES_USER) missing.push('POSTGRES_USER');
+  if (!process.env.POSTGRES_DB) missing.push('POSTGRES_DB');
+  if (!process.env.POSTGRES_PASSWORD) missing.push('POSTGRES_PASSWORD');
+  if (process.env.EMAIL_ENABLED === 'true') {
+    if (!process.env.EMAIL_USER) missing.push('EMAIL_USER');
+    if (!process.env.EMAIL_PASSWORD) missing.push('EMAIL_PASSWORD');
+  }
+  if (missing.length > 0) {
+    throw new Error(`Missing required env: ${missing.join(', ')}`);
+  }
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Task, TaskStatus, TaskDetailsState } from '../../types/task';
 import { Comment } from '../../types/comment';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
+import logger from '../../utils/logger';
 
 export const useTaskDetailsHandlers = () => {
   const [state, setState] = useState<TaskDetailsState>({
@@ -49,7 +50,7 @@ export const useTaskDetailsHandlers = () => {
       await onSubmit(timeLogData);
       setState(prev => ({ ...prev, timeLogDialogOpen: false, selectedTimeLog: null }));
     } catch (error) {
-      console.error('Error handling time log:', error);
+      logger.error('Error handling time log:', error);
       setState(prev => ({ ...prev, timeLogDialogOpen: true }));
     }
   };

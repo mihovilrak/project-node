@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import * as projectModel from '../projectModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: any[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: unknown[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
 
 describe('ProjectModel', () => {
   let mockPool: jest.Mocked<Pool>;
@@ -21,7 +21,12 @@ describe('ProjectModel', () => {
 
       const result = await projectModel.getProjects(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM projects', []);
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('FROM projects p');
+      expect(query).toContain('project_details(p.id)');
+      expect(query).toContain('status_name');
+      expect(query).toContain('created_by_name');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -31,10 +36,21 @@ describe('ProjectModel', () => {
 
       const result = await projectModel.getProjects(mockPool, { status_id: 1 });
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM projects WHERE status_id = $1',
-        [1]
-      );
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('p.status_id = $1');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1]);
+      expect(result).toEqual(mockProjects);
+    });
+
+    it('should ignore disallowed whereParams keys', async () => {
+      const mockProjects = [{ id: '1', name: 'Project 1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+
+      const result = await projectModel.getProjects(mockPool, { status_id: 1, evil_key: 2 } as any);
+
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('p.status_id = $1');
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1]);
       expect(result).toEqual(mockProjects);
     });
   });
@@ -110,6 +126,13 @@ describe('ProjectModel', () => {
 
       expect(result).toBe(1);
     });
+
+    it('should return null when no allowed update keys', async () => {
+      const result = await projectModel.updateProject(mockPool, { evil_key: 'x' } as any, '1');
+
+      expect(result).toBeNull();
+      expect(mockPool.query).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteProject', () => {
@@ -175,6 +198,20 @@ describe('ProjectModel', () => {
       const result = await projectModel.getProjectTasks(mockPool, '1');
 
       expect(result).toEqual(mockTasks);
+    });
+
+    it('should apply only allowed filter keys', async () => {
+      const mockTasks = [{ id: '1', title: 'Task 1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+
+      await projectModel.getProjectTasks(mockPool, '1', { status: '1', evil_key: 'x' } as any);
+
+      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('get_tasks');
+      expect(query).not.toContain('evil_key');
+      // Only status mapped to status_id; project_id, assignee_id, priority_id
+      const values = (mockPool.query as jest.Mock).mock.calls[0][1];
+      expect(values).toEqual(['1', null, 1, null]);
     });
   });
 

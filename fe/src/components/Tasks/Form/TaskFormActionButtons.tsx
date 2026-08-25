@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
 import { TaskFormActionButtonsProps } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 export const TaskFormActionButtons: React.FC<TaskFormActionButtonsProps> = ({
   isEditing,
@@ -11,7 +12,7 @@ export const TaskFormActionButtons: React.FC<TaskFormActionButtonsProps> = ({
       type="button"
       data-testid="cancel-button"
       onClick={() => {
-        console.log('Cancel clicked');
+        logger.info('Cancel clicked');
         (onCancel || (() => window.history.back()))();
       }}
       color="inherit"

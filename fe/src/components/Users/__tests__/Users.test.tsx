@@ -4,6 +4,15 @@ import { MemoryRouter } from 'react-router-dom';
 import Users from '../Users';
 import { getUsers, deleteUser, getUserStatuses } from '../../../api/users';
 import { User } from '../../../types/user';
+import logger from '../../../utils/logger';
+
+// Mock permission hook to avoid needing AuthProvider
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({
+    hasPermission: true,
+    loading: false
+  })
+}));
 
 // Mock the API calls
 jest.mock('../../../api/users');
@@ -41,6 +50,8 @@ const mockUsers: User[] = [
     email: 'john@example.com',
     role_id: 1,
     status_id: 1,
+    status_name: 'Active',
+    status_color: '#4caf50',
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
@@ -55,6 +66,7 @@ const mockUsers: User[] = [
     email: 'jane@example.com',
     role_id: 4,
     status_id: 1,
+    status_name: 'Active',
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
@@ -89,7 +101,7 @@ describe('Users Component', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  test('renders users list after loading', async () => {
+  test('renders users list after loading with ID and status', async () => {
     await act(async () => {
       renderUsers();
     });
@@ -98,6 +110,9 @@ describe('Users Component', () => {
     });
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    expect(screen.getByText('#1')).toBeInTheDocument();
+    expect(screen.getByText('#2')).toBeInTheDocument();
+    expect(screen.getAllByText('Active').length).toBeGreaterThanOrEqual(1);
   });
 
   test('handles user filtering', async () => {
@@ -192,22 +207,12 @@ describe('Users Component', () => {
     fireEvent.click(addButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/new');
 
-    // Use getAllByTestId for View/Edit/Delete if available, else fallback to getAllByText
-    const viewButtons = screen.getAllByTestId('view-user-btn');
-    const userCards = screen.getAllByRole('heading', { level: 6 });
-    // Find the index where the card contains 'John Doe'
-    const johnIndex = userCards.findIndex(card => card.textContent?.includes('John Doe'));
-    fireEvent.click(viewButtons[johnIndex]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/users/1');
-
-    const editButtons = screen.getAllByTestId('edit-user-btn');
-    // Use the same index logic as the view button
-    fireEvent.click(editButtons[johnIndex]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/users/1/edit');
+    // Verify that the user name link points to the correct details route
+    const userLink = screen.getByRole('link', { name: 'John Doe' });
+    expect(userLink).toHaveAttribute('href', '/users/1');
   });
 
   test('handles API error', async () => {
-    console.error = jest.fn();
     mockedGetUsers.mockRejectedValue(new Error('API Error'));
 
     await act(async () => {
@@ -217,6 +222,6 @@ describe('Users Component', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(console.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
   });
 });

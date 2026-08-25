@@ -1,19 +1,18 @@
-import winston from 'winston';
+import pino from 'pino';
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
-    })
-  ]
+const level = process.env.LOG_LEVEL || 'info';
+const isDev = process.env.NODE_ENV !== 'production';
+const isTest = process.env.NODE_ENV === 'test';
+
+const logger = pino({
+  level,
+  ...(isDev && !isTest && {
+    transport: {
+      target: 'pino/file',
+      options: { destination: 1 },
+    },
+  }),
 });
 
 export { logger };
+export default logger;

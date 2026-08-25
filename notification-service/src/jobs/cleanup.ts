@@ -8,11 +8,11 @@ const cleanupOldNotifications = async (): Promise<void> => {
       `UPDATE notifications
        SET active = false
        WHERE created_on < NOW() - INTERVAL '30 days'
-       AND is_read = true`
+       AND (read_on IS NOT NULL OR is_read = true)`
     );
-    logger.info(`Cleaned up ${result.rowCount} old notifications`);
+    logger.info({ rowCount: result.rowCount }, 'Cleaned up old notifications');
   } catch (error) {
-    logger.error('Error cleaning up notifications:', error);
+    logger.error({ err: error }, 'Error cleaning up notifications');
   }
 };
 

@@ -1,5 +1,6 @@
 import { api } from './api';
 import { ActivityType } from '../types/timeLog';
+import logger from '../utils/logger';
 
 // Get activity types
 export const getActivityTypes = async (): Promise<ActivityType[]> => {
@@ -7,7 +8,7 @@ export const getActivityTypes = async (): Promise<ActivityType[]> => {
     const response = await api.get('/admin/activity-types');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch activity types', error);
+    logger.error('Failed to fetch activity types', error);
     throw error;
   }
 };
@@ -18,7 +19,7 @@ export const createActivityType = async (data: Partial<ActivityType>): Promise<A
     const response = await api.post('/admin/activity-types', data);
     return response.data;
   } catch (error) {
-    console.error('Failed to create activity type', error);
+    logger.error('Failed to create activity type', error);
     throw error;
   }
 };
@@ -29,7 +30,7 @@ export const updateActivityType = async (id: number, data: Partial<ActivityType>
     const response = await api.put(`/admin/activity-types/${id}`, data);
     return response.data;
   } catch (error) {
-    console.error('Failed to update activity type', error);
+    logger.error('Failed to update activity type', error);
     throw error;
   }
 };
@@ -39,7 +40,7 @@ export const deleteActivityType = async (id: number): Promise<void> => {
   try {
     await api.delete(`/admin/activity-types/${id}`);
   } catch (error) {
-    console.error('Failed to delete activity type', error);
+    logger.error('Failed to delete activity type', error);
     throw error;
   }
 };
@@ -50,7 +51,7 @@ export const getAvailableIcons = async (): Promise<string[]> => {
     const response = await api.get('/admin/activity-types/icons');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch available icons', error);
+    logger.error('Failed to fetch available icons', error);
     throw error;
   }
 };

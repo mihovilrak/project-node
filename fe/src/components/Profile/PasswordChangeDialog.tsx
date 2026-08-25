@@ -14,6 +14,8 @@ import {
   PasswordForm
 } from '../../types/profile';
 import { changePassword } from '../../api/profiles';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClose }) => {
   const [formData, setFormData] = useState<PasswordForm>({
@@ -62,13 +64,9 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({ open, onClo
         confirm_password: formData.confirmPassword
       });
       onClose();
-    } catch (err: any) {
-      console.error('Failed to change password:', err);
-      const errorMessage = err?.response?.data?.error || 
-                          err?.response?.data?.message || 
-                          err?.message || 
-                          'Failed to change password. Please check your current password.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      logger.error('Failed to change password:', err);
+      setError(getApiErrorMessage(err, 'Failed to change password. Please check your current password.'));
     } finally {
       setLoading(false);
     }

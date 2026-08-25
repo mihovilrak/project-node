@@ -17,6 +17,8 @@ import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
 import { TaskTimeLogsProps } from '../../types/task';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   const { id } = useParams<{ id: string }>();
@@ -43,12 +45,9 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
       setError(null);
       const logs = await getTaskTimeLogs(parseInt(id));
       setTimeLogs(logs || []);
-    } catch (error: any) {
-      console.error('Failed to fetch time logs:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load time logs';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch time logs:', error);
+      setError(getApiErrorMessage(error, 'Failed to load time logs'));
       setTimeLogs([]);
     } finally {
       setLoading(false);
@@ -69,12 +68,9 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
     try {
       await deleteTimeLog(timeLogId);
       fetchTimeLogs();
-    } catch (error: any) {
-      console.error('Failed to delete time log:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete time log';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete time log:', error);
+      setError(getApiErrorMessage(error, 'Failed to delete time log'));
     }
   };
 
@@ -85,7 +81,7 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
       setTimeLogDialogOpen(false);
       setSelectedTimeLog(null);
     } catch (error) {
-      console.error('Failed to submit time log:', error);
+      logger.error('Failed to submit time log:', error);
     }
   };
 

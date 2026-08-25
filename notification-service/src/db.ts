@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { config } from './config';
+import { logger } from './utils/logger';
 
 const pool = new Pool({
   ...config.db,
@@ -9,8 +10,8 @@ const pool = new Pool({
 });
 
 pool.on('error', (err: Error) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  logger.error({ err }, 'Unexpected error on idle client');
+  process.exit(1);
 });
 
 export { pool };

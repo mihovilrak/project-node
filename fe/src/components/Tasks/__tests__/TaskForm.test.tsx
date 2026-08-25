@@ -176,6 +176,7 @@ describe('TaskForm', () => {
 
   const mockTaskFormHook = {
     formData: defaultFormData,
+    fieldErrors: {},
     projects: [],
     projectMembers: [],
     projectTasks: [],

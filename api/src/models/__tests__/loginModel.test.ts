@@ -22,7 +22,7 @@ describe('LoginModel', () => {
       const result = await loginModel.login(mockPool, 'testuser', 'password123');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        `SELECT * FROM authentification($1, $2)`,
+        `SELECT * FROM authentication($1, $2)`,
         ['testuser', 'password123']
       );
       expect(result).toEqual(mockUser);

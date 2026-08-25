@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import UserTable from '../UserTable';
 import { User } from '../../../types/user';
 import { deleteUser } from '../../../api/users';
+import logger from '../../../utils/logger';
 
 // Mock the deleteUser API call
 jest.mock('../../../api/users', () => ({
@@ -196,7 +197,6 @@ describe('UserTable', () => {
   });
 
   test('handles deletion error and shows error message', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const errorMessage = 'Delete failed';
     (deleteUser as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
@@ -222,15 +222,13 @@ describe('UserTable', () => {
     }, { timeout: 3000 });
 
     // Verify error was logged
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));
     
     // Verify dialog stays open (doesn't close on error)
     expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
     
     // Verify onUserDeleted was NOT called (since deletion failed)
     expect(mockOnUserDeleted).not.toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 
   test('shows loading state while deleting', async () => {

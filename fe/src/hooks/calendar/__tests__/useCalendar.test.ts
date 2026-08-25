@@ -3,6 +3,7 @@ import { useCalendar } from '../useCalendar';
 import { getTasksByDateRange } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import { useNavigate } from 'react-router-dom';
+import logger from '../../../utils/logger';
 
 // Mock dependencies
 jest.mock('../../../api/tasks');
@@ -117,7 +118,6 @@ describe('useCalendar', () => {
   });
 
   it('should handle fetch tasks error', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getTasksByDateRange as jest.Mock).mockRejectedValueOnce(new Error('Fetch error'));
 
     const { result } = renderHook(() => useCalendar());
@@ -126,11 +126,9 @@ describe('useCalendar', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(consoleError).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalled();
     expect(result.current.tasks).toEqual([]);
     expect(result.current.loading).toBe(false);
-
-    consoleError.mockRestore();
   });
 
   it('should fetch tasks when view changes', async () => {

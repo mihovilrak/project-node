@@ -184,6 +184,35 @@ describe('TaskController', () => {
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
 
+    it('should pass array filter when status_id is comma-separated', async () => {
+      const mockTasks: any[] = [];
+      mockReq.query = { status_id: '1,2' };
+      (taskModel.getTasks as jest.Mock).mockResolvedValue(mockTasks);
+
+      await taskController.getTasks(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, expect.objectContaining({ status_id: [1, 2] }));
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should not set priority_id when value is invalid (no 500)', async () => {
+      mockReq.query = { priority_id: 'abc' };
+      (taskModel.getTasks as jest.Mock).mockResolvedValue([]);
+
+      await taskController.getTasks(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, undefined);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
     it('should handle errors appropriately', async () => {
       (taskModel.getTasks as jest.Mock).mockRejectedValue(new Error('Database error'));
 

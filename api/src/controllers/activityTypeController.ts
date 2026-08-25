@@ -7,6 +7,7 @@ import {
   ActivityTypeUpdateInput,
 } from '../types/activityType';
 import { AVAILABLE_ICONS } from '../utils/iconConstants';
+import logger from '../utils/logger';
 
 // Get all activity types
 export const getActivityTypes = async (
@@ -18,7 +19,7 @@ export const getActivityTypes = async (
     const activityTypes = await activityTypeModel.getActivityTypes(pool);
     res.status(200).json(activityTypes);
   } catch (error) {
-    console.error('Error fetching activity types:', error);
+    logger.error({ err: error }, 'Error fetching activity types');
     res.status(500).json({ error: 'Failed to fetch activity types' });
   }
 };
@@ -55,7 +56,7 @@ export const createActivityType = async (
     );
     res.status(201).json(activityType);
   } catch (error) {
-    console.error('Error creating activity type:', error);
+    logger.error({ err: error }, 'Error creating activity type');
     res.status(500).json({ error: 'Failed to create activity type' });
   }
 };
@@ -95,7 +96,7 @@ export const updateActivityType = async (
 
     res.status(200).json(activityType);
   } catch (error) {
-    console.error('Error updating activity type:', error);
+    logger.error({ err: error }, 'Error updating activity type');
     res.status(500).json({ error: 'Failed to update activity type' });
   }
 };
@@ -116,7 +117,7 @@ export const deleteActivityType = async (
 
     res.status(200).json({ message: 'Activity type deleted successfully' });
   } catch (error) {
-    console.error('Error deleting activity type:', error);
+    logger.error({ err: error }, 'Error deleting activity type');
     res.status(500).json({ error: 'Failed to delete activity type' });
   }
 };
@@ -129,7 +130,7 @@ export const getAvailableIcons = async (
   try {
     res.status(200).json(AVAILABLE_ICONS);
   } catch (error) {
-    console.error('Error fetching icons:', error);
+    logger.error({ err: error }, 'Error fetching icons');
     res.status(500).json({ error: 'Failed to fetch icons' });
   }
 };

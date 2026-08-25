@@ -5,6 +5,8 @@ import {
   addTaskWatcher,
   removeTaskWatcher
 } from '../../api/watchers';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskWatchers = (taskId: string) => {
   const [watchers, setWatchers] = useState<TaskWatcher[]>([]);
@@ -14,8 +16,8 @@ export const useTaskWatchers = (taskId: string) => {
     try {
       const watcherData = await getTaskWatchers(Number(taskId));
       setWatchers(watcherData || []);
-    } catch (error: any) {
-      console.error('Failed to fetch watchers:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch watchers:', error);
       setWatchers([]);
     }
   };
@@ -32,7 +34,7 @@ export const useTaskWatchers = (taskId: string) => {
       await addTaskWatcher(Number(taskId), userId);
       await fetchWatchers();
     } catch (error: any) {
-      console.error('Failed to add watcher:', error);
+      logger.error('Failed to add watcher:', error);
       const errorMessage = error?.response?.data?.error || 
                           error?.message || 
                           'Failed to add watcher';
@@ -47,12 +49,9 @@ export const useTaskWatchers = (taskId: string) => {
 
       await removeTaskWatcher(Number(taskId), userId);
       await fetchWatchers();
-    } catch (error: any) {
-      console.error('Failed to remove watcher:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to remove watcher';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to remove watcher:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to remove watcher'));
     }
   };
 

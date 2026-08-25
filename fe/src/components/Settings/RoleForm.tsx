@@ -42,30 +42,46 @@ export const RoleForm: React.FC<RoleFormProps> = ({
           Permissions
         </Typography>
         {groupedPermissions && Object.keys(groupedPermissions).length > 0 ? (
-          Object.entries(groupedPermissions).map(([category, permissions]) => (
-            <Box key={category || Math.random()} sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                {category || 'Unknown'}
-              </Typography>
-              <Box sx={{ ml: 2 }}>
-                {(permissions || []).map(permission => {
-                  if (!permission?.id) return null;
-                  return (
-                    <FormControlLabel
-                      key={permission.id}
-                      control={
-                        <Checkbox
-                          checked={(formData?.permissions || []).includes(permission.id)}
-                          onChange={() => onPermissionToggle(permission)}
-                        />
-                      }
-                      label={permission?.name || 'Unknown Permission'}
-                    />
-                  );
-                })}
+          (() => {
+            const entries = Object.entries(groupedPermissions);
+            const mid = Math.ceil(entries.length / 2);
+            const leftColumn = entries.slice(0, mid);
+            const rightColumn = entries.slice(mid);
+            const renderCategory = (category: string, permissions: typeof entries[0][1]) => (
+              <Box key={category || Math.random()} sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                  {category || 'Unknown'}
+                </Typography>
+                <Box sx={{ ml: 2 }}>
+                  {(permissions || []).map(permission => {
+                    if (!permission?.id) return null;
+                    return (
+                      <FormControlLabel
+                        key={permission.id}
+                        control={
+                          <Checkbox
+                            checked={(formData?.permissions || []).includes(permission.id)}
+                            onChange={() => onPermissionToggle(permission)}
+                          />
+                        }
+                        label={permission?.name || 'Unknown Permission'}
+                      />
+                    );
+                  })}
+                </Box>
               </Box>
-            </Box>
-          ))
+            );
+            return (
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  {leftColumn.map(([category, permissions]) => renderCategory(category, permissions))}
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  {rightColumn.map(([category, permissions]) => renderCategory(category, permissions))}
+                </Grid>
+              </Grid>
+            );
+          })()
         ) : (
           <Typography variant="body2" color="text.secondary">
             No permissions available

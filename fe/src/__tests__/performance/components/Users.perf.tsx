@@ -12,6 +12,11 @@ jest.mock('../../../api/users', () => ({
   deleteUser: jest.fn()
 }));
 
+// Mock usePermission so delete/edit buttons are rendered
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
+}));
+
 // Mock user data
 const mockUsers: User[] = Array.from({ length: 20 }, (_, index) => ({
   id: index + 1,
@@ -152,22 +157,16 @@ describe('Users Component Performance Tests', () => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
     }, { timeout: 10000 });
 
-    // Mock window.confirm
-    const originalConfirm = window.confirm;
-    window.confirm = jest.fn(() => true);
-
-    const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
+    const deleteButton = screen.getByTestId('delete-user-1');
     const startTime = performance.now();
 
-    // Delete first user
-    fireEvent.click(deleteButtons[0]);
+    // Delete first user (Users component uses DeleteConfirmDialog, no window.confirm)
+    fireEvent.click(deleteButton);
+    await screen.findByTestId('confirm-delete-button');
 
     const endTime = performance.now();
     const deleteDuration = endTime - startTime;
 
     expect(deleteDuration).toBeLessThan(600); // Deletion should be under 600ms (increased threshold for test environments)
-
-    // Restore window.confirm
-    window.confirm = originalConfirm;
   }, 15000);
 });

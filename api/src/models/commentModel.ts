@@ -7,9 +7,7 @@ export const getTaskComments = async (
   taskId: string
 ): Promise<CommentWithUser[]> => {
   const result = await pool.query(
-    `SELECT * FROM v_comments
-    WHERE task_id = $1
-    ORDER BY created_on DESC`,
+    'SELECT * FROM get_task_comments($1)',
     [taskId]
   );
   return result.rows;
@@ -37,11 +35,9 @@ export const commentWithUser = async (
   id: string
 ): Promise<CommentWithUser | null> => {
   const result = await pool.query(
-    `SELECT * FROM v_comments
-    WHERE id = $1`,
+    'SELECT * FROM get_comment_by_id($1)',
     [id]
   );
-
   return result.rows[0] || null;
 };
 
@@ -59,10 +55,9 @@ export const editComment = async (
     [id, comment]
   );
   
-  // Fetch the updated comment with user details from v_comments view
+  // Fetch the updated comment with user details
   const result = await pool.query(
-    `SELECT * FROM v_comments
-    WHERE id = $1`,
+    'SELECT * FROM get_comment_by_id($1)',
     [id]
   );
   

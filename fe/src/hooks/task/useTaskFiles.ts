@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TaskFile } from '../../types/file';
 import { getTaskFiles, uploadFile, deleteFile } from '../../api/files';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskFiles = (taskId: string) => {
   const [files, setFiles] = useState<TaskFile[]>([]);
@@ -10,8 +12,8 @@ export const useTaskFiles = (taskId: string) => {
     try {
       const filesData = await getTaskFiles(Number(taskId));
       setFiles(filesData || []);
-    } catch (error: any) {
-      console.error('Failed to fetch files:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch files:', error);
       setFiles([]);
     }
   }, [taskId]);
@@ -35,12 +37,9 @@ export const useTaskFiles = (taskId: string) => {
       }
       await refreshFiles(); // Refresh files after upload
       return uploadedFile;
-    } catch (error: any) {
-      console.error('Failed to upload file:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to upload file';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to upload file:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to upload file'));
     }
   };
 
@@ -51,12 +50,9 @@ export const useTaskFiles = (taskId: string) => {
 
       await deleteFile(Number(taskId), fileId);
       setFiles(prev => prev.filter(file => file?.id !== fileId));
-    } catch (error: any) {
-      console.error('Failed to delete file:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete file';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete file:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to delete file'));
     }
   };
 

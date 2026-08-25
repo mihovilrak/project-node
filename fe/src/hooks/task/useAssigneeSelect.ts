@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getProjectMembers } from '../../api/projects';
 import { ProjectMember } from '../../types/project';
+import logger from '../../utils/logger';
 
 export const useAssigneeSelect = (projectId?: number | null) => {
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
@@ -12,7 +13,7 @@ export const useAssigneeSelect = (projectId?: number | null) => {
           const membersData = await getProjectMembers(projectId);
           setProjectMembers(membersData);
         } catch (error) {
-          console.error('Error fetching project members:', error);
+          logger.error('Error fetching project members:', error);
         }
       }
     };

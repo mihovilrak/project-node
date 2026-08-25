@@ -12,13 +12,18 @@ export const AssigneeSelect: React.FC<{
   projectMembers: ProjectMember[];
   formData: TaskFormState;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}> = ({ label, name, projectMembers, formData, handleChange }) => (
+}> = ({ label, name, projectMembers, formData, handleChange }) => {
+  const raw = formData[name as keyof TaskFormState];
+  const value = (name === 'holder_id' || name === 'assignee_id')
+    ? (raw == null || raw === '' ? '' : (Number.isNaN(Number(raw)) ? '' : Number(raw)))
+    : (raw ?? '');
+  return (
   <TextField
     select
     fullWidth
     label={label}
     name={name}
-    value={formData[name as keyof TaskFormState] || ''}
+    value={value}
     onChange={handleChange}
     sx={{ mb: 2 }}
   >
@@ -32,4 +37,5 @@ export const AssigneeSelect: React.FC<{
       );
     })}
   </TextField>
-);
+  );
+};

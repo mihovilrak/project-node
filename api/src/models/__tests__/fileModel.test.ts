@@ -1,10 +1,13 @@
 import { Pool } from 'pg';
 import * as fileModel from '../fileModel';
+import * as taskModel from '../taskModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
   Pool: jest.fn()
 }));
+
+jest.mock('../taskModel');
 
 describe('FileModel', () => {
   let mockPool: jest.Mocked<Pool>;
@@ -149,6 +152,40 @@ describe('FileModel', () => {
         expect.stringContaining('DELETE FROM files'),
         ['1']
       );
+    });
+  });
+
+  describe('canUserAccessFile', () => {
+    it('should return true when user is project member', async () => {
+      const mockFile = { id: 1, task_id: 10, user_id: 1 };
+      (mockPool.query as jest.Mock)
+        .mockResolvedValueOnce(mockQueryResult([mockFile]))
+        .mockResolvedValueOnce({ rows: [{ 1: 1 }], rowCount: 1 });
+      (taskModel.getTaskById as jest.Mock).mockResolvedValue({ id: 10, project_id: 5 });
+
+      const result = await fileModel.canUserAccessFile(mockPool, '1', '1');
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when file not found', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+
+      const result = await fileModel.canUserAccessFile(mockPool, '1', '999');
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user is not project member', async () => {
+      const mockFile = { id: 1, task_id: 10, user_id: 1 };
+      (mockPool.query as jest.Mock)
+        .mockResolvedValueOnce(mockQueryResult([mockFile]))
+        .mockResolvedValueOnce({ rows: [], rowCount: 0 });
+      (taskModel.getTaskById as jest.Mock).mockResolvedValue({ id: 10, project_id: 5 });
+
+      const result = await fileModel.canUserAccessFile(mockPool, '99', '1');
+
+      expect(result).toBe(false);
     });
   });
 });

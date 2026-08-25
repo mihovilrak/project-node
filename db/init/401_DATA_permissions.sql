@@ -10,4 +10,4 @@ insert into permissions (name) values
     ('Edit log'),
     ('Delete log'),
     ('Delete files')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

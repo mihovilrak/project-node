@@ -6,6 +6,8 @@ import {
   removeProjectMember,
   addProjectMember
 } from '../../api/projects';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useProjectMembers = (projectId: string): ProjectMembersHook => {
   const [members, setMembers] = useState<ProjectMember[]>([]);
@@ -16,7 +18,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       const membersData = await getProjectMembers(Number(projectId));
       setMembers(membersData || []);
     } catch (error) {
-      console.error('Failed to load members:', error);
+      logger.error('Failed to load members:', error);
       setMembers([]);
       throw error;
     }
@@ -29,12 +31,9 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
         member?.user_id === memberId ? { ...member, role } : member
       );
       setMembers(updatedMembers);
-    } catch (error: any) {
-      console.error('Failed to update member role:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to update member role';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to update member role:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to update member role'));
     }
   };
 
@@ -43,12 +42,9 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
       await removeProjectMember(Number(projectId), memberId);
       const updatedMembers = members.filter(member => member?.user_id !== memberId);
       setMembers(updatedMembers);
-    } catch (error: any) {
-      console.error('Failed to remove member:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to remove member';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to remove member:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to remove member'));
     }
   };
 
@@ -72,7 +68,7 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
 
       await loadMembers();
     } catch (error) {
-      console.error('Failed to update members:', error);
+      logger.error('Failed to update members:', error);
       throw error;
     }
   };

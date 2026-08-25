@@ -37,9 +37,10 @@ export interface ProjectDetails extends Project {
 }
 
 export interface ProjectStatus {
-  id: string;
+  id: number;
   name: string;
-  order: number;
+  color?: string;
+  order?: number;
 }
 
 export interface ProjectCreateInput {

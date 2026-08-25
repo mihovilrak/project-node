@@ -23,6 +23,8 @@ import {
   addProjectMember,
   removeProjectMember
 } from '../../../api/projects';
+import logger from '../../../utils/logger';
+import getApiErrorMessage from '../../../utils/getApiErrorMessage';
 
 const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
   projectId,
@@ -72,12 +74,9 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
       setEditDialogOpen(false);
       // Clear any previous errors when successful
       setError('');
-    } catch (error: any) {
-      console.error('Failed to update members:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to update project members';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to update members:', error);
+      setError(getApiErrorMessage(error, 'Failed to update project members'));
       // Keep dialog open when there's an error
     }
   };

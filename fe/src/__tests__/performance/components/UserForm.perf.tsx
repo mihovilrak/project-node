@@ -26,6 +26,7 @@ jest.mock('../../../hooks/user/useUserForm', () => ({
   useUserForm: () => ({
     loading: false,
     error: null,
+    fieldErrors: {},
     roles: [
       { id: 1, name: 'Admin' },
       { id: 2, name: 'Developer' },

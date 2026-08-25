@@ -1,5 +1,5 @@
 create or replace function change_project_status(project_id integer)
-returns table(message text) as $$
+returns table(message text) as $function$
     begin
 
         -- Update the active status of the given project
@@ -26,4 +26,4 @@ returns table(message text) as $$
             where id = $1;
 
     end;
-$$ language plpgsql;
+$function$ language plpgsql;

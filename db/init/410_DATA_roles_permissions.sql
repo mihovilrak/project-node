@@ -17,4 +17,4 @@ insert into roles_permissions (role_id, permission_id) values
     (3, 9),
     (3, 10),
     (4, 8)
-    on conflict (role_id, permission_id) do nothing;
+on conflict (role_id, permission_id) do nothing;

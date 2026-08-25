@@ -1,5 +1,6 @@
 create table if not exists user_settings (
-    user_id int primary key references users(id),
+    id int primary key generated always as identity not null,
+    user_id int unique references users(id) not null,
     theme varchar(255) not null default 'light',
     language varchar(255) not null default 'en',
     notifications_enabled boolean not null default true,

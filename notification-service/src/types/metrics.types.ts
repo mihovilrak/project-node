@@ -7,5 +7,6 @@ export interface Metrics {
   lastProcessingTime: Date | null;
   increment(metric: MetricType): void;
   setProcessingTime(): void;
+  scheduleLogMetrics(): void;
   logMetrics(): void;
 }

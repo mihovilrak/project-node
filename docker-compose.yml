@@ -2,6 +2,7 @@ x-db: &db
   POSTGRES_DB: ${POSTGRES_DB}
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD}
 
 x-defaults: &defaults
   networks:
@@ -24,13 +25,14 @@ services:
 
   app:
     <<: *defaults
-    image: pm:latest
+    image: ghcr.io/mihovilrak/project-node:latest
     container_name: pm_app
     environment:
       <<: *db
       POSTGRES_HOST: db
       NODE_ENV: ${NODE_ENV}
       SESSION_SECRET: ${SESSION_SECRET}
+      FE_URL: ${FE_URL}
       EMAIL_ENABLED: ${EMAIL_ENABLED}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}

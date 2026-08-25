@@ -3,6 +3,7 @@ import { useProjectOverview } from '../useProjectOverview';
 import { getSubprojects } from '../../../api/projects';
 import { Project } from '../../../types/project';
 import { useNavigate } from 'react-router-dom';
+import logger from '../../../utils/logger';
 
 // Mock dependencies
 jest.mock('../../../api/projects');
@@ -82,7 +83,6 @@ describe('useProjectOverview', () => {
   it('should handle error during subprojects fetch', async () => {
     const error = new Error('Failed to fetch subprojects');
     (getSubprojects as jest.Mock).mockRejectedValue(error);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useProjectOverview(1));
 
@@ -90,10 +90,8 @@ describe('useProjectOverview', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch subprojects:', error);
+    expect(logger.error).toHaveBeenCalledWith('Failed to fetch subprojects:', error);
     expect(result.current.subprojects).toEqual([]);
-
-    consoleSpy.mockRestore();
   });
 
   it('should navigate to new project page with parent ID when adding subproject', () => {

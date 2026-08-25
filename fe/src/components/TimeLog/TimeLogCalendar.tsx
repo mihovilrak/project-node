@@ -8,6 +8,8 @@ import {
 import { getProjectTimeLogs } from '../../api/timeLogs';
 import { TimeLog, TimeLogCalendarProps } from '../../types/timeLog';
 import { useTimeLogCalendar } from '../../hooks/timeLog/useTimeLogCalendar';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import TimeLogCalendarHeader from './TimeLogCalendarHeader';
 import TimeLogCalendarGrid from './TimeLogCalendarGrid';
 
@@ -42,12 +44,9 @@ const TimeLogCalendar: React.FC<TimeLogCalendarProps> = ({ projectId }) => {
       setError(null);
       const logs = await getProjectTimeLogs(projectId);
       setTimeLogs(logs || []);
-    } catch (error: any) {
-      console.error('Failed to fetch time logs:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load time logs';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch time logs:', error);
+      setError(getApiErrorMessage(error, 'Failed to load time logs'));
       setTimeLogs([]);
     } finally {
       setLoading(false);

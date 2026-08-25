@@ -1,6 +1,6 @@
 import React from 'react';
-import { TextField, MenuItem } from '@mui/material';
-import {TaskStatusSelectProps } from '../../../types/task';
+import { TextField, MenuItem, Box } from '@mui/material';
+import { TaskStatusSelectProps } from '../../../types/task';
 
 export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
   formData,
@@ -19,7 +19,20 @@ export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
   >
     {statuses.map((status) => (
       <MenuItem key={status.id} value={status.id}>
-        {status.name}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {status.color && (
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: 0.5,
+                backgroundColor: status.color,
+                flexShrink: 0
+              }}
+            />
+          )}
+          {status.name}
+        </Box>
       </MenuItem>
     ))}
   </TextField>

@@ -10,7 +10,7 @@ returns table (
     due_date date,
     parent_id integer,
     parent_name character varying,
-    status_id integer,
+    status_id smallint,
     status_name character varying,
     created_by integer,
     created_by_name character varying,
@@ -18,7 +18,7 @@ returns table (
     estimated_time numeric,
     spent_time numeric,
     progress numeric
-) as $$
+) as $function$
 
 declare
     proj_estimated_time numeric;
@@ -32,27 +32,29 @@ begin
 
     return query
         select p.id,
-               p.name,
-               p.description,
-               p.start_date,
-               p.end_date,
-               p.due_date,
-               p.parent_id,
-               pt.name as parent_name,
-               p.status_id,
-               ps.name as status_name,
-               p.created_by,
-               u.name as created_by_name,
-               p.created_on,
-               coalesce(proj_estimated_time, 0) as estimated_time,
-               coalesce(pst.spent_time, 0) as spent_time,
-               coalesce(pp.progress, 0) as progress
+            p.name,
+            p.description,
+            p.start_date,
+            p.end_date,
+            p.due_date,
+            p.parent_id,
+            pt.name as parent_name,
+            p.status_id,
+            ps.name as status_name,
+            p.created_by,
+            u.name as created_by_name,
+            p.created_on,
+            coalesce(proj_estimated_time, 0) as estimated_time,
+            coalesce(pst.spent_time, 0) as spent_time,
+            coalesce(pp.progress, 0)::numeric as progress
           from projects p
           left join projects pt on pt.id = p.parent_id
           left join project_statuses ps on ps.id = p.status_id
           left join users u on u.id = p.created_by
-          left join v_project_spent_time pst on pst.id = p.id
-          left join v_project_progress pp on pp.id = p.id
+          left join lateral get_project_spent_time(p.id) pst on true
+          left join lateral get_project_progress(p.id) pp on true
           where p.id = proj_id;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

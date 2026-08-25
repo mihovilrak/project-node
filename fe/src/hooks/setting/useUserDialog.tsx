@@ -8,6 +8,8 @@ import {
 } from '../../types/user';
 import { createUser, updateUser, fetchRoles } from '../../api/users';
 import { Role } from '../../types/role';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useUserDialog = (
   user: User | null | undefined,
@@ -45,7 +47,7 @@ export const useUserDialog = (
             }));
           }
         } catch (error) {
-          console.error('Failed to fetch roles:', error);
+          logger.error('Failed to fetch roles:', error);
           setError('Failed to load roles');
         } finally {
           setRolesLoading(false);
@@ -146,8 +148,8 @@ export const useUserDialog = (
       }
       onUserSaved(savedUser);
       onClose();
-    } catch (error: any) {
-      setError(error.message || 'Failed to save user');
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Failed to save user'));
     }
   };
 

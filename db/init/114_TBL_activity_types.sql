@@ -1,7 +1,7 @@
 create table if not exists activity_types (
-    id serial primary key not null,
+    id int2 primary key generated always as identity not null,
     name varchar(50) unique not null,
-    color varchar(7) not null,  -- Hex color code
+    color varchar(7) not null,
     description text null,
     icon varchar(50) null,
     active boolean default true not null,

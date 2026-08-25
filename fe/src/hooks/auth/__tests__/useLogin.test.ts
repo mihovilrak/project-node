@@ -60,8 +60,8 @@ describe('useLogin', () => {
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
-    // Mock successful login
-    mockLogin.mockResolvedValueOnce(undefined);
+    // Mock successful login - login() now returns boolean
+    mockLogin.mockResolvedValueOnce(true);
 
     await act(async () => {
       await result.current.handleSubmit({
@@ -75,10 +75,14 @@ describe('useLogin', () => {
   });
 
   it('should set error message on login failure', async () => {
-    const { result } = renderHook(() => useLogin());
+    // Mock failed login - login() returns false and context provides error
+    (useAuth as jest.Mock).mockReturnValue({
+      login: mockLogin,
+      error: 'Login failed. Please check your credentials.'
+    });
+    mockLogin.mockResolvedValueOnce(false);
 
-    // Mock failed login
-    mockLogin.mockRejectedValueOnce(new Error('Login failed'));
+    const { result } = renderHook(() => useLogin());
 
     await act(async () => {
       await result.current.handleSubmit({
@@ -87,7 +91,7 @@ describe('useLogin', () => {
     });
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    expect(result.current.error).toBe('Login error. Please try again.');
+    expect(result.current.error).toBe('Login failed. Please check your credentials.');
   });
 
   it('should prevent default form submission', async () => {

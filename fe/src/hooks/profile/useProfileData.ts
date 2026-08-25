@@ -10,6 +10,8 @@ import { Task } from '../../types/task';
 import { Project } from '../../types/project';
 import { ProfileStats, ProfileUpdateData, ProfileData } from '../../types/profile';
 import { useNavigate } from 'react-router-dom';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const DEFAULT_STATS: ProfileStats = {
   totalTasks: 0,
@@ -54,23 +56,20 @@ export const useProfileData = () => {
 
       const [tasksData, projectsData] = await Promise.all([
         getRecentTasks().catch(err => {
-          console.error('Failed to fetch recent tasks:', err);
+          logger.error('Failed to fetch recent tasks:', err);
           return [];
         }),
         getRecentProjects().catch(err => {
-          console.error('Failed to fetch recent projects:', err);
+          logger.error('Failed to fetch recent projects:', err);
           return [];
         })
       ]);
 
       setRecentTasks(tasksData || []);
       setRecentProjects(projectsData || []);
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || 
-                          err?.message || 
-                          'Failed to load profile data';
-      setError(errorMessage);
-      console.error('Error fetching profile data:', err);
+    } catch (err: unknown) {
+      logger.error('Error fetching profile data:', err);
+      setError(getApiErrorMessage(err, 'Failed to load profile data'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +83,7 @@ export const useProfileData = () => {
       setUpdateSuccess(true);
       setTimeout(() => setUpdateSuccess(false), 3000);
     } catch (err) {
-      console.error('Failed to update profile:', err);
+      logger.error('Failed to update profile:', err);
     }
   };
 

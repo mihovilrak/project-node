@@ -3,6 +3,7 @@ import { useTaskDetailsHandlers } from '../useTaskDetailsHandlers';
 import { Comment } from '../../../types/comment';
 import { TaskStatus } from '../../../types/task';
 import { TimeLogCreate, TimeLog } from '../../../types/timeLog';
+import logger from '../../../utils/logger';
 
 describe('useTaskDetailsHandlers', () => {
   const mockComment: Comment = {
@@ -170,7 +171,6 @@ describe('useTaskDetailsHandlers', () => {
     };
     const error = new Error('Failed to submit time log');
     const mockOnSubmit = jest.fn().mockRejectedValue(error);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
     const { result } = renderHook(() => useTaskDetailsHandlers());
 
     await act(async () => {
@@ -178,11 +178,9 @@ describe('useTaskDetailsHandlers', () => {
     });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(mockTimeLogData);
-    expect(consoleSpy).toHaveBeenCalledWith('Error handling time log:', error);
+    expect(logger.error).toHaveBeenCalledWith('Error handling time log:', error);
     expect(result.current.state.timeLogDialogOpen).toBe(true);
     expect(result.current.state.selectedTimeLog).toBeNull();
-
-    consoleSpy.mockRestore();
   });
 
   it('should handle watcher dialog', () => {

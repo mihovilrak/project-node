@@ -17,6 +17,7 @@ export interface Task {
   type_name?: string;
   status_id: number;
   status_name?: string;
+  status_color?: string;
   priority_id: number;
   priority_name?: string;
   start_date: Date;
@@ -46,8 +47,8 @@ export interface TaskStatus {
   name: string;
   color: string;
   description?: string | null;
-  active: boolean;
-  created_on: Date;
+  active?: boolean;
+  created_on?: Date;
   updated_on?: Date | null;
 }
 
@@ -119,11 +120,23 @@ export interface TaskQueryFilters {
   whereParams?: {
     [key: string]: number | string;
   };
-  project_id?: number;
-  assignee_id?: number;
-  holder_id?: number;
-  status_id?: number;
-  priority_id?: number;
-  type_id?: number;
+  id?: number;
+  project_id?: number | number[];
+  assignee_id?: number | number[];
+  holder_id?: number | number[];
+  status_id?: number | number[];
+  priority_id?: number | number[];
+  type_id?: number | number[];
   parent_id?: number;
+  created_by?: number | number[];
+  due_date_from?: string;
+  due_date_to?: string;
+  start_date_from?: string;
+  start_date_to?: string;
+  created_from?: string;
+  created_to?: string;
+  estimated_time_min?: number;
+  estimated_time_max?: number;
+  inactive_statuses_only?: boolean;
+  active_statuses_only?: boolean;
 }

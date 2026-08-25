@@ -17,6 +17,8 @@ import {
   ProfileEditDialogProps,
   FormData
 } from '../../types/profile';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 
 const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
@@ -57,13 +59,9 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       const updatedProfile = await updateProfile(formData);
       await onProfileUpdate(updatedProfile);
       onClose();
-    } catch (err: any) {
-      console.error('Failed to update profile:', err);
-      const errorMessage = err?.response?.data?.error || 
-                          err?.response?.data?.message || 
-                          err?.message || 
-                          'Failed to update profile';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      logger.error('Failed to update profile:', err);
+      setError(getApiErrorMessage(err, 'Failed to update profile'));
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,8 @@ import {
 import { updateProject } from '../../api/projects';
 import { ProjectEditDialogProps } from '../../types/project';
 import { useProjectEdit } from '../../hooks/project/useProjectEdit';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
   open,
@@ -47,12 +49,9 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
       const updatedProject = await updateProject(project.id, formData);
       onSaved(updatedProject);
       onClose();
-    } catch (err: any) {
-      console.error('Error updating project:', err);
-      const errorMessage = err?.response?.data?.error || 
-                          err?.message || 
-                          'Failed to update project';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      logger.error('Error updating project:', err);
+      setError(getApiErrorMessage(err, 'Failed to update project'));
     } finally {
       setLoading(false);
     }

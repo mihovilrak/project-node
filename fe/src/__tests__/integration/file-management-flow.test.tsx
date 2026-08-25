@@ -7,6 +7,7 @@ import { TaskFile } from '../../types/file';
 import { Task } from '../../types/task';
 import { User } from '../../types/user';
 import { downloadFile } from '../../api/files';
+import logger from '../../utils/logger';
 
 const MockFileList: React.FC<{
   files: TaskFile[];
@@ -25,7 +26,7 @@ const MockFileList: React.FC<{
               try {
                 downloadFile(taskId, file.id);
               } catch (error) {
-                console.error('Download failed:', error);
+                logger.error('Download failed:', error);
               }
             }}
           >
@@ -37,7 +38,7 @@ const MockFileList: React.FC<{
               try {
                 onFileDeleted(file.id);
               } catch (error) {
-                console.error('Delete failed:', error);
+                logger.error('Delete failed:', error);
               }
             }}
           >
@@ -73,7 +74,7 @@ const MockFileUpload: React.FC<{
         // Simulate API call - wrapped in try/catch for error tests
         onFileUploaded(mockFile);
       } catch (error) {
-        console.error('Upload failed:', error);
+        logger.error('Upload failed:', error);
       }
     }
   };
@@ -263,7 +264,6 @@ describe('File Management Integration Tests', () => {
     });
 
     const user = userEvent.setup();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     // Act
     render(
@@ -278,14 +278,11 @@ describe('File Management Integration Tests', () => {
 
     // Assert - Check for error message
     expect(onFileUploaded).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith('Upload failed:', expect.any(Error));
     await waitFor(() => {
       expect(screen.getByTestId('upload-error')).toBeInTheDocument();
       expect(screen.getByTestId('upload-error')).toHaveTextContent('Error: Upload failed');
     });
-
-    // Restore console.error
-    (console.error as jest.Mock).mockRestore();
   });
 
   test('should handle file deletion error', async () => {
@@ -301,7 +298,6 @@ describe('File Management Integration Tests', () => {
     });
 
     const user = userEvent.setup();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     // Act
     render(
@@ -317,13 +313,10 @@ describe('File Management Integration Tests', () => {
 
     // Assert - Check for error message with unique test ID
     expect(onFileDeleted).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith('Delete failed:', expect.any(Error));
     await waitFor(() => {
       expect(screen.getByTestId('delete-error')).toBeInTheDocument();
       expect(screen.getByTestId('delete-error')).toHaveTextContent('Error: Deletion failed');
     });
-
-    // Restore console.error
-    (console.error as jest.Mock).mockRestore();
   });
 });

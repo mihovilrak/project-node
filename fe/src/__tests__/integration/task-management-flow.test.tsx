@@ -250,6 +250,11 @@ describe('Task Management Flow', () => {
         });
       }
 
+      // Users endpoint (list)
+      if (normalizedUrl === 'users' || normalizedUrl.startsWith('users?')) {
+        return Promise.resolve({ data: [] });
+      }
+
       // Default fallback for any other endpoint - return empty array to prevent filter errors
       console.log(`Mock not found for GET ${url}`);
       return Promise.resolve({ data: [] });
@@ -309,7 +314,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Check that tasks are displayed
@@ -319,8 +324,10 @@ describe('Task Management Flow', () => {
 
     // Instead of trying to create a task (which requires complex form interactions),
     // we'll verify that our mocked API data is properly displayed in the component
-    expect(screen.getByText('Project: Test Project')).toBeInTheDocument();
-    expect(screen.getByText('Details')).toBeInTheDocument();
+    expect(screen.getByText('Test Project')).toBeInTheDocument();
+    // Task name is rendered as a link to task details in the current UI
+    const taskLink = screen.getByRole('link', { name: 'Test Task' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
 
     // Test that priority and status are displayed
     expect(screen.getByTestId('status-chip')).toHaveTextContent('To Do');
@@ -393,12 +400,12 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButton = await screen.findByText('Details');
-    await user.click(detailsButton);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Verify the task data is displayed correctly
     expect(screen.getByText('Test Task')).toBeInTheDocument();
@@ -457,12 +464,12 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButton = await screen.findByText('Details');
-    await user.click(detailsButton);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Because we are only mocking the task data and not rendering the full TaskDetails component in this test,
     // we'll verify the API was called correctly
@@ -503,23 +510,23 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify initial task list is displayed
     expect(screen.getByText('Test Task')).toBeInTheDocument();
 
-    // Get search input and type in it
-    const searchInput = screen.getByLabelText(/search/i);
-    await user.type(searchInput, 'Test Task');
+    // Expand filters and add Search filter, then type in the value input (textbox)
+    await user.click(screen.getByRole('button', { name: /expand filters/i }));
+    await user.click(screen.getByTestId('add-filter-search'));
+    const filterPanel = screen.getByTestId('filter-panel');
+    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
+    await user.type(searchValueInput, 'Test Task');
 
-    // Wait for the search results
-    await waitFor(() => {
-      // Verify the search mock was called
-      expect(searchMock).toHaveBeenCalled();
-    }, { timeout: 5000 });
+    // Apply filters (search is applied client-side)
+    await user.click(screen.getByRole('button', { name: /apply filters/i }));
 
-    // Verify the task is still displayed (after search)
+    // Verify the task is still displayed (filtered by search term)
     expect(screen.getByText('Test Task')).toBeInTheDocument();
   }, 20000); // Increased timeout to 20 seconds
 
@@ -542,7 +549,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify API is set up for watchers operations
@@ -570,7 +577,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify task list loads correctly
@@ -604,7 +611,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed
@@ -639,7 +646,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed
@@ -657,7 +664,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed
@@ -709,7 +716,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed
@@ -845,12 +852,12 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
-    // Open task details
-    const detailsButtons = await screen.findAllByRole('button', { name: /details/i });
-    await user.click(detailsButtons[0]);
+    // Open task details by clicking the task name link
+    const taskLink = await screen.findByRole('link', { name: 'Test Task' });
+    await user.click(taskLink);
 
     // Instead of testing exact API calls (which can be brittle),
     // verify that we can see our test task is displayed correctly
@@ -861,7 +868,7 @@ describe('Task Management Flow', () => {
     expect(mockedApi.get).toHaveBeenCalled();
 
     // Make sure the component renders successfully by checking some basic elements
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
 
     // Verify we have at least one button
     const buttons = screen.getAllByRole('button');
@@ -899,7 +906,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed
@@ -925,7 +932,7 @@ describe('Task Management Flow', () => {
 
     // Wait for loading to finish
     await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
     });
 
     // Verify tasks are displayed

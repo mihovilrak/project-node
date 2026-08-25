@@ -6,6 +6,7 @@ import { SystemSettingsState } from '../../../types/setting';
 import { BrowserRouter } from 'react-router-dom';
 import { getActiveTasks } from '../../../api/tasks';
 import { ThemeProvider, createTheme } from '@mui/material';
+import AuthProvider from '../../../context/AuthContext';
 
 jest.mock('../../../hooks/setting/useSystemSettings');
 jest.mock('../../../api/tasks');
@@ -40,7 +41,9 @@ describe('Home', () => {
     return render(
       <BrowserRouter>
         <ThemeProvider theme={mockTheme}>
-          {component}
+          <AuthProvider>
+            {component}
+          </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
     );
@@ -56,6 +59,9 @@ describe('Home', () => {
           welcome_message: ''
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -79,6 +85,9 @@ describe('Home', () => {
           welcome_message: testMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -101,6 +110,9 @@ describe('Home', () => {
           welcome_message: testMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -123,6 +135,9 @@ describe('Home', () => {
           welcome_message: ''
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });
@@ -135,15 +150,18 @@ describe('Home', () => {
 
   it('sanitizes HTML in welcome message', async () => {
     const mockUseSystemSettings = useSystemSettings as jest.MockedFunction<typeof useSystemSettings>;
-    const testMessage = '<h1>Safe</h1><script>alert("unsafe")</script>';
+    const unsafeMessage = '<h1>Safe</h1><script>alert("unsafe")</script>';
     mockUseSystemSettings.mockReturnValue({
       state: {
         ...DEFAULT_SETTINGS,
         settings: {
           ...DEFAULT_SETTINGS.settings,
-          welcome_message: '<h1>Safe</h1>'
+          welcome_message: unsafeMessage
         }
       },
+      timezones: [],
+      timezonesLoading: false,
+      timezonesError: null,
       handleSubmit: jest.fn(),
       handleChange: jest.fn()
     });

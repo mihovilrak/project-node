@@ -7,6 +7,7 @@ import { getProjects } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
 import { getUsers } from '../../api/users';
 import { getActivityTypes } from '../../api/activityTypes';
+import logger from '../../utils/logger';
 
 export const useTimeLogData = ({
   open,
@@ -28,7 +29,7 @@ export const useTimeLogData = ({
         ]);
         setActivityTypes(activityTypesData);
       } catch (error) {
-        console.error('Error loading data:', error);
+        logger.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -58,7 +59,7 @@ export const useTimeLogData = ({
           setTasks(projectTasks);
         }
       } catch (error) {
-        console.error('Error loading projects and tasks:', error);
+        logger.error('Error loading projects and tasks:', error);
       } finally {
         setIsLoading(false);
       }
@@ -74,7 +75,7 @@ export const useTimeLogData = ({
         const projectTasks = await getProjectTasks(projectId);
         setTasks(projectTasks);
       } catch (error) {
-        console.error('Error loading tasks:', error);
+        logger.error('Error loading tasks:', error);
       } finally {
         setIsLoading(false);
       }

@@ -1,47 +1,22 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import { Pool } from 'pg';
 import * as userController from '../controllers/userController';
 import * as timeLogController from '../controllers/timeLogController';
+import { withPool } from '../utils/withPool';
 
 // User routes
 export default (pool: Pool): Router => {
   const router = Router();
 
-  // Get all users with optional filters
-  router.get('/', ((req, res) =>
-    userController.getUsers(req, res, pool)) as RequestHandler);
-
-  // Get user statuses (must be before /:id)
-  router.get('/statuses', ((req, res) =>
-    userController.getUserStatuses(req, res, pool)) as RequestHandler);
-
-  // Get user permissions
-  router.get('/permissions', ((req, res) =>
-    userController.getUserPermissions(req, res, pool)) as RequestHandler);
-
-  // Get user by ID
-  router.get('/:id', ((req, res) =>
-    userController.getUserById(req, res, pool)) as RequestHandler);
-
-  // Create a new user
-  router.post('/', ((req, res) =>
-    userController.createUser(req, res, pool)) as RequestHandler);
-
-  // Edit a user
-  router.put('/:id', ((req, res) =>
-    userController.updateUser(req, res, pool)) as RequestHandler);
-
-  // Change user status
-  router.patch('/:id/status', ((req, res) =>
-    userController.changeUserStatus(req, res, pool)) as RequestHandler);
-
-  // Delete a user
-  router.delete('/:id', ((req, res) =>
-    userController.deleteUser(req, res, pool)) as RequestHandler);
-
-  // Time log related routes
-  router.get('/time-logs', ((req, res) =>
-    timeLogController.getUserTimeLogs(req, res, pool)) as RequestHandler);
+  router.get('/', withPool(pool, userController.getUsers));
+  router.get('/statuses', withPool(pool, userController.getUserStatuses));
+  router.get('/permissions', withPool(pool, userController.getUserPermissions));
+  router.get('/time-logs', withPool(pool, timeLogController.getUserTimeLogs));
+  router.get('/:id', withPool(pool, userController.getUserById));
+  router.post('/', withPool(pool, userController.createUser));
+  router.put('/:id', withPool(pool, userController.updateUser));
+  router.patch('/:id/status', withPool(pool, userController.changeUserStatus));
+  router.delete('/:id', withPool(pool, userController.deleteUser));
 
   return router;
 };

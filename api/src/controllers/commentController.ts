@@ -5,6 +5,7 @@ import * as notificationModel from '../models/notificationModel';
 import { CustomRequest } from '../types/express';
 import { CommentCreateInput, CommentUpdateInput, TaskRequest } from '../types/comment';
 import { NotificationType } from '../types/notification';
+import logger from '../utils/logger';
 
 // Get task comments
 export const getTaskComments = async (
@@ -17,7 +18,7 @@ export const getTaskComments = async (
     const comments = await commentModel.getTaskComments(pool, taskId || '');
     res.status(200).json(comments);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -53,7 +54,7 @@ export const createComment = async (
 
     res.status(201).json(newComment);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -71,7 +72,7 @@ export const editComment = async (
     const editedComment = await commentModel.editComment(pool, id, comment);
     res.status(200).json(editedComment);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -88,7 +89,7 @@ export const deleteComment = async (
     const deletedComment = await commentModel.deleteComment(pool, id);
     res.status(200).json(deletedComment);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };

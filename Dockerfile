@@ -52,7 +52,7 @@ RUN yarn run type-check && \
     yarn run lint && \
     yarn run tsc && \
     npm install -g @vercel/ncc && \
-    ncc build dist/app.js -o dist --no-cache -q
+    ncc build dist/server.js -o dist --no-cache -q
 
 # Build notification service
 FROM node:25.4.0-alpine3.23 AS notification-builder
@@ -94,6 +94,7 @@ WORKDIR /app
 # Copy and set up startup script
 COPY start-app.sh /start-app.sh
 COPY db/backup.sh /usr/local/bin/backup.sh
+COPY db/seed-admin.sh /app/seed-admin.sh
 COPY db/pg_dump_cron /dp_dump_cron
 
 # Install dependencies and set up startup script
@@ -105,6 +106,7 @@ RUN apk add --no-cache \
     chmod +x /start-app.sh && \
     mkdir -p api service db-init && \
     chmod +x /usr/local/bin/backup.sh && \
+    chmod +x /app/seed-admin.sh && \
     chmod 0644 /dp_dump_cron && \
     mv /dp_dump_cron /etc/cron.d/pg_dump_cron && \
     crontab /etc/cron.d/pg_dump_cron

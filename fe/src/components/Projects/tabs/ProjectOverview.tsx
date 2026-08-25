@@ -111,39 +111,41 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({ project, projectDetai
         </Typography>
       </Grid>
 
-      <Grid size={{ xs: 12 }}>
-        <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-          Subprojects
-        </Typography>
-        {subprojects && subprojects.length > 0 ? (
-          <List>
-            {subprojects.map((subproject) => (
-              <ListItem key={subproject?.id}>
-                <Link
-                  component={RouterLink}
-                  to={`/projects/${subproject?.id}`}
-                  underline="hover"
-                >
-                  {subproject?.name || 'Unnamed Project'}
-                </Link>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography color="textSecondary">
-            No subprojects found
+      {project?.parent_id == null && (
+        <Grid size={{ xs: 12 }}>
+          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+            Subprojects
           </Typography>
-        )}
-        <PermissionButton
-          requiredPermission="Create projects"
-          variant="contained"
-          color="primary"
-          onClick={handleAddSubproject}
-          sx={{ mt: 2 }}
-        >
-          Add Subproject
-        </PermissionButton>
-      </Grid>
+          {subprojects && subprojects.length > 0 ? (
+            <List>
+              {subprojects.map((subproject) => (
+                <ListItem key={subproject?.id}>
+                  <Link
+                    component={RouterLink}
+                    to={`/projects/${subproject?.id}`}
+                    underline="hover"
+                  >
+                    {subproject?.name || 'Unnamed Project'}
+                  </Link>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography color="textSecondary">
+              No subprojects found
+            </Typography>
+          )}
+          <PermissionButton
+            requiredPermission="Create projects"
+            variant="contained"
+            color="primary"
+            onClick={handleAddSubproject}
+            sx={{ mt: 2 }}
+          >
+            Add Subproject
+          </PermissionButton>
+        </Grid>
+      )}
     </Grid>
   );
 };

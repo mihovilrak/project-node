@@ -2,6 +2,7 @@ import React from 'react';
 import ActiveTasks from './ActiveTasks';
 import { Box } from '@mui/material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
+import { sanitizeHtml } from '../../utils/sanitize';
 
 const Home: React.FC = (): React.ReactElement => {
   const { state } = useSystemSettings();
@@ -18,7 +19,7 @@ const Home: React.FC = (): React.ReactElement => {
               mb: 2
             }
           }}
-          dangerouslySetInnerHTML={{ __html: state.settings.welcome_message }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(state.settings.welcome_message ?? '') }}
         />
       )}
       <ActiveTasks />

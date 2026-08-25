@@ -30,10 +30,10 @@ describe('Metrics', () => {
       expect(metrics.notificationErrors).toBe(1);
     });
 
-    it('should call logMetrics when incrementing', () => {
-      const logMetricsSpy = jest.spyOn(metrics, 'logMetrics');
+    it('should call scheduleLogMetrics when incrementing', () => {
+      const scheduleSpy = jest.spyOn(metrics, 'scheduleLogMetrics');
       metrics.increment('notificationsSent');
-      expect(logMetricsSpy).toHaveBeenCalled();
+      expect(scheduleSpy).toHaveBeenCalled();
     });
   });
 
@@ -49,10 +49,10 @@ describe('Metrics', () => {
       expect(metrics.lastProcessingTime!.getTime()).toBeLessThanOrEqual(afterTime.getTime());
     });
 
-    it('should call logMetrics when setting processing time', () => {
-      const logMetricsSpy = jest.spyOn(metrics, 'logMetrics');
+    it('should call scheduleLogMetrics when setting processing time', () => {
+      const scheduleSpy = jest.spyOn(metrics, 'scheduleLogMetrics');
       metrics.setProcessingTime();
-      expect(logMetricsSpy).toHaveBeenCalled();
+      expect(scheduleSpy).toHaveBeenCalled();
     });
   });
 

@@ -4,6 +4,7 @@ import { getTasksByDateRange } from '../../api/tasks';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarView } from '../../types/calendar';
 import { useNavigate } from 'react-router-dom';
+import logger from '../../utils/logger';
 
 export const useCalendar = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -34,8 +35,8 @@ export const useCalendar = () => {
       setLoading(true);
       const tasksData = await getTasksByDateRange(start, end);
       setTasks(tasksData || []);
-    } catch (error: any) {
-      console.error('Failed to fetch tasks:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch tasks:', error);
       setTasks([]);
     } finally {
       setLoading(false);

@@ -25,11 +25,7 @@ class EmailService implements IEmailService {
     });
 
     this.templates = {};
-    // Use absolute path for templates - they're copied to /app/service/templates in Docker
-    // In development, use relative path; in production (Docker), use absolute path
-    this.templateDir = process.env.NODE_ENV === 'production' 
-      ? '/app/service/templates'
-      : path.join(__dirname, '../templates');
+    this.templateDir = process.env.TEMPLATES_PATH ?? path.join(__dirname, '..', 'templates');
     this.initializeTemplates();
   }
 
@@ -44,7 +40,7 @@ class EmailService implements IEmailService {
         }
       }
     } catch (error) {
-      logger.error('Failed to initialize email templates:', error);
+      logger.error({ err: error }, 'Failed to initialize email templates');
     }
   }
 
@@ -82,10 +78,10 @@ class EmailService implements IEmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      logger.info(`Email sent: ${info.messageId}`);
+      logger.info({ messageId: info.messageId }, 'Email sent');
       return info;
     } catch (error) {
-      logger.error('Failed to send email:', error);
+      logger.error({ err: error }, 'Failed to send email');
       throw error;
     }
   }
@@ -101,7 +97,7 @@ class EmailService implements IEmailService {
       try {
         return await this.sendEmail(to, subject, templateName, data);
       } catch (error) {
-        logger.warn(`Email attempt ${attempt} failed:`, error);
+        logger.warn({ err: error, attempt }, 'Email attempt failed');
         if (attempt === retries) throw error;
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
       }
@@ -114,7 +110,7 @@ class EmailService implements IEmailService {
       template({});
       return true;
     } catch (error) {
-      logger.error(`Template validation failed for ${name}:`, error);
+      logger.error({ err: error, name }, 'Template validation failed');
       return false;
     }
   }

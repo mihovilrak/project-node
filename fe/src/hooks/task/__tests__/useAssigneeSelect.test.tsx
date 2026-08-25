@@ -2,6 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAssigneeSelect } from '../useAssigneeSelect';
 import { getProjectMembers } from '../../../api/projects';
 import { ProjectMember } from '../../../types/project';
+import logger from '../../../utils/logger';
 
 // Mock API calls
 jest.mock('../../../api/projects');
@@ -50,17 +51,14 @@ describe('useAssigneeSelect', () => {
   it('should handle error when loading project members fails', async () => {
     const error = new Error('Failed to fetch project members');
     (getProjectMembers as jest.Mock).mockRejectedValue(error);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const { result } = renderHook(() => useAssigneeSelect(1));
 
     await waitFor(() => {
       expect(getProjectMembers).toHaveBeenCalledWith(1);
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching project members:', error);
+      expect(logger.error).toHaveBeenCalledWith('Error fetching project members:', error);
       expect(result.current.projectMembers).toEqual([]);
     });
-
-    consoleSpy.mockRestore();
   });
 
   it('should update project members when projectId changes', async () => {

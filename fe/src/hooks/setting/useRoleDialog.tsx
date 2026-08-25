@@ -3,6 +3,8 @@ import { Role } from '../../types/role';
 import { Permission } from '../../types/setting';
 import { RoleFormData } from '../../types/role';
 import { getAllPermissions } from '../../api/permissions';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useRoleDialog = (role: Role | undefined) => {
   const [formData, setFormData] = useState<RoleFormData>({
@@ -42,13 +44,10 @@ export const useRoleDialog = (role: Role | undefined) => {
     try {
       const permissions = await getAllPermissions();
       setAvailablePermissions(permissions || []);
-    } catch (error: any) {
-      console.error('Failed to fetch permissions:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch permissions:', error);
       setAvailablePermissions([]);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load permissions';
-      setError(errorMessage);
+      setError(getApiErrorMessage(error, 'Failed to load permissions'));
     }
   };
 

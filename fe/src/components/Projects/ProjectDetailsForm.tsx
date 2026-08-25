@@ -69,7 +69,9 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
             slotProps={{
               textField: {
                 fullWidth: true,
-                required: true
+                required: true,
+                error: !!errors.start_date,
+                helperText: errors.start_date
               }
             }}
           />
@@ -83,7 +85,9 @@ const ProjectDetailsForm: React.FC<ProjectDetailsFormProps> = React.memo(({
             slotProps={{
               textField: {
                 fullWidth: true,
-                required: true
+                required: true,
+                error: !!errors.due_date,
+                helperText: errors.due_date
               }
             }}
           />

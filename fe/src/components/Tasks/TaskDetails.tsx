@@ -12,6 +12,7 @@ import { useTaskComments } from '../../hooks/task/useTaskComments';
 import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
 import { TimeLog } from '../../types/timeLog';
+import logger from '../../utils/logger';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -141,8 +142,8 @@ const TaskDetails: React.FC = () => {
         onDelete={async () => {
           try {
             await handleDelete();
-          } catch (error: any) {
-            console.error('Failed to delete task:', error);
+          } catch (error: unknown) {
+            logger.error('Failed to delete task:', error);
           }
         }}
         onTimeLogClick={() => setState(prev => ({
@@ -177,8 +178,8 @@ const TaskDetails: React.FC = () => {
               timeLogDialogOpen: false,
               selectedTimeLog: null
             });
-          } catch (error: any) {
-            console.error('Failed to submit time log:', error);
+          } catch (error: unknown) {
+            logger.error('Failed to submit time log:', error);
             // Keep dialog open on error
           }
         }}

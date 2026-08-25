@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as roleModel from '../models/roleModel';
 import { RoleCreateInput, RoleUpdateInput } from '../types/role';
+import logger from '../utils/logger';
 
 // Get all roles
 export const getRoles = async (
@@ -13,7 +14,7 @@ export const getRoles = async (
     const roles = await roleModel.getRoles(pool);
     res.status(200).json(roles);
   } catch (error) {
-    console.error('Error getting roles:', error);
+    logger.error({ err: error }, 'Error getting roles');
     res.status(500).json({ error: 'Failed to get roles' });
   }
 };
@@ -36,7 +37,7 @@ export const createRole = async (
       id: roleId
     });
   } catch (error) {
-    console.error('Error creating role:', error);
+    logger.error({ err: error }, 'Error creating role');
     if (error instanceof Error && 'code' in error && error.code === '23505') { // Unique violation
       return res.status(409).json({
         error: 'Role with this name already exists'
@@ -71,7 +72,7 @@ export const updateRole = async (
       id
     });
   } catch (error) {
-    console.error('Error updating role:', error);
+    logger.error({ err: error }, 'Error updating role');
     if (error instanceof Error && 'code' in error) {
       if (error.code === '23505') {
         return res.status(409).json({

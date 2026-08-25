@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Task } from '../../types/task';
 import { ProjectTasksHook } from '../../types/project';
 import { getProjectTasks } from '../../api/tasks';
+import logger from '../../utils/logger';
 
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -14,8 +15,8 @@ export const useProjectTasks = (projectId: string): ProjectTasksHook => {
       try {
         const tasks = await getProjectTasks(Number(projectId));
         setTasks(tasks || []);
-      } catch (error: any) {
-        console.error('Failed to load tasks:', error);
+      } catch (error: unknown) {
+        logger.error('Failed to load tasks:', error);
         setTasks([]);
         // Don't throw - let parent component handle error display
       }

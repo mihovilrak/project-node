@@ -23,6 +23,7 @@ export interface Task {
   type_icon?: string;
   status_id: number;
   status_name: string;
+  status_color?: string;
   priority_id: number;
   priority_name: string;
   priority_color?: string;
@@ -245,11 +246,14 @@ type FormChangeHandler = (e: SimpleChangeEvent) => void;
 export interface TaskNameFieldProps {
   formData: TaskFormState;
   handleChange: FormChangeHandler;
+  error?: boolean;
+  helperText?: string;
 }
 
 export interface DatePickerSectionProps {
   formData: TaskFormState;
   handleChange: FormChangeHandler;
+  errors?: { start_date?: string; due_date?: string };
 }
 
 export interface ParentTaskSelectProps {

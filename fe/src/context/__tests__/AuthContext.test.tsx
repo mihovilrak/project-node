@@ -60,17 +60,9 @@ describe('AuthContext', () => {
   it('should handle successful login with admin permissions', async () => {
     const mockUser = { id: 1, name: 'Admin User' };
 
-    // Mock login API response
-    (api.post as jest.Mock).mockResolvedValueOnce({ data: { user: mockUser }});
-    // Mock api.get to return correct data for each endpoint
-    (api.get as jest.Mock).mockImplementation((url: string) => {
-      if (url === '/check-session') {
-        return Promise.resolve({ status: 200, data: { user: mockUser } });
-      }
-      if (url === '/users/permissions') {
-        return Promise.resolve({ data: mockPermissions });
-      }
-      return Promise.reject(new Error('Unknown endpoint'));
+    // Mock login API response (backend now returns user + permissions)
+    (api.post as jest.Mock).mockResolvedValueOnce({
+      data: { user: mockUser, permissions: mockPermissions },
     });
 
     render(
@@ -98,13 +90,13 @@ describe('AuthContext', () => {
   it('should verify all defined permissions', async () => {
     const mockUser = { id: 1, name: 'Test User' };
 
-    // Mock api.get to return correct data for each endpoint
+    // check-session now returns user + permissions in one response
     (api.get as jest.Mock).mockImplementation((url: string) => {
       if (url === '/check-session') {
-        return Promise.resolve({ status: 200, data: { user: mockUser } });
-      }
-      if (url === '/users/permissions') {
-        return Promise.resolve({ data: mockPermissions });
+        return Promise.resolve({
+          status: 200,
+          data: { user: mockUser, permissions: mockPermissions },
+        });
       }
       return Promise.reject(new Error('Unknown endpoint'));
     });

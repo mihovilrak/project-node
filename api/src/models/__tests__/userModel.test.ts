@@ -26,7 +26,7 @@ describe('UserModel', () => {
       const result = await userModel.getUserStatuses(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT id, name FROM user_statuses ORDER BY id'
+        'SELECT id, name, color FROM user_statuses ORDER BY id'
       );
       expect(result).toEqual(mockStatuses);
     });
@@ -42,7 +42,7 @@ describe('UserModel', () => {
 
       const result = await userModel.getUsers(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM v_users', []);
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_users($1, $2, $3)', [null, null, false]);
       expect(result).toEqual(mockUsers);
     });
 
@@ -53,8 +53,8 @@ describe('UserModel', () => {
       const result = await userModel.getUsers(mockPool, { whereParams: { status_id: '1' } });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM v_users WHERE status_id = $1',
-        ['1']
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, null, false]
       );
       expect(result).toEqual(mockUsers);
     });
@@ -65,10 +65,22 @@ describe('UserModel', () => {
 
       await userModel.getUsers(mockPool, { whereParams: { status_id: '1', role_id: '2' } });
 
-      expect(mockPool.query).toHaveBeenCalled();
-      const query = (mockPool.query as jest.Mock).mock.calls[0][0];
-      expect(query).toContain('WHERE');
-      expect(query).toContain('AND');
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, 2, false]
+      );
+    });
+
+    it('should ignore disallowed whereParams keys', async () => {
+      const mockUsers = [{ id: '1', login: 'user1' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+
+      await userModel.getUsers(mockPool, { whereParams: { status_id: '1', evil_key: 'x' } as any });
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM get_users($1, $2, $3)',
+        [1, null, false]
+      );
     });
   });
 
@@ -80,7 +92,7 @@ describe('UserModel', () => {
       const result = await userModel.getUserById(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM v_users WHERE id = $1',
+        'SELECT * FROM get_user_by_id($1)',
         ['1']
       );
       expect(result).toEqual(mockUser);
@@ -144,7 +156,7 @@ describe('UserModel', () => {
       const result = await userModel.updateUser(mockPool, {}, '1');
 
       expect(mockPool.query).toHaveBeenCalledTimes(1);
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM v_users WHERE id = $1', ['1']);
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_user_by_id($1)', ['1']);
       expect(result).toEqual(mockUser);
     });
 

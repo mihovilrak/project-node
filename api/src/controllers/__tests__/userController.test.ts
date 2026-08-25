@@ -80,7 +80,7 @@ describe('UserController', () => {
         mockPool as Pool
       );
 
-      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams: { status_id: 1 } });
+      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams: { status_id: 1 }, includeDeleted: false });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });
@@ -97,7 +97,7 @@ describe('UserController', () => {
         mockPool as Pool
       );
 
-      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams });
+      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams, includeDeleted: false });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });

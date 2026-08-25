@@ -1,0 +1,1 @@
+insert into app_settings default values;

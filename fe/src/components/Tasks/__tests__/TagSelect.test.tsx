@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TagSelect from '../TagSelect';
 import { getTags } from '../../../api/tags';
 import { Tag } from '../../../types/tag';
+import logger from '../../../utils/logger';
 
 // Mock the API calls
 jest.mock('../../../api/tags');
@@ -121,7 +122,6 @@ describe('TagSelect Component', () => {
   });
 
   test('handles API error', async () => {
-    console.error = jest.fn();
     mockedGetTags.mockRejectedValue(new Error('Failed to fetch tags'));
 
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
@@ -130,7 +130,7 @@ describe('TagSelect Component', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       'Failed to fetch tags:',
       expect.any(Error)
     );
