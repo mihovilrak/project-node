@@ -3,4 +3,4 @@ insert into roles (name) values
     ('Project manager'),
     ('Developer'),
     ('Reporter')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

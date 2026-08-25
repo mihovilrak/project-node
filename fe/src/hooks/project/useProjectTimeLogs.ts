@@ -3,6 +3,8 @@ import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { ProjectTimeLogsHook } from '../../types/project';
 import { getTaskTimeLogs, createTimeLog, updateTimeLog, deleteTimeLog } from '../../api/timeLogs';
 import { getProjectTasks } from '../../api/tasks';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
@@ -23,20 +25,17 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
                 allLogs = [...allLogs, ...taskLogs];
               }
             } catch (taskError) {
-              console.error(`Failed to load time logs for task ${task.id}:`, taskError);
+              logger.error(`Failed to load time logs for task ${task.id}:`, taskError);
               // Continue with other tasks even if one fails
             }
           }
         }
       }
       setTimeLogs(allLogs);
-    } catch (error: any) {
-      console.error('Failed to load time logs:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to load time logs:', error);
       setTimeLogs([]);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load time logs';
-      throw new Error(errorMessage);
+      throw new Error(getApiErrorMessage(error, 'Failed to load time logs'));
     }
   };
 
@@ -54,12 +53,9 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
       await loadTimeLogs();
       setTimeLogDialogOpen(false);
       setSelectedTimeLog(null);
-    } catch (error: any) {
-      console.error('Failed to submit time log:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to submit time log';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to submit time log:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to submit time log'));
     }
   };
 
@@ -72,12 +68,9 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
     try {
       await deleteTimeLog(timeLogId);
       await loadTimeLogs();
-    } catch (error: any) {
-      console.error('Failed to delete time log:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to delete time log';
-      throw new Error(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete time log:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to delete time log'));
     }
   };
 

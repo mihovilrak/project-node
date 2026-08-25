@@ -1,13 +1,20 @@
 import { Response } from 'express';
+import { Pool } from 'pg';
 import { CustomRequest } from '../../types/express';
 import * as sessionController from '../sessionController';
 import { Session } from 'express-session';
 
+jest.mock('../../models/permissionModel', () => ({
+  getUserPermissions: jest.fn().mockResolvedValue([{ user_id: '1', permission: 'Admin' }]),
+}));
+
 describe('SessionController', () => {
   let mockReq: Partial<CustomRequest>;
   let mockRes: Partial<Response>;
+  let mockPool: Partial<Pool>;
 
   beforeEach(() => {
+    mockPool = {};
     // Create a partial mock Session object with required properties
     const mockSession = {
       id: 'test-session-id',
@@ -55,21 +62,25 @@ describe('SessionController', () => {
   });
 
   describe('session', () => {
-    it('should return user data when session exists', async () => {
+    it('should return user data and permissions when session exists', async () => {
       const mockUser = {
-        id: '1',
+        id: 1,
         login: 'testuser',
         role_id: 1
       };
-      mockReq.session!.user = mockUser;
+      mockReq.session!.user = mockUser as unknown as { id: string; login: string; role_id: number };
 
       await sessionController.session(
         mockReq as CustomRequest,
-        mockRes as Response
+        mockRes as Response,
+        mockPool as Pool
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ user: mockUser });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        user: mockReq.session!.user,
+        permissions: [{ user_id: '1', permission: 'Admin' }],
+      });
     });
 
     it('should return 401 when no session exists', async () => {
@@ -77,7 +88,8 @@ describe('SessionController', () => {
 
       await sessionController.session(
         mockReq as CustomRequest,
-        mockRes as Response
+        mockRes as Response,
+        mockPool as Pool
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -93,7 +105,8 @@ describe('SessionController', () => {
 
       await sessionController.session(
         mockReq as CustomRequest,
-        mockRes as Response
+        mockRes as Response,
+        mockPool as Pool
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);

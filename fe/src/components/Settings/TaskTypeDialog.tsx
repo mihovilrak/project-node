@@ -19,6 +19,7 @@ import * as Icons from '@mui/icons-material';
 import { MuiColorInput } from 'mui-color-input';
 import { TaskTypeDialogProps, IconSelectorProps } from '../../types/setting';
 import { useIconSelector } from '../../hooks/setting/useIconSelector';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const IconSelector = ({ value, onChange }: IconSelectorProps) => {
   const {
@@ -139,8 +140,8 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
     try {
       await onSave(taskType ? { ...formData, id: taskType.id } : formData);
       onClose();
-    } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to save task type');
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Failed to save task type'));
     }
   };
 

@@ -7,10 +7,12 @@ import {
     within
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import AuthProvider from '../../../context/AuthContext';
 import Tasks from '../Tasks';
-import { getTasks, deleteTask } from '../../../api/tasks';
+import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
+import logger from '../../../utils/logger';
 
 // Mock the API calls
 jest.mock('../../../api/tasks', () => ({
@@ -21,12 +23,19 @@ jest.mock('../../../api/tasks', () => ({
 }));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
+const mockedGetTaskStatuses = getTaskStatuses as jest.MockedFunction<typeof getTaskStatuses>;
+const mockedGetPriorities = getPriorities as jest.MockedFunction<typeof getPriorities>;
 
 // Mock useNavigate
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigate
+}));
+
+// Mock usePermission so edit/delete buttons are rendered
+jest.mock('../../../hooks/common/usePermission', () => ({
+  usePermission: () => ({ hasPermission: true, loading: false })
 }));
 
 // Mock sample tasks
@@ -96,7 +105,9 @@ const mockTasks: Task[] = [
 const renderTasks = () => {
   return render(
     <MemoryRouter>
-      <Tasks />
+      <AuthProvider>
+        <Tasks />
+      </AuthProvider>
     </MemoryRouter>
   );
 };
@@ -104,6 +115,8 @@ const renderTasks = () => {
 describe('Tasks Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetTaskStatuses.mockResolvedValue([]);
+    mockedGetPriorities.mockResolvedValue([]);
   });
 
   test('shows loading state initially', () => {
@@ -121,8 +134,8 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 2')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Project: Project 1')).toBeInTheDocument();
-    expect(screen.getByText('Project: Project 2')).toBeInTheDocument();
+    expect(screen.getByText('Project 1')).toBeInTheDocument();
+    expect(screen.getByText('Project 2')).toBeInTheDocument();
   });
 
   test('handles task deletion', async () => {
@@ -135,7 +148,7 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    const deleteButtons = await screen.findAllByText('Delete');
+    const deleteButtons = screen.getAllByTestId('delete-task-icon');
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete confirmation dialog to appear
@@ -155,8 +168,6 @@ describe('Tasks Component', () => {
   }, 15000);
 
   test('handles failed task deletion', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedDeleteTask.mockRejectedValue(new Error('Delete failed'));
 
@@ -166,7 +177,7 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
-    const deleteButtons = await screen.findAllByText('Delete');
+    const deleteButtons = screen.getAllByTestId('delete-task-icon');
     fireEvent.click(deleteButtons[0]);
 
     // Wait for delete confirmation dialog to appear
@@ -178,17 +189,10 @@ describe('Tasks Component', () => {
     const confirmButton = screen.getByTestId('confirm-delete-button');
     fireEvent.click(confirmButton);
 
-    // Wait for error to be logged
+    // Wait for error to be logged (component uses logger.error, mocked in setupTests)
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
     });
-
-    // Note: The useDeleteConfirm hook closes the dialog even on error (in finally block),
-    // so we verify the error was logged rather than checking for error in dialog
-    // The error handling is working correctly - it's logged to console
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
-
-    consoleErrorSpy.mockRestore();
   }, 10000);
 
   test('filters tasks by search term', async () => {
@@ -210,6 +214,45 @@ describe('Tasks Component', () => {
     expect(filtered[0].name).toBe('Test Task 1');
   });
 
+  test('filters tasks by priority using filter panel', async () => {
+    mockedGetTasks.mockResolvedValue(mockTasks);
+    mockedGetTaskStatuses.mockResolvedValue([
+      { id: 1, name: 'In Progress', color: '#000000', description: null, active: true, created_on: '', updated_on: null },
+      { id: 5, name: 'Done', color: '#000000', description: null, active: true, created_on: '', updated_on: null }
+    ] as any);
+    mockedGetPriorities.mockResolvedValue([
+      { id: 3, name: 'High/Should' },
+      { id: 2, name: 'Normal/Could' }
+    ] as any);
+
+    renderTasks();
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+
+    const priorityFilterItem = await screen.findByTestId('add-filter-priority_id');
+    await userEvent.click(priorityFilterItem);
+
+    const filterPanel = screen.getByTestId('filter-panel');
+    const valueSelects = within(filterPanel).getAllByLabelText(/Value/i);
+    await userEvent.click(valueSelects[valueSelects.length - 1]);
+
+    const normalCouldOption = await screen.findByRole('option', { name: /Normal\/Could/i });
+    await userEvent.click(normalCouldOption);
+
+    const applyAndCloseButton = screen.getByTestId('apply-close-filters-button');
+    await userEvent.click(applyAndCloseButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+    }, { timeout: 15000 });
+  }, 30000);
+
   test('sorts tasks correctly', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
@@ -224,10 +267,11 @@ describe('Tasks Component', () => {
     await userEvent.click(sortSelect);
     await userEvent.click(screen.getByText('Z-A'));
 
+    // Task names are rendered as links; verify order by link order (Z-A: Test Task 2 then Test Task 1)
     await waitFor(() => {
-      const taskElements = screen.getAllByRole('heading', { level: 6 });
-      expect(taskElements[0]).toHaveTextContent('Test Task 2');
-      expect(taskElements[1]).toHaveTextContent('Test Task 1');
+      const taskLinks = screen.getAllByRole('link', { name: /Test Task \d/ });
+      expect(taskLinks[0]).toHaveTextContent('Test Task 2');
+      expect(taskLinks[1]).toHaveTextContent('Test Task 1');
     }, { timeout: 10000 });
   }, 15000);
 
@@ -244,18 +288,17 @@ describe('Tasks Component', () => {
     fireEvent.click(createButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/new');
 
-    // Test details navigation
-    const detailsButtons = screen.getAllByText('Details');
-    fireEvent.click(detailsButtons[0]);
-    expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1');
+    // Task name is a Link to task details
+    const taskLink = screen.getByRole('link', { name: 'Test Task 1' });
+    expect(taskLink).toHaveAttribute('href', '/tasks/1');
 
-    // Test edit navigation
-    const editButtons = screen.getAllByText('Edit');
+    // Test edit navigation (IconButton with aria-label "Edit task" - multiple tasks so use getAllByRole)
+    const editButtons = screen.getAllByRole('button', { name: /edit task/i });
     fireEvent.click(editButtons[0]);
     expect(mockedNavigate).toHaveBeenCalledWith('/tasks/1/edit');
   });
 
-  test('displays correct status and priority chips', async () => {
+  test('displays correct status and priority chips and task ID', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
@@ -263,6 +306,8 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
 
+    expect(screen.getByText('#1')).toBeInTheDocument();
+    expect(screen.getByText('#2')).toBeInTheDocument();
     // Check status chip
     const statusChips = screen.getAllByTestId('status-chip');
     expect(statusChips.length).toBeGreaterThan(0);
@@ -273,19 +318,19 @@ describe('Tasks Component', () => {
   });
 
   test('handles empty assignee correctly', async () => {
-    mockedGetTasks.mockResolvedValue([mockTasks[1]]);
+    const taskWithUnassigned: Task = { ...mockTasks[1], id: 3, assignee_id: undefined, assignee_name: '' };
+    mockedGetTasks.mockResolvedValue([taskWithUnassigned]);
     renderTasks();
 
     await waitFor(
       () => {
-        expect(screen.getByText('Assignee: Unassigned')).toBeInTheDocument();
+        expect(screen.getByText('Unassigned')).toBeInTheDocument();
       },
       { timeout: 10000 }
     );
   }, 15000);
 
   test('handles API error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockedGetTasks.mockRejectedValue(new Error('API error'));
 
     renderTasks();
@@ -296,7 +341,5 @@ describe('Tasks Component', () => {
       },
       { timeout: 10000 }
     );
-
-    consoleErrorSpy.mockRestore();
   }, 15000);
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, MenuItem } from '@mui/material';
+import { TextField, MenuItem, Box } from '@mui/material';
 import { TaskPrioritySelectProps } from '../../../types/task';
 
 export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
@@ -19,7 +19,20 @@ export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
   >
     {priorities.map((priority) => (
       <MenuItem key={priority.id} value={priority.id}>
-        {priority.name}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {priority.color && (
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: 0.5,
+                backgroundColor: priority.color,
+                flexShrink: 0
+              }}
+            />
+          )}
+          {priority.name}
+        </Box>
       </MenuItem>
     ))}
   </TextField>

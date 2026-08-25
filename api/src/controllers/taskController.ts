@@ -5,6 +5,29 @@ import { TaskCreateInput, TaskUpdateInput, TaskQueryFilters } from '../types/tas
 import * as taskModel from '../models/taskModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
+import logger from '../utils/logger';
+
+/** Convert date from request (Date or ISO string) to timestamp; null/undefined → NaN. */
+function toTimestamp(d: Date | string | null | undefined): number {
+  if (d == null) return NaN;
+  return d instanceof Date ? d.getTime() : new Date(d).getTime();
+}
+
+/**
+ * Parse a query param into a single number or array of numbers (comma-separated).
+ * Returns null if value is missing, invalid, or parses to empty (so caller should not set the filter).
+ */
+function parseIdParam(value: string | string[] | undefined): number | number[] | null {
+  if (value === undefined || value === null) return null;
+  const str = Array.isArray(value) ? value.join(',') : String(value).trim();
+  if (str === '') return null;
+  if (str.includes(',')) {
+    const arr = str.split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n));
+    return arr.length > 0 ? arr : null;
+  }
+  const num = Number(str);
+  return Number.isNaN(num) ? null : num;
+}
 
 // Get tasks
 export const getTasks = async (
@@ -14,17 +37,34 @@ export const getTasks = async (
 ): Promise<void> => {
   try {
     const {
+      id,
       project_id,
       assignee_id,
       holder_id,
       status_id,
       priority_id,
       type_id,
-      parent_id
+      parent_id,
+      created_by,
+      due_date_from,
+      due_date_to,
+      start_date_from,
+      start_date_to,
+      created_from,
+      created_to,
+      estimated_time_min,
+      estimated_time_max,
+      inactive_statuses_only,
+      active_statuses_only
     } = req.query;
 
-    // Preserve optimised path for fetching tasks by project
-    if (project_id) {
+    // Only use getTasksByProject when project_id is the sole filter
+    const otherFilters = [
+      id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
+      created_by, due_date_from, due_date_to, start_date_from, start_date_to,
+      created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only, active_statuses_only
+    ].some(Boolean);
+    if (project_id && !otherFilters) {
       const tasks = await taskModel.getTasksByProject(pool, project_id as string);
       res.status(200).json(tasks);
       return;
@@ -32,30 +72,61 @@ export const getTasks = async (
 
     const filters: TaskQueryFilters = {};
 
-    if (assignee_id) {
-      filters.assignee_id = Number(assignee_id);
+    const parsedId = id !== undefined && id !== '' ? Number(id) : NaN;
+    if (!Number.isNaN(parsedId)) filters.id = parsedId;
+    const parsedProjectId = parseIdParam(project_id as string | string[] | undefined);
+    if (parsedProjectId !== null) filters.project_id = parsedProjectId;
+    const parsedAssigneeId = parseIdParam(assignee_id as string | string[] | undefined);
+    if (parsedAssigneeId !== null) filters.assignee_id = parsedAssigneeId;
+    const parsedHolderId = parseIdParam(holder_id as string | string[] | undefined);
+    if (parsedHolderId !== null) filters.holder_id = parsedHolderId;
+    const parsedStatusId = parseIdParam(status_id as string | string[] | undefined);
+    if (parsedStatusId !== null) filters.status_id = parsedStatusId;
+    const parsedPriorityId = parseIdParam(priority_id as string | string[] | undefined);
+    if (parsedPriorityId !== null) filters.priority_id = parsedPriorityId;
+    const parsedTypeId = parseIdParam(type_id as string | string[] | undefined);
+    if (parsedTypeId !== null) filters.type_id = parsedTypeId;
+    const parsedParentId =
+      parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
+    if (!Number.isNaN(parsedParentId)) filters.parent_id = parsedParentId;
+    const parsedCreatedBy = parseIdParam(created_by as string | string[] | undefined);
+    if (parsedCreatedBy !== null) filters.created_by = parsedCreatedBy;
+    if (due_date_from && typeof due_date_from === 'string') {
+      filters.due_date_from = due_date_from;
     }
-    if (holder_id) {
-      filters.holder_id = Number(holder_id);
+    if (due_date_to && typeof due_date_to === 'string') {
+      filters.due_date_to = due_date_to;
     }
-    if (status_id) {
-      filters.status_id = Number(status_id);
+    if (start_date_from && typeof start_date_from === 'string') {
+      filters.start_date_from = start_date_from;
     }
-    if (priority_id) {
-      filters.priority_id = Number(priority_id);
+    if (start_date_to && typeof start_date_to === 'string') {
+      filters.start_date_to = start_date_to;
     }
-    if (type_id) {
-      filters.type_id = Number(type_id);
+    if (created_from && typeof created_from === 'string') {
+      filters.created_from = created_from;
     }
-    if (parent_id) {
-      filters.parent_id = Number(parent_id);
+    if (created_to && typeof created_to === 'string') {
+      filters.created_to = created_to;
+    }
+    if (estimated_time_min !== undefined) {
+      filters.estimated_time_min = Number(estimated_time_min);
+    }
+    if (estimated_time_max !== undefined) {
+      filters.estimated_time_max = Number(estimated_time_max);
+    }
+    if (inactive_statuses_only === '1' || inactive_statuses_only === 'true') {
+      filters.inactive_statuses_only = true;
+    }
+    if (active_statuses_only === '1' || active_statuses_only === 'true') {
+      filters.active_statuses_only = true;
     }
 
     const hasFilters = Object.keys(filters).length > 0;
     const tasks = await taskModel.getTasks(pool, hasFilters ? filters : undefined);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -75,7 +146,7 @@ export const getTaskById = async (
     }
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching task by ID');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -95,7 +166,7 @@ export const getTaskByAssignee = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks by assignee');
     res.status(500).json({ error: 'Internal server error'});
   }
 }
@@ -115,7 +186,7 @@ export const getTaskByHolder = async (
     }
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching tasks by holder');
     res.status(500).json({ error: 'Internal server error'});
   }
 }
@@ -164,6 +235,18 @@ export const createTask = async (
       return;
     }
 
+    const startDate = taskData.start_date ? toTimestamp(taskData.start_date as Date | string) : NaN;
+    const dueDate = taskData.due_date ? toTimestamp(taskData.due_date as Date | string) : NaN;
+    if (!isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
+      res.status(400).json({ error: 'Due date must be on or after start date' });
+      return;
+    }
+    const endDate = taskData.end_date ? toTimestamp(taskData.end_date as Date | string) : NaN;
+    if (taskData.end_date != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
+      res.status(400).json({ error: 'End date must be on or after start date' });
+      return;
+    }
+
     // Convert types to match database expectations
     const processedData: TaskCreateInput = {
       ...taskData,
@@ -185,8 +268,7 @@ export const createTask = async (
     // Create task with processed data
     const task = await taskModel.createTask(pool, processedData, watchers);
 
-    // Debug log
-    console.log('Created task:', task);
+    logger.debug({ task }, 'Created task');
 
     if (!task || !task.task_id) {
       throw new Error('Task creation failed - no task ID returned');
@@ -197,7 +279,7 @@ export const createTask = async (
     const actionUserId = Number(created_by);
 
     // Debug log
-    console.log('Converted IDs:', { taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by });
+    logger.debug({ taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by }, 'Converted IDs');
 
     if (isNaN(taskId)) {
       throw new Error(`Invalid task ID: ${task.task_id}`);
@@ -215,9 +297,8 @@ export const createTask = async (
 
     res.status(201).json(task);
   } catch (error) {
-    console.error('Error creating task:', error);
+    logger.error({ err: error, taskData: req.body }, 'Error creating task');
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    console.error('Full error details:', { error, taskData: req.body });
     res.status(500).json({ error: errorMessage });
   }
 }
@@ -231,6 +312,18 @@ export const updateTask = async (
   const { id } = req.params;
   const userId = req.session.user?.id;
   const taskData: TaskUpdateInput = req.body;
+
+  const startDate = taskData.start_date != null ? toTimestamp(taskData.start_date as Date | string) : null;
+  const dueDate = taskData.due_date != null ? toTimestamp(taskData.due_date as Date | string) : null;
+  const endDate = taskData.end_date != null ? toTimestamp(taskData.end_date as Date | string) : null;
+  if (startDate != null && dueDate != null && !isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
+    res.status(400).json({ error: 'Due date must be on or after start date' });
+    return;
+  }
+  if (startDate != null && endDate != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
+    res.status(400).json({ error: 'End date must be on or after start date' });
+    return;
+  }
 
   try {
     const task = await taskModel.updateTask(pool, id, taskData);
@@ -249,7 +342,7 @@ export const updateTask = async (
 
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error updating task');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -281,7 +374,7 @@ export const changeTaskStatus = async (
 
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error changing task status');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -301,7 +394,7 @@ export const deleteTask = async (
     }
     res.status(200).json(task);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error deleting task');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -316,7 +409,7 @@ export const getTaskStatuses = async (
     const statuses = await taskModel.getTaskStatuses(pool);
     res.status(200).json(statuses);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching task statuses');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -331,7 +424,7 @@ export const getPriorities = async (
     const priorities = await taskModel.getPriorities(pool);
     res.status(200).json(priorities);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching priorities');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -351,7 +444,7 @@ export const getActiveTasks = async (
     const tasks = await taskModel.getActiveTasks(pool, userId);
     res.status(200).json(tasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching active tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -367,7 +460,7 @@ export const getSubtasks = async (
     const subtasks = await taskModel.getSubtasks(pool, id);
     res.status(200).json(subtasks);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching subtasks');
     res.status(500).json({ error: 'Internal server error' });
   }
 }

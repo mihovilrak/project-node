@@ -22,7 +22,7 @@ describe('WatcherModel', () => {
       const result = await watcherModel.getTaskWatchers(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('v_task_watchers'),
+        expect.stringContaining('get_task_watchers'),
         ['1']
       );
       expect(result).toEqual(mockWatchers);

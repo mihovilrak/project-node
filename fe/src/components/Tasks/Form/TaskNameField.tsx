@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { TaskNameFieldProps } from '../../../types/task';
 
-export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleChange }) => {
+export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleChange, error, helperText }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleChange({
       target: {
@@ -20,6 +20,8 @@ export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleCh
       value={formData.name}
       onChange={handleInputChange}
       required
+      error={error}
+      helperText={helperText}
       sx={{ mb: 2 }}
     />
   );

@@ -6,7 +6,8 @@ import {
   DialogActions,
   Button,
   Box,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { TimeLogDialogProps } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
@@ -33,6 +34,7 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
     description,
     logDate,
     timeError,
+    submitError,
     projects,
     tasks,
     users,
@@ -83,6 +85,11 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
           }
         }}
       >
+        {submitError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {submitError}
+          </Alert>
+        )}
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />

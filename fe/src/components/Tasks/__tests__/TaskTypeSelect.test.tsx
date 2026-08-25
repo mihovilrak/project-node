@@ -4,6 +4,7 @@ import { SelectChangeEvent } from '@mui/material';
 import TaskTypeSelect from '../TaskTypeSelect';
 import { getTaskTypes } from '../../../api/taskTypes';
 import { TaskType } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 // Mock the API module
 jest.mock('../../../api/taskTypes');
@@ -72,8 +73,6 @@ describe('TaskTypeSelect', () => {
   it('handles API errors gracefully', async () => {
     (getTaskTypes as jest.Mock).mockRejectedValue(new Error('Failed to fetch'));
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     render(
       <TaskTypeSelect
         value={1}
@@ -85,12 +84,10 @@ describe('TaskTypeSelect', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       'Failed to fetch task types:',
       expect.any(Error)
     );
-
-    consoleSpy.mockRestore();
   });
 
   it('calls onChange when a type is selected', async () => {

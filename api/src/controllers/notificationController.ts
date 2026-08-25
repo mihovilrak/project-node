@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as notificationModel from '../models/notificationModel';
+import logger from '../utils/logger';
 
 // Get user notifications
 export const getUserNotifications = async (
@@ -13,7 +14,7 @@ export const getUserNotifications = async (
     const notifications = await notificationModel.getNotificationsByUserId(pool, user_id);
     res.status(200).json(notifications);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -29,7 +30,7 @@ export const markAsRead = async (
     const updatedNotifications = await notificationModel.markNotificationsAsRead(pool, user_id);
     res.status(200).json(updatedNotifications);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -45,7 +46,7 @@ export const deleteNotification = async (
     await notificationModel.deleteNotification(pool, id);
     res.status(200).json({ message: 'Notification deleted' });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -9,6 +9,7 @@ import {
 import * as Icons from '@mui/icons-material';
 import { getTags } from '../../api/tags';
 import { Tag, TagSelectProps } from '../../types/tag';
+import logger from '../../utils/logger';
 
 const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -34,7 +35,7 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
           }));
         setTags(activeTags);
       } catch (error) {
-        console.error('Failed to fetch tags:', error);
+        logger.error('Failed to fetch tags:', error);
         setTags([]);
       } finally {
         setLoading(false);

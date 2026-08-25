@@ -5,12 +5,6 @@ import ProjectGantt from '../ProjectGantt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Task } from '../../../types/task';
 
-// Suppress console errors from tests
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-console.error = jest.fn();
-console.warn = jest.fn();
-
 // Mock DevExpress components
 jest.mock('@devexpress/dx-react-scheduler', () => ({
   ViewState: ({ children }: any) => <div data-testid="view-state">{children}</div>,
@@ -196,11 +190,5 @@ describe('ProjectGantt component', () => {
     renderWithTheme({ projectId: 1, tasks: mockTasks });
     expect(screen.getByTestId('appointment-tooltip')).toBeInTheDocument();
     expect(screen.getByTestId('drag-drop-provider')).toBeInTheDocument();
-  });
-
-  // Restore console methods
-  afterAll(() => {
-    console.error = originalConsoleError;
-    console.warn = originalConsoleWarn;
   });
 });

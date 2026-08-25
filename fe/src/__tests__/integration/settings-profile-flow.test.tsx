@@ -108,9 +108,7 @@ describe('Settings Profile Integration Tests', () => {
 
       switch (url) {
         case '/check-session':
-          return Promise.resolve({ status: 200, data: { user: mockUser } });
-        case '/users/permissions':
-          return Promise.resolve({ data: mockPermissions });
+          return Promise.resolve({ status: 200, data: { user: mockUser, permissions: mockPermissions } });
         case '/settings/app_settings':
           return Promise.resolve({ data: mockAppSettings });
         case '/users':
@@ -209,9 +207,8 @@ describe('Settings Profile Integration Tests', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Verify API calls were made during rendering
+    // Verify API calls were made during rendering (session + permissions via check-session only)
     expect(mockedApi.get).toHaveBeenCalledWith('/check-session');
-    expect(mockedApi.get).toHaveBeenCalledWith('/users/permissions');
   });
 
   // Test 4: Mock app settings update

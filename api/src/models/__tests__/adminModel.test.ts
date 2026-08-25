@@ -53,16 +53,16 @@ describe('AdminModel', () => {
   describe('getSystemStats', () => {
     it('should return system statistics', async () => {
       const mockStats = {
-        total_users: 100,
-        total_projects: 50,
-        total_tasks: 500,
-        total_time_logged: 10000
+        active_users: 100,
+        active_projects: 50,
+        active_tasks: 500,
+        time_logs_30d: 10000
       };
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockStats]));
 
       const result = await adminModel.getSystemStats(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM v_system_stats');
+      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_system_stats()');
       expect(result).toEqual(mockStats);
     });
   });

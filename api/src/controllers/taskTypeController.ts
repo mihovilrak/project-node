@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as taskTypeModel from '../models/taskTypeModel';
 import { TaskTypeCreateInput, TaskTypeUpdateInput } from '../types/taskType';
 import { AVAILABLE_ICONS } from '../utils/iconConstants';
+import logger from '../utils/logger';
 
 // Task Type Controllers
 export const getTaskTypes = async (
@@ -14,7 +15,7 @@ export const getTaskTypes = async (
     const result = await taskTypeModel.getTaskTypes(pool);
     res.json(result);
   } catch (error) {
-    console.error('Error fetching task types:', error);
+    logger.error({ err: error }, 'Error fetching task types');
     res.status(500).json({ error: 'Failed to fetch task types' });
   }
 };
@@ -35,7 +36,7 @@ export const getTaskTypeById = async (
 
     res.json(result);
   } catch (error) {
-    console.error('Error fetching task type:', error);
+    logger.error({ err: error }, 'Error fetching task type');
     res.status(500).json({ error: 'Failed to fetch task type' });
   }
 };
@@ -79,7 +80,7 @@ export const createTaskType = async (
 
     res.status(201).json(result);
   } catch (error) {
-    console.error('Error creating task type:', error);
+    logger.error({ err: error }, 'Error creating task type');
     res.status(500).json({ error: 'Failed to create task type' });
   }
 };
@@ -118,7 +119,7 @@ export const updateTaskType = async (
 
     res.json(result);
   } catch (error) {
-    console.error('Error updating task type:', error);
+    logger.error({ err: error }, 'Error updating task type');
     res.status(500).json({ error: 'Failed to update task type' });
   }
 };
@@ -139,7 +140,7 @@ export const deleteTaskType = async (
 
     res.json({ message: 'Task type deleted successfully' });
   } catch (error) {
-    console.error('Error deleting task type:', error);
+    logger.error({ err: error }, 'Error deleting task type');
     res.status(500).json({ error: 'Failed to delete task type' });
   }
 };
@@ -152,7 +153,7 @@ export const getAvailableIcons = async (
   try {
     res.status(200).json(AVAILABLE_ICONS);
   } catch (error) {
-    console.error('Error fetching icons:', error);
+    logger.error({ err: error }, 'Error fetching icons');
     res.status(500).json({ error: 'Failed to fetch icons' });
   }
 };

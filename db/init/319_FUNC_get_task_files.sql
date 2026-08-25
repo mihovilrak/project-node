@@ -10,7 +10,8 @@ returns table(
     file_path text,
     uploaded_on timestamp with time zone,
     uploaded_by text
-) as $$
+) as $function$
+
 begin
 
     return query
@@ -23,4 +24,5 @@ begin
     ORDER BY f.uploaded_on DESC;
 
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

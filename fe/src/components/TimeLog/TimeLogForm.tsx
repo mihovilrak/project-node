@@ -7,10 +7,19 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Grid,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Dayjs } from 'dayjs';
 import { TimeLogFormProps } from '../../types/timeLog';
+
+const STEP = 0.25;
+const MIN_HOURS = 0;
+const MAX_HOURS = 999.99;
 
 const TimeLogForm: React.FC<TimeLogFormProps> = ({
   projects,
@@ -44,6 +53,20 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
     if (value === '' || (!isNaN(numValue) && numValue % 0.25 === 0)) {
       onSpentTimeChange(value);
     }
+  };
+
+  const currentHours = spentTime === '' || spentTime === undefined
+    ? 0
+    : Math.max(MIN_HOURS, Math.min(MAX_HOURS, parseFloat(String(spentTime)) || 0));
+
+  const handleIncrement = () => {
+    const next = Math.round((currentHours + STEP) * 100) / 100;
+    onSpentTimeChange(String(Math.min(MAX_HOURS, next)));
+  };
+
+  const handleDecrement = () => {
+    const next = Math.round((currentHours - STEP) * 100) / 100;
+    onSpentTimeChange(String(Math.max(MIN_HOURS, next)));
   };
 
   return (
@@ -139,22 +162,68 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
         </FormControl>
       )}
 
-      <TextField
-        type="number"
-        label="Time Spent (hours)"
-        value={spentTime}
-        onChange={handleSpentTimeChange}
-        error={Boolean(timeError)}
-        helperText={timeError || "Enter time in hours (increments of 0.25)"}
-        required
-        inputProps={{
-          step: 0.25,
-          min: 0,
-          max: 999.99,
-          pattern: "^\\d*\\.?([0-9]{1,2})?$"
-        }}
-        sx={{ mb: 2 }}
-      />
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextField
+            type="number"
+            label="Time Spent (hours)"
+            value={spentTime}
+            onChange={handleSpentTimeChange}
+            error={Boolean(timeError)}
+            helperText={timeError || "Enter time in hours (increments of 0.25)"}
+            required
+            fullWidth
+            inputProps={{
+              step: STEP,
+              min: MIN_HOURS,
+              max: MAX_HOURS,
+              pattern: "^\\d*\\.?([0-9]{1,2})?$"
+            }}
+            slotProps={{
+              htmlInput: { 'aria-label': 'Time spent in hours' }
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end" sx={{ mr: -0.5 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <IconButton
+                      size="small"
+                      onClick={handleIncrement}
+                      disabled={currentHours >= MAX_HOURS}
+                      aria-label="Increase time"
+                      sx={{ py: 0, minWidth: 24, minHeight: 24 }}
+                    >
+                      <KeyboardArrowUpIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={handleDecrement}
+                      disabled={currentHours <= MIN_HOURS}
+                      aria-label="Decrease time"
+                      sx={{ py: 0, minWidth: 24, minHeight: 24 }}
+                    >
+                      <KeyboardArrowDownIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </InputAdornment>
+              )
+            }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <DatePicker
+            label="Log Date"
+            value={logDate}
+            onChange={(newValue: Dayjs | null) => onDateChange(newValue)}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                required: true
+              }
+            }}
+          />
+        </Grid>
+      </Grid>
 
       <TextField
         label="Description"
@@ -163,20 +232,8 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
         multiline
         rows={4}
         required
-        sx={{ mb: 2 }}
-      />
-
-      <DatePicker
-        label="Log Date"
-        value={logDate}
-        onChange={(newValue: Dayjs | null) => onDateChange(newValue)}
-        slotProps={{
-          textField: {
-            fullWidth: true,
-            required: true,
-            sx: { mb: 2 }
-          }
-        }}
+        fullWidth
+        sx={{ mt: 2 }}
       />
     </Box>
   );

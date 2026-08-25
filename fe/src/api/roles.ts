@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Role } from '../types/role';
+import logger from '../utils/logger';
 
 // Get roles with permissions
 export const getRoles = async (): Promise<Role[]> => {
@@ -7,7 +8,7 @@ export const getRoles = async (): Promise<Role[]> => {
     const response = await api.get('/roles');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch roles', error);
+    logger.error('Failed to fetch roles', error);
     throw error;
   }
 };
@@ -18,7 +19,7 @@ export const createRole = async (roleData: Partial<Role>): Promise<Role> => {
     const response = await api.post('/roles', roleData);
     return response.data;
   } catch (error) {
-    console.error('Failed to create role', error);
+    logger.error('Failed to create role', error);
     throw error;
   }
 };
@@ -29,7 +30,7 @@ export const updateRole = async (id: number, roleData: Partial<Role>): Promise<R
     const response = await api.put(`/roles/${id}`, roleData);
     return response.data;
   } catch (error) {
-    console.error('Failed to update role', error);
+    logger.error('Failed to update role', error);
     throw error;
   }
 };
@@ -39,7 +40,7 @@ export const deleteRole = async (id: number): Promise<void> => {
   try {
     await api.delete(`/roles/${id}`);
   } catch (error) {
-    console.error('Failed to delete role', error);
+    logger.error('Failed to delete role', error);
     throw error;
   }
 };

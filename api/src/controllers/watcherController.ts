@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as watcherModel from '../models/watcherModel';
+import logger from '../utils/logger';
 
 // Get task watchers
 export const getTaskWatchers = async (
@@ -13,7 +14,7 @@ export const getTaskWatchers = async (
     const watchers = await watcherModel.getTaskWatchers(pool, id);
     res.status(200).json(watchers);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -30,7 +31,7 @@ export const addTaskWatcher = async (
     const watcher = await watcherModel.addTaskWatcher(pool, id, userId);
     res.status(201).json(watcher);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 }
@@ -50,7 +51,7 @@ export const removeTaskWatcher = async (
     }
     res.status(204).send();
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
 }

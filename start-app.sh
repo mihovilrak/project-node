@@ -36,6 +36,10 @@ init_database() {
             fi
         fi
     done
+    if [ -n "$ADMIN_PASSWORD" ]; then
+        echo "Seeding admin user..."
+        /app/seed-admin.sh
+    fi
     rm -rf /app/db-init
     echo "Database initialization completed successfully"
 }
@@ -50,7 +54,7 @@ start_services() {
     BACKEND_PID=$!
 
     echo "Starting notification service..."
-    cd /app/service && node index.js &
+    cd /app/service && TEMPLATES_PATH=/app/service/templates node index.js &
     NOTIFICATION_PID=$!
 
     echo "Starting NGINX..."

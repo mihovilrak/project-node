@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAvailableIcons } from '../../api/activityTypes';
+import logger from '../../utils/logger';
 
 export const useIconSelector = (initialValue: string | undefined) => {
   const [icons, setIcons] = useState<string[]>([]);
@@ -12,7 +13,7 @@ export const useIconSelector = (initialValue: string | undefined) => {
         const availableIcons = await getAvailableIcons();
         setIcons(availableIcons || []);
       } catch (error) {
-        console.error('Failed to load icons:', error);
+        logger.error('Failed to load icons:', error);
         setIcons([]);
       }
     };

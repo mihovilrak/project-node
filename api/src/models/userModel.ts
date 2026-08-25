@@ -9,32 +9,36 @@ import {
 // Get user statuses
 export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
   const result: QueryResult<UserStatus> = await pool.query(
-    'SELECT id, name FROM user_statuses ORDER BY id'
+    'SELECT id, name, color FROM user_statuses ORDER BY id'
   );
   return result.rows;
 };
+
+const ALLOWED_USER_WHERE_KEYS = ['status_id', 'role_id'] as const;
 
 // Get all users
 export const getUsers = async (
   pool: Pool,
   filters?: UserQueryFilters
 ): Promise<User[]> => {
-  let query = 'SELECT * FROM v_users';
-  const values: any[] = [];
+  let status_id: number | null = null;
+  let role_id: number | null = null;
+  const includeDeleted = Boolean(filters?.includeDeleted);
 
   if (filters?.whereParams && Object.keys(filters.whereParams).length > 0) {
-    query += ' WHERE ';
-    const conditions: string[] = [];
-
-    Object.keys(filters.whereParams).forEach((param, index) => {
-      conditions.push(`${param} = $${index + 1}`);
-      values.push(filters.whereParams[param]);
-    });
-
-    query += conditions.join(' AND ');
+    const allowedEntries = Object.entries(filters.whereParams).filter(([key]) =>
+      ALLOWED_USER_WHERE_KEYS.includes(key as typeof ALLOWED_USER_WHERE_KEYS[number])
+    );
+    for (const [key, value] of allowedEntries) {
+      if (key === 'status_id') status_id = Number(value);
+      if (key === 'role_id') role_id = Number(value);
+    }
   }
 
-  const result = await pool.query(query, values);
+  const result = await pool.query(
+    'SELECT * FROM get_users($1, $2, $3)',
+    [status_id, role_id, includeDeleted]
+  );
   return result.rows;
 };
 
@@ -44,8 +48,9 @@ export const getUserById = async (
   id: string
 ): Promise<User | null> => {
   const result = await pool.query(
-    'SELECT * FROM v_users WHERE id = $1',
-    [id]);
+    'SELECT * FROM get_user_by_id($1)',
+    [id]
+  );
   return result.rows[0] || null;
 };
 
@@ -88,12 +93,11 @@ export const updateUser = async (
       return `password = crypt($${index + 1}, gen_salt('bf', 12))`;
     } else {
       values.push((updates as UserUpdateInput)[column]);
-      return `$${index + 1}`;
+      return `${column} = $${index + 1}`;
     }
   });
 
-  const query = `UPDATE users SET (${columns.join(', ')}) =
-    (${setExpressions.join(', ')}) WHERE id = $${columns.length + 1}`;
+  const query = `UPDATE users SET ${setExpressions.join(', ')} WHERE id = $${columns.length + 1}`;
 
   values.push(id);
 

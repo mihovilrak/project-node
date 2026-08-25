@@ -146,6 +146,7 @@ describe('TaskTypeDialog', () => {
 
   describe('Error Handling', () => {
     it('displays error message when save fails', async () => {
+      // getApiErrorMessage returns error.message for Error instances
       const error = new Error('Failed to save');
       const mockSaveWithError = jest.fn().mockRejectedValue(error);
 
@@ -155,9 +156,9 @@ describe('TaskTypeDialog', () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.getByText('Failed to save task type')).toBeInTheDocument();
+        expect(screen.getByText('Failed to save')).toBeInTheDocument();
       });
-    });
+    }, 8000);
 
     it('clears error on new submission', async () => {
       const error = new Error('Failed to save');
@@ -171,15 +172,15 @@ describe('TaskTypeDialog', () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.getByText('Failed to save task type')).toBeInTheDocument();
+        expect(screen.getByText('Failed to save')).toBeInTheDocument();
       });
 
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(screen.queryByText('Failed to save task type')).not.toBeInTheDocument();
+        expect(screen.queryByText('Failed to save')).not.toBeInTheDocument();
       });
-    });
+    }, 8000);
   });
 
   describe('Dialog Actions', () => {

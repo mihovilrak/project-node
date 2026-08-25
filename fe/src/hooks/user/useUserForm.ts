@@ -13,11 +13,14 @@ import {
   UserUpdate,
   UserFormProps
 } from '../../types/user';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useUserForm = ({ userId }: UserFormProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [roles, setRoles] = useState<Role[]>([]);
   const [formValues, setFormValues] = useState<FormData>({
     login: '',
@@ -38,7 +41,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         setRoles(roleData);
         setError(prev => (prev ? null : prev));
       } catch (error) {
-        console.error('Failed to fetch roles', error);
+        logger.error('Failed to fetch roles', error);
         setError('Failed to load roles');
       } finally {
         setLoading(false);
@@ -66,7 +69,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         role_id: Number(user.role_id) || 4
       });
     } catch (error) {
-      console.error('Failed to fetch user data', error);
+      logger.error('Failed to fetch user data', error);
       setError('Failed to fetch user data');
     }
   };
@@ -77,52 +80,51 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       ...prev,
       [name]: name === 'role_id' ? Number(value) : value,
     }));
-    setError(prev => (prev ? null : prev));
+    setError(null);
+    setFieldErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
   }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    console.log('DEBUG formValues at submit:', formValues);
+    logger.debug('DEBUG formValues at submit:', formValues);
     e.preventDefault();
 
-    // Validate all required fields first, regardless of mode
-    if (
-      !formValues.login ||
-      !formValues.name ||
-      !formValues.surname ||
-      !formValues.email ||
-      !formValues.password ||
-      !formValues.confirmPassword
-    ) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
     const isEditMode = !!userId;
+    const err: Record<string, string> = {};
 
-    // Validate passwords based on mode
+    if (!formValues.login?.trim()) err.login = 'Login is required';
+    if (!formValues.name?.trim()) err.name = 'First name is required';
+    if (!formValues.surname?.trim()) err.surname = 'Last name is required';
+    if (!formValues.email?.trim()) err.email = 'Email is required';
+
     if (isEditMode) {
-      // Edit mode
       if (formValues.password) {
-        if (!formValues.currentPassword) {
-          setError('Current password is required to change password');
-          return;
-        }
+        if (!formValues.currentPassword?.trim()) err.currentPassword = 'Current password is required to change password';
         if (formValues.password !== formValues.confirmPassword) {
-          setError('New passwords do not match');
-          return;
+          err.confirmPassword = 'New passwords do not match';
         }
       }
     } else {
-      // Create mode: validate all required fields first
-      if (!formValues.login || !formValues.name || !formValues.surname || !formValues.email || !formValues.password || !formValues.confirmPassword) {
-        setError('Please fill in all required fields');
-        return;
+      if (!formValues.password) err.password = 'Password is required';
+      else if (formValues.password !== formValues.confirmPassword) {
+        err.confirmPassword = 'Passwords do not match';
       }
-      if (formValues.password !== formValues.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
+      if (!formValues.confirmPassword && !err.confirmPassword) err.confirmPassword = 'Please confirm password';
     }
+
+    if (Object.keys(err).length > 0) {
+      setFieldErrors(err);
+      setError('Please fill in all required fields');
+      return;
+    }
+    setFieldErrors({});
+    setError(null);
 
     try {
       const userData = {
@@ -150,15 +152,16 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         await createUser(userData as UserCreate);
       }
       navigate('/users');
-    } catch (error: any) {
-      console.error('Failed to save user', error);
-      setError(error.response?.data?.message || 'Failed to save user');
+    } catch (error: unknown) {
+      logger.error('Failed to save user', error);
+      setError(getApiErrorMessage(error, 'Failed to save user'));
     }
   }, [formValues, userId, navigate]);
 
   return {
     loading,
     error,
+    fieldErrors,
     roles,
     formValues,
     handleInputChange,

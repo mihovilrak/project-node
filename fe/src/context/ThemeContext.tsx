@@ -12,6 +12,7 @@ import {
 import { createAppTheme } from '../theme/theme';
 import { ThemeContextType } from '../types/admin';
 import { getAppTheme } from '../api/settings';
+import logger from '../utils/logger';
 
 const ThemeContext = createContext<ThemeContextType>({
   mode: 'light',
@@ -55,7 +56,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setMode(resolvedMode);
       localStorage.setItem('themeMode', resolvedMode);
     } catch (error) {
-      console.error('Failed to fetch app theme:', error);
+      logger.error('Failed to fetch app theme:', error);
       // Fallback to localStorage or default
       const savedMode = localStorage.getItem('themeMode');
       setMode((savedMode as 'light' | 'dark') || 'light');

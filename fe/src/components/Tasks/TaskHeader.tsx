@@ -15,6 +15,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as Icons from '@mui/icons-material';
 import { TaskHeaderProps } from '../../types/task';
+import logger from '../../utils/logger';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
 
@@ -43,7 +44,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
   // Add null check for statuses
   if (!statuses || statuses.length === 0) {
-    console.warn('No statuses available');
+    logger.warn('No statuses available');
   }
 
   const currentStatus = statuses?.find(status => status.id === Number(task.status_id));

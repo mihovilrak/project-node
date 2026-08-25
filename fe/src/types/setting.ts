@@ -82,6 +82,15 @@ export interface AppSettings {
   updated_on?: string;
 }
 
+export interface TimezoneOption {
+  name: string;
+  region: string;
+  abbrev: string;
+  utcOffsetSeconds: number;
+  isDst: boolean;
+  label: string;
+}
+
 export interface Notification {
   id: number;
   type: string;

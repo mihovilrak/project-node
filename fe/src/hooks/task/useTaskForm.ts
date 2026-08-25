@@ -19,6 +19,8 @@ import {
 import { ProjectMember } from '../../types/project';
 import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskForm = ({
   taskId,
@@ -49,6 +51,7 @@ export const useTaskForm = ({
     tags: []
   });
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
@@ -102,7 +105,7 @@ export const useTaskForm = ({
           });
         }
       } catch (error) {
-        console.error('Error loading task:', error);
+        logger.error('Error loading task:', error);
         setIsEditing(false);
       } finally {
         setIsLoading(false);
@@ -120,8 +123,8 @@ export const useTaskForm = ({
         setStatuses(statusesData || []);
         setPriorities(prioritiesData || []);
         setAvailableTags(tagsData || []);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
+      } catch (error: unknown) {
+        logger.error('Error fetching data:', error);
         setStatuses([]);
         setPriorities([]);
         setAvailableTags([]);
@@ -132,10 +135,26 @@ export const useTaskForm = ({
     fetchData();
   }, [taskId, currentUserId]);
 
-  const handleChange = async (e: { target: { name: string; value: any } }) => {
+  const handleChange = async (e: { target: { name: string; value: string | number | boolean } }) => {
     const { name, value } = e.target;
-    const newValue = value === '' ? null : value;
+    let newValue: string | number | boolean | null = value === '' ? null : value;
+    if (name === 'holder_id' || name === 'assignee_id') {
+      if (value === '') {
+        newValue = null;
+      } else {
+        const num = Number(value);
+        newValue = Number.isNaN(num) ? null : num;
+      }
+    }
 
+    setFieldErrors(prev => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
     setFormData(prev => ({
       ...prev,
       [name]: newValue
@@ -143,25 +162,45 @@ export const useTaskForm = ({
 
     // If we're editing and the status changes, update it immediately
     if (isEditing && name === 'status_id' && newValue !== null) {
+      const statusId = Number(newValue);
+      if (!Number.isNaN(statusId)) {
       try {
-        const updatedTask = await changeTaskStatus(Number(taskId), newValue);
+        const updatedTask = await changeTaskStatus(Number(taskId), statusId);
         setFormData(prev => ({
           ...prev,
           status_id: updatedTask.status_id
         }));
       } catch (error) {
-        console.error('Error updating task status:', error);
+        logger.error('Error updating task status:', error);
         // Revert the status if update fails
         setFormData(prev => ({
           ...prev,
           status_id: prev.status_id
         }));
       }
+      }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const err: Record<string, string> = {};
+    if (!formData.name?.trim()) err.name = 'Name is required';
+    if (formData.project_id == null) err.project_id = 'Project is required';
+    if (!formData.start_date) err.start_date = 'Start date is required';
+    if (!formData.due_date) err.due_date = 'Due date is required';
+    if (formData.holder_id == null) err.holder_id = 'Holder is required';
+    if (formData.assignee_id == null) err.assignee_id = 'Assignee is required';
+    const start = formData.start_date ? dayjs(formData.start_date).valueOf() : null;
+    const due = formData.due_date ? dayjs(formData.due_date).valueOf() : null;
+    if (start != null && due != null && due < start) {
+      err.due_date = err.due_date || 'Due date must be on or after start date';
+    }
+    if (Object.keys(err).length > 0) {
+      setFieldErrors(err);
+      throw new Error('Please fill in all required fields');
+    }
+    setFieldErrors({});
     try {
       const taskData = {
         ...formData,
@@ -186,17 +225,15 @@ export const useTaskForm = ({
           navigate(-1);
         }
       }
-      } catch (error: any) {
-        console.error('Error saving task:', error);
-        const errorMessage = error?.response?.data?.error || 
-                            error?.message || 
-                            'Failed to save task';
-        throw new Error(errorMessage);
-      }
+    } catch (error: unknown) {
+      logger.error('Error saving task:', error);
+      throw new Error(getApiErrorMessage(error, 'Failed to save task'));
+    }
   };
 
   return {
     formData,
+    fieldErrors,
     projects,
     projectMembers,
     projectTasks,

@@ -80,7 +80,7 @@ describe('Cleanup Job', () => {
       const queryCall = mockQuery.mock.calls[0][0];
       expect(queryCall).toContain('active = false');
       expect(queryCall).toContain('30 days');
-      expect(queryCall).toContain('is_read = true');
+      expect(queryCall).toMatch(/read_on IS NOT NULL|is_read = true/);
     });
 
     it('should log number of cleaned up notifications', async () => {
@@ -89,7 +89,8 @@ describe('Cleanup Job', () => {
       await cleanupFunction();
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining('15')
+        expect.objectContaining({ rowCount: 15 }),
+        'Cleaned up old notifications'
       );
     });
 
@@ -99,7 +100,8 @@ describe('Cleanup Job', () => {
       await cleanupFunction();
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining('0')
+        expect.objectContaining({ rowCount: 0 }),
+        'Cleaned up old notifications'
       );
     });
 
@@ -111,8 +113,8 @@ describe('Cleanup Job', () => {
       await expect(cleanupFunction()).resolves.not.toThrow();
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error'),
-        expect.any(Error)
+        expect.objectContaining({ err: dbError }),
+        'Error cleaning up notifications'
       );
     });
 
@@ -125,13 +127,13 @@ describe('Cleanup Job', () => {
       expect(queryCall).toMatch(/30 days/i);
     });
 
-    it('should only clean read notifications', async () => {
+    it('should only clean read notifications (read_on or is_read)', async () => {
       mockQuery.mockResolvedValueOnce({ rowCount: 7 });
 
       await cleanupFunction();
 
       const queryCall = mockQuery.mock.calls[0][0];
-      expect(queryCall).toContain('is_read = true');
+      expect(queryCall).toMatch(/read_on IS NOT NULL|is_read = true/);
     });
   });
 

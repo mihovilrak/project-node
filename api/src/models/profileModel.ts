@@ -9,9 +9,7 @@ export const getProfile = async (
   userId: string
 ): Promise<Profile | null> => {
   const result = await pool.query(
-    `SELECT *
-     FROM v_profiles
-     WHERE id = $1`,
+    'SELECT * FROM get_profile($1)',
     [userId]
   );
   return result.rows[0] || null;
@@ -36,7 +34,7 @@ export const updateProfile = async (
   return result.rows[0] || null;
 };
 
-// Verify user password (by user id; authentification() expects login, not id)
+// Verify user password (by user id; authentication() expects login, not id)
 export const verifyPassword = async (
   pool: Pool,
   userId: string,

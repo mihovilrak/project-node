@@ -4,6 +4,7 @@ import { getProjects, getProjectMembers } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
 import { Project, ProjectMember } from '../../../types/project';
 import { Task } from '../../../types/task';
+import logger from '../../../utils/logger';
 
 // Mock API calls
 jest.mock('../../../api/projects');
@@ -159,32 +160,39 @@ describe('useProjectSelect', () => {
   it('should handle error when loading projects fails', async () => {
     const error = new Error('Failed to fetch projects');
     (getProjects as jest.Mock).mockRejectedValue(error);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const { result } = renderHook(() => useProjectSelect());
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching projects:', error);
+      expect(logger.error).toHaveBeenCalledWith('Error fetching projects:', error);
       expect(result.current.projects).toEqual([]);
     });
-
-    consoleSpy.mockRestore();
   });
 
-  it('should handle error when loading project data fails', async () => {
-    const error = new Error('Failed to fetch project data');
+  it('should handle error when loading project members fails', async () => {
+    const error = new Error('Failed to fetch project members');
     (getProjectMembers as jest.Mock).mockRejectedValue(error);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const { result } = renderHook(() => useProjectSelect(1));
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching project data:', error);
+      expect(logger.error).toHaveBeenCalledWith('Error fetching project members:', error);
       expect(result.current.projectMembers).toEqual([]);
+    });
+    expect(result.current.projectTasks).toEqual(mockTasks);
+  });
+
+  it('should handle error when loading project tasks fails', async () => {
+    const error = new Error('Failed to fetch project tasks');
+    (getProjectTasks as jest.Mock).mockRejectedValue(error);
+
+    const { result } = renderHook(() => useProjectSelect(1));
+
+    await waitFor(() => {
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch project tasks:', error);
+      expect(result.current.projectMembers).toEqual(mockProjectMembers);
       expect(result.current.projectTasks).toEqual([]);
     });
-
-    consoleSpy.mockRestore();
   });
 
   it('should update project data when projectId changes', async () => {

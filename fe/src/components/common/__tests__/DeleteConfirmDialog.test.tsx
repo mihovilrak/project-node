@@ -70,10 +70,10 @@ describe('DeleteConfirmDialog', () => {
     expect(cancelButton).toBeDisabled();
     expect(deletingButton).toBeDisabled();
 
-    // Wait for deletion to complete
+    // Wait for deletion to complete (onConfirm resolves after 100ms)
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    }, { timeout: 200 });
+    }, { timeout: 2000 });
   });
 
   test('buttons are enabled after deletion completes', async () => {

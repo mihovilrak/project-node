@@ -1,23 +1,21 @@
-create or replace function authentification (
+create or replace function authentication (
     auth_login character varying,
     auth_password character varying
 )
 returns table (
     id integer,
     login character varying,
-    password character varying,
-    role_id integer
-) as $$
+    role_id smallint
+) as $function$
 
 begin
     return query
-    select  u.id,
-            u.login,
-            u.password,
-            u.role_id
+    select u.id,
+        u.login,
+        u.role_id
     from users u
     where u.login = auth_login
     and u.password = crypt(auth_password, u.password);
 end;
 
-$$ language plpgsql;
+$function$ language plpgsql;

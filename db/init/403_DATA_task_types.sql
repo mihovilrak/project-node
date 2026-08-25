@@ -7,4 +7,4 @@ insert into task_types (name, color, icon, description) values
     ('Documentation', '#795548', 'Description', 'Documentation work.'),
     ('Testing', '#607d8b', 'Science', 'Testing and verification work.'),
     ('Research', '#673ab7', 'Search', 'Research and investigation work.')
-    on conflict (name) do nothing;
+on conflict (name) do nothing;

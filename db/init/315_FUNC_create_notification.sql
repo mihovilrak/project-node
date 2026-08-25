@@ -1,11 +1,13 @@
 create or replace function create_notification(
     p_user_id integer,
-    p_type_id integer,
+    p_type_id smallint,
     p_title varchar(100),
     p_message text,
     p_link varchar(255)
-) returns void as $$
+) returns void as $function$
+
 begin
+
     insert into notifications (
         user_id,
         type_id,
@@ -25,5 +27,7 @@ begin
         true,
         current_timestamp
     );
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

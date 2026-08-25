@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as loginController from '../loginController';
 import * as loginModel from '../../models/loginModel';
+import * as permissionModel from '../../models/permissionModel';
 import { Session } from 'express-session';
 
-// Mock the model
+// Mock the models
 jest.mock('../../models/loginModel');
+jest.mock('../../models/permissionModel');
 
 describe('LoginController', () => {
   let mockReq: Partial<Request>;
@@ -68,9 +70,11 @@ describe('LoginController', () => {
         login: 'testuser',
         role_id: 1
       };
+      const mockPermissions = [{ user_id: '1', permission: 'Create projects' as const }];
       mockReq.body = { login: 'testuser', password: 'password123' };
       (loginModel.login as jest.Mock).mockResolvedValue(mockUser);
       (loginModel.app_logins as jest.Mock).mockResolvedValue(undefined);
+      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(mockPermissions);
 
       await loginController.login(
         mockReq as Request,
@@ -80,12 +84,48 @@ describe('LoginController', () => {
 
       expect(loginModel.login).toHaveBeenCalledWith(mockPool, 'testuser', 'password123');
       expect(loginModel.app_logins).toHaveBeenCalledWith(mockPool, '1');
+      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(mockPool, '1');
       expect(mockReq.session!.user).toEqual(mockUser);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Login successful',
-        user: mockUser
+        user: mockUser,
+        permissions: mockPermissions
       });
+    });
+
+    it('should return 400 when login is missing', async () => {
+      mockReq.body = { password: 'password123' };
+
+      await loginController.login(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Invalid request',
+        message: 'login and password must be non-empty strings'
+      });
+      expect(loginModel.login).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when password is empty', async () => {
+      mockReq.body = { login: 'testuser', password: '' };
+
+      await loginController.login(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Invalid request',
+        message: 'login and password are required'
+      });
+      expect(loginModel.login).not.toHaveBeenCalled();
     });
 
     it('should return 401 for invalid credentials', async () => {
@@ -105,20 +145,20 @@ describe('LoginController', () => {
       });
     });
 
-    it('should return 500 on internal server error', async () => {
+    it('should pass error to next on internal server error', async () => {
+      const dbError = new Error('Database error');
       mockReq.body = { login: 'testuser', password: 'password123' };
-      (loginModel.login as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (loginModel.login as jest.Mock).mockRejectedValue(dbError);
 
-      await loginController.login(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error'
-      });
+      await expect(
+        loginController.login(
+          mockReq as Request,
+          mockRes as Response,
+          mockPool as Pool
+        )
+      ).rejects.toThrow('Database error');
+      expect(mockRes.status).not.toHaveBeenCalledWith(500);
+      expect(mockRes.json).not.toHaveBeenCalledWith({ error: 'Internal server error' });
     });
   });
 

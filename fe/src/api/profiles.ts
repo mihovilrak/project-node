@@ -1,4 +1,5 @@
 import { api } from './api';
+import logger from '../utils/logger';
 import { User } from '../types/user';
 import { Task } from '../types/task';
 import { Project } from '../types/project';
@@ -14,7 +15,7 @@ export const getProfile = async (): Promise<ProfileData> => {
     const response = await api.get('/profile');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch user profile', error);
+    logger.error('Failed to fetch user profile', error);
     throw error;
   }
 };
@@ -25,7 +26,7 @@ export const updateProfile = async (profileData: ProfileUpdateData): Promise<Use
     const response = await api.put('/profile', profileData);
     return response.data;
   } catch (error) {
-    console.error('Failed to update user profile', error);
+    logger.error('Failed to update user profile', error);
     throw error;
   }
 };
@@ -35,7 +36,7 @@ export const changePassword = async (passwordData: PasswordChange): Promise<void
   try {
     await api.put('/profile/password', passwordData);
   } catch (error) {
-    console.error('Failed to change user password', error);
+    logger.error('Failed to change user password', error);
     throw error;
   }
 };
@@ -46,7 +47,7 @@ export const getRecentTasks = async (): Promise<Task[]> => {
     const response = await api.get('/profile/tasks');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch recent tasks', error);
+    logger.error('Failed to fetch recent tasks', error);
     throw error;
   }
 };
@@ -57,7 +58,7 @@ export const getRecentProjects = async (): Promise<Project[]> => {
     const response = await api.get('/profile/projects');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch recent projects', error);
+    logger.error('Failed to fetch recent projects', error);
     throw error;
   }
 };

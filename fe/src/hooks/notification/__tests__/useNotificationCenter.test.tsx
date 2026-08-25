@@ -7,6 +7,7 @@ import {
 } from '../../../api/notifications';
 import { MemoryRouter } from 'react-router-dom';
 import { Notification } from '../../../types/notification';
+import logger from '../../../utils/logger';
 
 // Mock the API functions
 jest.mock('../../../api/notifications', () => ({
@@ -163,8 +164,21 @@ describe('useNotificationCenter', () => {
     unmount();
   });
 
+  it('should mark all as read when handleMarkAllAsRead is called', async () => {
+    (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
+    (markAsRead as jest.Mock).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+
+    await act(async () => {
+      await result.current.handleMarkAllAsRead();
+    });
+
+    expect(markAsRead).toHaveBeenCalledWith(1);
+    expect(getNotifications).toHaveBeenCalledTimes(2); // Initial fetch + after mark all read
+  });
+
   it('should handle API errors gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (getNotifications as jest.Mock).mockRejectedValue(new Error('API Error'));
 
     const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
@@ -176,11 +190,9 @@ describe('useNotificationCenter', () => {
     unmount();
     await flushPromises();
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
       expect(result.current.notifications).toEqual([]);
       expect(result.current.loading).toBe(false);
     });
-
-    consoleErrorSpy.mockRestore();
   });
 });

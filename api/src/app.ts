@@ -1,7 +1,8 @@
 import express, { Express } from 'express';
-import { Pool } from 'pg';
 import cors from 'cors';
+import helmet from 'helmet';
 import config from './config';
+import { pool } from './db';
 
 // Import routes
 import sessionRoute from './routes/sessionRouter';
@@ -27,6 +28,9 @@ import errorHandler from './middleware/errorHandler';
 // Create Express app
 const app: Express = express();
 
+// Trust first proxy (nginx) so X-Forwarded-* headers are used and rate-limit sees real client IP
+app.set('trust proxy', 1);
+
 // CORS configuration
 app.use(cors({
   credentials: true,
@@ -34,38 +38,18 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
+// Security headers
+app.use(helmet());
+
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// PostgreSQL connection pool
-const pool: Pool = new Pool({
-  connectionString: config.databaseUrl,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-  maxUses: 7500, // Close a connection after it has been used 7500 times
-});
-
-// Error handling for the pool
-pool.on('error', (err: Error) => {
-  console.error('Unexpected error on idle client', err);
-});
-
 // Session cookie middleware
-app.use(sessionMiddleware(pool, config.sessionSecret));
-
-// Test database connection
-pool.connect((err: Error | undefined) => {
-  if (err) {
-    console.error('Error connecting to the database:', err.stack);
-  } else {
-    console.log('Connected to database successfully');
-  }
-});
+app.use(sessionMiddleware(pool, config.sessionSecret, config.nodeEnv, config.feUrl));
 
 // Routes
-app.use('/api/check-session', sessionRoute());
+app.use('/api/check-session', sessionRoute(pool));
 app.use('/api/login', loginRoute(pool));
 app.use('/api/logout', logoutRoute());
 
@@ -83,10 +67,5 @@ app.use('/api/time-logs', authMiddleware, timeLogRoutes(pool));
 
 // Error handling middleware
 app.use(errorHandler);
-
-// Start server
-app.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`);
-});
 
 export default app;

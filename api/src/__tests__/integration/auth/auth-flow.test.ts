@@ -84,6 +84,7 @@ describe('Authentication Flow', () => {
 
       expect(sessionResponse.status).toBe(200);
       expect(sessionResponse.body).toHaveProperty('user');
+      expect(sessionResponse.body).toHaveProperty('permissions');
       expect(sessionResponse.body.user.login).toBe('testuser');
     });
   });

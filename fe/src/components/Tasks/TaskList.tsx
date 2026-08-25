@@ -14,6 +14,9 @@ import { getTasks, deleteTask } from '../../api/tasks';
 import { Task } from '../../types/task';
 import PermissionButton from '../common/PermissionButton';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
 
 const TaskList: React.FC = () => {
   const navigate = useNavigate();
@@ -35,12 +38,9 @@ const TaskList: React.FC = () => {
       setError(null);
       const tasksData = await getTasks();
       setTasks(tasksData || []);
-    } catch (error: any) {
-      console.error('Failed to fetch tasks:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to load tasks';
-      setError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to fetch tasks:', error);
+      setError(getApiErrorMessage(error, 'Failed to load tasks'));
     } finally {
       setLoading(false);
     }
@@ -62,12 +62,9 @@ const TaskList: React.FC = () => {
       setTasks(tasks.filter(task => task?.id !== taskToDelete.id));
       setDeleteDialogOpen(false);
       setTaskToDelete(null);
-    } catch (error: any) {
-      console.error('Failed to delete task:', error);
-      const errorMessage = error?.response?.data?.error || 
-                         error?.message || 
-                         'Failed to delete task. Please try again.';
-      setDeleteError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete task:', error);
+      setDeleteError(getApiErrorMessage(error, 'Failed to delete task. Please try again.'));
     } finally {
       setDeleting(false);
     }
@@ -111,11 +108,11 @@ const TaskList: React.FC = () => {
               <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip
                   label={task?.status_name || 'Unknown'}
-                  color={task?.status_name === 'Done' ? 'success' : 'default'}
+                  {...chipPropsForStatus(task?.status_name, task?.status_color)}
                 />
                 <Chip
                   label={task?.priority_name || 'Unknown'}
-                  color={task?.priority_name === 'High/Should' ? 'error' : 'default'}
+                  {...chipPropsForPriority(task?.priority_name, task?.priority_color)}
                 />
               </Box>
               <Typography variant="body2" sx={{ mt: 1 }}>

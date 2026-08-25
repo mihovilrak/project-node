@@ -1,5 +1,5 @@
 create or replace function get_user_permissions(user_id integer)
-returns table(permission character varying) as $$
+returns table(permission character varying) as $function$
 begin
     -- If user is admin, return all possible permissions
     if (select is_admin(user_id)) then
@@ -16,4 +16,4 @@ begin
     join permissions p on rp.permission_id = p.id
     where u.id = user_id;
 end;
-$$ language plpgsql;
+$function$ language plpgsql;

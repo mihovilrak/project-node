@@ -15,7 +15,7 @@ export const isUserAdmin = async (
 
 // Get system statistics
 export const getSystemStats = async (pool: Pool): Promise<SystemStats> => {
-  const result = await pool.query(`SELECT * FROM v_system_stats`);
+  const result = await pool.query('SELECT * FROM get_system_stats()');
   return result.rows[0];
 };
 

@@ -187,9 +187,8 @@ describe('useUserForm', () => {
 
 
   it('should handle API errors', async () => {
-    const apiError = new Error('API Error');
     (createUser as jest.Mock).mockRejectedValue({
-      response: { data: { message: 'API Error' } }
+      response: { data: { error: 'API Error' } }
     });
 
     const { result } = renderHook(() => useUserForm({}));

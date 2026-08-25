@@ -1,7 +1,7 @@
 create or replace function add_task_tags(
     p_task_id integer,
-    p_tag_ids integer[]
-) returns void as $$
+    p_tag_ids smallint[]
+) returns void as $function$
 begin
 
     -- Insert tags
@@ -10,5 +10,7 @@ begin
     values
     (p_task_id, unnest(p_tag_ids))
     on conflict (task_id, tag_id) do nothing;
+
 end;
-$$ language plpgsql;
+
+$function$ language plpgsql;

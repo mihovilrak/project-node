@@ -11,6 +11,8 @@ import {
 import { useProjectMembers } from './useProjectMembers';
 import { useProjectTasks } from './useProjectTasks';
 import { useProjectTimeLogs } from './useProjectTimeLogs';
+import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useProjectDetails = (projectId: string) => {
   const [state, setState] = useState<ProjectDetailsState>({
@@ -76,16 +78,13 @@ export const useProjectDetails = (projectId: string) => {
           ]);
         } catch (hookError) {
           // Log hook errors but don't fail the whole page
-          console.error('Error loading project sub-data:', hookError);
+          logger.error('Error loading project sub-data:', hookError);
         }
-      } catch (error: any) {
-        console.error('Error fetching project data:', error);
-        const errorMessage = error?.response?.data?.error || 
-                           error?.message || 
-                           'Failed to load project details';
+      } catch (error: unknown) {
+        logger.error('Error fetching project data:', error);
         setState(prev => ({
           ...prev,
-          error: errorMessage,
+          error: getApiErrorMessage(error, 'Failed to load project details'),
           loading: false
         }));
       }

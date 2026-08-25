@@ -14,6 +14,7 @@ import {
   TaskType,
   TaskTypeSelectProps,
 } from '../../types/task';
+import logger from '../../utils/logger';
 
 const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
   value,
@@ -29,8 +30,8 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
       try {
         const types = await getTaskTypes();
         setTaskTypes(types || []);
-      } catch (error: any) {
-        console.error('Failed to fetch task types:', error);
+      } catch (error: unknown) {
+        logger.error('Failed to fetch task types:', error);
         setTaskTypes([]);
       } finally {
         setLoading(false);

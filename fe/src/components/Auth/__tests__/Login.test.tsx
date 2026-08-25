@@ -81,7 +81,7 @@ describe('Login Component', () => {
     await user.type(screen.getByLabelText(/Password/), 'testpass');
     await user.click(screen.getByRole('button', { name: /^login$/i }));
 
-    const errorMessage = await screen.findByText('Login error. Please try again.');
+    const errorMessage = await screen.findByText('Login failed. Please check your credentials.');
     expect(errorMessage).toBeInTheDocument();
   });
 

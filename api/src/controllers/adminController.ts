@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import * as adminModel from '../models/adminModel';
 import { CustomRequest } from '../types/express';
 import { SystemLogQuery } from '../types/admin';
+import logger from '../utils/logger';
 
 // Check if user is admin
 export const checkAdminAccess = async (
@@ -26,7 +27,7 @@ export const checkAdminAccess = async (
     // Pass control to next middleware if user is admin
     return true;
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
     return false;
   }
@@ -42,7 +43,7 @@ export const getSystemStats = async (
     const stats = await adminModel.getSystemStats(pool);
     res.status(200).json(stats);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching system stats');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -58,7 +59,7 @@ export const getSystemLogs = async (
     const logs = await adminModel.getSystemLogs(pool, startDate, endDate, type);
     res.status(200).json(logs);
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Error fetching system logs');
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -73,7 +74,7 @@ export const getAllPermissions = async (
     const permissions = await adminModel.getAllPermissions(pool);
     res.status(200).json(permissions);
   } catch (error) {
-    console.error('Error fetching permissions:', error);
+    logger.error({ err: error }, 'Error fetching permissions');
     res.status(500).json({ error: 'Failed to fetch permissions' });
   }
 };

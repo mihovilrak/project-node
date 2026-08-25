@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { File, FileWithUser } from '../types/file';
+import * as taskModel from './taskModel';
 
 // Get all files for a task
 export const getTaskFiles = async (
@@ -63,4 +64,23 @@ export const deleteFile = async (
     WHERE id = $1`,
     [fileId]
   );
+};
+
+// Check if user has access to file (user is member of the project that contains the file's task)
+export const canUserAccessFile = async (
+  pool: Pool,
+  userId: string,
+  fileId: string
+): Promise<boolean> => {
+  const file = await getFileById(pool, fileId);
+  if (!file) return false;
+
+  const task = await taskModel.getTaskById(pool, String(file.task_id));
+  if (!task || !task.project_id) return false;
+
+  const result = await pool.query(
+    `SELECT 1 FROM project_users WHERE project_id = $1 AND user_id = $2 LIMIT 1`,
+    [task.project_id, userId]
+  );
+  return result.rowCount !== null && result.rowCount > 0;
 };

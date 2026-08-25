@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FixedSizeList as List } from 'react-window';
 import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../api/tasks';
+import logger from '../../utils/logger';
 import { getProjects } from '../../api/projects';
+import { getUsers } from '../../api/users';
 import {
-  Grid,
   Button,
   Card,
   CardContent,
@@ -13,45 +15,99 @@ import {
   Chip,
   Select,
   MenuItem,
-  SelectChangeEvent
+  SelectChangeEvent,
+  Grid,
+  IconButton,
+  Tooltip,
+  LinearProgress
 } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import GridViewIcon from '@mui/icons-material/GridView';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import FilterPanel from '../common/FilterPanel';
+import { usePermission } from '../../hooks/common/usePermission';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import { Task } from '../../types/task';
-import { FilterValues } from '../../types/filterPanel';
-import { getPriorityColor } from '../../utils/taskUtils';
+import { FilterValues, FilterOption } from '../../types/filterPanel';
+import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>({});
+  const [filters, setFilters] = useState<FilterValues>({ status_id: 0 });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [statuses, setStatuses] = useState<any[]>([]);
-  const [priorities, setPriorities] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [statuses, setStatuses] = useState<FilterOption[]>([]);
+  const [priorities, setPriorities] = useState<FilterOption[]>([]);
+  const [projects, setProjects] = useState<FilterOption[]>([]);
+  const [users, setUsers] = useState<FilterOption[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const navigate = useNavigate();
+  const { hasPermission: canEditTask } = usePermission('Edit tasks');
+  const { hasPermission: canDeleteTask } = usePermission('Delete tasks');
 
   const fetchTasks = useCallback(async (currentFilters?: FilterValues): Promise<void> => {
     try {
+      setLoading(true);
       setError(null);
 
-      // When no filters, getTasks() uses backend default (active tasks only)
+      const f = currentFilters || {};
+      const statusIdRaw = f.status_id;
+      const statusIdStr = statusIdRaw != null ? String(statusIdRaw) : '';
+      const statusId = statusIdStr !== '' ? Number(statusIdStr) : undefined;
       const hasFilters = currentFilters && Object.keys(currentFilters).length > 0;
-      const taskList = await getTasks(hasFilters ? {
-        status_id: currentFilters!.status_id ? Number(currentFilters!.status_id) : undefined,
-        priority_id: currentFilters!.priority_id ? Number(currentFilters!.priority_id) : undefined,
-        assignee_id: currentFilters!.assignee_id ? Number(currentFilters!.assignee_id) : undefined,
-        holder_id: currentFilters!.holder_id ? Number(currentFilters!.holder_id) : undefined,
-        project_id: currentFilters!.project_id ? Number(currentFilters!.project_id) : undefined
-      } : {});
+      const params: Record<string, string | number> = {};
+      if (hasFilters && currentFilters) {
+        if (statusId === -1) {
+          params.inactive_statuses_only = 1;
+        } else if (statusId === 0) {
+          params.active_statuses_only = 1;
+        } else if (statusIdStr.includes(',')) {
+          params.status_id = statusIdStr;
+        } else if (statusId !== undefined && !Number.isNaN(statusId)) {
+          params.status_id = statusId;
+        }
+        if (f.priority_id != null && f.priority_id !== '') {
+          const p = String(f.priority_id);
+          params.priority_id = p.includes(',') ? p : Number(f.priority_id);
+        }
+        if (f.assignee_id != null && f.assignee_id !== '') {
+          const a = String(f.assignee_id);
+          params.assignee_id = a.includes(',') ? a : Number(f.assignee_id);
+        }
+        if (f.holder_id != null && f.holder_id !== '') {
+          const h = String(f.holder_id);
+          params.holder_id = h.includes(',') ? h : Number(f.holder_id);
+        }
+        if (f.project_id != null && f.project_id !== '') {
+          const pr = String(f.project_id);
+          params.project_id = pr.includes(',') ? pr : Number(f.project_id);
+        }
+        if (f.created_by != null && f.created_by !== '') {
+          const c = String(f.created_by);
+          params.created_by = c.includes(',') ? c : Number(f.created_by);
+        }
+        if (f.id != null && f.id !== '') params.id = Number(f.id);
+        if (f.parent_id != null && f.parent_id !== '') params.parent_id = Number(f.parent_id);
+        if (f.due_date_from) params.due_date_from = String(f.due_date_from);
+        if (f.due_date_to) params.due_date_to = String(f.due_date_to);
+        if (f.start_date_from) params.start_date_from = String(f.start_date_from);
+        if (f.start_date_to) params.start_date_to = String(f.start_date_to);
+        if (f.created_from) params.created_from = String(f.created_from);
+        if (f.created_to) params.created_to = String(f.created_to);
+        if (f.estimated_time_min != null && f.estimated_time_min !== '') params.estimated_time_min = Number(f.estimated_time_min);
+        if (f.estimated_time_max != null && f.estimated_time_max !== '') params.estimated_time_max = Number(f.estimated_time_max);
+      }
+      const taskList = await getTasks(hasFilters ? params : {});
       setTasks(taskList);
     } catch (error) {
-      console.error('Failed to fetch tasks', error);
+      logger.error('Failed to fetch tasks', error);
       setError('Failed to load tasks. Please try again later.');
     } finally {
       setLoading(false);
@@ -59,24 +115,31 @@ const Tasks: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(filters);
     // Fetch filter options
     const fetchFilterOptions = async () => {
       try {
-        const [statusesData, prioritiesData, projectsData] = await Promise.all([
+        const [statusesData, prioritiesData, projectsData, usersData] = await Promise.all([
           getTaskStatuses().catch(() => []),
           getPriorities().catch(() => []),
-          getProjects().catch(() => [])
+          getProjects().catch(() => []),
+          getUsers().catch(() => [])
         ]);
-        setStatuses(statusesData);
+        const activeInactive = [
+          { id: 0, name: 'Active' },
+          { id: -1, name: 'Inactive' },
+          ...statusesData
+        ];
+        setStatuses(activeInactive);
         setPriorities(prioritiesData);
         setProjects(projectsData);
+        setUsers((usersData || []).map((u: { id: number; name?: string; login?: string }) => ({ id: u.id, name: u.name ? `${u.name} (${u.login || u.id})` : String(u.login || u.id) })));
       } catch (error) {
-        console.error('Failed to fetch filter options:', error);
+        logger.error('Failed to fetch filter options:', error);
       }
     };
     fetchFilterOptions();
-  }, [fetchTasks]);
+  }, [fetchTasks, filters]);
 
   const handleDeleteClick = useCallback((task: Task): void => {
     setTaskToDelete(task);
@@ -94,12 +157,9 @@ const Tasks: React.FC = () => {
       await fetchTasks();
       setDeleteDialogOpen(false);
       setTaskToDelete(null);
-    } catch (error: any) {
-      console.error('Failed to delete task:', error);
-      const errorMessage = error?.response?.data?.error || 
-                         error?.message || 
-                         'Failed to delete task. Please try again.';
-      setDeleteError(errorMessage);
+    } catch (error: unknown) {
+      logger.error('Failed to delete task:', error);
+      setDeleteError(getApiErrorMessage(error, 'Failed to delete task. Please try again.'));
     } finally {
       setDeleting(false);
     }
@@ -113,9 +173,7 @@ const Tasks: React.FC = () => {
 
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
-    setLoading(true);
-    fetchTasks(newFilters);
-  }, [fetchTasks]);
+  }, []);
 
   const handleSortChange = useCallback((event: SelectChangeEvent<'asc' | 'desc'>) => {
     setSortOrder(event.target.value as 'asc' | 'desc');
@@ -124,10 +182,19 @@ const Tasks: React.FC = () => {
   const filterOptions = useMemo(() => ({
     search: true,
     showDateFilters: true,
-    statuses: statuses,
-    priorities: priorities,
-    projects: projects
-  }), [statuses, priorities, projects]);
+    statuses,
+    priorities,
+    projects,
+    users,
+    holders: users,
+    createdBy: users,
+    due_date_from: true,
+    due_date_to: true,
+    start_date_from: true,
+    start_date_to: true,
+    created_from: true,
+    created_to: true
+  }), [statuses, priorities, projects, users]);
 
   const filteredTasks = useMemo(() => {
     const list = tasks || [];
@@ -143,21 +210,32 @@ const Tasks: React.FC = () => {
           if (!matchesSearch) return false;
         }
 
-        if (filters.status_id && task.status_id !== Number(filters.status_id)) {
-          return false;
-        }
-        if (filters.priority_id && task.priority_id !== Number(filters.priority_id)) {
-          return false;
-        }
-        if (filters.project_id && task.project_id !== Number(filters.project_id)) {
-          return false;
-        }
-        if (filters.assignee_id && task.assignee_id !== Number(filters.assignee_id)) {
-          return false;
-        }
-        if (filters.holder_id && task.holder_id !== Number(filters.holder_id)) {
-          return false;
-        }
+        let statusIds = filters.status_id != null && String(filters.status_id).includes(',')
+          ? String(filters.status_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.status_id != null && filters.status_id !== '' ? [Number(filters.status_id)] : null;
+        // "Active" (id 0): API already returned only active tasks; don't filter by status_id client-side
+        if (statusIds && statusIds.length > 0 && statusIds.every((id) => id === 0)) statusIds = null;
+        if (statusIds && statusIds.length > 0 && !statusIds.includes(task.status_id)) return false;
+
+        const priorityIds = filters.priority_id != null && String(filters.priority_id).includes(',')
+          ? String(filters.priority_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.priority_id != null && filters.priority_id !== '' ? [Number(filters.priority_id)] : null;
+        if (priorityIds && priorityIds.length > 0 && !priorityIds.includes(task.priority_id)) return false;
+
+        const projectIds = filters.project_id != null && String(filters.project_id).includes(',')
+          ? String(filters.project_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.project_id != null && filters.project_id !== '' ? [Number(filters.project_id)] : null;
+        if (projectIds && projectIds.length > 0 && !projectIds.includes(task.project_id ?? 0)) return false;
+
+        const assigneeIds = filters.assignee_id != null && String(filters.assignee_id).includes(',')
+          ? String(filters.assignee_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.assignee_id != null && filters.assignee_id !== '' ? [Number(filters.assignee_id)] : null;
+        if (assigneeIds && assigneeIds.length > 0 && (task.assignee_id == null || !assigneeIds.includes(task.assignee_id))) return false;
+
+        const holderIds = filters.holder_id != null && String(filters.holder_id).includes(',')
+          ? String(filters.holder_id).split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n))
+          : filters.holder_id != null && filters.holder_id !== '' ? [Number(filters.holder_id)] : null;
+        if (holderIds && holderIds.length > 0 && (task.holder_id == null || !holderIds.includes(task.holder_id))) return false;
 
         return true;
       })
@@ -171,21 +249,32 @@ const Tasks: React.FC = () => {
       });
   }, [tasks, filters, sortOrder]);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <Typography color="error" data-testid="task-error">{error}</Typography>
-      </Box>
-    );
-  }
+  // Flat list in pre-order (parent then all descendants) with depth for indent; shows all levels
+  const tasksInPreOrder = useMemo(() => {
+    const list = filteredTasks || [];
+    const childrenByParentId = new Map<number, Task[]>();
+    list.forEach((t) => {
+      const pid = t?.parent_id ?? null;
+      if (pid != null) {
+        const arr = childrenByParentId.get(pid) ?? [];
+        arr.push(t);
+        childrenByParentId.set(pid, arr);
+      }
+    });
+    const nameSort = (a: Task, b: Task) =>
+      sortOrder === 'asc'
+        ? (a?.name ?? '').localeCompare(b?.name ?? '')
+        : (b?.name ?? '').localeCompare(a?.name ?? '');
+    const result: Array<{ task: Task; depth: number }> = [];
+    const visit = (task: Task, depth: number): void => {
+      result.push({ task, depth });
+      const children = (childrenByParentId.get(task?.id ?? 0) ?? []).sort(nameSort);
+      children.forEach((c) => visit(c, depth + 1));
+    };
+    const roots = list.filter((t) => t?.parent_id == null).sort(nameSort);
+    roots.forEach((r) => visit(r, 0));
+    return result;
+  }, [filteredTasks, sortOrder]);
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
@@ -193,6 +282,7 @@ const Tasks: React.FC = () => {
         <Typography variant="h4" gutterBottom>Tasks</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <Button
+            type="button"
             variant="contained"
             color="primary"
             onClick={() => navigate('/tasks/new')}
@@ -208,6 +298,14 @@ const Tasks: React.FC = () => {
             <MenuItem value="asc">A-Z</MenuItem>
             <MenuItem value="desc">Z-A</MenuItem>
           </Select>
+          <Tooltip title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}>
+            <IconButton
+              onClick={() => setViewMode((m) => (m === 'grid' ? 'list' : 'grid'))}
+              aria-label={viewMode === 'grid' ? 'List view' : 'Grid view'}
+            >
+              {viewMode === 'grid' ? <ViewListIcon /> : <GridViewIcon />}
+            </IconButton>
+          </Tooltip>
         </Box>
 
         <FilterPanel
@@ -218,61 +316,147 @@ const Tasks: React.FC = () => {
         />
       </Box>
 
-      <Grid container spacing={3}>
-        {filteredTasks.length === 0 ? (
-          <Grid size={{ xs: 12 }}>
-            <Typography>No tasks found.</Typography>
+      <Box sx={{ mt: 2, width: '100%', maxWidth: 1400 }}>
+        {error ? (
+          <Typography color="error" data-testid="task-error">{error}</Typography>
+        ) : loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px" data-testid="tasks-loading">
+            <CircularProgress />
+          </Box>
+        ) : tasksInPreOrder.length === 0 ? (
+          <Typography>No tasks found.</Typography>
+        ) : viewMode === 'grid' ? (
+          <Grid container spacing={2}>
+            {tasksInPreOrder.map(({ task, depth }) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
+                    <Card>
+                  <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
+                      <Typography
+                        component={Link}
+                        to={`/tasks/${task?.id}`}
+                        variant="h6"
+                        sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                      >
+                        {task?.name || 'Unnamed Task'}
+                      </Typography>
+                      {(canEditTask || canDeleteTask) && (
+                        <Box sx={{ display: 'flex', gap: 0 }}>
+                          {canEditTask && (
+                            <Tooltip title="Edit">
+                              <IconButton size="small" onClick={() => navigate(`/tasks/${task?.id}/edit`)} aria-label="Edit task">
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          {canDeleteTask && (
+                            <Tooltip title="Delete">
+                              <IconButton size="small" color="error" onClick={() => handleDeleteClick(task)} aria-label="Delete task" data-testid="delete-task-icon">
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                      <Chip label={task?.status_name || 'Unknown'} size="small" data-testid="status-chip" {...chipPropsForStatus(task?.status_name, task?.status_color)} />
+                      <Chip label={task?.priority_name || 'Unknown'} size="small" data-testid="priority-chip" {...chipPropsForPriority(task?.priority_name, task?.priority_color)} />
+                    </Box>
+                    <Box sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2px 16px', alignItems: 'start' }}>
+                        <Box><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</Box>
+                        <Box><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</Box>
+                        <Box><strong>Project</strong> {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</Box>
+                        <Box><strong>Assignee</strong> {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</Box>
+                        <Box><strong>Due</strong> {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</Box>
+                        <Box />
+                      </Box>
+                      <Box sx={{ mt: 0.5 }}>
+                        <Typography variant="caption"><strong>Progress</strong></Typography>
+                        <LinearProgress variant="determinate" value={task?.progress ?? 0} sx={{ mt: 0.25, height: 6, borderRadius: 1 }} />
+                        <Typography variant="caption">{task?.progress ?? 0}%</Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         ) : (
-          filteredTasks.map((task) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={task?.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{task?.name || 'Unnamed Task'}</Typography>
-                <Typography variant="body2">Project: {task?.project_name || 'No Project'}</Typography>
-                <Box sx={{ mt: 1 }}>
-                  <Chip
-                    label={task?.status_name || 'Unknown'}
-                    size="small"
-                    color={task?.status_name === 'Done' ? 'success' : 'default'}
-                    sx={{ mr: 1 }}
-                    data-testid="status-chip"
-                  />
-                  <Chip
-                    label={task?.priority_name || 'Unknown'}
-                    size="small"
-                    color={getPriorityColor(task?.priority_name || '')}
-                    data-testid="priority-chip"
-                  />
-                </Box>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  Assignee: {task?.assignee_name || 'Unassigned'}
-                </Typography>
-                <Box marginTop={2}>
-                  <Button onClick={() => navigate(`/tasks/${task?.id}`)}>
-                    Details
-                  </Button>
-                  <Button
-                    color="warning"
-                    onClick={() => navigate(`/tasks/${task?.id}/edit`)}
-                    sx={{ ml: 1 }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    color="error"
-                    onClick={() => handleDeleteClick(task)}
-                    sx={{ ml: 1 }}
-                  >
-                    Delete
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))
+          <Box sx={{ height: 600 }}>
+            <List
+              height={600}
+              itemCount={tasksInPreOrder.length}
+              itemSize={220}
+              width="100%"
+              itemData={tasksInPreOrder}
+            >
+              {({ index, style, data }) => {
+                const { task, depth } = data[index];
+                return (
+                  <div style={style}>
+                    <Box sx={{ py: 0.5, px: 0.5 }}>
+                      <Card>
+                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, pl: 1 + depth * 2 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                            <Typography variant="body2" color="text.secondary">#{task?.id}</Typography>
+                            <Typography
+                              component={Link}
+                              to={`/tasks/${task?.id}`}
+                              variant="h6"
+                              sx={{ fontWeight: 600, textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                            >
+                              {task?.name || 'Unnamed Task'}
+                            </Typography>
+                            {(canEditTask || canDeleteTask) && (
+                              <Box sx={{ display: 'flex', gap: 0 }}>
+                                {canEditTask && (
+                                  <Tooltip title="Edit">
+                                    <IconButton size="small" onClick={() => navigate(`/tasks/${task?.id}/edit`)} aria-label="Edit task">
+                                      <EditIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                                {canDeleteTask && (
+                                  <Tooltip title="Delete">
+                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(task)} aria-label="Delete task" data-testid="delete-task-icon">
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Box>
+                            )}
+                          </Box>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                            <Chip label={task?.status_name || 'Unknown'} size="small" data-testid="status-chip" {...chipPropsForStatus(task?.status_name, task?.status_color)} />
+                            <Chip label={task?.priority_name || 'Unknown'} size="small" data-testid="priority-chip" {...chipPropsForPriority(task?.priority_name, task?.priority_color)} />
+                          </Box>
+                          <Box sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
+                              <span><strong>Holder</strong> {task?.holder_id ? <Link to={`/users/${task.holder_id}`}>{task?.holder_name || 'User'}</Link> : '—'}</span>
+                              <span><strong>Assignee</strong> {task?.assignee_id ? <Link to={`/users/${task.assignee_id}`}>{task?.assignee_name || 'User'}</Link> : 'Unassigned'}</span>
+                              <span><strong>Start</strong> {task?.start_date ? new Date(task.start_date).toLocaleDateString() : '—'}</span>
+                              <span><strong>Due</strong> {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '—'}</span>
+                              <span><strong>Project</strong> {task?.project_id ? <Link to={`/projects/${task.project_id}`}>{task?.project_name || 'Project'}</Link> : 'No Project'}</span>
+                            </Box>
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="caption"><strong>Progress</strong></Typography>
+                              <LinearProgress variant="determinate" value={task?.progress ?? 0} sx={{ mt: 0.25, height: 6, borderRadius: 1 }} />
+                              <Typography variant="caption">{task?.progress ?? 0}%</Typography>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Box>
+                  </div>
+                );
+              }}
+            </List>
+          </Box>
         )}
-      </Grid>
+      </Box>
 
       <DeleteConfirmDialog
         open={deleteDialogOpen}

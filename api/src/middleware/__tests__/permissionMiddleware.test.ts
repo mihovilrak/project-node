@@ -68,17 +68,14 @@ describe('PermissionMiddleware', () => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it('should return 500 when permission check fails', async () => {
-    (permissionModel.hasPermission as jest.Mock).mockRejectedValue(new Error('Database error'));
+  it('should call next(error) when permission check fails', async () => {
+    const dbError = new Error('Database error');
+    (permissionModel.hasPermission as jest.Mock).mockRejectedValue(dbError);
     const middleware = permissionMiddleware(mockPool as Pool, testPermission);
 
     await middleware(mockReq as CustomRequest, mockRes as Response, mockNext);
-    
-    // Wait for the promise chain to complete
-    await new Promise(resolve => setTimeout(resolve, 10));
 
-    expect(mockRes.status).toHaveBeenCalledWith(500);
-    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
-    expect(mockNext).not.toHaveBeenCalled();
+    expect(mockNext).toHaveBeenCalledWith(dbError);
+    expect(mockRes.status).not.toHaveBeenCalled();
   });
 });

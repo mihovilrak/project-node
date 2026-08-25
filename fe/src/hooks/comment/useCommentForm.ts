@@ -4,6 +4,7 @@ import {
     Comment,
     CommentError
 } from '../../types/comment';
+import logger from '../../utils/logger';
 
 export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment) => void) => {
   const [comment, setComment] = useState<string>('');
@@ -27,7 +28,7 @@ export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment
     } catch (err) {
       const error = err as CommentError;
       setError(error.error || 'Failed to add comment');
-      console.error('Error adding comment:', err);
+      logger.error('Error adding comment:', err);
     } finally {
       setLoading(false);
     }

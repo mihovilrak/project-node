@@ -1,4 +1,4 @@
-import { Router, RequestHandler } from 'express';
+import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
 import * as fileController from '../controllers/fileController';
+import { withPool } from '../utils/withPool';
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -24,7 +25,8 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const upload = multer({ storage, limits: { fileSize: MAX_FILE_SIZE } });
 
 // File routes
 export default (pool: Pool): Router => {
@@ -39,21 +41,18 @@ export default (pool: Pool): Router => {
   });
 
   // Get task files
-  router.get('/', ((req, res) =>
-    fileController.getTaskFiles(req, res, pool)) as RequestHandler);
+  router.get('/', withPool(pool, fileController.getTaskFiles));
 
   // Upload a file
   router.post('/',
     upload.single('file'),
-    ((req, res) => fileController.uploadFile(req, res, pool)) as RequestHandler);
+    withPool(pool, fileController.uploadFile));
 
   // Download a file
-  router.get('/:fileId/download', ((req, res) =>
-    fileController.downloadFile(req, res, pool)) as RequestHandler);
+  router.get('/:fileId/download', withPool(pool, fileController.downloadFile));
 
   // Delete a file
-  router.delete('/:fileId', checkPermission(pool, 'Delete files'), ((req, res) =>
-    fileController.deleteFile(req, res, pool)) as RequestHandler);
+  router.delete('/:fileId', checkPermission(pool, 'Delete files'), withPool(pool, fileController.deleteFile));
 
   return router;
 };

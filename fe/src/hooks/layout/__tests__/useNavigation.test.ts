@@ -42,38 +42,38 @@ describe('useNavigation', () => {
     expect(result.current.activeTab).toBe(1);
   });
 
-  it('should sync activeTab with users routes', () => {
-    (useLocation as jest.Mock).mockReturnValue({ pathname: '/users' });
-    const { result } = renderHook(() => useNavigation());
-    expect(result.current.activeTab).toBe(2);
-  });
-
-  it('should sync activeTab with user details route', () => {
-    (useLocation as jest.Mock).mockReturnValue({ pathname: '/users/123' });
-    const { result } = renderHook(() => useNavigation());
-    expect(result.current.activeTab).toBe(2);
-  });
-
   it('should sync activeTab with tasks routes', () => {
     (useLocation as jest.Mock).mockReturnValue({ pathname: '/tasks' });
     const { result } = renderHook(() => useNavigation());
-    expect(result.current.activeTab).toBe(3);
+    expect(result.current.activeTab).toBe(2);
   });
 
   it('should sync activeTab with task details route', () => {
     (useLocation as jest.Mock).mockReturnValue({ pathname: '/tasks/123' });
     const { result } = renderHook(() => useNavigation());
-    expect(result.current.activeTab).toBe(3);
+    expect(result.current.activeTab).toBe(2);
   });
 
   it('should sync activeTab with new task route', () => {
     (useLocation as jest.Mock).mockReturnValue({ pathname: '/tasks/new' });
     const { result } = renderHook(() => useNavigation());
-    expect(result.current.activeTab).toBe(3);
+    expect(result.current.activeTab).toBe(2);
   });
 
   it('should sync activeTab with task edit route', () => {
     (useLocation as jest.Mock).mockReturnValue({ pathname: '/tasks/123/edit' });
+    const { result } = renderHook(() => useNavigation());
+    expect(result.current.activeTab).toBe(2);
+  });
+
+  it('should sync activeTab with users routes', () => {
+    (useLocation as jest.Mock).mockReturnValue({ pathname: '/users' });
+    const { result } = renderHook(() => useNavigation());
+    expect(result.current.activeTab).toBe(3);
+  });
+
+  it('should sync activeTab with user details route', () => {
+    (useLocation as jest.Mock).mockReturnValue({ pathname: '/users/123' });
     const { result } = renderHook(() => useNavigation());
     expect(result.current.activeTab).toBe(3);
   });
@@ -87,8 +87,8 @@ describe('useNavigation', () => {
   it.each([
     [0, '/'],
     [1, '/projects'],
-    [2, '/users'],
-    [3, '/tasks'],
+    [2, '/tasks'],
+    [3, '/users'],
     [4, '/settings'],
     [5, '/profile']
   ])('should navigate to correct route when tab %i is selected', (tabIndex, expectedRoute) => {

@@ -1,6 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
+import logger from '../../../utils/logger';
 
 // Force load .env.test so the app (when imported by tests) uses the test DB
 dotenv.config({ path: path.join(process.cwd(), '.env.test') });
@@ -34,9 +35,9 @@ beforeAll(async () => {
   // Test connection
   try {
     await testPool.query('SELECT 1');
-    console.log('Integration test database connected');
+    logger.info('Integration test database connected');
   } catch (error) {
-    console.error('Failed to connect to test database:', error);
+    logger.error({ err: error }, 'Failed to connect to test database');
     throw error;
   }
 });
@@ -95,18 +96,18 @@ export const seedTestTask = async (projectId: number, userId: number) => {
     SELECT * FROM create_task(
       'Test Task',
       'Test task description',
-      8,
+      8::numeric,
       CURRENT_DATE,
       (CURRENT_DATE + INTERVAL '7 days')::date,
-      2,
-      1,
-      1,
-      NULL,
+      2::smallint,
+      1::smallint,
+      1::smallint,
+      NULL::integer,
       $1,
       $2,
       $2,
       $2,
-      ARRAY[]::integer[],
+      ARRAY[]::smallint[],
       ARRAY[$2]::integer[]
     )
   `, [projectId, userId]);

@@ -1,14 +1,9 @@
-import winston from 'winston';
+import { logger } from '../utils/logger';
 import { Metrics } from '../types/metrics.types';
 
-const metricsLogger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'notification-metrics' },
-  transports: [
-    new winston.transports.File({ filename: 'metrics.log' })
-  ]
-});
+const metricsLogger = logger.child({ service: 'notification-metrics' });
+const METRICS_DEBOUNCE_MS = 30000;
+let metricsFlushScheduled: ReturnType<typeof setTimeout> | null = null;
 
 const metrics: Metrics = {
   notificationsSent: 0,
@@ -18,17 +13,26 @@ const metrics: Metrics = {
 
   increment(metric: 'notificationsSent' | 'emailErrors' | 'notificationErrors'): void {
     this[metric]++;
-    this.logMetrics();
+    this.scheduleLogMetrics();
   },
 
   setProcessingTime(): void {
     this.lastProcessingTime = new Date();
-    this.logMetrics();
+    this.scheduleLogMetrics();
+  },
+
+  scheduleLogMetrics(): void {
+    if (process.env.METRICS_ENABLED !== 'true') return;
+    if (metricsFlushScheduled) return;
+    metricsFlushScheduled = setTimeout(() => {
+      metricsFlushScheduled = null;
+      metricsLogger.info({ ...this }, 'metrics_update');
+    }, METRICS_DEBOUNCE_MS);
   },
 
   logMetrics(): void {
     if (process.env.METRICS_ENABLED === 'true') {
-      metricsLogger.info('metrics_update', { ...this });
+      metricsLogger.info({ ...this }, 'metrics_update');
     }
   }
 };

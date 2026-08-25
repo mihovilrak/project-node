@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types/project';
 import { getSubprojects } from '../../api/projects';
+import logger from '../../utils/logger';
 
 export const useProjectOverview = (projectId: number | undefined) => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export const useProjectOverview = (projectId: number | undefined) => {
           const data = await getSubprojects(projectId);
           setSubprojects(data);
         } catch (error) {
-          console.error('Failed to fetch subprojects:', error);
+          logger.error('Failed to fetch subprojects:', error);
         }
       }
     };

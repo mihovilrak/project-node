@@ -187,6 +187,10 @@ yarn test:integration:local
 
 To run tests with custom env: set `TEST_DB_*` and `SESSION_SECRET` in `.env.test`, or run `yarn test:integration` with env set in your shell.
 
+## Database backup and admin seed
+
+See [db/README.md](db/README.md) for backup script usage, cron setup (install [db/backup.sh](db/backup.sh) to the path used by cron; set `POSTGRES_*` in the cron environment), and admin user seeding. Set `ADMIN_PASSWORD` in the app environment to create/update the default admin user after DB init (run by [start-app.sh](start-app.sh) after init).
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

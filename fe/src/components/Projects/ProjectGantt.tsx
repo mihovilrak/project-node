@@ -27,6 +27,7 @@ import {
 import { updateTaskDates } from '../../api/tasks';
 import { ProjectGanttProps } from '../../types/project';
 import { useProjectGantt } from '../../hooks/project/useProjectGantt';
+import logger from '../../utils/logger';
 
 const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTasks }) => {
   const {
@@ -57,7 +58,7 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
         }
       }
     } catch (error) {
-      console.error('Failed to update task:', error);
+      logger.error('Failed to update task:', error);
       setError('Failed to update task dates');
     }
   };

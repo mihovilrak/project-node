@@ -60,7 +60,7 @@ describe('Notification Routes', () => {
 
       expect(pool.query).toHaveBeenCalledWith(
         'SELECT * FROM user_notifications($1)',
-        ['123']
+        [123]
       );
       expect(response.body).toEqual(mockNotifications);
     });
@@ -82,7 +82,16 @@ describe('Notification Routes', () => {
         .get('/api/notifications/123')
         .expect(500);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('error', 'Internal server error');
+    });
+
+    it('should return 400 when userId is invalid', async () => {
+      const response = await request(app)
+        .get('/api/notifications/abc')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Invalid user id');
+      expect(pool.query).not.toHaveBeenCalled();
     });
   });
 
@@ -130,7 +139,7 @@ describe('Notification Routes', () => {
         })
         .expect(500);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('error', 'Internal server error');
     });
 
     it('should handle different notification types', async () => {

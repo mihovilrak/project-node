@@ -18,7 +18,7 @@ describe('TimeLogModel', () => {
 
       const result = await timeLogModel.getAllTimeLogs(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('v_time_logs'));
+      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('get_time_logs'));
       expect(result).toEqual(mockTimeLogs);
     });
   });

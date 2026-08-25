@@ -4,6 +4,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Task } from '../../types/task';
 import { useTimeLogData } from './useTimeLogData';
 import { useTimeLogValidation } from './useTimeLogValidation';
+import logger from '../../utils/logger';
 
 export const useTimeLogDialog = ({
   timeLog,
@@ -27,6 +28,7 @@ export const useTimeLogDialog = ({
   const isInitialized = useRef(false);
 
   const { timeError, validateTime, validateAndFormatTime } = useTimeLogValidation();
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     projects,
     tasks,
@@ -34,12 +36,13 @@ export const useTimeLogDialog = ({
     activityTypes,
     isLoading,
     handleProjectSelect: handleProjectDataFetch
-  } = useTimeLogData({ open, projectId: selectedProjectId, hasAdminPermission });
+  } = useTimeLogData({ open, projectId: projectId ?? selectedProjectId, hasAdminPermission });
 
-  // Reset initialization flag when dialog closes
+  // Reset initialization flag and submit error when dialog closes
   useEffect(() => {
     if (!open) {
       isInitialized.current = false;
+      setSubmitError(null);
     }
   }, [open]);
 
@@ -83,9 +86,18 @@ export const useTimeLogDialog = ({
   };
 
   const handleSubmit = async () => {
+    setSubmitError(null);
     const validatedHours = validateAndFormatTime(spentTime);
-    console.log('Validated hours:', validatedHours);
-    if (!selectedTaskId || validatedHours === null) {
+    logger.debug('Validated hours:', validatedHours);
+    if (!selectedTaskId) {
+      setSubmitError('Please select a task.');
+      return;
+    }
+    if (selectedActivityTypeId == null) {
+      setSubmitError('Please select an activity type.');
+      return;
+    }
+    if (validatedHours === null) {
       return;
     }
 
@@ -94,16 +106,18 @@ export const useTimeLogDialog = ({
       user_id: selectedUserId,
       activity_type_id: selectedActivityTypeId,
       log_date: logDate.format('YYYY-MM-DD'),
-      spent_time: validatedHours, // Store as hours, no conversion needed
+      spent_time: validatedHours,
       description: description || undefined
     };
-    console.log('Submitting time log data:', timeLogData);
+    logger.debug('Submitting time log data:', timeLogData);
 
     try {
       await onSubmit(timeLogData);
       onClose();
-    } catch (error) {
-      console.error('Failed to submit time log:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to submit time log:', error);
+      const message = error instanceof Error ? error.message : 'Failed to save time log. Please try again.';
+      setSubmitError(message);
     }
   };
 
@@ -122,6 +136,7 @@ export const useTimeLogDialog = ({
     description,
     logDate,
     timeError,
+    submitError,
     projects,
     tasks,
     users,

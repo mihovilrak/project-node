@@ -39,6 +39,7 @@ describe('UserForm', () => {
     mockedUseUserForm.mockReturnValue({
       loading: false,
       error: null,
+      fieldErrors: {},
       roles: mockRoles,
       formValues: defaultMockFormValues,
       handleInputChange: jest.fn((e: React.ChangeEvent<HTMLInputElement>) => {}),
@@ -70,6 +71,7 @@ describe('UserForm', () => {
     mockedUseUserForm.mockReturnValue({
       loading: false,
       error: null,
+      fieldErrors: {},
       roles: mockRoles,
       formValues: { ...defaultMockFormValues, name: 'John', surname: 'Doe' },
       handleInputChange: jest.fn(),
@@ -86,6 +88,7 @@ describe('UserForm', () => {
     mockedUseUserForm.mockReturnValue({
       loading: false,
       error: errorMessage,
+      fieldErrors: {},
       roles: mockRoles,
       formValues: defaultMockFormValues,
       handleInputChange: jest.fn(),

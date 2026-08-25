@@ -10,6 +10,7 @@ import { getUsers } from '../../api/users';
 import { ProjectFormProps, Project } from '../../types/project';
 import { User } from '../../types/user';
 import { useProjectForm } from '../../hooks/project/useProjectForm';
+import logger from '../../utils/logger';
 import ProjectDetailsForm from './ProjectDetailsForm';
 import ProjectMembersForm from './ProjectMembersForm';
 
@@ -45,8 +46,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       try {
         const projects = await getProjects();
         setAvailableProjects(projects || []);
-      } catch (error: any) {
-        console.error('Failed to fetch projects:', error);
+      } catch (error: unknown) {
+        logger.error('Failed to fetch projects:', error);
         setAvailableProjects([]);
       }
     };
@@ -58,8 +59,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       try {
         const userList = await getUsers();
         setUsers(userList || []);
-      } catch (error: any) {
-        console.error('Failed to fetch users:', error);
+      } catch (error: unknown) {
+        logger.error('Failed to fetch users:', error);
         setUsers([]);
       }
     };
@@ -101,7 +102,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       }
       navigate(`/projects/${response.id}`);
     } catch (error) {
-      console.error('Failed to create project:', error);
+      logger.error('Failed to create project:', error);
     }
   }, [selectedUsers, formData, onSubmit, navigate]);
 

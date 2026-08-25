@@ -1,7 +1,7 @@
 create table if not exists session (
   sid varchar primary key not null collate "default",
   sess json not null,
-  expire timestamp(6) not null
+  expire timestamptz not null
 )
 with (OIDS=FALSE);
 

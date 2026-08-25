@@ -1,5 +1,5 @@
 create table if not exists comments (
-    id serial primary key not null,
+    id int primary key generated always as identity not null,
     task_id int references tasks(id) not null,
     user_id int references users(id) not null,
     active bool default true not null,

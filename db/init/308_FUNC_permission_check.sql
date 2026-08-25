@@ -2,7 +2,7 @@ create or replace function permission_check(
     user_id integer,
     required_permission character varying
 )
-returns boolean as $$
+returns boolean as $function$
 declare
     p_check boolean;
 begin
@@ -20,4 +20,4 @@ begin
 
     return p_check;
 end;
-$$ language plpgsql;
+$function$ language plpgsql;
