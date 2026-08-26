@@ -84,7 +84,7 @@ describe('useNotificationCenter', () => {
       await flushPromises();
     });
     await waitFor(() => {
-      expect(getNotifications).toHaveBeenCalledWith(1);
+      expect(getNotifications).toHaveBeenCalledWith();
       expect(result.current.notifications).toEqual(mockNotifications);
       expect(result.current.unreadCount).toBe(1); // Only one notification is unread
     });
@@ -188,7 +188,7 @@ describe('useNotificationCenter', () => {
       await result.current.handleMarkAllAsRead();
     });
 
-    expect(markAsRead).toHaveBeenCalledWith(1);
+    expect(markAsRead).toHaveBeenCalledWith();
     expect(getNotifications).toHaveBeenCalledTimes(2); // Initial fetch + after mark all read
   });
 
