@@ -11,6 +11,7 @@ import { filterByProjectAccess } from '../models/accessModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
+import { withTransaction } from '../utils/transaction';
 
 /** Convert date from request (Date or ISO string) to timestamp; null/undefined → NaN. */
 function toTimestamp(d: Date | string | null | undefined): number {
@@ -257,7 +258,13 @@ export const createTask = async (
 ): Promise<void> => {
   try {
     const taskData: TaskCreateInput = req.body;
-    const created_by = taskData.created_by ?? req.session?.user?.id;
+    // Authorship comes from the session only; a client-supplied created_by
+    // would let a caller attribute the task to somebody else.
+    const created_by = Number(req.session?.user?.id);
+    if (!Number.isInteger(created_by)) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
     const { holder_id, assignee_id, tag_ids, estimated_time } = taskData;
 
     // Create unique watchers array from holder, assignee, and creator
@@ -279,7 +286,16 @@ export const createTask = async (
       'assignee_id',
     ];
 
-    const missingFields = requiredFields.filter((field) => !taskData[field]);
+    // A falsy check would reject a legitimate 0 (a valid id or an empty name is
+    // caught by the trim below instead).
+    const missingFields = requiredFields.filter((field) => {
+      const value = taskData[field];
+      return (
+        value === undefined ||
+        value === null ||
+        (typeof value === 'string' && value.trim() === '')
+      );
+    });
 
     if (missingFields.length > 0) {
       res.status(400).json({
@@ -328,56 +344,47 @@ export const createTask = async (
       project_id: taskData.project_id,
       holder_id: taskData.holder_id,
       assignee_id: taskData.assignee_id,
-      created_by: created_by ?? taskData.created_by,
+      created_by,
       parent_id: taskData.parent_id || undefined,
       // Extract tag IDs and ensure they are numbers
       tag_ids: (taskData.tags || []).map((tag) => Number(tag.id)),
     };
 
-    // Create task with processed data
-    const task = await taskModel.createTask(pool, processedData, watchers);
+    // The task and its watcher notifications are one unit of work: a failure
+    // after the insert must not leave a task nobody is notified about.
+    const task = await withTransaction(pool, async (client) => {
+      const created = await taskModel.createTask(client, processedData, watchers);
+
+      if (!created || !created.task_id) {
+        throw new Error('Task creation failed - no task ID returned');
+      }
+
+      const taskId = Number(created.task_id);
+      if (isNaN(taskId)) {
+        throw new Error(`Invalid task ID: ${created.task_id}`);
+      }
+
+      await notificationModel.createWatcherNotifications(client, {
+        task_id: taskId,
+        action_user_id: created_by,
+        type_id: NotificationType.TaskCreated,
+      });
+
+      return created;
+    });
 
     logger.debug({ task }, 'Created task');
-
-    if (!task || !task.task_id) {
-      throw new Error('Task creation failed - no task ID returned');
-    }
-
-    // Ensure we have valid numbers for the notification
-    const taskId = Number(task.task_id);
-    const actionUserId = Number(created_by);
-
-    // Debug log
-    logger.debug(
-      {
-        taskId,
-        actionUserId,
-        originalId: task.task_id,
-        originalCreatedBy: created_by,
-      },
-      'Converted IDs',
-    );
-
-    if (isNaN(taskId)) {
-      throw new Error(`Invalid task ID: ${task.task_id}`);
-    }
-    if (isNaN(actionUserId)) {
-      throw new Error(`Invalid created_by ID: ${created_by}`);
-    }
-
-    // Create notifications for watchers
-    await notificationModel.createWatcherNotifications(pool, {
-      task_id: taskId,
-      action_user_id: actionUserId,
-      type_id: NotificationType.TaskCreated,
-    });
 
     res.status(201).json(task);
   } catch (error) {
     logger.error({ err: error, taskData: req.body }, 'Error creating task');
-    const errorMessage =
-      error instanceof Error ? error.message : 'Internal server error';
-    res.status(500).json({ error: errorMessage });
+    // 22023 = invalid_parameter_value, raised by create_task() for input it
+    // rejects; that is the caller's fault, not a server failure.
+    if ((error as { code?: string })?.code === '22023') {
+      res.status(400).json({ error: 'Invalid task data' });
+      return;
+    }
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -425,19 +432,25 @@ export const updateTask = async (
   }
 
   try {
-    const task = await taskModel.updateTask(pool, id, taskData);
+    const task = await withTransaction(pool, async (client) => {
+      const updated = await taskModel.updateTask(client, id, taskData);
+      if (!updated) {
+        return null;
+      }
+
+      await notificationModel.createWatcherNotifications(client, {
+        task_id: parseInt(id),
+        action_user_id: parseInt(userId!),
+        type_id: NotificationType.TaskUpdated, // Task Updated
+      });
+
+      return updated;
+    });
 
     if (!task) {
       res.status(404).json({ error: 'Task not found' });
       return;
     }
-
-    // Create notifications for watchers
-    await notificationModel.createWatcherNotifications(pool, {
-      task_id: parseInt(id),
-      action_user_id: parseInt(userId!),
-      type_id: NotificationType.TaskUpdated, // Task Updated
-    });
 
     res.status(200).json(task);
   } catch (error) {
@@ -456,20 +469,36 @@ export const changeTaskStatus = async (
   const { statusId } = req.body;
   const userId = req.session.user?.id;
 
+  const statusIdNum = Number(statusId);
+  if (!Number.isInteger(statusIdNum) || statusIdNum < 1) {
+    res.status(400).json({ error: 'statusId must be a positive integer' });
+    return;
+  }
+
   try {
-    const task = await taskModel.changeTaskStatus(pool, Number(id), statusId);
+    const task = await withTransaction(pool, async (client) => {
+      const updated = await taskModel.changeTaskStatus(
+        client,
+        Number(id),
+        statusIdNum,
+      );
+      if (!updated) {
+        return null;
+      }
+
+      await notificationModel.createWatcherNotifications(client, {
+        task_id: parseInt(id),
+        action_user_id: parseInt(userId!),
+        type_id: NotificationType.TaskUpdated, // Task Status Changed
+      });
+
+      return updated;
+    });
 
     if (!task) {
       res.status(404).json({ error: 'Unable to update task status' });
       return;
     }
-
-    // Create notifications for watchers
-    await notificationModel.createWatcherNotifications(pool, {
-      task_id: parseInt(id),
-      action_user_id: parseInt(userId!),
-      type_id: NotificationType.TaskUpdated, // Task Status Changed
-    });
 
     res.status(200).json(task);
   } catch (error) {

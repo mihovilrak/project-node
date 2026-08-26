@@ -114,6 +114,9 @@ const UserDialog: React.FC<UserDialogProps> = ({
                         onClick={() => setShowPassword(!showPassword)}
                         edge="end"
                         data-testid="toggle-password-visibility"
+                        aria-label={
+                          showPassword ? 'Hide password' : 'Show password'
+                        }
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
@@ -141,6 +144,11 @@ const UserDialog: React.FC<UserDialogProps> = ({
                           }
                           edge="end"
                           data-testid="toggle-confirm-password-visibility"
+                          aria-label={
+                            showConfirmPassword
+                              ? 'Hide confirmed password'
+                              : 'Show confirmed password'
+                          }
                         >
                           {showConfirmPassword ? (
                             <VisibilityOff />

@@ -91,6 +91,9 @@ export const deleteComment = async (
 
   try {
     const deletedComment = await commentModel.deleteComment(pool, id);
+    if (!deletedComment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
     res.status(200).json(deletedComment);
   } catch (error) {
     logger.error({ err: error });

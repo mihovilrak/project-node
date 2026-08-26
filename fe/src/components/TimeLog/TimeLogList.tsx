@@ -15,6 +15,7 @@ import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { TimeLogListProps } from '../../types/timeLog';
 import PermissionButton from '../common/PermissionButton';
+import { formatDate } from '../../utils/dateUtils';
 
 const formatTime = (hours: number | string): string => {
   const numHours = typeof hours === 'string' ? parseFloat(hours) : hours;
@@ -98,7 +99,7 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
                 {log?.log_date
-                  ? new Date(log.log_date).toLocaleDateString()
+                  ? formatDate(log.log_date)
                   : '—'}
               </TableCell>
               <TableCell>

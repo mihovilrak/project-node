@@ -13,10 +13,14 @@ import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
 import { TimeLog } from '../../types/timeLog';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { useAuth } from '../../context/AuthContext';
 
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const {
     task,
@@ -126,6 +130,14 @@ const TaskDetails: React.FC = () => {
 
   return (
     <Grid container spacing={2}>
+      {actionError && (
+        <Grid size={{ xs: 12 }}>
+          <Alert severity="error" onClose={() => setActionError(null)}>
+            {actionError}
+          </Alert>
+        </Grid>
+      )}
+
       <TaskDetailsHeader
         task={task}
         statuses={statuses || []}
@@ -135,9 +147,11 @@ const TaskDetails: React.FC = () => {
         onStatusChange={handleStatusChange}
         onDelete={async () => {
           try {
+            setActionError(null);
             await handleDelete();
           } catch (error: unknown) {
             logger.error('Failed to delete task:', error);
+            setActionError(getApiErrorMessage(error, 'Failed to delete task'));
           }
         }}
         onTimeLogClick={() =>
@@ -148,8 +162,8 @@ const TaskDetails: React.FC = () => {
           }))
         }
         onAddSubtaskClick={() => task && handleAddSubtaskClick(task, navigate)}
-        canEdit={true}
-        canDelete={true}
+        canEdit={hasPermission('Edit tasks')}
+        canDelete={hasPermission('Delete tasks')}
       />
 
       <TaskDetailsContent
@@ -172,6 +186,7 @@ const TaskDetails: React.FC = () => {
         onTimeLogSubmit={async (data) => {
           if (!data) return;
           try {
+            setActionError(null);
             // Pass the timeLogId if we're editing
             const timeLogId = state.selectedTimeLog?.id;
             await handleTimeLogSubmit(data, timeLogId);
@@ -183,11 +198,21 @@ const TaskDetails: React.FC = () => {
           } catch (error: unknown) {
             logger.error('Failed to submit time log:', error);
             // Keep dialog open on error
+            setActionError(
+              getApiErrorMessage(error, 'Failed to save the time log'),
+            );
           }
         }}
         onTimeLogDelete={async (timeLogId) => {
-          if (timeLogId) {
+          if (!timeLogId) return;
+          try {
+            setActionError(null);
             await deleteTimeLog(timeLogId);
+          } catch (error: unknown) {
+            logger.error('Failed to delete time log:', error);
+            setActionError(
+              getApiErrorMessage(error, 'Failed to delete the time log'),
+            );
           }
         }}
         onTimeLogEdit={(timeLog) => {

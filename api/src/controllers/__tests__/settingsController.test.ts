@@ -367,7 +367,7 @@ describe('SettingsController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'SMTP test failed: Connection refused',
+        message: 'SMTP test failed. See the server logs for details.',
       });
     });
 
@@ -395,7 +395,7 @@ describe('SettingsController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'SMTP test failed: Authentication failed',
+        message: 'SMTP test failed. See the server logs for details.',
       });
     });
 

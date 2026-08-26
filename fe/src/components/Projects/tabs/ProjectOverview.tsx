@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
+import { formatDatePattern } from '../../../utils/dateUtils';
 import { ProjectOverviewProps } from '../../../types/project';
 import PermissionButton from '../../common/PermissionButton';
 import { useProjectOverview } from '../../../hooks/project/useProjectOverview';
@@ -36,7 +37,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({
         <Typography>
           <strong>Start Date:</strong>{' '}
           {projectDetails?.start_date
-            ? format(new Date(projectDetails.start_date), 'dd/MM/yyyy')
+            ? formatDatePattern(projectDetails.start_date, 'dd/MM/yyyy')
             : 'Not set'}
         </Typography>
       </Grid>
@@ -45,7 +46,7 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({
         <Typography>
           <strong>Due Date:</strong>{' '}
           {projectDetails?.due_date
-            ? format(new Date(projectDetails.due_date), 'dd/MM/yyyy')
+            ? formatDatePattern(projectDetails.due_date, 'dd/MM/yyyy')
             : 'Not set'}
         </Typography>
       </Grid>

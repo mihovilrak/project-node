@@ -89,6 +89,7 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
                     onClick={() => type && onEdit(type)}
                     size="small"
                     disabled={!type}
+                    aria-label="Edit task type"
                   >
                     <EditIcon />
                   </IconButton>

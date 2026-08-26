@@ -4,6 +4,7 @@ import * as profileModel from '../models/profileModel';
 import { CustomRequest } from '../types/express';
 import { ProfileUpdateInput, PasswordUpdateInput } from '../types/profile';
 import logger from '../utils/logger';
+import { validatePassword } from '../utils/passwordPolicy';
 
 // Get user profile
 export const getProfile = async (
@@ -81,6 +82,17 @@ export const changePassword = async (
       });
     }
 
+    const policyError = validatePassword(new_password);
+    if (policyError) {
+      return res.status(400).json({ error: policyError });
+    }
+
+    if (new_password === currentPassword) {
+      return res.status(400).json({
+        error: 'New password must differ from the current password',
+      });
+    }
+
     // Verify current password
     const verifyResult = await profileModel.verifyPassword(
       pool,
@@ -105,6 +117,14 @@ export const changePassword = async (
         error: 'Failed to update password',
       });
     }
+
+    // Every other device holding a session for this account is now stale.
+    try {
+      await profileModel.deleteOtherSessions(pool, userId, req.sessionID);
+    } catch (error) {
+      logger.error({ err: error }, 'Failed to invalidate other sessions');
+    }
+
     res.status(200).json({
       message: `Password updated successfully on ${updatedUser.updated_on}`,
     });

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { ProfileProjectListProps } from '../../types/profile';
+import { formatDate } from '../../utils/dateUtils';
 
 const ProfileProjectList: React.FC<ProfileProjectListProps> = ({
   projects,
@@ -49,7 +50,7 @@ const ProfileProjectList: React.FC<ProfileProjectListProps> = ({
                     color="text.secondary"
                     gutterBottom
                   >
-                    Due: {new Date(project.due_date).toLocaleDateString()}
+                    Due: {formatDate(project.due_date)}
                   </Typography>
                   <LinearProgress
                     variant="determinate"

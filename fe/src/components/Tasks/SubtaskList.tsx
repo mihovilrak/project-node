@@ -28,6 +28,7 @@ import {
   chipPropsForStatus,
 } from '../../utils/taskUtils';
 import logger from '../../utils/logger';
+import { formatDate } from '../../utils/dateUtils';
 
 const COLUMNS = [
   'Task',
@@ -268,7 +269,7 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>
               {subtask.due_date
-                ? new Date(subtask.due_date).toLocaleDateString()
+                ? formatDate(subtask.due_date)
                 : '—'}
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1 }}>

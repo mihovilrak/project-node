@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { Queryable } from '../utils/transaction';
 import {
   Notification,
   NotificationWithDetails,
@@ -11,12 +12,12 @@ export const getNotificationsByUserId = async (
   pool: Pool,
   user_id: string,
 ): Promise<NotificationWithDetails[]> => {
-  const result = await pool.query(
-    `SELECT * FROM notifications
-    WHERE user_id = $1
-    ORDER BY created_on DESC`,
-    [user_id],
-  );
+  // user_notifications() applies the soft-delete predicate and joins the type
+  // name/icon/colour the client renders; querying the table directly returned
+  // notifications the user had already dismissed.
+  const result = await pool.query('SELECT * FROM user_notifications($1)', [
+    user_id,
+  ]);
   return result.rows;
 };
 
@@ -30,6 +31,7 @@ export const markNotificationsAsRead = async (
     SET (is_read, read_on) = (true, current_timestamp)
     WHERE user_id = $1
     AND is_read = false
+    AND active = true
     RETURNING *`,
     [user_id],
   );
@@ -47,6 +49,7 @@ export const markNotificationAsRead = async (
     WHERE id = $1
     AND user_id = $2
     AND is_read = false
+    AND active = true
     RETURNING *`,
     [id, user_id],
   );
@@ -73,7 +76,7 @@ export const deleteNotification = async (
 
 // Create watcher notifications
 export const createWatcherNotifications = async (
-  pool: Pool,
+  pool: Queryable,
   { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput,
 ): Promise<Notification[]> => {
   const result = await pool.query(

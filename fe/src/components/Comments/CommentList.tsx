@@ -98,6 +98,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       size="small"
                       onClick={(e) => comment && handleMenuOpen(e, comment)}
                       sx={{ ml: 1 }}
+                      aria-label="Comment actions"
                       disabled={!comment}
                     >
                       <MoreVertIcon fontSize="small" />

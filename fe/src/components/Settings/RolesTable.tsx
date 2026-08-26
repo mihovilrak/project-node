@@ -63,7 +63,11 @@ const RolesTable: React.FC<RolesTableProps> = ({ roles, onEdit, loading }) => {
                 />
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => onEdit(role)} size="small">
+                <IconButton
+                  onClick={() => onEdit(role)}
+                  size="small"
+                  aria-label="Edit role"
+                >
                   <EditIcon />
                 </IconButton>
               </TableCell>

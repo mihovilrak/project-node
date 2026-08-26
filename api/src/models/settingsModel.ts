@@ -84,16 +84,37 @@ export const updateUserSettings = async (
   userId: string,
   settings: UserSettingsUpdateInput,
 ): Promise<Settings | null> => {
-  const { theme, language, notifications_enabled, email_notifications } =
-    settings;
+  const { theme, language, notifications_enabled } = settings;
+  const emailNotifications =
+    settings.email_notifications_enabled ?? settings.email_notifications;
+  // Every column is NOT NULL, so an omitted field must fall back to the stored
+  // value (or the column default on first write) rather than be set to NULL.
   const result = await pool.query(
-    `INSERT INTO user_settings (user_id, theme, language, notifications_enabled, email_notifications)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO user_settings (user_id, theme, language, notifications_enabled, email_notifications_enabled)
+     VALUES (
+       $1,
+       COALESCE($2, 'light'),
+       COALESCE($3, 'en'),
+       COALESCE($4, true),
+       COALESCE($5, true)
+     )
      ON CONFLICT (user_id) DO UPDATE
-     SET (theme, language, notifications_enabled, email_notifications, updated_on)
-        = ($2, $3, $4, $5, CURRENT_TIMESTAMP)
+     SET (theme, language, notifications_enabled, email_notifications_enabled, updated_on)
+        = (
+          COALESCE($2, user_settings.theme),
+          COALESCE($3, user_settings.language),
+          COALESCE($4, user_settings.notifications_enabled),
+          COALESCE($5, user_settings.email_notifications_enabled),
+          CURRENT_TIMESTAMP
+        )
      RETURNING *`,
-    [userId, theme, language, notifications_enabled, email_notifications],
+    [
+      userId,
+      theme ?? null,
+      language ?? null,
+      notifications_enabled ?? null,
+      emailNotifications ?? null,
+    ],
   );
   return result.rows[0] || null;
 };

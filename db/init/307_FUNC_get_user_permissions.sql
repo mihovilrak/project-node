@@ -6,6 +6,8 @@ begin
         return query
         select p.name as permission
         from permissions p;
+        -- Without this the role query below is appended, duplicating every row.
+        return;
     end if;
 
     -- If not admin, return only assigned permissions

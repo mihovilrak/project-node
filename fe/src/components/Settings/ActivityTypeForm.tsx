@@ -39,6 +39,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
       <Box mt={2}>
         <IconButton
           onClick={handleOpen}
+          aria-label={value ? `Icon: ${value}. Change icon` : 'Select icon'}
           sx={{
             border: '1px dashed grey',
             borderRadius: 1,
@@ -68,6 +69,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
                       }
                     }}
                     disabled={!iconName}
+                    aria-label={iconName ? `Select icon ${iconName}` : 'Icon'}
                     sx={{
                       border:
                         value === iconName ? '2px solid primary.main' : 'none',

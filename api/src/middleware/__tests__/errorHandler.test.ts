@@ -118,7 +118,7 @@ describe('ErrorHandler Middleware', () => {
     );
   });
 
-  it('should not include stack trace in production mode', async () => {
+  it('should not include stack trace or the raw message in production mode', async () => {
     process.env.NODE_ENV = 'production';
     const errorWithStack: CustomError = {
       name: 'Error',
@@ -134,7 +134,28 @@ describe('ErrorHandler Middleware', () => {
     );
 
     expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Test error',
+      error: 'Internal Server Error',
+    });
+  });
+
+  it('should still echo a deliberate 4xx message in production mode', async () => {
+    process.env.NODE_ENV = 'production';
+    const clientError: CustomError = {
+      name: 'Error',
+      message: 'Name is required',
+      status: 400,
+    };
+
+    await errorHandler(
+      clientError,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
+
+    expect(mockRes.status).toHaveBeenCalledWith(400);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      error: 'Name is required',
     });
   });
 });

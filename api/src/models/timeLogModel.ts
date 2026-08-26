@@ -7,6 +7,32 @@ import {
   SpentTime,
 } from '../types/timeLog';
 
+// get_time_logs only filters by task / user / project, so the rest of
+// TimeLogQueryFilters is applied to its result set. Positional args are always
+// $1-$3 so the filter placeholders keep the same numbers at every call site.
+const FILTERED_TIME_LOGS = `SELECT * FROM get_time_logs($1, $2, $3)
+  WHERE ($4::date IS NULL OR log_date >= $4::date)
+  AND ($5::date IS NULL OR log_date <= $5::date)
+  AND ($6::smallint IS NULL OR activity_type_id = $6::smallint)
+  AND ($7::int IS NULL OR user_id = $7::int)
+  ORDER BY created_on DESC`;
+
+// Query strings arrive as '' when a filter input is cleared; that is "no
+// filter", not an empty date.
+const orNull = <T>(value: T | undefined | null): T | null =>
+  value === undefined || value === null || (value as unknown) === ''
+    ? null
+    : value;
+
+const filterValues = (
+  params?: TimeLogQueryFilters,
+): (Date | number | null)[] => [
+  orNull(params?.startDate),
+  orNull(params?.endDate),
+  orNull(params?.activity_type_id),
+  orNull(params?.user_id),
+];
+
 // Time log model
 export const getAllTimeLogs = async (pool: Pool): Promise<TimeLog[]> => {
   const result = await pool.query(
@@ -64,10 +90,12 @@ export const getUserTimeLogs = async (
   userId: string,
   params: TimeLogQueryFilters,
 ): Promise<TimeLog[]> => {
-  const result = await pool.query(
-    'SELECT * FROM get_time_logs(null, $1, null)',
-    [userId],
-  );
+  const result = await pool.query(FILTERED_TIME_LOGS, [
+    null,
+    userId,
+    null,
+    ...filterValues(params),
+  ]);
   return result.rows;
 };
 
@@ -77,10 +105,12 @@ export const getProjectTimeLogs = async (
   projectId: string,
   params: TimeLogQueryFilters,
 ): Promise<TimeLog[]> => {
-  const result = await pool.query(
-    'SELECT * FROM get_time_logs(null, null, $1)',
-    [projectId],
-  );
+  const result = await pool.query(FILTERED_TIME_LOGS, [
+    null,
+    null,
+    projectId,
+    ...filterValues(params),
+  ]);
   return result.rows;
 };
 
@@ -101,10 +131,12 @@ export const getTaskTimeLogs = async (
   taskId: string,
   params?: TimeLogQueryFilters,
 ): Promise<TimeLog[]> => {
-  const result = await pool.query(
-    'SELECT * FROM get_time_logs($1, null, null)',
-    [taskId],
-  );
+  const result = await pool.query(FILTERED_TIME_LOGS, [
+    taskId,
+    null,
+    null,
+    ...filterValues(params),
+  ]);
   return result.rows;
 };
 

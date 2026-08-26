@@ -22,6 +22,7 @@ import {
   chipPropsForPriority,
   chipPropsForStatus,
 } from '../../utils/taskUtils';
+import { formatDate } from '../../utils/dateUtils';
 
 const getIconComponent = (
   iconName?: string,
@@ -109,7 +110,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, loading }) => {
                 <TableCell>{task?.holder_name || 'Unassigned'}</TableCell>
                 <TableCell>
                   {task?.due_date
-                    ? new Date(task.due_date).toLocaleDateString()
+                    ? formatDate(task.due_date)
                     : '-'}
                 </TableCell>
                 <TableCell>

@@ -34,7 +34,7 @@ export const createTag = async (
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const tag = await tagModel.createTag(pool, name, color, userId, icon);
+    const tag = await tagModel.createTag(pool, name, color, icon);
     res.status(201).json(tag);
   } catch (error) {
     logger.error({ err: error });

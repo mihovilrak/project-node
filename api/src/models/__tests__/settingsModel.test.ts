@@ -109,9 +109,27 @@ describe('SettingsModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('ON CONFLICT (user_id) DO UPDATE'),
+        ['1', 'light', 'en', true, true],
+      );
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('email_notifications_enabled'),
         expect.any(Array),
       );
       expect(result).toEqual(mockSettings);
+    });
+
+    it('should pass null for omitted fields so stored values survive', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([{}]));
+
+      await settingsModel.updateUserSettings(mockPool, '1', { theme: 'dark' });
+
+      expect(mockPool.query).toHaveBeenCalledWith(expect.any(String), [
+        '1',
+        'dark',
+        null,
+        null,
+        null,
+      ]);
     });
   });
 

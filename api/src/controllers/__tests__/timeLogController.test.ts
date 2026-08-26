@@ -108,6 +108,7 @@ describe('TimeLogController', () => {
     it('should return time logs for a task', async () => {
       const mockTimeLogs = [{ id: '1', task_id: '1', spent_time: 2.5 }];
       mockReq.params = { taskId: '1' };
+      mockReq.query = { startDate: '2024-01-01' };
       (timeLogModel.getTaskTimeLogs as jest.Mock).mockResolvedValue(
         mockTimeLogs,
       );
@@ -118,7 +119,9 @@ describe('TimeLogController', () => {
         mockPool as Pool,
       );
 
-      expect(timeLogModel.getTaskTimeLogs).toHaveBeenCalledWith(mockPool, '1');
+      expect(timeLogModel.getTaskTimeLogs).toHaveBeenCalledWith(mockPool, '1', {
+        startDate: '2024-01-01',
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTimeLogs);
     });

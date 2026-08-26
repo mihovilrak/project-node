@@ -360,9 +360,9 @@ describe('ProjectController', () => {
 
   describe('changeProjectStatus', () => {
     it('should change project status successfully', async () => {
-      const updatedProject = { id: '1', name: 'Project 1', status_id: 2 };
+      const updatedProject = { message: 'Project status changed to inactive.' };
       mockReq.params = { id: '1' };
-      mockReq.body = { status: 'completed' };
+      mockReq.body = { status_id: 2 };
       (projectModel.changeProjectStatus as jest.Mock).mockResolvedValue(
         updatedProject,
       );
@@ -376,15 +376,29 @@ describe('ProjectController', () => {
       expect(projectModel.changeProjectStatus).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'completed',
+        2,
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedProject);
     });
 
+    it('should reject a non-numeric status', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { status_id: 'completed' };
+
+      await projectController.changeProjectStatus(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(projectModel.changeProjectStatus).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
     it('should return 404 when project not found', async () => {
       mockReq.params = { id: '999' };
-      mockReq.body = { status: 'completed' };
+      mockReq.body = { status_id: 2 };
       (projectModel.changeProjectStatus as jest.Mock).mockResolvedValue(null);
 
       await projectController.changeProjectStatus(
@@ -399,7 +413,7 @@ describe('ProjectController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      mockReq.body = { status: 'completed' };
+      mockReq.body = { status_id: 2 };
       (projectModel.changeProjectStatus as jest.Mock).mockRejectedValue(
         new Error('Database error'),
       );

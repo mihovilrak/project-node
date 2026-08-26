@@ -66,9 +66,14 @@ export const createProject = async (
 };
 
 // Change project status
-export const changeProjectStatus = async (id: number): Promise<Project> => {
+export const changeProjectStatus = async (
+  id: number,
+  statusId: number,
+): Promise<{ message: string }> => {
   try {
-    const response = await api.patch(`/projects/${id}/status`);
+    const response = await api.patch(`/projects/${id}/status`, {
+      status_id: statusId,
+    });
     return response.data;
   } catch (error) {
     logger.error(error);

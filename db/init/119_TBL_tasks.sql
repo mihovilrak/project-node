@@ -16,7 +16,7 @@ create table if not exists tasks (
     assignee_id int references users(id) null,
     created_by int references users(id) not null,
     created_on timestamptz default current_timestamp not null,
-    updated_on timestamptz null default current_timestamp,
+    updated_on timestamptz null,
     check (due_date >= start_date),
     check (end_date >= start_date),
     check (progress >= 0 and progress <= 100)

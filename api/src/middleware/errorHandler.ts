@@ -31,9 +31,14 @@ export default async (
     return;
   }
 
-  // Default error response
+  // Only messages attached to a deliberate 4xx are safe to echo back; a 500
+  // carries whatever the driver said (constraint names, columns, hostnames).
+  const isProduction = process.env.NODE_ENV === 'production';
+  const safeMessage =
+    status < 500 ? message : isProduction ? 'Internal Server Error' : message;
+
   res.status(status).json({
-    error: message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+    error: safeMessage,
+    ...(!isProduction && { stack: err.stack }),
   });
 };

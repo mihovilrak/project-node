@@ -207,14 +207,18 @@ export const createProject = async (
 
 // Change project status
 export const changeProjectStatus = async (
-  req: Request<{ id: string }, {}, { status: string }>,
+  req: Request<{ id: string }, {}, { status_id?: number; status?: number }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
-  const { status } = req.body;
+  const statusId = Number(req.body.status_id ?? req.body.status);
+  if (!Number.isInteger(statusId) || statusId < 1) {
+    res.status(400).json({ error: 'status_id must be a positive integer' });
+    return;
+  }
   try {
-    const result = await projectModel.changeProjectStatus(pool, id, status);
+    const result = await projectModel.changeProjectStatus(pool, id, statusId);
     if (!result) {
       res.status(404).json({ error: 'Project not found' });
       return;

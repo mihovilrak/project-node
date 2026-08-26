@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import * as fileModel from '../models/fileModel';
+import { hasPermission } from '../models/permissionModel';
 import logger from '../utils/logger';
 import { TaskRequest } from '../types/comment';
 import { FileUploadRequest } from '../types/file';
@@ -117,7 +118,17 @@ export const deleteFile = async (
     return res.status(403).json({ error: 'Access denied to this file' });
   }
 
-  await fileModel.deleteFile(pool, fileId);
+  // Anyone on the project may hold "Delete files", so restrict the delete to
+  // the uploader's own attachments; an administrator may remove any of them.
+  const isAdmin = await hasPermission(pool, userId, 'Admin');
+  const deleted = await fileModel.deleteFile(
+    pool,
+    fileId,
+    isAdmin ? undefined : userId,
+  );
+  if (!deleted) {
+    return res.status(403).json({ error: 'Access denied to this file' });
+  }
 
   const resolvedPath = path.resolve(UPLOADS_DIR, file.stored_name);
   const relativePath = path.relative(UPLOADS_DIR, resolvedPath);

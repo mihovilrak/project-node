@@ -24,6 +24,8 @@ export interface UserSettingsUpdateInput {
   theme?: 'light' | 'dark' | 'system';
   language?: string;
   notifications_enabled?: boolean;
+  email_notifications_enabled?: boolean;
+  // Legacy name kept so an older client body still reaches the right column.
   email_notifications?: boolean;
 }
 

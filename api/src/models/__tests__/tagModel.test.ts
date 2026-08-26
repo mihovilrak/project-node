@@ -43,16 +43,11 @@ describe('TagModel', () => {
         mockQueryResult([mockTag]),
       );
 
-      const result = await tagModel.createTag(
-        mockPool,
-        'NewTag',
-        '#00FF00',
-        '1',
-      );
+      const result = await tagModel.createTag(mockPool, 'NewTag', '#00FF00');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO tags'),
-        ['NewTag', '#00FF00', 'Label', '1'],
+        ['NewTag', '#00FF00', 'Label'],
       );
       expect(result).toEqual(mockTag);
     });

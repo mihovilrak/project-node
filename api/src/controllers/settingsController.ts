@@ -395,11 +395,13 @@ export const testSmtpConnection = async (
     });
   } catch (error) {
     logger.error({ err: error }, 'SMTP test failed');
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+    // The raw SMTP error names the host, port and auth outcome; return only the
+    // transport's short code and keep the detail in the server log.
+    const code = (error as { code?: string })?.code;
     res.status(500).json({
       success: false,
-      message: `SMTP test failed: ${errorMessage}`,
+      message: 'SMTP test failed. See the server logs for details.',
+      ...(typeof code === 'string' && { code }),
     });
   }
 };

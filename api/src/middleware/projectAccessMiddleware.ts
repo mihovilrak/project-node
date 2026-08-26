@@ -2,7 +2,12 @@ import { Response, NextFunction, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
 import { hasPermission } from '../models/permissionModel';
-import { isProjectMember, isTaskProjectMember } from '../models/accessModel';
+import {
+  isProjectMember,
+  isTaskProjectMember,
+  isCommentAuthor,
+  isTimeLogOwner,
+} from '../models/accessModel';
 
 type IdResolver = (req: CustomRequest) => string | undefined;
 type MembershipCheck = (
@@ -80,3 +85,15 @@ export const requireTaskAccessBy = (
   pool: Pool,
   resolveId: IdResolver,
 ): RequestHandler => guard(pool, resolveId, isTaskProjectMember);
+
+// Ownership guards. Membership lets a user read project data; changing a row
+// somebody else authored additionally requires being that author.
+export const requireCommentOwnership = (
+  pool: Pool,
+  key = 'id',
+): RequestHandler => guard(pool, fromKey(key), isCommentAuthor);
+
+export const requireTimeLogOwnership = (
+  pool: Pool,
+  key = 'timeLogId',
+): RequestHandler => guard(pool, fromKey(key), isTimeLogOwner);

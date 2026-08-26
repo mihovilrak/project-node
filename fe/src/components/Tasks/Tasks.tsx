@@ -40,6 +40,7 @@ import {
   chipPropsForStatus,
 } from '../../utils/taskUtils';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { formatDate } from '../../utils/dateUtils';
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -559,7 +560,7 @@ const Tasks: React.FC = () => {
                         <Box>
                           <strong>Start</strong>{' '}
                           {task?.start_date
-                            ? new Date(task.start_date).toLocaleDateString()
+                            ? formatDate(task.start_date)
                             : '—'}
                         </Box>
                         <Box>
@@ -585,7 +586,7 @@ const Tasks: React.FC = () => {
                         <Box>
                           <strong>Due</strong>{' '}
                           {task?.due_date
-                            ? new Date(task.due_date).toLocaleDateString()
+                            ? formatDate(task.due_date)
                             : '—'}
                         </Box>
                         <Box />
@@ -747,15 +748,13 @@ const Tasks: React.FC = () => {
                               <span>
                                 <strong>Start</strong>{' '}
                                 {task?.start_date
-                                  ? new Date(
-                                      task.start_date,
-                                    ).toLocaleDateString()
+                                  ? formatDate(task.start_date)
                                   : '—'}
                               </span>
                               <span>
                                 <strong>Due</strong>{' '}
                                 {task?.due_date
-                                  ? new Date(task.due_date).toLocaleDateString()
+                                  ? formatDate(task.due_date)
                                   : '—'}
                               </span>
                               <span>

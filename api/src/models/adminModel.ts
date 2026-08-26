@@ -30,13 +30,13 @@ export const getSystemLogs = async (
     FROM time_logs tl
     JOIN users u ON tl.user_id = u.id
     JOIN activity_types at ON tl.activity_type_id = at.id
-    WHERE tl.created_on BETWEEN $1 AND $2
+    WHERE tl.created_on >= COALESCE($1::timestamptz, '-infinity')
+      AND tl.created_on <= COALESCE($2::timestamptz, now())
   `;
 
-  const params: (string | Date)[] = [
-    startDate || '1970-01-01',
-    endDate || 'NOW()',
-  ];
+  // A bind parameter is never parsed as SQL, so 'NOW()' would reach Postgres as
+  // a literal string; the default belongs in the statement instead.
+  const params: (string | null)[] = [startDate ?? null, endDate ?? null];
 
   if (type) {
     query += ' AND tl.activity_type_id = $3';

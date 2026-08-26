@@ -12,6 +12,9 @@ import { NotificationCreateResponse } from '../types/notification-routes.types';
 
 const BATCH_LIMIT = 100;
 const SEND_CONCURRENCY = 5;
+// After this many failed attempts a notification is dead-lettered: the claim
+// function stops handing it out and the failure is logged and counted.
+const MAX_EMAIL_ATTEMPTS = 5;
 
 async function runWithConcurrency<T, R>(
   items: T[],
@@ -31,40 +34,45 @@ async function runWithConcurrency<T, R>(
 
 class NotificationService {
   async processNewNotifications(): Promise<void> {
-    const client = await pool.connect();
     try {
-      await client.query('BEGIN');
-      const result = await client.query<DatabaseNotification>(
-        'SELECT * FROM get_notifications_for_service($1)',
-        [BATCH_LIMIT],
+      // Claiming is one committed statement on purpose: the previous version
+      // held FOR UPDATE row locks across every SMTP round-trip, and a failed
+      // COMMIT re-sent the whole batch on the next tick.
+      const result = await pool.query<DatabaseNotification>(
+        'SELECT * FROM get_notifications_for_service($1, $2)',
+        [BATCH_LIMIT, MAX_EMAIL_ATTEMPTS],
       );
 
       await runWithConcurrency(
         result.rows,
         SEND_CONCURRENCY,
         async (notification) => {
-          await this.sendNotificationEmail(notification, client);
-          metrics.increment('notificationsSent');
+          const sent = await this.sendNotificationEmail(notification);
+          if (sent) {
+            metrics.increment('notificationsSent');
+          } else if (notification.email_attempts >= MAX_EMAIL_ATTEMPTS) {
+            logger.error(
+              {
+                notificationId: notification.id,
+                attempts: notification.email_attempts,
+              },
+              'Notification dead-lettered after final delivery attempt',
+            );
+            metrics.increment('notificationsDeadLettered');
+          }
         },
       );
-      await client.query('COMMIT');
+      metrics.setProcessingTime();
     } catch (error) {
-      try {
-        await client.query('ROLLBACK');
-      } catch {
-        // ignore rollback errors
-      }
       logger.error({ err: error }, 'Failed to process notifications');
       metrics.increment('notificationErrors');
-    } finally {
-      client.release();
     }
   }
 
   async sendNotificationEmail(
     notification: DatabaseNotification,
     client?: PoolClient,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const queryClient = client ?? pool;
     try {
       const emailData: NotificationEmailData = {
@@ -79,16 +87,23 @@ class NotificationService {
         emailData,
       );
 
-      // Mark as read after sending email
+      // emailed_on, not read_on: whether the user has read the notification is
+      // theirs to say, and writing read_on here also hid the email from anyone
+      // who happened to open the notification in-app first.
       await queryClient.query(
         `UPDATE notifications
-        SET read_on = NOW()
+        SET emailed_on = NOW()
         WHERE id = $1`,
         [notification.id],
       );
+      return true;
     } catch (error) {
-      logger.error({ err: error }, 'Failed to send notification email');
+      logger.error(
+        { err: error, notificationId: notification.id },
+        'Failed to send notification email',
+      );
       metrics.increment('emailErrors');
+      return false;
     }
   }
 

@@ -9,9 +9,11 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
+// An idle-client error is recoverable - the pool discards that client and opens
+// a new one on the next query. Exiting instead stopped notifications forever,
+// because nothing supervises this process.
 pool.on('error', (err: Error) => {
   logger.error({ err }, 'Unexpected error on idle client');
-  process.exit(1);
 });
 
 export { pool };

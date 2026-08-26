@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as timeLogModel from '../models/timeLogModel';
 import { CustomRequest } from '../types/express';
-import { TimeLogCreateInput } from '../types/timeLog';
+import { TimeLogCreateInput, TimeLogQueryFilters } from '../types/timeLog';
 import logger from '../utils/logger';
 
 // Get all time logs
@@ -28,7 +28,11 @@ export const getTaskTimeLogs = async (
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
-    const timeLogs = await timeLogModel.getTaskTimeLogs(pool, taskId);
+    const timeLogs = await timeLogModel.getTaskTimeLogs(
+      pool,
+      taskId,
+      req.query as TimeLogQueryFilters,
+    );
     res.status(200).json(timeLogs);
   } catch (error) {
     logger.error({ err: error });

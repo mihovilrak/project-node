@@ -16,15 +16,14 @@ export const createTag = async (
   pool: Pool,
   name: string,
   color: string,
-  userId: string,
   icon?: string,
 ): Promise<Tag> => {
   const defaultIcon = icon || 'Label';
   const result = await pool.query(
-    `INSERT INTO tags (name, color, icon, created_by)
-    VALUES ($1, $2, $3, $4)
+    `INSERT INTO tags (name, color, icon)
+    VALUES ($1, $2, $3)
     RETURNING *`,
-    [name, color, defaultIcon, userId],
+    [name, color, defaultIcon],
   );
   return result.rows[0];
 };

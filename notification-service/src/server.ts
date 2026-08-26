@@ -26,6 +26,8 @@ app.get('/health', async (req: Request, res: Response) => {
       metrics: {
         notificationsSent: metrics.notificationsSent,
         emailErrors: metrics.emailErrors,
+        notificationErrors: metrics.notificationErrors,
+        notificationsDeadLettered: metrics.notificationsDeadLettered,
         lastProcessingTime: metrics.lastProcessingTime,
       },
       timestamp: new Date(),

@@ -7,26 +7,31 @@ create or replace function update_role(
 ) returns void as $function$
 
     declare
-        p_permission smallint;
+        v_permissions smallint[] := coalesce(p_permissions, '{}'::smallint[]);
 
 begin
 
-    -- Update role
+    -- Serialise concurrent edits of the same role: without this, two callers
+    -- interleave their delete/insert and the loser's permissions survive.
+    perform 1 from roles where id = p_id for update;
+    if not found then
+        raise exception 'Role % does not exist', p_id using errcode = 'no_data_found';
+    end if;
+
     update roles
     set (name, description, active)
         = (p_name, p_description, p_active)
     where id = p_id;
 
-    -- Delete existing permissions
-    delete from roles_permissions where role_id = p_id;
+    -- Differential update rather than delete-all/insert-all, so a permission
+    -- the role keeps is never momentarily absent.
+    delete from roles_permissions
+    where role_id = p_id
+    and permission_id <> all(v_permissions);
 
-    -- Insert new permissions
-    if p_permissions is not null then
-            insert into roles_permissions
-            (role_id, permission_id)
-            values
-            (p_id, unnest(p_permissions));
-    end if;
+    insert into roles_permissions (role_id, permission_id)
+    select p_id, unnest(v_permissions)
+    on conflict do nothing;
 
 end;
 
