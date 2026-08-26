@@ -1,6 +1,12 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, seedTestProject, seedTestTask, cleanupTables, cookieHeader } from '../setup/integration.setup';
+import {
+  seedTestUser,
+  seedTestProject,
+  seedTestTask,
+  cleanupTables,
+  cookieHeader,
+} from '../setup/integration.setup';
 
 let app: Express;
 let authCookies = '';
@@ -15,7 +21,15 @@ beforeAll(async () => {
 describe('Task CRUD Operations', () => {
   beforeEach(async () => {
     // Clean up and seed test data
-    await cleanupTables(['tasks', 'task_tags', 'watchers', 'projects', 'project_users', 'users', 'session']);
+    await cleanupTables([
+      'tasks',
+      'task_tags',
+      'watchers',
+      'projects',
+      'project_users',
+      'users',
+      'session',
+    ]);
     testUser = await seedTestUser();
     testProject = await seedTestProject(testUser.id);
 

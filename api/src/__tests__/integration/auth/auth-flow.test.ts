@@ -1,6 +1,10 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, cleanupTables, cookieHeader } from '../setup/integration.setup';
+import {
+  seedTestUser,
+  cleanupTables,
+  cookieHeader,
+} from '../setup/integration.setup';
 
 let app: Express;
 

@@ -1,6 +1,11 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { seedTestUser, seedTestProject, cleanupTables, cookieHeader } from '../setup/integration.setup';
+import {
+  seedTestUser,
+  seedTestProject,
+  cleanupTables,
+  cookieHeader,
+} from '../setup/integration.setup';
 
 let app: Express;
 let authCookies = '';

@@ -69,7 +69,10 @@ export const seedTestUser = async () => {
   
   const result = await testPool.query(`
     INSERT INTO users (login, email, password, name, surname, role_id, status_id)
-    VALUES ('testuser', 'test@example.com', crypt('password123', gen_salt('bf', 12)), 'Test', 'User', 2, 1)
+    VALUES ('testuser', 'test@example.com', crypt(
+      'password123',
+      gen_salt('bf', 12)
+    ), 'Test', 'User', 2, 1)
     ON CONFLICT (login) DO UPDATE SET
       password = EXCLUDED.password,
       updated_on = CURRENT_TIMESTAMP
@@ -82,8 +85,11 @@ export const seedTestProject = async (userId: number) => {
   if (!testPool) return null;
   
   const result = await testPool.query(`
-    INSERT INTO projects (name, description, start_date, due_date, created_by, status_id)
-    VALUES ('Test Project', 'Test project description', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days', $1, 1)
+    INSERT INTO projects
+    (name, description, start_date, due_date, created_by, status_id)
+    VALUES
+    ('Test Project', 'Test project description', CURRENT_DATE,
+     CURRENT_DATE + INTERVAL '30 days', $1, 1)
     RETURNING *
   `, [userId]);
   return result.rows[0];
