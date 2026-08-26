@@ -23,7 +23,7 @@ export const useNotificationCenter = (
 
     try {
       setLoading(true);
-      const data = await getNotifications(userId);
+      const data = await getNotifications();
       setNotifications(data || []);
       setUnreadCount((data || []).filter(n => !n?.is_read).length);
     } catch (error: unknown) {
@@ -59,7 +59,7 @@ export const useNotificationCenter = (
       if (!notification) return;
 
       if (!notification.is_read) {
-        await markAsRead(userId);
+        await markAsRead(notification.id);
         await fetchNotifications();
       }
       handleClose();
@@ -91,7 +91,7 @@ export const useNotificationCenter = (
   const handleMarkAllAsRead = async (): Promise<void> => {
     if (!userId) return;
     try {
-      await markAsRead(userId);
+      await markAsRead();
       await fetchNotifications();
     } catch (error: unknown) {
       logger.error('Failed to mark all notifications as read:', error);

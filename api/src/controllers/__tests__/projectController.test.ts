@@ -3,12 +3,16 @@ import { Pool } from 'pg';
 import * as projectController from '../projectController';
 import * as projectModel from '../../models/projectModel';
 import * as notificationModel from '../../models/notificationModel';
+import * as accessModel from '../../models/accessModel';
 import { Session } from 'express-session';
 import { ProjectRequest } from '../../types/express';
 
 // Mock the models
 jest.mock('../../models/projectModel');
 jest.mock('../../models/notificationModel');
+jest.mock('../../models/accessModel', () => ({
+  filterByProjectAccess: jest.fn(async (_pool: unknown, _userId: string, rows: unknown[]) => rows)
+}));
 
 describe('ProjectController', () => {
   let mockReq: any;
@@ -83,6 +87,38 @@ describe('ProjectController', () => {
       expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, { status_id: 1 });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockProjects);
+    });
+
+    it('should hide projects the user is not a member of', async () => {
+      const mockProjects = [
+        { id: '1', name: 'Mine', status_id: 1 },
+        { id: '2', name: "Somebody else's", status_id: 1 }
+      ];
+      (projectModel.getProjects as jest.Mock).mockResolvedValue(mockProjects);
+      (accessModel.filterByProjectAccess as jest.Mock).mockResolvedValueOnce([mockProjects[0]]);
+
+      await projectController.getProjects(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(accessModel.filterByProjectAccess).toHaveBeenCalledWith(mockPool, '1', mockProjects, 'id');
+      expect(mockRes.json).toHaveBeenCalledWith([mockProjects[0]]);
+    });
+
+    it('should reject an unauthenticated request', async () => {
+      mockReq.session = {};
+      (projectModel.getProjects as jest.Mock).mockResolvedValue([]);
+
+      await projectController.getProjects(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool
+      );
+
+      expect(projectModel.getProjects).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
 
     it('should return empty array when no projects found', async () => {

@@ -28,7 +28,7 @@ export const updateProfile = async (
      SET (email, name, surname, updated_on)
      = ($1, $2, $3, CURRENT_TIMESTAMP)
      WHERE id = $4
-     RETURNING *`,
+     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [email, name, surname, userId]
   );
   return result.rows[0] || null;
@@ -61,7 +61,7 @@ export const changePassword = async (
      SET (password, updated_on)
      = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
      WHERE id = $2
-     RETURNING *`,
+     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [password, userId]
   );
   return result.rows[0] || null;

@@ -5,8 +5,9 @@ import {
   ProjectUpdateInput,
   ProjectQueryFilters,
 } from '../types/project';
-import { ProjectRequest } from '../types/express';
+import { CustomRequest, ProjectRequest } from '../types/express';
 import * as projectModel from '../models/projectModel';
+import { filterByProjectAccess } from '../models/accessModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
@@ -74,12 +75,15 @@ export const getProjects = async (
         : undefined;
     }
 
-    const projects = await projectModel.getProjects(pool, effectiveWhereParams);
-    if (projects.length === 0) {
-      res.status(200).json([]);
+    const userId = (req as unknown as CustomRequest).session?.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: 'Not authenticated' });
       return;
     }
-    res.status(200).json(projects);
+
+    const projects = await projectModel.getProjects(pool, effectiveWhereParams);
+    const visible = await filterByProjectAccess(pool, userId, projects, 'id');
+    res.status(200).json(visible);
   } catch (error) {
     logger.error({ err: error }, 'Error fetching projects');
     res.status(500).json({ error: 'Internal server error' });

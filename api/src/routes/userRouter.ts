@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Pool } from 'pg';
 import * as userController from '../controllers/userController';
 import * as timeLogController from '../controllers/timeLogController';
+import checkPermission from '../middleware/permissionMiddleware';
 import { withPool } from '../utils/withPool';
 
 // User routes
@@ -13,10 +14,10 @@ export default (pool: Pool): Router => {
   router.get('/permissions', withPool(pool, userController.getUserPermissions));
   router.get('/time-logs', withPool(pool, timeLogController.getUserTimeLogs));
   router.get('/:id', withPool(pool, userController.getUserById));
-  router.post('/', withPool(pool, userController.createUser));
-  router.put('/:id', withPool(pool, userController.updateUser));
-  router.patch('/:id/status', withPool(pool, userController.changeUserStatus));
-  router.delete('/:id', withPool(pool, userController.deleteUser));
+  router.post('/', checkPermission(pool, 'Admin'), withPool(pool, userController.createUser));
+  router.put('/:id', checkPermission(pool, 'Admin'), withPool(pool, userController.updateUser));
+  router.patch('/:id/status', checkPermission(pool, 'Admin'), withPool(pool, userController.changeUserStatus));
+  router.delete('/:id', checkPermission(pool, 'Admin'), withPool(pool, userController.deleteUser));
 
   return router;
 };

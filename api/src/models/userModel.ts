@@ -68,7 +68,7 @@ export const createUser = async (
     `INSERT INTO users
     (login, name, surname, email, password, role_id)
     VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6)
-    RETURNING *`,
+    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
       [login, name, surname, email, password, role_id]
   );
   return result.rows[0];
@@ -119,7 +119,7 @@ export const changeUserStatus = async (
     `UPDATE users
     SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
     WHERE id = $2
-    RETURNING *`,
+    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [status, id]
   );
   return result.rows[0] || null;
@@ -134,7 +134,7 @@ export const deleteUser = async (
     `UPDATE users
     SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
     WHERE id = $1
-    RETURNING *`,
+    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [id]
   );
   return result.rows[0] || null;

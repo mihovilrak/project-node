@@ -2,10 +2,11 @@ import { api } from './api';
 import { Notification } from '../types/notification';
 import logger from '../utils/logger';
 
-// Get notifications
-export const getNotifications = async (userId: number): Promise<Notification[]> => {
+// Get the current user's notifications. The owner is resolved from the session
+// server-side, so no user id is sent.
+export const getNotifications = async (): Promise<Notification[]> => {
   try {
-    const response = await api.get(`/notifications/${userId}`);
+    const response = await api.get('/notifications');
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch notifications:', error);
@@ -13,10 +14,10 @@ export const getNotifications = async (userId: number): Promise<Notification[]> 
   }
 };
 
-// Mark notifications as read
-export const markAsRead = async (userId: number): Promise<void> => {
+// Mark one notification as read, or all of them when no id is given
+export const markAsRead = async (notificationId?: number): Promise<void> => {
   try {
-    await api.patch(`/notifications/${userId}`);
+    await api.patch('/notifications', notificationId ? { notification_id: notificationId } : {});
   } catch (error) {
     logger.error('Failed to mark notifications as read:', error);
     throw error;

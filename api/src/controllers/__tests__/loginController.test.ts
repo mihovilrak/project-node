@@ -46,7 +46,9 @@ describe('LoginController', () => {
         return mockSession as unknown as Session;
       }),
       user: undefined
-    } as unknown as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+    } as unknown as Session & Partial<{
+      user: { id: string; login: string; role_id: number }
+    }>;
 
     mockReq = {
       params: {},
@@ -70,11 +72,16 @@ describe('LoginController', () => {
         login: 'testuser',
         role_id: 1
       };
-      const mockPermissions = [{ user_id: '1', permission: 'Create projects' as const }];
+      const mockPermissions = [{
+        user_id: '1',
+        permission: 'Create projects' as const,
+      }];
       mockReq.body = { login: 'testuser', password: 'password123' };
       (loginModel.login as jest.Mock).mockResolvedValue(mockUser);
       (loginModel.app_logins as jest.Mock).mockResolvedValue(undefined);
-      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(mockPermissions);
+      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(
+        mockPermissions,
+      );
 
       await loginController.login(
         mockReq as Request,
@@ -82,7 +89,9 @@ describe('LoginController', () => {
         mockPool as Pool
       );
 
-      expect(loginModel.login).toHaveBeenCalledWith(mockPool, 'testuser', 'password123');
+      expect(
+        loginModel.login,
+      ).toHaveBeenCalledWith(mockPool, 'testuser', 'password123');
       expect(loginModel.app_logins).toHaveBeenCalledWith(mockPool, '1');
       expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(mockPool, '1');
       expect(mockReq.session!.user).toEqual(mockUser);
@@ -138,7 +147,9 @@ describe('LoginController', () => {
         mockPool as Pool
       );
 
-      expect(loginModel.login).toHaveBeenCalledWith(mockPool, 'testuser', 'wrongpassword');
+      expect(
+        loginModel.login,
+      ).toHaveBeenCalledWith(mockPool, 'testuser', 'wrongpassword');
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Invalid username or password'
@@ -170,7 +181,14 @@ describe('LoginController', () => {
       );
 
       expect(mockDestroy).toHaveBeenCalled();
-      expect(mockRes.clearCookie).toHaveBeenCalledWith('connect.sid');
+      // clearCookie only removes the cookie when the attributes match the ones it
+      // was set with, so the session cookie options must be passed through.
+      expect(mockRes.clearCookie).toHaveBeenCalledWith('connect.sid', {
+        path: '/',
+        sameSite: 'strict',
+        secure: false,
+        httpOnly: true
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Logged out successfully'
@@ -178,7 +196,9 @@ describe('LoginController', () => {
     });
 
     it('should return 500 on session destroy error', () => {
-      mockDestroy.mockImplementation((callback: (err: any) => void) => callback(new Error('Session error')));
+      mockDestroy.mockImplementation(
+        (callback: (err: any) => void) => callback(new Error('Session error')),
+      );
 
       loginController.logout(
         mockReq as Request,

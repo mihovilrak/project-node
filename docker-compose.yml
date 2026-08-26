@@ -18,10 +18,8 @@ services:
       <<: *db
       PGTZ: ${TZ}
     volumes:
-      - ./db/db_data:/var/lib/data
+      - ./db/db_data:/var/lib/postgresql
       - ./db/backup:/backups
-    ports:
-      - "5432:5432"
 
   app:
     <<: *defaults
@@ -41,10 +39,10 @@ services:
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
       EMAIL_FROM: ${EMAIL_FROM}
       NOTIFICATION_RATE_LIMIT: ${NOTIFICATION_RATE_LIMIT}
+      NOTIFICATION_API_KEY: ${NOTIFICATION_API_KEY}
       LOG_LEVEL: ${LOG_LEVEL}
     ports:
       - "3000:80"
-      - "5000:5000"
     depends_on:
       - db
 

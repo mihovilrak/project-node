@@ -43,7 +43,9 @@ describe('ActivityTypeController', () => {
         login: 'test',
         role_id: 1
       }
-    } as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+    } as Session & Partial<{
+      user: { id: string; login: string; role_id: number }
+    }>;
 
     mockReq = {
       params: {},
@@ -81,7 +83,9 @@ describe('ActivityTypeController', () => {
                 updated_on: new Date()
             }
         ];
-        (activityTypeModel.getActivityTypes as jest.Mock).mockResolvedValue(mockActivityTypes);
+        (activityTypeModel.getActivityTypes as jest.Mock).mockResolvedValue(
+          mockActivityTypes,
+        );
 
         await activityTypeController.getActivityTypes(
             mockReq as Request,
@@ -94,7 +98,9 @@ describe('ActivityTypeController', () => {
     });
 
     it('should handle errors appropriately', async () => {
-        (activityTypeModel.getActivityTypes as jest.Mock).mockRejectedValue(new Error('Database error'));
+        (activityTypeModel.getActivityTypes as jest.Mock).mockRejectedValue(
+          new Error('Database error'),
+        );
         await activityTypeController.getActivityTypes(
             mockReq as Request,
             mockRes as Response,
@@ -102,7 +108,9 @@ describe('ActivityTypeController', () => {
         );
       expect(activityTypeModel.getActivityTypes).toHaveBeenCalledWith(mockPool);
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to fetch activity types' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Failed to fetch activity types',
+      });
     });
   });
 
@@ -122,7 +130,9 @@ describe('ActivityTypeController', () => {
         };
 
         mockReq.body = mockActivityTypeData;
-        (activityTypeModel.createActivityType as jest.Mock).mockResolvedValue(createdActivityType);
+        (activityTypeModel.createActivityType as jest.Mock).mockResolvedValue(
+          createdActivityType,
+        );
 
         await activityTypeController.createActivityType(
             mockReq as Request,
@@ -143,9 +153,15 @@ describe('ActivityTypeController', () => {
     });
 
     it('should return 401 if the user is not authenticated', async () => {
-      const unauthorizedUser = {} as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+      const unauthorizedUser = {} as Session & Partial<{
+        user: { id: string; login: string; role_id: number }
+      }>;
       mockReq.session = unauthorizedUser;
-      mockReq.body = { name: 'Test Activity Type', color: '#000000', icon: 'test-icon' };
+      mockReq.body = {
+        name: 'Test Activity Type',
+        color: '#000000',
+        icon: 'test-icon',
+      };
 
       await activityTypeController.createActivityType(
         mockReq as Request,
@@ -201,7 +217,9 @@ describe('ActivityTypeController', () => {
         created_on: new Date(),
         updated_on: new Date()
       };
-      (activityTypeModel.updateActivityType as jest.Mock).mockResolvedValue(updatedActivityType);
+      (activityTypeModel.updateActivityType as jest.Mock).mockResolvedValue(
+        updatedActivityType,
+      );
 
       await activityTypeController.updateActivityType(
         mockReq as Request,
@@ -209,7 +227,8 @@ describe('ActivityTypeController', () => {
         mockPool as Pool
       );
 
-      // Controller calls updateActivityType with individual parameters: id, name, description, color, icon
+      // Controller calls updateActivityType with individual parameters:
+      // id, name, description, color, icon
       expect(activityTypeModel.updateActivityType).toHaveBeenCalledWith(
         mockPool, 
         activityTypeId, 
@@ -234,7 +253,9 @@ describe('ActivityTypeController', () => {
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Activity type not found' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Activity type not found',
+      });
     });
 
     it('should return 400 when color format is invalid on update', async () => {
@@ -255,7 +276,9 @@ describe('ActivityTypeController', () => {
     it('should delete an activity type successfully', async () => {
       const activityTypeId = '1';
       mockReq.params = { id:activityTypeId };
-      (activityTypeModel.deleteActivityType as jest.Mock).mockResolvedValue({ success: true });
+      (activityTypeModel.deleteActivityType as jest.Mock).mockResolvedValue({
+        success: true,
+      });
 
       await activityTypeController.deleteActivityType(
         mockReq as Request,

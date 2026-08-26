@@ -10,6 +10,9 @@ import { Session } from 'express-session';
 // Mock the models
 jest.mock('../../models/taskModel');
 jest.mock('../../models/notificationModel');
+jest.mock('../../models/accessModel', () => ({
+  filterByProjectAccess: jest.fn(async (_pool: unknown, _userId: string, rows: unknown[]) => rows)
+}));
 
 describe('TaskController', () => {
   let mockReq: Partial<Request & CustomRequest>;

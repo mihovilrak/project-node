@@ -1,0 +1,67 @@
+import { Pool } from 'pg';
+import { hasPermission } from './permissionModel';
+
+const MEMBERSHIP_PREDICATE = `(pu.user_id IS NOT NULL OR p.created_by = $2)`;
+
+export const isProjectMember = async (
+  pool: Pool,
+  projectId: string,
+  userId: string
+): Promise<boolean> => {
+  const result = await pool.query(
+    `SELECT 1
+    FROM projects p
+    LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $2
+    WHERE p.id = $1 AND ${MEMBERSHIP_PREDICATE}
+    LIMIT 1`,
+    [projectId, userId]
+  );
+  return (result.rowCount ?? 0) > 0;
+};
+
+// Is the user a member of the project the task belongs to?
+export const isTaskProjectMember = async (
+  pool: Pool,
+  taskId: string,
+  userId: string
+): Promise<boolean> => {
+  const result = await pool.query(
+    `SELECT 1
+    FROM tasks t
+    JOIN projects p ON p.id = t.project_id
+    LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $2
+    WHERE t.id = $1 AND ${MEMBERSHIP_PREDICATE}
+    LIMIT 1`,
+    [taskId, userId]
+  );
+  return (result.rowCount ?? 0) > 0;
+};
+
+// Every project id the user may see, for scoping list endpoints
+export const getAccessibleProjectIds = async (
+  pool: Pool,
+  userId: string
+): Promise<number[]> => {
+  const result = await pool.query<{ id: number }>(
+    `SELECT DISTINCT p.id
+    FROM projects p
+    LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $1
+    WHERE pu.user_id IS NOT NULL OR p.created_by = $1`,
+    [userId]
+  );
+  return result.rows.map((row) => Number(row.id));
+};
+
+// Drop rows belonging to projects the user cannot reach. Administrators keep
+// the full result set.
+export const filterByProjectAccess = async <T extends Record<string, any>>(
+  pool: Pool,
+  userId: string,
+  rows: T[],
+  projectIdKey: keyof T & string
+): Promise<T[]> => {
+  if (rows.length === 0) return rows;
+  if (await hasPermission(pool, userId, 'Admin')) return rows;
+  const accessible = new Set(await getAccessibleProjectIds(pool, userId));
+  return rows.filter((row) => accessible.has(Number(row[projectIdKey])));
+};
