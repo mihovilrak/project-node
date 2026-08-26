@@ -1,6 +1,12 @@
 import { api } from '../api';
 import { TaskType } from '../../types/task';
-import { getTaskTypes, getTaskTypeById, createTaskType, updateTaskType, deleteTaskType } from '../taskTypes';
+import {
+  getTaskTypes,
+  getTaskTypeById,
+  createTaskType,
+  updateTaskType,
+  deleteTaskType,
+} from '../taskTypes';
 
 // Mock the api module
 jest.mock('../api');
@@ -16,7 +22,7 @@ describe('Task Types API', () => {
     icon: 'test-icon',
     created_on: new Date().toDateString(),
     updated_on: new Date().toDateString(),
-    active: true
+    active: true,
   };
 
   const mockTaskTypes: TaskType[] = [mockTaskType];
@@ -72,7 +78,10 @@ describe('Task Types API', () => {
 
       const result = await createTaskType(newTaskType);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('/admin/task-types', newTaskType);
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/admin/task-types',
+        newTaskType,
+      );
       expect(result).toEqual(mockTaskType);
     });
 
@@ -90,11 +99,16 @@ describe('Task Types API', () => {
     };
 
     it('should update task type successfully', async () => {
-      mockedApi.put.mockResolvedValueOnce({ data: { ...mockTaskType, ...updateData } });
+      mockedApi.put.mockResolvedValueOnce({
+        data: { ...mockTaskType, ...updateData },
+      });
 
       const result = await updateTaskType(1, updateData);
 
-      expect(mockedApi.put).toHaveBeenCalledWith('/admin/task-types/1', updateData);
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        '/admin/task-types/1',
+        updateData,
+      );
       expect(result).toEqual({ ...mockTaskType, ...updateData });
     });
 

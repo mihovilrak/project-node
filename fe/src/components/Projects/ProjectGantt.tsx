@@ -1,15 +1,10 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  CircularProgress,
-  Alert
-} from '@mui/material';
+import { Box, Paper, CircularProgress, Alert } from '@mui/material';
 import {
   ViewState,
   EditingState,
   IntegratedEditing,
-  ChangeSet
+  ChangeSet,
 } from '@devexpress/dx-react-scheduler';
 import {
   Scheduler,
@@ -22,14 +17,17 @@ import {
   ViewSwitcher,
   TodayButton,
   AppointmentTooltip,
-  DragDropProvider
+  DragDropProvider,
 } from '@devexpress/dx-react-scheduler-material-ui';
 import { updateTaskDates } from '../../api/tasks';
 import { ProjectGanttProps } from '../../types/project';
 import { useProjectGantt } from '../../hooks/project/useProjectGantt';
 import logger from '../../utils/logger';
 
-const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTasks }) => {
+const ProjectGantt: React.FC<ProjectGanttProps> = ({
+  projectId,
+  tasks: initialTasks,
+}) => {
   const {
     tasks,
     loading,
@@ -41,7 +39,7 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
     setError,
     renderAppointment,
     renderAppointmentContent,
-    renderTooltipContent
+    renderTooltipContent,
   } = useProjectGantt(initialTasks);
 
   const handleTaskUpdated = async (changes: ChangeSet) => {
@@ -53,7 +51,7 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
         if (updatedTask.startDate || updatedTask.endDate) {
           await updateTaskDates(parseInt(taskId), {
             start_date: updatedTask.startDate?.toISOString().split('T')[0],
-            due_date: updatedTask.endDate?.toISOString().split('T')[0]
+            due_date: updatedTask.endDate?.toISOString().split('T')[0],
           });
         }
       }
@@ -82,42 +80,46 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({ projectId, tasks: initialTa
   return (
     <Box sx={{ width: '100%', height: '100%', overflow: 'auto' }}>
       <Paper sx={{ width: '100%', minHeight: '600px', p: 2 }}>
-        <Scheduler
-          data={tasks || []}
-          height={600}
-        >
-        <ViewState
-          currentDate={currentDate}
-          currentViewName={currentViewName}
-          onCurrentDateChange={setCurrentDate}
-          onCurrentViewNameChange={setCurrentViewName}
-        />
-        <EditingState
-          onCommitChanges={handleTaskUpdated}
-        />
-        <IntegratedEditing />
-        <DayView
-          startDayHour={9}
-          endDayHour={19}
-        />
-        <WeekView
-          startDayHour={9}
-          endDayHour={19}
-        />
-        <MonthView />
-        <Toolbar />
-        <DateNavigator />
-        <TodayButton />
-        <ViewSwitcher />
-        <Appointments
-          appointmentComponent={props => React.createElement(Appointments.Appointment, renderAppointment(props))}
-          appointmentContentComponent={props => React.createElement(Appointments.AppointmentContent, renderAppointmentContent(props))}
-        />
-        <AppointmentTooltip
-          contentComponent={props => React.createElement(AppointmentTooltip.Content, renderTooltipContent(props))}
-          showCloseButton
-        />
-        <DragDropProvider />
+        <Scheduler data={tasks || []} height={600}>
+          <ViewState
+            currentDate={currentDate}
+            currentViewName={currentViewName}
+            onCurrentDateChange={setCurrentDate}
+            onCurrentViewNameChange={setCurrentViewName}
+          />
+          <EditingState onCommitChanges={handleTaskUpdated} />
+          <IntegratedEditing />
+          <DayView startDayHour={9} endDayHour={19} />
+          <WeekView startDayHour={9} endDayHour={19} />
+          <MonthView />
+          <Toolbar />
+          <DateNavigator />
+          <TodayButton />
+          <ViewSwitcher />
+          <Appointments
+            appointmentComponent={(props) =>
+              React.createElement(
+                Appointments.Appointment,
+                renderAppointment(props),
+              )
+            }
+            appointmentContentComponent={(props) =>
+              React.createElement(
+                Appointments.AppointmentContent,
+                renderAppointmentContent(props),
+              )
+            }
+          />
+          <AppointmentTooltip
+            contentComponent={(props) =>
+              React.createElement(
+                AppointmentTooltip.Content,
+                renderTooltipContent(props),
+              )
+            }
+            showCloseButton
+          />
+          <DragDropProvider />
         </Scheduler>
       </Paper>
     </Box>

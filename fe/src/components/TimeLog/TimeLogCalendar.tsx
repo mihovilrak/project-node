@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Paper,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
+import { Box, Paper, CircularProgress, Alert } from '@mui/material';
 import { getProjectTimeLogs } from '../../api/timeLogs';
 import { TimeLog, TimeLogCalendarProps } from '../../types/timeLog';
 import { useTimeLogCalendar } from '../../hooks/timeLog/useTimeLogCalendar';

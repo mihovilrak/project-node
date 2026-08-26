@@ -9,11 +9,11 @@ jest.mock('mui-color-input', () => ({
   MuiColorInput: ({
     label,
     value,
-    onChange
+    onChange,
   }: {
     label: string;
     value: string;
-    onChange: (value: string) => void
+    onChange: (value: string) => void;
   }) => (
     <input
       data-testid="color-input"
@@ -32,7 +32,7 @@ describe('ActivityTypeForm', () => {
     color: '#000000',
     description: 'Test Description',
     active: true,
-    icon: 'test_icon'
+    icon: 'test_icon',
   };
 
   const mockOnChange = jest.fn();
@@ -50,12 +50,16 @@ describe('ActivityTypeForm', () => {
   });
 
   it('renders all form fields correctly', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     // Use more specific queries that work better with Material-UI
     expect(screen.getByRole('textbox', { name: /name/i })).toBeInTheDocument();
     expect(screen.getByTestId('color-input')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /description/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /description/i }),
+    ).toBeInTheDocument();
     // For the switch, look for the span containing 'Active' text
     expect(screen.getByText('Active')).toBeInTheDocument();
     // For the icon label
@@ -63,7 +67,9 @@ describe('ActivityTypeForm', () => {
   });
 
   it('handles name input change', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     const nameInput = screen.getByRole('textbox', { name: /name/i });
     fireEvent.change(nameInput, { target: { value: 'New Activity Name' } });
@@ -72,7 +78,9 @@ describe('ActivityTypeForm', () => {
   });
 
   it('handles color input change', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     const colorInput = screen.getByTestId('color-input');
     fireEvent.change(colorInput, { target: { value: '#FF0000' } });
@@ -81,22 +89,32 @@ describe('ActivityTypeForm', () => {
   });
 
   it('handles description input change', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
-    const descriptionInput = screen.getByRole('textbox', { name: /description/i });
-    fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
+    const descriptionInput = screen.getByRole('textbox', {
+      name: /description/i,
+    });
+    fireEvent.change(descriptionInput, {
+      target: { value: 'New Description' },
+    });
 
     expect(mockOnChange).toHaveBeenCalledWith('description', 'New Description');
   });
 
   it('handles active switch toggle', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     // Find the switch by looking for the container with the 'Active' label
     const activeLabel = screen.getByText('Active');
     const formControlLabel = activeLabel.closest('.MuiFormControlLabel-root');
     expect(formControlLabel).not.toBeNull();
-    const activeSwitch = formControlLabel!.querySelector('input[type="checkbox"]');
+    const activeSwitch = formControlLabel!.querySelector(
+      'input[type="checkbox"]',
+    );
     expect(activeSwitch).not.toBeNull();
     fireEvent.click(activeSwitch!);
 
@@ -104,7 +122,9 @@ describe('ActivityTypeForm', () => {
   });
 
   it('renders icon selector with current value', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     // Find the icon by its text content inside the span with material-icons class
     const iconElement = screen.getByText('test_icon');
@@ -115,7 +135,9 @@ describe('ActivityTypeForm', () => {
   });
 
   it('marks required fields', () => {
-    render(<ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />);
+    render(
+      <ActivityTypeForm formData={defaultFormData} onChange={mockOnChange} />,
+    );
 
     const nameInput = screen.getByRole('textbox', { name: /name/i });
     const colorInput = screen.getByTestId('color-input');

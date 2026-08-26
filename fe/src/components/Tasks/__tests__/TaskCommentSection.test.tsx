@@ -9,7 +9,9 @@ jest.mock('../../Comments/CommentForm', () => ({
   __esModule: true,
   default: ({ onCommentAdded }: any) => (
     <div data-testid="comment-form">
-      <button onClick={() => onCommentAdded({ id: 999, comment: 'New comment' })}>
+      <button
+        onClick={() => onCommentAdded({ id: 999, comment: 'New comment' })}
+      >
         Add Comment
       </button>
     </div>
@@ -26,9 +28,7 @@ jest.mock('../../Comments/CommentList', () => ({
           <button onClick={() => onCommentUpdated(comment.id, 'Updated text')}>
             Update
           </button>
-          <button onClick={() => onCommentDeleted(comment.id)}>
-            Delete
-          </button>
+          <button onClick={() => onCommentDeleted(comment.id)}>Delete</button>
         </div>
       ))}
     </div>
@@ -46,7 +46,7 @@ const mockComments: Comment[] = [
     active: true,
     created_on: '2023-01-01',
     updated_on: null,
-    user_name: 'User 1'
+    user_name: 'User 1',
   },
   {
     id: 2,
@@ -56,19 +56,19 @@ const mockComments: Comment[] = [
     active: true,
     created_on: '2023-01-02',
     updated_on: null,
-    user_name: 'User 2'
-  }
+    user_name: 'User 2',
+  },
 ];
 
 const mockProps: TaskCommentSectionProps = {
   taskId: 1,
   comments: mockComments,
-  editingComment: null,  // Initialize as null
+  editingComment: null, // Initialize as null
   onCommentSubmit: jest.fn(),
   onCommentUpdate: jest.fn(),
   onCommentDelete: jest.fn(),
   onEditStart: jest.fn(),
-  onEditEnd: jest.fn()
+  onEditEnd: jest.fn(),
 };
 
 describe('TaskCommentSection', () => {
@@ -80,7 +80,7 @@ describe('TaskCommentSection', () => {
     return render(
       <MemoryRouter>
         <TaskCommentSection {...props} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -95,7 +95,7 @@ describe('TaskCommentSection', () => {
     const mockOnCommentRefresh = jest.fn();
     const propsWithRefresh = {
       ...mockProps,
-      onCommentRefresh: mockOnCommentRefresh
+      onCommentRefresh: mockOnCommentRefresh,
     };
     renderComponent(propsWithRefresh);
     const addButton = screen.getByText('Add Comment');
@@ -112,7 +112,9 @@ describe('TaskCommentSection', () => {
 
   test('handles comment update', async () => {
     renderComponent();
-    const updateButton = screen.getByTestId('comment-1').querySelector('button:first-of-type');
+    const updateButton = screen
+      .getByTestId('comment-1')
+      .querySelector('button:first-of-type');
     fireEvent.click(updateButton!);
 
     expect(mockProps.onCommentUpdate).toHaveBeenCalledWith(1, 'Updated text');
@@ -120,7 +122,9 @@ describe('TaskCommentSection', () => {
 
   test('handles comment deletion', async () => {
     renderComponent();
-    const deleteButton = screen.getByTestId('comment-1').querySelector('button:last-of-type');
+    const deleteButton = screen
+      .getByTestId('comment-1')
+      .querySelector('button:last-of-type');
     fireEvent.click(deleteButton!);
 
     expect(mockProps.onCommentDelete).toHaveBeenCalledWith(1);
@@ -134,8 +138,10 @@ describe('TaskCommentSection', () => {
     const commentList = screen.getByTestId('comment-list');
 
     expect(commentList).toBeInTheDocument();
-    mockComments.forEach(comment => {
-      expect(screen.getByTestId(`comment-${comment.id}`)).toHaveTextContent(comment.comment);
+    mockComments.forEach((comment) => {
+      expect(screen.getByTestId(`comment-${comment.id}`)).toHaveTextContent(
+        comment.comment,
+      );
     });
   });
 });

@@ -8,13 +8,13 @@ import logger from '../utils/logger';
 export const session = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     if (req.session.user) {
       const permissions = await permissionModel.getUserPermissions(
         pool,
-        String(req.session.user.id)
+        String(req.session.user.id),
       );
       res.status(200).json({ user: req.session.user, permissions });
     } else {
@@ -23,7 +23,7 @@ export const session = async (
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };

@@ -12,7 +12,7 @@ import {
   Checkbox,
   CircularProgress,
   Box,
-  Typography
+  Typography,
 } from '@mui/material';
 import { WatcherDialogProps } from '../../types/watcher';
 import { ProjectMember } from '../../types/project';
@@ -25,7 +25,7 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
   projectId,
   currentWatchers,
   onAddWatcher,
-  onRemoveWatcher
+  onRemoveWatcher,
 }) => {
   const [loading, setLoading] = useState(true);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
@@ -53,7 +53,9 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
 
   const handleToggle = (userId: number) => {
     if (!userId) return;
-    const isCurrentWatcher = (currentWatchers || []).some(w => w?.user_id === userId);
+    const isCurrentWatcher = (currentWatchers || []).some(
+      (w) => w?.user_id === userId,
+    );
     if (isCurrentWatcher) {
       onRemoveWatcher(userId);
     } else {
@@ -68,7 +70,7 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        sx: { minHeight: '50vh' }
+        sx: { minHeight: '50vh' },
       }}
     >
       <DialogTitle>Manage Watchers</DialogTitle>
@@ -87,7 +89,9 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
           <List>
             {projectMembers.map((member) => {
               if (!member?.user_id) return null;
-              const isWatcher = (currentWatchers || []).some(w => w?.user_id === member.user_id);
+              const isWatcher = (currentWatchers || []).some(
+                (w) => w?.user_id === member.user_id,
+              );
               return (
                 <ListItem
                   component="div"
@@ -96,7 +100,10 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
                   sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
                   <ListItemText
-                    primary={`${member?.name || ''} ${member?.surname || ''}`.trim() || 'Unknown User'}
+                    primary={
+                      `${member?.name || ''} ${member?.surname || ''}`.trim() ||
+                      'Unknown User'
+                    }
                     secondary={member?.role || 'No role'}
                   />
                   <ListItemSecondaryAction>

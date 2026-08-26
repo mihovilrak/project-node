@@ -7,7 +7,7 @@ describe('DeleteConfirmDialog', () => {
   const defaultProps = {
     open: true,
     onClose: jest.fn(),
-    onConfirm: jest.fn()
+    onConfirm: jest.fn(),
   };
 
   beforeEach(() => {
@@ -18,7 +18,9 @@ describe('DeleteConfirmDialog', () => {
     render(<DeleteConfirmDialog {...defaultProps} />);
 
     expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
+    expect(
+      screen.getByText('Are you sure you want to delete this item?'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
     expect(screen.getByText('Delete')).toBeInTheDocument();
   });
@@ -27,7 +29,7 @@ describe('DeleteConfirmDialog', () => {
     const customProps = {
       ...defaultProps,
       title: 'Custom Title',
-      content: 'Custom Content'
+      content: 'Custom Content',
     };
 
     render(<DeleteConfirmDialog {...customProps} />);
@@ -53,7 +55,9 @@ describe('DeleteConfirmDialog', () => {
   });
 
   test('shows loading state during deletion', async () => {
-    const onConfirmMock = jest.fn(() => new Promise(resolve => setTimeout(resolve, 100)));
+    const onConfirmMock = jest.fn(
+      () => new Promise((resolve) => setTimeout(resolve, 100)),
+    );
     render(<DeleteConfirmDialog {...defaultProps} onConfirm={onConfirmMock} />);
 
     // Click delete button to trigger deletion
@@ -64,16 +68,19 @@ describe('DeleteConfirmDialog', () => {
     await waitFor(() => {
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
-    
+
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     const deletingButton = screen.getByRole('button', { name: /deleting/i });
     expect(cancelButton).toBeDisabled();
     expect(deletingButton).toBeDisabled();
 
     // Wait for deletion to complete (onConfirm resolves after 100ms)
-    await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
   });
 
   test('buttons are enabled after deletion completes', async () => {

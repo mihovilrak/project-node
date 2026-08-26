@@ -14,13 +14,18 @@ import {
   Alert,
   CircularProgress,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { UserDialogProps } from '../../types/user';
 import { useUserDialog } from '../../hooks/setting/useUserDialog';
 
-const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSaved }) => {
+const UserDialog: React.FC<UserDialogProps> = ({
+  open,
+  user,
+  onClose,
+  onUserSaved,
+}) => {
   const {
     formData,
     error,
@@ -28,7 +33,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
     rolesLoading,
     handleTextChange,
     handleRoleChange,
-    handleSubmit
+    handleSubmit,
   } = useUserDialog(user, open, onClose, onUserSaved);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -92,7 +97,11 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
             <Grid size={{ xs: 12 }}>
               <TextField
                 name="password"
-                label={user ? "New Password (leave empty to keep current)" : "Password"}
+                label={
+                  user
+                    ? 'New Password (leave empty to keep current)'
+                    : 'Password'
+                }
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleTextChange}
@@ -117,7 +126,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
               <Grid size={{ xs: 12 }}>
                 <TextField
                   name="confirmPassword"
-                  label={user ? "Confirm New Password" : "Confirm Password"}
+                  label={user ? 'Confirm New Password' : 'Confirm Password'}
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword || ''}
                   onChange={handleTextChange}
@@ -127,11 +136,17 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, user, onClose, onUserSave
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           edge="end"
                           data-testid="toggle-confirm-password-visibility"
                         >
-                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),

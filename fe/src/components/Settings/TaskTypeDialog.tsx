@@ -13,7 +13,7 @@ import {
   IconButton,
   Box,
   FormControl,
-  InputLabel
+  InputLabel,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { MuiColorInput } from 'mui-color-input';
@@ -22,18 +22,15 @@ import { useIconSelector } from '../../hooks/setting/useIconSelector';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const IconSelector = ({ value, onChange }: IconSelectorProps) => {
-  const {
-    icons,
-    open,
-    handleOpen,
-    handleClose,
-    handleSelect
-  } = useIconSelector(value);
+  const { icons, open, handleOpen, handleClose, handleSelect } =
+    useIconSelector(value);
 
   const getIconComponent = (iconName?: string) => {
     if (!iconName) return null;
     try {
-      const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+      const IconComponent = Icons[
+        iconName as keyof typeof Icons
+      ] as React.ComponentType<any>;
       return IconComponent ? <IconComponent /> : null;
     } catch {
       return null;
@@ -50,7 +47,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
             border: '1px dashed grey',
             borderRadius: 1,
             width: '100%',
-            height: '56px'
+            height: '56px',
           }}
         >
           {value ? getIconComponent(value) || value : 'Select Icon'}
@@ -62,7 +59,9 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         <DialogContent>
           <Grid container spacing={1} sx={{ p: 2 }}>
             {(icons || []).map((iconName) => {
-              const IconComponent = iconName ? getIconComponent(iconName) : null;
+              const IconComponent = iconName
+                ? getIconComponent(iconName)
+                : null;
               return (
                 <Grid key={iconName || Math.random()} size={{ xs: 6, sm: 4 }}>
                   <IconButton
@@ -74,8 +73,9 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
                     }}
                     disabled={!iconName}
                     sx={{
-                      border: value === iconName ? '2px solid primary.main' : 'none',
-                      borderRadius: 1
+                      border:
+                        value === iconName ? '2px solid primary.main' : 'none',
+                      borderRadius: 1,
                     }}
                   >
                     {IconComponent || iconName || 'Unknown'}
@@ -90,13 +90,18 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
   );
 };
 
-const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose, onSave }) => {
+const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({
+  open,
+  taskType,
+  onClose,
+  onSave,
+}) => {
   const [formData, setFormData] = useState({
     name: '',
     color: '#2196f3',
     description: '',
     icon: 'Task' as string | undefined,
-    active: true
+    active: true,
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -107,7 +112,7 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
         color: taskType?.color || '#2196f3',
         description: taskType?.description || '',
         icon: taskType?.icon || 'Task',
-        active: taskType?.active ?? true
+        active: taskType?.active ?? true,
       });
     } else {
       setFormData({
@@ -115,15 +120,15 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({ open, taskType, onClose
         color: '#2196f3',
         description: '',
         icon: 'Task',
-        active: true
+        active: true,
       });
     }
   }, [taskType]);
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 

@@ -13,7 +13,7 @@ describe('PermissionIconButton', () => {
   const defaultProps = {
     requiredPermission: 'test.permission',
     children: <span>Icon</span>,
-    onClick: mockOnClick
+    onClick: mockOnClick,
   };
 
   beforeEach(() => {
@@ -45,15 +45,23 @@ describe('PermissionIconButton', () => {
 
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
-    expect(button.parentElement).toHaveAttribute('aria-label', "You don't have permission for this action");
+    expect(button.parentElement).toHaveAttribute(
+      'aria-label',
+      "You don't have permission for this action",
+    );
   });
 
   it('shows custom tooltip text when provided', () => {
     mockUsePermission.mockReturnValue({ hasPermission: false, loading: false });
 
-    render(<PermissionIconButton {...defaultProps} tooltipText="Custom tooltip" />);
+    render(
+      <PermissionIconButton {...defaultProps} tooltipText="Custom tooltip" />,
+    );
 
-    expect(screen.getByRole('button').parentElement).toHaveAttribute('aria-label', 'Custom tooltip');
+    expect(screen.getByRole('button').parentElement).toHaveAttribute(
+      'aria-label',
+      'Custom tooltip',
+    );
   });
 
   it('enables button when permission is granted', () => {

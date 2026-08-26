@@ -12,23 +12,23 @@ const mockRoles: Role[] = [
     active: true,
     permissions: [
       { id: 1, name: 'Create Users' },
-      { id: 2, name: 'Edit Users' }
-    ]
+      { id: 2, name: 'Edit Users' },
+    ],
   },
   {
     id: 2,
     name: 'User',
     description: 'Basic user role',
     active: false,
-    permissions: [{ id: 1, name: 'Create Users' }]
-  }
+    permissions: [{ id: 1, name: 'Create Users' }],
+  },
 ];
 
 describe('RolesTable', () => {
   const defaultProps = {
     roles: mockRoles,
     onEdit: jest.fn(),
-    loading: false
+    loading: false,
   };
 
   beforeEach(() => {

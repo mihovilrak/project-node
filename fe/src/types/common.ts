@@ -1,24 +1,23 @@
 import { ReactNode } from 'react';
-import {
-  ButtonProps,
-  IconButtonProps,
-  TooltipProps
-} from '@mui/material';
+import { ButtonProps, IconButtonProps, TooltipProps } from '@mui/material';
 
 export interface PermissionButtonProps extends Omit<ButtonProps, 'children'> {
-    requiredPermission: string;
-    children: ReactNode;
-    tooltipText?: string;
-    showLoading?: boolean;
-    placement?: TooltipProps['placement'];
+  requiredPermission: string;
+  children: ReactNode;
+  tooltipText?: string;
+  showLoading?: boolean;
+  placement?: TooltipProps['placement'];
 }
 
-export interface PermissionIconButtonProps extends Omit<IconButtonProps, 'children'> {
-    requiredPermission: string;
-    children: ReactNode;
-    tooltipText?: string;
-    showLoading?: boolean;
-    placement?: TooltipProps['placement'];
+export interface PermissionIconButtonProps extends Omit<
+  IconButtonProps,
+  'children'
+> {
+  requiredPermission: string;
+  children: ReactNode;
+  tooltipText?: string;
+  showLoading?: boolean;
+  placement?: TooltipProps['placement'];
 }
 
 export interface PermissionGuardProps {
@@ -32,13 +31,13 @@ export interface PermissionGuardProps {
 }
 
 export interface DeleteConfirmDialogProps {
-    open: boolean;
-    title?: string;
-    content?: string;
-    onClose: () => void;
-    onConfirm: () => void;
-    loading?: boolean;
-    error?: string;
+  open: boolean;
+  title?: string;
+  content?: string;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading?: boolean;
+  error?: string;
 }
 
 export interface UsePermissionResult {

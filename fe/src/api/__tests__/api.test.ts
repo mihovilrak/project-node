@@ -6,14 +6,14 @@ jest.mock('axios', () => ({
   create: jest.fn().mockReturnValue({
     defaults: {
       baseURL: '/api',
-      withCredentials: true
+      withCredentials: true,
     },
     interceptors: {
       response: {
-        use: jest.fn()
-      }
-    }
-  })
+        use: jest.fn(),
+      },
+    },
+  }),
 }));
 
 describe('API Configuration', () => {

@@ -3,7 +3,7 @@ import * as activityTypeModel from '../activityTypeModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 describe('ActivityTypeModel', () => {
@@ -14,12 +14,12 @@ describe('ActivityTypeModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -27,15 +27,33 @@ describe('ActivityTypeModel', () => {
   describe('getActivityTypes', () => {
     it('should return all active activity types', async () => {
       const mockActivityTypes = [
-        { id: 1, name: 'Development', color: '#FF0000', icon: 'code', active: true, created_on: new Date(), updated_on: new Date() },
-        { id: 2, name: 'Testing', color: '#00FF00', icon: 'bug_report', active: true, created_on: new Date(), updated_on: new Date() }
+        {
+          id: 1,
+          name: 'Development',
+          color: '#FF0000',
+          icon: 'code',
+          active: true,
+          created_on: new Date(),
+          updated_on: new Date(),
+        },
+        {
+          id: 2,
+          name: 'Testing',
+          color: '#00FF00',
+          icon: 'bug_report',
+          active: true,
+          created_on: new Date(),
+          updated_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockActivityTypes));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockActivityTypes),
+      );
 
       const result = await activityTypeModel.getActivityTypes(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM activity_types')
+        expect.stringContaining('SELECT * FROM activity_types'),
       );
       expect(result).toEqual(mockActivityTypes);
     });
@@ -59,21 +77,23 @@ describe('ActivityTypeModel', () => {
         icon: 'work',
         active: true,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([newActivityType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([newActivityType]),
+      );
 
       const result = await activityTypeModel.createActivityType(
         mockPool,
         'New Activity',
         'A new activity type',
         '#0000FF',
-        'work'
+        'work',
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO activity_types'),
-        ['New Activity', 'A new activity type', '#0000FF', 'work']
+        ['New Activity', 'A new activity type', '#0000FF', 'work'],
       );
       expect(result).toEqual(newActivityType);
     });
@@ -87,21 +107,23 @@ describe('ActivityTypeModel', () => {
         icon: null,
         active: true,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([newActivityType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([newActivityType]),
+      );
 
       const result = await activityTypeModel.createActivityType(
         mockPool,
         'Simple Activity',
         null,
         '#FF00FF',
-        null
+        null,
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO activity_types'),
-        ['Simple Activity', null, '#FF00FF', null]
+        ['Simple Activity', null, '#FF00FF', null],
       );
       expect(result).toEqual(newActivityType);
     });
@@ -117,9 +139,11 @@ describe('ActivityTypeModel', () => {
         icon: 'build',
         active: true,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([updatedActivityType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([updatedActivityType]),
+      );
 
       const result = await activityTypeModel.updateActivityType(
         mockPool,
@@ -127,12 +151,12 @@ describe('ActivityTypeModel', () => {
         'Updated Activity',
         'Updated description',
         '#FFFF00',
-        'build'
+        'build',
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE activity_types'),
-        ['Updated Activity', 'Updated description', '#FFFF00', 'build', '1']
+        ['Updated Activity', 'Updated description', '#FFFF00', 'build', '1'],
       );
       expect(result).toEqual(updatedActivityType);
     });
@@ -146,7 +170,7 @@ describe('ActivityTypeModel', () => {
         'Non-existent',
         null,
         '#000000',
-        null
+        null,
       );
 
       expect(result).toBeNull();
@@ -163,15 +187,17 @@ describe('ActivityTypeModel', () => {
         icon: 'delete',
         active: false,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([deletedActivityType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([deletedActivityType]),
+      );
 
       const result = await activityTypeModel.deleteActivityType(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE activity_types'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(deletedActivityType);
     });
@@ -179,7 +205,10 @@ describe('ActivityTypeModel', () => {
     it('should return null when activity type not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await activityTypeModel.deleteActivityType(mockPool, '999');
+      const result = await activityTypeModel.deleteActivityType(
+        mockPool,
+        '999',
+      );
 
       expect(result).toBeNull();
     });

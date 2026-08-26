@@ -22,13 +22,15 @@ jest.mock('../../../api/api');
 // Mock AuthContext to provide a mock user
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: { id: 1, name: 'Test User' },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock useTimeLogDialog to prevent any hook-related issues
@@ -57,7 +59,7 @@ jest.mock('../../../hooks/timeLog/useTimeLogDialog', () => ({
     handleProjectChange: jest.fn(),
     handleTaskChange: jest.fn(),
     handleSubmit: jest.fn(),
-  })
+  }),
 }));
 
 // Mock useTimeLogCalendar for calendar component
@@ -70,8 +72,8 @@ jest.mock('../../../hooks/timeLog/useTimeLogCalendar', () => ({
     getDayColor: jest.fn(() => '#ffffff'),
     formatTime: jest.fn((time: number) => `${time}h`),
     getCalendarDays: jest.fn(() => [new Date()]),
-    getTotalMonthHours: jest.fn(() => 0)
-  })
+    getTotalMonthHours: jest.fn(() => 0),
+  }),
 }));
 
 // Mock timeLogs API
@@ -80,11 +82,13 @@ jest.mock('../../../api/timeLogs', () => ({
   getTaskTimeLogs: jest.fn().mockResolvedValue([]),
   createTimeLog: jest.fn().mockResolvedValue({}),
   updateTimeLog: jest.fn().mockResolvedValue({}),
-  deleteTimeLog: jest.fn().mockResolvedValue({})
+  deleteTimeLog: jest.fn().mockResolvedValue({}),
 }));
 
 // Custom test wrapper with all necessary providers
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
   return (
     <BrowserRouter>
@@ -114,20 +118,23 @@ const generateMockTimeLogs = (count: number): TimeLog[] => {
     user: `User ${(index % 3) + 1}`,
     activity_type_name: `Activity ${(index % 4) + 1}`,
     activity_type_color: '#FF0000',
-    activity_type_icon: 'clock'
+    activity_type_icon: 'clock',
   }));
 };
 
-const mockActivityTypes: ActivityType[] = Array.from({ length: 4 }, (_, index) => ({
-  id: index + 1,
-  name: `Activity ${index + 1}`,
-  description: `Activity type description ${index + 1}`,
-  color: '#FF0000',
-  icon: 'clock',
-  active: true,
-  created_on: dayjs().toISOString(),
-  updated_on: null
-}));
+const mockActivityTypes: ActivityType[] = Array.from(
+  { length: 4 },
+  (_, index) => ({
+    id: index + 1,
+    name: `Activity ${index + 1}`,
+    description: `Activity type description ${index + 1}`,
+    color: '#FF0000',
+    icon: 'clock',
+    active: true,
+    created_on: dayjs().toISOString(),
+    updated_on: null,
+  }),
+);
 
 const mockProjects: Project[] = Array.from({ length: 3 }, (_, index) => ({
   id: index + 1,
@@ -146,7 +153,7 @@ const mockProjects: Project[] = Array.from({ length: 3 }, (_, index) => ({
   updated_on: null,
   start_date: dayjs().toISOString(),
   end_date: dayjs().add(30, 'days').toISOString(),
-  progress: 0
+  progress: 0,
 }));
 
 const mockTasks: Task[] = Array.from({ length: 5 }, (_, index) => ({
@@ -178,7 +185,7 @@ const mockTasks: Task[] = Array.from({ length: 5 }, (_, index) => ({
   created_by: 1,
   created_by_name: 'Test User',
   created_on: dayjs().toISOString(),
-  estimated_time: 40
+  estimated_time: 40,
 }));
 
 const mockUsers: User[] = Array.from({ length: 3 }, (_, index) => ({
@@ -199,7 +206,7 @@ const mockUsers: User[] = Array.from({ length: 3 }, (_, index) => ({
   status: 'Active',
   status_color: '#00FF00',
   full_name: `First${index + 1} Last${index + 1}`,
-  permissions: ['read', 'write']
+  permissions: ['read', 'write'],
 }));
 
 // Performance measurement callback
@@ -209,7 +216,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`${id} - ${phase}`);
   console.log(`Actual duration: ${actualDuration.toFixed(2)}ms`);
@@ -217,7 +224,10 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => {
   return (
     <Profiler id={Component.name} onRender={onRenderCallback}>
       <PerfTestWrapper>
@@ -268,7 +278,7 @@ describe('TimeLog Components Performance', () => {
       onActivityTypeChange: () => {},
       onSpentTimeChange: () => {},
       onDescriptionChange: () => {},
-      onDateChange: () => {}
+      onDateChange: () => {},
     };
 
     it('renders efficiently with base configuration', () => {
@@ -279,14 +289,20 @@ describe('TimeLog Components Performance', () => {
       const manyProjects = Array.from({ length: 100 }, (_, i) => ({
         ...mockProjects[0],
         id: i + 1,
-        name: `Project ${i + 1}`
+        name: `Project ${i + 1}`,
       }));
       const manyTasks = Array.from({ length: 200 }, (_, i) => ({
         ...mockTasks[0],
         id: i + 1,
-        name: `Task ${i + 1}`
+        name: `Task ${i + 1}`,
       }));
-      render(measurePerformance(TimeLogForm, { ...baseProps, projects: manyProjects, tasks: manyTasks }));
+      render(
+        measurePerformance(TimeLogForm, {
+          ...baseProps,
+          projects: manyProjects,
+          tasks: manyTasks,
+        }),
+      );
     });
   });
 
@@ -309,7 +325,7 @@ describe('TimeLog Components Performance', () => {
       taskId: 1,
       timeLog: null,
       onClose: () => {},
-      onSubmit: async (timeLog: TimeLogCreate) => {}
+      onSubmit: async (timeLog: TimeLogCreate) => {},
     };
 
     it('renders efficiently when creating new time log', () => {
@@ -318,7 +334,9 @@ describe('TimeLog Components Performance', () => {
 
     it('renders efficiently when editing existing time log', () => {
       const timeLog = generateMockTimeLogs(1)[0];
-      render(measurePerformance(TimeLogDialog, { ...baseDialogProps, timeLog }));
+      render(
+        measurePerformance(TimeLogDialog, { ...baseDialogProps, timeLog }),
+      );
     });
   });
 });

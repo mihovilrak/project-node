@@ -11,16 +11,12 @@ import {
   Chip,
   Box,
   CircularProgress,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { RolesTableProps } from '../../types/role';
 
-const RolesTable: React.FC<RolesTableProps> = ({
-  roles,
-  onEdit,
-  loading
-}) => {
+const RolesTable: React.FC<RolesTableProps> = ({ roles, onEdit, loading }) => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -47,9 +43,11 @@ const RolesTable: React.FC<RolesTableProps> = ({
               <TableCell>{role.name}</TableCell>
               <TableCell>{role.description}</TableCell>
               <TableCell>
-              <Tooltip title={(role.permissions || [])
-    .map(p => typeof p === 'number' ? String(p) : p.name)
-    .join(', ')}>
+                <Tooltip
+                  title={(role.permissions || [])
+                    .map((p) => (typeof p === 'number' ? String(p) : p.name))
+                    .join(', ')}
+                >
                   <Chip
                     label={`${role.permissions?.length || 0} permissions`}
                     size="small"

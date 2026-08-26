@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import {
-  User,
-  FormData,
-  UserUpdate,
-  UserCreate
-} from '../../types/user';
+import { User, FormData, UserUpdate, UserCreate } from '../../types/user';
 import { createUser, updateUser, fetchRoles } from '../../api/users';
 import { Role } from '../../types/role';
 import logger from '../../utils/logger';
@@ -15,7 +10,7 @@ export const useUserDialog = (
   user: User | null | undefined,
   open: boolean,
   onClose: () => void,
-  onUserSaved: (user: User) => void
+  onUserSaved: (user: User) => void,
 ) => {
   const [formData, setFormData] = useState<FormData>({
     login: '',
@@ -25,7 +20,7 @@ export const useUserDialog = (
     password: '',
     confirmPassword: '',
     role_id: 3,
-    status_id: 1
+    status_id: 1,
   });
   const [error, setError] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -41,9 +36,9 @@ export const useUserDialog = (
           setRoles(rolesData);
           // Set default role_id to first role if available, or keep current
           if (rolesData.length > 0 && !user) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
-              role_id: prev.role_id || rolesData[0].id
+              role_id: prev.role_id || rolesData[0].id,
             }));
           }
         } catch (error) {
@@ -67,7 +62,7 @@ export const useUserDialog = (
         password: '',
         confirmPassword: '',
         role_id: user.role_id || (roles.length > 0 ? roles[0].id : 3),
-        status_id: user.status_id
+        status_id: user.status_id,
       });
     } else {
       setFormData({
@@ -78,23 +73,23 @@ export const useUserDialog = (
         password: '',
         confirmPassword: '',
         role_id: roles.length > 0 ? roles[0].id : 3,
-        status_id: 1
+        status_id: 1,
       });
     }
   }, [user, open, roles]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleRoleChange = (e: SelectChangeEvent<number>): void => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      role_id: e.target.value as number
+      role_id: e.target.value as number,
     }));
   };
 
@@ -103,7 +98,12 @@ export const useUserDialog = (
     setError(null);
 
     // Validate required fields
-    if (!formData.login || !formData.name || !formData.surname || !formData.email) {
+    if (
+      !formData.login ||
+      !formData.name ||
+      !formData.surname ||
+      !formData.email
+    ) {
       setError('Please fill in all required fields');
       return;
     }
@@ -132,13 +132,15 @@ export const useUserDialog = (
       if (user) {
         // For update, only send changed fields
         const updates: UserUpdate = {
-          id: user.id
+          id: user.id,
         };
         if (formData.name !== user.name) updates.name = formData.name;
-        if (formData.surname !== user.surname) updates.surname = formData.surname;
+        if (formData.surname !== user.surname)
+          updates.surname = formData.surname;
         if (formData.email !== user.email) updates.email = formData.email;
         if (formData.password) updates.password = formData.password;
-        if (formData.role_id !== user.role_id) updates.role_id = formData.role_id;
+        if (formData.role_id !== user.role_id)
+          updates.role_id = formData.role_id;
 
         savedUser = await updateUser(user.id, updates);
       } else {
@@ -160,6 +162,6 @@ export const useUserDialog = (
     rolesLoading,
     handleTextChange,
     handleRoleChange,
-    handleSubmit
+    handleSubmit,
   };
 };

@@ -2,22 +2,33 @@ import { Pool } from 'pg';
 import * as projectModel from '../projectModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: unknown[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: unknown[]) => ({
+  rows,
+  rowCount: rows.length,
+  command: '',
+  oid: 0,
+  fields: [],
+});
 
 describe('ProjectModel', () => {
   let mockPool: jest.Mocked<Pool>;
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
 
   describe('getProjects', () => {
     it('should return all projects without filters', async () => {
-      const mockProjects = [{ id: '1', name: 'Project 1' }, { id: '2', name: 'Project 2' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+      const mockProjects = [
+        { id: '1', name: 'Project 1' },
+        { id: '2', name: 'Project 2' },
+      ];
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockProjects),
+      );
 
       const result = await projectModel.getProjects(mockPool);
 
@@ -32,7 +43,9 @@ describe('ProjectModel', () => {
 
     it('should return filtered projects with whereParams', async () => {
       const mockProjects = [{ id: '1', name: 'Project 1', status_id: 1 }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockProjects),
+      );
 
       const result = await projectModel.getProjects(mockPool, { status_id: 1 });
 
@@ -44,9 +57,14 @@ describe('ProjectModel', () => {
 
     it('should ignore disallowed whereParams keys', async () => {
       const mockProjects = [{ id: '1', name: 'Project 1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockProjects),
+      );
 
-      const result = await projectModel.getProjects(mockPool, { status_id: 1, evil_key: 2 } as any);
+      const result = await projectModel.getProjects(mockPool, {
+        status_id: 1,
+        evil_key: 2,
+      } as any);
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
@@ -58,7 +76,9 @@ describe('ProjectModel', () => {
   describe('getProjectById', () => {
     it('should return a project by ID', async () => {
       const mockProject = { id: '1', name: 'Project 1' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockProject]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockProject]),
+      );
 
       const result = await projectModel.getProjectById(mockPool, '1');
 
@@ -77,11 +97,16 @@ describe('ProjectModel', () => {
   describe('getProjectDetails', () => {
     it('should return project details', async () => {
       const mockDetails = { id: '1', name: 'Project 1', task_count: 5 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockDetails]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockDetails]),
+      );
 
       const result = await projectModel.getProjectDetails(mockPool, '1');
 
-      expect(mockPool.query).toHaveBeenCalledWith(`SELECT * FROM project_details($1)`, ['1']);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        `SELECT * FROM project_details($1)`,
+        ['1'],
+      );
       expect(result).toEqual(mockDetails);
     });
   });
@@ -89,15 +114,22 @@ describe('ProjectModel', () => {
   describe('createProject', () => {
     it('should create a new project', async () => {
       const mockProject = { id: '1', name: 'New Project' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockProject]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockProject]),
+      );
 
       const result = await projectModel.createProject(
-        mockPool, 'New Project', 'Description', new Date(), new Date(), '1'
+        mockPool,
+        'New Project',
+        'Description',
+        new Date(),
+        new Date(),
+        '1',
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO projects'),
-        expect.any(Array)
+        expect.any(Array),
       );
       expect(result).toEqual(mockProject);
     });
@@ -106,13 +138,19 @@ describe('ProjectModel', () => {
   describe('changeProjectStatus', () => {
     it('should change project status', async () => {
       const mockProject = { id: '1', status: 'completed' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockProject]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockProject]),
+      );
 
-      const result = await projectModel.changeProjectStatus(mockPool, '1', 'completed');
+      const result = await projectModel.changeProjectStatus(
+        mockPool,
+        '1',
+        'completed',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         `SELECT * FROM change_project_status($1, $2)`,
-        ['1', 'completed']
+        ['1', 'completed'],
       );
       expect(result).toEqual(mockProject);
     });
@@ -122,13 +160,21 @@ describe('ProjectModel', () => {
     it('should update a project', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
 
-      const result = await projectModel.updateProject(mockPool, { name: 'Updated' }, '1');
+      const result = await projectModel.updateProject(
+        mockPool,
+        { name: 'Updated' },
+        '1',
+      );
 
       expect(result).toBe(1);
     });
 
     it('should return null when no allowed update keys', async () => {
-      const result = await projectModel.updateProject(mockPool, { evil_key: 'x' } as any, '1');
+      const result = await projectModel.updateProject(
+        mockPool,
+        { evil_key: 'x' } as any,
+        '1',
+      );
 
       expect(result).toBeNull();
       expect(mockPool.query).not.toHaveBeenCalled();
@@ -138,11 +184,16 @@ describe('ProjectModel', () => {
   describe('deleteProject', () => {
     it('should delete a project', async () => {
       const mockProject = { id: '1' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockProject]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockProject]),
+      );
 
       const result = await projectModel.deleteProject(mockPool, '1');
 
-      expect(mockPool.query).toHaveBeenCalledWith(`SELECT * FROM delete_project($1)`, ['1']);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        `SELECT * FROM delete_project($1)`,
+        ['1'],
+      );
       expect(result).toEqual(mockProject);
     });
   });
@@ -150,7 +201,9 @@ describe('ProjectModel', () => {
   describe('getProjectMembers', () => {
     it('should return project members', async () => {
       const mockMembers = [{ user_id: '1', name: 'User 1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockMembers));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockMembers),
+      );
 
       const result = await projectModel.getProjectMembers(mockPool, '1');
 
@@ -161,7 +214,9 @@ describe('ProjectModel', () => {
   describe('getSubprojects', () => {
     it('should return subprojects', async () => {
       const mockSubprojects = [{ id: '2', parent_id: '1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockSubprojects));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockSubprojects),
+      );
 
       const result = await projectModel.getSubprojects(mockPool, '1');
 
@@ -172,7 +227,9 @@ describe('ProjectModel', () => {
   describe('addProjectMember', () => {
     it('should add a project member', async () => {
       const mockMember = { project_id: '1', user_id: '2' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockMember]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockMember]),
+      );
 
       const result = await projectModel.addProjectMember(mockPool, '1', '2');
 
@@ -193,7 +250,9 @@ describe('ProjectModel', () => {
   describe('getProjectTasks', () => {
     it('should return project tasks', async () => {
       const mockTasks = [{ id: '1', title: 'Task 1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
       const result = await projectModel.getProjectTasks(mockPool, '1');
 
@@ -202,9 +261,14 @@ describe('ProjectModel', () => {
 
     it('should apply only allowed filter keys', async () => {
       const mockTasks = [{ id: '1', title: 'Task 1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
-      await projectModel.getProjectTasks(mockPool, '1', { status: '1', evil_key: 'x' } as any);
+      await projectModel.getProjectTasks(mockPool, '1', {
+        status: '1',
+        evil_key: 'x',
+      } as any);
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('get_tasks');
@@ -218,7 +282,9 @@ describe('ProjectModel', () => {
   describe('getProjectStatuses', () => {
     it('should return project statuses', async () => {
       const mockStatuses = [{ id: 1, name: 'Active' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockStatuses));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockStatuses),
+      );
 
       const result = await projectModel.getProjectStatuses(mockPool);
 

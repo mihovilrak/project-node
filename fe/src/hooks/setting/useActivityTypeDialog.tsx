@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { ActivityType } from '../../types/setting';
 import { ActivityTypeFormData } from '../../types/setting';
 
-export const useActivityTypeDialog = (activityType: ActivityType | undefined) => {
+export const useActivityTypeDialog = (
+  activityType: ActivityType | undefined,
+) => {
   const [formData, setFormData] = useState<ActivityTypeFormData>({
     name: '',
     color: '#2196f3',
     description: '',
     active: true,
-    icon: undefined
+    icon: undefined,
   });
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -19,7 +21,7 @@ export const useActivityTypeDialog = (activityType: ActivityType | undefined) =>
         color: activityType.color,
         description: activityType.description || '',
         active: activityType.active,
-        icon: activityType.icon
+        icon: activityType.icon,
       });
     } else {
       setFormData({
@@ -27,15 +29,15 @@ export const useActivityTypeDialog = (activityType: ActivityType | undefined) =>
         color: '#2196f3',
         description: '',
         active: true,
-        icon: undefined
+        icon: undefined,
       });
     }
   }, [activityType]);
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -46,6 +48,6 @@ export const useActivityTypeDialog = (activityType: ActivityType | undefined) =>
     error,
     handleChange,
     setError,
-    clearError
+    clearError,
   };
 };

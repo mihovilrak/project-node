@@ -3,11 +3,9 @@ import { Grid } from '@mui/material';
 import { AssigneeSelect } from '../AssigneeSelect';
 import { AssigneeSelectionSectionProps } from '../../../types/task';
 
-export const AssigneeSelectionSection: React.FC<AssigneeSelectionSectionProps> = ({
-  formData,
-  projectMembers,
-  handleChange
-}) => (
+export const AssigneeSelectionSection: React.FC<
+  AssigneeSelectionSectionProps
+> = ({ formData, projectMembers, handleChange }) => (
   <Grid container spacing={2}>
     <Grid size={{ xs: 12, sm: 6 }}>
       <AssigneeSelect

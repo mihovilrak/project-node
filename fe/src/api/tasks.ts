@@ -1,9 +1,10 @@
 import { api } from './api';
-import { Task,
+import {
+  Task,
   TaskStatus,
   TaskPriority,
   TaskFilters,
-  TaskFormState
+  TaskFormState,
 } from '../types/task';
 import { Tag } from '../types/tag';
 import { ApiResponse } from '../types/api';
@@ -51,7 +52,10 @@ export const createTask = async (taskData: Partial<Task>): Promise<Task> => {
 };
 
 // Update task
-export const updateTask = async (taskId: number, data: Partial<TaskFormState>): Promise<ApiResponse<Task>> => {
+export const updateTask = async (
+  taskId: number,
+  data: Partial<TaskFormState>,
+): Promise<ApiResponse<Task>> => {
   try {
     const response = await api.put(`/tasks/${taskId}`, data);
     return response.data;
@@ -72,9 +76,14 @@ export const deleteTask = async (id: number): Promise<void> => {
 };
 
 // Get project tasks
-export const getProjectTasks = async (projectId: number, filters: TaskFilters = {}): Promise<Task[]> => {
+export const getProjectTasks = async (
+  projectId: number,
+  filters: TaskFilters = {},
+): Promise<Task[]> => {
   try {
-    const queryParams = new URLSearchParams(filters as Record<string, string>).toString();
+    const queryParams = new URLSearchParams(
+      filters as Record<string, string>,
+    ).toString();
     const url = `/projects/${projectId}/tasks${queryParams ? `?${queryParams}` : ''}`;
     const response = await api.get(url);
     return response.data;
@@ -96,13 +105,16 @@ export const getSubtasks = async (parentTaskId: number): Promise<Task[]> => {
 };
 
 // Get tasks by date range
-export const getTasksByDateRange = async (startDate: Date, endDate: Date): Promise<Task[]> => {
+export const getTasksByDateRange = async (
+  startDate: Date,
+  endDate: Date,
+): Promise<Task[]> => {
   try {
     const response = await api.get('/tasks/calendar', {
       params: {
         start_date: startDate.toISOString(),
-        end_date: endDate.toISOString()
-      }
+        end_date: endDate.toISOString(),
+      },
     });
     return response.data;
   } catch (error) {
@@ -112,7 +124,10 @@ export const getTasksByDateRange = async (startDate: Date, endDate: Date): Promi
 };
 
 // Update task dates
-export const updateTaskDates = async (taskId: number, dates: { start_date?: string; due_date?: string }): Promise<Task> => {
+export const updateTaskDates = async (
+  taskId: number,
+  dates: { start_date?: string; due_date?: string },
+): Promise<Task> => {
   try {
     const response = await api.patch(`/tasks/${taskId}/dates`, dates);
     return response.data;
@@ -134,9 +149,14 @@ export const getActiveTasks = async (): Promise<Task[]> => {
 };
 
 // Change task status
-export const changeTaskStatus = async (taskId: number, statusId: number): Promise<Task> => {
+export const changeTaskStatus = async (
+  taskId: number,
+  statusId: number,
+): Promise<Task> => {
   try {
-    const response = await api.patch(`/tasks/${taskId}/change-status`, { statusId });
+    const response = await api.patch(`/tasks/${taskId}/change-status`, {
+      statusId,
+    });
     return response.data;
   } catch (error) {
     logger.error('Failed to change task status:', error);
@@ -167,7 +187,10 @@ export const getPriorities = async (): Promise<TaskPriority[]> => {
 };
 
 // Update task tags
-export const updateTaskTags = async (taskId: number, tags: Tag[]): Promise<ApiResponse<void>> => {
+export const updateTaskTags = async (
+  taskId: number,
+  tags: Tag[],
+): Promise<ApiResponse<void>> => {
   try {
     const response = await api.put(`/tasks/${taskId}/tags`, { tags });
     return response.data;

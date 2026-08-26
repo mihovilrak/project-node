@@ -5,7 +5,7 @@ import {
   getTaskTimeLogs,
   createTimeLog,
   updateTimeLog,
-  deleteTimeLog
+  deleteTimeLog,
 } from '../../../api/timeLogs';
 import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
 import logger from '../../../utils/logger';
@@ -27,7 +27,7 @@ describe('useProjectTimeLogs', () => {
       activity_type_id: 1,
       description: 'Work on feature',
       created_on: '2024-01-01',
-      task_name: 'Task 1'
+      task_name: 'Task 1',
     },
     {
       id: 2,
@@ -38,8 +38,8 @@ describe('useProjectTimeLogs', () => {
       activity_type_id: 1,
       description: 'Bug fixing',
       created_on: '2024-01-02',
-      task_name: 'Task 2'
-    }
+      task_name: 'Task 2',
+    },
   ];
 
   const mockTimeLogCreate: TimeLogCreate = {
@@ -47,7 +47,7 @@ describe('useProjectTimeLogs', () => {
     log_date: '2024-01-03',
     spent_time: 2,
     activity_type_id: 1,
-    description: 'New work'
+    description: 'New work',
   };
 
   beforeEach(() => {
@@ -55,11 +55,13 @@ describe('useProjectTimeLogs', () => {
     // Mock getProjectTasks to return tasks with IDs 1 and 2 (matching mockTimeLogs)
     (getProjectTasks as jest.Mock).mockResolvedValue([
       { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' }
+      { id: 2, name: 'Task 2' },
     ]);
     // Mock getTaskTimeLogs to return logs for each task
     (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
-      return Promise.resolve(mockTimeLogs.filter(log => log.task_id === taskId));
+      return Promise.resolve(
+        mockTimeLogs.filter((log) => log.task_id === taskId),
+      );
     });
     // Keep the original mock for getProjectTimeLogs if needed elsewhere
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
@@ -79,8 +81,12 @@ describe('useProjectTimeLogs', () => {
     expect(getTaskTimeLogs).toHaveBeenCalledWith(1);
     expect(getTaskTimeLogs).toHaveBeenCalledWith(2);
     console.log('DEBUG timeLogs:', result.current.timeLogs);
-    expect(result.current.timeLogs).toEqual(expect.arrayContaining(mockTimeLogs));
-    expect(mockTimeLogs).toEqual(expect.arrayContaining(result.current.timeLogs));
+    expect(result.current.timeLogs).toEqual(
+      expect.arrayContaining(mockTimeLogs),
+    );
+    expect(mockTimeLogs).toEqual(
+      expect.arrayContaining(result.current.timeLogs),
+    );
     expect(result.current.timeLogs).toHaveLength(mockTimeLogs.length);
   });
 
@@ -89,7 +95,7 @@ describe('useProjectTimeLogs', () => {
     (getProjectTasks as jest.Mock).mockResolvedValue([
       { id: 1, name: 'Task 1' },
       { id: 2, name: 'Task 2' },
-      { id: 3, name: 'Task 3' }
+      { id: 3, name: 'Task 3' },
     ]);
     const { result } = renderHook(() => useProjectTimeLogs('1'));
     const newTimeLog = {
@@ -97,25 +103,30 @@ describe('useProjectTimeLogs', () => {
       id: 3,
       user_id: 1,
       created_on: '2024-01-03',
-      task_name: 'Task 3'
+      task_name: 'Task 3',
     };
     (createTimeLog as jest.Mock).mockResolvedValue(newTimeLog);
     (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
       if (taskId === 3) return Promise.resolve([newTimeLog]);
-      return Promise.resolve(mockTimeLogs.filter(log => log.task_id === taskId));
+      return Promise.resolve(
+        mockTimeLogs.filter((log) => log.task_id === taskId),
+      );
     });
 
     await act(async () => {
       await result.current.handleTimeLogSubmit(mockTimeLogCreate);
     });
 
-    expect(createTimeLog).toHaveBeenCalledWith(mockTimeLogCreate.task_id, mockTimeLogCreate);
+    expect(createTimeLog).toHaveBeenCalledWith(
+      mockTimeLogCreate.task_id,
+      mockTimeLogCreate,
+    );
     expect(result.current.timeLogs).toEqual([...mockTimeLogs, newTimeLog]);
   });
 
   it('should handle time log update', async () => {
     const { result } = renderHook(() => useProjectTimeLogs('1'));
-    
+
     // Set selected time log for editing
     act(() => {
       result.current.setSelectedTimeLog(mockTimeLogs[0]);
@@ -124,13 +135,15 @@ describe('useProjectTimeLogs', () => {
     const updatedTimeLog = {
       ...mockTimeLogs[0],
       spent_time: 8,
-      description: 'Updated description'
+      description: 'Updated description',
     };
 
     (updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
     (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
       if (taskId === 1) return Promise.resolve([updatedTimeLog]);
-      return Promise.resolve(mockTimeLogs.filter(log => log.task_id === taskId));
+      return Promise.resolve(
+        mockTimeLogs.filter((log) => log.task_id === taskId),
+      );
     });
 
     await act(async () => {
@@ -139,14 +152,17 @@ describe('useProjectTimeLogs', () => {
         log_date: '2024-01-01',
         spent_time: 8,
         activity_type_id: 1,
-        description: 'Updated description'
+        description: 'Updated description',
       });
     });
 
-    expect(updateTimeLog).toHaveBeenCalledWith(mockTimeLogs[0].id, expect.objectContaining({
-      spent_time: 8,
-      description: 'Updated description'
-    }));
+    expect(updateTimeLog).toHaveBeenCalledWith(
+      mockTimeLogs[0].id,
+      expect.objectContaining({
+        spent_time: 8,
+        description: 'Updated description',
+      }),
+    );
     expect(createTimeLog).not.toHaveBeenCalled();
   });
 
@@ -174,7 +190,9 @@ describe('useProjectTimeLogs', () => {
     const { result } = renderHook(() => useProjectTimeLogs('1'));
 
     // Only the next call should reject
-    (createTimeLog as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Failed to create time log')));
+    (createTimeLog as jest.Mock).mockImplementationOnce(() =>
+      Promise.reject(new Error('Failed to create time log')),
+    );
 
     await act(async () => {
       try {
@@ -184,7 +202,10 @@ describe('useProjectTimeLogs', () => {
         expect(error).toBeInstanceOf(Error);
       }
     });
-    expect(logger.error).toHaveBeenCalledWith('Failed to submit time log:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to submit time log:',
+      expect.any(Error),
+    );
     // Restore the resolved mock for other tests
     (createTimeLog as jest.Mock).mockResolvedValue(undefined);
   });

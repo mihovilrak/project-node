@@ -12,4 +12,4 @@ export interface PrivateRouteProps {
 export type ThemeContextType = {
   mode: 'light' | 'dark';
   toggleTheme: () => void;
-}
+};

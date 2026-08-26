@@ -23,7 +23,7 @@ const mockUser: User = {
   role_id: 1,
   status_id: 1,
   created_on: '2025-02-01T20:09:10+01:00',
-  updated_on: null
+  updated_on: null,
 };
 
 const mockTimeLogData = {
@@ -84,7 +84,9 @@ describe('TimeLogDialog', () => {
   });
 
   it('renders dialog with correct title for editing time log', () => {
-    render(<TimeLogDialog {...defaultProps} timeLog={{ id: 1 } as any} />, { wrapper });
+    render(<TimeLogDialog {...defaultProps} timeLog={{ id: 1 } as any} />, {
+      wrapper,
+    });
     expect(screen.getByText('Edit Time Log')).toBeInTheDocument();
   });
 
@@ -99,7 +101,9 @@ describe('TimeLogDialog', () => {
 
   it('renders form when not loading', () => {
     render(<TimeLogDialog {...defaultProps} />, { wrapper });
-    expect(screen.getByRole('combobox', { name: /Project/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: /Project/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /Task/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Time Spent/i)).toBeInTheDocument();
   });

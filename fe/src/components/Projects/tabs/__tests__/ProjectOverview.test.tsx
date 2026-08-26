@@ -40,7 +40,7 @@ const mockProject: Project = {
 const mockRootProject: Project = {
   ...mockProject,
   parent_id: null,
-  parent_name: null
+  parent_name: null,
 };
 
 const mockSubprojects = [
@@ -66,7 +66,9 @@ describe('ProjectOverview Component', () => {
   });
 
   test('renders project details correctly', () => {
-    const { container } = renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    const { container } = renderWithRouter(
+      <ProjectOverview project={mockProject} projectDetails={mockProject} />,
+    );
 
     const descriptionText = container.textContent;
     expect(descriptionText).toContain('Test Description');
@@ -88,7 +90,12 @@ describe('ProjectOverview Component', () => {
   });
 
   test('renders subprojects list correctly', () => {
-    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
+    renderWithRouter(
+      <ProjectOverview
+        project={mockRootProject}
+        projectDetails={mockRootProject}
+      />,
+    );
 
     expect(screen.getByText('Subproject 1')).toBeInTheDocument();
     expect(screen.getByText('Subproject 2')).toBeInTheDocument();
@@ -100,19 +107,28 @@ describe('ProjectOverview Component', () => {
       handleAddSubproject: jest.fn(),
     });
 
-    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
+    renderWithRouter(
+      <ProjectOverview
+        project={mockRootProject}
+        projectDetails={mockRootProject}
+      />,
+    );
     expect(screen.getByText('No subprojects found')).toBeInTheDocument();
   });
 
   test('renders parent project link correctly', () => {
-    renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    renderWithRouter(
+      <ProjectOverview project={mockProject} projectDetails={mockProject} />,
+    );
 
     const parentLink = screen.getByText('Parent Project');
     expect(parentLink).toHaveAttribute('href', '/projects/2');
   });
 
   test('renders created by link correctly', () => {
-    renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    renderWithRouter(
+      <ProjectOverview project={mockProject} projectDetails={mockProject} />,
+    );
 
     const createdByLink = screen.getByText('John Doe');
     expect(createdByLink).toHaveAttribute('href', '/users/1');
@@ -125,7 +141,12 @@ describe('ProjectOverview Component', () => {
       handleAddSubproject: mockHandleAddSubproject,
     });
 
-    renderWithRouter(<ProjectOverview project={mockRootProject} projectDetails={mockRootProject} />);
+    renderWithRouter(
+      <ProjectOverview
+        project={mockRootProject}
+        projectDetails={mockRootProject}
+      />,
+    );
 
     const addButton = screen.getByTestId('permission-button');
     fireEvent.click(addButton);
@@ -133,7 +154,9 @@ describe('ProjectOverview Component', () => {
   });
 
   test('renders progress bar correctly', () => {
-    const { container } = renderWithRouter(<ProjectOverview project={mockProject} projectDetails={mockProject} />);
+    const { container } = renderWithRouter(
+      <ProjectOverview project={mockProject} projectDetails={mockProject} />,
+    );
 
     const progressBar = container.querySelector('[role="progressbar"]');
     expect(progressBar).not.toBeNull();
@@ -146,10 +169,13 @@ describe('ProjectOverview Component', () => {
   test('handles null spent_time correctly', () => {
     const projectWithNullSpentTime = {
       ...mockProject,
-      spent_time: null as any
+      spent_time: null as any,
     };
     const { container } = renderWithRouter(
-      <ProjectOverview project={projectWithNullSpentTime} projectDetails={projectWithNullSpentTime} />
+      <ProjectOverview
+        project={projectWithNullSpentTime}
+        projectDetails={projectWithNullSpentTime}
+      />,
     );
 
     const descriptionText = container.textContent;
@@ -160,10 +186,13 @@ describe('ProjectOverview Component', () => {
   test('handles undefined spent_time correctly', () => {
     const projectWithUndefinedSpentTime = {
       ...mockProject,
-      spent_time: undefined as any
+      spent_time: undefined as any,
     };
     const { container } = renderWithRouter(
-      <ProjectOverview project={projectWithUndefinedSpentTime} projectDetails={projectWithUndefinedSpentTime} />
+      <ProjectOverview
+        project={projectWithUndefinedSpentTime}
+        projectDetails={projectWithUndefinedSpentTime}
+      />,
     );
 
     const descriptionText = container.textContent;

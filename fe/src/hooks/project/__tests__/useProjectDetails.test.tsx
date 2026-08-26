@@ -4,7 +4,7 @@ import {
   getProjectById,
   getProjectDetails,
   updateProject,
-  deleteProject
+  deleteProject,
 } from '../../../api/projects';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -14,27 +14,27 @@ import { Project } from '../../../types/project';
 jest.mock('../../../api/projects');
 jest.mock('../../../context/AuthContext');
 jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 jest.mock('../useProjectMembers', () => ({
   useProjectMembers: () => ({
     members: [],
     loadMembers: jest.fn(),
     handleMemberUpdate: jest.fn(),
-    handleMemberRemove: jest.fn()
-  })
+    handleMemberRemove: jest.fn(),
+  }),
 }));
 jest.mock('../useProjectTasks', () => ({
   useProjectTasks: () => ({
     tasks: [],
-    loadTasks: jest.fn()
-  })
+    loadTasks: jest.fn(),
+  }),
 }));
 jest.mock('../useProjectTimeLogs', () => ({
   useProjectTimeLogs: () => ({
     timeLogs: [],
-    loadTimeLogs: jest.fn()
-  })
+    loadTimeLogs: jest.fn(),
+  }),
 }));
 
 describe('useProjectDetails', () => {
@@ -55,7 +55,7 @@ describe('useProjectDetails', () => {
     spent_time: 50,
     progress: 50,
     parent_id: null,
-    parent_name: null
+    parent_name: null,
   };
 
   const mockNavigate = jest.fn();
@@ -65,7 +65,7 @@ describe('useProjectDetails', () => {
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useAuth as jest.Mock).mockReturnValue({
       currentUser: { id: 1 },
-      hasPermission: () => true
+      hasPermission: () => true,
     });
     (getProjectById as jest.Mock).mockResolvedValue(mockProject);
     (getProjectDetails as jest.Mock).mockResolvedValue(mockProject);
@@ -78,7 +78,7 @@ describe('useProjectDetails', () => {
     expect(result.current.error).toBeNull();
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getProjectById).toHaveBeenCalledWith(1);
@@ -95,7 +95,7 @@ describe('useProjectDetails', () => {
     const { result } = renderHook(() => useProjectDetails('1'));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     await act(async () => {
@@ -112,7 +112,7 @@ describe('useProjectDetails', () => {
     const { result } = renderHook(() => useProjectDetails('1'));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     await act(async () => {
@@ -130,7 +130,7 @@ describe('useProjectDetails', () => {
     const { result } = renderHook(() => useProjectDetails('1'));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(result.current.error).toBe('Failed to fetch project');
@@ -141,39 +141,39 @@ describe('useProjectDetails', () => {
     const { result } = renderHook(() => useProjectDetails('1'));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     // Toggle edit dialog
     act(() => {
-      result.current.setState(prev => ({
+      result.current.setState((prev) => ({
         ...prev,
-        editDialogOpen: true
+        editDialogOpen: true,
       }));
     });
     expect(result.current.editDialogOpen).toBe(true);
 
     act(() => {
-      result.current.setState(prev => ({
+      result.current.setState((prev) => ({
         ...prev,
-        editDialogOpen: false
+        editDialogOpen: false,
       }));
     });
     expect(result.current.editDialogOpen).toBe(false);
 
     // Toggle delete dialog
     act(() => {
-      result.current.setState(prev => ({
+      result.current.setState((prev) => ({
         ...prev,
-        deleteDialogOpen: true
+        deleteDialogOpen: true,
       }));
     });
     expect(result.current.deleteDialogOpen).toBe(true);
 
     act(() => {
-      result.current.setState(prev => ({
+      result.current.setState((prev) => ({
         ...prev,
-        deleteDialogOpen: false
+        deleteDialogOpen: false,
       }));
     });
     expect(result.current.deleteDialogOpen).toBe(false);

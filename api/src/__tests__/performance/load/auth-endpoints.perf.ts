@@ -22,7 +22,11 @@ export default function () {
     },
   };
 
-  const res = http.post('http://localhost:3000/api/auth/login', payload, params);
+  const res = http.post(
+    'http://localhost:3000/api/auth/login',
+    payload,
+    params,
+  );
 
   check(res, {
     'status is 200': (r) => r.status === 200,

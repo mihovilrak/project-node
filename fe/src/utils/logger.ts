@@ -35,7 +35,7 @@ export function sanitizeForLog(value: unknown): unknown {
   for (const key of Object.keys(obj)) {
     const lower = key.toLowerCase();
     const isSensitive = Array.from(SENSITIVE_KEYS).some(
-      (sk) => lower.includes(sk) || lower === sk
+      (sk) => lower.includes(sk) || lower === sk,
     );
     out[key] = isSensitive ? REDACTED : sanitizeForLog(obj[key]);
   }

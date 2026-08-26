@@ -32,7 +32,7 @@ const mockProjects: Project[] = [
     created_on: '2025-02-01',
     estimated_time: 0,
     spent_time: 0,
-    progress: 0
+    progress: 0,
   },
   {
     id: 2,
@@ -49,8 +49,8 @@ const mockProjects: Project[] = [
     created_on: '2025-02-01',
     estimated_time: 0,
     spent_time: 0,
-    progress: 0
-  }
+    progress: 0,
+  },
 ];
 
 const mockTasks: Task[] = [
@@ -75,7 +75,7 @@ const mockTasks: Task[] = [
     created_by_name: 'User 1',
     created_on: '2025-02-01',
     estimated_time: 10,
-    progress: 0
+    progress: 0,
   },
   {
     id: 2,
@@ -98,8 +98,8 @@ const mockTasks: Task[] = [
     created_by_name: 'User 21',
     created_on: '2025-02-01',
     estimated_time: 20,
-    progress: 0
-  }
+    progress: 0,
+  },
 ];
 
 const mockUsers: User[] = [
@@ -114,7 +114,7 @@ const mockUsers: User[] = [
     status_id: 1,
     status_name: 'Active',
     created_on: '2025-02-01',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -127,8 +127,8 @@ const mockUsers: User[] = [
     status_id: 1,
     status_name: 'Active',
     created_on: '2025-02-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockActivityTypes: ActivityType[] = [
@@ -140,7 +140,7 @@ const mockActivityTypes: ActivityType[] = [
     icon: 'icon1',
     active: true,
     created_on: '2025-02-01',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -150,8 +150,8 @@ const mockActivityTypes: ActivityType[] = [
     icon: 'icon2',
     active: true,
     created_on: '2025-02-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 describe('useTimeLogData', () => {
@@ -164,11 +164,13 @@ describe('useTimeLogData', () => {
   });
 
   it('should load initial data when opened', async () => {
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: undefined,
-      hasAdminPermission: false
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: undefined,
+        hasAdminPermission: false,
+      }),
+    );
 
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -179,11 +181,13 @@ describe('useTimeLogData', () => {
   });
 
   it('should load projects and tasks on mount', async () => {
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: 1,
-      hasAdminPermission: false
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: 1,
+        hasAdminPermission: false,
+      }),
+    );
 
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -196,11 +200,13 @@ describe('useTimeLogData', () => {
   });
 
   it('should load users when has admin permission', async () => {
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: undefined,
-      hasAdminPermission: true
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: undefined,
+        hasAdminPermission: true,
+      }),
+    );
 
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -210,11 +216,13 @@ describe('useTimeLogData', () => {
   });
 
   it('should handle project selection', async () => {
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: undefined,
-      hasAdminPermission: false
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: undefined,
+        hasAdminPermission: false,
+      }),
+    );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -230,11 +238,13 @@ describe('useTimeLogData', () => {
   });
 
   it('should clear tasks when project is deselected', async () => {
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: 1,
-      hasAdminPermission: false
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: 1,
+        hasAdminPermission: false,
+      }),
+    );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -248,11 +258,13 @@ describe('useTimeLogData', () => {
   it('should handle API errors gracefully', async () => {
     (getProjects as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(() => useTimeLogData({
-      open: true,
-      projectId: undefined,
-      hasAdminPermission: false
-    }));
+    const { result } = renderHook(() =>
+      useTimeLogData({
+        open: true,
+        projectId: undefined,
+        hasAdminPermission: false,
+      }),
+    );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 

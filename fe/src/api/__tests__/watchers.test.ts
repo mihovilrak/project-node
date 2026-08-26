@@ -1,6 +1,10 @@
 import { api } from '../api';
 import { TaskWatcher } from '../../types/watcher';
-import { getTaskWatchers, addTaskWatcher, removeTaskWatcher } from '../watchers';
+import {
+  getTaskWatchers,
+  addTaskWatcher,
+  removeTaskWatcher,
+} from '../watchers';
 
 // Mock the api module
 jest.mock('../api');
@@ -12,7 +16,7 @@ describe('Watchers API', () => {
     task_id: 1,
     user_id: 1,
     user_name: 'John Doe',
-    role: 'Developer'
+    role: 'Developer',
   };
 
   const mockTaskWatchers: TaskWatcher[] = [mockTaskWatcher];
@@ -45,7 +49,9 @@ describe('Watchers API', () => {
 
       const result = await addTaskWatcher(1, 1);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('/tasks/1/watchers', { userId: 1 });
+      expect(mockedApi.post).toHaveBeenCalledWith('/tasks/1/watchers', {
+        userId: 1,
+      });
       expect(result).toEqual(mockTaskWatcher);
     });
 

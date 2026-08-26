@@ -6,30 +6,33 @@ import { TaskFormState, TaskPriority } from '../../../../types/task';
 const mockHandleChange = jest.fn();
 
 const mockPriorities: TaskPriority[] = [
-  { id: 1,
+  {
+    id: 1,
     name: 'Low/Wont',
     color: '#000000',
     description: null,
     active: true,
     created_on: '',
-    updated_on: null
+    updated_on: null,
   },
-  { id: 2,
+  {
+    id: 2,
     name: 'Normal/Could',
     color: '#000000',
     description: null,
     active: true,
     created_on: '',
-    updated_on: null
-},
-  { id: 3,
+    updated_on: null,
+  },
+  {
+    id: 3,
     name: 'High/Should',
     color: '#000000',
     description: null,
     active: true,
     created_on: '',
-    updated_on: null
-}
+    updated_on: null,
+  },
 ];
 
 const mockFormData: TaskFormState = {
@@ -44,7 +47,7 @@ const mockFormData: TaskFormState = {
   assignee_id: null,
   start_date: null,
   due_date: null,
-  estimated_time: null
+  estimated_time: null,
 };
 
 describe('TaskPrioritySelect', () => {
@@ -58,7 +61,7 @@ describe('TaskPrioritySelect', () => {
         formData={mockFormData}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     expect(screen.getByLabelText(/priority/i)).toBeInTheDocument();
@@ -70,12 +73,12 @@ describe('TaskPrioritySelect', () => {
         formData={mockFormData}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     fireEvent.mouseDown(screen.getByRole('combobox'));
 
-    mockPriorities.forEach(priority => {
+    mockPriorities.forEach((priority) => {
       expect(screen.getByText(priority.name)).toBeInTheDocument();
     });
   });
@@ -87,7 +90,7 @@ describe('TaskPrioritySelect', () => {
         formData={formDataWithPriority}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     // MUI Select displays the selected option text, not a value attribute
@@ -100,7 +103,7 @@ describe('TaskPrioritySelect', () => {
         formData={mockFormData}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     fireEvent.mouseDown(screen.getByRole('combobox'));
@@ -115,7 +118,7 @@ describe('TaskPrioritySelect', () => {
         formData={mockFormData}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     expect(screen.getByLabelText(/priority/i)).toBeRequired();
@@ -127,10 +130,12 @@ describe('TaskPrioritySelect', () => {
         formData={mockFormData}
         priorities={mockPriorities}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
-    const textField = screen.getByLabelText(/priority/i).closest('.MuiTextField-root');
+    const textField = screen
+      .getByLabelText(/priority/i)
+      .closest('.MuiTextField-root');
     expect(textField).toHaveStyle({ width: '100%' });
   });
 });

@@ -7,13 +7,21 @@ import { Task } from '../../../types/task';
 
 // Mock DevExpress components
 jest.mock('@devexpress/dx-react-scheduler', () => ({
-  ViewState: ({ children }: any) => <div data-testid="view-state">{children}</div>,
-  EditingState: ({ children }: any) => <div data-testid="editing-state">{children}</div>,
-  IntegratedEditing: ({ children }: any) => <div data-testid="integrated-editing">{children}</div>
+  ViewState: ({ children }: any) => (
+    <div data-testid="view-state">{children}</div>
+  ),
+  EditingState: ({ children }: any) => (
+    <div data-testid="editing-state">{children}</div>
+  ),
+  IntegratedEditing: ({ children }: any) => (
+    <div data-testid="integrated-editing">{children}</div>
+  ),
 }));
 
 jest.mock('@devexpress/dx-react-scheduler-material-ui', () => ({
-  Scheduler: ({ children }: any) => <div data-testid="scheduler">{children}</div>,
+  Scheduler: ({ children }: any) => (
+    <div data-testid="scheduler">{children}</div>
+  ),
   DayView: () => <div data-testid="day-view">DayView</div>,
   WeekView: () => <div data-testid="week-view">WeekView</div>,
   MonthView: () => <div data-testid="month-view">MonthView</div>,
@@ -22,18 +30,22 @@ jest.mock('@devexpress/dx-react-scheduler-material-ui', () => ({
   DateNavigator: () => <div data-testid="date-navigator">DateNavigator</div>,
   ViewSwitcher: () => <div data-testid="view-switcher">ViewSwitcher</div>,
   TodayButton: () => <div data-testid="today-button">TodayButton</div>,
-  AppointmentTooltip: () => <div data-testid="appointment-tooltip">AppointmentTooltip</div>,
-  DragDropProvider: () => <div data-testid="drag-drop-provider">DragDropProvider</div>
+  AppointmentTooltip: () => (
+    <div data-testid="appointment-tooltip">AppointmentTooltip</div>
+  ),
+  DragDropProvider: () => (
+    <div data-testid="drag-drop-provider">DragDropProvider</div>
+  ),
 }));
 
 // Mock API
 jest.mock('../../../api/tasks', () => ({
-  updateTaskDates: jest.fn()
+  updateTaskDates: jest.fn(),
 }));
 
 // Mock custom hook
 jest.mock('../../../hooks/project/useProjectGantt', () => ({
-  useProjectGantt: jest.fn()
+  useProjectGantt: jest.fn(),
 }));
 
 // Sample task data for tests
@@ -62,7 +74,7 @@ const mockTasks: Task[] = [
     created_by_name: 'Test User',
     created_on: '2024-01-01',
     estimated_time: null,
-    assignee_id: 1
+    assignee_id: 1,
   },
   {
     id: 2,
@@ -88,8 +100,8 @@ const mockTasks: Task[] = [
     created_by_name: 'Test User',
     created_on: '2024-01-01',
     estimated_time: null,
-    assignee_id: 2
-  }
+    assignee_id: 2,
+  },
 ];
 
 describe('ProjectGantt component', () => {
@@ -99,7 +111,7 @@ describe('ProjectGantt component', () => {
     return render(
       <ThemeProvider theme={theme}>
         <ProjectGantt {...props} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   };
 
@@ -107,19 +119,24 @@ describe('ProjectGantt component', () => {
     jest.clearAllMocks();
 
     // Default hook mock implementation
-    const { useProjectGantt } = require('../../../hooks/project/useProjectGantt');
+    const {
+      useProjectGantt,
+    } = require('../../../hooks/project/useProjectGantt');
     useProjectGantt.mockImplementation((tasks: Task[] = []) => {
       return {
-        tasks: tasks.length > 0 ? tasks.map(task => ({
-          id: task.id,
-          title: task.name,
-          startDate: new Date(),
-          endDate: new Date(),
-          type_name: task.type_name,
-          priority: task.priority_name,
-          status: task.status_name,
-          description: task.description
-        })) : [],
+        tasks:
+          tasks.length > 0
+            ? tasks.map((task) => ({
+                id: task.id,
+                title: task.name,
+                startDate: new Date(),
+                endDate: new Date(),
+                type_name: task.type_name,
+                priority: task.priority_name,
+                status: task.status_name,
+                description: task.description,
+              }))
+            : [],
         loading: tasks.length === 0,
         error: null,
         currentDate: new Date(),
@@ -129,7 +146,7 @@ describe('ProjectGantt component', () => {
         setError: jest.fn(),
         renderAppointment: jest.fn(),
         renderAppointmentContent: jest.fn(),
-        renderTooltipContent: jest.fn()
+        renderTooltipContent: jest.fn(),
       };
     });
   });
@@ -142,7 +159,9 @@ describe('ProjectGantt component', () => {
 
   // TEST 2: Error display
   it('shows error message when error occurs', () => {
-    const { useProjectGantt } = require('../../../hooks/project/useProjectGantt');
+    const {
+      useProjectGantt,
+    } = require('../../../hooks/project/useProjectGantt');
     useProjectGantt.mockReturnValueOnce({
       tasks: [],
       loading: false,
@@ -154,7 +173,7 @@ describe('ProjectGantt component', () => {
       setError: jest.fn(),
       renderAppointment: jest.fn(),
       renderAppointmentContent: jest.fn(),
-      renderTooltipContent: jest.fn()
+      renderTooltipContent: jest.fn(),
     });
 
     renderWithTheme({ projectId: 1, tasks: [] });

@@ -1,6 +1,11 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskTimeLogs } from '../useTaskTimeLogs';
-import { getTaskTimeLogs, createTimeLog, updateTimeLog, deleteTimeLog } from '../../../api/timeLogs';
+import {
+  getTaskTimeLogs,
+  createTimeLog,
+  updateTimeLog,
+  deleteTimeLog,
+} from '../../../api/timeLogs';
 import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
 
 // Mock API calls
@@ -10,8 +15,8 @@ jest.mock('../../../api/timeLogs');
 const mockCurrentUser = { id: 1, name: 'Test User' };
 jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
-    currentUser: mockCurrentUser
-  })
+    currentUser: mockCurrentUser,
+  }),
 }));
 
 describe('useTaskTimeLogs', () => {
@@ -31,7 +36,7 @@ describe('useTaskTimeLogs', () => {
       user: 'Test User',
       activity_type_name: 'Development',
       activity_type_color: '#FF0000',
-      activity_type_icon: 'code'
+      activity_type_icon: 'code',
     },
     {
       id: 2,
@@ -48,8 +53,8 @@ describe('useTaskTimeLogs', () => {
       user: 'Test User',
       activity_type_name: 'Meeting',
       activity_type_color: '#00FF00',
-      activity_type_icon: 'group'
-    }
+      activity_type_icon: 'group',
+    },
   ];
 
   beforeEach(() => {
@@ -86,7 +91,7 @@ describe('useTaskTimeLogs', () => {
       user: 'Test User',
       activity_type_name: 'Development',
       activity_type_color: '#FF0000',
-      activity_type_icon: 'code'
+      activity_type_icon: 'code',
     };
 
     const timeLogData: TimeLogCreate = {
@@ -94,11 +99,14 @@ describe('useTaskTimeLogs', () => {
       activity_type_id: 1,
       log_date: '2024-01-25T00:00:00Z',
       spent_time: 4,
-      description: 'New time log'
+      description: 'New time log',
     };
 
     (createTimeLog as jest.Mock).mockResolvedValue(newTimeLog);
-    (getTaskTimeLogs as jest.Mock).mockResolvedValue([...mockTimeLogs, newTimeLog]);
+    (getTaskTimeLogs as jest.Mock).mockResolvedValue([
+      ...mockTimeLogs,
+      newTimeLog,
+    ]);
 
     const { result } = renderHook(() => useTaskTimeLogs('1'));
     // await waitForNextUpdate();
@@ -143,7 +151,7 @@ describe('useTaskTimeLogs', () => {
       activity_type_id: 1,
       log_date: '2024-01-25T00:00:00Z',
       spent_time: 4,
-      description: 'New time log'
+      description: 'New time log',
     };
 
     const { result } = renderHook(() => useTaskTimeLogs('1'));
@@ -151,7 +159,9 @@ describe('useTaskTimeLogs', () => {
       expect(result.current.timeLogs).toEqual(mockTimeLogs);
     });
 
-    await expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('Failed to add time log');
+    await expect(
+      result.current.handleTimeLogSubmit(timeLogData),
+    ).rejects.toThrow('Failed to add time log');
   });
 
   it('should handle time log deletion error', async () => {
@@ -163,7 +173,9 @@ describe('useTaskTimeLogs', () => {
       expect(result.current.timeLogs).toEqual(mockTimeLogs);
     });
 
-    await expect(result.current.deleteTimeLog(1)).rejects.toThrow('Failed to delete time log');
+    await expect(result.current.deleteTimeLog(1)).rejects.toThrow(
+      'Failed to delete time log',
+    );
   });
 
   it('should handle unauthenticated user', async () => {
@@ -171,7 +183,7 @@ describe('useTaskTimeLogs', () => {
     const authModule = require('../../../context/AuthContext');
     const originalUseAuth = authModule.useAuth;
     jest.spyOn(authModule, 'useAuth').mockImplementation(() => ({
-      currentUser: null
+      currentUser: null,
     }));
 
     const timeLogData: TimeLogCreate = {
@@ -179,13 +191,15 @@ describe('useTaskTimeLogs', () => {
       activity_type_id: 1,
       log_date: '2024-01-25T00:00:00Z',
       spent_time: 4,
-      description: 'New time log'
+      description: 'New time log',
     };
 
     const { result } = renderHook(() => useTaskTimeLogs('1'));
 
-    await expect(result.current.handleTimeLogSubmit(timeLogData)).rejects.toThrow('User not authenticated');
-    
+    await expect(
+      result.current.handleTimeLogSubmit(timeLogData),
+    ).rejects.toThrow('User not authenticated');
+
     // Restore the original mock
     jest.spyOn(authModule, 'useAuth').mockImplementation(originalUseAuth);
   });
@@ -194,13 +208,13 @@ describe('useTaskTimeLogs', () => {
     // Ensure auth mock is restored
     const authModule = require('../../../context/AuthContext');
     jest.spyOn(authModule, 'useAuth').mockImplementation(() => ({
-      currentUser: mockCurrentUser
+      currentUser: mockCurrentUser,
     }));
 
     const updatedTimeLog: TimeLog = {
       ...mockTimeLogs[0],
       spent_time: 6,
-      description: 'Updated time log'
+      description: 'Updated time log',
     };
 
     const timeLogData: TimeLogCreate = {
@@ -208,7 +222,7 @@ describe('useTaskTimeLogs', () => {
       activity_type_id: 1,
       log_date: '2024-01-25T00:00:00Z',
       spent_time: 6,
-      description: 'Updated time log'
+      description: 'Updated time log',
     };
 
     (updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
@@ -217,7 +231,7 @@ describe('useTaskTimeLogs', () => {
       .mockResolvedValueOnce([updatedTimeLog, mockTimeLogs[1]]); // After update
 
     const { result } = renderHook(() => useTaskTimeLogs('1'));
-    
+
     await waitFor(() => {
       expect(result.current.timeLogs).toEqual(mockTimeLogs);
     });

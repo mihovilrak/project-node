@@ -27,7 +27,7 @@ describe('useProjectSelect', () => {
       created_on: '2024-01-25T00:00:00Z',
       estimated_time: 40,
       spent_time: 0,
-      progress: 0
+      progress: 0,
     },
     {
       id: 2,
@@ -44,8 +44,8 @@ describe('useProjectSelect', () => {
       created_on: '2024-01-25T00:00:00Z',
       estimated_time: 40,
       spent_time: 0,
-      progress: 0
-    }
+      progress: 0,
+    },
   ];
 
   const mockProjectMembers: ProjectMember[] = [
@@ -55,8 +55,8 @@ describe('useProjectSelect', () => {
       surname: 'Doe',
       project_id: 1,
       role: 'Admin',
-      created_on: '2024-01-25T00:00:00Z'
-    }
+      created_on: '2024-01-25T00:00:00Z',
+    },
   ];
 
   const mockTasks: Task[] = [
@@ -88,7 +88,7 @@ describe('useProjectSelect', () => {
       created_by: 1,
       created_by_name: 'Test User',
       created_on: '2024-01-25T00:00:00Z',
-      estimated_time: 8
+      estimated_time: 8,
     },
     {
       id: 2,
@@ -118,8 +118,8 @@ describe('useProjectSelect', () => {
       created_by: 1,
       created_by_name: 'Test User',
       created_on: '2024-01-25T00:00:00Z',
-      estimated_time: 8
-    }
+      estimated_time: 8,
+    },
   ];
 
   beforeEach(() => {
@@ -164,7 +164,10 @@ describe('useProjectSelect', () => {
     const { result } = renderHook(() => useProjectSelect());
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Error fetching projects:', error);
+      expect(logger.error).toHaveBeenCalledWith(
+        'Error fetching projects:',
+        error,
+      );
       expect(result.current.projects).toEqual([]);
     });
   });
@@ -176,7 +179,10 @@ describe('useProjectSelect', () => {
     const { result } = renderHook(() => useProjectSelect(1));
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Error fetching project members:', error);
+      expect(logger.error).toHaveBeenCalledWith(
+        'Error fetching project members:',
+        error,
+      );
       expect(result.current.projectMembers).toEqual([]);
     });
     expect(result.current.projectTasks).toEqual(mockTasks);
@@ -189,7 +195,10 @@ describe('useProjectSelect', () => {
     const { result } = renderHook(() => useProjectSelect(1));
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to fetch project tasks:', error);
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to fetch project tasks:',
+        error,
+      );
       expect(result.current.projectMembers).toEqual(mockProjectMembers);
       expect(result.current.projectTasks).toEqual([]);
     });
@@ -198,7 +207,7 @@ describe('useProjectSelect', () => {
   it('should update project data when projectId changes', async () => {
     const { result, rerender } = renderHook(
       (props) => useProjectSelect(props.projectId, props.taskId),
-      { initialProps: { projectId: 1, taskId: null } }
+      { initialProps: { projectId: 1, taskId: null } },
     );
 
     await waitFor(() => {
@@ -210,8 +219,8 @@ describe('useProjectSelect', () => {
         user_id: 2,
         project_id: 2,
         role_id: 1,
-        created_on: '2024-01-25T00:00:00Z'
-      }
+        created_on: '2024-01-25T00:00:00Z',
+      },
     ];
     const newTasks = [
       {
@@ -242,8 +251,8 @@ describe('useProjectSelect', () => {
         created_by: 1,
         created_by_name: 'Test User',
         created_on: '2024-01-25T00:00:00Z',
-        estimated_time: 8
-      }
+        estimated_time: 8,
+      },
     ];
 
     (getProjectMembers as jest.Mock).mockResolvedValue(newProjectMembers);

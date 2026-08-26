@@ -11,7 +11,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import { updateProject } from '../../api/projects';
 import { ProjectEditDialogProps } from '../../types/project';
@@ -23,7 +23,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
   open,
   project,
   onClose,
-  onSaved
+  onSaved,
 }) => {
   const {
     formData,
@@ -33,7 +33,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
     setError,
     setLoading,
     handleTextChange,
-    handleStatusChange
+    handleStatusChange,
   } = useProjectEdit(project);
 
   const handleSubmit = async () => {
@@ -129,7 +129,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
                 {statuses.length === 0 ? (
                   <MenuItem disabled>No statuses available</MenuItem>
                 ) : (
-                  statuses.map(status => (
+                  statuses.map((status) => (
                     <MenuItem key={status?.id} value={status?.id}>
                       {status?.name || 'Unknown'}
                     </MenuItem>
@@ -141,10 +141,18 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading} data-testid="cancel-button">
+        <Button
+          onClick={onClose}
+          disabled={loading}
+          data-testid="cancel-button"
+        >
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={loading} data-testid="save-button">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          data-testid="save-button"
+        >
           Save Changes
         </Button>
       </DialogActions>

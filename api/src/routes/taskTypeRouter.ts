@@ -9,10 +9,23 @@ export default (pool: Pool): Router => {
 
   router.get('/', withPool(pool, taskTypeController.getTaskTypes));
   router.get('/:id', withPool(pool, taskTypeController.getTaskTypeById));
-  router.post('/', checkPermission(pool, 'Admin'), withPool(pool, taskTypeController.createTaskType));
-  router.put('/:id', checkPermission(pool, 'Admin'), withPool(pool, taskTypeController.updateTaskType));
-  router.delete('/:id', checkPermission(pool, 'Admin'), withPool(pool, taskTypeController.deleteTaskType));
-  router.get('/icons', ((req, res) => taskTypeController.getAvailableIcons(req, res)) as RequestHandler);
+  router.post(
+    '/',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, taskTypeController.createTaskType),
+  );
+  router.put(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, taskTypeController.updateTaskType),
+  );
+  router.delete(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, taskTypeController.deleteTaskType),
+  );
+  router.get('/icons', ((req, res) =>
+    taskTypeController.getAvailableIcons(req, res)) as RequestHandler);
 
   return router;
 };

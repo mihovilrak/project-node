@@ -6,13 +6,16 @@ import {
   ListItemText,
   Chip,
   Box,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import { Task } from '../../types/task';
 import { ProfileTaskListProps } from '../../types/profile';
 
-const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, loading }) => {
-
+const ProfileTaskList: React.FC<ProfileTaskListProps> = ({
+  tasks,
+  onTaskClick,
+  loading,
+}) => {
   const handleTaskClick = (task: Task) => {
     onTaskClick(task.id);
   };
@@ -37,7 +40,11 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
       ) : (
         <List>
           {tasks.map((task) => (
-            <ListItem key={task?.id} divider onClick={() => task && handleTaskClick(task)}>
+            <ListItem
+              key={task?.id}
+              divider
+              onClick={() => task && handleTaskClick(task)}
+            >
               <ListItemText
                 primary={task?.name || 'Unnamed Task'}
                 secondary={
@@ -58,7 +65,10 @@ const ProfileTaskList: React.FC<ProfileTaskListProps> = ({ tasks, onTaskClick, l
                     <Chip
                       label={task?.priority_name || 'Unknown'}
                       size="small"
-                      sx={{ bgcolor: task?.priority_color || '#666', color: 'white' }}
+                      sx={{
+                        bgcolor: task?.priority_color || '#666',
+                        color: 'white',
+                      }}
                       data-testid="priority-chip"
                     />
                   </Box>

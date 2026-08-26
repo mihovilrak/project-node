@@ -9,8 +9,8 @@ import FlagIcon from '@mui/icons-material/Flag';
 jest.mock('../../../hooks/profile/useActivityTimeline', () => ({
   useActivityTimeline: () => ({
     getActivityIcon: () => FlagIcon,
-    getActivityColor: () => 'primary'
-  })
+    getActivityColor: () => 'primary',
+  }),
 }));
 
 describe('ActivityTimeline', () => {
@@ -20,7 +20,7 @@ describe('ActivityTimeline', () => {
       type: 'update',
       title: 'Profile Update',
       description: 'Updated profile',
-      timestamp: '2023-01-01T12:00:00Z'
+      timestamp: '2023-01-01T12:00:00Z',
     },
     {
       id: 2,
@@ -30,19 +30,23 @@ describe('ActivityTimeline', () => {
       timestamp: '2023-01-01T13:00:00Z',
       project: {
         id: 1,
-        name: 'Test Project'
-      }
-    }
+        name: 'Test Project',
+      },
+    },
   ];
 
   test('renders timeline with activities', () => {
     render(<ActivityTimeline activities={mockActivities} />);
 
     // Check if activities are rendered
-    mockActivities.forEach(activity => {
+    mockActivities.forEach((activity) => {
       // Using getAllByText instead of getByText since the description appears twice
-      expect(screen.getAllByText(activity.description).length).toBeGreaterThan(0);
-      expect(screen.getByText(new Date(activity.timestamp).toLocaleString())).toBeInTheDocument();
+      expect(screen.getAllByText(activity.description).length).toBeGreaterThan(
+        0,
+      );
+      expect(
+        screen.getByText(new Date(activity.timestamp).toLocaleString()),
+      ).toBeInTheDocument();
     });
   });
 
@@ -59,7 +63,9 @@ describe('ActivityTimeline', () => {
   test('renders timeline connectors correctly', () => {
     render(<ActivityTimeline activities={mockActivities} />);
 
-    const timelineConnectors = document.querySelectorAll('.MuiTimelineConnector-root');
+    const timelineConnectors = document.querySelectorAll(
+      '.MuiTimelineConnector-root',
+    );
     // Should have one connector (between two items)
     expect(timelineConnectors.length).toBe(1);
   });

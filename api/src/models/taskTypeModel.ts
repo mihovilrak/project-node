@@ -6,7 +6,7 @@ export const getTaskTypes = async (pool: Pool): Promise<TaskType[]> => {
   const result = await pool.query(
     `SELECT * FROM task_types
     WHERE active = true
-    ORDER BY name ASC`
+    ORDER BY name ASC`,
   );
   return result.rows;
 };
@@ -14,12 +14,12 @@ export const getTaskTypes = async (pool: Pool): Promise<TaskType[]> => {
 // Get a task type by ID
 export const getTaskTypeById = async (
   pool: Pool,
-  id: string
+  id: string,
 ): Promise<TaskType | null> => {
   const result = await pool.query(
     `SELECT * FROM task_types
     WHERE id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 };
@@ -31,14 +31,14 @@ export const createTaskType = async (
   description: string | null,
   color: string,
   icon: string | null,
-  active: boolean
+  active: boolean,
 ): Promise<TaskType> => {
   const result = await pool.query(
     `INSERT INTO task_types
     (name, description, color, icon, active)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *`,
-    [name, description, color, icon, active]
+    [name, description, color, icon, active],
   );
   return result.rows[0];
 };
@@ -51,26 +51,29 @@ export const updateTaskType = async (
   description: string | null,
   color: string | null,
   icon: string | null,
-  active: boolean | null
+  active: boolean | null,
 ): Promise<TaskType | null> => {
   const result = await pool.query(
     `UPDATE task_types
     SET (name, description, color, icon, active, updated_on) = ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
     WHERE id = $6
     RETURNING *`,
-    [name, description, color, icon, active, id]
+    [name, description, color, icon, active, id],
   );
   return result.rows[0] || null;
 };
 
 // Delete a task type
-export const deleteTaskType = async (pool: Pool, id: string): Promise<TaskType | null> => {
+export const deleteTaskType = async (
+  pool: Pool,
+  id: string,
+): Promise<TaskType | null> => {
   const result = await pool.query(
     `UPDATE task_types
     SET (active, updated_on) = (false, CURRENT_TIMESTAMP)
     WHERE id = $1
     RETURNING *`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 };

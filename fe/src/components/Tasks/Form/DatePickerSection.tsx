@@ -4,9 +4,13 @@ import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { DatePickerSectionProps } from '../../../types/task';
 
-export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, handleChange, errors = {} }) => {
+export const DatePickerSection: React.FC<DatePickerSectionProps> = ({
+  formData,
+  handleChange,
+  errors = {},
+}) => {
   const datePickerStyle = {
-    width: '100%'
+    width: '100%',
   };
 
   return (
@@ -15,17 +19,22 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
         <DatePicker
           label="Start Date"
           value={formData.start_date ? dayjs(formData.start_date) : null}
-          onChange={(newValue) => handleChange({
-            target: { name: 'start_date', value: newValue ? newValue.toISOString() : '' }
-          })}
+          onChange={(newValue) =>
+            handleChange({
+              target: {
+                name: 'start_date',
+                value: newValue ? newValue.toISOString() : '',
+              },
+            })
+          }
           sx={datePickerStyle}
           slotProps={{
             textField: {
               fullWidth: true,
               required: true,
               error: !!errors.start_date,
-              helperText: errors.start_date
-            }
+              helperText: errors.start_date,
+            },
           }}
         />
       </Grid>
@@ -33,17 +42,22 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({ formData, 
         <DatePicker
           label="Due Date"
           value={formData.due_date ? dayjs(formData.due_date) : null}
-          onChange={(newValue) => handleChange({
-            target: { name: 'due_date', value: newValue ? newValue.toISOString() : '' }
-          })}
+          onChange={(newValue) =>
+            handleChange({
+              target: {
+                name: 'due_date',
+                value: newValue ? newValue.toISOString() : '',
+              },
+            })
+          }
           sx={datePickerStyle}
           slotProps={{
             textField: {
               fullWidth: true,
               required: true,
               error: !!errors.due_date,
-              helperText: errors.due_date
-            }
+              helperText: errors.due_date,
+            },
           }}
         />
       </Grid>

@@ -5,7 +5,10 @@ import { LoginRequest } from '../../types/auth';
 
 export const useLogin = () => {
   const { login, error: contextError } = useAuth();
-  const [loginDetails, setLoginDetails] = useState<LoginRequest>({ login: '', password: '' });
+  const [loginDetails, setLoginDetails] = useState<LoginRequest>({
+    login: '',
+    password: '',
+  });
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
@@ -14,7 +17,9 @@ export const useLogin = () => {
     setLoginDetails((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     setError('');
     try {
@@ -29,8 +34,8 @@ export const useLogin = () => {
 
   return {
     loginDetails,
-    error: error || contextError || "",
+    error: error || contextError || '',
     handleInputChange,
-    handleSubmit
+    handleSubmit,
   };
 };

@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import {
   Settings,
   SettingsUpdateInput,
-  UserSettingsUpdateInput
+  UserSettingsUpdateInput,
 } from '../types/settings';
 
 interface DbTimezoneRow {
@@ -35,17 +35,17 @@ export const _clearTimezoneCacheForTest = (): void => {
 };
 
 // Get System Settings
-export const getSystemSettings = async (pool: Pool): Promise<Settings | null> => {
-  const result = await pool.query(
-    `SELECT * FROM app_settings WHERE id = 1`
-  );
+export const getSystemSettings = async (
+  pool: Pool,
+): Promise<Settings | null> => {
+  const result = await pool.query(`SELECT * FROM app_settings WHERE id = 1`);
   return result.rows[0] || null;
 };
 
 // Update System Settings
 export const updateSystemSettings = async (
   pool: Pool,
-  settings: SettingsUpdateInput
+  settings: SettingsUpdateInput,
 ): Promise<Settings | null> => {
   const {
     app_name,
@@ -53,7 +53,7 @@ export const updateSystemSettings = async (
     sender_email,
     time_zone,
     theme,
-    welcome_message
+    welcome_message,
   } = settings;
   const result = await pool.query(
     `UPDATE app_settings
@@ -61,7 +61,7 @@ export const updateSystemSettings = async (
         = ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
      WHERE id = 1
      RETURNING *`,
-    [app_name, company_name, sender_email, time_zone, theme, welcome_message]
+    [app_name, company_name, sender_email, time_zone, theme, welcome_message],
   );
   return result.rows[0] || null;
 };
@@ -69,11 +69,11 @@ export const updateSystemSettings = async (
 // Get User Settings
 export const getUserSettings = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<Settings | null> => {
   const result = await pool.query(
     `SELECT * FROM user_settings WHERE user_id = $1`,
-    [userId]
+    [userId],
   );
   return result.rows[0] || null;
 };
@@ -82,14 +82,10 @@ export const getUserSettings = async (
 export const updateUserSettings = async (
   pool: Pool,
   userId: string,
-  settings: UserSettingsUpdateInput
+  settings: UserSettingsUpdateInput,
 ): Promise<Settings | null> => {
-  const {
-    theme,
-    language,
-    notifications_enabled,
-    email_notifications
-  } = settings;
+  const { theme, language, notifications_enabled, email_notifications } =
+    settings;
   const result = await pool.query(
     `INSERT INTO user_settings (user_id, theme, language, notifications_enabled, email_notifications)
      VALUES ($1, $2, $3, $4, $5)
@@ -97,7 +93,7 @@ export const updateUserSettings = async (
      SET (theme, language, notifications_enabled, email_notifications, updated_on)
         = ($2, $3, $4, $5, CURRENT_TIMESTAMP)
      RETURNING *`,
-    [userId, theme, language, notifications_enabled, email_notifications]
+    [userId, theme, language, notifications_enabled, email_notifications],
   );
   return result.rows[0] || null;
 };
@@ -136,7 +132,7 @@ export const getTimezones = async (pool: Pool): Promise<Timezone[]> => {
   }
 
   const result = await pool.query<DbTimezoneRow>(
-    `SELECT name, abbrev, utc_offset, is_dst FROM pg_timezone_names WHERE name LIKE '%/%' ORDER BY name`
+    `SELECT name, abbrev, utc_offset, is_dst FROM pg_timezone_names WHERE name LIKE '%/%' ORDER BY name`,
   );
 
   const data: Timezone[] = result.rows.map((row) => {
@@ -149,13 +145,13 @@ export const getTimezones = async (pool: Pool): Promise<Timezone[]> => {
       abbrev: row.abbrev,
       utcOffsetSeconds,
       isDst: row.is_dst,
-      label: `${row.name} (${offsetLabel})`
+      label: `${row.name} (${offsetLabel})`,
     };
   });
 
   timezoneCache = {
     data,
-    expiresAt: now + TIMEZONE_TTL_MS
+    expiresAt: now + TIMEZONE_TTL_MS,
   };
 
   return data;

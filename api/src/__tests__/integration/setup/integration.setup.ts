@@ -11,16 +11,18 @@ export let testPool: Pool;
 
 // Check if integration tests should run
 const shouldRunIntegration = () => {
-  return process.env.TEST_DB_HOST && 
-         process.env.TEST_DB_PASSWORD && 
-         process.env.SKIP_INTEGRATION_TESTS !== 'true';
+  return (
+    process.env.TEST_DB_HOST &&
+    process.env.TEST_DB_PASSWORD &&
+    process.env.SKIP_INTEGRATION_TESTS !== 'true'
+  );
 };
 
 beforeAll(async () => {
   if (!shouldRunIntegration()) {
     throw new Error(
       'Integration tests require TEST_DB_HOST and TEST_DB_PASSWORD. ' +
-      'Set these env vars (e.g. in CI) or do not run the integration test suite.'
+        'Set these env vars (e.g. in CI) or do not run the integration test suite.',
     );
   }
 
@@ -49,7 +51,9 @@ afterAll(async () => {
 });
 
 // Supertest Cookie header expects a string; set-cookie from response is an array
-export const cookieHeader = (setCookie: string[] | string | undefined): string => {
+export const cookieHeader = (
+  setCookie: string[] | string | undefined,
+): string => {
   if (!setCookie) return '';
   const arr = Array.isArray(setCookie) ? setCookie : [setCookie];
   return arr.map((c) => String(c).split(';')[0].trim()).join('; ');
@@ -58,7 +62,7 @@ export const cookieHeader = (setCookie: string[] | string | undefined): string =
 // Database cleanup utilities
 export const cleanupTables = async (tables: string[]) => {
   if (!testPool) return;
-  
+
   for (const table of tables) {
     await testPool.query(`TRUNCATE TABLE ${table} CASCADE`);
   }
@@ -66,7 +70,7 @@ export const cleanupTables = async (tables: string[]) => {
 
 export const seedTestUser = async () => {
   if (!testPool) return null;
-  
+
   const result = await testPool.query(`
     INSERT INTO users (login, email, password, name, surname, role_id, status_id)
     VALUES ('testuser', 'test@example.com', crypt(
@@ -83,22 +87,26 @@ export const seedTestUser = async () => {
 
 export const seedTestProject = async (userId: number) => {
   if (!testPool) return null;
-  
-  const result = await testPool.query(`
+
+  const result = await testPool.query(
+    `
     INSERT INTO projects
     (name, description, start_date, due_date, created_by, status_id)
     VALUES
     ('Test Project', 'Test project description', CURRENT_DATE,
      CURRENT_DATE + INTERVAL '30 days', $1, 1)
     RETURNING *
-  `, [userId]);
+  `,
+    [userId],
+  );
   return result.rows[0];
 };
 
 export const seedTestTask = async (projectId: number, userId: number) => {
   if (!testPool) return null;
-  
-  const result = await testPool.query(`
+
+  const result = await testPool.query(
+    `
     SELECT * FROM create_task(
       'Test Task',
       'Test task description',
@@ -116,6 +124,8 @@ export const seedTestTask = async (projectId: number, userId: number) => {
       ARRAY[]::smallint[],
       ARRAY[$2]::integer[]
     )
-  `, [projectId, userId]);
+  `,
+    [projectId, userId],
+  );
   return result.rows[0];
 };

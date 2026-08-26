@@ -31,7 +31,7 @@ describe('useTasksByHour', () => {
       end_date: null,
       spent_time: 0,
       progress: 0,
-      estimated_time: null
+      estimated_time: null,
     },
     {
       id: 2,
@@ -59,8 +59,8 @@ describe('useTasksByHour', () => {
       end_date: null,
       spent_time: 0,
       progress: 0,
-      estimated_time: null
-    }
+      estimated_time: null,
+    },
   ];
 
   const mockTimeLogs: TimeLog[] = [
@@ -73,7 +73,7 @@ describe('useTasksByHour', () => {
       spent_time: 1.0,
       description: 'Work on morning task',
       created_on: '2024-01-17T09:30:00Z',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -84,12 +84,14 @@ describe('useTasksByHour', () => {
       spent_time: 1.5,
       description: 'Work on afternoon task',
       created_on: '2024-01-17T14:30:00Z',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   it('should return hours array and utility functions', () => {
-    const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
+    const { result } = renderHook(() =>
+      useTasksByHour(mockTasks, mockTimeLogs),
+    );
 
     expect(result.current.hours).toBeDefined();
     expect(result.current.getTasksForHour).toBeDefined();
@@ -97,7 +99,9 @@ describe('useTasksByHour', () => {
   });
 
   it('should generate 24 hours', () => {
-    const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
+    const { result } = renderHook(() =>
+      useTasksByHour(mockTasks, mockTimeLogs),
+    );
 
     expect(result.current.hours.length).toBe(24);
     expect(result.current.hours[0]).toBe(0);
@@ -105,7 +109,9 @@ describe('useTasksByHour', () => {
   });
 
   it('should get tasks for specific hour', () => {
-    const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
+    const { result } = renderHook(() =>
+      useTasksByHour(mockTasks, mockTimeLogs),
+    );
 
     const morningTasks = result.current.getTasksForHour(9);
     const afternoonTasks = result.current.getTasksForHour(14);
@@ -119,7 +125,9 @@ describe('useTasksByHour', () => {
   });
 
   it('should get time logs for specific hour', () => {
-    const { result } = renderHook(() => useTasksByHour(mockTasks, mockTimeLogs));
+    const { result } = renderHook(() =>
+      useTasksByHour(mockTasks, mockTimeLogs),
+    );
 
     const morningLogs = result.current.getTimeLogsForHour(9);
     const afternoonLogs = result.current.getTimeLogsForHour(14);
@@ -141,36 +149,40 @@ describe('useTasksByHour', () => {
   });
 
   it('should handle tasks with missing start date', () => {
-    const tasksWithMissingDates: Task[] = [{
-      id: 1,
-      name: 'Task with missing dates',
-      description: 'Test task',
-      status_id: 1,
-      status_name: 'Open',
-      priority_id: 1,
-      priority_name: 'High',
-      created_on: '2024-01-17T10:00:00Z',
-      project_id: 1,
-      project_name: 'Test Project',
-      holder_id: 1,
-      holder_name: 'Test Holder',
-      assignee_id: 1,
-      assignee_name: 'Test Assignee',
-      parent_id: null,
-      parent_name: null,
-      type_id: 1,
-      type_name: 'Task',
-      created_by: 1,
-      created_by_name: 'Test Creator',
-      start_date: null,
-      due_date: null,
-      end_date: null,
-      spent_time: 0,
-      progress: 0,
-      estimated_time: null
-    }];
+    const tasksWithMissingDates: Task[] = [
+      {
+        id: 1,
+        name: 'Task with missing dates',
+        description: 'Test task',
+        status_id: 1,
+        status_name: 'Open',
+        priority_id: 1,
+        priority_name: 'High',
+        created_on: '2024-01-17T10:00:00Z',
+        project_id: 1,
+        project_name: 'Test Project',
+        holder_id: 1,
+        holder_name: 'Test Holder',
+        assignee_id: 1,
+        assignee_name: 'Test Assignee',
+        parent_id: null,
+        parent_name: null,
+        type_id: 1,
+        type_name: 'Task',
+        created_by: 1,
+        created_by_name: 'Test Creator',
+        start_date: null,
+        due_date: null,
+        end_date: null,
+        spent_time: 0,
+        progress: 0,
+        estimated_time: null,
+      },
+    ];
 
-    const { result } = renderHook(() => useTasksByHour(tasksWithMissingDates, []));
+    const { result } = renderHook(() =>
+      useTasksByHour(tasksWithMissingDates, []),
+    );
     const tasksForHour = result.current.getTasksForHour(9);
 
     expect(tasksForHour).toEqual([]);
@@ -204,7 +216,7 @@ describe('useTasksByHour', () => {
         end_date: null,
         spent_time: 0,
         progress: 0,
-        estimated_time: null
+        estimated_time: null,
       },
       {
         id: 2,
@@ -232,8 +244,8 @@ describe('useTasksByHour', () => {
         end_date: null,
         spent_time: 0,
         progress: 0,
-        estimated_time: null
-      }
+        estimated_time: null,
+      },
     ];
 
     const { result } = renderHook(() => useTasksByHour(tasksAcrossDays, []));

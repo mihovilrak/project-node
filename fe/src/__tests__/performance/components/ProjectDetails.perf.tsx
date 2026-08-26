@@ -24,7 +24,7 @@ const mockProject: Project = {
   created_on: '2024-01-26T00:00:00Z',
   estimated_time: 80,
   spent_time: 20,
-  progress: 25
+  progress: 25,
 };
 
 // Mock tasks data
@@ -54,7 +54,7 @@ const mockTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
   created_on: '2024-01-26T00:00:00Z',
   estimated_time: 8,
   spent_time: 2,
-  progress: 25
+  progress: 25,
 }));
 
 // Mock members data
@@ -65,7 +65,7 @@ const mockMembers: ProjectMember[] = Array.from({ length: 5 }, (_, index) => ({
   created_on: '2024-01-26T00:00:00Z',
   name: `User ${index + 1}`,
   surname: 'Test',
-  role: 'Member'
+  role: 'Member',
 }));
 
 // Mock time logs data
@@ -81,7 +81,7 @@ const mockTimeLogs: TimeLog[] = Array.from({ length: 5 }, (_, index) => ({
   created_on: '2024-01-26T00:00:00Z',
   activity_type_id: 1,
   log_date: '2024-01-26',
-  updated_on: null
+  updated_on: null,
 }));
 
 // Mock project details hook
@@ -115,15 +115,15 @@ jest.mock('../../../hooks/project/useProjectDetails', () => ({
     setTimeLogDialogOpen: jest.fn(),
     setSelectedTimeLog: jest.fn(),
     setTaskFormOpen: jest.fn(),
-    setManageMembersOpen: jest.fn()
-  }))
+    setManageMembersOpen: jest.fn(),
+  })),
 }));
 
 // Mock router
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 // Performance measurement callback
@@ -133,7 +133,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -144,19 +144,25 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}): number => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+): number => {
   let duration = 0;
 
   render(
     <TestWrapper>
-      <Profiler id="ProjectDetailsTest" onRender={(id, phase, actualDuration) => {
-        if (phase === 'mount') {
-          duration = actualDuration;
-        }
-      }}>
+      <Profiler
+        id="ProjectDetailsTest"
+        onRender={(id, phase, actualDuration) => {
+          if (phase === 'mount') {
+            duration = actualDuration;
+          }
+        }}
+      >
         <Component {...props} />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -177,14 +183,14 @@ describe('ProjectDetails Component Performance Tests', () => {
     const largeMockTasks = Array.from({ length: 100 }, (_, i) => ({
       ...mockTasks[0],
       id: i + 1,
-      name: `Task ${i + 1}`
+      name: `Task ${i + 1}`,
     }));
 
     jest.mock('../../../hooks/project/useProjectDetails', () => ({
       useProjectDetails: jest.fn(() => ({
         ...mockProject,
-        tasks: largeMockTasks
-      }))
+        tasks: largeMockTasks,
+      })),
     }));
 
     const renderTime = measurePerformance(ProjectDetails);
@@ -197,7 +203,7 @@ describe('ProjectDetails Component Performance Tests', () => {
         <Profiler id="TabSwitchTest" onRender={onRenderCallback}>
           <ProjectDetails />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Measure rerender performance for tab switches
@@ -207,7 +213,7 @@ describe('ProjectDetails Component Performance Tests', () => {
         <Profiler id="TabSwitchTest" onRender={onRenderCallback}>
           <ProjectDetails />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
     const endTime = performance.now();
 
@@ -220,7 +226,7 @@ describe('ProjectDetails Component Performance Tests', () => {
         <Profiler id="DialogTest" onRender={onRenderCallback}>
           <ProjectDetails />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Measure dialog open performance
@@ -230,7 +236,7 @@ describe('ProjectDetails Component Performance Tests', () => {
         <Profiler id="DialogTest" onRender={onRenderCallback}>
           <ProjectDetails />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
     const endTime = performance.now();
 

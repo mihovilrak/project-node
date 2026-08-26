@@ -7,7 +7,7 @@ import logger from '../utils/logger';
 export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
   try {
     const response = await api.get(`/files`, {
-      params: { taskId: taskId.toString() }
+      params: { taskId: taskId.toString() },
     });
     return response.data;
   } catch (error) {
@@ -20,14 +20,14 @@ export const getTaskFiles = async (taskId: number): Promise<TaskFile[]> => {
 export const uploadFile = async (
   taskId: number,
   formData: FormData,
-  onProgress?: (progressEvent: AxiosProgressEvent) => void
+  onProgress?: (progressEvent: AxiosProgressEvent) => void,
 ): Promise<TaskFile> => {
   try {
     const options: FileUploadOptions = {
       onUploadProgress: onProgress,
       params: {
-        taskId: taskId.toString()
-      }
+        taskId: taskId.toString(),
+      },
     };
 
     const response = await api.post('/files', formData, options);
@@ -39,11 +39,14 @@ export const uploadFile = async (
 };
 
 // Download file
-export const downloadFile = async (taskId: number, fileId: number): Promise<void> => {
+export const downloadFile = async (
+  taskId: number,
+  fileId: number,
+): Promise<void> => {
   try {
     const response = await api.get(`/files/${fileId}/download`, {
       params: { taskId: taskId.toString() },
-      responseType: 'blob'
+      responseType: 'blob',
     });
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -52,7 +55,9 @@ export const downloadFile = async (taskId: number, fileId: number): Promise<void
 
     const contentDisposition = response.headers['content-disposition'];
     const filename = contentDisposition
-      ? decodeURIComponent(contentDisposition.split('filename=')[1].replace(/['"]/g, ''))
+      ? decodeURIComponent(
+          contentDisposition.split('filename=')[1].replace(/['"]/g, ''),
+        )
       : 'download';
 
     link.setAttribute('download', filename);
@@ -67,10 +72,13 @@ export const downloadFile = async (taskId: number, fileId: number): Promise<void
 };
 
 // Delete file
-export const deleteFile = async (taskId: number, fileId: number): Promise<void> => {
+export const deleteFile = async (
+  taskId: number,
+  fileId: number,
+): Promise<void> => {
   try {
     await api.delete(`/files/${fileId}`, {
-      params: { taskId: taskId.toString() }
+      params: { taskId: taskId.toString() },
     });
   } catch (error) {
     logger.error('Failed to delete file', error);

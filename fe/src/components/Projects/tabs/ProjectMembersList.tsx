@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
 import {
-    List,
-    ListItem,
-    ListItemText,
-    IconButton,
-    Box,
-    Link,
-    Button,
-    Typography,
-    Alert
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Box,
+  Link,
+  Button,
+  Typography,
+  Alert,
 } from '@mui/material';
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
-import {
-  ProjectMembersListProps
-} from '../../../types/project';
+import { ProjectMembersListProps } from '../../../types/project';
 import EditMembersDialog from '../EditMembersDialog';
-import {
-  addProjectMember,
-  removeProjectMember
-} from '../../../api/projects';
+import { addProjectMember, removeProjectMember } from '../../../api/projects';
 import logger from '../../../utils/logger';
 import getApiErrorMessage from '../../../utils/getApiErrorMessage';
 
@@ -31,7 +23,7 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
   members,
   canManageMembers,
   onMemberRemove,
-  onMembersChange
+  onMembersChange,
 }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [error, setError] = useState<string>('');
@@ -43,27 +35,29 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
     }
     try {
       // Remove users that are no longer selected
-      const removedUsers = (members || [])
-        .filter(member => member?.user_id && !selectedUsers.includes(member.user_id));
+      const removedUsers = (members || []).filter(
+        (member) => member?.user_id && !selectedUsers.includes(member.user_id),
+      );
 
       // Add new users
-      const newUsers = selectedUsers
-        .filter(userId => !(members || []).find(member => member?.user_id === userId));
+      const newUsers = selectedUsers.filter(
+        (userId) =>
+          !(members || []).find((member) => member?.user_id === userId),
+      );
 
       // Process removals
       await Promise.all(
-        removedUsers.map(member => {
+        removedUsers.map((member) => {
           if (!member?.user_id) return Promise.resolve();
-          return removeProjectMember(projectId, member.user_id)
-            .then(() => onMemberRemove(member.user_id));
-        })
+          return removeProjectMember(projectId, member.user_id).then(() =>
+            onMemberRemove(member.user_id),
+          );
+        }),
       );
 
       // Process additions
       await Promise.all(
-        newUsers.map(userId =>
-          addProjectMember(projectId, userId)
-        )
+        newUsers.map((userId) => addProjectMember(projectId, userId)),
       );
 
       // Notify parent of changes
@@ -83,7 +77,11 @@ const ProjectMembersList: React.FC<ProjectMembersListProps> = ({
 
   return (
     <>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       {canManageMembers && (
         <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>

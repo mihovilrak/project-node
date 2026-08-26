@@ -9,7 +9,7 @@ const ProjectMembersForm: React.FC<ProjectMembersFormProps> = ({
   memberError,
   onUserSelect,
   onBack,
-  onSubmit
+  onSubmit,
 }) => {
   return (
     <>
@@ -27,11 +27,7 @@ const ProjectMembersForm: React.FC<ProjectMembersFormProps> = ({
         </Typography>
       )}
       <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button
-          onClick={onBack}
-          color="inherit"
-          data-testid="back-button"
-        >
+        <Button onClick={onBack} color="inherit" data-testid="back-button">
           Back
         </Button>
         <Button

@@ -13,8 +13,9 @@ import logger from '../../../utils/logger';
 
 // Mock the tasks API
 jest.mock('../../../api/tasks');
-const mockedGetTaskById = getTaskById as jest.MockedFunction<typeof getTaskById>;
-
+const mockedGetTaskById = getTaskById as jest.MockedFunction<
+  typeof getTaskById
+>;
 
 // No need to mock window.location - useParams is used instead
 
@@ -46,7 +47,7 @@ describe('useTaskFileWrapper', () => {
         name: 'test.txt',
         original_name: 'test.txt',
         mime_type: 'text/plain',
-        size: 1000
+        size: 1000,
       } as TaskFile);
     });
 
@@ -76,13 +77,18 @@ describe('useTimeLogCalendarWrapper', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <MemoryRouter initialEntries={['/projects/2/time-logs/calendar']}>
       <Routes>
-        <Route path="/projects/:projectId/time-logs/calendar" element={children} />
+        <Route
+          path="/projects/:projectId/time-logs/calendar"
+          element={children}
+        />
       </Routes>
     </MemoryRouter>
   );
 
   it('should return correct projectId from URL', () => {
-    const { result } = renderHook(() => useTimeLogCalendarWrapper(), { wrapper });
+    const { result } = renderHook(() => useTimeLogCalendarWrapper(), {
+      wrapper,
+    });
 
     expect(result.current.projectId).toBe(2);
   });
@@ -128,7 +134,7 @@ describe('useTaskTimeLogsWrapper', () => {
       created_on: new Date().toISOString(),
       created_by: 1,
       created_by_name: 'Test Creator',
-      estimated_time: null
+      estimated_time: null,
     };
     mockedGetTaskById.mockResolvedValueOnce(mockTask);
 
@@ -148,7 +154,10 @@ describe('useTaskTimeLogsWrapper', () => {
     const { result } = renderHook(() => useTaskTimeLogsWrapper(), { wrapper });
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to fetch task:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to fetch task:',
+        expect.any(Error),
+      );
       expect(result.current.task).toBeNull();
     });
   });
@@ -196,7 +205,7 @@ describe('useAppState', () => {
         created_by: 1,
         created_by_name: 'Test Creator',
         created_on: new Date().toISOString(),
-        estimated_time: null
+        estimated_time: null,
       });
     });
     expect(result.current.taskFormOpen).toBe(false);

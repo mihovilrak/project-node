@@ -18,7 +18,7 @@ const mockUsers: User[] = [
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Developer'
+    role_name: 'Developer',
   },
   {
     id: 2,
@@ -32,8 +32,8 @@ const mockUsers: User[] = [
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Project Manager'
-  }
+    role_name: 'Project Manager',
+  },
 ];
 
 describe('ProjectMembersForm', () => {
@@ -54,7 +54,7 @@ describe('ProjectMembersForm', () => {
           onSubmit={mockOnSubmit}
           {...props}
         />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   };
 
@@ -94,8 +94,12 @@ describe('ProjectMembersForm', () => {
   it('passes correct props to ProjectMemberSelect', () => {
     renderComponent();
     const selectedUser = mockUsers[0];
-    expect(screen.getByText(`${selectedUser.name} ${selectedUser.surname}`)).toBeInTheDocument();
-    expect(screen.getByText(`Role: ${selectedUser.role_name}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${selectedUser.name} ${selectedUser.surname}`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`Role: ${selectedUser.role_name}`),
+    ).toBeInTheDocument();
   });
 
   it('handles user selection through ProjectMemberSelect', () => {

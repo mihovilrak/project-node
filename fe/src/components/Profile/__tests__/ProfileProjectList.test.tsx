@@ -24,7 +24,7 @@ describe('ProfileProjectList', () => {
       created_on: '2024-01-01T00:00:00Z',
       updated_on: null,
       estimated_time: 100,
-      spent_time: 75
+      spent_time: 75,
     },
     {
       id: 2,
@@ -43,8 +43,8 @@ describe('ProfileProjectList', () => {
       created_on: '2024-01-01T00:00:00Z',
       updated_on: null,
       estimated_time: 80,
-      spent_time: 20
-    }
+      spent_time: 20,
+    },
   ];
 
   const renderWithRouter = (ui: React.ReactElement) => {
@@ -63,17 +63,24 @@ describe('ProfileProjectList', () => {
   });
 
   it('should render list of projects with links', () => {
-    renderWithRouter(<ProfileProjectList projects={mockProjects} loading={false} />);
+    renderWithRouter(
+      <ProfileProjectList projects={mockProjects} loading={false} />,
+    );
     expect(screen.getByText('Test Project 1')).toBeInTheDocument();
     expect(screen.getByText('Test Project 2')).toBeInTheDocument();
 
     const projectLinks = screen.getAllByRole('link');
     expect(projectLinks).toHaveLength(mockProjects.length);
-    expect(projectLinks[0]).toHaveAttribute('href', `/projects/${mockProjects[0].id}`);
+    expect(projectLinks[0]).toHaveAttribute(
+      'href',
+      `/projects/${mockProjects[0].id}`,
+    );
   });
 
   it('should render project details correctly', () => {
-    renderWithRouter(<ProfileProjectList projects={mockProjects} loading={false} />);
+    renderWithRouter(
+      <ProfileProjectList projects={mockProjects} loading={false} />,
+    );
 
     // Use more flexible date text matching
     const listItems = screen.getAllByRole('listitem');

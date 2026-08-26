@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 export const checkAdminAccess = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<boolean | Response> => {
   try {
     const userId = req.session?.user?.id;
@@ -37,7 +37,7 @@ export const checkAdminAccess = async (
 export const getSystemStats = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const stats = await adminModel.getSystemStats(pool);
@@ -52,7 +52,7 @@ export const getSystemStats = async (
 export const getSystemLogs = async (
   req: Request<{}, {}, {}, SystemLogQuery>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { startDate, endDate, type } = req.query;
@@ -68,7 +68,7 @@ export const getSystemLogs = async (
 export const getAllPermissions = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const permissions = await adminModel.getAllPermissions(pool);

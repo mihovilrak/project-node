@@ -8,7 +8,7 @@ import logger from '../utils/logger';
 export const getRoles = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const roles = await roleModel.getRoles(pool);
@@ -22,7 +22,7 @@ export const getRoles = async (
 export const createRole = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const roleData = req.body as RoleCreateInput;
@@ -34,17 +34,18 @@ export const createRole = async (
     const roleId = await roleModel.createRole(pool, roleData);
     res.status(201).json({
       message: 'Role created successfully',
-      id: roleId
+      id: roleId,
     });
   } catch (error) {
     logger.error({ err: error }, 'Error creating role');
-    if (error instanceof Error && 'code' in error && error.code === '23505') { // Unique violation
+    if (error instanceof Error && 'code' in error && error.code === '23505') {
+      // Unique violation
       return res.status(409).json({
-        error: 'Role with this name already exists'
+        error: 'Role with this name already exists',
       });
     }
     res.status(500).json({
-      error: 'Failed to create role'
+      error: 'Failed to create role',
     });
   }
 };
@@ -52,7 +53,7 @@ export const createRole = async (
 export const updateRole = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
@@ -69,14 +70,14 @@ export const updateRole = async (
     await roleModel.updateRole(pool, id, roleData);
     res.status(200).json({
       message: 'Role updated successfully',
-      id
+      id,
     });
   } catch (error) {
     logger.error({ err: error }, 'Error updating role');
     if (error instanceof Error && 'code' in error) {
       if (error.code === '23505') {
         return res.status(409).json({
-          error: 'Role with this name already exists'
+          error: 'Role with this name already exists',
         });
       }
       if (error.code === '404') {

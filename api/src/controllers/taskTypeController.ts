@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 export const getTaskTypes = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const result = await taskTypeModel.getTaskTypes(pool);
@@ -24,7 +24,7 @@ export const getTaskTypes = async (
 export const getTaskTypeById = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
@@ -45,7 +45,7 @@ export const getTaskTypeById = async (
 export const createTaskType = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const {
@@ -53,7 +53,7 @@ export const createTaskType = async (
       description,
       color,
       icon,
-      active = true
+      active = true,
     } = req.body as TaskTypeCreateInput;
 
     // Validate required fields
@@ -68,14 +68,14 @@ export const createTaskType = async (
 
     // Provide default icon if not specified (database requires NOT NULL)
     const defaultIcon = icon || 'Task';
-    
+
     const result = await taskTypeModel.createTaskType(
       pool,
       name,
       description || null,
       color,
       defaultIcon,
-      active
+      active,
     );
 
     res.status(201).json(result);
@@ -89,11 +89,12 @@ export const createTaskType = async (
 export const updateTaskType = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
-    const { name, description, color, icon, active } = req.body as TaskTypeUpdateInput;
+    const { name, description, color, icon, active } =
+      req.body as TaskTypeUpdateInput;
 
     // Validate color format when provided (must be hex #RRGGBB for DB varchar(7))
     if (color != null && color !== '' && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
@@ -110,7 +111,7 @@ export const updateTaskType = async (
       description ?? null,
       color ?? null,
       icon ?? null,
-      activeValue
+      activeValue,
     );
 
     if (!result) {
@@ -128,7 +129,7 @@ export const updateTaskType = async (
 export const deleteTaskType = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
@@ -148,7 +149,7 @@ export const deleteTaskType = async (
 // Get available icons
 export const getAvailableIcons = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<Response | void> => {
   try {
     res.status(200).json(AVAILABLE_ICONS);

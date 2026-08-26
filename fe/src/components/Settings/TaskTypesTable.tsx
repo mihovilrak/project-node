@@ -11,7 +11,7 @@ import {
   Chip,
   Box,
   CircularProgress,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { TaskType, TaskTypesTableProps } from '../../types/setting';
@@ -19,7 +19,7 @@ import { TaskType, TaskTypesTableProps } from '../../types/setting';
 const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
   taskTypes: propTaskTypes,
   onEdit,
-  loading: propLoading
+  loading: propLoading,
 }) => {
   const [taskTypes, setTaskTypes] = useState<TaskType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -73,7 +73,7 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
                       width: 24,
                       height: 24,
                       backgroundColor: type?.color || '#666',
-                      borderRadius: 1
+                      borderRadius: 1,
                     }}
                   />
                 </TableCell>
@@ -85,7 +85,11 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
                   />
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton onClick={() => type && onEdit(type)} size="small" disabled={!type}>
+                  <IconButton
+                    onClick={() => type && onEdit(type)}
+                    size="small"
+                    disabled={!type}
+                  >
                     <EditIcon />
                   </IconButton>
                 </TableCell>

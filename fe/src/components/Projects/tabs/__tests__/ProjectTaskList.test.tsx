@@ -30,7 +30,7 @@ const baseTask = {
   created_by: 1,
   created_by_name: 'Creator',
   created_on: '2024-01-01',
-  estimated_time: 10
+  estimated_time: 10,
 };
 
 const mockTasks: Task[] = [
@@ -39,15 +39,15 @@ const mockTasks: Task[] = [
     id: 1,
     name: 'Test Task 1',
     parent_id: null,
-    parent_name: null
+    parent_name: null,
   },
   {
     ...baseTask,
     id: 2,
     name: 'Test Task 2',
     parent_id: null,
-    parent_name: null
-  }
+    parent_name: null,
+  },
 ];
 
 describe('ProjectTaskList', () => {
@@ -55,7 +55,7 @@ describe('ProjectTaskList', () => {
     render(
       <MemoryRouter>
         <ProjectTaskList tasks={mockTasks} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText('Test Task 1')).toBeInTheDocument();
@@ -70,17 +70,19 @@ describe('ProjectTaskList', () => {
         id: 3,
         name: 'Subtask 1',
         parent_id: 1,
-        parent_name: 'Test Task 1'
-      }
+        parent_name: 'Test Task 1',
+      },
     ];
     render(
       <MemoryRouter>
         <ProjectTaskList tasks={tasksWithChild} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.queryByText('Subtask 1')).not.toBeInTheDocument();
-    const expandButton = screen.getByRole('button', { name: /expand subtasks/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand subtasks/i,
+    });
     fireEvent.click(expandButton);
     expect(screen.getByText('Subtask 1')).toBeInTheDocument();
   });
@@ -89,26 +91,46 @@ describe('ProjectTaskList', () => {
     render(
       <MemoryRouter>
         <ProjectTaskList tasks={mockTasks} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('#1')).toBeInTheDocument();
     expect(screen.getByText('#2')).toBeInTheDocument();
     expect(screen.getAllByText('Bug').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Estimated: 10h/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Estimated: 10h/).length).toBeGreaterThanOrEqual(
+      1,
+    );
     expect(screen.getAllByText(/Spent: 5h/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('50%').length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows nested subtasks when expanding parent then child', () => {
     const tasksNested: Task[] = [
-      { ...baseTask, id: 1, name: 'Task A', parent_id: null, parent_name: null },
-      { ...baseTask, id: 2, name: 'Task B', parent_id: 1, parent_name: 'Task A' },
-      { ...baseTask, id: 3, name: 'Task C', parent_id: 2, parent_name: 'Task B' }
+      {
+        ...baseTask,
+        id: 1,
+        name: 'Task A',
+        parent_id: null,
+        parent_name: null,
+      },
+      {
+        ...baseTask,
+        id: 2,
+        name: 'Task B',
+        parent_id: 1,
+        parent_name: 'Task A',
+      },
+      {
+        ...baseTask,
+        id: 3,
+        name: 'Task C',
+        parent_id: 2,
+        parent_name: 'Task B',
+      },
     ];
     render(
       <MemoryRouter>
         <ProjectTaskList tasks={tasksNested} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.queryByText('Task B')).not.toBeInTheDocument();
     expect(screen.queryByText('Task C')).not.toBeInTheDocument();

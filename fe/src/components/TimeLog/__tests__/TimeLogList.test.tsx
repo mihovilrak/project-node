@@ -7,7 +7,7 @@ import * as permissionHook from '../../../hooks/common/usePermission';
 
 // Mock usePermission hook
 jest.mock('../../../hooks/common/usePermission', () => ({
-  usePermission: jest.fn()
+  usePermission: jest.fn(),
 }));
 
 const mockTimeLogs: TimeLog[] = [
@@ -26,14 +26,14 @@ const mockTimeLogs: TimeLog[] = [
     user: 'John Doe',
     activity_type_name: 'Development',
     activity_type_color: '#FF0000',
-    activity_type_icon: 'code'
-  }
+    activity_type_icon: 'code',
+  },
 ];
 
 const defaultProps = {
   timeLogs: mockTimeLogs,
   onEdit: jest.fn(),
-  onDelete: jest.fn()
+  onDelete: jest.fn(),
 };
 
 describe('TimeLogList', () => {
@@ -42,7 +42,7 @@ describe('TimeLogList', () => {
     // Default permission mock
     (permissionHook.usePermission as jest.Mock).mockReturnValue({
       hasPermission: true,
-      loading: false
+      loading: false,
     });
   });
 
@@ -50,7 +50,7 @@ describe('TimeLogList', () => {
     return render(
       <MemoryRouter>
         <TimeLogList {...props} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -70,10 +70,12 @@ describe('TimeLogList', () => {
   it('formats time correctly', () => {
     renderComponent({
       ...defaultProps,
-      timeLogs: [{
-        ...mockTimeLogs[0],
-        spent_time: 2.75
-      }]
+      timeLogs: [
+        {
+          ...mockTimeLogs[0],
+          spent_time: 2.75,
+        },
+      ],
     });
     expect(screen.getByText('2:45 h')).toBeInTheDocument();
   });
@@ -89,7 +91,9 @@ describe('TimeLogList', () => {
 
   it('shows delete button when user has permission', () => {
     renderComponent();
-    const deleteButton = screen.getByRole('button', { name: /delete time log/i });
+    const deleteButton = screen.getByRole('button', {
+      name: /delete time log/i,
+    });
     expect(deleteButton).toBeInTheDocument();
 
     fireEvent.click(deleteButton);
@@ -99,12 +103,16 @@ describe('TimeLogList', () => {
   it('hides edit/delete buttons when user lacks permission', () => {
     (permissionHook.usePermission as jest.Mock).mockReturnValue({
       hasPermission: false,
-      loading: false
+      loading: false,
     });
 
     renderComponent();
-    expect(screen.queryByRole('button', { name: /edit time log/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /delete time log/i })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /edit time log/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /delete time log/i }),
+    ).toBeInTheDocument();
   });
 
   it('renders activity type chip with correct color', () => {
@@ -115,22 +123,32 @@ describe('TimeLogList', () => {
 
   it('formats date correctly', () => {
     renderComponent();
-    expect(screen.getByText(new Date('2023-01-01').toLocaleDateString())).toBeInTheDocument();
+    expect(
+      screen.getByText(new Date('2023-01-01').toLocaleDateString()),
+    ).toBeInTheDocument();
   });
 
   it('renders user and task links correctly', () => {
     renderComponent();
-    expect(screen.getByRole('link', { name: 'John Doe' })).toHaveAttribute('href', '/users/201');
-    expect(screen.getByRole('link', { name: 'Test Task' })).toHaveAttribute('href', '/tasks/101');
+    expect(screen.getByRole('link', { name: 'John Doe' })).toHaveAttribute(
+      'href',
+      '/users/201',
+    );
+    expect(screen.getByRole('link', { name: 'Test Task' })).toHaveAttribute(
+      'href',
+      '/tasks/101',
+    );
   });
 
   it('handles invalid time values gracefully', () => {
     renderComponent({
       ...defaultProps,
-      timeLogs: [{
-        ...mockTimeLogs[0],
-        spent_time: Number('invalid')
-      }]
+      timeLogs: [
+        {
+          ...mockTimeLogs[0],
+          spent_time: Number('invalid'),
+        },
+      ],
     });
     expect(screen.getByText('0:00 h')).toBeInTheDocument();
   });

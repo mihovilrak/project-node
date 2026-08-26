@@ -9,10 +9,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
-import {
-  getTaskTimeLogs,
-  deleteTimeLog
-} from '../../api/timeLogs';
+import { getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogs';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
@@ -74,7 +71,9 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
     }
   };
 
-  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate): Promise<void> => {
+  const handleTimeLogSubmit = async (
+    timeLogData: TimeLogCreate,
+  ): Promise<void> => {
     try {
       // Handle time log submission logic here
       await fetchTimeLogs(); // Refresh the list after submission
@@ -104,12 +103,14 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   return (
     <Box>
       <Paper sx={{ p: 3 }}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 2
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Typography variant="h6">Time Logs</Typography>
           <Button
             variant="contained"

@@ -22,6 +22,6 @@ export const useAssigneeSelect = (projectId?: number | null) => {
   }, [projectId]);
 
   return {
-    projectMembers
+    projectMembers,
   };
 };

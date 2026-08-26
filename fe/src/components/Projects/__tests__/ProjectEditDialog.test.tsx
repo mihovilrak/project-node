@@ -24,20 +24,20 @@ const mockProject: Project = {
   estimated_time: 0,
   spent_time: 0,
   progress: 0,
-  updated_on: null
+  updated_on: null,
 };
 
 const mockStatuses: ProjectStatus[] = [
   { id: 1, name: 'Active' },
   { id: 2, name: 'On Hold' },
-  { id: 3, name: 'Completed' }
+  { id: 3, name: 'Completed' },
 ];
 
 const defaultProps = {
   open: true,
   project: mockProject,
   onClose: jest.fn(),
-  onSaved: jest.fn()
+  onSaved: jest.fn(),
 };
 
 describe('ProjectEditDialog', () => {
@@ -61,7 +61,10 @@ describe('ProjectEditDialog', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(updateProject).toHaveBeenCalledWith(mockProject.id, expect.any(Object));
+      expect(updateProject).toHaveBeenCalledWith(
+        mockProject.id,
+        expect.any(Object),
+      );
       expect(defaultProps.onSaved).toHaveBeenCalledWith(updatedProject);
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
@@ -91,7 +94,9 @@ describe('ProjectEditDialog', () => {
   });
 
   it('disables buttons during loading', async () => {
-    (updateProject as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (updateProject as jest.Mock).mockImplementation(
+      () => new Promise(() => {}),
+    );
 
     render(<ProjectEditDialog {...defaultProps} />);
 
@@ -101,7 +106,7 @@ describe('ProjectEditDialog', () => {
     await waitFor(() => {
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         expect(button).toBeDisabled();
       });
     });
@@ -111,7 +116,7 @@ describe('ProjectEditDialog', () => {
     const updatedProject = {
       ...mockProject,
       start_date: '2023-01-01T00:00:00',
-      due_date: '2023-12-31T00:00:00'
+      due_date: '2023-12-31T00:00:00',
     };
     (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
 
@@ -125,8 +130,8 @@ describe('ProjectEditDialog', () => {
         mockProject.id,
         expect.objectContaining({
           start_date: '2023-01-01',
-          due_date: '2023-12-31'
-        })
+          due_date: '2023-12-31',
+        }),
       );
     });
   });
@@ -139,8 +144,8 @@ describe('ProjectEditDialog', () => {
       project: {
         ...mockProject,
         start_date: '2023-01-01T00:00:00',
-        due_date: '2023-12-31T00:00:00'
-      }
+        due_date: '2023-12-31T00:00:00',
+      },
     };
 
     render(<ProjectEditDialog {...invalidDateProps} />);
@@ -152,15 +157,19 @@ describe('ProjectEditDialog', () => {
   });
 
   it('updates status correctly', async () => {
-    const updatedProject = { ...mockProject, status_id: 2, status_name: 'On Hold' };
+    const updatedProject = {
+      ...mockProject,
+      status_id: 2,
+      status_name: 'On Hold',
+    };
     (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
 
     const customProps = {
       ...defaultProps,
       project: {
         ...mockProject,
-        status_id: 2
-      }
+        status_id: 2,
+      },
     };
 
     render(<ProjectEditDialog {...customProps} />);
@@ -171,7 +180,7 @@ describe('ProjectEditDialog', () => {
     await waitFor(() => {
       expect(updateProject).toHaveBeenCalledWith(
         mockProject.id,
-        expect.objectContaining({ status_id: 2 })
+        expect.objectContaining({ status_id: 2 }),
       );
     });
   });

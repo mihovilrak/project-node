@@ -1,6 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskWatchers } from '../useTaskWatchers';
-import { getTaskWatchers, addTaskWatcher, removeTaskWatcher } from '../../../api/watchers';
+import {
+  getTaskWatchers,
+  addTaskWatcher,
+  removeTaskWatcher,
+} from '../../../api/watchers';
 import { TaskWatcher } from '../../../types/watcher';
 
 // Mock API calls
@@ -12,14 +16,14 @@ describe('useTaskWatchers', () => {
       task_id: 1,
       user_id: 1,
       user_name: 'Test User 1',
-      role: 'Developer'
+      role: 'Developer',
     },
     {
       task_id: 1,
       user_id: 2,
       user_name: 'Test User 2',
-      role: 'Manager'
-    }
+      role: 'Manager',
+    },
   ];
 
   beforeEach(() => {
@@ -45,18 +49,21 @@ describe('useTaskWatchers', () => {
       task_id: 1,
       user_id: 3,
       user_name: 'Test User 3',
-      role: 'Developer'
+      role: 'Developer',
     };
 
     (addTaskWatcher as jest.Mock).mockResolvedValue(undefined);
-    (getTaskWatchers as jest.Mock).mockResolvedValue([...mockWatchers, newWatcher]);
+    (getTaskWatchers as jest.Mock).mockResolvedValue([
+      ...mockWatchers,
+      newWatcher,
+    ]);
 
     const { result } = renderHook(() => useTaskWatchers('1'));
     // await waitForNextUpdate();
 
     await act(async () => {
       await result.current.handleAddWatcher(3);
-        });
+    });
 
     await waitFor(() => {
       expect(addTaskWatcher).toHaveBeenCalledWith(1, 3);
@@ -93,7 +100,9 @@ describe('useTaskWatchers', () => {
     // await waitForNextUpdate();
 
     await waitFor(() => {
-      expect(result.current.handleAddWatcher(3)).rejects.toThrow('Failed to add watcher');
+      expect(result.current.handleAddWatcher(3)).rejects.toThrow(
+        'Failed to add watcher',
+      );
     });
   });
 
@@ -105,7 +114,9 @@ describe('useTaskWatchers', () => {
     // await waitForNextUpdate();
 
     await waitFor(() => {
-      expect(result.current.handleRemoveWatcher(1)).rejects.toThrow('Failed to remove watcher');
+      expect(result.current.handleRemoveWatcher(1)).rejects.toThrow(
+        'Failed to remove watcher',
+      );
     });
   });
 

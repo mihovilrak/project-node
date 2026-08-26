@@ -8,7 +8,7 @@ import { TaskFile } from '../../../types/file';
 // Mock react-router-dom
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => mockNavigate
+  useNavigate: () => mockNavigate,
 }));
 
 describe('useTaskDetailsUI', () => {
@@ -40,7 +40,7 @@ describe('useTaskDetailsUI', () => {
     created_by: 1,
     created_by_name: 'Test User',
     created_on: '2024-01-25T00:00:00Z',
-    estimated_time: 8
+    estimated_time: 8,
   };
 
   const mockSubtasks: Task[] = [
@@ -72,8 +72,8 @@ describe('useTaskDetailsUI', () => {
       created_by: 1,
       created_by_name: 'Test User',
       created_on: '2024-01-25T00:00:00Z',
-      estimated_time: 4
-    }
+      estimated_time: 4,
+    },
   ];
 
   const mockEvent = {
@@ -104,7 +104,7 @@ describe('useTaskDetailsUI', () => {
     getModifierState: () => false,
     movementX: 0,
     movementY: 0,
-    relatedTarget: null
+    relatedTarget: null,
   } as unknown as React.MouseEvent<HTMLElement>;
 
   beforeEach(() => {
@@ -134,14 +134,20 @@ describe('useTaskDetailsUI', () => {
       result.current.handleAddSubtask(mockTask);
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('/tasks/new?projectId=1&parentTaskId=1');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/tasks/new?projectId=1&parentTaskId=1',
+    );
   });
 
   it('should handle subtask updates', () => {
     const { result } = renderHook(() => useTaskDetailsUI());
     const updatedSubtask = { ...mockSubtasks[0], title: 'Updated Subtask' };
 
-    const updatedSubtasks = result.current.handleSubtaskUpdated(mockSubtasks, 2, updatedSubtask);
+    const updatedSubtasks = result.current.handleSubtaskUpdated(
+      mockSubtasks,
+      2,
+      updatedSubtask,
+    );
 
     expect(updatedSubtasks).toEqual([updatedSubtask]);
   });
@@ -149,7 +155,10 @@ describe('useTaskDetailsUI', () => {
   it('should handle subtask deletion', () => {
     const { result } = renderHook(() => useTaskDetailsUI());
 
-    const remainingSubtasks = result.current.handleSubtaskDeleted(mockSubtasks, 2);
+    const remainingSubtasks = result.current.handleSubtaskDeleted(
+      mockSubtasks,
+      2,
+    );
 
     expect(remainingSubtasks).toEqual([]);
   });
@@ -166,7 +175,7 @@ describe('useTaskDetailsUI', () => {
       mime_type: 'text/plain',
       size: 1024,
       uploaded_on: '2024-01-25T00:00:00Z',
-      uploaded_by: 'Test User'
+      uploaded_by: 'Test User',
     };
 
     const updatedFiles = result.current.handleFileUploaded(mockFiles, newFile);
@@ -191,7 +200,7 @@ describe('useTaskDetailsUI', () => {
       user: 'Test User',
       activity_type_name: 'Development',
       activity_type_color: '#FF0000',
-      activity_type_icon: 'code'
+      activity_type_icon: 'code',
     };
 
     act(() => {
@@ -235,7 +244,7 @@ describe('useTaskDetailsUI', () => {
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      user_name: 'Test User'
+      user_name: 'Test User',
     };
 
     act(() => {

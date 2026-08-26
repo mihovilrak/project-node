@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 export const getUsers = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const all = req.query.all === '1' || req.query.all === 'true';
@@ -23,7 +23,7 @@ export const getUsers = async (
     }
     const users = await userModel.getUsers(pool, {
       whereParams: (whereParams || {}) as Record<string, string>,
-      includeDeleted: all
+      includeDeleted: all,
     });
     res.status(200).json(users);
   } catch (error) {
@@ -36,7 +36,7 @@ export const getUsers = async (
 export const getUserById = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
   try {
@@ -58,7 +58,7 @@ const MAX_PASSWORD_LENGTH = 1024;
 export const createUser = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const body = req.body ?? {};
   const { login, name, surname, email, password, role_id } = body;
@@ -66,48 +66,50 @@ export const createUser = async (
   if (typeof login !== 'string' || !login.trim()) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'login is required and must be a non-empty string'
+      message: 'login is required and must be a non-empty string',
     });
   }
   if (typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'name is required and must be a non-empty string'
+      message: 'name is required and must be a non-empty string',
     });
   }
   if (typeof surname !== 'string' || !surname.trim()) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'surname is required and must be a non-empty string'
+      message: 'surname is required and must be a non-empty string',
     });
   }
   if (typeof email !== 'string' || !email.trim()) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'email is required and must be a non-empty string'
+      message: 'email is required and must be a non-empty string',
     });
   }
   if (typeof password !== 'string' || !password) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'password is required and must be a non-empty string'
+      message: 'password is required and must be a non-empty string',
     });
   }
   const roleIdNum = Number(role_id);
   if (!Number.isInteger(roleIdNum) || roleIdNum < 1) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'role_id must be a positive integer'
+      message: 'role_id must be a positive integer',
     });
   }
-  if (login.trim().length > MAX_USER_STRING_LENGTH ||
-      name.trim().length > MAX_USER_STRING_LENGTH ||
-      surname.trim().length > MAX_USER_STRING_LENGTH ||
-      email.trim().length > MAX_USER_STRING_LENGTH ||
-      password.length > MAX_PASSWORD_LENGTH) {
+  if (
+    login.trim().length > MAX_USER_STRING_LENGTH ||
+    name.trim().length > MAX_USER_STRING_LENGTH ||
+    surname.trim().length > MAX_USER_STRING_LENGTH ||
+    email.trim().length > MAX_USER_STRING_LENGTH ||
+    password.length > MAX_PASSWORD_LENGTH
+  ) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'One or more fields exceed maximum length'
+      message: 'One or more fields exceed maximum length',
     });
   }
 
@@ -119,7 +121,7 @@ export const createUser = async (
       surname.trim(),
       email.trim(),
       password,
-      roleIdNum
+      roleIdNum,
     );
     res.status(201).json(user);
   } catch (error) {
@@ -132,11 +134,19 @@ export const createUser = async (
 export const updateUser = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
   const body = req.body || {};
-  const allowedKeys = ['login', 'name', 'surname', 'email', 'password', 'role_id', 'status_id'];
+  const allowedKeys = [
+    'login',
+    'name',
+    'surname',
+    'email',
+    'password',
+    'role_id',
+    'status_id',
+  ];
   const isSelfUpdate = String(req.session?.user?.id) === String(id);
   const selfProtectedKeys = ['role_id', 'status_id'];
   const updates = Object.keys(body)
@@ -162,7 +172,7 @@ export const updateUser = async (
 export const changeUserStatus = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
   const { status } = req.body;
@@ -182,7 +192,7 @@ export const changeUserStatus = async (
 export const deleteUser = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
   try {
@@ -201,7 +211,7 @@ export const deleteUser = async (
 export const getUserStatuses = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const statuses = await userModel.getUserStatuses(pool);
@@ -216,7 +226,7 @@ export const getUserStatuses = async (
 export const getUserPermissions = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;

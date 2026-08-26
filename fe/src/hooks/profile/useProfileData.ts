@@ -3,12 +3,16 @@ import {
   getProfile,
   getRecentTasks,
   getRecentProjects,
-  updateProfile
+  updateProfile,
 } from '../../api/profiles';
 import { User } from '../../types/user';
 import { Task } from '../../types/task';
 import { Project } from '../../types/project';
-import { ProfileStats, ProfileUpdateData, ProfileData } from '../../types/profile';
+import {
+  ProfileStats,
+  ProfileUpdateData,
+  ProfileData,
+} from '../../types/profile';
 import { useNavigate } from 'react-router-dom';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -17,7 +21,7 @@ const DEFAULT_STATS: ProfileStats = {
   totalTasks: 0,
   completedTasks: 0,
   activeProjects: 0,
-  totalHours: 0
+  totalHours: 0,
 };
 
 export const useProfileData = () => {
@@ -38,7 +42,7 @@ export const useProfileData = () => {
       setLoading(true);
       setError(null);
       const profileData = await getProfile();
-      
+
       if (!profileData) {
         setError('Profile data not found');
         setLoading(false);
@@ -51,18 +55,18 @@ export const useProfileData = () => {
         totalTasks: profileData.total_tasks ?? 0,
         completedTasks: profileData.completed_tasks ?? 0,
         activeProjects: profileData.active_projects ?? 0,
-        totalHours: profileData.total_hours ?? 0
+        totalHours: profileData.total_hours ?? 0,
       });
 
       const [tasksData, projectsData] = await Promise.all([
-        getRecentTasks().catch(err => {
+        getRecentTasks().catch((err) => {
           logger.error('Failed to fetch recent tasks:', err);
           return [];
         }),
-        getRecentProjects().catch(err => {
+        getRecentProjects().catch((err) => {
           logger.error('Failed to fetch recent projects:', err);
           return [];
-        })
+        }),
       ]);
 
       setRecentTasks(tasksData || []);
@@ -102,7 +106,7 @@ export const useProfileData = () => {
       totalTasks: profile.total_tasks ?? 0,
       completedTasks: profile.completed_tasks ?? 0,
       activeProjects: profile.active_projects ?? 0,
-      totalHours: profile.total_hours ?? 0
+      totalHours: profile.total_hours ?? 0,
     };
   };
 
@@ -127,6 +131,6 @@ export const useProfileData = () => {
     handleTaskClick,
     getTypedProfile,
     getProfileStats,
-    refreshData: fetchData
+    refreshData: fetchData,
   } as const;
 };

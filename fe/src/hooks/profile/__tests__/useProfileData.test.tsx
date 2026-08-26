@@ -4,7 +4,7 @@ import {
   getProfile,
   getRecentTasks,
   getRecentProjects,
-  updateProfile
+  updateProfile,
 } from '../../../api/profiles';
 import { ProfileData, ProfileUpdateData } from '../../../types/profile';
 import { Task } from '../../../types/task';
@@ -12,7 +12,7 @@ import { Project } from '../../../types/project';
 
 // Mock the react-router-dom hook
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 // Mock the API calls
@@ -33,7 +33,7 @@ const mockProfileData: ProfileData = {
   avatar_url: null,
   created_on: '2024-01-01',
   updated_on: '2024-01-01',
-  last_login: '2024-01-01'
+  last_login: '2024-01-01',
 };
 
 const mockTasks: Task[] = [
@@ -66,7 +66,7 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'John Doe',
     created_on: '2024-01-01',
-    estimated_time: null
+    estimated_time: null,
   },
   {
     id: 2,
@@ -97,8 +97,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'John Doe',
     created_on: '2024-01-01',
-    estimated_time: null
-  }
+    estimated_time: null,
+  },
 ];
 
 const mockProjects: Project[] = [
@@ -117,7 +117,7 @@ const mockProjects: Project[] = [
     created_on: '2024-01-01',
     estimated_time: 160,
     spent_time: 0,
-    progress: 0
+    progress: 0,
   },
   {
     id: 2,
@@ -134,8 +134,8 @@ const mockProjects: Project[] = [
     created_on: '2024-01-01',
     estimated_time: 80,
     spent_time: 80,
-    progress: 100
-  }
+    progress: 100,
+  },
 ];
 
 describe('useProfileData', () => {
@@ -162,7 +162,7 @@ describe('useProfileData', () => {
       totalTasks: 0,
       completedTasks: 0,
       activeProjects: 0,
-      totalHours: 0
+      totalHours: 0,
     });
   });
 
@@ -192,10 +192,13 @@ describe('useProfileData', () => {
 
     const { result } = renderHook(() => useProfileData());
 
-    await waitFor(() => {
-      // Error message uses error.message if available, otherwise falls back to default
-      expect(result.current.error).toBe('API Error');
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // Error message uses error.message if available, otherwise falls back to default
+        expect(result.current.error).toBe('API Error');
+      },
+      { timeout: 3000 },
+    );
     expect(result.current.loading).toBe(false);
   });
 
@@ -207,7 +210,7 @@ describe('useProfileData', () => {
     const updateData: ProfileUpdateData = {
       name: 'Updated Name',
       surname: 'Doe',
-      email: 'updated@example.com'
+      email: 'updated@example.com',
     };
 
     await act(async () => {
@@ -251,7 +254,7 @@ describe('useProfileData', () => {
         totalTasks: mockProfileData.total_tasks,
         completedTasks: mockProfileData.completed_tasks,
         activeProjects: mockProfileData.active_projects,
-        totalHours: mockProfileData.total_hours
+        totalHours: mockProfileData.total_hours,
       });
     });
   });

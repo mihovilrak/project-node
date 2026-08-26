@@ -9,10 +9,7 @@ import userEvent from '@testing-library/user-event';
 
 const mockTheme = createTheme();
 
-const mockDays = [
-  new Date('2023-01-01'),
-  new Date('2023-01-02')
-];
+const mockDays = [new Date('2023-01-01'), new Date('2023-01-02')];
 
 const mockTimeLogs: TimeLog[] = [
   {
@@ -25,7 +22,7 @@ const mockTimeLogs: TimeLog[] = [
     description: 'Test task',
     created_on: '2023-01-01',
     updated_on: null,
-    task_name: 'Test Task 1'
+    task_name: 'Test Task 1',
   },
   {
     id: 2,
@@ -37,27 +34,25 @@ const mockTimeLogs: TimeLog[] = [
     description: 'Test task 2',
     created_on: '2023-01-01',
     updated_on: null,
-    task_name: 'Test Task 2'
-  }
+    task_name: 'Test Task 2',
+  },
 ];
 
 const mockProps = {
   days: mockDays,
   timeLogs: mockTimeLogs,
   getTimeLogsForDate: jest.fn((date) =>
-    mockTimeLogs.filter(log => log.log_date === '2023-01-01')
+    mockTimeLogs.filter((log) => log.log_date === '2023-01-01'),
   ),
   getTotalHoursForDate: jest.fn(() => 6),
   getDayColor: jest.fn(() => '#f0f0f0'),
-  formatTime: jest.fn((time) => `${time}h`)
+  formatTime: jest.fn((time) => `${time}h`),
 };
 
 const renderWithTheme = (component: React.ReactElement, options = {}) => {
   return render(
-    <ThemeProvider theme={mockTheme}>
-      {component}
-    </ThemeProvider>,
-    options
+    <ThemeProvider theme={mockTheme}>{component}</ThemeProvider>,
+    options,
   );
 };
 
@@ -86,15 +81,23 @@ describe('TimeLogCalendarGrid', () => {
 
   test('calls helper functions with correct parameters', () => {
     renderWithTheme(<TimeLogCalendarGrid {...mockProps} />);
-    expect(mockProps.getTimeLogsForDate).toHaveBeenCalledWith(mockDays[0], mockTimeLogs);
-    expect(mockProps.getTotalHoursForDate).toHaveBeenCalledWith(mockDays[0], mockTimeLogs);
+    expect(mockProps.getTimeLogsForDate).toHaveBeenCalledWith(
+      mockDays[0],
+      mockTimeLogs,
+    );
+    expect(mockProps.getTotalHoursForDate).toHaveBeenCalledWith(
+      mockDays[0],
+      mockTimeLogs,
+    );
     expect(mockProps.getDayColor).toHaveBeenCalledWith(6);
   });
 
   test('renders tooltip with correct content', async () => {
     jest.useFakeTimers();
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, { container: document.body });
+    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, {
+      container: document.body,
+    });
     const firstDay = screen.getAllByRole('gridcell')[0];
     const paper = within(firstDay).getByTestId('timelog-day-paper');
 
@@ -105,9 +108,21 @@ describe('TimeLogCalendarGrid', () => {
     });
 
     const tooltip = await screen.findByTestId('timelog-tooltip');
-    expect(within(tooltip).getByText((content) => content.includes('January 1, 2023'))).toBeInTheDocument();
-    expect(within(tooltip).getByText((content) => content.includes('Test Task 1: 4h'))).toBeInTheDocument();
-    expect(within(tooltip).getByText((content) => content.includes('Test Task 2: 2h'))).toBeInTheDocument();
+    expect(
+      within(tooltip).getByText((content) =>
+        content.includes('January 1, 2023'),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(tooltip).getByText((content) =>
+        content.includes('Test Task 1: 4h'),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(tooltip).getByText((content) =>
+        content.includes('Test Task 2: 2h'),
+      ),
+    ).toBeInTheDocument();
 
     jest.useRealTimers();
   }, 10000);
@@ -117,24 +132,22 @@ describe('TimeLogCalendarGrid', () => {
     const mockDaysWithToday = [today];
 
     renderWithTheme(
-      <TimeLogCalendarGrid
-        {...mockProps}
-        days={mockDaysWithToday}
-      />
+      <TimeLogCalendarGrid {...mockProps} days={mockDaysWithToday} />,
     );
 
-    const paper = screen.getByRole('gridcell')
-      .querySelector('.MuiPaper-root');
+    const paper = screen.getByRole('gridcell').querySelector('.MuiPaper-root');
 
     expect(paper).toHaveStyle({
-      border: `2px solid ${mockTheme.palette.primary.main}`
+      border: `2px solid ${mockTheme.palette.primary.main}`,
     });
   });
 
   test('formats time correctly in tooltip', async () => {
     jest.useFakeTimers();
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, { container: document.body });
+    renderWithTheme(<TimeLogCalendarGrid {...mockProps} />, {
+      container: document.body,
+    });
     const firstDay = screen.getAllByRole('gridcell')[0];
     const paper = within(firstDay).getByTestId('timelog-day-paper');
 
@@ -145,8 +158,12 @@ describe('TimeLogCalendarGrid', () => {
     });
 
     const tooltip = await screen.findByTestId('timelog-tooltip');
-    expect(within(tooltip).getByText((content) => content.includes('4h'))).toBeInTheDocument();
-    expect(within(tooltip).getByText((content) => content.includes('2h'))).toBeInTheDocument();
+    expect(
+      within(tooltip).getByText((content) => content.includes('4h')),
+    ).toBeInTheDocument();
+    expect(
+      within(tooltip).getByText((content) => content.includes('2h')),
+    ).toBeInTheDocument();
 
     jest.useRealTimers();
   }, 10000);

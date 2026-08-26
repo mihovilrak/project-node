@@ -9,7 +9,7 @@ import {
   Grid,
   Alert,
   IconButton,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useUserForm } from '../../hooks/user/useUserForm';
@@ -39,7 +39,10 @@ const UserForm: React.FC = () => {
     <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
       <Paper elevation={3} sx={{ padding: 4 }}>
         <Typography variant="h4" gutterBottom>
-          {isEditMode ? `Edit User ${formValues?.name || ''} ${formValues?.surname || ''}`.trim() || 'Edit User' : 'Add New User'}
+          {isEditMode
+            ? `Edit User ${formValues?.name || ''} ${formValues?.surname || ''}`.trim() ||
+              'Edit User'
+            : 'Add New User'}
         </Typography>
 
         {error && (
@@ -117,8 +120,17 @@ const UserForm: React.FC = () => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
-                            {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                          <IconButton
+                            onClick={() =>
+                              setShowCurrentPassword(!showCurrentPassword)
+                            }
+                            edge="end"
+                          >
+                            {showCurrentPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -167,8 +179,17 @@ const UserForm: React.FC = () => {
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
-                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            <IconButton
+                              onClick={() =>
+                                setShowConfirmPassword(!showConfirmPassword)
+                              }
+                              edge="end"
+                            >
+                              {showConfirmPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
@@ -194,7 +215,11 @@ const UserForm: React.FC = () => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" data-testid="toggle-password-visibility">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            data-testid="toggle-password-visibility"
+                          >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -217,8 +242,17 @@ const UserForm: React.FC = () => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          <IconButton
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            edge="end"
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -239,7 +273,7 @@ const UserForm: React.FC = () => {
                 required
                 disabled={loading}
               >
-                {(!roles || roles.length === 0) ? (
+                {!roles || roles.length === 0 ? (
                   <MenuItem value="" disabled>
                     No roles available
                   </MenuItem>
@@ -255,10 +289,7 @@ const UserForm: React.FC = () => {
 
             <Grid size={{ xs: 12 }}>
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/users')}
-                >
+                <Button variant="outlined" onClick={() => navigate('/users')}>
                   Cancel
                 </Button>
                 <Button

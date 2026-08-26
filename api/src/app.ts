@@ -32,11 +32,13 @@ const app: Express = express();
 app.set('trust proxy', 1);
 
 // CORS configuration
-app.use(cors({
-  credentials: true,
-  origin: config.feUrl,
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: config.feUrl,
+    optionsSuccessStatus: 200,
+  }),
+);
 
 // Security headers
 app.use(helmet());
@@ -46,7 +48,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session cookie middleware
-app.use(sessionMiddleware(pool, config.sessionSecret, config.nodeEnv, config.feUrl));
+app.use(
+  sessionMiddleware(pool, config.sessionSecret, config.nodeEnv, config.feUrl),
+);
 
 // Routes
 app.use('/api/check-session', sessionRoute(pool));

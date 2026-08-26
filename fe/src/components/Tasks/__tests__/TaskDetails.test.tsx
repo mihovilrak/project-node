@@ -21,17 +21,17 @@ jest.mock('../../../hooks/task/useTaskDetailsHandlers');
 // Mock child components
 jest.mock('../TaskDetailsHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-details-header" />
+  default: () => <div data-testid="task-details-header" />,
 }));
 
 jest.mock('../TaskDetailsContent', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-details-content" />
+  default: () => <div data-testid="task-details-content" />,
 }));
 
 jest.mock('../TaskDetailsSidebar', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-details-sidebar" />
+  default: () => <div data-testid="task-details-sidebar" />,
 }));
 
 const mockTask: Task = {
@@ -55,7 +55,7 @@ const mockTask: Task = {
   created_by: 1,
   created_by_name: 'Test User',
   created_on: '2025-02-01T21:52:40+01:00',
-  estimated_time: null
+  estimated_time: null,
 };
 
 const mockStatuses: TaskStatus[] = [
@@ -66,7 +66,7 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -75,8 +75,8 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 describe('TaskDetails', () => {
@@ -93,34 +93,34 @@ describe('TaskDetails', () => {
       error: null,
       handleStatusChange: jest.fn(),
       handleDelete: jest.fn(),
-      setSubtasks: jest.fn()
+      setSubtasks: jest.fn(),
     });
 
     (TaskTimeLogs.useTaskTimeLogs as jest.Mock).mockReturnValue({
       timeLogs: [],
       handleTimeLogSubmit: jest.fn(),
       deleteTimeLog: jest.fn(),
-      fetchTimeLogs: jest.fn()
+      fetchTimeLogs: jest.fn(),
     });
 
     (TaskWatchers.useTaskWatchers as jest.Mock).mockReturnValue({
       watchers: [],
       handleAddWatcher: jest.fn(),
-      handleRemoveWatcher: jest.fn()
+      handleRemoveWatcher: jest.fn(),
     });
 
     (TaskFiles.useTaskFiles as jest.Mock).mockReturnValue({
       files: [],
       handleFileUpload: jest.fn(),
       handleFileDelete: jest.fn(),
-      refreshFiles: jest.fn()
+      refreshFiles: jest.fn(),
     });
 
     (TaskComments.useTaskComments as jest.Mock).mockReturnValue({
       comments: [],
       handleCommentSubmit: jest.fn(),
       handleCommentUpdate: jest.fn(),
-      handleCommentDelete: jest.fn()
+      handleCommentDelete: jest.fn(),
     });
 
     (TaskDetailsHandlers.useTaskDetailsHandlers as jest.Mock).mockReturnValue({
@@ -129,7 +129,7 @@ describe('TaskDetails', () => {
         editingComment: null,
         timeLogDialogOpen: false,
         selectedTimeLog: null,
-        watcherDialogOpen: false
+        watcherDialogOpen: false,
       },
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: jest.fn(),
@@ -143,7 +143,7 @@ describe('TaskDetails', () => {
       handleSubtaskUpdate: jest.fn(),
       handleSubtaskDelete: jest.fn(),
       handleWatcherDialogOpen: jest.fn(),
-      handleWatcherDialogClose: jest.fn()
+      handleWatcherDialogClose: jest.fn(),
     });
   });
 
@@ -153,7 +153,7 @@ describe('TaskDetails', () => {
         <Routes>
           <Route path="/tasks/:id" element={<TaskDetails />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -163,7 +163,7 @@ describe('TaskDetails', () => {
       task: null,
       subtasks: [],
       statuses: [],
-      error: null
+      error: null,
     });
 
     renderTaskDetails();
@@ -176,7 +176,7 @@ describe('TaskDetails', () => {
       task: null,
       subtasks: [],
       statuses: [],
-      error: 'Failed to load task'
+      error: 'Failed to load task',
     });
 
     renderTaskDetails();
@@ -196,7 +196,7 @@ describe('TaskDetails', () => {
       timeLogs: [],
       handleTimeLogSubmit: jest.fn(),
       deleteTimeLog: jest.fn(),
-      fetchTimeLogs: mockFetchTimeLogs
+      fetchTimeLogs: mockFetchTimeLogs,
     });
 
     renderTaskDetails();
@@ -209,7 +209,7 @@ describe('TaskDetails', () => {
 
     (TaskCore.useTaskCore as jest.Mock).mockReturnValue({
       ...mockTask,
-      handleStatusChange: mockHandleStatusChange
+      handleStatusChange: mockHandleStatusChange,
     });
 
     (TaskDetailsHandlers.useTaskDetailsHandlers as jest.Mock).mockReturnValue({
@@ -218,7 +218,7 @@ describe('TaskDetails', () => {
         editingComment: null,
         timeLogDialogOpen: false,
         selectedTimeLog: null,
-        watcherDialogOpen: false
+        watcherDialogOpen: false,
       },
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: mockHandleStatusMenuClose,
@@ -232,7 +232,7 @@ describe('TaskDetails', () => {
       handleSubtaskUpdate: jest.fn(),
       handleSubtaskDelete: jest.fn(),
       handleWatcherDialogOpen: jest.fn(),
-      handleWatcherDialogClose: jest.fn()
+      handleWatcherDialogClose: jest.fn(),
     });
 
     renderTaskDetails();

@@ -27,11 +27,15 @@ jest.mock('../../../hooks/calendar/useCalendarWeek', () => ({
     ],
     getTasksForDay: (day: Date) => {
       // Only return tasks for January 1st
-      return day.toDateString() === new Date('2023-01-01').toDateString() ? mockTasks : [];
+      return day.toDateString() === new Date('2023-01-01').toDateString()
+        ? mockTasks
+        : [];
     },
     getTimeLogsForDay: (day: Date) => {
       // Only return time logs for January 1st
-      return day.toDateString() === new Date('2023-01-01').toDateString() ? mockTimeLogs : [];
+      return day.toDateString() === new Date('2023-01-01').toDateString()
+        ? mockTimeLogs
+        : [];
     },
   }),
 }));
@@ -63,8 +67,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2023-01-01T08:00:00',
-    estimated_time: 8
-  }
+    estimated_time: 8,
+  },
 ];
 
 const mockTimeLogs: TimeLog[] = [
@@ -79,8 +83,8 @@ const mockTimeLogs: TimeLog[] = [
     created_on: '2023-01-01T10:00:00',
     updated_on: null,
     task_name: 'Test Task',
-    activity_type_color: '#FF0000'
-  }
+    activity_type_color: '#FF0000',
+  },
 ];
 
 const theme = createTheme();
@@ -93,7 +97,7 @@ const defaultProps = {
   onDateChange: jest.fn(),
   onViewChange: jest.fn(),
   onTaskClick: jest.fn(),
-  onTimeLogClick: jest.fn()
+  onTimeLogClick: jest.fn(),
 };
 
 const renderCalendarWeekView = () => {
@@ -102,7 +106,7 @@ const renderCalendarWeekView = () => {
       <MemoryRouter>
         <CalendarWeekView {...defaultProps} />
       </MemoryRouter>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 };
 
@@ -160,13 +164,13 @@ describe('CalendarWeekView', () => {
     renderCalendarWeekView();
 
     const papers = screen.getAllByRole('presentation');
-    const todayPaper = papers.find(
-      paper => paper.textContent?.includes('Sunday, January 1')
+    const todayPaper = papers.find((paper) =>
+      paper.textContent?.includes('Sunday, January 1'),
     );
 
     expect(todayPaper).toBeTruthy();
     expect(todayPaper).toHaveStyle({
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.palette.action.hover,
     });
 
     jest.useRealTimers();

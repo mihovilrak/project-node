@@ -8,7 +8,7 @@ import logger from '../../../utils/logger';
 // Mock dependencies
 jest.mock('../../../api/projects');
 jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 
 describe('useProjectOverview', () => {
@@ -28,7 +28,7 @@ describe('useProjectOverview', () => {
       created_on: '2024-01-01',
       estimated_time: 100,
       spent_time: 50,
-      progress: 50
+      progress: 50,
     },
     {
       id: 3,
@@ -45,8 +45,8 @@ describe('useProjectOverview', () => {
       created_on: '2024-01-01',
       estimated_time: 200,
       spent_time: 100,
-      progress: 50
-    }
+      progress: 50,
+    },
   ];
 
   const mockNavigate = jest.fn();
@@ -62,7 +62,7 @@ describe('useProjectOverview', () => {
     const { result } = renderHook(() => useProjectOverview(projectId));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getSubprojects).toHaveBeenCalledWith(projectId);
@@ -73,7 +73,7 @@ describe('useProjectOverview', () => {
     const { result } = renderHook(() => useProjectOverview(undefined));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getSubprojects).not.toHaveBeenCalled();
@@ -87,10 +87,13 @@ describe('useProjectOverview', () => {
     const { result } = renderHook(() => useProjectOverview(1));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(logger.error).toHaveBeenCalledWith('Failed to fetch subprojects:', error);
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to fetch subprojects:',
+      error,
+    );
     expect(result.current.subprojects).toEqual([]);
   });
 

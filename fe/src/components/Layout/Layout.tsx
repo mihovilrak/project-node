@@ -8,7 +8,7 @@ import {
   Button,
   IconButton,
   Tooltip,
-  Fab
+  Fab,
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -18,7 +18,7 @@ import {
   Brightness7,
   AccountCircle,
   ExitToApp,
-  KeyboardArrowUp
+  KeyboardArrowUp,
 } from '@mui/icons-material';
 import { useTheme } from '../../context/ThemeContext';
 import NotificationCenter from '../Notifications/NotificationCenter';
@@ -50,7 +50,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar position="fixed">
         <Toolbar>
-          <Tabs value={activeTab} textColor="inherit" indicatorColor="secondary">
+          <Tabs
+            value={activeTab}
+            textColor="inherit"
+            indicatorColor="secondary"
+          >
             <Tab label="Home" component={Link} to="/" />
             <Tab label="Projects" component={Link} to="/projects" />
             <Tab label="Tasks" component={Link} to="/tasks" />
@@ -58,7 +62,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <Tab label="Settings" component={Link} to="/settings" />
           </Tabs>
           <Box sx={{ flexGrow: 1 }} />
-          <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
+          <Tooltip
+            title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+          >
             <IconButton color="inherit" onClick={toggleTheme} sx={{ ml: 1 }}>
               {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
             </IconButton>
@@ -103,7 +109,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           minHeight: '100vh',
           pt: `${APP_BAR_HEIGHT}px`,
           px: 3,
-          backgroundColor: 'background.default'
+          backgroundColor: 'background.default',
         }}
       >
         {children}
@@ -121,7 +127,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               position: 'fixed',
               right: 24,
               bottom: 24,
-              zIndex: 1200
+              zIndex: 1200,
             }}
           >
             <KeyboardArrowUp />

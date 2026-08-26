@@ -4,12 +4,15 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ProjectMembersList from '../ProjectMembersList';
 import { ProjectMember } from '../../../../types/project';
-import { addProjectMember, removeProjectMember } from '../../../../api/projects';
+import {
+  addProjectMember,
+  removeProjectMember,
+} from '../../../../api/projects';
 import { Alert } from '@mui/material';
 
 jest.mock('../../../../api/projects', () => ({
   addProjectMember: jest.fn(),
-  removeProjectMember: jest.fn()
+  removeProjectMember: jest.fn(),
 }));
 
 const mockMembers: ProjectMember[] = [
@@ -19,7 +22,7 @@ const mockMembers: ProjectMember[] = [
     created_on: '2023-01-01',
     name: 'John',
     surname: 'Doe',
-    role: 'Developer'
+    role: 'Developer',
   },
   {
     project_id: 1,
@@ -27,8 +30,8 @@ const mockMembers: ProjectMember[] = [
     created_on: '2023-01-02',
     name: 'Jane',
     surname: 'Smith',
-    role: 'Project Manager'
-  }
+    role: 'Project Manager',
+  },
 ];
 
 const defaultProps = {
@@ -36,14 +39,14 @@ const defaultProps = {
   members: mockMembers,
   canManageMembers: true,
   onMemberRemove: jest.fn(),
-  onMembersChange: jest.fn()
+  onMembersChange: jest.fn(),
 };
 
 const renderProjectMembersList = (props = {}) => {
   return render(
     <BrowserRouter>
       <ProjectMembersList {...defaultProps} {...props} />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 
@@ -98,7 +101,9 @@ describe('ProjectMembersList', () => {
     const deleteButtons = screen.getAllByLabelText('delete');
     fireEvent.click(deleteButtons[0]);
 
-    expect(defaultProps.onMemberRemove).toHaveBeenCalledWith(mockMembers[0].user_id);
+    expect(defaultProps.onMemberRemove).toHaveBeenCalledWith(
+      mockMembers[0].user_id,
+    );
   });
 
   test('opens EditMembersDialog when manage members button is clicked', () => {
@@ -132,7 +137,11 @@ describe('ProjectMembersList', () => {
       const [error, setError] = useState('Failed to update project members');
       return (
         <>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <ProjectMembersList {...defaultProps} />
         </>
       );
@@ -141,12 +150,13 @@ describe('ProjectMembersList', () => {
     render(
       <BrowserRouter>
         <TestComponent />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
-    expect(screen.getByText('Failed to update project members')).toBeInTheDocument();
+    expect(
+      screen.getByText('Failed to update project members'),
+    ).toBeInTheDocument();
   });
-
 
   test('renders member links correctly', () => {
     renderProjectMembersList();

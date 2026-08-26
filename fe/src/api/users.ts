@@ -17,7 +17,7 @@ export const getUserStatuses = async (): Promise<UserStatus[]> => {
 // Get all users. Pass { all: true } to include inactive and deleted (e.g. Settings).
 export const getUsers = async (
   whereParams?: Record<string, any>,
-  options?: { all?: boolean }
+  options?: { all?: boolean },
 ): Promise<User[]> => {
   try {
     const params: Record<string, any> = {};
@@ -60,7 +60,10 @@ export const createUser = async (userData: UserCreate): Promise<User> => {
 };
 
 // Update user
-export const updateUser = async (id: number, userData: UserUpdate): Promise<User> => {
+export const updateUser = async (
+  id: number,
+  userData: UserUpdate,
+): Promise<User> => {
   try {
     const response = await api.put(`/users/${id}`, userData);
     return response.data;
@@ -103,7 +106,10 @@ export const getUserRoles = async (id: number): Promise<string[]> => {
 };
 
 // Update user roles
-export const updateUserRoles = async (id: number, roles: number[]): Promise<void> => {
+export const updateUserRoles = async (
+  id: number,
+  roles: number[],
+): Promise<void> => {
   try {
     await api.put(`/users/${id}/roles`, { roles });
   } catch (error) {

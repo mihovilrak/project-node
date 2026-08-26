@@ -8,9 +8,7 @@ import { Role } from '../../../types/role';
 jest.mock('../TaskTypeDialog', () => ({
   __esModule: true,
   default: ({ open, taskType, onClose, onSave }: any) => (
-    <div data-testid="mock-task-type-dialog">
-      TaskTypeDialog Component
-    </div>
+    <div data-testid="mock-task-type-dialog">TaskTypeDialog Component</div>
   ),
 }));
 
@@ -26,9 +24,7 @@ jest.mock('../ActivityTypeDialog', () => ({
 jest.mock('../RoleDialog', () => ({
   __esModule: true,
   default: ({ open, role, onClose, onSave }: any) => (
-    <div data-testid="mock-role-dialog">
-      RoleDialog Component
-    </div>
+    <div data-testid="mock-role-dialog">RoleDialog Component</div>
   ),
 }));
 
@@ -36,19 +32,19 @@ const mockTaskType: TaskType = {
   id: 1,
   name: 'Test Task Type',
   color: '#000000',
-  active: true
+  active: true,
 };
 
 const mockActivityType: ActivityType = {
   id: 1,
   name: 'Test Activity Type',
   color: '#000000',
-  active: true
+  active: true,
 };
 
 const mockRole: Role = {
   id: 1,
-  name: 'Test Role'
+  name: 'Test Role',
 };
 
 const defaultProps = {
@@ -56,7 +52,7 @@ const defaultProps = {
   dialogOpen: true,
   selectedItem: null,
   onClose: jest.fn(),
-  onSave: jest.fn()
+  onSave: jest.fn(),
 };
 
 describe('TypesAndRolesDialog', () => {
@@ -70,11 +66,13 @@ describe('TypesAndRolesDialog', () => {
         {...defaultProps}
         activeTab={0}
         selectedItem={mockTaskType}
-      />
+      />,
     );
 
     expect(screen.getByTestId('mock-task-type-dialog')).toBeInTheDocument();
-    expect(screen.queryByTestId('mock-activity-type-dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mock-activity-type-dialog'),
+    ).not.toBeInTheDocument();
     expect(screen.queryByTestId('mock-role-dialog')).not.toBeInTheDocument();
   });
 
@@ -84,10 +82,12 @@ describe('TypesAndRolesDialog', () => {
         {...defaultProps}
         activeTab={1}
         selectedItem={mockActivityType}
-      />
+      />,
     );
 
-    expect(screen.queryByTestId('mock-task-type-dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mock-task-type-dialog'),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('mock-activity-type-dialog')).toBeInTheDocument();
     expect(screen.queryByTestId('mock-role-dialog')).not.toBeInTheDocument();
   });
@@ -98,20 +98,21 @@ describe('TypesAndRolesDialog', () => {
         {...defaultProps}
         activeTab={2}
         selectedItem={mockRole}
-      />
+      />,
     );
 
-    expect(screen.queryByTestId('mock-task-type-dialog')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('mock-activity-type-dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mock-task-type-dialog'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mock-activity-type-dialog'),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('mock-role-dialog')).toBeInTheDocument();
   });
 
   it('returns null for invalid activeTab value', () => {
     const { container } = render(
-      <TypesAndRolesDialog
-        {...defaultProps}
-        activeTab={999}
-      />
+      <TypesAndRolesDialog {...defaultProps} activeTab={999} />,
     );
 
     expect(container.firstChild).toBeNull();
@@ -128,7 +129,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockTaskType}
         onClose={onClose}
         onSave={onSave}
-      />
+      />,
     );
 
     const dialog = screen.getByTestId('mock-task-type-dialog');
@@ -146,7 +147,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockActivityType}
         onClose={onClose}
         onSave={onSave}
-      />
+      />,
     );
 
     const dialog = screen.getByTestId('mock-activity-type-dialog');
@@ -164,7 +165,7 @@ describe('TypesAndRolesDialog', () => {
         selectedItem={mockRole}
         onClose={onClose}
         onSave={onSave}
-      />
+      />,
     );
 
     const dialog = screen.getByTestId('mock-role-dialog');

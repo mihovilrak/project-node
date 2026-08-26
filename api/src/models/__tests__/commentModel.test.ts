@@ -3,7 +3,7 @@ import * as commentModel from '../commentModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 describe('CommentModel', () => {
@@ -14,12 +14,12 @@ describe('CommentModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -35,7 +35,7 @@ describe('CommentModel', () => {
           user_login: 'johndoe',
           comment: 'First comment',
           created_on: new Date(),
-          updated_on: new Date()
+          updated_on: new Date(),
         },
         {
           id: 2,
@@ -45,16 +45,18 @@ describe('CommentModel', () => {
           user_login: 'janedoe',
           comment: 'Second comment',
           created_on: new Date(),
-          updated_on: new Date()
-        }
+          updated_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockComments));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockComments),
+      );
 
       const result = await commentModel.getTaskComments(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_task_comments'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockComments);
     });
@@ -76,15 +78,22 @@ describe('CommentModel', () => {
         user_id: 1,
         comment: 'New comment',
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([newComment]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([newComment]),
+      );
 
-      const result = await commentModel.createComment(mockPool, '1', '1', 'New comment');
+      const result = await commentModel.createComment(
+        mockPool,
+        '1',
+        '1',
+        'New comment',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO comments'),
-        ['1', '1', 'New comment']
+        ['1', '1', 'New comment'],
       );
       expect(result).toEqual(newComment);
     });
@@ -100,15 +109,17 @@ describe('CommentModel', () => {
         user_login: 'johndoe',
         comment: 'Test comment',
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([commentWithUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([commentWithUser]),
+      );
 
       const result = await commentModel.commentWithUser(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_comment_by_id'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(commentWithUser);
     });
@@ -130,15 +141,21 @@ describe('CommentModel', () => {
         user_id: 1,
         comment: 'Edited comment',
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([editedComment]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([editedComment]),
+      );
 
-      const result = await commentModel.editComment(mockPool, '1', 'Edited comment');
+      const result = await commentModel.editComment(
+        mockPool,
+        '1',
+        'Edited comment',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE comments'),
-        ['1', 'Edited comment']
+        ['1', 'Edited comment'],
       );
       expect(result).toEqual(editedComment);
     });
@@ -146,7 +163,11 @@ describe('CommentModel', () => {
     it('should return null when comment not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await commentModel.editComment(mockPool, '999', 'Non-existent');
+      const result = await commentModel.editComment(
+        mockPool,
+        '999',
+        'Non-existent',
+      );
 
       expect(result).toBeNull();
     });
@@ -161,15 +182,17 @@ describe('CommentModel', () => {
         comment: 'Deleted comment',
         active: false,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([deletedComment]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([deletedComment]),
+      );
 
       const result = await commentModel.deleteComment(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE comments'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(deletedComment);
     });

@@ -9,7 +9,7 @@ const mockUseFileUpload = useFileUpload as jest.Mock;
 
 const defaultProps = {
   taskId: 1,
-  onFileUploaded: jest.fn()
+  onFileUploaded: jest.fn(),
 };
 
 const renderFileUpload = (props = {}) => {
@@ -25,7 +25,7 @@ describe('FileUpload', () => {
       progress: 0,
       error: null,
       handleFileChange: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
   });
 
@@ -55,7 +55,7 @@ describe('FileUpload', () => {
       progress: 45,
       error: null,
       handleFileChange: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
 
     renderFileUpload();
@@ -69,7 +69,7 @@ describe('FileUpload', () => {
       progress: 0,
       error: 'Upload failed',
       handleFileChange: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
 
     renderFileUpload();
@@ -83,7 +83,7 @@ describe('FileUpload', () => {
       progress: 0,
       error: null,
       handleFileChange: mockHandleFileChange,
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
 
     renderFileUpload();
@@ -100,7 +100,7 @@ describe('FileUpload', () => {
       progress: 0,
       error: null,
       handleFileChange: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
 
     renderFileUpload();
@@ -114,7 +114,7 @@ describe('FileUpload', () => {
       progress: 0,
       error: 'Upload failed',
       handleFileChange: jest.fn(),
-      setError: mockSetError
+      setError: mockSetError,
     }));
 
     renderFileUpload();
@@ -128,7 +128,7 @@ describe('FileUpload', () => {
       progress: 75,
       error: null,
       handleFileChange: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     }));
 
     renderFileUpload();

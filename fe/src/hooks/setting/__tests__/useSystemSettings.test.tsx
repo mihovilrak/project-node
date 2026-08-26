@@ -14,7 +14,7 @@ describe('useSystemSettings', () => {
     sender_email: 'test@example.com',
     time_zone: 'UTC',
     theme: 'system',
-    welcome_message: 'Welcome to Test App'
+    welcome_message: 'Welcome to Test App',
   };
 
   beforeEach(() => {
@@ -108,7 +108,7 @@ describe('useSystemSettings', () => {
 
     act(() => {
       const mockEvent = {
-        target: { name: 'app_name', value: 'New App Name' }
+        target: { name: 'app_name', value: 'New App Name' },
       } as React.ChangeEvent<HTMLInputElement>;
 
       result.current.handleChange(mockEvent);

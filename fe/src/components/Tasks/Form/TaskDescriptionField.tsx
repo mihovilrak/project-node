@@ -2,7 +2,10 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { TaskDescriptionFieldProps } from '../../../types/task';
 
-export const TaskDescriptionField: React.FC<TaskDescriptionFieldProps> = ({ formData, handleChange }) => (
+export const TaskDescriptionField: React.FC<TaskDescriptionFieldProps> = ({
+  formData,
+  handleChange,
+}) => (
   <TextField
     fullWidth
     multiline

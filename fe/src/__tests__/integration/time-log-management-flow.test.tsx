@@ -34,7 +34,7 @@ jest.mock('../../hooks/timeLog/useTimeLogDialog', () => ({
     handleProjectChange: jest.fn(),
     handleTaskChange: jest.fn(),
     handleSubmit: jest.fn(),
-  })
+  }),
 }));
 
 // Mock the Permission check to always allow
@@ -46,8 +46,8 @@ jest.mock('../../context/AuthContext', () => ({
     hasPermission: () => true,
     loading: false,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 describe('Time Log Integration Tests', () => {
@@ -65,7 +65,7 @@ describe('Time Log Integration Tests', () => {
     project_name: 'Test Project',
     activity_type_name: 'Development',
     activity_type_color: '#4CAF50',
-    user: 'Test User'
+    user: 'Test User',
   };
 
   const mockTimeLogs: TimeLog[] = [
@@ -76,8 +76,8 @@ describe('Time Log Integration Tests', () => {
       spent_time: 4,
       description: 'Another time log',
       activity_type_name: 'Testing',
-      activity_type_color: '#2196F3'
-    }
+      activity_type_color: '#2196F3',
+    },
   ];
 
   const defaultProps = {
@@ -89,7 +89,7 @@ describe('Time Log Integration Tests', () => {
     onTimeLogSubmit: jest.fn(),
     onTimeLogDelete: jest.fn(),
     onTimeLogEdit: jest.fn(),
-    onTimeLogDialogClose: jest.fn()
+    onTimeLogDialogClose: jest.fn(),
   };
 
   beforeEach(() => {
@@ -103,12 +103,12 @@ describe('Time Log Integration Tests', () => {
       if (normalizedUrl === 'check-session') {
         return Promise.resolve({
           status: 200,
-          data: { user: { id: 1, name: 'Test User' } }
+          data: { user: { id: 1, name: 'Test User' } },
         });
       }
       if (normalizedUrl === 'users/permissions') {
         return Promise.resolve({
-          data: [{ permission: 'Admin' }]
+          data: [{ permission: 'Admin' }],
         });
       }
 
@@ -117,23 +117,23 @@ describe('Time Log Integration Tests', () => {
         return Promise.resolve({
           data: [
             { id: 1, name: 'Development', color: '#4CAF50' },
-            { id: 2, name: 'Testing', color: '#2196F3' }
-          ]
+            { id: 2, name: 'Testing', color: '#2196F3' },
+          ],
         });
       }
       if (normalizedUrl === 'projects') {
         return Promise.resolve({
-          data: [{ id: 1, name: 'Test Project' }]
+          data: [{ id: 1, name: 'Test Project' }],
         });
       }
       if (normalizedUrl === 'users') {
         return Promise.resolve({
-          data: [{ id: 1, name: 'Test User' }]
+          data: [{ id: 1, name: 'Test User' }],
         });
       }
       if (normalizedUrl.match(/^projects\/\d+\/tasks$/)) {
         return Promise.resolve({
-          data: [{ id: 1, name: 'Test Task', project_id: 1 }]
+          data: [{ id: 1, name: 'Test Task', project_id: 1 }],
         });
       }
 
@@ -150,7 +150,7 @@ describe('Time Log Integration Tests', () => {
     render(
       <TestWrapper>
         <TaskTimeLogging {...defaultProps} />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Verify time logs are displayed
@@ -166,7 +166,7 @@ describe('Time Log Integration Tests', () => {
     render(
       <TestWrapper>
         <TaskTimeLogging {...defaultProps} timeLogs={[]} />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     await waitFor(() => {
@@ -180,7 +180,7 @@ describe('Time Log Integration Tests', () => {
     render(
       <TestWrapper>
         <TaskTimeLogging {...defaultProps} onTimeLogEdit={onTimeLogEdit} />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Find and click the edit button (first one)
@@ -198,7 +198,7 @@ describe('Time Log Integration Tests', () => {
     render(
       <TestWrapper>
         <TaskTimeLogging {...defaultProps} onTimeLogDelete={onTimeLogDelete} />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Find and click the delete button (first one)
@@ -214,7 +214,7 @@ describe('Time Log Integration Tests', () => {
     render(
       <TestWrapper>
         <TaskTimeLogging {...defaultProps} timeLogDialogOpen={true} />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Verify dialog is shown (look for dialog title)

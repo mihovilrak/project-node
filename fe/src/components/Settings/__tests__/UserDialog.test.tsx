@@ -20,7 +20,7 @@ const mockUser: User = {
   created_on: '2023-01-01',
   avatar_url: null,
   updated_on: null,
-  last_login: null
+  last_login: null,
 };
 
 const mockFormData = {
@@ -31,20 +31,20 @@ const mockFormData = {
   password: '',
   confirmPassword: '',
   role_id: 2,
-  status_id: 1
+  status_id: 1,
 };
 
 const defaultProps = {
   open: true,
   onClose: jest.fn(),
   onUserSaved: jest.fn(),
-  user: undefined
+  user: undefined,
 };
 
 const mockRoles = [
   { id: 1, name: 'Admin', description: 'Administrator role', active: true },
   { id: 2, name: 'Manager', description: 'Manager role', active: true },
-  { id: 3, name: 'User', description: 'User role', active: true }
+  { id: 3, name: 'User', description: 'User role', active: true },
 ];
 
 describe('UserDialog', () => {
@@ -57,14 +57,16 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
   });
 
   it('renders create user dialog correctly', () => {
     render(<UserDialog {...defaultProps} />);
 
-    expect(screen.getByRole('heading', { name: 'Create New User' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Create New User' }),
+    ).toBeInTheDocument();
 
     // Using more reliable selectors
     const loginInput = screen.getByRole('textbox', { name: /login/i });
@@ -80,7 +82,11 @@ describe('UserDialog', () => {
   it('renders edit user dialog correctly', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
 
-    expect(screen.getByRole('heading', { name: `Edit user ${mockUser.name} ${mockUser.surname}` })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: `Edit user ${mockUser.name} ${mockUser.surname}`,
+      }),
+    ).toBeInTheDocument();
 
     const loginInput = screen.getByRole('textbox', { name: /login/i });
     expect(loginInput).toBeDisabled();
@@ -98,7 +104,7 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     render(<UserDialog {...defaultProps} />);
@@ -115,7 +121,7 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: mockHandleSubmit
+      handleSubmit: mockHandleSubmit,
     });
 
     render(<UserDialog {...defaultProps} />);
@@ -145,7 +151,7 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     render(<UserDialog {...defaultProps} />);
@@ -157,7 +163,9 @@ describe('UserDialog', () => {
     // Wait for options to appear in the dropdown - these should come from API, not hardcoded
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument();
-      expect(screen.getByRole('option', { name: 'Manager' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: 'Manager' }),
+      ).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'User' })).toBeInTheDocument();
     });
   });
@@ -170,7 +178,7 @@ describe('UserDialog', () => {
       rolesLoading: true,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     render(<UserDialog {...defaultProps} />);
@@ -190,7 +198,7 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     render(<UserDialog {...defaultProps} />);
@@ -219,8 +227,10 @@ describe('UserDialog', () => {
 
   it('renders password confirmation field in create mode', () => {
     render(<UserDialog {...defaultProps} />);
-    
-    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+
+    const confirmPasswordInput = document.querySelector(
+      'input[name="confirmPassword"]',
+    );
     expect(confirmPasswordInput).toBeInTheDocument();
     expect(confirmPasswordInput).toBeRequired();
   });
@@ -233,45 +243,59 @@ describe('UserDialog', () => {
       rolesLoading: false,
       handleTextChange: jest.fn(),
       handleRoleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     render(<UserDialog {...defaultProps} user={mockUser} />);
-    
-    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+
+    const confirmPasswordInput = document.querySelector(
+      'input[name="confirmPassword"]',
+    );
     expect(confirmPasswordInput).toBeInTheDocument();
   });
 
   it('toggles password visibility', () => {
     render(<UserDialog {...defaultProps} />);
-    
+
     const passwordInput = document.querySelector('input[name="password"]');
     expect(passwordInput).toHaveAttribute('type', 'password');
-    
+
     const toggleButton = screen.getByTestId('toggle-password-visibility');
     fireEvent.click(toggleButton);
-    
+
     expect(passwordInput).toHaveAttribute('type', 'text');
   });
 
   it('toggles confirm password visibility', () => {
     render(<UserDialog {...defaultProps} />);
-    
-    const confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+
+    const confirmPasswordInput = document.querySelector(
+      'input[name="confirmPassword"]',
+    );
     expect(confirmPasswordInput).toHaveAttribute('type', 'password');
-    
-    const toggleButton = screen.getByTestId('toggle-confirm-password-visibility');
+
+    const toggleButton = screen.getByTestId(
+      'toggle-confirm-password-visibility',
+    );
     fireEvent.click(toggleButton);
-    
+
     expect(confirmPasswordInput).toHaveAttribute('type', 'text');
   });
 
   it('pre-fills form data for existing user', () => {
     render(<UserDialog {...defaultProps} user={mockUser} />);
 
-    expect(screen.getByRole('textbox', { name: /login/i })).toHaveValue(mockUser.login);
-    expect(screen.getByRole('textbox', { name: /first name/i })).toHaveValue(mockUser.name);
-    expect(screen.getByRole('textbox', { name: /last name/i })).toHaveValue(mockUser.surname);
-    expect(screen.getByRole('textbox', { name: /email/i })).toHaveValue(mockUser.email);
+    expect(screen.getByRole('textbox', { name: /login/i })).toHaveValue(
+      mockUser.login,
+    );
+    expect(screen.getByRole('textbox', { name: /first name/i })).toHaveValue(
+      mockUser.name,
+    );
+    expect(screen.getByRole('textbox', { name: /last name/i })).toHaveValue(
+      mockUser.surname,
+    );
+    expect(screen.getByRole('textbox', { name: /email/i })).toHaveValue(
+      mockUser.email,
+    );
   });
 });

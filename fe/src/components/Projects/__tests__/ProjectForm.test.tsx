@@ -2,7 +2,11 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import dayjs from 'dayjs';
 import ProjectForm from '../ProjectForm';
-import { createProject, addProjectMember, getProjects } from '../../../api/projects';
+import {
+  createProject,
+  addProjectMember,
+  getProjects,
+} from '../../../api/projects';
 import { getUsers } from '../../../api/users';
 import { Project } from '../../../types/project';
 import { User } from '../../../types/user';
@@ -10,8 +14,17 @@ import logger from '../../../utils/logger';
 
 // Mock the DatePicker component to make testing easier
 jest.mock('@mui/x-date-pickers', () => ({
-  LocalizationProvider: ({ children }: { children: React.ReactNode }) => children,
-  DatePicker: ({ label, onChange, value }: { label: string; onChange: (date: any) => void; value: any }) => (
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DatePicker: ({
+    label,
+    onChange,
+    value,
+  }: {
+    label: string;
+    onChange: (date: any) => void;
+    value: any;
+  }) => (
     <div data-testid={`date-picker-${label}`}>
       <label htmlFor={`date-input-${label}`}>{label}</label>
       <input
@@ -29,8 +42,8 @@ jest.mock('@mui/x-date-pickers', () => ({
 jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
   useLocation: () => ({
-    search: '?parentId=1'
-  })
+    search: '?parentId=1',
+  }),
 }));
 
 jest.mock('../../../api/projects');
@@ -43,7 +56,7 @@ jest.mock('../../../hooks/project/useProjectForm', () => ({
       start_date: '2024-01-01',
       due_date: '2024-12-31',
       status_id: 1,
-      parent_id: null
+      parent_id: null,
     },
     errors: {},
     dateError: '',
@@ -51,8 +64,8 @@ jest.mock('../../../hooks/project/useProjectForm', () => ({
     handleStatusChange: jest.fn(),
     handleDateChange: jest.fn(),
     handleParentChange: jest.fn(),
-    validateForm: () => true
-  })
+    validateForm: () => true,
+  }),
 }));
 
 const mockProjects: Project[] = [
@@ -73,8 +86,8 @@ const mockProjects: Project[] = [
     estimated_time: 100,
     spent_time: 0,
     progress: 0,
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockUsers: User[] = [
@@ -88,8 +101,8 @@ const mockUsers: User[] = [
     status_id: 1,
     created_on: '2024-01-01',
     updated_on: null,
-    last_login: null
-  }
+    last_login: null,
+  },
 ];
 
 describe('ProjectForm Component', () => {
@@ -103,7 +116,9 @@ describe('ProjectForm Component', () => {
     (getUsers as jest.Mock).mockResolvedValue(mockUsers);
     (createProject as jest.Mock).mockResolvedValue({ ...mockProjects[0] });
     (addProjectMember as jest.Mock).mockResolvedValue({});
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
+    jest
+      .spyOn(require('react-router-dom'), 'useNavigate')
+      .mockReturnValue(mockNavigate);
   });
 
   test('renders the project details form initially', async () => {
@@ -155,7 +170,9 @@ describe('ProjectForm Component', () => {
 
     // Check for error message
     await waitFor(() => {
-      expect(screen.getByText('Please select at least one project member')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please select at least one project member'),
+      ).toBeInTheDocument();
     });
   });
 
@@ -213,18 +230,25 @@ describe('ProjectForm Component', () => {
 
     // Verify error handling
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to create project:',
+        expect.any(Error),
+      );
     });
   });
 
   // This test is split into two separate tests to isolate the functionality
   // First test just verifies the cancel button exists
   test('renders cancel button correctly', async () => {
-    const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
+    const { container } = render(
+      <ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />,
+    );
 
     // Verify that cancel button exists
     await waitFor(() => {
-      const cancelButton = container.querySelector('[data-testid="cancel-button"]');
+      const cancelButton = container.querySelector(
+        '[data-testid="cancel-button"]',
+      );
       expect(cancelButton).not.toBeNull();
     });
   });
@@ -232,7 +256,9 @@ describe('ProjectForm Component', () => {
   // Second test mock the handleCancel function directly
   test('calls onClose when Cancel button is clicked', async () => {
     const mockClose = jest.fn();
-    const { container } = render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockClose} />);
+    const { container } = render(
+      <ProjectForm onSubmit={mockOnSubmit} onClose={mockClose} />,
+    );
 
     // Find and click the cancel button
     const cancelButton = await waitFor(() => {

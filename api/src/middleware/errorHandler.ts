@@ -6,7 +6,7 @@ export default async (
   err: CustomError,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   logger.error({ err }, err.message ?? 'Unhandled error');
 
@@ -18,7 +18,7 @@ export default async (
   if (err.name === 'ValidationError') {
     res.status(400).json({
       error: 'Validation Error',
-      details: err.details
+      details: err.details,
     });
     return;
   }
@@ -26,7 +26,7 @@ export default async (
   if (err.name === 'UnauthorizedError') {
     res.status(401).json({
       error: 'Unauthorized',
-      message: 'Invalid token or no token provided'
+      message: 'Invalid token or no token provided',
     });
     return;
   }
@@ -34,6 +34,6 @@ export default async (
   // Default error response
   res.status(status).json({
     error: message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
   });
-}
+};

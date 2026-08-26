@@ -7,28 +7,32 @@ import { useAuth } from '../../../context/AuthContext';
 jest.mock('../UserManager', () => {
   return {
     __esModule: true,
-    default: () => <div data-testid="user-manager">User Manager</div>
-  }
+    default: () => <div data-testid="user-manager">User Manager</div>,
+  };
 });
 
 jest.mock('../TypesAndRolesManager', () => {
   return {
     __esModule: true,
-    default: () => <div data-testid="types-roles-manager">Types & Roles Manager</div>
-  }
+    default: () => (
+      <div data-testid="types-roles-manager">Types & Roles Manager</div>
+    ),
+  };
 });
 
 jest.mock('../SystemSettings', () => {
   return {
     __esModule: true,
-    default: () => <div data-testid="system-settings">System Settings</div>
-  }
+    default: () => <div data-testid="system-settings">System Settings</div>,
+  };
 });
 
 // Mock useAuth hook
 jest.mock('../../../context/AuthContext', () => ({
   useAuth: jest.fn(),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 describe('Settings', () => {
@@ -45,13 +49,13 @@ describe('Settings', () => {
       logout: jest.fn(),
       hasPermission: jest.fn(),
       error: null,
-      userPermissions: []
+      userPermissions: [],
     }));
   });
 
   it('should show loading spinner when permissions are loading', () => {
     mockUseAuth.mockImplementation(() => ({
-      permissionsLoading: true
+      permissionsLoading: true,
     }));
 
     render(<Settings />);
@@ -117,7 +121,7 @@ describe('Settings', () => {
     const tabPanels = [
       { tab: 'Users', testId: 'user-manager' },
       { tab: 'Types & Roles', testId: 'types-roles-manager' },
-      { tab: 'System', testId: 'system-settings' }
+      { tab: 'System', testId: 'system-settings' },
     ];
 
     tabPanels.forEach(({ tab, testId }) => {
@@ -130,7 +134,9 @@ describe('Settings', () => {
     render(<Settings />);
 
     const userTab = screen.getByText('Users').closest('[role="tab"]');
-    const typesRolesTab = screen.getByText('Types & Roles').closest('[role="tab"]');
+    const typesRolesTab = screen
+      .getByText('Types & Roles')
+      .closest('[role="tab"]');
     const systemTab = screen.getByText('System').closest('[role="tab"]');
 
     expect(userTab).toHaveAttribute('aria-selected', 'true');

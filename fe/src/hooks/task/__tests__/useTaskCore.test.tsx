@@ -5,7 +5,7 @@ import {
   getSubtasks,
   getTaskStatuses,
   changeTaskStatus,
-  deleteTask
+  deleteTask,
 } from '../../../api/tasks';
 import { Task, TaskStatus } from '../../../types/task';
 
@@ -46,7 +46,7 @@ describe('useTaskCore', () => {
     progress: 0,
     created_by: 1,
     created_by_name: 'Test Creator',
-    created_on: '2024-01-25T00:00:00Z'
+    created_on: '2024-01-25T00:00:00Z',
   };
 
   const mockSubtasks: Task[] = [
@@ -55,8 +55,8 @@ describe('useTaskCore', () => {
       id: 2,
       parent_id: 1,
       parent_name: 'Test Task',
-      name: 'Subtask 1'
-    }
+      name: 'Subtask 1',
+    },
   ];
 
   const mockStatuses: TaskStatus[] = [
@@ -67,7 +67,7 @@ describe('useTaskCore', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -76,7 +76,7 @@ describe('useTaskCore', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 3,
@@ -85,8 +85,8 @@ describe('useTaskCore', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   beforeEach(() => {
@@ -131,7 +131,10 @@ describe('useTaskCore', () => {
 
   it('should handle status change successfully', async () => {
     const newStatus = 2;
-    (changeTaskStatus as jest.Mock).mockResolvedValue({ ...mockTask, status_id: newStatus });
+    (changeTaskStatus as jest.Mock).mockResolvedValue({
+      ...mockTask,
+      status_id: newStatus,
+    });
 
     const { result } = renderHook(() => useTaskCore('1'));
     await waitFor(() => {

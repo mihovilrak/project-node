@@ -13,28 +13,28 @@ const mockToggleTheme = jest.fn();
 jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
     currentUser: mockCurrentUser,
-    logout: mockLogout
-  })
+    logout: mockLogout,
+  }),
 }));
 
 jest.mock('../../../hooks/layout/useNavigation', () => ({
   useNavigation: () => ({
-    activeTab: 0
-  })
+    activeTab: 0,
+  }),
 }));
 
 jest.mock('../../../context/ThemeContext', () => ({
   useTheme: () => ({
     mode: 'light',
-    toggleTheme: mockToggleTheme
-  })
+    toggleTheme: mockToggleTheme,
+  }),
 }));
 
 // Mock React Router
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate
+  useNavigate: () => mockNavigate,
 }));
 
 // Mock icons
@@ -43,7 +43,7 @@ jest.mock('@mui/icons-material', () => ({
   Brightness7: () => <span data-testid="light-mode-icon">LightModeIcon</span>,
   AccountCircle: () => <span data-testid="profile-icon">ProfileIcon</span>,
   ExitToApp: () => <span data-testid="logout-icon">LogoutIcon</span>,
-  KeyboardArrowUp: () => <span data-testid="keyboard-arrow-up">Up</span>
+  KeyboardArrowUp: () => <span data-testid="keyboard-arrow-up">Up</span>,
 }));
 
 // Simplified Material-UI mocks
@@ -76,7 +76,9 @@ jest.mock('@mui/material', () => {
     Box: ({ children, component = 'div', sx }: any) => {
       const Component = component;
       return (
-        <Component data-testid={component === 'main' ? 'main-content' : undefined}>
+        <Component
+          data-testid={component === 'main' ? 'main-content' : undefined}
+        >
           {children}
         </Component>
       );
@@ -87,9 +89,7 @@ jest.mock('@mui/material', () => {
         {children}
       </button>
     ),
-    Tooltip: ({ children, title }: any) => (
-      <div title={title}>{children}</div>
-    ),
+    Tooltip: ({ children, title }: any) => <div title={title}>{children}</div>,
     Fab: ({ children, onClick, 'data-testid': testId }: any) => (
       <button data-testid={testId || 'scroll-to-top'} onClick={onClick}>
         {children}
@@ -110,7 +110,7 @@ describe('Layout', () => {
         <Layout>
           <div data-testid="child-content">Test Content</div>
         </Layout>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
   };
 
@@ -133,10 +133,22 @@ describe('Layout', () => {
   it('renders tabs as links so clicking always navigates', () => {
     renderLayout();
     expect(screen.getByTestId('tab-link-home')).toHaveAttribute('href', '/');
-    expect(screen.getByTestId('tab-link-projects')).toHaveAttribute('href', '/projects');
-    expect(screen.getByTestId('tab-link-users')).toHaveAttribute('href', '/users');
-    expect(screen.getByTestId('tab-link-tasks')).toHaveAttribute('href', '/tasks');
-    expect(screen.getByTestId('tab-link-settings')).toHaveAttribute('href', '/settings');
+    expect(screen.getByTestId('tab-link-projects')).toHaveAttribute(
+      'href',
+      '/projects',
+    );
+    expect(screen.getByTestId('tab-link-users')).toHaveAttribute(
+      'href',
+      '/users',
+    );
+    expect(screen.getByTestId('tab-link-tasks')).toHaveAttribute(
+      'href',
+      '/tasks',
+    );
+    expect(screen.getByTestId('tab-link-settings')).toHaveAttribute(
+      'href',
+      '/settings',
+    );
   });
 
   it('shows theme toggle with correct tooltip', () => {
@@ -160,7 +172,9 @@ describe('Layout', () => {
     it('navigates to profile when profile button clicked', () => {
       renderLayout();
       const buttons = screen.getAllByTestId('button');
-      const profileButton = buttons.find(btn => btn.textContent?.includes('testuser'));
+      const profileButton = buttons.find((btn) =>
+        btn.textContent?.includes('testuser'),
+      );
       fireEvent.click(profileButton!);
       expect(mockNavigate).toHaveBeenCalledWith('/profile');
     });
@@ -168,7 +182,9 @@ describe('Layout', () => {
     it('calls logout when logout button clicked', () => {
       renderLayout();
       const buttons = screen.getAllByTestId('button');
-      const logoutButton = buttons.find(btn => btn.textContent?.includes('Logout'));
+      const logoutButton = buttons.find((btn) =>
+        btn.textContent?.includes('Logout'),
+      );
       fireEvent.click(logoutButton!);
       expect(mockLogout).toHaveBeenCalled();
     });
@@ -189,8 +205,14 @@ describe('Layout', () => {
 
   it('shows scroll-to-top button when scrolled and scrolls to top on click', async () => {
     const scrollToMock = jest.fn();
-    Object.defineProperty(window, 'scrollTo', { value: scrollToMock, configurable: true });
-    Object.defineProperty(window, 'scrollY', { value: 500, configurable: true });
+    Object.defineProperty(window, 'scrollTo', {
+      value: scrollToMock,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'scrollY', {
+      value: 500,
+      configurable: true,
+    });
     renderLayout();
     window.dispatchEvent(new Event('scroll'));
     await waitFor(() => {

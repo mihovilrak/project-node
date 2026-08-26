@@ -33,7 +33,9 @@ describe('TimeLogCalendarHeader', () => {
   test('calls onNavigateMonth with "prev" when clicking previous button', () => {
     render(<TimeLogCalendarHeader {...defaultProps} />);
 
-    const prevButton = screen.getByTestId('NavigateBeforeIcon').closest('button');
+    const prevButton = screen
+      .getByTestId('NavigateBeforeIcon')
+      .closest('button');
     fireEvent.click(prevButton!);
 
     expect(defaultProps.onNavigateMonth).toHaveBeenCalledWith('prev');
@@ -58,7 +60,7 @@ describe('TimeLogCalendarHeader', () => {
       <TimeLogCalendarHeader
         {...defaultProps}
         currentDate={new Date('2023-12-15')}
-      />
+      />,
     );
     expect(screen.getByText('December 2023')).toBeInTheDocument();
   });
@@ -67,12 +69,7 @@ describe('TimeLogCalendarHeader', () => {
     const { rerender } = render(<TimeLogCalendarHeader {...defaultProps} />);
     expect(screen.getByText('Total hours this month: 40h')).toBeInTheDocument();
 
-    rerender(
-      <TimeLogCalendarHeader
-        {...defaultProps}
-        totalHours={60}
-      />
-    );
+    rerender(<TimeLogCalendarHeader {...defaultProps} totalHours={60} />);
     expect(screen.getByText('Total hours this month: 60h')).toBeInTheDocument();
   });
 });

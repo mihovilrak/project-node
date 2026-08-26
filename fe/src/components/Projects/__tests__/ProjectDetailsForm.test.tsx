@@ -9,7 +9,15 @@ import { Project } from '../../../types/project';
 // Mock date picker with data-testid attribute for easier testing
 jest.mock('@mui/x-date-pickers', () => ({
   ...jest.requireActual('@mui/x-date-pickers'),
-  DatePicker: ({ label, onChange, value }: { label: string; onChange: (date: any) => void; value: any }) => (
+  DatePicker: ({
+    label,
+    onChange,
+    value,
+  }: {
+    label: string;
+    onChange: (date: any) => void;
+    value: any;
+  }) => (
     <div data-testid={`date-picker-${label}`}>
       <label htmlFor={`date-input-${label}`}>{label}</label>
       <input
@@ -31,7 +39,7 @@ const mockAvailableProjects = [
 const mockStatuses = [
   { id: 1, name: 'Active', color: '#00ff00', active: true },
   { id: 2, name: 'On Hold', color: '#ffaa00', active: true },
-  { id: 3, name: 'Completed', color: '#0000ff', active: true }
+  { id: 3, name: 'Completed', color: '#0000ff', active: true },
 ];
 
 const defaultProps = {
@@ -41,7 +49,7 @@ const defaultProps = {
     start_date: '',
     due_date: '',
     status_id: 1,
-    parent_id: null
+    parent_id: null,
   },
   errors: {},
   dateError: '',
@@ -54,7 +62,7 @@ const defaultProps = {
   handleDateChange: jest.fn(),
   handleParentChange: jest.fn(),
   handleCancel: jest.fn(),
-  onSubmit: jest.fn()
+  onSubmit: jest.fn(),
 };
 
 describe('ProjectDetailsForm', () => {
@@ -62,7 +70,7 @@ describe('ProjectDetailsForm', () => {
     return render(
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <ProjectDetailsForm {...defaultProps} {...props} />
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
   };
 
@@ -71,8 +79,12 @@ describe('ProjectDetailsForm', () => {
 
     expect(screen.getByText('Project Details')).toBeInTheDocument();
 
-    expect(screen.getByRole('textbox', { name: /project name/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /description/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /project name/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: /description/i }),
+    ).toBeInTheDocument();
 
     expect(screen.getByTestId('date-picker-Start Date')).toBeInTheDocument();
     expect(screen.getByTestId('date-picker-Due Date')).toBeInTheDocument();
@@ -84,7 +96,7 @@ describe('ProjectDetailsForm', () => {
   test('displays validation errors when provided', () => {
     renderForm({
       errors: { name: 'Name is required' },
-      dateError: 'Invalid date range'
+      dateError: 'Invalid date range',
     });
 
     expect(screen.getByText('Name is required')).toBeInTheDocument();
@@ -102,11 +114,16 @@ describe('ProjectDetailsForm', () => {
   test('calls handleDateChange when date input changes', () => {
     renderForm();
     const startDateContainer = screen.getByTestId('date-picker-Start Date');
-    const dateInput = startDateContainer.querySelector('input[data-testid="date-input"]');
+    const dateInput = startDateContainer.querySelector(
+      'input[data-testid="date-input"]',
+    );
 
     if (dateInput) {
       fireEvent.change(dateInput, { target: { value: '2023-01-01' } });
-      expect(defaultProps.handleDateChange).toHaveBeenCalledWith('start_date', expect.any(Object));
+      expect(defaultProps.handleDateChange).toHaveBeenCalledWith(
+        'start_date',
+        expect.any(Object),
+      );
     } else {
       throw new Error('Date input not found');
     }

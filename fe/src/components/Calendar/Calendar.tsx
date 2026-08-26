@@ -6,7 +6,7 @@ import {
   Button,
   IconButton,
   Tooltip,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   ChevronLeft,
@@ -14,7 +14,7 @@ import {
   Today,
   ViewDay,
   ViewWeek,
-  ViewModule
+  ViewModule,
 } from '@mui/icons-material';
 import { useCalendar } from '../../hooks/calendar/useCalendar';
 import CalendarDayView from './CalendarDayView';
@@ -31,15 +31,25 @@ const Calendar: React.FC = () => {
     handleDateChange,
     handleViewChange,
     handleTaskClick,
-    handleTimeLogClick
+    handleTimeLogClick,
   } = useCalendar();
 
   return (
     <Box sx={{ p: 3 }}>
       <Paper sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton onClick={() => handleDateChange(new Date())} aria-label="Today">
+            <IconButton
+              onClick={() => handleDateChange(new Date())}
+              aria-label="Today"
+            >
               <Today />
             </IconButton>
             <IconButton
@@ -63,7 +73,10 @@ const Calendar: React.FC = () => {
               <ChevronRight />
             </IconButton>
             <Typography variant="h6">
-              {selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              {selectedDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+              })}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>

@@ -15,7 +15,7 @@ const mockComment: Comment = {
   user_id: 1,
   active: true,
   created_on: '2024-01-01T00:00:00Z',
-  updated_on: null
+  updated_on: null,
 };
 
 const mockOnClose = jest.fn();
@@ -30,7 +30,7 @@ describe('CommentEditDialog', () => {
       isSubmitting: false,
       error: null,
       handleSave: jest.fn(),
-      resetForm: jest.fn()
+      resetForm: jest.fn(),
     });
   });
 
@@ -41,7 +41,7 @@ describe('CommentEditDialog', () => {
         comment={mockComment}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Edit Comment')).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('CommentEditDialog', () => {
       isSubmitting: false,
       error: null,
       handleSave: jest.fn(),
-      resetForm: jest.fn()
+      resetForm: jest.fn(),
     });
 
     render(
@@ -64,7 +64,7 @@ describe('CommentEditDialog', () => {
         comment={mockComment}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
 
     const textarea = screen.getByRole('textbox');
@@ -80,7 +80,7 @@ describe('CommentEditDialog', () => {
       isSubmitting: false,
       error: null,
       handleSave: mockHandleSave,
-      resetForm: jest.fn()
+      resetForm: jest.fn(),
     });
 
     render(
@@ -89,7 +89,7 @@ describe('CommentEditDialog', () => {
         comment={mockComment}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
 
     const textarea = screen.getByRole('textbox');
@@ -104,7 +104,7 @@ describe('CommentEditDialog', () => {
       isSubmitting: true,
       error: null,
       handleSave: jest.fn(),
-      resetForm: jest.fn()
+      resetForm: jest.fn(),
     });
 
     render(
@@ -113,7 +113,7 @@ describe('CommentEditDialog', () => {
         comment={mockComment}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('CommentEditDialog', () => {
       isSubmitting: false,
       error: 'Error saving comment',
       handleSave: jest.fn(),
-      resetForm: jest.fn()
+      resetForm: jest.fn(),
     });
 
     render(
@@ -136,7 +136,7 @@ describe('CommentEditDialog', () => {
         comment={mockComment}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
 
     expect(screen.getByText('Error saving comment')).toBeInTheDocument();

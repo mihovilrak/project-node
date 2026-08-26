@@ -5,7 +5,7 @@ import {
   getTaskTimeLogs,
   deleteTimeLog as deleteTimeLogApi,
   createTimeLog,
-  updateTimeLog
+  updateTimeLog,
 } from '../../api/timeLogs';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -31,7 +31,10 @@ export const useTaskTimeLogs = (taskId: string) => {
     fetchTimeLogs();
   }, [fetchTimeLogs]);
 
-  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate, timeLogId?: number) => {
+  const handleTimeLogSubmit = async (
+    timeLogData: TimeLogCreate,
+    timeLogId?: number,
+  ) => {
     try {
       if (!currentUser?.id) {
         throw new Error('User not authenticated');
@@ -40,9 +43,14 @@ export const useTaskTimeLogs = (taskId: string) => {
         throw new Error('Task ID is required');
       }
 
-      logger.debug('Submitting time log:', timeLogData, 'timeLogId:', timeLogId);
+      logger.debug(
+        'Submitting time log:',
+        timeLogData,
+        'timeLogId:',
+        timeLogId,
+      );
       let result: TimeLog;
-      
+
       // Check if we're updating an existing time log
       if (timeLogId) {
         result = await updateTimeLog(timeLogId, timeLogData);
@@ -51,7 +59,7 @@ export const useTaskTimeLogs = (taskId: string) => {
         result = await createTimeLog(Number(taskId), timeLogData);
         logger.debug('Created time log:', result);
       }
-      
+
       await fetchTimeLogs(); // Refresh time logs after submission
       return result;
     } catch (error: unknown) {
@@ -74,6 +82,6 @@ export const useTaskTimeLogs = (taskId: string) => {
     timeLogs,
     handleTimeLogSubmit,
     deleteTimeLog,
-    fetchTimeLogs
+    fetchTimeLogs,
   };
 };

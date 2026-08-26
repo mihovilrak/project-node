@@ -3,7 +3,7 @@ import { SystemSettingsState, TimezoneOption } from '../../types/setting';
 import {
   getSystemSettings,
   updateSystemSettings,
-  getTimezones
+  getTimezones,
 } from '../../api/settings';
 
 export const useSystemSettings = () => {
@@ -15,11 +15,11 @@ export const useSystemSettings = () => {
       sender_email: '',
       time_zone: '',
       theme: 'system',
-      welcome_message: ''
+      welcome_message: '',
     },
     loading: true,
     error: null,
-    success: false
+    success: false,
   });
 
   const [timezones, setTimezones] = useState<TimezoneOption[]>([]);
@@ -30,16 +30,16 @@ export const useSystemSettings = () => {
     const fetchSettings = async () => {
       try {
         const data = await getSystemSettings();
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           settings: data,
-          loading: false
+          loading: false,
         }));
       } catch (error) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           error: 'Failed to fetch system settings',
-          loading: false
+          loading: false,
         }));
       }
     };
@@ -65,15 +65,15 @@ export const useSystemSettings = () => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     try {
-      setState(prev => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
       await updateSystemSettings(state.settings);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         success: true,
-        loading: false
+        loading: false,
       }));
-      setTimeout(() => setState(prev => ({ ...prev, success: false })), 3000);
-      
+      setTimeout(() => setState((prev) => ({ ...prev, success: false })), 3000);
+
       // Dispatch event to notify ThemeContext about theme update
       if (state.settings.theme) {
         // Dispatch custom event for same tab
@@ -83,19 +83,19 @@ export const useSystemSettings = () => {
         localStorage.removeItem('appThemeUpdated');
       }
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: 'Failed to update system settings',
-        loading: false
+        loading: false,
       }));
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      settings: { ...prev.settings, [name]: value }
+      settings: { ...prev.settings, [name]: value },
     }));
   };
 
@@ -105,6 +105,6 @@ export const useSystemSettings = () => {
     timezonesLoading,
     timezonesError,
     handleSubmit,
-    handleChange
+    handleChange,
   };
 };

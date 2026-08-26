@@ -6,7 +6,7 @@ import { metrics } from '../metrics';
 import {
   DatabaseNotification,
   NotificationTemplateType,
-  NotificationEmailData
+  NotificationEmailData,
 } from '../types/notification-service.types';
 import { NotificationCreateResponse } from '../types/notification-routes.types';
 
@@ -16,7 +16,7 @@ const SEND_CONCURRENCY = 5;
 async function runWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
-  fn: (item: T) => Promise<R>
+  fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
   const results: R[] = [];
   let i = 0;
@@ -36,7 +36,7 @@ class NotificationService {
       await client.query('BEGIN');
       const result = await client.query<DatabaseNotification>(
         'SELECT * FROM get_notifications_for_service($1)',
-        [BATCH_LIMIT]
+        [BATCH_LIMIT],
       );
 
       await runWithConcurrency(
@@ -45,7 +45,7 @@ class NotificationService {
         async (notification) => {
           await this.sendNotificationEmail(notification, client);
           metrics.increment('notificationsSent');
-        }
+        },
       );
       await client.query('COMMIT');
     } catch (error) {
@@ -61,19 +61,22 @@ class NotificationService {
     }
   }
 
-  async sendNotificationEmail(notification: DatabaseNotification, client?: PoolClient): Promise<void> {
+  async sendNotificationEmail(
+    notification: DatabaseNotification,
+    client?: PoolClient,
+  ): Promise<void> {
     const queryClient = client ?? pool;
     try {
       const emailData: NotificationEmailData = {
         userName: notification.login,
-        taskUrl: notification.link
+        taskUrl: notification.link,
       };
 
       await emailService.sendEmailWithRetry(
         notification.email,
         notification.title,
         this.getEmailTemplate(notification.type_id),
-        emailData
+        emailData,
       );
 
       // Mark as read after sending email
@@ -81,7 +84,7 @@ class NotificationService {
         `UPDATE notifications
         SET read_on = NOW()
         WHERE id = $1`,
-        [notification.id]
+        [notification.id],
       );
     } catch (error) {
       logger.error({ err: error }, 'Failed to send notification email');
@@ -90,28 +93,35 @@ class NotificationService {
   }
 
   getEmailTemplate(typeId: number): NotificationTemplateType {
-    switch(typeId) {
-      case 1: return 'taskDueSoon';
-      case 2: return 'taskAssigned';
-      case 3: return 'taskUpdated';
-      case 4: return 'taskComment';
-      case 5: return 'taskCompleted';
-      case 6: return 'projectUpdate';
-      default: return 'default';
+    switch (typeId) {
+      case 1:
+        return 'taskDueSoon';
+      case 2:
+        return 'taskAssigned';
+      case 3:
+        return 'taskUpdated';
+      case 4:
+        return 'taskComment';
+      case 5:
+        return 'taskCompleted';
+      case 6:
+        return 'projectUpdate';
+      default:
+        return 'default';
     }
   }
 
   async generateNotification(
     type: string,
     userId: string,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<NotificationCreateResponse> {
     try {
       const result = await pool.query<NotificationCreateResponse>(
         `INSERT INTO notifications (type_id, user_id, data, created_on)
          VALUES ((SELECT id FROM notification_types WHERE name = $1), $2, $3, NOW())
          RETURNING id, type_id, user_id, created_on`,
-        [type, userId, data]
+        [type, userId, data],
       );
 
       return result.rows[0];

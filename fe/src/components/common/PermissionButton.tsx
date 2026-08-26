@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Tooltip,
-  CircularProgress,
-  ButtonProps
-} from '@mui/material';
+import { Button, Tooltip, CircularProgress, ButtonProps } from '@mui/material';
 import { usePermission } from '../../hooks/common/usePermission';
 import { PermissionButtonProps } from '../../types/common';
 
@@ -13,7 +8,7 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
   children,
   tooltipText = "You don't have permission for this action",
   showLoading = true,
-  placement = "top",
+  placement = 'top',
   disabled,
   ...props
 }) => {
@@ -22,11 +17,7 @@ const PermissionButton: React.FC<PermissionButtonProps & ButtonProps> = ({
   const isDisabled = loading || disabled || !hasPermission;
 
   const button = (
-    <Button
-      {...props}
-      disabled={isDisabled}
-      aria-label={tooltipText}
-    >
+    <Button {...props} disabled={isDisabled} aria-label={tooltipText}>
       {showLoading && loading ? (
         <CircularProgress size={24} color="inherit" />
       ) : (

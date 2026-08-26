@@ -18,15 +18,15 @@ describe('PermissionMiddleware', () => {
 
   beforeEach(() => {
     const mockSession = {
-      user: { id: '1', login: 'test', role_id: 1 }
+      user: { id: '1', login: 'test', role_id: 1 },
     } as unknown as Session;
 
     mockReq = {
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     mockNext = jest.fn();
     mockPool = {};
@@ -39,7 +39,11 @@ describe('PermissionMiddleware', () => {
 
     await middleware(mockReq as CustomRequest, mockRes as Response, mockNext);
 
-    expect(permissionModel.hasPermission).toHaveBeenCalledWith(mockPool, '1', testPermission);
+    expect(permissionModel.hasPermission).toHaveBeenCalledWith(
+      mockPool,
+      '1',
+      testPermission,
+    );
     expect(mockNext).toHaveBeenCalled();
     expect(mockRes.status).not.toHaveBeenCalled();
   });
@@ -52,7 +56,7 @@ describe('PermissionMiddleware', () => {
 
     expect(mockRes.status).toHaveBeenCalledWith(403);
     expect(mockRes.json).toHaveBeenCalledWith({
-      error: `Permission denied: ${deletePermission} required`
+      error: `Permission denied: ${deletePermission} required`,
     });
     expect(mockNext).not.toHaveBeenCalled();
   });

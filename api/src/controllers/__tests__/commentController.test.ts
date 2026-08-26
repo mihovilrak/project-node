@@ -7,14 +7,14 @@ import {
   getTaskComments,
   createComment,
   editComment,
-  deleteComment
+  deleteComment,
 } from '../commentController';
 import {
   CommentCreateInput,
   CommentUpdateInput,
   Comment,
   CommentWithUser,
-  TaskRequest
+  TaskRequest,
 } from '../../types/comment';
 import { NotificationType } from '../../types/notification';
 import { Session, SessionData } from 'express-session';
@@ -60,22 +60,20 @@ describe('Comment Controller', () => {
         user_name: 'John',
         user_surname: 'Doe',
         user_email: 'john@example.com',
-        user_login: 'johndoe'
-      }
+        user_login: 'johndoe',
+      },
     ];
 
     it('should return comments successfully', async () => {
       mockRequest = {
-        taskId: '1'
+        taskId: '1',
       };
 
-      jest.spyOn(commentModel, 'getTaskComments').mockResolvedValueOnce(mockComments);
+      jest
+        .spyOn(commentModel, 'getTaskComments')
+        .mockResolvedValueOnce(mockComments);
 
-      await getTaskComments(
-        mockRequest as TaskRequest,
-        mockResponse,
-        mockPool
-      );
+      await getTaskComments(mockRequest as TaskRequest, mockResponse, mockPool);
 
       expect(commentModel.getTaskComments).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(200);
@@ -84,17 +82,13 @@ describe('Comment Controller', () => {
 
     it('should handle errors', async () => {
       mockRequest = {
-        taskId: '1'
+        taskId: '1',
       };
 
       const error = new Error('Database error');
       jest.spyOn(commentModel, 'getTaskComments').mockRejectedValueOnce(error);
 
-      await getTaskComments(
-        mockRequest as TaskRequest,
-        mockResponse,
-        mockPool
-      );
+      await getTaskComments(mockRequest as TaskRequest, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -109,10 +103,12 @@ describe('Comment Controller', () => {
       comment: 'New comment',
       created_on: new Date(),
       updated_on: new Date(),
-      active: true
+      active: true,
     };
 
-    const createMockSession = (withUser = true): Session & Partial<SessionData> => {
+    const createMockSession = (
+      withUser = true,
+    ): Session & Partial<SessionData> => {
       const session = {
         id: 'test-session',
         cookie: {
@@ -122,9 +118,9 @@ describe('Comment Controller', () => {
           user: {
             id: '1',
             login: 'testuser',
-            role_id: 1
-          }
-        })
+            role_id: 1,
+          },
+        }),
       } as Session & Partial<SessionData>;
 
       // Add session methods that return the session object for chaining
@@ -158,31 +154,35 @@ describe('Comment Controller', () => {
       mockRequest = {
         taskId: '1',
         body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession()
+        session: createMockSession(),
       };
 
-      jest.spyOn(commentModel, 'createComment').mockResolvedValueOnce(mockNewComment);
-      jest.spyOn(notificationModel, 'createWatcherNotifications').mockResolvedValueOnce([]);
+      jest
+        .spyOn(commentModel, 'createComment')
+        .mockResolvedValueOnce(mockNewComment);
+      jest
+        .spyOn(notificationModel, 'createWatcherNotifications')
+        .mockResolvedValueOnce([]);
 
       await createComment(
         mockRequest as CustomRequest & TaskRequest,
         mockResponse,
-        mockPool
+        mockPool,
       );
 
       expect(commentModel.createComment).toHaveBeenCalledWith(
         mockPool,
         '1',
         '1',
-        'New comment'
+        'New comment',
       );
       expect(notificationModel.createWatcherNotifications).toHaveBeenCalledWith(
         mockPool,
         {
           task_id: 1,
           action_user_id: 1,
-          type_id: NotificationType.TaskComment
-        }
+          type_id: NotificationType.TaskComment,
+        },
       );
       expect(mockStatus).toHaveBeenCalledWith(201);
       expect(mockJson).toHaveBeenCalledWith(mockNewComment);
@@ -192,24 +192,26 @@ describe('Comment Controller', () => {
       mockRequest = {
         taskId: '1',
         body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession(false)
+        session: createMockSession(false),
       };
 
       await createComment(
         mockRequest as CustomRequest & TaskRequest,
         mockResponse,
-        mockPool
+        mockPool,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'User not authenticated' });
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'User not authenticated',
+      });
     });
 
     it('should handle errors', async () => {
       mockRequest = {
         taskId: '1',
         body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession()
+        session: createMockSession(),
       };
 
       const error = new Error('Database error');
@@ -218,7 +220,7 @@ describe('Comment Controller', () => {
       await createComment(
         mockRequest as CustomRequest & TaskRequest,
         mockResponse,
-        mockPool
+        mockPool,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(500);
@@ -238,27 +240,25 @@ describe('Comment Controller', () => {
       user_name: 'Test User',
       user_surname: 'Name',
       user_email: 'test@example.com',
-      user_login: 'testuser'
+      user_login: 'testuser',
     };
 
     it('should edit comment successfully', async () => {
       mockRequest = {
         params: { id: '1' },
-        body: { comment: 'Updated comment' } as CommentUpdateInput
+        body: { comment: 'Updated comment' } as CommentUpdateInput,
       };
 
-      jest.spyOn(commentModel, 'editComment').mockResolvedValueOnce(mockEditedComment);
+      jest
+        .spyOn(commentModel, 'editComment')
+        .mockResolvedValueOnce(mockEditedComment);
 
-      await editComment(
-        mockRequest as Request,
-        mockResponse,
-        mockPool
-      );
+      await editComment(mockRequest as Request, mockResponse, mockPool);
 
       expect(commentModel.editComment).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'Updated comment'
+        'Updated comment',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith(mockEditedComment);
@@ -267,17 +267,13 @@ describe('Comment Controller', () => {
     it('should handle errors', async () => {
       mockRequest = {
         params: { id: '1' },
-        body: { comment: 'Updated comment' } as CommentUpdateInput
+        body: { comment: 'Updated comment' } as CommentUpdateInput,
       };
 
       const error = new Error('Database error');
       jest.spyOn(commentModel, 'editComment').mockRejectedValueOnce(error);
 
-      await editComment(
-        mockRequest as Request,
-        mockResponse,
-        mockPool
-      );
+      await editComment(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -292,21 +288,19 @@ describe('Comment Controller', () => {
       comment: 'Deleted comment',
       created_on: new Date(),
       updated_on: new Date(),
-      active: false
+      active: false,
     };
 
     it('should delete comment successfully', async () => {
       mockRequest = {
-        params: { id: '1' }
+        params: { id: '1' },
       };
 
-      jest.spyOn(commentModel, 'deleteComment').mockResolvedValueOnce(mockDeletedComment);
+      jest
+        .spyOn(commentModel, 'deleteComment')
+        .mockResolvedValueOnce(mockDeletedComment);
 
-      await deleteComment(
-        mockRequest as Request,
-        mockResponse,
-        mockPool
-      );
+      await deleteComment(mockRequest as Request, mockResponse, mockPool);
 
       expect(commentModel.deleteComment).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(200);
@@ -315,17 +309,13 @@ describe('Comment Controller', () => {
 
     it('should handle errors', async () => {
       mockRequest = {
-        params: { id: '1' }
+        params: { id: '1' },
       };
 
       const error = new Error('Database error');
       jest.spyOn(commentModel, 'deleteComment').mockRejectedValueOnce(error);
 
-      await deleteComment(
-        mockRequest as Request,
-        mockResponse,
-        mockPool
-      );
+      await deleteComment(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(500);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });

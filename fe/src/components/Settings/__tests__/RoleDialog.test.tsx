@@ -7,14 +7,16 @@ import { Permission } from '../../../types/admin';
 
 jest.mock('../../../hooks/setting/useRoleDialog');
 
-const mockUseRoleDialog = useRoleDialog as jest.MockedFunction<typeof useRoleDialog>;
+const mockUseRoleDialog = useRoleDialog as jest.MockedFunction<
+  typeof useRoleDialog
+>;
 
 const mockRole: Role = {
   id: 1,
   name: 'Admin',
   description: 'Administrator role',
   active: true,
-  permissions: [1, 2]
+  permissions: [1, 2],
 };
 
 const mockGroupedPermissions: Record<string, Permission[]> = {
@@ -22,32 +24,32 @@ const mockGroupedPermissions: Record<string, Permission[]> = {
     {
       id: 1,
       name: 'Create projects',
-      created_on: '2025-01-01'
+      created_on: '2025-01-01',
     },
     {
       id: 2,
       name: 'Edit projects',
-      created_on: '2025-01-01'
-    }
+      created_on: '2025-01-01',
+    },
   ],
   task: [
     {
       id: 3,
       name: 'Create tasks',
-      created_on: '2025-01-01'
+      created_on: '2025-01-01',
     },
     {
       id: 4,
       name: 'Edit tasks',
-      created_on: '2025-01-01'
-    }
-  ]
+      created_on: '2025-01-01',
+    },
+  ],
 };
 
 const defaultProps = {
   open: true,
   onClose: jest.fn(),
-  onSave: jest.fn().mockResolvedValue(undefined)
+  onSave: jest.fn().mockResolvedValue(undefined),
 };
 
 describe('RoleDialog', () => {
@@ -57,14 +59,14 @@ describe('RoleDialog', () => {
         name: '',
         description: '',
         active: true,
-        permissions: []
+        permissions: [],
       },
       error: undefined,
       groupedPermissions: mockGroupedPermissions,
       handleChange: jest.fn(),
       handlePermissionToggle: jest.fn(),
       clearError: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     });
   });
 
@@ -101,14 +103,14 @@ describe('RoleDialog', () => {
         name: 'Updated Role Name',
         description: 'Updated desc',
         active: true,
-        permissions: [1, 2]
+        permissions: [1, 2],
       },
       error: undefined,
       groupedPermissions: mockGroupedPermissions,
       handleChange: jest.fn(),
       handlePermissionToggle: jest.fn(),
       clearError: jest.fn(),
-      setError: jest.fn()
+      setError: jest.fn(),
     });
 
     render(<RoleDialog {...defaultProps} role={mockRole} />);
@@ -122,8 +124,8 @@ describe('RoleDialog', () => {
           name: 'Updated Role Name',
           description: 'Updated desc',
           active: true,
-          permissions: [1, 2]
-        })
+          permissions: [1, 2],
+        }),
       );
     });
   });
@@ -131,7 +133,7 @@ describe('RoleDialog', () => {
   test('handles form submission error', async () => {
     const errorMessage = 'Failed to save role';
     defaultProps.onSave.mockRejectedValueOnce({
-      response: { data: { error: errorMessage } }
+      response: { data: { error: errorMessage } },
     });
 
     const mockSetError = jest.fn();
@@ -140,14 +142,14 @@ describe('RoleDialog', () => {
         name: '',
         description: '',
         active: true,
-        permissions: []
+        permissions: [],
       },
       error: undefined,
       groupedPermissions: mockGroupedPermissions,
       handleChange: jest.fn(),
       handlePermissionToggle: jest.fn(),
       clearError: jest.fn(),
-      setError: mockSetError
+      setError: mockSetError,
     });
 
     render(<RoleDialog {...defaultProps} />);

@@ -16,6 +16,6 @@ export const useHeader = () => {
 
   return {
     currentUser,
-    isScrolled
+    isScrolled,
   };
 };

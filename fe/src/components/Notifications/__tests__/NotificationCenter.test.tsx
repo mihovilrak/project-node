@@ -20,7 +20,7 @@ const mockNotifications: Notification[] = [
     message: 'Test Message 1',
     type_name: 'task',
     is_read: false,
-    created_on: '2025-01-25T16:29:14.000Z'
+    created_on: '2025-01-25T16:29:14.000Z',
   },
   {
     id: 2,
@@ -33,8 +33,8 @@ const mockNotifications: Notification[] = [
     message: 'Test Message 2',
     type_name: 'project',
     is_read: true,
-    created_on: '2025-01-25T16:29:14.000Z'
-  }
+    created_on: '2025-01-25T16:29:14.000Z',
+  },
 ];
 
 const mockHookReturn = {
@@ -45,7 +45,7 @@ const mockHookReturn = {
   handleClick: jest.fn(),
   handleClose: jest.fn(),
   handleNotificationClick: jest.fn(),
-  handleDeleteNotification: jest.fn()
+  handleDeleteNotification: jest.fn(),
 };
 
 describe('NotificationCenter', () => {
@@ -66,7 +66,7 @@ describe('NotificationCenter', () => {
   it('shows loading state', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...mockHookReturn,
-      loading: true
+      loading: true,
     });
     renderWithRouter(<NotificationCenter userId={1} />);
 
@@ -77,7 +77,7 @@ describe('NotificationCenter', () => {
   it('shows empty state when no notifications', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...mockHookReturn,
-      notifications: []
+      notifications: [],
     });
     // Use testMode to render menu content directly
     renderWithRouter(<NotificationCenter userId={1} testMode={true} />);
@@ -107,7 +107,9 @@ describe('NotificationCenter', () => {
 
     fireEvent.click(screen.getByText('Test Notification 1'));
 
-    expect(mockHookReturn.handleNotificationClick).toHaveBeenCalledWith(mockNotifications[0]);
+    expect(mockHookReturn.handleNotificationClick).toHaveBeenCalledWith(
+      mockNotifications[0],
+    );
   });
 
   it('calls handleDeleteNotification when delete button is clicked', () => {
@@ -119,7 +121,7 @@ describe('NotificationCenter', () => {
 
     expect(mockHookReturn.handleDeleteNotification).toHaveBeenCalledWith(
       mockNotifications[0].id,
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 

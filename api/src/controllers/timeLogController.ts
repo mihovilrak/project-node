@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 export const getAllTimeLogs = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const timeLogs = await timeLogModel.getAllTimeLogs(pool);
@@ -24,7 +24,7 @@ export const getAllTimeLogs = async (
 export const getTaskTimeLogs = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
@@ -40,7 +40,7 @@ export const getTaskTimeLogs = async (
 export const getTaskSpentTime = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
@@ -56,12 +56,16 @@ export const getTaskSpentTime = async (
 export const getProjectTimeLogs = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { projectId } = req.params;
     const params = req.query;
-    const timeLogs = await timeLogModel.getProjectTimeLogs(pool, projectId, params);
+    const timeLogs = await timeLogModel.getProjectTimeLogs(
+      pool,
+      projectId,
+      params,
+    );
     res.status(200).json(timeLogs);
   } catch (error) {
     logger.error({ err: error });
@@ -73,7 +77,7 @@ export const getProjectTimeLogs = async (
 export const getProjectSpentTime = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { projectId } = req.params;
@@ -89,17 +93,13 @@ export const getProjectSpentTime = async (
 export const createTimeLog = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
     const userId = req.session?.user?.id;
-    const {
-      log_date,
-      spent_time,
-      description,
-      activity_type_id
-    } = req.body as TimeLogCreateInput;
+    const { log_date, spent_time, description, activity_type_id } =
+      req.body as TimeLogCreateInput;
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -113,7 +113,7 @@ export const createTimeLog = async (
       log_date,
       spent_time,
       description: description ?? '',
-      activity_type_id
+      activity_type_id,
     });
     res.status(201).json(timeLog);
   } catch (error) {
@@ -126,22 +126,17 @@ export const createTimeLog = async (
 export const updateTimeLog = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { timeLogId } = req.params;
-    const {
-      log_date,
-      spent_time,
-      description,
-      activity_type_id
-    } = req.body;
+    const { log_date, spent_time, description, activity_type_id } = req.body;
 
     const timeLog = await timeLogModel.updateTimeLog(pool, timeLogId, {
       log_date,
       spent_time,
       description,
-      activity_type_id
+      activity_type_id,
     });
     res.status(200).json(timeLog);
   } catch (error) {
@@ -154,7 +149,7 @@ export const updateTimeLog = async (
 export const deleteTimeLog = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { timeLogId } = req.params;
@@ -170,7 +165,7 @@ export const deleteTimeLog = async (
 export const getUserTimeLogs = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;

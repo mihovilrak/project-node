@@ -5,17 +5,20 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   rootDir: '../..',
   roots: ['<rootDir>'],
-  testMatch: [
-    '**/__tests__/integration/**/*.test.ts',
-  ],
+  testMatch: ['**/__tests__/integration/**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
     // uuid v13+ is ESM-only; transform its .js so Jest can load it
     // (allowJs + module: commonjs)
-    'node_modules[/\\\\]uuid[/\\\\].+\\.js$': ['ts-jest', { tsconfig: {
-      allowJs: true,
-      module: 'commonjs',
-    } }],
+    'node_modules[/\\\\]uuid[/\\\\].+\\.js$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          allowJs: true,
+          module: 'commonjs',
+        },
+      },
+    ],
   },
   // uuid must be transformed; default ignores all of node_modules
   transformIgnorePatterns: ['/node_modules/(?!uuid/)'],
@@ -30,6 +33,6 @@ const config: Config.InitialOptions = {
   maxWorkers: 1,
   // Don't collect coverage for integration tests
   collectCoverage: false,
-}
+};
 
 export default config;

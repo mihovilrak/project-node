@@ -4,12 +4,14 @@ import { ProfileHeaderProps } from '../../types/profile';
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
   return (
-    <Box sx={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 3,
-      mb: 4
-    }}>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 3,
+        mb: 4,
+      }}
+    >
       <Avatar
         src={user?.avatar_url || undefined}
         alt={`${user?.name || ''} ${user?.surname || ''}`}

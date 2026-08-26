@@ -8,7 +8,7 @@ import {
   updateTask,
   getTaskStatuses,
   getPriorities,
-  changeTaskStatus
+  changeTaskStatus,
 } from '../../../api/tasks';
 import { getTaskTags, getTags } from '../../../api/tags';
 import { Task, TaskStatus, TaskPriority } from '../../../types/task';
@@ -23,9 +23,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <MemoryRouter>
-    {children}
-  </MemoryRouter>
+  <MemoryRouter>{children}</MemoryRouter>
 );
 
 // No need to mock window.location - taskId is passed as prop
@@ -38,8 +36,8 @@ const mockProjectMembers: ProjectMember[] = [
     role: 'Admin',
     name: 'John',
     surname: 'Doe',
-    created_on: '2024-01-25T00:00:00Z'
-  }
+    created_on: '2024-01-25T00:00:00Z',
+  },
 ];
 
 // Mock project select hook
@@ -47,8 +45,8 @@ jest.mock('../useProjectSelect', () => ({
   useProjectSelect: () => ({
     projects: [],
     projectMembers: mockProjectMembers,
-    projectTasks: []
-  })
+    projectTasks: [],
+  }),
 }));
 
 // Mock API calls
@@ -84,7 +82,7 @@ describe('useTaskForm', () => {
     progress: 0,
     created_by: 1,
     created_by_name: 'Test Creator',
-    created_on: '2024-01-25T00:00:00Z'
+    created_on: '2024-01-25T00:00:00Z',
   };
 
   const mockStatuses: TaskStatus[] = [
@@ -95,7 +93,7 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -104,8 +102,8 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   const mockPriorities: TaskPriority[] = [
@@ -116,7 +114,7 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -125,8 +123,8 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   const mockTags: Tag[] = [
@@ -137,7 +135,7 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      created_by: 1
+      created_by: 1,
     },
     {
       id: 2,
@@ -146,8 +144,8 @@ describe('useTaskForm', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      created_by: 1
-    }
+      created_by: 1,
+    },
   ];
 
   beforeEach(() => {
@@ -160,12 +158,16 @@ describe('useTaskForm', () => {
   });
 
   it('should initialize with default values for new task', async () => {
-    const { result } = renderHook(() => useTaskForm({
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     await waitFor(() => {
       expect(result.current.formData).toMatchObject({
@@ -180,7 +182,7 @@ describe('useTaskForm', () => {
         estimated_time: 0,
         progress: 0,
         created_by: currentUserId,
-        tags: []
+        tags: [],
       });
     });
     await waitFor(() => {
@@ -189,13 +191,17 @@ describe('useTaskForm', () => {
   });
 
   it('should load existing task data when taskId is provided', async () => {
-    const { result } = renderHook(() => useTaskForm({
-      taskId: '1',
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     await waitFor(() => {
       expect(result.current.formData).toMatchObject({
@@ -212,7 +218,7 @@ describe('useTaskForm', () => {
         estimated_time: mockTask.estimated_time,
         progress: mockTask.progress,
         created_by: mockTask.created_by,
-        tags: [mockTags[0]]
+        tags: [mockTags[0]],
       });
     });
     await waitFor(() => {
@@ -221,15 +227,21 @@ describe('useTaskForm', () => {
   });
 
   it('should handle form field changes', async () => {
-    const { result } = renderHook(() => useTaskForm({
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     act(() => {
-      result.current.handleChange({ target: { name: 'name', value: 'New Task Name' } });
+      result.current.handleChange({
+        target: { name: 'name', value: 'New Task Name' },
+      });
     });
 
     await waitFor(() => {
@@ -238,15 +250,21 @@ describe('useTaskForm', () => {
   });
 
   it('should store holder_id and assignee_id as numbers when value is string from select', async () => {
-    const { result } = renderHook(() => useTaskForm({
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     act(() => {
-      result.current.handleChange({ target: { name: 'holder_id', value: '5' } });
+      result.current.handleChange({
+        target: { name: 'holder_id', value: '5' },
+      });
     });
     await waitFor(() => {
       expect(result.current.formData.holder_id).toBe(5);
@@ -254,7 +272,9 @@ describe('useTaskForm', () => {
     });
 
     act(() => {
-      result.current.handleChange({ target: { name: 'assignee_id', value: '0' } });
+      result.current.handleChange({
+        target: { name: 'assignee_id', value: '0' },
+      });
     });
     await waitFor(() => {
       expect(result.current.formData.assignee_id).toBe(0);
@@ -266,25 +286,41 @@ describe('useTaskForm', () => {
     const newTask = { ...mockTask, id: 2 };
     (createTask as jest.Mock).mockResolvedValue(newTask);
 
-    const { result } = renderHook(() => useTaskForm({
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     // Set required fields for validation (project_id, start_date, due_date, holder_id, assignee_id)
     act(() => {
-      result.current.handleChange({ target: { name: 'name', value: 'New Task' } });
+      result.current.handleChange({
+        target: { name: 'name', value: 'New Task' },
+      });
       result.current.handleChange({ target: { name: 'project_id', value: 1 } });
-      result.current.handleChange({ target: { name: 'start_date', value: '2024-01-26T00:00:00Z' } });
-      result.current.handleChange({ target: { name: 'due_date', value: '2024-02-26T00:00:00Z' } });
-      result.current.handleChange({ target: { name: 'holder_id', value: currentUserId } });
-      result.current.handleChange({ target: { name: 'assignee_id', value: 1 } });
+      result.current.handleChange({
+        target: { name: 'start_date', value: '2024-01-26T00:00:00Z' },
+      });
+      result.current.handleChange({
+        target: { name: 'due_date', value: '2024-02-26T00:00:00Z' },
+      });
+      result.current.handleChange({
+        target: { name: 'holder_id', value: currentUserId },
+      });
+      result.current.handleChange({
+        target: { name: 'assignee_id', value: 1 },
+      });
     });
 
     await act(async () => {
-      await result.current.handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
     });
 
     await waitFor(() => {
@@ -301,13 +337,17 @@ describe('useTaskForm', () => {
     (updateTask as jest.Mock).mockResolvedValue(updatedTask);
     (getTaskById as jest.Mock).mockResolvedValue(mockTask);
     (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
-    const { result } = renderHook(() => useTaskForm({
-      taskId: '1',
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     // Wait for edit mode
     await waitFor(() => {
@@ -315,11 +355,15 @@ describe('useTaskForm', () => {
     });
 
     act(() => {
-      result.current.handleChange({ target: { name: 'name', value: 'Updated Task' } });
+      result.current.handleChange({
+        target: { name: 'name', value: 'Updated Task' },
+      });
     });
 
     await act(async () => {
-      await result.current.handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
     });
 
     await waitFor(() => {
@@ -337,13 +381,17 @@ describe('useTaskForm', () => {
     (changeTaskStatus as jest.Mock).mockResolvedValue(updatedTask);
     (getTaskById as jest.Mock).mockResolvedValue(mockTask);
     (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
-    const { result } = renderHook(() => useTaskForm({
-      taskId: '1',
-      currentUserId,
-      projectId: undefined,
-      projectIdFromQuery: null,
-      parentTaskId: null
-    }), { wrapper });
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     // Wait for edit mode
     await waitFor(() => {
@@ -351,7 +399,9 @@ describe('useTaskForm', () => {
     });
 
     act(() => {
-      result.current.handleChange({ target: { name: 'status_id', value: newStatus } });
+      result.current.handleChange({
+        target: { name: 'status_id', value: newStatus },
+      });
     });
 
     await waitFor(() => {

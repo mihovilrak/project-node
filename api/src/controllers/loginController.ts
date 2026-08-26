@@ -11,14 +11,14 @@ const MAX_PASSWORD_LENGTH = 1024;
 export const login = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { login: loginName, password } = (req.body || {}) as LoginInput;
 
   if (typeof loginName !== 'string' || typeof password !== 'string') {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'login and password must be non-empty strings'
+      message: 'login and password must be non-empty strings',
     });
   }
   const trimmedLogin = loginName.trim();
@@ -26,33 +26,35 @@ export const login = async (
   if (!trimmedLogin || !trimmedPassword) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'login and password are required'
+      message: 'login and password are required',
     });
   }
-  if (trimmedLogin.length > MAX_LOGIN_LENGTH || trimmedPassword.length > MAX_PASSWORD_LENGTH) {
+  if (
+    trimmedLogin.length > MAX_LOGIN_LENGTH ||
+    trimmedPassword.length > MAX_PASSWORD_LENGTH
+  ) {
     return res.status(400).json({
       error: 'Invalid request',
-      message: 'login or password exceeds maximum length'
+      message: 'login or password exceeds maximum length',
     });
   }
 
   // Check if the credentials are correct
-  const user = await loginModel.login(
-    pool,
-    trimmedLogin,
-    trimmedPassword
-  );
+  const user = await loginModel.login(pool, trimmedLogin, trimmedPassword);
 
   if (!user) {
     return res.status(401).json({
-      error: 'Invalid username or password'
+      error: 'Invalid username or password',
     });
   }
 
   // Log login to table app_logins
   await loginModel.app_logins(pool, user.id);
 
-  const permissions = await permissionModel.getUserPermissions(pool, String(user.id));
+  const permissions = await permissionModel.getUserPermissions(
+    pool,
+    String(user.id),
+  );
 
   // Issue a brand new session id now that the user is authenticated, so a session
   // value planted before login (session fixation) cannot be reused afterwards.
@@ -60,7 +62,7 @@ export const login = async (
     if (regenerateErr) {
       return res.status(500).json({
         error: 'Session error',
-        message: 'Failed to establish session'
+        message: 'Failed to establish session',
       });
     }
 
@@ -75,13 +77,13 @@ export const login = async (
       if (err) {
         return res.status(500).json({
           error: 'Session error',
-          message: 'Failed to save session'
+          message: 'Failed to save session',
         });
       }
       res.status(200).json({
         message: 'Login successful',
         user: req.session.user,
-        permissions
+        permissions,
       });
     });
   });
@@ -96,20 +98,20 @@ export const logout = (req: Request, res: Response): void => {
     path: path || '/',
     sameSite,
     secure: secure === 'auto' ? req.secure : secure,
-    httpOnly
+    httpOnly,
   };
 
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({
-        error: 'Failed to logout'
+        error: 'Failed to logout',
       });
     }
 
     // Clear cookie
     res.clearCookie('connect.sid', cookieOptions);
     return res.status(200).json({
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     });
   });
 };

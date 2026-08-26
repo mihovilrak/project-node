@@ -14,7 +14,7 @@ import {
   removeProjectMember,
   updateProjectMember,
   getSubprojects,
-  getProjectSpentTime
+  getProjectSpentTime,
 } from '../projects';
 
 // Mock the api module
@@ -42,7 +42,7 @@ describe('Projects API', () => {
     created_on: '2023-01-01T00:00:00Z',
     estimated_time: 100,
     spent_time: 40,
-    progress: 40
+    progress: 40,
   };
 
   const mockProjectMember: ProjectMember = {
@@ -51,12 +51,12 @@ describe('Projects API', () => {
     created_on: '2023-01-01T00:00:00Z',
     name: 'Test',
     surname: 'User',
-    role: 'Developer'
+    role: 'Developer',
   };
 
   const mockProjectStatus: ProjectStatus = {
     id: 1,
-    name: 'Active'
+    name: 'Active',
   };
 
   describe('getProjects', () => {
@@ -66,7 +66,9 @@ describe('Projects API', () => {
 
       const result = await getProjects();
 
-      expect(mockedApi.get).toHaveBeenCalledWith('/projects', { params: undefined });
+      expect(mockedApi.get).toHaveBeenCalledWith('/projects', {
+        params: undefined,
+      });
       expect(result).toEqual(mockProjects);
     });
   });
@@ -75,7 +77,7 @@ describe('Projects API', () => {
     it('should fetch project details with members', async () => {
       const projectWithMembers = {
         ...mockProject,
-        members: [mockProjectMember]
+        members: [mockProjectMember],
       };
       mockedApi.get.mockResolvedValueOnce({ data: projectWithMembers });
 
@@ -149,7 +151,9 @@ describe('Projects API', () => {
       const validationError = new Error('Validation failed');
       mockedApi.put.mockRejectedValueOnce(validationError);
 
-      await expect(updateProject(1, invalidUpdate)).rejects.toThrow('Validation failed');
+      await expect(updateProject(1, invalidUpdate)).rejects.toThrow(
+        'Validation failed',
+      );
     });
   });
 
@@ -184,7 +188,9 @@ describe('Projects API', () => {
       const error = new Error('Invalid project ID');
       mockedApi.get.mockRejectedValueOnce(error);
 
-      await expect(getProjectSpentTime(-1)).rejects.toThrow('Invalid project ID');
+      await expect(getProjectSpentTime(-1)).rejects.toThrow(
+        'Invalid project ID',
+      );
     });
   });
 
@@ -193,7 +199,9 @@ describe('Projects API', () => {
       const error = new Error('Invalid status transition');
       mockedApi.patch.mockRejectedValueOnce(error);
 
-      await expect(changeProjectStatus(1)).rejects.toThrow('Invalid status transition');
+      await expect(changeProjectStatus(1)).rejects.toThrow(
+        'Invalid status transition',
+      );
     });
   });
 
@@ -221,7 +229,9 @@ describe('Projects API', () => {
 
       const result = await addProjectMember(1, 1);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('/projects/1/members', { userId: 1 });
+      expect(mockedApi.post).toHaveBeenCalledWith('/projects/1/members', {
+        userId: 1,
+      });
       expect(result).toEqual(mockProjectMember);
     });
 
@@ -239,7 +249,9 @@ describe('Projects API', () => {
 
       await removeProjectMember(1, 1);
 
-      expect(mockedApi.delete).toHaveBeenCalledWith('/projects/1/members', { data: { userId: 1 } });
+      expect(mockedApi.delete).toHaveBeenCalledWith('/projects/1/members', {
+        data: { userId: 1 },
+      });
     });
 
     it('should throw error when removing member fails', async () => {
@@ -256,7 +268,9 @@ describe('Projects API', () => {
 
       const result = await updateProjectMember(1, 1, 'Manager');
 
-      expect(mockedApi.put).toHaveBeenLastCalledWith('/projects/1/members/1', { role: 'Manager' });
+      expect(mockedApi.put).toHaveBeenLastCalledWith('/projects/1/members/1', {
+        role: 'Manager',
+      });
       expect(result).toEqual(mockProjectMember);
     });
 

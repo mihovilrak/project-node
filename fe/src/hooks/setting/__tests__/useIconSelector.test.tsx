@@ -31,12 +31,17 @@ describe('useIconSelector', () => {
   });
 
   it('should handle API error gracefully', async () => {
-    (getAvailableIcons as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
+    (getAvailableIcons as jest.Mock).mockRejectedValueOnce(
+      new Error('API Error'),
+    );
 
     const { result } = renderHook(() => useIconSelector(undefined));
 
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to load icons:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to load icons:',
+        expect.any(Error),
+      );
       expect(result.current.icons).toEqual([]);
     });
   });

@@ -1,15 +1,20 @@
 import React from 'react';
 import {
-    render,
-    screen,
-    fireEvent,
-    waitFor,
-    within
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AuthProvider from '../../../context/AuthContext';
 import Tasks from '../Tasks';
-import { getTasks, deleteTask, getTaskStatuses, getPriorities } from '../../../api/tasks';
+import {
+  getTasks,
+  deleteTask,
+  getTaskStatuses,
+  getPriorities,
+} from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
 import logger from '../../../utils/logger';
@@ -19,23 +24,27 @@ jest.mock('../../../api/tasks', () => ({
   getTasks: jest.fn(),
   deleteTask: jest.fn(),
   getTaskStatuses: jest.fn().mockResolvedValue([]),
-  getPriorities: jest.fn().mockResolvedValue([])
+  getPriorities: jest.fn().mockResolvedValue([]),
 }));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
-const mockedGetTaskStatuses = getTaskStatuses as jest.MockedFunction<typeof getTaskStatuses>;
-const mockedGetPriorities = getPriorities as jest.MockedFunction<typeof getPriorities>;
+const mockedGetTaskStatuses = getTaskStatuses as jest.MockedFunction<
+  typeof getTaskStatuses
+>;
+const mockedGetPriorities = getPriorities as jest.MockedFunction<
+  typeof getPriorities
+>;
 
 // Mock useNavigate
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate
+  useNavigate: () => mockedNavigate,
 }));
 
 // Mock usePermission so edit/delete buttons are rendered
 jest.mock('../../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 // Mock sample tasks
@@ -68,7 +77,7 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Creator 1',
     created_on: '2023-01-01',
-    estimated_time: 8
+    estimated_time: 8,
   },
   {
     id: 2,
@@ -98,8 +107,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Creator 1',
     created_on: '2023-01-01',
-    estimated_time: 16
-  }
+    estimated_time: 16,
+  },
 ];
 
 const renderTasks = () => {
@@ -108,7 +117,7 @@ const renderTasks = () => {
       <AuthProvider>
         <Tasks />
       </AuthProvider>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };
 
@@ -153,7 +162,9 @@ describe('Tasks Component', () => {
 
     // Wait for delete confirmation dialog to appear
     await waitFor(() => {
-      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete task/),
+      ).toBeInTheDocument();
     });
 
     // Click confirm button in dialog
@@ -162,8 +173,8 @@ describe('Tasks Component', () => {
 
     await waitFor(() => {
       expect(mockedDeleteTask).toHaveBeenCalledWith(1);
-// After deletion we refetch tasks via getTasks again
-    expect(mockedGetTasks).toHaveBeenCalledTimes(2);
+      // After deletion we refetch tasks via getTasks again
+      expect(mockedGetTasks).toHaveBeenCalledTimes(2);
     });
   }, 15000);
 
@@ -182,7 +193,9 @@ describe('Tasks Component', () => {
 
     // Wait for delete confirmation dialog to appear
     await waitFor(() => {
-      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete task/),
+      ).toBeInTheDocument();
     });
 
     // Click confirm button in dialog
@@ -191,7 +204,10 @@ describe('Tasks Component', () => {
 
     // Wait for error to be logged (component uses logger.error, mocked in setupTests)
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to delete task:',
+        expect.any(Error),
+      );
     });
   }, 10000);
 
@@ -199,15 +215,18 @@ describe('Tasks Component', () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+        expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // For simplicity and robustness, rely on the already-tested FilterPanel behavior
     // by directly filtering the in-memory array using the same predicate logic.
-    const filtered = mockTasks.filter(task =>
-      task.name.toLowerCase().includes('task 1')
+    const filtered = mockTasks.filter((task) =>
+      task.name.toLowerCase().includes('task 1'),
     );
 
     expect(filtered).toHaveLength(1);
@@ -217,49 +236,82 @@ describe('Tasks Component', () => {
   test('filters tasks by priority using filter panel', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedGetTaskStatuses.mockResolvedValue([
-      { id: 1, name: 'In Progress', color: '#000000', description: null, active: true, created_on: '', updated_on: null },
-      { id: 5, name: 'Done', color: '#000000', description: null, active: true, created_on: '', updated_on: null }
+      {
+        id: 1,
+        name: 'In Progress',
+        color: '#000000',
+        description: null,
+        active: true,
+        created_on: '',
+        updated_on: null,
+      },
+      {
+        id: 5,
+        name: 'Done',
+        color: '#000000',
+        description: null,
+        active: true,
+        created_on: '',
+        updated_on: null,
+      },
     ] as any);
     mockedGetPriorities.mockResolvedValue([
       { id: 3, name: 'High/Should' },
-      { id: 2, name: 'Normal/Could' }
+      { id: 2, name: 'Normal/Could' },
     ] as any);
 
     renderTasks();
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+        expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
-    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /expand filters/i }),
+    );
 
-    const priorityFilterItem = await screen.findByTestId('add-filter-priority_id');
+    const priorityFilterItem = await screen.findByTestId(
+      'add-filter-priority_id',
+    );
     await userEvent.click(priorityFilterItem);
 
     const filterPanel = screen.getByTestId('filter-panel');
     const valueSelects = within(filterPanel).getAllByLabelText(/Value/i);
     await userEvent.click(valueSelects[valueSelects.length - 1]);
 
-    const normalCouldOption = await screen.findByRole('option', { name: /Normal\/Could/i });
+    const normalCouldOption = await screen.findByRole('option', {
+      name: /Normal\/Could/i,
+    });
     await userEvent.click(normalCouldOption);
 
-    const applyAndCloseButton = screen.getByTestId('apply-close-filters-button');
+    const applyAndCloseButton = screen.getByTestId(
+      'apply-close-filters-button',
+    );
     await userEvent.click(applyAndCloseButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    }, { timeout: 15000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Test Task 2')).toBeInTheDocument();
+        expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+      },
+      { timeout: 15000 },
+    );
   }, 30000);
 
   test('sorts tasks correctly', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     renderTasks();
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     const sortSelect = screen.getByRole('combobox');
 
@@ -268,11 +320,14 @@ describe('Tasks Component', () => {
     await userEvent.click(screen.getByText('Z-A'));
 
     // Task names are rendered as links; verify order by link order (Z-A: Test Task 2 then Test Task 1)
-    await waitFor(() => {
-      const taskLinks = screen.getAllByRole('link', { name: /Test Task \d/ });
-      expect(taskLinks[0]).toHaveTextContent('Test Task 2');
-      expect(taskLinks[1]).toHaveTextContent('Test Task 1');
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        const taskLinks = screen.getAllByRole('link', { name: /Test Task \d/ });
+        expect(taskLinks[0]).toHaveTextContent('Test Task 2');
+        expect(taskLinks[1]).toHaveTextContent('Test Task 1');
+      },
+      { timeout: 10000 },
+    );
   }, 15000);
 
   test('navigates to correct routes', async () => {
@@ -318,7 +373,12 @@ describe('Tasks Component', () => {
   });
 
   test('handles empty assignee correctly', async () => {
-    const taskWithUnassigned: Task = { ...mockTasks[1], id: 3, assignee_id: undefined, assignee_name: '' };
+    const taskWithUnassigned: Task = {
+      ...mockTasks[1],
+      id: 3,
+      assignee_id: undefined,
+      assignee_name: '',
+    };
     mockedGetTasks.mockResolvedValue([taskWithUnassigned]);
     renderTasks();
 
@@ -326,7 +386,7 @@ describe('Tasks Component', () => {
       () => {
         expect(screen.getByText('Unassigned')).toBeInTheDocument();
       },
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
   }, 15000);
 
@@ -339,7 +399,7 @@ describe('Tasks Component', () => {
       () => {
         expect(screen.getByTestId('task-error')).toBeInTheDocument();
       },
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
   }, 15000);
 });

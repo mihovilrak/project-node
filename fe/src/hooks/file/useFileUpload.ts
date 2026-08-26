@@ -3,12 +3,17 @@ import { uploadFile } from '../../api/files';
 import { TaskFile } from '../../types/file';
 import { AxiosProgressEvent } from 'axios';
 
-export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) => void) => {
+export const useFileUpload = (
+  taskId: number,
+  onFileUploaded: (file: TaskFile) => void,
+) => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 
@@ -21,7 +26,9 @@ export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) =
 
       const progressCallback = (progressEvent: AxiosProgressEvent) => {
         if (progressEvent.total) {
-          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          const percentage = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
           setProgress(percentage);
         }
       };
@@ -45,6 +52,6 @@ export const useFileUpload = (taskId: number, onFileUploaded: (file: TaskFile) =
     progress,
     error,
     handleFileChange,
-    setError
+    setError,
   };
 };

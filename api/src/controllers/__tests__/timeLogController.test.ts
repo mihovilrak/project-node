@@ -23,7 +23,7 @@ describe('TimeLogController', () => {
         httpOnly: true,
         path: '/',
         domain: undefined,
-        sameSite: 'strict'
+        sameSite: 'strict',
       },
       regenerate: jest.fn((callback: (err: any) => void) => {
         callback(null);
@@ -46,15 +46,16 @@ describe('TimeLogController', () => {
       user: {
         id: '1',
         login: 'test',
-        role_id: 1
-      }
-    } as unknown as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+        role_id: 1,
+      },
+    } as unknown as Session &
+      Partial<{ user: { id: string; login: string; role_id: number } }>;
 
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
@@ -68,14 +69,16 @@ describe('TimeLogController', () => {
     it('should return all time logs', async () => {
       const mockTimeLogs = [
         { id: '1', task_id: '1', spent_time: 2.5 },
-        { id: '2', task_id: '2', spent_time: 3.0 }
+        { id: '2', task_id: '2', spent_time: 3.0 },
       ];
-      (timeLogModel.getAllTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
+      (timeLogModel.getAllTimeLogs as jest.Mock).mockResolvedValue(
+        mockTimeLogs,
+      );
 
       await timeLogController.getAllTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(timeLogModel.getAllTimeLogs).toHaveBeenCalledWith(mockPool);
@@ -84,16 +87,20 @@ describe('TimeLogController', () => {
     });
 
     it('should handle errors', async () => {
-      (timeLogModel.getAllTimeLogs as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getAllTimeLogs as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getAllTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -101,12 +108,14 @@ describe('TimeLogController', () => {
     it('should return time logs for a task', async () => {
       const mockTimeLogs = [{ id: '1', task_id: '1', spent_time: 2.5 }];
       mockReq.params = { taskId: '1' };
-      (timeLogModel.getTaskTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
+      (timeLogModel.getTaskTimeLogs as jest.Mock).mockResolvedValue(
+        mockTimeLogs,
+      );
 
       await timeLogController.getTaskTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(timeLogModel.getTaskTimeLogs).toHaveBeenCalledWith(mockPool, '1');
@@ -116,16 +125,20 @@ describe('TimeLogController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { taskId: '1' };
-      (timeLogModel.getTaskTimeLogs as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getTaskTimeLogs as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getTaskTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -133,12 +146,14 @@ describe('TimeLogController', () => {
     it('should return task spent time', async () => {
       const mockSpentTime = { total_spent: 5.5 };
       mockReq.params = { taskId: '1' };
-      (timeLogModel.getTaskSpentTime as jest.Mock).mockResolvedValue(mockSpentTime);
+      (timeLogModel.getTaskSpentTime as jest.Mock).mockResolvedValue(
+        mockSpentTime,
+      );
 
       await timeLogController.getTaskSpentTime(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(timeLogModel.getTaskSpentTime).toHaveBeenCalledWith(mockPool, '1');
@@ -148,48 +163,64 @@ describe('TimeLogController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { taskId: '1' };
-      (timeLogModel.getTaskSpentTime as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getTaskSpentTime as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getTaskSpentTime(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getProjectTimeLogs', () => {
     it('should return project time logs', async () => {
-      const mockTimeLogs = [{ id: '1', task_id: '1', project_id: '1', spent_time: 2.5 }];
+      const mockTimeLogs = [
+        { id: '1', task_id: '1', project_id: '1', spent_time: 2.5 },
+      ];
       mockReq.params = { projectId: '1' };
-      (timeLogModel.getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
+      (timeLogModel.getProjectTimeLogs as jest.Mock).mockResolvedValue(
+        mockTimeLogs,
+      );
 
       await timeLogController.getProjectTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(timeLogModel.getProjectTimeLogs).toHaveBeenCalledWith(mockPool, '1', {});
+      expect(timeLogModel.getProjectTimeLogs).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        {},
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTimeLogs);
     });
 
     it('should handle errors', async () => {
       mockReq.params = { projectId: '1' };
-      (timeLogModel.getProjectTimeLogs as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getProjectTimeLogs as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getProjectTimeLogs(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -197,31 +228,40 @@ describe('TimeLogController', () => {
     it('should return project spent time', async () => {
       const mockSpentTime = { total_spent: 15.5 };
       mockReq.params = { projectId: '1' };
-      (timeLogModel.getProjectSpentTime as jest.Mock).mockResolvedValue(mockSpentTime);
+      (timeLogModel.getProjectSpentTime as jest.Mock).mockResolvedValue(
+        mockSpentTime,
+      );
 
       await timeLogController.getProjectSpentTime(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(timeLogModel.getProjectSpentTime).toHaveBeenCalledWith(mockPool, '1');
+      expect(timeLogModel.getProjectSpentTime).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockSpentTime);
     });
 
     it('should handle errors', async () => {
       mockReq.params = { projectId: '1' };
-      (timeLogModel.getProjectSpentTime as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getProjectSpentTime as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getProjectSpentTime(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -231,20 +271,32 @@ describe('TimeLogController', () => {
         log_date: new Date(),
         spent_time: 2.5,
         description: 'Test time log',
-        activity_type_id: 1
+        activity_type_id: 1,
       };
-      const createdTimeLog = { id: '1', task_id: '1', user_id: '1', ...mockTimeLogData };
+      const createdTimeLog = {
+        id: '1',
+        task_id: '1',
+        user_id: '1',
+        ...mockTimeLogData,
+      };
       mockReq.params = { taskId: '1' };
       mockReq.body = mockTimeLogData;
-      (timeLogModel.createTimeLog as jest.Mock).mockResolvedValue(createdTimeLog);
+      (timeLogModel.createTimeLog as jest.Mock).mockResolvedValue(
+        createdTimeLog,
+      );
 
       await timeLogController.createTimeLog(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(timeLogModel.createTimeLog).toHaveBeenCalledWith(mockPool, '1', '1', mockTimeLogData);
+      expect(timeLogModel.createTimeLog).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        '1',
+        mockTimeLogData,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(createdTimeLog);
     });
@@ -252,16 +304,22 @@ describe('TimeLogController', () => {
     it('should return 401 when user not authenticated', async () => {
       mockReq.session.user = undefined;
       mockReq.params = { taskId: '1' };
-      mockReq.body = { spent_time: 2.5, description: 'Test', activity_type_id: 1 };
+      mockReq.body = {
+        spent_time: 2.5,
+        description: 'Test',
+        activity_type_id: 1,
+      };
 
       await timeLogController.createTimeLog(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not authenticated' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'User not authenticated',
+      });
     });
 
     it('should return 400 when required fields missing', async () => {
@@ -271,26 +329,36 @@ describe('TimeLogController', () => {
       await timeLogController.createTimeLog(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Missing required fields' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Missing required fields',
+      });
     });
 
     it('should handle errors', async () => {
       mockReq.params = { taskId: '1' };
-      mockReq.body = { spent_time: 2.5, description: 'Test', activity_type_id: 1 };
-      (timeLogModel.createTimeLog as jest.Mock).mockRejectedValue(new Error('Database error'));
+      mockReq.body = {
+        spent_time: 2.5,
+        description: 'Test',
+        activity_type_id: 1,
+      };
+      (timeLogModel.createTimeLog as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.createTimeLog(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -300,20 +368,26 @@ describe('TimeLogController', () => {
         log_date: new Date(),
         spent_time: 3.0,
         description: 'Updated description',
-        activity_type_id: 2
+        activity_type_id: 2,
       };
       const updatedTimeLog = { id: '1', ...mockUpdateData };
       mockReq.params = { timeLogId: '1' };
       mockReq.body = mockUpdateData;
-      (timeLogModel.updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
+      (timeLogModel.updateTimeLog as jest.Mock).mockResolvedValue(
+        updatedTimeLog,
+      );
 
       await timeLogController.updateTimeLog(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(timeLogModel.updateTimeLog).toHaveBeenCalledWith(mockPool, '1', mockUpdateData);
+      expect(timeLogModel.updateTimeLog).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        mockUpdateData,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedTimeLog);
     });
@@ -321,16 +395,20 @@ describe('TimeLogController', () => {
     it('should handle errors', async () => {
       mockReq.params = { timeLogId: '1' };
       mockReq.body = { spent_time: 3.0 };
-      (timeLogModel.updateTimeLog as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.updateTimeLog as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.updateTimeLog(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -342,41 +420,53 @@ describe('TimeLogController', () => {
       await timeLogController.deleteTimeLog(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(timeLogModel.deleteTimeLog).toHaveBeenCalledWith(mockPool, '1');
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Time log deleted successfully' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Time log deleted successfully',
+      });
     });
 
     it('should handle errors', async () => {
       mockReq.params = { timeLogId: '1' };
-      (timeLogModel.deleteTimeLog as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.deleteTimeLog as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.deleteTimeLog(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getUserTimeLogs', () => {
     it('should return user time logs', async () => {
       const mockTimeLogs = [{ id: '1', user_id: '1', spent_time: 2.5 }];
-      (timeLogModel.getUserTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
+      (timeLogModel.getUserTimeLogs as jest.Mock).mockResolvedValue(
+        mockTimeLogs,
+      );
 
       await timeLogController.getUserTimeLogs(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(timeLogModel.getUserTimeLogs).toHaveBeenCalledWith(mockPool, '1', {});
+      expect(timeLogModel.getUserTimeLogs).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        {},
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTimeLogs);
     });
@@ -387,24 +477,30 @@ describe('TimeLogController', () => {
       await timeLogController.getUserTimeLogs(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not authenticated' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'User not authenticated',
+      });
     });
 
     it('should handle errors', async () => {
-      (timeLogModel.getUserTimeLogs as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (timeLogModel.getUserTimeLogs as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await timeLogController.getUserTimeLogs(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 });

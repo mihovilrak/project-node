@@ -44,7 +44,7 @@ describe('Cleanup Job', () => {
 
       expect(mockScheduleJob).toHaveBeenCalledWith(
         '0 2 * * *',
-        expect.any(Function)
+        expect.any(Function),
       );
     });
 
@@ -68,7 +68,7 @@ describe('Cleanup Job', () => {
       await cleanupFunction();
 
       expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE notifications')
+        expect.stringContaining('UPDATE notifications'),
       );
     });
 
@@ -90,7 +90,7 @@ describe('Cleanup Job', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({ rowCount: 15 }),
-        'Cleaned up old notifications'
+        'Cleaned up old notifications',
       );
     });
 
@@ -101,7 +101,7 @@ describe('Cleanup Job', () => {
 
       expect(mockLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({ rowCount: 0 }),
-        'Cleaned up old notifications'
+        'Cleaned up old notifications',
       );
     });
 
@@ -114,7 +114,7 @@ describe('Cleanup Job', () => {
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({ err: dbError }),
-        'Error cleaning up notifications'
+        'Error cleaning up notifications',
       );
     });
 
@@ -140,21 +140,21 @@ describe('Cleanup Job', () => {
   describe('cron expression', () => {
     it('should use correct minute (0)', async () => {
       await import('../../jobs/cleanup');
-      
+
       const cronParts = mockScheduleJob.mock.calls[0][0].split(' ');
       expect(cronParts[0]).toBe('0'); // minute
     });
 
     it('should use correct hour (2)', async () => {
       await import('../../jobs/cleanup');
-      
+
       const cronParts = mockScheduleJob.mock.calls[0][0].split(' ');
       expect(cronParts[1]).toBe('2'); // hour
     });
 
     it('should run every day (*)', async () => {
       await import('../../jobs/cleanup');
-      
+
       const cronParts = mockScheduleJob.mock.calls[0][0].split(' ');
       expect(cronParts[2]).toBe('*'); // day of month
       expect(cronParts[3]).toBe('*'); // month

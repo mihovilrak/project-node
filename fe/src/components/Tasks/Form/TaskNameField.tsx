@@ -2,13 +2,18 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { TaskNameFieldProps } from '../../../types/task';
 
-export const TaskNameField: React.FC<TaskNameFieldProps> = ({ formData, handleChange, error, helperText }) => {
+export const TaskNameField: React.FC<TaskNameFieldProps> = ({
+  formData,
+  handleChange,
+  error,
+  helperText,
+}) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleChange({
       target: {
         name: e.target.name,
-        value: e.target.value
-      }
+        value: e.target.value,
+      },
     });
   };
 

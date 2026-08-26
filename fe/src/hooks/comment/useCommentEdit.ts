@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Comment } from '../../types/comment';
 
-export const useCommentEdit = (comment: Comment | null, onSave: (id: number, text: string) => Promise<void>) => {
+export const useCommentEdit = (
+  comment: Comment | null,
+  onSave: (id: number, text: string) => Promise<void>,
+) => {
   const [editedText, setEditedText] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -40,6 +43,6 @@ export const useCommentEdit = (comment: Comment | null, onSave: (id: number, tex
     isSubmitting,
     error,
     handleSave,
-    resetForm
+    resetForm,
   };
 };

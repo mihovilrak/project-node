@@ -1,28 +1,19 @@
 import React from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  CircularProgress
-} from '@mui/material';
+import { Box, TextField, Button, CircularProgress } from '@mui/material';
 import { useCommentForm } from '../../hooks/comment/useCommentForm';
 import { CommentFormProps } from '../../types/comment';
 
-const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => {
-  const {
-    comment,
-    setComment,
-    loading,
-    error,
-    handleSubmit
-  } = useCommentForm(taskId, onCommentAdded);
+const CommentForm: React.FC<CommentFormProps> = ({
+  taskId,
+  onCommentAdded,
+}) => {
+  const { comment, setComment, loading, error, handleSubmit } = useCommentForm(
+    taskId,
+    onCommentAdded,
+  );
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{ mt: 2 }}
-    >
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <TextField
         fullWidth
         multiline
@@ -34,9 +25,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ taskId, onCommentAdded }) => 
         helperText={error || ''}
         disabled={loading || !taskId}
       />
-      <Box
-        sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}
-      >
+      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="submit"
           variant="contained"

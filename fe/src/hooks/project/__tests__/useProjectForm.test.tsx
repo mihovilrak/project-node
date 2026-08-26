@@ -7,12 +7,14 @@ import { getProjectStatuses } from '../../../api/projects';
 
 jest.mock('../../../api/projects');
 
-const mockedGetProjectStatuses = getProjectStatuses as jest.MockedFunction<typeof getProjectStatuses>;
+const mockedGetProjectStatuses = getProjectStatuses as jest.MockedFunction<
+  typeof getProjectStatuses
+>;
 
 const mockStatuses = [
   { id: 1, name: 'Active' },
   { id: 2, name: 'Inactive' },
-  { id: 3, name: 'Completed' }
+  { id: 3, name: 'Completed' },
 ];
 
 describe('useProjectForm', () => {
@@ -31,7 +33,7 @@ describe('useProjectForm', () => {
     spent_time: 50,
     progress: 50,
     parent_id: null,
-    parent_name: null
+    parent_name: null,
   };
 
   beforeEach(() => {
@@ -53,7 +55,7 @@ describe('useProjectForm', () => {
       start_date: today,
       due_date: '',
       status_id: expect.any(Number),
-      parent_id: null
+      parent_id: null,
     });
     expect(result.current.errors).toEqual({});
     expect(result.current.dateError).toBe('');
@@ -70,7 +72,7 @@ describe('useProjectForm', () => {
       start_date: mockProject.start_date,
       due_date: mockProject.due_date,
       status_id: mockProject.status_id,
-      parent_id: mockProject.parent_id
+      parent_id: mockProject.parent_id,
     });
   });
 
@@ -86,7 +88,7 @@ describe('useProjectForm', () => {
 
     act(() => {
       result.current.handleChange({
-        target: { name: 'name', value: 'New Project Name' }
+        target: { name: 'name', value: 'New Project Name' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -99,7 +101,7 @@ describe('useProjectForm', () => {
 
     act(() => {
       result.current.handleStatusChange({
-        target: { value: 2 }
+        target: { value: 2 },
       } as SelectChangeEvent<number>);
     });
 
@@ -155,7 +157,7 @@ describe('useProjectForm', () => {
 
     act(() => {
       result.current.handleParentChange({
-        target: { value: '2' }
+        target: { value: '2' },
       } as SelectChangeEvent<string | number>);
     });
 
@@ -164,7 +166,7 @@ describe('useProjectForm', () => {
     // Test setting to null
     act(() => {
       result.current.handleParentChange({
-        target: { value: '' }
+        target: { value: '' },
       } as SelectChangeEvent<string | number>);
     });
 
@@ -186,7 +188,7 @@ describe('useProjectForm', () => {
     // Fill in required fields
     act(() => {
       result.current.handleChange({
-        target: { name: 'name', value: 'Test Project' }
+        target: { name: 'name', value: 'Test Project' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
     act(() => {

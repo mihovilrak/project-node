@@ -4,7 +4,7 @@ import { EstimatedTimeFieldProps } from '../../../types/task';
 
 export const EstimatedTimeField: React.FC<EstimatedTimeFieldProps> = ({
   formData,
-  handleChange
+  handleChange,
 }) => (
   <TextField
     fullWidth

@@ -30,14 +30,14 @@ jest.mock('@mui/material/ButtonBase/TouchRipple', () => {
     __esModule: true,
     default: function TouchRipple() {
       return null;
-    }
+    },
   };
 });
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -64,7 +64,7 @@ class MockIntersectionObserver implements IntersectionObserver {
 
   constructor(
     callback: IntersectionObserverCallback,
-    options?: IntersectionObserverInit
+    options?: IntersectionObserverInit,
   ) {
     console.log('MockIntersectionObserver constructor', callback, options);
   }
@@ -72,7 +72,9 @@ class MockIntersectionObserver implements IntersectionObserver {
   observe(): void {}
   unobserve(): void {}
   disconnect(): void {}
-  takeRecords(): IntersectionObserverEntry[] { return []; }
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 }
 
 global.IntersectionObserver = MockIntersectionObserver;
@@ -81,7 +83,9 @@ global.IntersectionObserver = MockIntersectionObserver;
 global.MutationObserver = class MutationObserver {
   observe() {}
   disconnect() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 };
 
 // Add TextEncoder and TextDecoder to global scope
@@ -110,10 +114,12 @@ if (typeof global.ReadableStream === 'undefined') {
           return { done: true, value: undefined };
         },
         cancel: () => Promise.resolve(),
-        releaseLock: () => {}
+        releaseLock: () => {},
       };
     }
-    cancel() { return Promise.resolve(); }
+    cancel() {
+      return Promise.resolve();
+    }
   };
 }
 
@@ -150,7 +156,7 @@ if (typeof global.Response === 'undefined') {
         this.status = init?.status || 200;
         this.statusText = init?.statusText || 'OK';
         this.ok = this.status >= 200 && this.status < 300;
-        this.headers = new ((global as any).Headers)(init?.headers);
+        this.headers = new (global as any).Headers(init?.headers);
         // Always ensure body is a ReadableStream with getReader()
         if (body !== null && body !== undefined) {
           if (typeof body === 'string') {
@@ -159,7 +165,7 @@ if (typeof global.Response === 'undefined') {
               start(controller: any) {
                 controller.enqueue(encoder.encode(body));
                 controller.close();
-              }
+              },
             });
           } else if (body && typeof body.getReader === 'function') {
             this.body = body;
@@ -170,15 +176,20 @@ if (typeof global.Response === 'undefined') {
           this.body = new ReadableStreamClass();
         }
       }
-      static error() { return new Response(null, { status: 0 }); }
-      static json(data: any) { 
+      static error() {
+        return new Response(null, { status: 0 });
+      }
+      static json(data: any) {
         return new Response(JSON.stringify(data), {
-          headers: { 'Content-Type': 'application/json' }
-        }); 
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
     };
     (global as any).Request = class Request {
-      constructor(public url: string, public init?: any) {}
+      constructor(
+        public url: string,
+        public init?: any,
+      ) {}
     };
     (global as any).Headers = class Headers {
       constructor(public init?: any) {}
@@ -218,15 +229,19 @@ jest.mock('@mui/material/styles', () => {
 const originalConsoleError = console.error;
 console.error = (...args) => {
   if (
-    /Warning.*not wrapped in act/.test(args[0])
-    || /not wrapped in act/.test(args[0])
+    /Warning.*not wrapped in act/.test(args[0]) ||
+    /not wrapped in act/.test(args[0])
   ) {
     return;
   }
   if (/Warning: findDOMNode is deprecated in StrictMode/.test(args[0])) {
     return;
   }
-  if (/The current testing environment is not configured to support act/.test(args[0])) {
+  if (
+    /The current testing environment is not configured to support act/.test(
+      args[0],
+    )
+  ) {
     return;
   }
   originalConsoleError(...args);
@@ -244,7 +259,7 @@ try {
   server = {
     listen: () => {},
     resetHandlers: () => {},
-    close: () => {}
+    close: () => {},
   };
 }
 

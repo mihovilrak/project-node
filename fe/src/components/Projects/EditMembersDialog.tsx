@@ -10,7 +10,7 @@ import {
   FormControlLabel,
   Checkbox,
   Alert,
-  Typography
+  Typography,
 } from '@mui/material';
 import { User } from '../../types/user';
 import { EditMembersDialogProps } from '../../types/project';
@@ -22,11 +22,13 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
   onClose,
   currentMembers,
-  onSave
+  onSave,
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>(
-    (currentMembers || []).map(m => m?.user_id).filter((id): id is number => id !== undefined && id !== null)
+    (currentMembers || [])
+      .map((m) => m?.user_id)
+      .filter((id): id is number => id !== undefined && id !== null),
   );
   const [error, setError] = useState<string>('');
 
@@ -45,14 +47,18 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   }, []);
 
   useEffect(() => {
-    setSelectedUsers((currentMembers || []).map(m => m?.user_id).filter((id): id is number => id !== undefined && id !== null));
+    setSelectedUsers(
+      (currentMembers || [])
+        .map((m) => m?.user_id)
+        .filter((id): id is number => id !== undefined && id !== null),
+    );
   }, [currentMembers]);
 
   const handleToggleUser = (userId: number) => {
-    setSelectedUsers(prev =>
+    setSelectedUsers((prev) =>
       prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
     );
   };
 
@@ -71,19 +77,25 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Edit Project Members</DialogTitle>
       <DialogContent>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         {users.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
             No users available
           </Typography>
         ) : (
           <List>
-            {users.map(user => (
+            {users.map((user) => (
               <ListItem key={user?.id}>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={user?.id ? selectedUsers.includes(user.id) : false}
+                      checked={
+                        user?.id ? selectedUsers.includes(user.id) : false
+                      }
                       onChange={() => user?.id && handleToggleUser(user.id)}
                       disabled={!user?.id}
                     />

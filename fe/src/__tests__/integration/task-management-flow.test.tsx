@@ -19,7 +19,7 @@ const mockedApi = api as jest.Mocked<typeof api>;
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => jest.fn(),
-  useParams: () => ({ id: '1' })
+  useParams: () => ({ id: '1' }),
 }));
 
 describe('Task Management Flow', () => {
@@ -49,7 +49,7 @@ describe('Task Management Flow', () => {
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2025-01-25',
-    estimated_time: 8
+    estimated_time: 8,
   };
 
   const mockComment: Comment = {
@@ -59,7 +59,7 @@ describe('Task Management Flow', () => {
     user_id: 1,
     created_on: '2025-01-25',
     updated_on: null,
-    active: true
+    active: true,
   };
 
   const mockFile: TaskFile = {
@@ -71,14 +71,14 @@ describe('Task Management Flow', () => {
     size: 1024,
     mime_type: 'text/plain',
     uploaded_by: 'Test User',
-    uploaded_on: '2025-01-25'
+    uploaded_on: '2025-01-25',
   };
 
   const mockWatcher: TaskWatcher = {
     task_id: 1,
     user_id: 3,
     user_name: 'Test Watcher',
-    role: 'Developer'
+    role: 'Developer',
   };
 
   const mockTimeLog: TimeLog = {
@@ -93,7 +93,7 @@ describe('Task Management Flow', () => {
     updated_on: null,
     activity_type_name: 'Development',
     activity_type_color: '#4CAF50',
-    activity_type_icon: 'code'
+    activity_type_icon: 'code',
   };
 
   const mockSubtask: Task = {
@@ -122,7 +122,7 @@ describe('Task Management Flow', () => {
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2025-01-25',
-    estimated_time: 4
+    estimated_time: 4,
   };
 
   beforeEach(() => {
@@ -135,29 +135,38 @@ describe('Task Management Flow', () => {
       const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
 
       // Tasks active endpoint
-      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
+      if (
+        normalizedUrl === 'tasks/active' ||
+        normalizedUrl === '/tasks/active'
+      ) {
         return Promise.resolve({ data: [mockTask] });
       }
 
       // Tasks statuses endpoint
-      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+      if (
+        normalizedUrl === 'tasks/statuses' ||
+        normalizedUrl === '/tasks/statuses'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'To Do', color: '#FF0000' },
             { id: 2, name: 'In Progress', color: '#00FF00' },
-            { id: 3, name: 'Done', color: '#0000FF' }
-          ]
+            { id: 3, name: 'Done', color: '#0000FF' },
+          ],
         });
       }
 
       // Tasks priorities endpoint
-      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+      if (
+        normalizedUrl === 'tasks/priorities' ||
+        normalizedUrl === '/tasks/priorities'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'High', color: '#FF0000' },
             { id: 2, name: 'Medium', color: '#FFA500' },
-            { id: 3, name: 'Low', color: '#00FF00' }
-          ]
+            { id: 3, name: 'Low', color: '#00FF00' },
+          ],
         });
       }
 
@@ -165,8 +174,8 @@ describe('Task Management Flow', () => {
       if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
         return Promise.resolve({
           data: [
-            { id: 1, name: 'Test Project', description: 'Test Description' }
-          ]
+            { id: 1, name: 'Test Project', description: 'Test Description' },
+          ],
         });
       }
 
@@ -212,8 +221,8 @@ describe('Task Management Flow', () => {
             id: 1,
             username: 'testuser',
             email: 'test@example.com',
-            role: 'admin'
-          }
+            role: 'admin',
+          },
         });
       }
 
@@ -223,8 +232,8 @@ describe('Task Management Flow', () => {
           data: [
             { id: 1, name: 'VIEW_TASKS' },
             { id: 2, name: 'EDIT_TASKS' },
-            { id: 3, name: 'CREATE_COMMENT' }
-          ]
+            { id: 3, name: 'CREATE_COMMENT' },
+          ],
         });
       }
 
@@ -234,8 +243,8 @@ describe('Task Management Flow', () => {
           data: {
             id: 1,
             username: 'testuser',
-            email: 'test@example.com'
-          }
+            email: 'test@example.com',
+          },
         });
       }
 
@@ -245,8 +254,8 @@ describe('Task Management Flow', () => {
           data: [
             { id: 1, name: 'To Do', color: '#FF0000' },
             { id: 2, name: 'In Progress', color: '#00FF00' },
-            { id: 3, name: 'Done', color: '#0000FF' }
-          ]
+            { id: 3, name: 'Done', color: '#0000FF' },
+          ],
         });
       }
 
@@ -268,12 +277,12 @@ describe('Task Management Flow', () => {
 
       // Task creation
       if (normalizedUrl === 'tasks') {
-        return Promise.resolve({ data: {...mockTask, ...safeData} });
+        return Promise.resolve({ data: { ...mockTask, ...safeData } });
       }
 
       // Comment creation
       if (normalizedUrl.match(/^tasks\/\d+\/comments$/)) {
-        return Promise.resolve({ data: {...mockComment, ...safeData} });
+        return Promise.resolve({ data: { ...mockComment, ...safeData } });
       }
 
       // Default fallback
@@ -289,7 +298,7 @@ describe('Task Management Flow', () => {
 
       // Task update
       if (normalizedUrl.match(/^tasks\/\d+$/)) {
-        return Promise.resolve({ data: {...mockTask, ...safeData} });
+        return Promise.resolve({ data: { ...mockTask, ...safeData } });
       }
 
       // Default fallback
@@ -309,7 +318,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -334,7 +343,9 @@ describe('Task Management Flow', () => {
     expect(screen.getByTestId('priority-chip')).toHaveTextContent('High');
 
     // Verify we can see the create task button
-    const createButton = screen.getByRole('button', { name: /create new task/i });
+    const createButton = screen.getByRole('button', {
+      name: /create new task/i,
+    });
     expect(createButton).toBeInTheDocument();
 
     // We just check that api.get was called for tasks
@@ -345,7 +356,11 @@ describe('Task Management Flow', () => {
   it('should transition task status', async () => {
     const user = userEvent.setup();
     // Mock status update
-    const updatedTask = { ...mockTask, status_id: 2, status_name: 'In Progress' };
+    const updatedTask = {
+      ...mockTask,
+      status_id: 2,
+      status_name: 'In Progress',
+    };
     mockedApi.put.mockResolvedValueOnce({ data: updatedTask });
 
     // Directly call API - this simulates what would happen when user changes status
@@ -354,7 +369,7 @@ describe('Task Management Flow', () => {
     // Verify our mock was called with the right parameters
     expect(mockedApi.put).toHaveBeenCalledWith(
       'tasks/1',
-      expect.objectContaining({ status_id: 2 })
+      expect.objectContaining({ status_id: 2 }),
     );
   }, 10000); // Setting timeout to 10 seconds properly using Jest's timeout parameter
 
@@ -362,7 +377,11 @@ describe('Task Management Flow', () => {
   it('should assign and reassign tasks', async () => {
     const user = userEvent.setup();
     // Mock assignee update
-    const updatedTask = { ...mockTask, assignee_id: 3, assignee_name: 'New Assignee' };
+    const updatedTask = {
+      ...mockTask,
+      assignee_id: 3,
+      assignee_name: 'New Assignee',
+    };
     mockedApi.put.mockResolvedValueOnce({ data: updatedTask });
 
     // Directly call API - this simulates what would happen when user reassigns task
@@ -371,7 +390,7 @@ describe('Task Management Flow', () => {
     // Verify our mock was called with the right parameters
     expect(mockedApi.put).toHaveBeenCalledWith(
       'tasks/1',
-      expect.objectContaining({ assignee_id: 3 })
+      expect.objectContaining({ assignee_id: 3 }),
     );
   }, 10000); // Setting timeout to 10 seconds properly using Jest's timeout parameter
 
@@ -385,8 +404,11 @@ describe('Task Management Flow', () => {
         return Promise.resolve({
           data: {
             ...mockComment,
-            comment: data && typeof data === 'object' ? data.comment || 'Test comment' : 'Test comment'
-          }
+            comment:
+              data && typeof data === 'object'
+                ? data.comment || 'Test comment'
+                : 'Test comment',
+          },
         });
       }
       return Promise.resolve({ data: {} });
@@ -395,7 +417,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -418,7 +440,7 @@ describe('Task Management Flow', () => {
       // Verify API calls were made for task data
       expect(mockedApi.get).toHaveBeenCalled();
     });
-  }, 10000);  // Setting timeout to 10 seconds
+  }, 10000); // Setting timeout to 10 seconds
 
   // Setting a longer timeout specifically for this test (15 seconds)
   it('should manage task dependencies', async () => {
@@ -451,7 +473,7 @@ describe('Task Management Flow', () => {
       created_by: 1,
       created_by_name: 'Test Creator',
       created_on: '2025-01-25',
-      estimated_time: 8
+      estimated_time: 8,
     };
 
     mockedApi.post.mockResolvedValueOnce({ data: dependentTask });
@@ -459,7 +481,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -489,13 +511,13 @@ describe('Task Management Flow', () => {
       // If this is a search query, return filtered results
       if (url.includes('search=')) {
         return Promise.resolve({
-          data: [mockTask] // Return the mock task for any search
+          data: [mockTask], // Return the mock task for any search
         });
       }
 
       // For regular tasks list, return the default task list
       return Promise.resolve({
-        data: [mockTask]
+        data: [mockTask],
       });
     });
 
@@ -505,7 +527,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -520,7 +542,9 @@ describe('Task Management Flow', () => {
     await user.click(screen.getByRole('button', { name: /expand filters/i }));
     await user.click(screen.getByTestId('add-filter-search'));
     const filterPanel = screen.getByTestId('filter-panel');
-    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
+    const searchValueInput = within(filterPanel).getByRole('textbox', {
+      name: /value/i,
+    });
     await user.type(searchValueInput, 'Test Task');
 
     // Apply filters (search is applied client-side)
@@ -536,7 +560,7 @@ describe('Task Management Flow', () => {
       task_id: 1,
       user_id: 3,
       user_name: 'Test Watcher',
-      role: 'Developer'
+      role: 'Developer',
     };
     mockedApi.post.mockResolvedValueOnce({ data: localMockWatcher });
     mockedApi.delete.mockResolvedValueOnce({ data: {} });
@@ -544,7 +568,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -566,13 +590,13 @@ describe('Task Management Flow', () => {
       task_id: 1,
       user_id: 3,
       user_name: 'Test Watcher',
-      role: 'Developer'
+      role: 'Developer',
     };
 
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -599,14 +623,14 @@ describe('Task Management Flow', () => {
       updated_on: null,
       activity_type_name: 'Development',
       activity_type_color: '#4CAF50',
-      activity_type_icon: 'code'
+      activity_type_icon: 'code',
     };
     mockedApi.post.mockResolvedValueOnce({ data: localMockTimeLog });
 
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -633,15 +657,17 @@ describe('Task Management Flow', () => {
       updated_on: null,
       activity_type_name: 'Development',
       activity_type_color: '#4CAF50',
-      activity_type_icon: 'code'
+      activity_type_icon: 'code',
     };
-    mockedApi.put.mockResolvedValueOnce({ data: { ...localMockTimeLog, spent_time: 6 } });
+    mockedApi.put.mockResolvedValueOnce({
+      data: { ...localMockTimeLog, spent_time: 6 },
+    });
     mockedApi.delete.mockResolvedValueOnce({ data: {} });
 
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -659,7 +685,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -702,16 +728,18 @@ describe('Task Management Flow', () => {
       created_by: 1,
       created_by_name: 'Test Creator',
       created_on: '2025-01-25',
-      estimated_time: 4
+      estimated_time: 4,
     };
     mockedApi.post.mockResolvedValueOnce({ data: localMockSubtask });
-    mockedApi.put.mockResolvedValueOnce({ data: { ...localMockSubtask, name: 'Updated Subtask' } });
+    mockedApi.put.mockResolvedValueOnce({
+      data: { ...localMockSubtask, name: 'Updated Subtask' },
+    });
     mockedApi.delete.mockResolvedValueOnce({ data: {} });
 
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -757,7 +785,7 @@ describe('Task Management Flow', () => {
       created_by: 1,
       created_by_name: 'Test Creator',
       created_on: '2025-01-25',
-      estimated_time: 4
+      estimated_time: 4,
     };
     const mockSubtasks = [
       localMockSubtask,
@@ -766,8 +794,8 @@ describe('Task Management Flow', () => {
         id: 3,
         name: 'Another Subtask',
         priority_id: 2,
-        priority_name: 'Medium'
-      }
+        priority_name: 'Medium',
+      },
     ];
     // Reset mocks before setting up specific mock responses
     mockedApi.get.mockReset();
@@ -775,58 +803,79 @@ describe('Task Management Flow', () => {
     // Set up specific mock for subtasks
     mockedApi.get.mockImplementation((url: string) => {
       const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
-      
-      if (normalizedUrl === 'tasks/1/subtasks' || normalizedUrl === '/tasks/1/subtasks') {
+
+      if (
+        normalizedUrl === 'tasks/1/subtasks' ||
+        normalizedUrl === '/tasks/1/subtasks'
+      ) {
         return Promise.resolve({ data: mockSubtasks });
       }
-      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
+      if (
+        normalizedUrl === 'tasks/active' ||
+        normalizedUrl === '/tasks/active'
+      ) {
         return Promise.resolve({ data: [mockTask] });
       }
-      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+      if (
+        normalizedUrl === 'tasks/statuses' ||
+        normalizedUrl === '/tasks/statuses'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'To Do', color: '#FF0000' },
             { id: 2, name: 'In Progress', color: '#00FF00' },
-            { id: 3, name: 'Done', color: '#0000FF' }
-          ]
+            { id: 3, name: 'Done', color: '#0000FF' },
+          ],
         });
       }
-      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+      if (
+        normalizedUrl === 'tasks/priorities' ||
+        normalizedUrl === '/tasks/priorities'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'High', color: '#FF0000' },
             { id: 2, name: 'Medium', color: '#FFA500' },
-            { id: 3, name: 'Low', color: '#00FF00' }
-          ]
+            { id: 3, name: 'Low', color: '#00FF00' },
+          ],
         });
       }
       if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
         return Promise.resolve({
           data: [
-            { id: 1, name: 'Test Project', description: 'Test Description' }
-          ]
+            { id: 1, name: 'Test Project', description: 'Test Description' },
+          ],
         });
       }
-      if (normalizedUrl.includes('tasks') && !normalizedUrl.includes('/tasks/')) {
+      if (
+        normalizedUrl.includes('tasks') &&
+        !normalizedUrl.includes('/tasks/')
+      ) {
         return Promise.resolve({ data: [mockTask] });
       }
-      if (normalizedUrl === 'check-session' || normalizedUrl === '/check-session') {
+      if (
+        normalizedUrl === 'check-session' ||
+        normalizedUrl === '/check-session'
+      ) {
         return Promise.resolve({
           data: {
             id: 1,
             username: 'testuser',
             email: 'test@example.com',
-            role: 'admin'
-          }
+            role: 'admin',
+          },
         });
       }
-      if (normalizedUrl === 'users/permissions' || normalizedUrl === '/users/permissions') {
+      if (
+        normalizedUrl === 'users/permissions' ||
+        normalizedUrl === '/users/permissions'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'VIEW_TASKS' },
             { id: 2, name: 'EDIT_TASKS' },
-            { id: 3, name: 'CREATE_COMMENT' }
-          ]
+            { id: 3, name: 'CREATE_COMMENT' },
+          ],
         });
       }
       if (normalizedUrl === 'user' || normalizedUrl === '/user') {
@@ -834,8 +883,8 @@ describe('Task Management Flow', () => {
           data: {
             id: 1,
             username: 'testuser',
-            email: 'test@example.com'
-          }
+            email: 'test@example.com',
+          },
         });
       }
       // Default fallback - return empty array instead of empty object to prevent filter errors
@@ -847,7 +896,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -882,26 +931,23 @@ describe('Task Management Flow', () => {
     // This test requires a more complex component structure to properly render
     // and navigate to subtasks. We're skipping it for now until we have time
     // to properly implement it with the right component rendering strategy.
-
     // For reference, the test was trying to:
     // 1. Load the Tasks component
     // 2. Open a task's details
     // 3. Find a subtask in the list
     // 4. Click on it to navigate to the subtask's details
     // 5. Verify the navigation was called with the correct path
-
     // When implementing this test in the future, use the Material-UI best practices:
     // - Use role-based queries rather than text selection
     // - Add data-testid attributes to subtask components for reliable selection
     // - Wait for state changes using waitFor() with specific assertions
-
   }, 15000); // Set timeout to 15 seconds
 
   it('should handle subtask creation errors', async () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -927,7 +973,7 @@ describe('Task Management Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -939,7 +985,9 @@ describe('Task Management Flow', () => {
     expect(screen.getByText('Test Task')).toBeInTheDocument();
 
     // Test that delete mock can be configured for error handling
-    mockedApi.delete.mockRejectedValueOnce(new Error('Failed to delete subtask'));
+    mockedApi.delete.mockRejectedValueOnce(
+      new Error('Failed to delete subtask'),
+    );
 
     // Verify the error mock works
     try {
@@ -953,7 +1001,6 @@ describe('Task Management Flow', () => {
     // This test requires deeper integration with the UI error handling components
     // We've skipped it for now as it's testing implementation details rather than behavior
     // The core functionality - proper API call handling - is already covered by our other tests
-
     // When implementing this test in the future:
     // 1. Add data-testid attributes to error messages for reliable selection
     // 2. Focus on testing the behavior and state rather than specific DOM elements

@@ -13,12 +13,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useLogin } from '../../hooks/auth/useLogin';
 
 const Login: React.FC = () => {
-  const {
-    loginDetails,
-    error,
-    handleInputChange,
-    handleSubmit
-  } = useLogin();
+  const { loginDetails, error, handleInputChange, handleSubmit } = useLogin();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -33,7 +28,12 @@ const Login: React.FC = () => {
           Login
         </Typography>
         {error && (
-          <Typography variant="body2" color="error" align="center" data-testid="login-error">
+          <Typography
+            variant="body2"
+            color="error"
+            align="center"
+            data-testid="login-error"
+          >
             {error}
           </Typography>
         )}
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
               autoComplete="username"
               inputProps={{ 'data-testid': 'login-input' }}
               InputLabelProps={{
-                sx: { bgcolor: 'background.paper', px: 1 }
+                sx: { bgcolor: 'background.paper', px: 1 },
               }}
             />
           </Box>
@@ -79,7 +79,7 @@ const Login: React.FC = () => {
                 ),
               }}
               InputLabelProps={{
-                sx: { bgcolor: 'background.paper', px: 1 }
+                sx: { bgcolor: 'background.paper', px: 1 },
               }}
             />
           </Box>

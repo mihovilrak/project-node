@@ -16,9 +16,11 @@ const MockFileList: React.FC<{
 }> = ({ files, taskId, onFileDeleted }) => {
   return (
     <div data-testid="file-list">
-      {files.map(file => (
+      {files.map((file) => (
         <div key={file.id} data-testid="file-item">
-          <span data-testid="file-name">{decodeURIComponent(escape(file.original_name))}</span>
+          <span data-testid="file-name">
+            {decodeURIComponent(escape(file.original_name))}
+          </span>
           <span data-testid="file-size">{file.size} bytes</span>
           <button
             data-testid="download-button"
@@ -68,7 +70,7 @@ const MockFileUpload: React.FC<{
           mime_type: file.type,
           size: file.size,
           uploaded_on: new Date().toISOString(),
-          uploaded_by: 'Test User'
+          uploaded_by: 'Test User',
         };
 
         // Simulate API call - wrapped in try/catch for error tests
@@ -81,11 +83,7 @@ const MockFileUpload: React.FC<{
 
   return (
     <div>
-      <input
-        type="file"
-        data-testid="file-input"
-        onChange={handleFileChange}
-      />
+      <input type="file" data-testid="file-input" onChange={handleFileChange} />
       <button data-testid="upload-button">Upload File</button>
     </div>
   );
@@ -94,7 +92,7 @@ const MockFileUpload: React.FC<{
 // Mock API functions
 jest.mock('../../api/api');
 jest.mock('../../api/files', () => ({
-  downloadFile: jest.fn()
+  downloadFile: jest.fn(),
 }));
 
 // Mock API references
@@ -112,7 +110,7 @@ describe('File Management Integration Tests', () => {
     status_id: 1,
     created_on: '2024-01-01',
     updated_on: null,
-    last_login: null
+    last_login: null,
   };
 
   const mockTask: Task = {
@@ -144,7 +142,7 @@ describe('File Management Integration Tests', () => {
     priority_color: '#000000',
     start_date: '2024-01-01',
     due_date: '2024-02-01',
-    end_date: null
+    end_date: null,
   };
 
   const mockFile: TaskFile = {
@@ -156,7 +154,7 @@ describe('File Management Integration Tests', () => {
     mime_type: 'text/plain',
     size: 1024,
     uploaded_on: '2024-01-01',
-    uploaded_by: 'Test User'
+    uploaded_by: 'Test User',
   };
 
   // Reset all mocks before each test
@@ -174,27 +172,26 @@ describe('File Management Integration Tests', () => {
         files={[mockFile]}
         taskId={mockTask.id}
         onFileDeleted={jest.fn()}
-      />
+      />,
     );
 
     // Assert
     expect(screen.getByTestId('file-name')).toHaveTextContent(
-      decodeURIComponent(escape(mockFile.original_name))
+      decodeURIComponent(escape(mockFile.original_name)),
     );
   });
 
   test('should upload a file', async () => {
     // Arrange
-    const file = new File(['test content'], 'test-file.txt', { type: 'text/plain' });
+    const file = new File(['test content'], 'test-file.txt', {
+      type: 'text/plain',
+    });
     const onFileUploaded = jest.fn();
     const user = userEvent.setup();
 
     // Act
     render(
-      <MockFileUpload
-        taskId={mockTask.id}
-        onFileUploaded={onFileUploaded}
-      />
+      <MockFileUpload taskId={mockTask.id} onFileUploaded={onFileUploaded} />,
     );
 
     // Find the file input using data-testid
@@ -218,7 +215,7 @@ describe('File Management Integration Tests', () => {
         files={[mockFile]}
         taskId={mockTask.id}
         onFileDeleted={jest.fn()}
-      />
+      />,
     );
 
     const downloadButton = screen.getByTestId('download-button');
@@ -239,7 +236,7 @@ describe('File Management Integration Tests', () => {
         files={[mockFile]}
         taskId={mockTask.id}
         onFileDeleted={onFileDeleted}
-      />
+      />,
     );
 
     const deleteButton = screen.getByTestId('delete-button');
@@ -251,7 +248,9 @@ describe('File Management Integration Tests', () => {
 
   test('should handle file upload error', async () => {
     // Arrange
-    const file = new File(['test content'], 'test-file.txt', { type: 'text/plain' });
+    const file = new File(['test content'], 'test-file.txt', {
+      type: 'text/plain',
+    });
     const onFileUploaded = jest.fn();
     // Set up the callback to throw an error
     onFileUploaded.mockImplementation(() => {
@@ -267,10 +266,7 @@ describe('File Management Integration Tests', () => {
 
     // Act
     render(
-      <MockFileUpload
-        taskId={mockTask.id}
-        onFileUploaded={onFileUploaded}
-      />
+      <MockFileUpload taskId={mockTask.id} onFileUploaded={onFileUploaded} />,
     );
 
     const input = screen.getByTestId('file-input');
@@ -278,10 +274,15 @@ describe('File Management Integration Tests', () => {
 
     // Assert - Check for error message
     expect(onFileUploaded).toHaveBeenCalled();
-    expect(logger.error).toHaveBeenCalledWith('Upload failed:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith(
+      'Upload failed:',
+      expect.any(Error),
+    );
     await waitFor(() => {
       expect(screen.getByTestId('upload-error')).toBeInTheDocument();
-      expect(screen.getByTestId('upload-error')).toHaveTextContent('Error: Upload failed');
+      expect(screen.getByTestId('upload-error')).toHaveTextContent(
+        'Error: Upload failed',
+      );
     });
   });
 
@@ -305,7 +306,7 @@ describe('File Management Integration Tests', () => {
         files={[mockFile]}
         taskId={mockTask.id}
         onFileDeleted={onFileDeleted}
-      />
+      />,
     );
 
     const deleteButton = screen.getByTestId('delete-button');
@@ -313,10 +314,15 @@ describe('File Management Integration Tests', () => {
 
     // Assert - Check for error message with unique test ID
     expect(onFileDeleted).toHaveBeenCalled();
-    expect(logger.error).toHaveBeenCalledWith('Delete failed:', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith(
+      'Delete failed:',
+      expect.any(Error),
+    );
     await waitFor(() => {
       expect(screen.getByTestId('delete-error')).toBeInTheDocument();
-      expect(screen.getByTestId('delete-error')).toHaveTextContent('Error: Deletion failed');
+      expect(screen.getByTestId('delete-error')).toHaveTextContent(
+        'Error: Deletion failed',
+      );
     });
   });
 });

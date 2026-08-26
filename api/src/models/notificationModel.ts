@@ -1,16 +1,21 @@
 import { Pool } from 'pg';
-import { Notification, NotificationWithDetails, NotificationCreateInput, CreateWatcherNotificationsInput } from '../types/notification';
+import {
+  Notification,
+  NotificationWithDetails,
+  NotificationCreateInput,
+  CreateWatcherNotificationsInput,
+} from '../types/notification';
 
 // Get notifications by user ID
 export const getNotificationsByUserId = async (
   pool: Pool,
-  user_id: string
+  user_id: string,
 ): Promise<NotificationWithDetails[]> => {
   const result = await pool.query(
     `SELECT * FROM notifications
     WHERE user_id = $1
     ORDER BY created_on DESC`,
-    [user_id]
+    [user_id],
   );
   return result.rows;
 };
@@ -18,7 +23,7 @@ export const getNotificationsByUserId = async (
 // Mark all of a user's notifications as read
 export const markNotificationsAsRead = async (
   pool: Pool,
-  user_id: string
+  user_id: string,
 ): Promise<Notification[]> => {
   const result = await pool.query(
     `UPDATE notifications
@@ -26,7 +31,7 @@ export const markNotificationsAsRead = async (
     WHERE user_id = $1
     AND is_read = false
     RETURNING *`,
-    [user_id]
+    [user_id],
   );
   return result.rows;
 };
@@ -34,7 +39,7 @@ export const markNotificationsAsRead = async (
 export const markNotificationAsRead = async (
   pool: Pool,
   id: string,
-  user_id: string
+  user_id: string,
 ): Promise<Notification[]> => {
   const result = await pool.query(
     `UPDATE notifications
@@ -43,7 +48,7 @@ export const markNotificationAsRead = async (
     AND user_id = $2
     AND is_read = false
     RETURNING *`,
-    [id, user_id]
+    [id, user_id],
   );
   return result.rows;
 };
@@ -53,7 +58,7 @@ export const markNotificationAsRead = async (
 export const deleteNotification = async (
   pool: Pool,
   id: string,
-  user_id: string
+  user_id: string,
 ): Promise<boolean> => {
   const result = await pool.query(
     `UPDATE notifications
@@ -61,7 +66,7 @@ export const deleteNotification = async (
     WHERE id = $1
     AND user_id = $2
     RETURNING id`,
-    [id, user_id]
+    [id, user_id],
   );
   return (result.rowCount ?? 0) > 0;
 };
@@ -69,11 +74,11 @@ export const deleteNotification = async (
 // Create watcher notifications
 export const createWatcherNotifications = async (
   pool: Pool,
-  { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput
+  { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput,
 ): Promise<Notification[]> => {
   const result = await pool.query(
     `SELECT * FROM create_watcher_notifications($1, $2, $3)`,
-    [task_id, action_user_id, type_id]
+    [task_id, action_user_id, type_id],
   );
   return result.rows;
 };
@@ -81,11 +86,15 @@ export const createWatcherNotifications = async (
 // Create project member notifications
 export const createProjectMemberNotifications = async (
   pool: Pool,
-  { project_id, action_user_id, type_id }: { project_id: number; action_user_id: number; type_id: number }
+  {
+    project_id,
+    action_user_id,
+    type_id,
+  }: { project_id: number; action_user_id: number; type_id: number },
 ): Promise<Notification[]> => {
   const result = await pool.query(
     `SELECT * FROM create_project_member_notifications($1, $2, $3)`,
-    [project_id, action_user_id, type_id]
+    [project_id, action_user_id, type_id],
   );
   return result.rows;
 };

@@ -1,23 +1,19 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Grid,
-  Typography,
-  CircularProgress
-} from '@mui/material';
+import { Box, Paper, Grid, Typography, CircularProgress } from '@mui/material';
 import {
   Assignment as TaskIcon,
   AccessTime as TimeIcon,
   CheckCircle as CompletedIcon,
-  Timeline as ProjectIcon
+  Timeline as ProjectIcon,
 } from '@mui/icons-material';
-import {
-  ProfileStatsProps,
-  StatCardProps
-} from '../../types/profile';
+import { ProfileStatsProps, StatCardProps } from '../../types/profile';
 
-const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, loading }) => (
+const StatCard: React.FC<StatCardProps> = ({
+  icon: Icon,
+  title,
+  value,
+  loading,
+}) => (
   <Paper sx={{ p: 2 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
       <Icon color="primary" />
@@ -28,9 +24,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, loading }
         {loading ? (
           <CircularProgress size={20} />
         ) : (
-          <Typography variant="h6">
-            {value}
-          </Typography>
+          <Typography variant="h6">{value}</Typography>
         )}
       </Box>
     </Box>

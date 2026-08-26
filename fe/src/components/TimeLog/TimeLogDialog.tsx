@@ -7,7 +7,7 @@ import {
   Button,
   Box,
   CircularProgress,
-  Alert
+  Alert,
 } from '@mui/material';
 import { TimeLogDialogProps } from '../../types/timeLog';
 import { useAuth } from '../../context/AuthContext';
@@ -20,10 +20,11 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   taskId,
   timeLog,
   onClose,
-  onSubmit
+  onSubmit,
 }) => {
   const { currentUser, hasPermission } = useAuth();
-  const hasAdminPermission = hasPermission('Admin') || hasPermission('Project Manager');
+  const hasAdminPermission =
+    hasPermission('Admin') || hasPermission('Project Manager');
 
   const {
     selectedProjectId,
@@ -58,7 +59,7 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
     open,
     projectId,
     taskId,
-    hasAdminPermission
+    hasAdminPermission,
   });
 
   return (
@@ -70,8 +71,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       PaperProps={{
         sx: {
           borderRadius: 2,
-          boxShadow: 3
-        }
+          boxShadow: 3,
+        },
       }}
     >
       <DialogTitle sx={{ pb: 0, mb: 0 }}>
@@ -81,8 +82,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
         sx={{
           pt: '8px',
           '&.MuiDialogContent-root': {
-            paddingTop: '8px'
-          }
+            paddingTop: '8px',
+          },
         }}
       >
         {submitError && (
@@ -96,8 +97,12 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
           </Box>
         ) : (
           <TimeLogForm
-            selectedProjectId={selectedProjectId === undefined ? null : selectedProjectId}
-            selectedTaskId={selectedTaskId === undefined ? null : selectedTaskId}
+            selectedProjectId={
+              selectedProjectId === undefined ? null : selectedProjectId
+            }
+            selectedTaskId={
+              selectedTaskId === undefined ? null : selectedTaskId
+            }
             selectedUserId={selectedUserId}
             selectedActivityTypeId={selectedActivityTypeId}
             spentTime={spentTime}

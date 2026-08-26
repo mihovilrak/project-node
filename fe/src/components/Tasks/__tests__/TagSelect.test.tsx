@@ -18,7 +18,7 @@ const mockTags: Tag[] = [
     created_by: 1,
     active: true,
     created_on: '2023-01-01',
-    creator_name: 'John Doe'
+    creator_name: 'John Doe',
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const mockTags: Tag[] = [
     created_by: 1,
     active: true,
     created_on: '2023-01-01',
-    creator_name: 'John Doe'
+    creator_name: 'John Doe',
   },
   {
     id: 3,
@@ -38,8 +38,8 @@ const mockTags: Tag[] = [
     created_by: 1,
     active: false,
     created_on: '2023-01-01',
-    creator_name: 'John Doe'
-  }
+    creator_name: 'John Doe',
+  },
 ];
 
 describe('TagSelect Component', () => {
@@ -60,25 +60,27 @@ describe('TagSelect Component', () => {
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
 
     // Wait for loading to finish - mock resolves immediately
-    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument(),
+    );
 
     // Open the dropdown
     fireEvent.mouseDown(screen.getByRole('combobox'));
 
     // Wait for the options to appear
     const options = await screen.findAllByRole('option');
-    const optionTexts = options.map(opt => opt.textContent);
+    const optionTexts = options.map((opt) => opt.textContent);
 
-    expect(optionTexts).toEqual(
-      expect.arrayContaining(['Bug', 'Feature'])
-    );
+    expect(optionTexts).toEqual(expect.arrayContaining(['Bug', 'Feature']));
     expect(optionTexts).not.toContain('Inactive');
   });
 
   test('handles tag selection', async () => {
     render(<TagSelect selectedTags={[]} onTagsChange={onTagsChange} />);
 
-    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument(),
+    );
 
     // Open the dropdown
     fireEvent.mouseDown(screen.getByRole('combobox'));
@@ -89,24 +91,23 @@ describe('TagSelect Component', () => {
       expect(options.length).toBeGreaterThan(0);
     });
 
-    const bugOption = screen.getAllByRole('option').find(opt => /bug/i.test(opt.textContent || ''));
+    const bugOption = screen
+      .getAllByRole('option')
+      .find((opt) => /bug/i.test(opt.textContent || ''));
     expect(bugOption).toBeDefined();
     fireEvent.click(bugOption!);
 
     // The onTagsChange callback should be called with the selected tag
     await waitFor(() => {
       expect(onTagsChange).toHaveBeenCalledWith([
-        expect.objectContaining({ name: 'Bug' })
+        expect.objectContaining({ name: 'Bug' }),
       ]);
     });
   });
 
   test('renders selected tags as chips with correct colors and icons', async () => {
     render(
-      <TagSelect
-        selectedTags={[mockTags[0]]}
-        onTagsChange={onTagsChange}
-      />
+      <TagSelect selectedTags={[mockTags[0]]} onTagsChange={onTagsChange} />,
     );
 
     await waitFor(() => {
@@ -115,7 +116,7 @@ describe('TagSelect Component', () => {
 
     const chip = screen.getByText('Bug').closest('.MuiChip-root');
     expect(chip).toHaveStyle({ backgroundColor: '#ff0000' });
-    
+
     // Check that icon is present (LabelIcon)
     const icon = chip?.querySelector('svg');
     expect(icon).toBeInTheDocument();
@@ -132,7 +133,7 @@ describe('TagSelect Component', () => {
 
     expect(logger.error).toHaveBeenCalledWith(
       'Failed to fetch tags:',
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 
@@ -140,10 +141,7 @@ describe('TagSelect Component', () => {
     mockedGetTags.mockResolvedValue(mockTags);
 
     render(
-      <TagSelect
-        selectedTags={[mockTags[0]]}
-        onTagsChange={onTagsChange}
-      />
+      <TagSelect selectedTags={[mockTags[0]]} onTagsChange={onTagsChange} />,
     );
 
     await waitFor(() => {

@@ -16,18 +16,26 @@ export const useTimeLogDialog = ({
   taskId,
   hasAdminPermission,
 }: UseTimeLogDialogProps) => {
-  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
-  const [selectedTaskId, setSelectedTaskId] = useState<number | undefined>(undefined);
-  const [selectedUserId, setSelectedUserId] = useState<number>(currentUser?.id || 0);
-  const [selectedActivityTypeId, setSelectedActivityTypeId] = useState<number>(0);
+  const [selectedProjectId, setSelectedProjectId] = useState<
+    number | undefined
+  >(undefined);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | undefined>(
+    undefined,
+  );
+  const [selectedUserId, setSelectedUserId] = useState<number>(
+    currentUser?.id || 0,
+  );
+  const [selectedActivityTypeId, setSelectedActivityTypeId] =
+    useState<number>(0);
   const [spentTime, setSpentTime] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [logDate, setLogDate] = useState<Dayjs>(dayjs());
-  
+
   // Track if form has been initialized to prevent infinite loops
   const isInitialized = useRef(false);
 
-  const { timeError, validateTime, validateAndFormatTime } = useTimeLogValidation();
+  const { timeError, validateTime, validateAndFormatTime } =
+    useTimeLogValidation();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     projects,
@@ -35,8 +43,12 @@ export const useTimeLogDialog = ({
     users,
     activityTypes,
     isLoading,
-    handleProjectSelect: handleProjectDataFetch
-  } = useTimeLogData({ open, projectId: projectId ?? selectedProjectId, hasAdminPermission });
+    handleProjectSelect: handleProjectDataFetch,
+  } = useTimeLogData({
+    open,
+    projectId: projectId ?? selectedProjectId,
+    hasAdminPermission,
+  });
 
   // Reset initialization flag and submit error when dialog closes
   useEffect(() => {
@@ -57,7 +69,10 @@ export const useTimeLogDialog = ({
         setSelectedTaskId(timeLog.task_id);
         setSelectedUserId(timeLog.user_id);
         setSelectedActivityTypeId(timeLog.activity_type_id);
-        const spentTimeNum = typeof timeLog.spent_time === 'string' ? parseFloat(timeLog.spent_time) : timeLog.spent_time;
+        const spentTimeNum =
+          typeof timeLog.spent_time === 'string'
+            ? parseFloat(timeLog.spent_time)
+            : timeLog.spent_time;
         setSpentTime(String(spentTimeNum));
         setDescription(timeLog.description || '');
         setLogDate(dayjs(timeLog.log_date));
@@ -107,7 +122,7 @@ export const useTimeLogDialog = ({
       activity_type_id: selectedActivityTypeId,
       log_date: logDate.format('YYYY-MM-DD'),
       spent_time: validatedHours,
-      description: description || undefined
+      description: description || undefined,
     };
     logger.debug('Submitting time log data:', timeLogData);
 
@@ -116,7 +131,10 @@ export const useTimeLogDialog = ({
       onClose();
     } catch (error: unknown) {
       logger.error('Failed to submit time log:', error);
-      const message = error instanceof Error ? error.message : 'Failed to save time log. Please try again.';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to save time log. Please try again.';
       setSubmitError(message);
     }
   };

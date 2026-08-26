@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Grid,
-  Chip
-} from '@mui/material';
+import { Box, Paper, Typography, Grid, Chip } from '@mui/material';
 import { Task } from '../../types/task';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
@@ -17,7 +11,7 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
   timeLogs,
   onDateChange,
   onViewChange,
-  onTaskClick
+  onTaskClick,
 }) => {
   const { getDaysInMonth } = useCalendarDays(date, tasks, timeLogs);
 
@@ -40,10 +34,10 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
               backgroundColor: day.isToday
                 ? 'action.hover'
                 : day.isCurrentMonth
-                ? 'background.paper'
-                : 'action.disabledBackground',
+                  ? 'background.paper'
+                  : 'action.disabledBackground',
               cursor: 'pointer',
-              '&:hover': { opacity: 0.9 }
+              '&:hover': { opacity: 0.9 },
             }}
             onClick={() => {
               onDateChange(day.date);
@@ -74,7 +68,9 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
                       sx={{
                         mb: 0.5,
                         width: '100%',
-                        backgroundColor: getPriorityColor(task?.priority_name || '')
+                        backgroundColor: getPriorityColor(
+                          task?.priority_name || '',
+                        ),
                       }}
                       data-testid={`task-chip-${task?.id}`}
                     />
@@ -87,8 +83,13 @@ const CalendarMonthView: React.FC<CalendarViewProps> = ({
                 </>
               ) : null}
               {day.totalTime && day.totalTime > 0 && (
-                <Typography variant="caption" display="block" color="text.secondary">
-                  Time logged: {Math.round(day.totalTime / 60)}h {day.totalTime % 60}m
+                <Typography
+                  variant="caption"
+                  display="block"
+                  color="text.secondary"
+                >
+                  Time logged: {Math.round(day.totalTime / 60)}h{' '}
+                  {day.totalTime % 60}m
                 </Typography>
               )}
             </Box>

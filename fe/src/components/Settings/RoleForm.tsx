@@ -6,7 +6,7 @@ import {
   Switch,
   Typography,
   Checkbox,
-  Box
+  Box,
 } from '@mui/material';
 import { RoleFormProps } from '../../types/role';
 
@@ -14,7 +14,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
   formData,
   groupedPermissions,
   onChange,
-  onPermissionToggle
+  onPermissionToggle,
 }) => {
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -47,20 +47,29 @@ export const RoleForm: React.FC<RoleFormProps> = ({
             const mid = Math.ceil(entries.length / 2);
             const leftColumn = entries.slice(0, mid);
             const rightColumn = entries.slice(mid);
-            const renderCategory = (category: string, permissions: typeof entries[0][1]) => (
+            const renderCategory = (
+              category: string,
+              permissions: (typeof entries)[0][1],
+            ) => (
               <Box key={category || Math.random()} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ textTransform: 'capitalize' }}
+                >
                   {category || 'Unknown'}
                 </Typography>
                 <Box sx={{ ml: 2 }}>
-                  {(permissions || []).map(permission => {
+                  {(permissions || []).map((permission) => {
                     if (!permission?.id) return null;
                     return (
                       <FormControlLabel
                         key={permission.id}
                         control={
                           <Checkbox
-                            checked={(formData?.permissions || []).includes(permission.id)}
+                            checked={(formData?.permissions || []).includes(
+                              permission.id,
+                            )}
                             onChange={() => onPermissionToggle(permission)}
                           />
                         }
@@ -74,10 +83,14 @@ export const RoleForm: React.FC<RoleFormProps> = ({
             return (
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  {leftColumn.map(([category, permissions]) => renderCategory(category, permissions))}
+                  {leftColumn.map(([category, permissions]) =>
+                    renderCategory(category, permissions),
+                  )}
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  {rightColumn.map(([category, permissions]) => renderCategory(category, permissions))}
+                  {rightColumn.map(([category, permissions]) =>
+                    renderCategory(category, permissions),
+                  )}
                 </Grid>
               </Grid>
             );

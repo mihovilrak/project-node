@@ -13,19 +13,23 @@ jest.mock('../../../api/api');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
-  BrowserRouter: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  BrowserRouter: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 // Mock AuthContext to prevent session checks
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: { id: 1, name: 'Test User' },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock users API
@@ -43,18 +47,16 @@ jest.mock('../../../api/users', () => ({
     updated_on: '2023-01-02T12:00:00Z',
     last_login: '2023-01-03T12:00:00Z',
     role_name: 'Admin',
-    status_name: 'Active'
-  })
+    status_name: 'Active',
+  }),
 }));
 
 // Custom test wrapper
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
-  return (
-    <ThemeProvider theme={theme}>
-      {children}
-    </ThemeProvider>
-  );
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 };
 
 // Performance measurement callback
@@ -64,7 +66,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -76,7 +78,10 @@ const onRenderCallback = (
 
 describe('UserDetails Component Performance Tests', () => {
   // Helper function to measure render performance
-  const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+  const measurePerformance = (
+    Component: React.ComponentType<any>,
+    props = {},
+  ) => {
     const start = performance.now();
 
     render(
@@ -84,7 +89,7 @@ describe('UserDetails Component Performance Tests', () => {
         <Profiler id={Component.name} onRender={onRenderCallback}>
           <Component {...props} />
         </Profiler>
-      </PerfTestWrapper>
+      </PerfTestWrapper>,
     );
 
     const end = performance.now();
@@ -112,13 +117,15 @@ describe('UserDetails Component Performance Tests', () => {
         created_on: new Date().toISOString(),
         updated_on: new Date().toISOString(),
         last_login: new Date().toISOString(),
-        avatar_url: null
+        avatar_url: null,
       },
       loading: false,
-      error: null
+      error: null,
     };
 
-    const renderTime = measurePerformance(UserDetails, { initialState: mockUser });
+    const renderTime = measurePerformance(UserDetails, {
+      initialState: mockUser,
+    });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
 
@@ -127,10 +134,12 @@ describe('UserDetails Component Performance Tests', () => {
     const mockError: UserDetailsState = {
       user: null,
       loading: false,
-      error: 'Failed to fetch user details'
+      error: 'Failed to fetch user details',
     };
 
-    const renderTime = measurePerformance(UserDetails, { initialState: mockError });
+    const renderTime = measurePerformance(UserDetails, {
+      initialState: mockError,
+    });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
 });

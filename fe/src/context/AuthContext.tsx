@@ -1,16 +1,7 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect
-} from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../api/api';
 import { User } from '../types/user';
-import {
-  AuthContextType,
-  AuthProviderProps,
-  Permission
-} from '../types/auth';
+import { AuthContextType, AuthProviderProps, Permission } from '../types/auth';
 import logger from '../utils/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,8 +20,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const [permissionsLoading, setPermissionsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-
 
   useEffect(() => {
     const checkSession = async () => {
@@ -59,11 +48,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const hasPermission = (requiredPermission: string): boolean => {
     if (permissionsLoading) return false;
-    return userPermissions.some(p => p.permission === requiredPermission);
+    return userPermissions.some((p) => p.permission === requiredPermission);
   };
 
-
-  const login = async (loginName: string, password: string): Promise<boolean> => {
+  const login = async (
+    loginName: string,
+    password: string,
+  ): Promise<boolean> => {
     try {
       setPermissionsLoading(true);
       setError(null);
@@ -113,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         hasPermission,
         permissionsLoading,
         error,
-        userPermissions
+        userPermissions,
       }}
     >
       {children}

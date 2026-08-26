@@ -49,7 +49,7 @@ export const useTaskFiles = (taskId: string) => {
       if (!fileId) throw new Error('File ID is required');
 
       await deleteFile(Number(taskId), fileId);
-      setFiles(prev => prev.filter(file => file?.id !== fileId));
+      setFiles((prev) => prev.filter((file) => file?.id !== fileId));
     } catch (error: unknown) {
       logger.error('Failed to delete file:', error);
       throw new Error(getApiErrorMessage(error, 'Failed to delete file'));
@@ -60,6 +60,6 @@ export const useTaskFiles = (taskId: string) => {
     files,
     handleFileUpload,
     handleFileDelete,
-    refreshFiles
+    refreshFiles,
   };
 };

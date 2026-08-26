@@ -17,7 +17,7 @@ describe('LoginController', () => {
 
   beforeEach(() => {
     mockDestroy = jest.fn((callback: (err: any) => void) => callback(null));
-    
+
     // Create a partial mock Session object with required properties
     const mockSession = {
       id: 'test-session-id',
@@ -28,7 +28,7 @@ describe('LoginController', () => {
         httpOnly: true,
         path: '/',
         domain: undefined,
-        sameSite: 'strict'
+        sameSite: 'strict',
       },
       regenerate: jest.fn((callback: (err: any) => void) => {
         callback(null);
@@ -45,21 +45,22 @@ describe('LoginController', () => {
         if (callback) callback(null);
         return mockSession as unknown as Session;
       }),
-      user: undefined
-    } as unknown as Session & Partial<{
-      user: { id: string; login: string; role_id: number }
-    }>;
+      user: undefined,
+    } as unknown as Session &
+      Partial<{
+        user: { id: string; login: string; role_id: number };
+      }>;
 
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
-      clearCookie: jest.fn()
+      clearCookie: jest.fn(),
     };
     mockPool = {};
     jest.clearAllMocks();
@@ -70,12 +71,14 @@ describe('LoginController', () => {
       const mockUser = {
         id: '1',
         login: 'testuser',
-        role_id: 1
+        role_id: 1,
       };
-      const mockPermissions = [{
-        user_id: '1',
-        permission: 'Create projects' as const,
-      }];
+      const mockPermissions = [
+        {
+          user_id: '1',
+          permission: 'Create projects' as const,
+        },
+      ];
       mockReq.body = { login: 'testuser', password: 'password123' };
       (loginModel.login as jest.Mock).mockResolvedValue(mockUser);
       (loginModel.app_logins as jest.Mock).mockResolvedValue(undefined);
@@ -86,20 +89,25 @@ describe('LoginController', () => {
       await loginController.login(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(
-        loginModel.login,
-      ).toHaveBeenCalledWith(mockPool, 'testuser', 'password123');
+      expect(loginModel.login).toHaveBeenCalledWith(
+        mockPool,
+        'testuser',
+        'password123',
+      );
       expect(loginModel.app_logins).toHaveBeenCalledWith(mockPool, '1');
-      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(mockPool, '1');
+      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+      );
       expect(mockReq.session!.user).toEqual(mockUser);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Login successful',
         user: mockUser,
-        permissions: mockPermissions
+        permissions: mockPermissions,
       });
     });
 
@@ -109,13 +117,13 @@ describe('LoginController', () => {
       await loginController.login(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Invalid request',
-        message: 'login and password must be non-empty strings'
+        message: 'login and password must be non-empty strings',
       });
       expect(loginModel.login).not.toHaveBeenCalled();
     });
@@ -126,13 +134,13 @@ describe('LoginController', () => {
       await loginController.login(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Invalid request',
-        message: 'login and password are required'
+        message: 'login and password are required',
       });
       expect(loginModel.login).not.toHaveBeenCalled();
     });
@@ -144,15 +152,17 @@ describe('LoginController', () => {
       await loginController.login(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(
-        loginModel.login,
-      ).toHaveBeenCalledWith(mockPool, 'testuser', 'wrongpassword');
+      expect(loginModel.login).toHaveBeenCalledWith(
+        mockPool,
+        'testuser',
+        'wrongpassword',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Invalid username or password'
+        error: 'Invalid username or password',
       });
     });
 
@@ -165,20 +175,19 @@ describe('LoginController', () => {
         loginController.login(
           mockReq as Request,
           mockRes as Response,
-          mockPool as Pool
-        )
+          mockPool as Pool,
+        ),
       ).rejects.toThrow('Database error');
       expect(mockRes.status).not.toHaveBeenCalledWith(500);
-      expect(mockRes.json).not.toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).not.toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('logout', () => {
     it('should logout successfully', () => {
-      loginController.logout(
-        mockReq as Request,
-        mockRes as Response
-      );
+      loginController.logout(mockReq as Request, mockRes as Response);
 
       expect(mockDestroy).toHaveBeenCalled();
       // clearCookie only removes the cookie when the attributes match the ones it
@@ -187,28 +196,25 @@ describe('LoginController', () => {
         path: '/',
         sameSite: 'strict',
         secure: false,
-        httpOnly: true
+        httpOnly: true,
       });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
-        message: 'Logged out successfully'
+        message: 'Logged out successfully',
       });
     });
 
     it('should return 500 on session destroy error', () => {
-      mockDestroy.mockImplementation(
-        (callback: (err: any) => void) => callback(new Error('Session error')),
+      mockDestroy.mockImplementation((callback: (err: any) => void) =>
+        callback(new Error('Session error')),
       );
 
-      loginController.logout(
-        mockReq as Request,
-        mockRes as Response
-      );
+      loginController.logout(mockReq as Request, mockRes as Response);
 
       expect(mockDestroy).toHaveBeenCalled();
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Failed to logout'
+        error: 'Failed to logout',
       });
     });
   });

@@ -3,7 +3,11 @@ import { Pool } from 'pg';
 import * as commentModel from '../models/commentModel';
 import * as notificationModel from '../models/notificationModel';
 import { CustomRequest } from '../types/express';
-import { CommentCreateInput, CommentUpdateInput, TaskRequest } from '../types/comment';
+import {
+  CommentCreateInput,
+  CommentUpdateInput,
+  TaskRequest,
+} from '../types/comment';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
 
@@ -11,7 +15,7 @@ import logger from '../utils/logger';
 export const getTaskComments = async (
   req: TaskRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const taskId = req.taskId;
@@ -27,7 +31,7 @@ export const getTaskComments = async (
 export const createComment = async (
   req: CustomRequest & TaskRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const taskId = req.taskId;
@@ -42,14 +46,14 @@ export const createComment = async (
       pool,
       taskId || '',
       userId,
-      comment
+      comment,
     );
 
     // Create notifications for watchers
     await notificationModel.createWatcherNotifications(pool, {
       action_user_id: parseInt(userId),
-      type_id: NotificationType.TaskComment,  // Task Comment
-      task_id: parseInt(taskId!)
+      type_id: NotificationType.TaskComment, // Task Comment
+      task_id: parseInt(taskId!),
     });
 
     res.status(201).json(newComment);
@@ -63,7 +67,7 @@ export const createComment = async (
 export const editComment = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
   const { comment } = req.body as CommentUpdateInput;
@@ -81,7 +85,7 @@ export const editComment = async (
 export const deleteComment = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { id } = req.params;
 

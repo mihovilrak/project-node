@@ -25,7 +25,7 @@ describe('UserController', () => {
         httpOnly: true,
         path: '/',
         domain: undefined,
-        sameSite: 'strict'
+        sameSite: 'strict',
       },
       regenerate: jest.fn((callback: (err: any) => void) => {
         callback(null);
@@ -48,15 +48,16 @@ describe('UserController', () => {
       user: {
         id: '1',
         login: 'test',
-        role_id: 1
-      }
-    } as unknown as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+        role_id: 1,
+      },
+    } as unknown as Session &
+      Partial<{ user: { id: string; login: string; role_id: number } }>;
 
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
@@ -70,23 +71,28 @@ describe('UserController', () => {
     it('should return all users', async () => {
       const mockUsers = [
         { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' },
-        { id: '2', login: 'user2', name: 'User 2', email: 'user2@test.com' }
+        { id: '2', login: 'user2', name: 'User 2', email: 'user2@test.com' },
       ];
       (userModel.getUsers as jest.Mock).mockResolvedValue(mockUsers);
 
       await userController.getUsers(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams: { status_id: 1 }, includeDeleted: false });
+      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, {
+        whereParams: { status_id: 1 },
+        includeDeleted: false,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });
 
     it('should return users with whereParams filter', async () => {
-      const mockUsers = [{ id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' }];
+      const mockUsers = [
+        { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' },
+      ];
       const whereParams = { status_id: 1 };
       mockReq.query = { whereParams: JSON.stringify(whereParams) };
       (userModel.getUsers as jest.Mock).mockResolvedValue(mockUsers);
@@ -94,37 +100,47 @@ describe('UserController', () => {
       await userController.getUsers(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, { whereParams, includeDeleted: false });
+      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, {
+        whereParams,
+        includeDeleted: false,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });
 
     it('should handle errors', async () => {
-      (userModel.getUsers as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.getUsers as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.getUsers(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getUserStatuses', () => {
     it('should return user statuses', async () => {
-      const mockStatuses = [{ id: 1, name: 'Active' }, { id: 2, name: 'Inactive' }];
+      const mockStatuses = [
+        { id: 1, name: 'Active' },
+        { id: 2, name: 'Inactive' },
+      ];
       (userModel.getUserStatuses as jest.Mock).mockResolvedValue(mockStatuses);
 
       await userController.getUserStatuses(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(userModel.getUserStatuses).toHaveBeenCalledWith(mockPool);
@@ -133,29 +149,38 @@ describe('UserController', () => {
     });
 
     it('should handle errors', async () => {
-      (userModel.getUserStatuses as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.getUserStatuses as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.getUserStatuses(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getUserById', () => {
     it('should return a user when found', async () => {
-      const mockUser = { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' };
+      const mockUser = {
+        id: '1',
+        login: 'user1',
+        name: 'User 1',
+        email: 'user1@test.com',
+      };
       mockReq.params = { id: '1' };
       (userModel.getUserById as jest.Mock).mockResolvedValue(mockUser);
 
       await userController.getUserById(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(userModel.getUserById).toHaveBeenCalledWith(mockPool, '1');
@@ -170,7 +195,7 @@ describe('UserController', () => {
       await userController.getUserById(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -179,16 +204,20 @@ describe('UserController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (userModel.getUserById as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.getUserById as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.getUserById(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -200,7 +229,7 @@ describe('UserController', () => {
         surname: 'User',
         email: 'newuser@test.com',
         password: 'password123',
-        role_id: 2
+        role_id: 2,
       };
       const createdUser = { id: '3', ...mockUserData };
       mockReq.body = mockUserData;
@@ -209,7 +238,7 @@ describe('UserController', () => {
       await userController.createUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(userModel.createUser).toHaveBeenCalledWith(
@@ -219,31 +248,47 @@ describe('UserController', () => {
         mockUserData.surname,
         mockUserData.email,
         mockUserData.password,
-        mockUserData.role_id
+        mockUserData.role_id,
       );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(createdUser);
     });
 
     it('should handle errors', async () => {
-      mockReq.body = { login: 'newuser', name: 'New', surname: 'User', email: 'newuser@test.com', password: 'pass', role_id: 2 };
-      (userModel.createUser as jest.Mock).mockRejectedValue(new Error('Database error'));
+      mockReq.body = {
+        login: 'newuser',
+        name: 'New',
+        surname: 'User',
+        email: 'newuser@test.com',
+        password: 'pass',
+        role_id: 2,
+      };
+      (userModel.createUser as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.createUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('updateUser', () => {
     it('should update a user successfully', async () => {
       const mockUpdates = { name: 'Updated Name' };
-      const updatedUser = { id: '1', login: 'user1', name: 'Updated Name', email: 'user1@test.com' };
+      const updatedUser = {
+        id: '1',
+        login: 'user1',
+        name: 'Updated Name',
+        email: 'user1@test.com',
+      };
       mockReq.params = { id: '1' };
       mockReq.body = mockUpdates;
       (userModel.updateUser as jest.Mock).mockResolvedValue(updatedUser);
@@ -251,10 +296,14 @@ describe('UserController', () => {
       await userController.updateUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(userModel.updateUser).toHaveBeenCalledWith(mockPool, mockUpdates, '1');
+      expect(userModel.updateUser).toHaveBeenCalledWith(
+        mockPool,
+        mockUpdates,
+        '1',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedUser);
     });
@@ -267,7 +316,7 @@ describe('UserController', () => {
       await userController.updateUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -277,22 +326,31 @@ describe('UserController', () => {
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { name: 'Test' };
-      (userModel.updateUser as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.updateUser as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.updateUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('changeUserStatus', () => {
     it('should change user status successfully', async () => {
-      const updatedUser = { id: '1', login: 'user1', name: 'User 1', status_id: 2 };
+      const updatedUser = {
+        id: '1',
+        login: 'user1',
+        name: 'User 1',
+        status_id: 2,
+      };
       mockReq.params = { id: '1' };
       mockReq.body = { status: 2 };
       (userModel.changeUserStatus as jest.Mock).mockResolvedValue(updatedUser);
@@ -300,7 +358,7 @@ describe('UserController', () => {
       await userController.changeUserStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(userModel.changeUserStatus).toHaveBeenCalledWith(mockPool, '1', 2);
@@ -316,7 +374,7 @@ describe('UserController', () => {
       await userController.changeUserStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -326,16 +384,20 @@ describe('UserController', () => {
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { status: 2 };
-      (userModel.changeUserStatus as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.changeUserStatus as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.changeUserStatus(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -347,7 +409,7 @@ describe('UserController', () => {
       await userController.deleteUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(userModel.deleteUser).toHaveBeenCalledWith(mockPool, '1');
@@ -362,7 +424,7 @@ describe('UserController', () => {
       await userController.deleteUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -371,31 +433,40 @@ describe('UserController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (userModel.deleteUser as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (userModel.deleteUser as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.deleteUser(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getUserPermissions', () => {
     it('should return user permissions', async () => {
       const mockPermissions = ['read:users', 'write:users', 'delete:users'];
-      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(mockPermissions);
+      (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(
+        mockPermissions,
+      );
 
       await userController.getUserPermissions(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(mockPool, '1');
+      expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+      );
       expect(mockRes.json).toHaveBeenCalledWith(mockPermissions);
     });
 
@@ -405,7 +476,7 @@ describe('UserController', () => {
       await userController.getUserPermissions(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
@@ -413,16 +484,20 @@ describe('UserController', () => {
     });
 
     it('should handle errors', async () => {
-      (permissionModel.getUserPermissions as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (permissionModel.getUserPermissions as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await userController.getUserPermissions(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 });

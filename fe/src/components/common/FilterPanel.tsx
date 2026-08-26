@@ -12,7 +12,7 @@ import {
   SelectChangeEvent,
   Button,
   List,
-  Typography
+  Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -25,7 +25,7 @@ import {
   DropdownFilterOperator,
   FILTER_FIELD_LABELS,
   DATE_FIELD_TO_KEYS,
-  AvailableFilterDef
+  AvailableFilterDef,
 } from '../../types/filterPanel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -35,20 +35,20 @@ import { useFilterPanel } from '../../hooks/common/useFilterPanel';
 const DATE_OPERATORS: { value: DateFilterOperator; label: string }[] = [
   { value: 'from', label: 'From' },
   { value: 'to', label: 'To' },
-  { value: 'between', label: 'Between' }
+  { value: 'between', label: 'Between' },
 ];
 
 const DROPDOWN_OPERATORS: { value: DropdownFilterOperator; label: string }[] = [
   { value: 'includes', label: 'Includes' },
   { value: 'excludes', label: 'Excludes' },
-  { value: 'is', label: 'Is' }
+  { value: 'is', label: 'Is' },
 ];
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
   type,
   filters,
   options,
-  onFilterChange
+  onFilterChange,
 }) => {
   const {
     expanded,
@@ -62,13 +62,19 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     removeFilter,
     updateFilter,
     applyFilters,
-    availableFilters
+    availableFilters,
   } = useFilterPanel(filters, onFilterChange, options, type);
 
-  const [betweenFirstFocused, setBetweenFirstFocused] = useState<string | null>(null);
-  const [betweenSecondFocused, setBetweenSecondFocused] = useState<string | null>(null);
+  const [betweenFirstFocused, setBetweenFirstFocused] = useState<string | null>(
+    null,
+  );
+  const [betweenSecondFocused, setBetweenSecondFocused] = useState<
+    string | null
+  >(null);
 
-  const getFilterDef = (field: ActiveFilter['field']): AvailableFilterDef | undefined =>
+  const getFilterDef = (
+    field: ActiveFilter['field'],
+  ): AvailableFilterDef | undefined =>
     availableFilters.find((d) => d.key === field);
 
   const handleAddFilter = (e: React.MouseEvent, def: AvailableFilterDef) => {
@@ -89,7 +95,19 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     const isBetween = isDate && dateOp === 'between';
 
     return (
-      <Box key={af.id} sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 1, mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1 }}>
+      <Box
+        key={af.id}
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-start',
+          gap: 1,
+          mb: 2,
+          p: 1.5,
+          bgcolor: 'action.hover',
+          borderRadius: 1,
+        }}
+      >
         <Box sx={{ minWidth: 120, fontWeight: 500 }}>{label}</Box>
         {isDate && (
           <>
@@ -98,7 +116,10 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 value={dateOp}
                 onChange={(e: SelectChangeEvent<DateFilterOperator>) => {
                   const newOp = e.target.value as DateFilterOperator;
-                  updateFilter(af.id, { operator: newOp, value2: newOp === 'between' ? af.value2 : undefined });
+                  updateFilter(af.id, {
+                    operator: newOp,
+                    value2: newOp === 'between' ? af.value2 : undefined,
+                  });
                   if (newOp === 'between') setBetweenFirstFocused(af.id);
                 }}
                 displayEmpty
@@ -114,7 +135,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <DatePicker
                 label={dateOp === 'from' ? 'From' : 'To'}
                 value={af.value ? dayjs(String(af.value)) : null}
-                onChange={(date) => updateFilter(af.id, { value: date ? dayjs(date).format('YYYY-MM-DD') : null })}
+                onChange={(date) =>
+                  updateFilter(af.id, {
+                    value: date ? dayjs(date).format('YYYY-MM-DD') : null,
+                  })
+                }
                 slotProps={{ textField: { size: 'small', sx: { width: 160 } } }}
               />
             )}
@@ -136,14 +161,16 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   onClose={() => setBetweenFirstFocused(null)}
                   slotProps={{
                     textField: { size: 'small', sx: { width: 160 } },
-                    actionBar: { actions: ['accept'] }
+                    actionBar: { actions: ['accept'] },
                   }}
                 />
                 <DatePicker
                   label="To"
                   value={af.value2 ? dayjs(String(af.value2)) : null}
                   onChange={(date) => {
-                    updateFilter(af.id, { value2: date ? dayjs(date).format('YYYY-MM-DD') : null });
+                    updateFilter(af.id, {
+                      value2: date ? dayjs(date).format('YYYY-MM-DD') : null,
+                    });
                     setBetweenSecondFocused(null);
                   }}
                   open={betweenSecondFocused === af.id}
@@ -151,7 +178,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   onClose={() => setBetweenSecondFocused(null)}
                   slotProps={{
                     textField: { size: 'small', sx: { width: 160 } },
-                    actionBar: { actions: ['accept'] }
+                    actionBar: { actions: ['accept'] },
                   }}
                 />
               </>
@@ -164,7 +191,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               <Select
                 value={af.operator as DropdownFilterOperator}
                 onChange={(e: SelectChangeEvent<DropdownFilterOperator>) =>
-                  updateFilter(af.id, { operator: e.target.value as DropdownFilterOperator })
+                  updateFilter(af.id, {
+                    operator: e.target.value as DropdownFilterOperator,
+                  })
                 }
               >
                 {DROPDOWN_OPERATORS.map((op) => (
@@ -182,7 +211,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   value={String(af.value ?? '')}
                   onChange={(e: SelectChangeEvent<string>) =>
                     updateFilter(af.id, {
-                      value: e.target.value === '' ? null : e.target.value === '1' ? 1 : 0
+                      value:
+                        e.target.value === ''
+                          ? null
+                          : e.target.value === '1'
+                            ? 1
+                            : 0,
                     })
                   }
                   label="Value"
@@ -203,17 +237,27 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   value={af.valueMulti ?? []}
                   onChange={(e: SelectChangeEvent<number[]>) => {
                     const v = e.target.value;
-                    updateFilter(af.id, { valueMulti: typeof v === 'string' ? [] : v });
+                    updateFilter(af.id, {
+                      valueMulti: typeof v === 'string' ? [] : v,
+                    });
                   }}
                   label="Values"
                   renderValue={(selected) =>
-                    (def.optionKey ? (options[def.optionKey] as FilterOption[] | undefined) || [] : [])
+                    (def.optionKey
+                      ? (options[def.optionKey] as
+                          FilterOption[] | undefined) || []
+                      : []
+                    )
                       .filter((opt) => selected.includes(opt?.id ?? 0))
                       .map((opt) => opt?.name || 'Unknown')
                       .join(', ')
                   }
                 >
-                  {(def.optionKey ? (options[def.optionKey] as FilterOption[] | undefined) || [] : []).map((opt: FilterOption) => (
+                  {(def.optionKey
+                    ? (options[def.optionKey] as FilterOption[] | undefined) ||
+                      []
+                    : []
+                  ).map((opt: FilterOption) => (
                     <MenuItem key={opt?.id} value={opt?.id ?? 0}>
                       {opt?.name || 'Unknown'}
                     </MenuItem>
@@ -227,14 +271,20 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   labelId={`${af.id}-val-label`}
                   value={String(af.value ?? '')}
                   onChange={(e: SelectChangeEvent<string>) =>
-                    updateFilter(af.id, { value: e.target.value ? Number(e.target.value) : null })
+                    updateFilter(af.id, {
+                      value: e.target.value ? Number(e.target.value) : null,
+                    })
                   }
                   label="Value"
                 >
                   <MenuItem value="">
                     <em>None</em>
                   </MenuItem>
-                  {(def.optionKey ? (options[def.optionKey] as FilterOption[] | undefined) || [] : []).map((opt: FilterOption) => (
+                  {(def.optionKey
+                    ? (options[def.optionKey] as FilterOption[] | undefined) ||
+                      []
+                    : []
+                  ).map((opt: FilterOption) => (
                     <MenuItem key={opt?.id} value={String(opt?.id ?? '')}>
                       {opt?.name || 'Unknown'}
                     </MenuItem>
@@ -250,11 +300,23 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             label="Value"
             type={isNumber ? 'number' : 'text'}
             value={af.value ?? ''}
-            onChange={(e) => updateFilter(af.id, { value: isNumber ? (e.target.value === '' ? null : Number(e.target.value)) : e.target.value })}
+            onChange={(e) =>
+              updateFilter(af.id, {
+                value: isNumber
+                  ? e.target.value === ''
+                    ? null
+                    : Number(e.target.value)
+                  : e.target.value,
+              })
+            }
             sx={{ width: 160 }}
           />
         )}
-        <IconButton size="small" onClick={() => removeFilter(af.id)} aria-label="Remove filter">
+        <IconButton
+          size="small"
+          onClick={() => removeFilter(af.id)}
+          aria-label="Remove filter"
+        >
           <DeleteOutlineIcon fontSize="small" />
         </IconButton>
       </Box>
@@ -286,12 +348,34 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
       <Collapse in={expanded}>
         <Box sx={{ mt: 1 }} onClick={(e) => e.stopPropagation()}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              gap: 2,
+            }}
+          >
             <Box sx={{ flexShrink: 0 }}>
-              <Typography component="span" variant="subtitle2" sx={{ display: 'block', mb: 1 }}>
+              <Typography
+                component="span"
+                variant="subtitle2"
+                sx={{ display: 'block', mb: 1 }}
+              >
                 Add filter
               </Typography>
-              <List dense sx={{ py: 0, maxHeight: 200, overflow: 'auto', border: 1, borderColor: 'divider', borderRadius: 1, minWidth: 160 }}>
+              <List
+                dense
+                sx={{
+                  py: 0,
+                  maxHeight: 200,
+                  overflow: 'auto',
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  minWidth: 160,
+                }}
+              >
                 {availableFilters.map((def) => (
                   <Box
                     key={def.key}
@@ -308,7 +392,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                         handleAddFilter(e as unknown as React.MouseEvent, def);
                       }
                     }}
-                    sx={{ px: 2, py: 1, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
                     data-testid={`add-filter-${def.key}`}
                   >
                     {def.label}
@@ -326,9 +415,10 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   <Box
                     sx={{
                       display: 'grid',
-                      gridTemplateColumns: activeFilters.length > 3 ? '1fr 1fr' : '1fr',
+                      gridTemplateColumns:
+                        activeFilters.length > 3 ? '1fr 1fr' : '1fr',
                       gap: 2,
-                      alignItems: 'start'
+                      alignItems: 'start',
                     }}
                   >
                     {activeFilters.map((af) => renderFilterRow(af))}
@@ -338,11 +428,28 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1, mt: 2 }}>
-            <Button type="button" variant="outlined" onClick={() => setExpanded(false)} data-testid="close-filters-button">
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              flexWrap: 'wrap',
+              gap: 1,
+              mt: 2,
+            }}
+          >
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => setExpanded(false)}
+              data-testid="close-filters-button"
+            >
               Close
             </Button>
-            <Button type="button" variant="outlined" onClick={handleClearFilters}>
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleClearFilters}
+            >
               Clear
             </Button>
             <Button

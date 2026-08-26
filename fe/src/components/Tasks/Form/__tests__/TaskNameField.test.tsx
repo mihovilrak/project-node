@@ -17,7 +17,7 @@ const mockFormData: TaskFormState = {
   assignee_id: null,
   start_date: null,
   due_date: null,
-  estimated_time: null
+  estimated_time: null,
 };
 
 describe('TaskNameField', () => {
@@ -26,7 +26,9 @@ describe('TaskNameField', () => {
   });
 
   it('renders the task name input field', () => {
-    render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
+    render(
+      <TaskNameField formData={mockFormData} handleChange={mockHandleChange} />,
+    );
 
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toBeInTheDocument();
@@ -35,14 +37,21 @@ describe('TaskNameField', () => {
 
   it('displays the current value from formData', () => {
     const formDataWithName = { ...mockFormData, name: 'Test Task' };
-    render(<TaskNameField formData={formDataWithName} handleChange={mockHandleChange} />);
+    render(
+      <TaskNameField
+        formData={formDataWithName}
+        handleChange={mockHandleChange}
+      />,
+    );
 
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toHaveValue('Test Task');
   });
 
   it('calls handleChange with correct data when input changes', () => {
-    render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
+    render(
+      <TaskNameField formData={mockFormData} handleChange={mockHandleChange} />,
+    );
 
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     fireEvent.change(inputElement, { target: { value: 'New Task Name' } });
@@ -50,20 +59,24 @@ describe('TaskNameField', () => {
     expect(mockHandleChange).toHaveBeenCalledWith({
       target: {
         name: 'name',
-        value: 'New Task Name'
-      }
+        value: 'New Task Name',
+      },
     });
   });
 
   it('has required attribute', () => {
-    render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
+    render(
+      <TaskNameField formData={mockFormData} handleChange={mockHandleChange} />,
+    );
 
     const inputElement = screen.getByRole('textbox', { name: /name/i });
     expect(inputElement).toHaveAttribute('required');
   });
 
   it('has full width style', () => {
-    render(<TaskNameField formData={mockFormData} handleChange={mockHandleChange} />);
+    render(
+      <TaskNameField formData={mockFormData} handleChange={mockHandleChange} />,
+    );
     const input = screen.getByRole('textbox', { name: /name/i });
     const textFieldRoot = input.closest('.MuiTextField-root');
     expect(textFieldRoot).toBeInTheDocument();

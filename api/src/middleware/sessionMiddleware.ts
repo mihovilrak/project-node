@@ -10,7 +10,7 @@ export default (
   pool: Pool,
   sessionSecret: string,
   nodeEnv: string = 'development',
-  feUrl: string = 'http://localhost:3000'
+  feUrl: string = 'http://localhost:3000',
 ): RequestHandler => {
   // Only set Secure when frontend is HTTPS; otherwise browser won't send cookie over HTTP (e.g. localhost)
   const secureCookie = feUrl.startsWith('https://');
@@ -23,7 +23,7 @@ export default (
       errorLog: (error: Error) => {
         logger.error({ err: error }, 'Session store error');
       },
-      pruneSessionInterval: 60 // Prune expired sessions every minute
+      pruneSessionInterval: 60, // Prune expired sessions every minute
     }),
     secret: sessionSecret,
     resave: false,
@@ -36,4 +36,4 @@ export default (
       httpOnly: true,
     },
   });
-}
+};

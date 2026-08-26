@@ -52,7 +52,9 @@ describe('Notification Routes', () => {
         },
       ];
 
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: mockNotifications });
+      (pool.query as jest.Mock).mockResolvedValueOnce({
+        rows: mockNotifications,
+      });
 
       const response = await request(app)
         .get('/api/notifications/123')
@@ -60,7 +62,7 @@ describe('Notification Routes', () => {
 
       expect(pool.query).toHaveBeenCalledWith(
         'SELECT * FROM user_notifications($1)',
-        [123]
+        [123],
       );
       expect(response.body).toEqual(mockNotifications);
     });
@@ -76,7 +78,9 @@ describe('Notification Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (pool.query as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
+      (pool.query as jest.Mock).mockRejectedValueOnce(
+        new Error('Database error'),
+      );
 
       const response = await request(app)
         .get('/api/notifications/123')
@@ -104,9 +108,9 @@ describe('Notification Routes', () => {
         created_on: new Date().toISOString(),
       };
 
-      (notificationService.generateNotification as jest.Mock).mockResolvedValueOnce(
-        mockNotification
-      );
+      (
+        notificationService.generateNotification as jest.Mock
+      ).mockResolvedValueOnce(mockNotification);
 
       const response = await request(app)
         .post('/api/notifications')
@@ -120,15 +124,15 @@ describe('Notification Routes', () => {
       expect(notificationService.generateNotification).toHaveBeenCalledWith(
         'Task Due Soon',
         '123',
-        { taskId: 1 }
+        { taskId: 1 },
       );
       expect(response.body).toEqual(mockNotification);
     });
 
     it('should return 500 on service error', async () => {
-      (notificationService.generateNotification as jest.Mock).mockRejectedValueOnce(
-        new Error('Service error')
-      );
+      (
+        notificationService.generateNotification as jest.Mock
+      ).mockRejectedValueOnce(new Error('Service error'));
 
       const response = await request(app)
         .post('/api/notifications')
@@ -160,9 +164,9 @@ describe('Notification Routes', () => {
           created_on: new Date().toISOString(),
         };
 
-        (notificationService.generateNotification as jest.Mock).mockResolvedValueOnce(
-          mockNotification
-        );
+        (
+          notificationService.generateNotification as jest.Mock
+        ).mockResolvedValueOnce(mockNotification);
 
         const response = await request(app)
           .post('/api/notifications')

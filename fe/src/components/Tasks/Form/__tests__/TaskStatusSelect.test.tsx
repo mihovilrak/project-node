@@ -12,7 +12,7 @@ describe('TaskStatusSelect', () => {
       description: null,
       active: true,
       created_on: '2023-01-01',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -21,8 +21,8 @@ describe('TaskStatusSelect', () => {
       description: null,
       active: true,
       created_on: '2023-01-01',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   const mockFormData: TaskFormState = {
@@ -37,7 +37,7 @@ describe('TaskStatusSelect', () => {
     assignee_id: null,
     start_date: null,
     due_date: null,
-    estimated_time: null
+    estimated_time: null,
   };
 
   const mockHandleChange = jest.fn();
@@ -45,7 +45,7 @@ describe('TaskStatusSelect', () => {
   const defaultProps = {
     formData: mockFormData,
     statuses: mockStatuses,
-    handleChange: mockHandleChange
+    handleChange: mockHandleChange,
   };
 
   beforeEach(() => {
@@ -54,7 +54,9 @@ describe('TaskStatusSelect', () => {
 
   it('renders status select field correctly', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    expect(screen.getByRole('combobox', { name: /Status/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: /Status/i }),
+    ).toBeInTheDocument();
   });
 
   it('displays all status options', async () => {
@@ -63,8 +65,8 @@ describe('TaskStatusSelect', () => {
     fireEvent.mouseDown(select);
 
     const options = await screen.findAllByRole('option');
-    const optionTexts = options.map(opt => opt.textContent);
-    mockStatuses.forEach(status => {
+    const optionTexts = options.map((opt) => opt.textContent);
+    mockStatuses.forEach((status) => {
       expect(optionTexts).toContain(status.name);
     });
   });
@@ -95,13 +97,17 @@ describe('TaskStatusSelect', () => {
 
   it('renders as full width', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const textField = screen.getByRole('combobox', { name: /Status/i }).closest('.MuiTextField-root');
+    const textField = screen
+      .getByRole('combobox', { name: /Status/i })
+      .closest('.MuiTextField-root');
     expect(textField).toHaveStyle({ width: '100%' });
   });
 
   it('has proper margin bottom styling', () => {
     render(<TaskStatusSelect {...defaultProps} />);
-    const textField = screen.getByRole('combobox', { name: /Status/i }).closest('.MuiTextField-root');
+    const textField = screen
+      .getByRole('combobox', { name: /Status/i })
+      .closest('.MuiTextField-root');
     expect(textField).toHaveStyle({ marginBottom: '16px' });
   });
 });

@@ -6,7 +6,7 @@ import { Project } from '../types/project';
 import {
   ProfileData,
   ProfileUpdateData,
-  PasswordChange
+  PasswordChange,
 } from '../types/profile';
 
 // Get user profile
@@ -21,7 +21,9 @@ export const getProfile = async (): Promise<ProfileData> => {
 };
 
 // Update user profile
-export const updateProfile = async (profileData: ProfileUpdateData): Promise<User> => {
+export const updateProfile = async (
+  profileData: ProfileUpdateData,
+): Promise<User> => {
   try {
     const response = await api.put('/profile', profileData);
     return response.data;
@@ -32,7 +34,9 @@ export const updateProfile = async (profileData: ProfileUpdateData): Promise<Use
 };
 
 // Change user password
-export const changePassword = async (passwordData: PasswordChange): Promise<void> => {
+export const changePassword = async (
+  passwordData: PasswordChange,
+): Promise<void> => {
   try {
     await api.put('/profile/password', passwordData);
   } catch (error) {

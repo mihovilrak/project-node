@@ -9,155 +9,149 @@ import { TimeLogFormProps } from '../../../types/timeLog';
 const mockProps: TimeLogFormProps = {
   projects: [
     {
-        id: 1,
-        name: 'Project 1',
-        description: '',
-        parent_id: null,
-        parent_name: null,
-        status_id: 1,
-        status_name: '',
-        start_date: '',
-        due_date: '',
-        end_date: null,
-        created_by: 1,
-        created_by_name: '',
-        created_on: '',
-        updated_on: null,
-        estimated_time: 0,
-        spent_time: 0,
-        progress: 0
-
+      id: 1,
+      name: 'Project 1',
+      description: '',
+      parent_id: null,
+      parent_name: null,
+      status_id: 1,
+      status_name: '',
+      start_date: '',
+      due_date: '',
+      end_date: null,
+      created_by: 1,
+      created_by_name: '',
+      created_on: '',
+      updated_on: null,
+      estimated_time: 0,
+      spent_time: 0,
+      progress: 0,
     },
     {
-        id: 2,
-        name: 'Project 2',
-        description: '',
-        parent_id: null,
-        parent_name: null,
-        status_id: 1,
-        status_name: '',
-        start_date: '',
-        due_date: '',
-        end_date: null,
-        created_by: 1,
-        created_by_name: '',
-        created_on: '',
-        updated_on: null,
-        estimated_time: 0,
-        spent_time: 0,
-        progress: 0
-
-    }
+      id: 2,
+      name: 'Project 2',
+      description: '',
+      parent_id: null,
+      parent_name: null,
+      status_id: 1,
+      status_name: '',
+      start_date: '',
+      due_date: '',
+      end_date: null,
+      created_by: 1,
+      created_by_name: '',
+      created_on: '',
+      updated_on: null,
+      estimated_time: 0,
+      spent_time: 0,
+      progress: 0,
+    },
   ],
   tasks: [
     {
-        id: 1,
-        name: 'Task 1',
-        project_id: 1,
-        project_name: '',
-        holder_id: 1,
-        holder_name: '',
-        assignee_id: 1,
-        assignee_name: '',
-        parent_id: null,
-        parent_name: null,
-        description: '',
-        type_id: 1,
-        type_name: '',
-        status_id: 1,
-        status_name: '',
-        priority_id: 1,
-        priority_name: '',
-        start_date: null,
-        due_date: null,
-        end_date: null,
-        spent_time: 0,
-        progress: 0,
-        created_by: 1,
-        created_by_name: '',
-        created_on: '',
-        estimated_time: null
-
+      id: 1,
+      name: 'Task 1',
+      project_id: 1,
+      project_name: '',
+      holder_id: 1,
+      holder_name: '',
+      assignee_id: 1,
+      assignee_name: '',
+      parent_id: null,
+      parent_name: null,
+      description: '',
+      type_id: 1,
+      type_name: '',
+      status_id: 1,
+      status_name: '',
+      priority_id: 1,
+      priority_name: '',
+      start_date: null,
+      due_date: null,
+      end_date: null,
+      spent_time: 0,
+      progress: 0,
+      created_by: 1,
+      created_by_name: '',
+      created_on: '',
+      estimated_time: null,
     },
     {
-        id: 2,
-        name: 'Task 2',
-        project_id: 1,
-        project_name: '',
-        holder_id: 1,
-        holder_name: '',
-        assignee_id: 1,
-        assignee_name: '',
-        parent_id: null,
-        parent_name: null,
-        description: '',
-        type_id: 1,
-        type_name: '',
-        status_id: 1,
-        status_name: '',
-        priority_id: 1,
-        priority_name: '',
-        start_date: null,
-        due_date: null,
-        end_date: null,
-        spent_time: 0,
-        progress: 0,
-        created_by: 1,
-        created_by_name: '',
-        created_on: '',
-        estimated_time: null
-
-    }
+      id: 2,
+      name: 'Task 2',
+      project_id: 1,
+      project_name: '',
+      holder_id: 1,
+      holder_name: '',
+      assignee_id: 1,
+      assignee_name: '',
+      parent_id: null,
+      parent_name: null,
+      description: '',
+      type_id: 1,
+      type_name: '',
+      status_id: 1,
+      status_name: '',
+      priority_id: 1,
+      priority_name: '',
+      start_date: null,
+      due_date: null,
+      end_date: null,
+      spent_time: 0,
+      progress: 0,
+      created_by: 1,
+      created_by_name: '',
+      created_on: '',
+      estimated_time: null,
+    },
   ],
   activityTypes: [
     {
-        id: 1,
-        name: 'Development',
-        color: '#000',
-        icon: null,
-        active: true,
-        description: null,
-        created_on: '',
-        updated_on: null
+      id: 1,
+      name: 'Development',
+      color: '#000',
+      icon: null,
+      active: true,
+      description: null,
+      created_on: '',
+      updated_on: null,
     },
     {
-        id: 2,
-        name: 'Testing',
-        color: '#000',
-        icon: null,
-        active: true,
-        description: null,
-        created_on: '',
-        updated_on: null
-    }
+      id: 2,
+      name: 'Testing',
+      color: '#000',
+      icon: null,
+      active: true,
+      description: null,
+      created_on: '',
+      updated_on: null,
+    },
   ],
   users: [
     {
-        id: 1,
-        name: 'User 1',
-        email: 'user1@test.com',
-        login: '',
-        surname: '',
-        role_id: 1,
-        status_id: 1,
-        created_on: '',
-        updated_on: null,
-        last_login: null
-
+      id: 1,
+      name: 'User 1',
+      email: 'user1@test.com',
+      login: '',
+      surname: '',
+      role_id: 1,
+      status_id: 1,
+      created_on: '',
+      updated_on: null,
+      last_login: null,
     },
     {
-        id: 2,
-        name: 'User 2',
-        email: 'user2@test.com',
-        login: '',
-        surname: '',
-        role_id: 1,
-        status_id: 1,
-        created_on: '',
-        updated_on: null,
-        last_login: null
-
-    }
+      id: 2,
+      name: 'User 2',
+      email: 'user2@test.com',
+      login: '',
+      surname: '',
+      role_id: 1,
+      status_id: 1,
+      created_on: '',
+      updated_on: null,
+      last_login: null,
+    },
   ],
   selectedProjectId: 1,
   selectedTaskId: 1,
@@ -174,7 +168,7 @@ const mockProps: TimeLogFormProps = {
   onActivityTypeChange: jest.fn(),
   onSpentTimeChange: jest.fn(),
   onDescriptionChange: jest.fn(),
-  onDateChange: jest.fn()
+  onDateChange: jest.fn(),
 };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -245,7 +239,7 @@ describe('TimeLogForm', () => {
         spentTime="1"
         onSpentTimeChange={onSpentTimeChange}
       />,
-      { wrapper }
+      { wrapper },
     );
 
     const increaseButton = screen.getByLabelText(/Increase time/i);
@@ -259,15 +253,21 @@ describe('TimeLogForm', () => {
   });
 
   it('displays time error when provided', () => {
-    render(<TimeLogForm {...mockProps} timeError="Invalid time" />, { wrapper });
+    render(<TimeLogForm {...mockProps} timeError="Invalid time" />, {
+      wrapper,
+    });
     expect(screen.getByText('Invalid time')).toBeInTheDocument();
   });
 
   it('handles description changes', () => {
     render(<TimeLogForm {...mockProps} />, { wrapper });
     const descriptionInput = screen.getByLabelText(/Description/i);
-    fireEvent.change(descriptionInput, { target: { value: 'New description' } });
-    expect(mockProps.onDescriptionChange).toHaveBeenCalledWith('New description');
+    fireEvent.change(descriptionInput, {
+      target: { value: 'New description' },
+    });
+    expect(mockProps.onDescriptionChange).toHaveBeenCalledWith(
+      'New description',
+    );
   });
 
   it('respects read-only states', () => {
@@ -277,11 +277,17 @@ describe('TimeLogForm', () => {
         isProjectReadOnly={true}
         isTaskReadOnly={true}
       />,
-      { wrapper }
+      { wrapper },
     );
 
-    expect(screen.getByLabelText(/Project/i)).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByLabelText(/Task/i)).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByLabelText(/Project/i)).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByLabelText(/Task/i)).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('handles activity type changes', async () => {

@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
-import {
-  getProjects,
-  getProjectMembers
-} from '../../api/projects';
+import { getProjects, getProjectMembers } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
-import {
-  Project,
-  ProjectMember
-} from '../../types/project';
+import { Project, ProjectMember } from '../../types/project';
 import { Task } from '../../types/task';
 import logger from '../../utils/logger';
 
-export const useProjectSelect = (projectId?: number | null, taskId?: string | null) => {
+export const useProjectSelect = (
+  projectId?: number | null,
+  taskId?: string | null,
+) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
@@ -45,7 +42,7 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
       }
       try {
         const tasksData = await getProjectTasks(projectId);
-        setProjectTasks(tasksData.filter(task => task.id !== Number(taskId)));
+        setProjectTasks(tasksData.filter((task) => task.id !== Number(taskId)));
       } catch (error) {
         logger.error('Failed to fetch project tasks:', error);
         setProjectTasks([]);
@@ -58,6 +55,6 @@ export const useProjectSelect = (projectId?: number | null, taskId?: string | nu
   return {
     projects,
     projectMembers,
-    projectTasks
+    projectTasks,
   };
 };

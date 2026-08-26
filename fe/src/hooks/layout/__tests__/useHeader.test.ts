@@ -5,7 +5,7 @@ import { User } from '../../../types/user';
 
 // Mock useAuth hook
 jest.mock('../../../context/AuthContext', () => ({
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }));
 
 describe('useHeader', () => {
@@ -27,7 +27,7 @@ describe('useHeader', () => {
   // Setup mock implementation of useAuth
   beforeEach(() => {
     (useAuth as jest.Mock).mockReturnValue({
-      currentUser: mockUser
+      currentUser: mockUser,
     });
   });
 
@@ -69,7 +69,7 @@ describe('useHeader', () => {
 
   it('should handle case when user is not authenticated', () => {
     (useAuth as jest.Mock).mockReturnValue({
-      currentUser: null
+      currentUser: null,
     });
 
     const { result } = renderHook(() => useHeader());
@@ -87,7 +87,7 @@ describe('useHeader', () => {
 
     expect(removeEventListenerSpy).toHaveBeenCalledWith(
       'scroll',
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -98,7 +98,7 @@ describe('useHeader', () => {
 
     expect(addEventListenerSpy).toHaveBeenCalledWith(
       'scroll',
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 });

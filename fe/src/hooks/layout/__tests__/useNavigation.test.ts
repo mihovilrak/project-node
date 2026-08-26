@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 // Mock react-router-dom hooks
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
-  useLocation: jest.fn()
+  useLocation: jest.fn(),
 }));
 
 describe('useNavigation', () => {
@@ -90,18 +90,21 @@ describe('useNavigation', () => {
     [2, '/tasks'],
     [3, '/users'],
     [4, '/settings'],
-    [5, '/profile']
-  ])('should navigate to correct route when tab %i is selected', (tabIndex, expectedRoute) => {
-    (useLocation as jest.Mock).mockReturnValue({ pathname: '/' });
-    const { result } = renderHook(() => useNavigation());
+    [5, '/profile'],
+  ])(
+    'should navigate to correct route when tab %i is selected',
+    (tabIndex, expectedRoute) => {
+      (useLocation as jest.Mock).mockReturnValue({ pathname: '/' });
+      const { result } = renderHook(() => useNavigation());
 
-    act(() => {
-      result.current.handleTabChange({} as React.SyntheticEvent, tabIndex);
-    });
+      act(() => {
+        result.current.handleTabChange({} as React.SyntheticEvent, tabIndex);
+      });
 
-    expect(result.current.activeTab).toBe(tabIndex);
-    expect(mockNavigate).toHaveBeenCalledWith(expectedRoute);
-  });
+      expect(result.current.activeTab).toBe(tabIndex);
+      expect(mockNavigate).toHaveBeenCalledWith(expectedRoute);
+    },
+  );
 
   it('should not navigate when invalid tab index is provided', () => {
     (useLocation as jest.Mock).mockReturnValue({ pathname: '/' });

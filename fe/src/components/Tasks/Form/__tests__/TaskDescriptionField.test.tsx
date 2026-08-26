@@ -19,7 +19,7 @@ describe('TaskDescriptionField', () => {
     assignee_id: null,
     start_date: null,
     due_date: null,
-    estimated_time: null
+    estimated_time: null,
   };
 
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('TaskDescriptionField', () => {
       <TaskDescriptionField
         formData={defaultFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     expect(screen.getByLabelText('Description')).toBeInTheDocument();
@@ -40,30 +40,32 @@ describe('TaskDescriptionField', () => {
   it('displays initial value correctly', () => {
     const testFormData = {
       ...defaultFormData,
-      description: 'Test description'
+      description: 'Test description',
     };
 
     render(
       <TaskDescriptionField
         formData={testFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
-    expect(screen.getByLabelText('Description')).toHaveValue('Test description');
+    expect(screen.getByLabelText('Description')).toHaveValue(
+      'Test description',
+    );
   });
 
   it('handles empty description correctly', () => {
     const emptyFormData = {
       ...defaultFormData,
-      description: ''  // Use empty string instead of null
+      description: '', // Use empty string instead of null
     };
 
     render(
       <TaskDescriptionField
         formData={emptyFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     expect(screen.getByLabelText('Description')).toHaveValue('');
@@ -72,14 +74,14 @@ describe('TaskDescriptionField', () => {
   it('calls handleChange when input changes', async () => {
     const testFormData = {
       ...defaultFormData,
-      description: ''
+      description: '',
     };
 
     render(
       <TaskDescriptionField
         formData={testFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     const input = screen.getByLabelText('Description');

@@ -33,9 +33,9 @@ jest.mock('../../../hooks/comment/useCommentMenu', () => {
         handleEditClick: jest.fn(),
         handleEditClose: jest.fn(),
         handleEditSave: jest.fn(),
-        handleDeleteClick: jest.fn()
+        handleDeleteClick: jest.fn(),
       };
-    }
+    },
   };
 });
 
@@ -49,7 +49,7 @@ const mockComments: Array<Comment> = [
     user_avatar: 'avatar1.jpg',
     created_on: '2023-01-01T10:00:00Z',
     updated_on: '2023-01-01T11:00:00Z',
-    active: true
+    active: true,
   },
   {
     id: 2,
@@ -60,8 +60,8 @@ const mockComments: Array<Comment> = [
     user_avatar: undefined,
     created_on: '2023-01-02T10:00:00Z',
     updated_on: null,
-    active: true
-  }
+    active: true,
+  },
 ];
 
 const renderCommentList = (props = {}) => {
@@ -73,7 +73,7 @@ const renderCommentList = (props = {}) => {
         onCommentDeleted={jest.fn()}
         {...props}
       />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 

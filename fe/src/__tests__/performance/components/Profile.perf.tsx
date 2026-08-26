@@ -17,13 +17,15 @@ jest.mock('../../../api/api');
 // Mock AuthContext to prevent session checks
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: { id: 1, name: 'Test User' },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock useProfileData hook
@@ -44,7 +46,7 @@ jest.mock('../../../hooks/profile/useProfileData', () => ({
       total_tasks: 10,
       completed_tasks: 5,
       active_projects: 3,
-      total_hours: 120
+      total_hours: 120,
     },
     recentTasks: [],
     recentProjects: [],
@@ -73,25 +75,25 @@ jest.mock('../../../hooks/profile/useProfileData', () => ({
       total_tasks: 10,
       completed_tasks: 5,
       active_projects: 3,
-      total_hours: 120
+      total_hours: 120,
     }),
     getProfileStats: () => ({
       totalTasks: 10,
       completedTasks: 5,
       activeProjects: 3,
-      totalHours: 120
-    })
-  })
+      totalHours: 120,
+    }),
+  }),
 }));
 
 // Custom test wrapper
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </BrowserRouter>
   );
 };
@@ -111,7 +113,7 @@ const mockProfileData: ProfileData = {
   total_tasks: 10,
   completed_tasks: 5,
   active_projects: 3,
-  total_hours: 120
+  total_hours: 120,
 };
 
 const mockProjects = [
@@ -130,7 +132,7 @@ const mockProjects = [
     created_on: '2024-01-26T00:00:00Z',
     estimated_time: 80,
     spent_time: 20,
-    progress: 25
+    progress: 25,
   },
   {
     id: 2,
@@ -147,8 +149,8 @@ const mockProjects = [
     created_on: '2024-01-26T00:00:00Z',
     estimated_time: 120,
     spent_time: 40,
-    progress: 33
-  }
+    progress: 33,
+  },
 ];
 
 const mockTasks = [
@@ -175,7 +177,7 @@ const mockTasks = [
     priority_color: '#FFA726',
     start_date: '2024-01-26T00:00:00Z',
     due_date: '2024-02-26T00:00:00Z',
-    end_date: null
+    end_date: null,
   },
   {
     id: 2,
@@ -200,8 +202,8 @@ const mockTasks = [
     priority_color: '#F44336',
     start_date: '2024-01-26T00:00:00Z',
     due_date: '2024-02-26T00:00:00Z',
-    end_date: '2024-01-30T00:00:00Z'
-  }
+    end_date: '2024-01-30T00:00:00Z',
+  },
 ];
 
 // Performance measurement callback
@@ -211,7 +213,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -223,7 +225,10 @@ const onRenderCallback = (
 
 describe('Profile Components Performance Tests', () => {
   // Helper function to measure render performance
-  const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+  const measurePerformance = (
+    Component: React.ComponentType<any>,
+    props = {},
+  ) => {
     const start = performance.now();
 
     render(
@@ -231,7 +236,7 @@ describe('Profile Components Performance Tests', () => {
         <Profiler id={Component.name} onRender={onRenderCallback}>
           <Component {...props} />
         </Profiler>
-      </PerfTestWrapper>
+      </PerfTestWrapper>,
     );
 
     const end = performance.now();
@@ -240,7 +245,9 @@ describe('Profile Components Performance Tests', () => {
 
   // Profile Header Tests
   test('ProfileHeader component initial render performance', () => {
-    const renderTime = measurePerformance(ProfileHeader, { user: mockProfileData });
+    const renderTime = measurePerformance(ProfileHeader, {
+      user: mockProfileData,
+    });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
 
@@ -250,9 +257,12 @@ describe('Profile Components Performance Tests', () => {
       totalTasks: mockProfileData.total_tasks,
       completedTasks: mockProfileData.completed_tasks,
       activeProjects: mockProfileData.active_projects,
-      totalHours: mockProfileData.total_hours
+      totalHours: mockProfileData.total_hours,
     };
-    const renderTime = measurePerformance(ProfileStats, { stats, loading: false });
+    const renderTime = measurePerformance(ProfileStats, {
+      stats,
+      loading: false,
+    });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
 
@@ -261,7 +271,7 @@ describe('Profile Components Performance Tests', () => {
     const renderTime = measurePerformance(ProfileTaskList, {
       tasks: mockTasks,
       loading: false,
-      onTaskClick: () => {}
+      onTaskClick: () => {},
     });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
@@ -270,7 +280,7 @@ describe('Profile Components Performance Tests', () => {
   test('ProfileProjectList component initial render performance', () => {
     const renderTime = measurePerformance(ProfileProjectList, {
       projects: mockProjects,
-      loading: false
+      loading: false,
     });
     expect(renderTime).toBeLessThan(500); // Should render under 500ms
   });
@@ -283,19 +293,22 @@ describe('Profile Components Performance Tests', () => {
 
   // Loading State Tests
   test('Components render performance in loading state', () => {
-    const statsRenderTime = measurePerformance(ProfileStats, { stats: null, loading: true });
+    const statsRenderTime = measurePerformance(ProfileStats, {
+      stats: null,
+      loading: true,
+    });
     expect(statsRenderTime).toBeLessThan(500); // Should render under 500ms
 
     const taskListRenderTime = measurePerformance(ProfileTaskList, {
       tasks: [],
       loading: true,
-      onTaskClick: () => {}
+      onTaskClick: () => {},
     });
     expect(taskListRenderTime).toBeLessThan(500);
 
     const projectListRenderTime = measurePerformance(ProfileProjectList, {
       projects: [],
-      loading: true
+      loading: true,
     });
     expect(projectListRenderTime).toBeLessThan(500);
   });

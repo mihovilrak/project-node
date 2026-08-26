@@ -4,7 +4,7 @@ import {
   getActivityTypes,
   createActivityType,
   updateActivityType,
-  deleteActivityType
+  deleteActivityType,
 } from '../activityTypes';
 
 jest.mock('../api');
@@ -17,7 +17,7 @@ describe('Activity Types API', () => {
     description: 'Test Description',
     color: '#000000',
     icon: 'test-icon',
-    active: true
+    active: true,
   };
 
   beforeEach(() => {
@@ -48,7 +48,10 @@ describe('Activity Types API', () => {
 
       const result = await createActivityType(mockActivityType);
 
-      expect(mockedApi.post).toHaveBeenCalledWith('/admin/activity-types', mockActivityType);
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/admin/activity-types',
+        mockActivityType,
+      );
       expect(result).toEqual(mockActivityType);
     });
 
@@ -66,7 +69,10 @@ describe('Activity Types API', () => {
 
       const result = await updateActivityType(1, mockActivityType);
 
-      expect(mockedApi.put).toHaveBeenCalledWith('/admin/activity-types/1', mockActivityType);
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        '/admin/activity-types/1',
+        mockActivityType,
+      );
       expect(result).toEqual(mockActivityType);
     });
 
@@ -74,7 +80,9 @@ describe('Activity Types API', () => {
       const error = new Error('API Error');
       mockedApi.put.mockRejectedValueOnce(error);
 
-      await expect(updateActivityType(1, mockActivityType)).rejects.toThrow(error);
+      await expect(updateActivityType(1, mockActivityType)).rejects.toThrow(
+        error,
+      );
     });
   });
 

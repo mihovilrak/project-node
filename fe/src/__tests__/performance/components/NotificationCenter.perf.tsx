@@ -18,7 +18,7 @@ const mockUser: User = {
   avatar_url: null,
   created_on: new Date().toISOString(),
   updated_on: null,
-  last_login: null
+  last_login: null,
 };
 
 const mockNotifications: Notification[] = [
@@ -35,7 +35,7 @@ const mockNotifications: Notification[] = [
     created_on: new Date().toISOString(),
     type_name: 'task',
     type_color: '#1976d2',
-    type_icon: 'task'
+    type_icon: 'task',
   },
   {
     id: 2,
@@ -50,8 +50,8 @@ const mockNotifications: Notification[] = [
     created_on: new Date().toISOString(),
     type_name: 'project',
     type_color: '#2e7d32',
-    type_icon: 'project'
-  }
+    type_icon: 'project',
+  },
 ];
 
 // Mock hooks
@@ -64,8 +64,8 @@ jest.mock('../../../hooks/notification/useNotificationCenter', () => ({
     handleClick: jest.fn(),
     handleClose: jest.fn(),
     handleNotificationClick: jest.fn(),
-    handleDeleteNotification: jest.fn()
-  })
+    handleDeleteNotification: jest.fn(),
+  }),
 }));
 
 // Performance measurement callback
@@ -75,7 +75,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log performance metrics
   console.log(`${id} - ${phase}`);
@@ -85,7 +85,10 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => (
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => (
   <TestWrapper>
     <Profiler id={Component.name} onRender={onRenderCallback}>
       <Component {...props} />
@@ -97,8 +100,8 @@ describe('NotificationCenter Performance', () => {
   it('renders efficiently with default state', () => {
     render(
       measurePerformance(NotificationCenter, {
-        userId: mockUser.id
-      })
+        userId: mockUser.id,
+      }),
     );
   });
 
@@ -112,14 +115,14 @@ describe('NotificationCenter Performance', () => {
         handleClick: jest.fn(),
         handleClose: jest.fn(),
         handleNotificationClick: jest.fn(),
-        handleDeleteNotification: jest.fn()
-      })
+        handleDeleteNotification: jest.fn(),
+      }),
     }));
 
     render(
       measurePerformance(NotificationCenter, {
-        userId: mockUser.id
-      })
+        userId: mockUser.id,
+      }),
     );
   });
 
@@ -128,7 +131,7 @@ describe('NotificationCenter Performance', () => {
       ...mockNotifications[0],
       id: index + 1,
       title: `Notification ${index + 1}`,
-      message: `Test message ${index + 1}`
+      message: `Test message ${index + 1}`,
     }));
 
     jest.mock('../../../hooks/notification/useNotificationCenter', () => ({
@@ -140,14 +143,14 @@ describe('NotificationCenter Performance', () => {
         handleClick: jest.fn(),
         handleClose: jest.fn(),
         handleNotificationClick: jest.fn(),
-        handleDeleteNotification: jest.fn()
-      })
+        handleDeleteNotification: jest.fn(),
+      }),
     }));
 
     render(
       measurePerformance(NotificationCenter, {
-        userId: mockUser.id
-      })
+        userId: mockUser.id,
+      }),
     );
   });
 });

@@ -5,7 +5,9 @@ import * as sessionController from '../sessionController';
 import { Session } from 'express-session';
 
 jest.mock('../../models/permissionModel', () => ({
-  getUserPermissions: jest.fn().mockResolvedValue([{ user_id: '1', permission: 'Admin' }]),
+  getUserPermissions: jest
+    .fn()
+    .mockResolvedValue([{ user_id: '1', permission: 'Admin' }]),
 }));
 
 describe('SessionController', () => {
@@ -25,7 +27,7 @@ describe('SessionController', () => {
         httpOnly: true,
         path: '/',
         domain: undefined,
-        sameSite: 'strict'
+        sameSite: 'strict',
       },
       regenerate: jest.fn((callback: (err: any) => void) => {
         callback(null);
@@ -45,14 +47,15 @@ describe('SessionController', () => {
         if (callback) callback(null);
         return mockSession as unknown as Session;
       }),
-      user: undefined
-    } as unknown as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+      user: undefined,
+    } as unknown as Session &
+      Partial<{ user: { id: string; login: string; role_id: number } }>;
 
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
@@ -66,14 +69,18 @@ describe('SessionController', () => {
       const mockUser = {
         id: 1,
         login: 'testuser',
-        role_id: 1
+        role_id: 1,
       };
-      mockReq.session!.user = mockUser as unknown as { id: string; login: string; role_id: number };
+      mockReq.session!.user = mockUser as unknown as {
+        id: string;
+        login: string;
+        role_id: number;
+      };
 
       await sessionController.session(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -89,28 +96,34 @@ describe('SessionController', () => {
       await sessionController.session(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Not authenticated' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Not authenticated',
+      });
     });
 
     it('should return 500 on internal error', async () => {
       // Create a getter that throws an error
       Object.defineProperty(mockReq.session, 'user', {
-        get: () => { throw new Error('Session error'); },
-        configurable: true
+        get: () => {
+          throw new Error('Session error');
+        },
+        configurable: true,
       });
 
       await sessionController.session(
         mockReq as CustomRequest,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 });

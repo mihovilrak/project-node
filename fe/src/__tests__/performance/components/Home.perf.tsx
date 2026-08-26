@@ -10,12 +10,12 @@ import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
 
 // Mock API calls - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/tasks', () => ({
-  getActiveTasks: jest.fn()
+  getActiveTasks: jest.fn(),
 }));
 
 // Mock hooks - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../hooks/setting/useSystemSettings', () => ({
-  useSystemSettings: jest.fn()
+  useSystemSettings: jest.fn(),
 }));
 
 // Mock data
@@ -48,14 +48,15 @@ const mockTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
   created_by: 1,
   created_by_name: 'Test User',
   created_on: new Date().toISOString(),
-  estimated_time: null
+  estimated_time: null,
 }));
 
 // Mock system settings
 const mockSettings = {
   settings: {
-    welcome_message: '<h1>Welcome to the Project Management App</h1><p>This is a test welcome message.</p>'
-  }
+    welcome_message:
+      '<h1>Welcome to the Project Management App</h1><p>This is a test welcome message.</p>',
+  },
 };
 
 // Performance measurement callback
@@ -65,7 +66,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`${id} - ${phase}:`);
   console.log(`Actual duration: ${actualDuration.toFixed(2)}ms`);
@@ -74,13 +75,16 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => {
   const { unmount } = render(
     <TestWrapper>
       <Profiler id="test" onRender={onRenderCallback}>
         <Component {...props} />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return unmount;
@@ -101,7 +105,9 @@ describe('Home Components Performance Tests', () => {
 
     test('Home initial render performance without welcome message', () => {
       const settingsWithoutMessage = { settings: { welcome_message: '' } };
-      (useSystemSettings as jest.Mock).mockReturnValue({ state: settingsWithoutMessage });
+      (useSystemSettings as jest.Mock).mockReturnValue({
+        state: settingsWithoutMessage,
+      });
 
       const unmount = measurePerformance(Home);
       unmount();
@@ -122,7 +128,9 @@ describe('Home Components Performance Tests', () => {
     });
 
     test('ActiveTasks initial render performance with loading state', () => {
-      (getActiveTasks as jest.Mock).mockImplementation(() => new Promise(() => {}));
+      (getActiveTasks as jest.Mock).mockImplementation(
+        () => new Promise(() => {}),
+      );
 
       const unmount = measurePerformance(ActiveTasks);
       unmount();

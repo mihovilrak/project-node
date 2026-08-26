@@ -13,7 +13,7 @@ const TaskCommentSection: React.FC<TaskCommentSectionProps> = ({
   onCommentDelete,
   onEditStart,
   onEditEnd,
-  onCommentRefresh
+  onCommentRefresh,
 }) => {
   const handleCommentAdded = async (comment: Comment) => {
     // useCommentForm already created the comment via API with full data including user_name
@@ -31,10 +31,7 @@ const TaskCommentSection: React.FC<TaskCommentSectionProps> = ({
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
-      <CommentForm
-        taskId={taskId}
-        onCommentAdded={handleCommentAdded}
-      />
+      <CommentForm taskId={taskId} onCommentAdded={handleCommentAdded} />
       <CommentList
         comments={comments || []}
         onCommentUpdated={onCommentUpdate}

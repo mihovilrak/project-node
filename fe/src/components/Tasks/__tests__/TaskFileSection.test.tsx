@@ -17,10 +17,16 @@ jest.mock('../../Files/FileUpload', () => ({
 
 jest.mock('../../Files/FileList', () => ({
   __esModule: true,
-  default: ({ files, onFileDeleted }: { files: any[], onFileDeleted: (id: number) => void }) => (
+  default: ({
+    files,
+    onFileDeleted,
+  }: {
+    files: any[];
+    onFileDeleted: (id: number) => void;
+  }) => (
     <div>
       <span>File Count: {files.length}</span>
-      {files.map(file => (
+      {files.map((file) => (
         <div key={file.id}>
           <span>{file.name}</span>
           <button onClick={() => onFileDeleted(file.id)}>Delete</button>
@@ -54,7 +60,7 @@ describe('TaskFileSection', () => {
         uploaded_by: 'User 1',
         mime_type: 'text/plain',
         size: 1024,
-        uploaded_on: '2024-03-20T12:00:00Z'
+        uploaded_on: '2024-03-20T12:00:00Z',
       },
       {
         id: 2,
@@ -65,7 +71,7 @@ describe('TaskFileSection', () => {
         uploaded_by: 'User 2',
         mime_type: 'text/plain',
         size: 2048,
-        uploaded_on: '2024-03-20T12:00:00Z'
+        uploaded_on: '2024-03-20T12:00:00Z',
       },
     ],
     onFileUploaded: mockOnFileUploaded,
@@ -76,7 +82,7 @@ describe('TaskFileSection', () => {
     return render(
       <MemoryRouter>
         <TaskFileSection {...defaultProps} {...props} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -105,7 +111,7 @@ describe('TaskFileSection', () => {
       expect(mockRefreshFiles).toHaveBeenCalled();
       expect(mockOnFileUploaded).toHaveBeenCalledWith({
         id: 1,
-        name: 'test.txt'
+        name: 'test.txt',
       });
     });
   });

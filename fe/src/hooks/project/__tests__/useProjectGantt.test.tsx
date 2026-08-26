@@ -33,7 +33,7 @@ describe('useProjectGantt', () => {
       created_by_name: 'Test User',
       created_on: '2024-01-01T00:00:00Z',
       estimated_time: 40,
-      progress: 0
+      progress: 0,
     },
     {
       id: 2,
@@ -57,12 +57,14 @@ describe('useProjectGantt', () => {
       created_by_name: 'Test User',
       created_on: '2024-01-01T00:00:00Z',
       estimated_time: 20,
-      progress: 0
-    }
+      progress: 0,
+    },
   ];
 
   it('should format tasks correctly on initialization', () => {
-    const { result } = renderHook(() => useProjectGantt(mockTasks), { wrapper });
+    const { result } = renderHook(() => useProjectGantt(mockTasks), {
+      wrapper,
+    });
 
     expect(result.current.tasks).toEqual([
       {
@@ -102,24 +104,42 @@ describe('useProjectGantt', () => {
     const { result } = renderHook(() => useProjectGantt([]), { wrapper });
 
     const theme = createTheme();
-    expect(result.current.getStatusColor('in progress')).toBe(theme.palette.primary.main);
-    expect(result.current.getStatusColor('done')).toBe(theme.palette.success.main);
-    expect(result.current.getStatusColor('cancelled')).toBe(theme.palette.error.main);
-    expect(result.current.getStatusColor('unknown')).toBe(theme.palette.grey[300]);
+    expect(result.current.getStatusColor('in progress')).toBe(
+      theme.palette.primary.main,
+    );
+    expect(result.current.getStatusColor('done')).toBe(
+      theme.palette.success.main,
+    );
+    expect(result.current.getStatusColor('cancelled')).toBe(
+      theme.palette.error.main,
+    );
+    expect(result.current.getStatusColor('unknown')).toBe(
+      theme.palette.grey[300],
+    );
   });
 
   it('should get correct priority colors', () => {
     const { result } = renderHook(() => useProjectGantt([]), { wrapper });
 
     const theme = createTheme();
-    expect(result.current.getPriorityColor('very high/must')).toBe(theme.palette.error.main);
-    expect(result.current.getPriorityColor('high/should')).toBe(theme.palette.warning.main);
-    expect(result.current.getPriorityColor('normal/could')).toBe(theme.palette.info.main);
-    expect(result.current.getPriorityColor('unknown')).toBe(theme.palette.grey[400]);
+    expect(result.current.getPriorityColor('very high/must')).toBe(
+      theme.palette.error.main,
+    );
+    expect(result.current.getPriorityColor('high/should')).toBe(
+      theme.palette.warning.main,
+    );
+    expect(result.current.getPriorityColor('normal/could')).toBe(
+      theme.palette.info.main,
+    );
+    expect(result.current.getPriorityColor('unknown')).toBe(
+      theme.palette.grey[400],
+    );
   });
 
   it('should handle current view name changes', () => {
-    const { result: result1 } = renderHook(() => useProjectGantt([]), { wrapper });
+    const { result: result1 } = renderHook(() => useProjectGantt([]), {
+      wrapper,
+    });
 
     act(() => {
       result1.current.setCurrentViewName('Week');
@@ -147,8 +167,8 @@ describe('useProjectGantt', () => {
       ({ initialTasks }) => useProjectGantt(initialTasks),
       {
         wrapper,
-        initialProps: { initialTasks: mockTasks }
-      }
+        initialProps: { initialTasks: mockTasks },
+      },
     );
     const updatedTask = {
       id: 1,
@@ -172,7 +192,7 @@ describe('useProjectGantt', () => {
       created_by_name: 'Test User',
       created_on: '2024-01-01T00:00:00Z',
       estimated_time: 40,
-      progress: 0
+      progress: 0,
     };
 
     // Since we can't directly update tasks, we need to re-initialize with new tasks
@@ -183,22 +203,28 @@ describe('useProjectGantt', () => {
   });
 
   it('should handle resource rendering', () => {
-    const { result } = renderHook(() => useProjectGantt(mockTasks), { wrapper });
+    const { result } = renderHook(() => useProjectGantt(mockTasks), {
+      wrapper,
+    });
     const mockResources = [
       { id: 1, name: 'John Doe' },
-      { id: 2, name: 'Jane Smith' }
+      { id: 2, name: 'Jane Smith' },
     ];
 
     const renderedAppointment = result.current.renderAppointment({
       data: {
         status: 'in progress',
-        priority: 'high/should'
+        priority: 'high/should',
       },
       style: {},
-      children: null
+      children: null,
     });
 
-    expect(renderedAppointment.style.backgroundColor).toBe(createTheme().palette.primary.main);
-    expect(renderedAppointment.style.borderLeft).toBe(`4px solid ${createTheme().palette.warning.main}`);
+    expect(renderedAppointment.style.backgroundColor).toBe(
+      createTheme().palette.primary.main,
+    );
+    expect(renderedAppointment.style.borderLeft).toBe(
+      `4px solid ${createTheme().palette.warning.main}`,
+    );
   });
 });

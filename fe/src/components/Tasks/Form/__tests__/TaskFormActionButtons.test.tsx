@@ -10,19 +10,29 @@ describe('TaskFormActionButtons', () => {
   it('renders both buttons', () => {
     render(<TaskFormActionButtons isEditing={false} />);
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create task/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /create task/i }),
+    ).toBeInTheDocument();
   });
 
   it('shows "Update Task" text when isEditing is true', () => {
     render(<TaskFormActionButtons isEditing={true} />);
-    expect(screen.getByRole('button', { name: /update task/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /create task/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /update task/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /create task/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows "Create Task" text when isEditing is false', () => {
     render(<TaskFormActionButtons isEditing={false} />);
-    expect(screen.getByRole('button', { name: /create task/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /update task/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /create task/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /update task/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('calls onCancel when Cancel is clicked', () => {

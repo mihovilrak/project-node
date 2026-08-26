@@ -15,13 +15,18 @@ import {
   Alert,
   Grid,
   IconButton,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getUsers, deleteUser, getUserStatuses, fetchRoles } from '../../api/users';
+import {
+  getUsers,
+  deleteUser,
+  getUserStatuses,
+  fetchRoles,
+} from '../../api/users';
 import { usePermission } from '../../hooks/common/usePermission';
 import { User } from '../../types/user';
 import FilterPanel from '../common/FilterPanel';
@@ -62,10 +67,11 @@ const Users: React.FC = () => {
           ? Number(currentFilters.role_id)
           : NaN;
       if (!Number.isNaN(roleNum)) whereParams.role_id = roleNum;
-      const includeAll = currentFilters?.status_id == null || currentFilters?.status_id === '';
+      const includeAll =
+        currentFilters?.status_id == null || currentFilters?.status_id === '';
       const userList = await getUsers(
         Object.keys(whereParams).length ? whereParams : undefined,
-        includeAll ? { all: true } : undefined
+        includeAll ? { all: true } : undefined,
       );
       setUsers(userList || []);
     } catch (error: unknown) {
@@ -85,7 +91,7 @@ const Users: React.FC = () => {
       try {
         const [statusesData, rolesData] = await Promise.all([
           getUserStatuses().catch(() => []),
-          fetchRoles().catch(() => [])
+          fetchRoles().catch(() => []),
         ]);
         setStatuses(statusesData);
         setRoles(rolesData);
@@ -112,12 +118,16 @@ const Users: React.FC = () => {
       // Refresh users list from API to ensure consistency
       await fetchUsers(filters);
       // Dispatch custom event to notify other components (e.g., UserManager in Settings)
-      window.dispatchEvent(new CustomEvent('userDeleted', { detail: { userId: userToDelete.id } }));
+      window.dispatchEvent(
+        new CustomEvent('userDeleted', { detail: { userId: userToDelete.id } }),
+      );
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (error: unknown) {
       logger.error('Failed to delete user', error);
-      setDeleteError(getApiErrorMessage(error, 'Failed to delete user. Please try again.'));
+      setDeleteError(
+        getApiErrorMessage(error, 'Failed to delete user. Please try again.'),
+      );
     }
   };
 
@@ -135,14 +145,17 @@ const Users: React.FC = () => {
     setSortOrder(event.target.value as 'asc' | 'desc');
   };
 
-  const filterOptions = useMemo(() => ({
-    search: true,
-    statuses: statuses.map((s) => ({ id: s.id, name: s.name })),
-    roles: roles.map((r) => ({ id: r.id, name: r.name }))
-  }), [statuses, roles]);
+  const filterOptions = useMemo(
+    () => ({
+      search: true,
+      statuses: statuses.map((s) => ({ id: s.id, name: s.name })),
+      roles: roles.map((r) => ({ id: r.id, name: r.name })),
+    }),
+    [statuses, roles],
+  );
 
   const filteredUsers = users
-    .filter(user => {
+    .filter((user) => {
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
         return (
@@ -156,14 +169,23 @@ const Users: React.FC = () => {
     .sort((a, b) => {
       const nameA = `${a?.name || ''} ${a?.surname || ''}`.trim();
       const nameB = `${b?.name || ''} ${b?.surname || ''}`.trim();
-      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      return sortOrder === 'asc'
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
     });
 
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>User Management</Typography>
+      <Typography variant="h4" gutterBottom>
+        User Management
+      </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <Button variant="contained" color="primary" onClick={() => navigate('/users/new')} data-testid="add-user-btn">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/users/new')}
+          data-testid="add-user-btn"
+        >
           Add New User
         </Button>
         <Select
@@ -176,7 +198,11 @@ const Users: React.FC = () => {
           <MenuItem value="asc">A-Z</MenuItem>
           <MenuItem value="desc">Z-A</MenuItem>
         </Select>
-        <Tooltip title={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}>
+        <Tooltip
+          title={
+            viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'
+          }
+        >
           <IconButton
             onClick={() => setViewMode((m) => (m === 'grid' ? 'list' : 'grid'))}
             aria-label={viewMode === 'grid' ? 'List view' : 'Grid view'}
@@ -195,7 +221,9 @@ const Users: React.FC = () => {
 
       <Box marginTop={2} sx={{ width: '100%', maxWidth: 1400 }}>
         {error ? (
-          <Alert severity="error" data-testid="users-error">{error}</Alert>
+          <Alert severity="error" data-testid="users-error">
+            {error}
+          </Alert>
         ) : loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
@@ -208,13 +236,28 @@ const Users: React.FC = () => {
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={user?.id}>
                 <Card data-testid={`user-card-${user?.id}`}>
                   <CardContent>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                      <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        mb: 0.5,
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        #{user?.id}
+                      </Typography>
                       <Typography
                         component={Link}
                         to={`/users/${user?.id}`}
                         variant="h6"
-                        sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                        sx={{
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          '&:hover': { textDecoration: 'underline' },
+                          flex: '1 1 auto',
+                        }}
                       >
                         {user?.name || ''} {user?.surname || ''}
                       </Typography>
@@ -222,14 +265,27 @@ const Users: React.FC = () => {
                         <Box sx={{ display: 'flex', gap: 0 }}>
                           {canEditUser && (
                             <Tooltip title="Edit">
-                              <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                              <IconButton
+                                size="small"
+                                onClick={() =>
+                                  navigate(`/users/${user?.id}/edit`)
+                                }
+                                aria-label="Edit user"
+                                data-testid="edit-user-btn"
+                              >
                                 <EditIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
                           {canDeleteUser && (
                             <Tooltip title="Delete">
-                              <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteClick(user)}
+                                aria-label="Delete user"
+                                data-testid={`delete-user-${user?.id}`}
+                              >
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
@@ -241,11 +297,23 @@ const Users: React.FC = () => {
                       <Chip
                         label={user.status_name}
                         size="small"
-                        sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                        sx={{
+                          mb: 0.5,
+                          ...(user?.status_color
+                            ? {
+                                backgroundColor: user.status_color,
+                                color: 'white',
+                              }
+                            : {}),
+                        }}
                       />
                     )}
-                    <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
-                    <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
+                    <Typography variant="body2">
+                      Email: {user?.email || 'No email'}
+                    </Typography>
+                    <Typography variant="body2">
+                      Role: {user?.role_name || 'No Role'}
+                    </Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -267,13 +335,28 @@ const Users: React.FC = () => {
                     <Box sx={{ py: 1, px: 0.5 }}>
                       <Card data-testid={`user-card-${user?.id}`}>
                         <CardContent>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                            <Typography variant="body2" color="text.secondary">#{user?.id}</Typography>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              alignItems: 'center',
+                              gap: 0.5,
+                              mb: 0.5,
+                            }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              #{user?.id}
+                            </Typography>
                             <Typography
                               component={Link}
                               to={`/users/${user?.id}`}
                               variant="h6"
-                              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' }, flex: '1 1 auto' }}
+                              sx={{
+                                textDecoration: 'none',
+                                color: 'inherit',
+                                '&:hover': { textDecoration: 'underline' },
+                                flex: '1 1 auto',
+                              }}
                             >
                               {user?.name || ''} {user?.surname || ''}
                             </Typography>
@@ -281,14 +364,27 @@ const Users: React.FC = () => {
                               <Box sx={{ display: 'flex', gap: 0 }}>
                                 {canEditUser && (
                                   <Tooltip title="Edit">
-                                    <IconButton size="small" onClick={() => navigate(`/users/${user?.id}/edit`)} aria-label="Edit user" data-testid="edit-user-btn">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() =>
+                                        navigate(`/users/${user?.id}/edit`)
+                                      }
+                                      aria-label="Edit user"
+                                      data-testid="edit-user-btn"
+                                    >
                                       <EditIcon fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
                                 )}
                                 {canDeleteUser && (
                                   <Tooltip title="Delete">
-                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(user)} aria-label="Delete user" data-testid={`delete-user-${user?.id}`}>
+                                    <IconButton
+                                      size="small"
+                                      color="error"
+                                      onClick={() => handleDeleteClick(user)}
+                                      aria-label="Delete user"
+                                      data-testid={`delete-user-${user?.id}`}
+                                    >
                                       <DeleteIcon fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
@@ -300,11 +396,23 @@ const Users: React.FC = () => {
                             <Chip
                               label={user.status_name}
                               size="small"
-                              sx={{ mb: 0.5, ...(user?.status_color ? { backgroundColor: user.status_color, color: 'white' } : {}) }}
+                              sx={{
+                                mb: 0.5,
+                                ...(user?.status_color
+                                  ? {
+                                      backgroundColor: user.status_color,
+                                      color: 'white',
+                                    }
+                                  : {}),
+                              }}
                             />
                           )}
-                          <Typography variant="body2">Email: {user?.email || 'No email'}</Typography>
-                          <Typography variant="body2">Role: {user?.role_name || 'No Role'}</Typography>
+                          <Typography variant="body2">
+                            Email: {user?.email || 'No email'}
+                          </Typography>
+                          <Typography variant="body2">
+                            Role: {user?.role_name || 'No Role'}
+                          </Typography>
                         </CardContent>
                       </Card>
                     </Box>
@@ -324,7 +432,10 @@ const Users: React.FC = () => {
         onConfirm={handleDeleteConfirm}
       />
       {deleteError && deleteDialogOpen && (
-        <Alert severity="error" sx={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}>
+        <Alert
+          severity="error"
+          sx={{ position: 'fixed', top: 16, right: 16, zIndex: 9999 }}
+        >
           {deleteError}
         </Alert>
       )}

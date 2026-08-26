@@ -25,14 +25,13 @@ jest.mock('../UserTable', () => ({
 
 jest.mock('../UserDialog', () => ({
   __esModule: true,
-  default: ({ open, onClose, onUserSaved }: any) => (
+  default: ({ open, onClose, onUserSaved }: any) =>
     open ? (
       <div data-testid="user-dialog">
         <button onClick={onClose}>Close</button>
         <button onClick={() => onUserSaved()}>Save</button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 const mockUsers: User[] = [
@@ -119,21 +118,24 @@ describe('UserManager', () => {
   it('refreshes user list after successful save', async () => {
     (getUsers as jest.Mock)
       .mockResolvedValueOnce(mockUsers)
-      .mockResolvedValueOnce([...mockUsers, {
-        id: 3,
-        login: 'new.user',
-        name: 'New',
-        surname: 'User',
-        email: 'new@example.com',
-        role_id: 3,
-        status_id: 1,
-        timezone: 'UTC',
-        language: 'en',
-        avatar_url: null,
-        created_on: '2024-01-01T00:00:00Z',
-        updated_on: null,
-        last_login: null,
-      }]);
+      .mockResolvedValueOnce([
+        ...mockUsers,
+        {
+          id: 3,
+          login: 'new.user',
+          name: 'New',
+          surname: 'User',
+          email: 'new@example.com',
+          role_id: 3,
+          status_id: 1,
+          timezone: 'UTC',
+          language: 'en',
+          avatar_url: null,
+          created_on: '2024-01-01T00:00:00Z',
+          updated_on: null,
+          last_login: null,
+        },
+      ]);
 
     render(<UserManager />);
 
@@ -174,7 +176,9 @@ describe('UserManager', () => {
     });
 
     // Dispatch userDeleted event
-    window.dispatchEvent(new CustomEvent('userDeleted', { detail: { userId: 2 } }));
+    window.dispatchEvent(
+      new CustomEvent('userDeleted', { detail: { userId: 2 } }),
+    );
 
     // Verify that getUsers was called again
     await waitFor(() => {

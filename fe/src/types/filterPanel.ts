@@ -33,12 +33,18 @@ export type DateFilterOperator = 'from' | 'to' | 'between';
 export type DropdownFilterOperator = 'includes' | 'excludes' | 'is';
 
 /** Operator for number filters */
-export type NumberFilterOperator = 'equals' | 'gt' | 'gte' | 'lt' | 'lte' | 'between';
+export type NumberFilterOperator =
+  'equals' | 'gt' | 'gte' | 'lt' | 'lte' | 'between';
 
 /** Operator for text filters */
-export type TextFilterOperator = 'contains' | 'starts_with' | 'ends_with' | 'excludes';
+export type TextFilterOperator =
+  'contains' | 'starts_with' | 'ends_with' | 'excludes';
 
-export type FilterOperator = DateFilterOperator | DropdownFilterOperator | NumberFilterOperator | TextFilterOperator;
+export type FilterOperator =
+  | DateFilterOperator
+  | DropdownFilterOperator
+  | NumberFilterOperator
+  | TextFilterOperator;
 
 /** Logical date field name (maps to _from / _to keys) */
 export type DateLogicalField = 'start_date' | 'due_date' | 'created';
@@ -91,7 +97,7 @@ export const FILTER_FIELD_LABELS: Record<string, string> = {
   estimated_time_min: 'Est. Time Min',
   estimated_time_max: 'Est. Time Max',
   inactive_statuses_only: 'Inactive',
-  created: 'Created'
+  created: 'Created',
 };
 
 export interface FilterOption {
@@ -135,8 +141,11 @@ export interface FilterPanelOptions {
 }
 
 /** Map date logical field to FilterValues keys */
-export const DATE_FIELD_TO_KEYS: Record<string, { from: keyof FilterValues; to: keyof FilterValues }> = {
+export const DATE_FIELD_TO_KEYS: Record<
+  string,
+  { from: keyof FilterValues; to: keyof FilterValues }
+> = {
   start_date: { from: 'start_date_from', to: 'start_date_to' },
   due_date: { from: 'due_date_from', to: 'due_date_to' },
-  created: { from: 'created_from', to: 'created_to' }
+  created: { from: 'created_from', to: 'created_to' },
 };

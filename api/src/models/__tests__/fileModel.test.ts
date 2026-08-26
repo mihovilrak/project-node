@@ -4,7 +4,7 @@ import * as taskModel from '../taskModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 jest.mock('../taskModel');
@@ -17,12 +17,12 @@ describe('FileModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -40,7 +40,7 @@ describe('FileModel', () => {
           size: 1024,
           mime_type: 'application/pdf',
           file_path: '/uploads/uuid-document.pdf',
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 2,
@@ -52,16 +52,18 @@ describe('FileModel', () => {
           size: 2048,
           mime_type: 'image/png',
           file_path: '/uploads/uuid-image.png',
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockFiles));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockFiles),
+      );
 
       const result = await fileModel.getTaskFiles(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM get_task_files($1)',
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockFiles);
     });
@@ -86,9 +88,11 @@ describe('FileModel', () => {
         size: 5120,
         mime_type: 'application/pdf',
         file_path: '/uploads/uuid-newfile.pdf',
-        created_on: new Date()
+        created_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([newFile]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([newFile]),
+      );
 
       const result = await fileModel.createFile(
         mockPool,
@@ -98,12 +102,20 @@ describe('FileModel', () => {
         'uuid-newfile.pdf',
         5120,
         'application/pdf',
-        '/uploads/uuid-newfile.pdf'
+        '/uploads/uuid-newfile.pdf',
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO files'),
-        ['1', '1', 'newfile.pdf', 'uuid-newfile.pdf', 5120, 'application/pdf', '/uploads/uuid-newfile.pdf']
+        [
+          '1',
+          '1',
+          'newfile.pdf',
+          'uuid-newfile.pdf',
+          5120,
+          'application/pdf',
+          '/uploads/uuid-newfile.pdf',
+        ],
       );
       expect(result).toEqual(newFile);
     });
@@ -120,15 +132,17 @@ describe('FileModel', () => {
         size: 1024,
         mime_type: 'application/pdf',
         file_path: '/uploads/uuid-document.pdf',
-        created_on: new Date()
+        created_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockFile]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockFile]),
+      );
 
       const result = await fileModel.getFileById(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT * FROM files'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockFile);
     });
@@ -150,7 +164,7 @@ describe('FileModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('DELETE FROM files'),
-        ['1']
+        ['1'],
       );
     });
   });
@@ -161,7 +175,10 @@ describe('FileModel', () => {
       (mockPool.query as jest.Mock)
         .mockResolvedValueOnce(mockQueryResult([mockFile]))
         .mockResolvedValueOnce({ rows: [{ 1: 1 }], rowCount: 1 });
-      (taskModel.getTaskById as jest.Mock).mockResolvedValue({ id: 10, project_id: 5 });
+      (taskModel.getTaskById as jest.Mock).mockResolvedValue({
+        id: 10,
+        project_id: 5,
+      });
 
       const result = await fileModel.canUserAccessFile(mockPool, '1', '1');
 
@@ -181,7 +198,10 @@ describe('FileModel', () => {
       (mockPool.query as jest.Mock)
         .mockResolvedValueOnce(mockQueryResult([mockFile]))
         .mockResolvedValueOnce({ rows: [], rowCount: 0 });
-      (taskModel.getTaskById as jest.Mock).mockResolvedValue({ id: 10, project_id: 5 });
+      (taskModel.getTaskById as jest.Mock).mockResolvedValue({
+        id: 10,
+        project_id: 5,
+      });
 
       const result = await fileModel.canUserAccessFile(mockPool, '99', '1');
 

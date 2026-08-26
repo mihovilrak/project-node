@@ -3,7 +3,12 @@ import { useDeleteConfirm } from '../useDeleteConfirm';
 
 describe('useDeleteConfirm', () => {
   it('should initialize with isDeleting as false', () => {
-    const { result } = renderHook(() => useDeleteConfirm(() => {}, () => {}));
+    const { result } = renderHook(() =>
+      useDeleteConfirm(
+        () => {},
+        () => {},
+      ),
+    );
     expect(result.current.isDeleting).toBe(false);
   });
 
@@ -43,9 +48,12 @@ describe('useDeleteConfirm', () => {
   });
 
   it('should set isDeleting to true while confirming', async () => {
-    const onConfirm = jest.fn().mockImplementation(() => new Promise(resolve => {
-      setTimeout(resolve, 100);
-    }));
+    const onConfirm = jest.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(resolve, 100);
+        }),
+    );
     const onClose = jest.fn();
 
     const { result } = renderHook(() => useDeleteConfirm(onConfirm, onClose));

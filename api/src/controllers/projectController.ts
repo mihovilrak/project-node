@@ -16,7 +16,7 @@ import logger from '../utils/logger';
 export const getProjects = async (
   req: Request<{}, {}, {}, ProjectQueryFilters>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { whereParams } = req.query;
@@ -36,18 +36,23 @@ export const getProjects = async (
           start_date_from,
           start_date_to,
           due_date_from,
-          due_date_to
+          due_date_to,
         } = req.query as any;
 
-        const statusNum = status_id !== undefined && status_id !== '' ? Number(status_id) : NaN;
+        const statusNum =
+          status_id !== undefined && status_id !== '' ? Number(status_id) : NaN;
         if (!Number.isNaN(statusNum)) {
           builtWhereParams.status_id = statusNum;
         }
-        const createdByNum = created_by !== undefined && created_by !== '' ? Number(created_by) : NaN;
+        const createdByNum =
+          created_by !== undefined && created_by !== ''
+            ? Number(created_by)
+            : NaN;
         if (!Number.isNaN(createdByNum)) {
           builtWhereParams.created_by = createdByNum;
         }
-        const parentNum = parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
+        const parentNum =
+          parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
         if (!Number.isNaN(parentNum)) {
           builtWhereParams.parent_id = parentNum;
         }
@@ -70,9 +75,8 @@ export const getProjects = async (
         builtWhereParams.status_id = 1;
       }
 
-      effectiveWhereParams = Object.keys(builtWhereParams).length > 0
-        ? builtWhereParams
-        : undefined;
+      effectiveWhereParams =
+        Object.keys(builtWhereParams).length > 0 ? builtWhereParams : undefined;
     }
 
     const userId = (req as unknown as CustomRequest).session?.user?.id;
@@ -94,7 +98,7 @@ export const getProjects = async (
 export const getProjectById = async (
   req: Request<{ id: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -114,7 +118,7 @@ export const getProjectById = async (
 export const getProjectDetails = async (
   req: Request<{ id: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -137,15 +141,9 @@ const MAX_PROJECT_DESCRIPTION_LENGTH = 5000;
 export const createProject = async (
   req: ProjectRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
-  const {
-    name,
-    description,
-    start_date,
-    due_date,
-    parent_id
-  } = req.body ?? {};
+  const { name, description, start_date, due_date, parent_id } = req.body ?? {};
 
   const created_by = req.session.user?.id;
 
@@ -157,7 +155,7 @@ export const createProject = async (
   if (typeof name !== 'string' || !name.trim()) {
     res.status(400).json({
       error: 'Invalid request',
-      message: 'name is required and must be a non-empty string'
+      message: 'name is required and must be a non-empty string',
     });
     return;
   }
@@ -165,14 +163,18 @@ export const createProject = async (
   if (trimmedName.length > MAX_PROJECT_NAME_LENGTH) {
     res.status(400).json({
       error: 'Invalid request',
-      message: `name must not exceed ${MAX_PROJECT_NAME_LENGTH} characters`
+      message: `name must not exceed ${MAX_PROJECT_NAME_LENGTH} characters`,
     });
     return;
   }
-  if (description !== undefined && description !== null && typeof description !== 'string') {
+  if (
+    description !== undefined &&
+    description !== null &&
+    typeof description !== 'string'
+  ) {
     res.status(400).json({
       error: 'Invalid request',
-      message: 'description must be a string'
+      message: 'description must be a string',
     });
     return;
   }
@@ -180,7 +182,7 @@ export const createProject = async (
   if (desc.length > MAX_PROJECT_DESCRIPTION_LENGTH) {
     res.status(400).json({
       error: 'Invalid request',
-      message: `description must not exceed ${MAX_PROJECT_DESCRIPTION_LENGTH} characters`
+      message: `description must not exceed ${MAX_PROJECT_DESCRIPTION_LENGTH} characters`,
     });
     return;
   }
@@ -193,7 +195,7 @@ export const createProject = async (
       start_date ?? null,
       due_date ?? null,
       created_by,
-      parent_id
+      parent_id,
     );
 
     res.status(201).json(project);
@@ -207,7 +209,7 @@ export const createProject = async (
 export const changeProjectStatus = async (
   req: Request<{ id: string }, {}, { status: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const { status } = req.body;
@@ -228,12 +230,12 @@ export const changeProjectStatus = async (
 export const updateProject = async (
   req: Request<{ id: string }, {}, ProjectUpdateInput>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const updates = {
     ...req.body,
-    parent_id: req.body.parent_id ? Number(req.body.parent_id) : undefined
+    parent_id: req.body.parent_id ? Number(req.body.parent_id) : undefined,
   };
   try {
     const result = await projectModel.updateProject(pool, updates, id);
@@ -252,7 +254,7 @@ export const updateProject = async (
 export const deleteProject = async (
   req: Request<{ id: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -272,7 +274,7 @@ export const deleteProject = async (
 export const getProjectMembers = async (
   req: Request<{ id: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -288,7 +290,7 @@ export const getProjectMembers = async (
 export const addProjectMember = async (
   req: Request<{ id: string }, {}, { userId: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -302,7 +304,7 @@ export const addProjectMember = async (
     await notificationModel.createProjectMemberNotifications(pool, {
       project_id: parseInt(id),
       action_user_id: parseInt(userId),
-      type_id: NotificationType.ProjectMemberAdded
+      type_id: NotificationType.ProjectMemberAdded,
     });
     res.status(201).json(result);
   } catch (error) {
@@ -315,7 +317,7 @@ export const addProjectMember = async (
 export const deleteProjectMember = async (
   req: Request<{ id: string }, {}, { userId: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -336,7 +338,7 @@ export const deleteProjectMember = async (
 export const getSubprojects = async (
   req: Request<{ id: string }>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -352,7 +354,7 @@ export const getSubprojects = async (
 export const getProjectTasks = async (
   req: Request<{ id: string }, {}, {}, ProjectTaskFilters>,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { id: projectId } = req.params;
@@ -375,7 +377,7 @@ export const getProjectTasks = async (
 export const getProjectStatuses = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const statuses = await projectModel.getProjectStatuses(pool);

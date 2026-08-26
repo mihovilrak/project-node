@@ -8,7 +8,7 @@ import logger from '../../../utils/logger';
 // Mock dependencies
 jest.mock('../../../api/tasks');
 jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -42,8 +42,8 @@ describe('useCalendar', () => {
       end_date: null,
       spent_time: 0,
       progress: 0,
-      estimated_time: null
-    }
+      estimated_time: null,
+    },
   ];
 
   beforeEach(() => {
@@ -109,7 +109,7 @@ describe('useCalendar', () => {
 
     // Wait for the initial fetch
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getTasksByDateRange).toHaveBeenCalled();
@@ -118,12 +118,14 @@ describe('useCalendar', () => {
   });
 
   it('should handle fetch tasks error', async () => {
-    (getTasksByDateRange as jest.Mock).mockRejectedValueOnce(new Error('Fetch error'));
+    (getTasksByDateRange as jest.Mock).mockRejectedValueOnce(
+      new Error('Fetch error'),
+    );
 
     const { result } = renderHook(() => useCalendar());
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(logger.error).toHaveBeenCalled();
@@ -136,7 +138,7 @@ describe('useCalendar', () => {
 
     await act(async () => {
       result.current.handleViewChange('week');
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getTasksByDateRange).toHaveBeenCalledTimes(2); // Initial call + view change

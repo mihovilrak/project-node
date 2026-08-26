@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
-import { TaskCreateInput, TaskUpdateInput, TaskQueryFilters } from '../types/task';
+import {
+  TaskCreateInput,
+  TaskUpdateInput,
+  TaskQueryFilters,
+} from '../types/task';
 import * as taskModel from '../models/taskModel';
 import { filterByProjectAccess } from '../models/accessModel';
 import * as notificationModel from '../models/notificationModel';
@@ -18,12 +22,17 @@ function toTimestamp(d: Date | string | null | undefined): number {
  * Parse a query param into a single number or array of numbers (comma-separated).
  * Returns null if value is missing, invalid, or parses to empty (so caller should not set the filter).
  */
-function parseIdParam(value: string | string[] | undefined): number | number[] | null {
+function parseIdParam(
+  value: string | string[] | undefined,
+): number | number[] | null {
   if (value === undefined || value === null) return null;
   const str = Array.isArray(value) ? value.join(',') : String(value).trim();
   if (str === '') return null;
   if (str.includes(',')) {
-    const arr = str.split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n));
+    const arr = str
+      .split(',')
+      .map((s) => Number(s.trim()))
+      .filter((n) => !Number.isNaN(n));
     return arr.length > 0 ? arr : null;
   }
   const num = Number(str);
@@ -34,7 +43,7 @@ function parseIdParam(value: string | string[] | undefined): number | number[] |
 export const getTasks = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const userId = (req as CustomRequest).session?.user?.id;
@@ -62,18 +71,38 @@ export const getTasks = async (
       estimated_time_min,
       estimated_time_max,
       inactive_statuses_only,
-      active_statuses_only
+      active_statuses_only,
     } = req.query;
 
     // Only use getTasksByProject when project_id is the sole filter
     const otherFilters = [
-      id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id,
-      created_by, due_date_from, due_date_to, start_date_from, start_date_to,
-      created_from, created_to, estimated_time_min, estimated_time_max, inactive_statuses_only, active_statuses_only
+      id,
+      assignee_id,
+      holder_id,
+      status_id,
+      priority_id,
+      type_id,
+      parent_id,
+      created_by,
+      due_date_from,
+      due_date_to,
+      start_date_from,
+      start_date_to,
+      created_from,
+      created_to,
+      estimated_time_min,
+      estimated_time_max,
+      inactive_statuses_only,
+      active_statuses_only,
     ].some(Boolean);
     if (project_id && !otherFilters) {
-      const tasks = await taskModel.getTasksByProject(pool, project_id as string);
-      res.status(200).json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
+      const tasks = await taskModel.getTasksByProject(
+        pool,
+        project_id as string,
+      );
+      res
+        .status(200)
+        .json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
       return;
     }
 
@@ -81,22 +110,34 @@ export const getTasks = async (
 
     const parsedId = id !== undefined && id !== '' ? Number(id) : NaN;
     if (!Number.isNaN(parsedId)) filters.id = parsedId;
-    const parsedProjectId = parseIdParam(project_id as string | string[] | undefined);
+    const parsedProjectId = parseIdParam(
+      project_id as string | string[] | undefined,
+    );
     if (parsedProjectId !== null) filters.project_id = parsedProjectId;
-    const parsedAssigneeId = parseIdParam(assignee_id as string | string[] | undefined);
+    const parsedAssigneeId = parseIdParam(
+      assignee_id as string | string[] | undefined,
+    );
     if (parsedAssigneeId !== null) filters.assignee_id = parsedAssigneeId;
-    const parsedHolderId = parseIdParam(holder_id as string | string[] | undefined);
+    const parsedHolderId = parseIdParam(
+      holder_id as string | string[] | undefined,
+    );
     if (parsedHolderId !== null) filters.holder_id = parsedHolderId;
-    const parsedStatusId = parseIdParam(status_id as string | string[] | undefined);
+    const parsedStatusId = parseIdParam(
+      status_id as string | string[] | undefined,
+    );
     if (parsedStatusId !== null) filters.status_id = parsedStatusId;
-    const parsedPriorityId = parseIdParam(priority_id as string | string[] | undefined);
+    const parsedPriorityId = parseIdParam(
+      priority_id as string | string[] | undefined,
+    );
     if (parsedPriorityId !== null) filters.priority_id = parsedPriorityId;
     const parsedTypeId = parseIdParam(type_id as string | string[] | undefined);
     if (parsedTypeId !== null) filters.type_id = parsedTypeId;
     const parsedParentId =
       parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
     if (!Number.isNaN(parsedParentId)) filters.parent_id = parsedParentId;
-    const parsedCreatedBy = parseIdParam(created_by as string | string[] | undefined);
+    const parsedCreatedBy = parseIdParam(
+      created_by as string | string[] | undefined,
+    );
     if (parsedCreatedBy !== null) filters.created_by = parsedCreatedBy;
     if (due_date_from && typeof due_date_from === 'string') {
       filters.due_date_from = due_date_from;
@@ -130,20 +171,25 @@ export const getTasks = async (
     }
 
     const hasFilters = Object.keys(filters).length > 0;
-    const tasks = await taskModel.getTasks(pool, hasFilters ? filters : undefined);
+    const tasks = await taskModel.getTasks(
+      pool,
+      hasFilters ? filters : undefined,
+    );
     // Tasks inherit their project's tenancy, so a listing is scoped the same way.
-    res.status(200).json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
+    res
+      .status(200)
+      .json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
   } catch (error) {
     logger.error({ err: error }, 'Error fetching tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get Task by ID
 export const getTaskById = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -157,17 +203,19 @@ export const getTaskById = async (
     logger.error({ err: error }, 'Error fetching task by ID');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get tasks by assignee
 export const getTaskByAssignee = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { assignee_id } = req.query;
-    const result = await taskModel.getTasks(pool, { whereParams: { assignee_id: Number(assignee_id) } });
+    const result = await taskModel.getTasks(pool, {
+      whereParams: { assignee_id: Number(assignee_id) },
+    });
     if (!result || result.length === 0) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
@@ -175,19 +223,21 @@ export const getTaskByAssignee = async (
     res.status(200).json(result);
   } catch (error) {
     logger.error({ err: error }, 'Error fetching tasks by assignee');
-    res.status(500).json({ error: 'Internal server error'});
+    res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get tasks by holder
 export const getTaskByHolder = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const { holder_id } = req.query;
-    const result = await taskModel.getTasks(pool, { whereParams: { holder_id: Number(holder_id) } });
+    const result = await taskModel.getTasks(pool, {
+      whereParams: { holder_id: Number(holder_id) },
+    });
     if (!result || result.length === 0) {
       res.status(404).json({ message: 'No tasks assigned' });
       return;
@@ -195,30 +245,26 @@ export const getTaskByHolder = async (
     res.status(200).json(result);
   } catch (error) {
     logger.error({ err: error }, 'Error fetching tasks by holder');
-    res.status(500).json({ error: 'Internal server error'});
+    res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Create a task
 export const createTask = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const taskData: TaskCreateInput = req.body;
     const created_by = taskData.created_by ?? req.session?.user?.id;
-    const {
-      holder_id,
-      assignee_id,
-      tag_ids,
-      estimated_time
-    } = taskData;
+    const { holder_id, assignee_id, tag_ids, estimated_time } = taskData;
 
     // Create unique watchers array from holder, assignee, and creator
     const watcherIds = [holder_id, assignee_id, created_by];
-    const watchers = Array.from(new Set(watcherIds))
-      .filter((id): id is number => typeof id === 'number' && !isNaN(id));
+    const watchers = Array.from(new Set(watcherIds)).filter(
+      (id): id is number => typeof id === 'number' && !isNaN(id),
+    );
 
     // Validate required fields
     const requiredFields: (keyof TaskCreateInput)[] = [
@@ -230,28 +276,43 @@ export const createTask = async (
       'type_id',
       'project_id',
       'holder_id',
-      'assignee_id'
+      'assignee_id',
     ];
 
-    const missingFields = requiredFields.filter(field => !taskData[field]);
+    const missingFields = requiredFields.filter((field) => !taskData[field]);
 
     if (missingFields.length > 0) {
       res.status(400).json({
         error: 'Missing required fields',
-        missingFields
+        missingFields,
       });
       return;
     }
 
-    const startDate = taskData.start_date ? toTimestamp(taskData.start_date as Date | string) : NaN;
-    const dueDate = taskData.due_date ? toTimestamp(taskData.due_date as Date | string) : NaN;
+    const startDate = taskData.start_date
+      ? toTimestamp(taskData.start_date as Date | string)
+      : NaN;
+    const dueDate = taskData.due_date
+      ? toTimestamp(taskData.due_date as Date | string)
+      : NaN;
     if (!isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
-      res.status(400).json({ error: 'Due date must be on or after start date' });
+      res
+        .status(400)
+        .json({ error: 'Due date must be on or after start date' });
       return;
     }
-    const endDate = taskData.end_date ? toTimestamp(taskData.end_date as Date | string) : NaN;
-    if (taskData.end_date != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
-      res.status(400).json({ error: 'End date must be on or after start date' });
+    const endDate = taskData.end_date
+      ? toTimestamp(taskData.end_date as Date | string)
+      : NaN;
+    if (
+      taskData.end_date != null &&
+      !isNaN(startDate) &&
+      !isNaN(endDate) &&
+      endDate < startDate
+    ) {
+      res
+        .status(400)
+        .json({ error: 'End date must be on or after start date' });
       return;
     }
 
@@ -270,7 +331,7 @@ export const createTask = async (
       created_by: created_by ?? taskData.created_by,
       parent_id: taskData.parent_id || undefined,
       // Extract tag IDs and ensure they are numbers
-      tag_ids: (taskData.tags || []).map(tag => Number(tag.id))
+      tag_ids: (taskData.tags || []).map((tag) => Number(tag.id)),
     };
 
     // Create task with processed data
@@ -287,7 +348,15 @@ export const createTask = async (
     const actionUserId = Number(created_by);
 
     // Debug log
-    logger.debug({ taskId, actionUserId, originalId: task.task_id, originalCreatedBy: created_by }, 'Converted IDs');
+    logger.debug(
+      {
+        taskId,
+        actionUserId,
+        originalId: task.task_id,
+        originalCreatedBy: created_by,
+      },
+      'Converted IDs',
+    );
 
     if (isNaN(taskId)) {
       throw new Error(`Invalid task ID: ${task.task_id}`);
@@ -300,35 +369,57 @@ export const createTask = async (
     await notificationModel.createWatcherNotifications(pool, {
       task_id: taskId,
       action_user_id: actionUserId,
-      type_id: NotificationType.TaskCreated
+      type_id: NotificationType.TaskCreated,
     });
 
     res.status(201).json(task);
   } catch (error) {
     logger.error({ err: error, taskData: req.body }, 'Error creating task');
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Internal server error';
     res.status(500).json({ error: errorMessage });
   }
-}
+};
 
 // Update a task
 export const updateTask = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const userId = req.session.user?.id;
   const taskData: TaskUpdateInput = req.body;
 
-  const startDate = taskData.start_date != null ? toTimestamp(taskData.start_date as Date | string) : null;
-  const dueDate = taskData.due_date != null ? toTimestamp(taskData.due_date as Date | string) : null;
-  const endDate = taskData.end_date != null ? toTimestamp(taskData.end_date as Date | string) : null;
-  if (startDate != null && dueDate != null && !isNaN(startDate) && !isNaN(dueDate) && dueDate < startDate) {
+  const startDate =
+    taskData.start_date != null
+      ? toTimestamp(taskData.start_date as Date | string)
+      : null;
+  const dueDate =
+    taskData.due_date != null
+      ? toTimestamp(taskData.due_date as Date | string)
+      : null;
+  const endDate =
+    taskData.end_date != null
+      ? toTimestamp(taskData.end_date as Date | string)
+      : null;
+  if (
+    startDate != null &&
+    dueDate != null &&
+    !isNaN(startDate) &&
+    !isNaN(dueDate) &&
+    dueDate < startDate
+  ) {
     res.status(400).json({ error: 'Due date must be on or after start date' });
     return;
   }
-  if (startDate != null && endDate != null && !isNaN(startDate) && !isNaN(endDate) && endDate < startDate) {
+  if (
+    startDate != null &&
+    endDate != null &&
+    !isNaN(startDate) &&
+    !isNaN(endDate) &&
+    endDate < startDate
+  ) {
     res.status(400).json({ error: 'End date must be on or after start date' });
     return;
   }
@@ -345,7 +436,7 @@ export const updateTask = async (
     await notificationModel.createWatcherNotifications(pool, {
       task_id: parseInt(id),
       action_user_id: parseInt(userId!),
-      type_id: NotificationType.TaskUpdated  // Task Updated
+      type_id: NotificationType.TaskUpdated, // Task Updated
     });
 
     res.status(200).json(task);
@@ -353,13 +444,13 @@ export const updateTask = async (
     logger.error({ err: error }, 'Error updating task');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Change task status
 export const changeTaskStatus = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const { statusId } = req.body;
@@ -377,7 +468,7 @@ export const changeTaskStatus = async (
     await notificationModel.createWatcherNotifications(pool, {
       task_id: parseInt(id),
       action_user_id: parseInt(userId!),
-      type_id: NotificationType.TaskUpdated  // Task Status Changed
+      type_id: NotificationType.TaskUpdated, // Task Status Changed
     });
 
     res.status(200).json(task);
@@ -385,13 +476,13 @@ export const changeTaskStatus = async (
     logger.error({ err: error }, 'Error changing task status');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Delete a task
 export const deleteTask = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -405,13 +496,13 @@ export const deleteTask = async (
     logger.error({ err: error }, 'Error deleting task');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get task statuses
 export const getTaskStatuses = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const statuses = await taskModel.getTaskStatuses(pool);
@@ -420,13 +511,13 @@ export const getTaskStatuses = async (
     logger.error({ err: error }, 'Error fetching task statuses');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get priorities
 export const getPriorities = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const priorities = await taskModel.getPriorities(pool);
@@ -435,13 +526,13 @@ export const getPriorities = async (
     logger.error({ err: error }, 'Error fetching priorities');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get active tasks
 export const getActiveTasks = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   try {
     const userId = req.session.user?.id;
@@ -455,13 +546,13 @@ export const getActiveTasks = async (
     logger.error({ err: error }, 'Error fetching active tasks');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Get subtasks
 export const getSubtasks = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -471,4 +562,4 @@ export const getSubtasks = async (
     logger.error({ err: error }, 'Error fetching subtasks');
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};

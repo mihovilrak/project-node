@@ -5,7 +5,7 @@ import { useProjectDetails } from '../../../hooks/project/useProjectDetails';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: jest.fn(),
-  useParams: jest.fn().mockReturnValue({ id: '1' })
+  useParams: jest.fn().mockReturnValue({ id: '1' }),
 }));
 
 jest.mock('../../../hooks/project/useProjectDetails');
@@ -14,7 +14,7 @@ const mockUseProjectDetails = useProjectDetails as jest.Mock;
 const mockProject = {
   id: 1,
   name: 'Test Project',
-  description: 'Test Description'
+  description: 'Test Description',
 };
 
 const mockHookReturnValue = {
@@ -23,7 +23,7 @@ const mockHookReturnValue = {
   error: null,
   canEdit: true,
   canDelete: true,
-  setState: jest.fn()
+  setState: jest.fn(),
 };
 
 describe('ProjectDetails', () => {
@@ -33,7 +33,10 @@ describe('ProjectDetails', () => {
   });
 
   it('shows a loading indicator when loading is true', () => {
-    mockUseProjectDetails.mockReturnValue({ ...mockHookReturnValue, loading: true });
+    mockUseProjectDetails.mockReturnValue({
+      ...mockHookReturnValue,
+      loading: true,
+    });
     render(<ProjectDetails />);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
@@ -41,14 +44,17 @@ describe('ProjectDetails', () => {
   it('shows an error message when there is an error', () => {
     mockUseProjectDetails.mockReturnValue({
       ...mockHookReturnValue,
-      error: 'Error loading project'
+      error: 'Error loading project',
     });
     render(<ProjectDetails />);
     expect(screen.getByText('Error loading project')).toBeInTheDocument();
   });
 
   it('shows project not found message when project is null', () => {
-    mockUseProjectDetails.mockReturnValue({ ...mockHookReturnValue, project: null });
+    mockUseProjectDetails.mockReturnValue({
+      ...mockHookReturnValue,
+      project: null,
+    });
     render(<ProjectDetails />);
     expect(screen.getByText('Project not found')).toBeInTheDocument();
   });

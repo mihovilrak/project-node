@@ -16,7 +16,7 @@ describe('TagController', () => {
     const mockSession = {
       id: 'test-session-id',
       cookie: { originalMaxAge: null },
-      user: { id: '1', login: 'test', role_id: 1 }
+      user: { id: '1', login: 'test', role_id: 1 },
     } as unknown as Session;
 
     mockReq = { params: {}, query: {}, body: {}, session: mockSession };
@@ -29,14 +29,22 @@ describe('TagController', () => {
     it('should return all tags', async () => {
       const mockTags = [{ id: '1', name: 'Tag1', color: '#FF0000' }];
       (tagModel.getTags as jest.Mock).mockResolvedValue(mockTags);
-      await tagController.getTags(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.getTags(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTags);
     });
 
     it('should handle errors', async () => {
       (tagModel.getTags as jest.Mock).mockRejectedValue(new Error('DB error'));
-      await tagController.getTags(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.getTags(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
@@ -46,7 +54,11 @@ describe('TagController', () => {
       mockReq.body = { name: 'NewTag', color: '#00FF00' };
       const createdTag = { id: '2', name: 'NewTag', color: '#00FF00' };
       (tagModel.createTag as jest.Mock).mockResolvedValue(createdTag);
-      await tagController.createTag(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.createTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(createdTag);
     });
@@ -54,14 +66,24 @@ describe('TagController', () => {
     it('should return 401 when not authenticated', async () => {
       mockReq.session.user = undefined;
       mockReq.body = { name: 'NewTag', color: '#00FF00' };
-      await tagController.createTag(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.createTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(401);
     });
 
     it('should handle errors', async () => {
       mockReq.body = { name: 'NewTag', color: '#00FF00' };
-      (tagModel.createTag as jest.Mock).mockRejectedValue(new Error('DB error'));
-      await tagController.createTag(mockReq, mockRes as Response, mockPool as Pool);
+      (tagModel.createTag as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
+      await tagController.createTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
@@ -71,7 +93,11 @@ describe('TagController', () => {
       mockReq.params = { taskId: '1' };
       mockReq.body = { tagIds: ['1', '2'] };
       (tagModel.addTaskTags as jest.Mock).mockResolvedValue({ success: true });
-      await tagController.addTaskTags(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.addTaskTags(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
 
@@ -79,7 +105,11 @@ describe('TagController', () => {
       mockReq.session.user = undefined;
       mockReq.params = { taskId: '1' };
       mockReq.body = { tagIds: ['1'] };
-      await tagController.addTaskTags(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.addTaskTags(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(401);
     });
   });
@@ -88,9 +118,15 @@ describe('TagController', () => {
     it('should remove tag from task', async () => {
       mockReq.params = { taskId: '1', tagId: '1' };
       (tagModel.removeTaskTag as jest.Mock).mockResolvedValue(undefined);
-      await tagController.removeTaskTag(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.removeTaskTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Tag removed successfully' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Tag removed successfully',
+      });
     });
   });
 
@@ -99,7 +135,11 @@ describe('TagController', () => {
       mockReq.params = { taskId: '1' };
       const mockTags = [{ id: '1', name: 'Tag1' }];
       (tagModel.getTaskTags as jest.Mock).mockResolvedValue(mockTags);
-      await tagController.getTaskTags(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.getTaskTags(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTags);
     });
@@ -111,7 +151,11 @@ describe('TagController', () => {
       mockReq.body = { name: 'Updated', color: '#0000FF' };
       const updatedTag = { id: '1', name: 'Updated', color: '#0000FF' };
       (tagModel.updateTag as jest.Mock).mockResolvedValue(updatedTag);
-      await tagController.updateTag(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.updateTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
   });
@@ -120,9 +164,15 @@ describe('TagController', () => {
     it('should delete a tag', async () => {
       mockReq.params = { id: '1' };
       (tagModel.deleteTag as jest.Mock).mockResolvedValue(undefined);
-      await tagController.deleteTag(mockReq, mockRes as Response, mockPool as Pool);
+      await tagController.deleteTag(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({ message: 'Tag deleted successfully' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Tag deleted successfully',
+      });
     });
   });
 });

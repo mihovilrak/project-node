@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 export const getTags = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const tags = await tagModel.getTags(pool);
@@ -24,7 +24,7 @@ export const getTags = async (
 export const createTag = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { name, color, icon } = req.body as TagCreateInput;
@@ -46,7 +46,7 @@ export const createTag = async (
 export const addTaskTags = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
@@ -69,7 +69,7 @@ export const addTaskTags = async (
 export const removeTaskTag = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId, tagId } = req.params;
@@ -85,7 +85,7 @@ export const removeTaskTag = async (
 export const getTaskTags = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { taskId } = req.params;
@@ -101,7 +101,7 @@ export const getTaskTags = async (
 export const updateTag = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
@@ -118,7 +118,7 @@ export const updateTag = async (
 export const deleteTag = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;

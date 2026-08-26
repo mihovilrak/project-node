@@ -7,7 +7,7 @@ import logger from '../utils/logger';
 export const getTaskWatchers = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   try {
@@ -17,13 +17,13 @@ export const getTaskWatchers = async (
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Add task watcher
 export const addTaskWatcher = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
   const { userId } = req.body;
@@ -34,13 +34,13 @@ export const addTaskWatcher = async (
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 // Remove task watcher
 export const removeTaskWatcher = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<void> => {
   const { id, userId } = req.params;
   try {
@@ -54,4 +54,4 @@ export const removeTaskWatcher = async (
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};

@@ -20,14 +20,15 @@ export const config: Config = {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD,
     },
-    from: process.env.EMAIL_FROM || 'Project Management <noreply@yourcompany.com>',
+    from:
+      process.env.EMAIL_FROM || 'Project Management <noreply@yourcompany.com>',
   },
   app: {
     nodeEnv: process.env.NODE_ENV || 'development',
     emailEnabled: process.env.EMAIL_ENABLED === 'true',
     baseUrl: `http://localhost:${process.env.PORT || '5001'}`,
-    port: parseInt(process.env.PORT || '5001')
-  }
+    port: parseInt(process.env.PORT || '5001'),
+  },
 };
 
 export function validateConfig(): void {

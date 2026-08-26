@@ -7,7 +7,7 @@ import {
   Tab,
   Tabs,
   CircularProgress,
-  Alert
+  Alert,
 } from '@mui/material';
 import { useProjectDetails } from '../../hooks/project/useProjectDetails';
 import ProjectEditDialog from './ProjectEditDialog';
@@ -51,7 +51,7 @@ const ProjectDetails: React.FC = () => {
     setTimeLogDialogOpen,
     setSelectedTimeLog,
     setTaskFormOpen,
-    setManageMembersOpen
+    setManageMembersOpen,
   } = useProjectDetails(id!);
 
   const handleCreateTask = useCallback(() => {
@@ -59,16 +59,19 @@ const ProjectDetails: React.FC = () => {
     setTaskFormOpen(false);
   }, [navigate, id, setTaskFormOpen]);
 
-  const handleTabChange = useCallback((_e: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  }, []);
+  const handleTabChange = useCallback(
+    (_e: React.SyntheticEvent, newValue: number) => {
+      setActiveTab(newValue);
+    },
+    [],
+  );
 
   const handleEdit = useCallback(() => {
-    setState(prev => ({ ...prev, editDialogOpen: true }));
+    setState((prev) => ({ ...prev, editDialogOpen: true }));
   }, [setState]);
 
   const handleDelete = useCallback(() => {
-    setState(prev => ({ ...prev, deleteDialogOpen: true }));
+    setState((prev) => ({ ...prev, deleteDialogOpen: true }));
   }, [setState]);
 
   const handleManageMembers = useCallback(() => {
@@ -81,11 +84,11 @@ const ProjectDetails: React.FC = () => {
   }, [setSelectedTimeLog, setTimeLogDialogOpen]);
 
   const handleEditDialogClose = useCallback(() => {
-    setState(prev => ({ ...prev, editDialogOpen: false }));
+    setState((prev) => ({ ...prev, editDialogOpen: false }));
   }, [setState]);
 
   const handleDeleteDialogClose = useCallback(() => {
-    setState(prev => ({ ...prev, deleteDialogOpen: false }));
+    setState((prev) => ({ ...prev, deleteDialogOpen: false }));
   }, [setState]);
 
   const handleTimeLogDialogClose = useCallback(() => {
@@ -104,25 +107,36 @@ const ProjectDetails: React.FC = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+          }}
+        >
           <Typography variant="h5" component="h1">
             {project?.name || 'Unnamed Project'}
           </Typography>
           <ProjectActions
             canEdit={canEdit}
             canDelete={canDelete}
-            onEdit={() => setState(prev => ({ ...prev, editDialogOpen: true }))}
-            onDelete={() => setState(prev => ({ ...prev, deleteDialogOpen: true }))}
+            onEdit={() =>
+              setState((prev) => ({ ...prev, editDialogOpen: true }))
+            }
+            onDelete={() =>
+              setState((prev) => ({ ...prev, deleteDialogOpen: true }))
+            }
             data-testid="project-actions"
           />
         </Box>
 
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onChange={(e, newValue) => {
             e.preventDefault();
             setActiveTab(newValue);
-          }} 
+          }}
           data-testid="project-tabs"
         >
           <Tab label="Overview" data-testid="tab-overview" />

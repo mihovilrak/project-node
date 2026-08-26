@@ -119,9 +119,14 @@ jest.mock('../Form/TaskProgressField', () => ({
   // Render if value !== undefined && value !== null
   TaskProgressField: (props: any) => {
     const { handleChange, value } = props;
-    return value !== undefined && value !== null
-      ? <input data-testid="task-progress" name="progress" value={value} onChange={handleChange} />
-      : null;
+    return value !== undefined && value !== null ? (
+      <input
+        data-testid="task-progress"
+        name="progress"
+        value={value}
+        onChange={handleChange}
+      />
+    ) : null;
   },
 }));
 
@@ -151,7 +156,6 @@ jest.mock('../ProjectSelect', () => ({
     </select>
   ),
 }));
-
 
 describe('TaskForm', () => {
   const mockHandleChange = jest.fn();
@@ -205,7 +209,7 @@ describe('TaskForm', () => {
             <Route path="/tasks/:id" element={<TaskForm />} />
           </Routes>
         </LocalizationProvider>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -253,8 +257,8 @@ describe('TaskForm', () => {
     expect(mockHandleChange).toHaveBeenCalledWith({
       target: {
         name: 'project_id',
-        value: 123
-      }
+        value: 123,
+      },
     });
   });
 
@@ -264,8 +268,8 @@ describe('TaskForm', () => {
     expect(mockHandleChange).toHaveBeenCalledWith({
       target: {
         name: 'parent_id',
-        value: 456
-      }
+        value: 456,
+      },
     });
   });
 
@@ -283,10 +287,12 @@ describe('TaskForm', () => {
     renderTaskForm('/tasks/new?projectId=123&parentId=456');
 
     const projectSelect = screen.getByTestId('project-select');
-    fireEvent.change(projectSelect, { target: { name: 'project_id', value: 789 } });
+    fireEvent.change(projectSelect, {
+      target: { name: 'project_id', value: 789 },
+    });
 
     expect(mockHandleChange).not.toHaveBeenCalledWith({
-      target: { name: 'project_id', value: 789 }
+      target: { name: 'project_id', value: 789 },
     });
   });
 
@@ -294,13 +300,13 @@ describe('TaskForm', () => {
     // Set up so that after change, formData reflects the new value
     (useTaskForm as jest.Mock).mockReturnValue({
       ...mockTaskFormHook,
-      formData: { ...mockTaskFormHook.formData }
+      formData: { ...mockTaskFormHook.formData },
     });
     const { unmount } = renderTaskForm();
 
     const taskName = screen.getByTestId('task-name');
     fireEvent.change(taskName, {
-      target: { name: 'name', value: 'New Task' }
+      target: { name: 'name', value: 'New Task' },
     });
     // Assert on event passed to mockHandleChange
     expect(mockHandleChange).toHaveBeenCalled();
@@ -309,7 +315,7 @@ describe('TaskForm', () => {
     // Simulate formData update and re-render
     (useTaskForm as jest.Mock).mockReturnValue({
       ...mockTaskFormHook,
-      formData: { ...mockTaskFormHook.formData, name: 'New Task' }
+      formData: { ...mockTaskFormHook.formData, name: 'New Task' },
     });
     unmount();
     renderTaskForm();

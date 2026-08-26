@@ -35,7 +35,7 @@ describe('Project Management Flow', () => {
     created_on: '2023-01-01',
     estimated_time: 40,
     spent_time: 0,
-    progress: 0
+    progress: 0,
   };
 
   const mockSubproject: Project = {
@@ -53,7 +53,7 @@ describe('Project Management Flow', () => {
     created_on: '2023-01-05',
     estimated_time: 20,
     spent_time: 0,
-    progress: 0
+    progress: 0,
   };
 
   const mockMember: ProjectMember = {
@@ -62,7 +62,7 @@ describe('Project Management Flow', () => {
     surname: 'Doe',
     project_id: 1,
     role: 'Manager',
-    created_on: '2023-01-01'
+    created_on: '2023-01-01',
   };
 
   const mockTimeLog = {
@@ -72,7 +72,7 @@ describe('Project Management Flow', () => {
     description: 'Working on feature',
     hours: 2.5,
     date: '2023-01-15',
-    created_on: '2023-01-15'
+    created_on: '2023-01-15',
   };
 
   // Get references to mocked modules
@@ -110,7 +110,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for the projects to load
@@ -129,7 +129,7 @@ describe('Project Management Flow', () => {
     // This simplified test focuses on the integration of the API with the component
     // rather than navigating through a complex form, which is more aligned with
     // testing best practices for Material-UI components
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Test passes if the component renders with our mock data, which confirms
     // the integration between the API and the component is working correctly
@@ -144,12 +144,14 @@ describe('Project Management Flow', () => {
     const updatedProject = {
       ...mockProject,
       name: 'Updated Project',
-      description: 'Updated Description'
+      description: 'Updated Description',
     };
     mockedApi.patch.mockResolvedValueOnce({ data: updatedProject });
 
     // After editing, the updated list should be returned
-    (projectsApi.getProjects as jest.Mock).mockResolvedValueOnce([updatedProject]);
+    (projectsApi.getProjects as jest.Mock).mockResolvedValueOnce([
+      updatedProject,
+    ]);
 
     // Render the Projects component
     render(
@@ -157,7 +159,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -173,7 +175,7 @@ describe('Project Management Flow', () => {
     mockedApi.patch.mockResolvedValueOnce({ data: updatedProject });
 
     // Verify the API was called correctly
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
     expect(mockedApi.patch).not.toHaveBeenCalled();
 
     // In a real integration test, we would trigger the edit UI and complete the form
@@ -197,7 +199,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -209,7 +211,7 @@ describe('Project Management Flow', () => {
     // since we're only testing if the API call works correctly
 
     // Verify the API was called correctly to fetch projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // The delete API would normally be called when the user confirms deletion
     // We're verifying that our delete mock is set up correctly
@@ -230,7 +232,13 @@ describe('Project Management Flow', () => {
     });
 
     // Mock adding a new member
-    const newMember = { user_id: 3, project_id: 1, role: 'Developer', name: 'Jane', surname: 'Smith' };
+    const newMember = {
+      user_id: 3,
+      project_id: 1,
+      role: 'Developer',
+      name: 'Jane',
+      surname: 'Smith',
+    };
     mockedApi.post.mockResolvedValueOnce({ data: newMember });
 
     // Render the Projects component
@@ -239,7 +247,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -255,7 +263,7 @@ describe('Project Management Flow', () => {
     // 2. Fill and submit the member form
 
     // For this API integration test, we verify the API mocks are set up correctly
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
   });
 
   it('should filter and search projects', async () => {
@@ -266,7 +274,7 @@ describe('Project Management Flow', () => {
     const mockProjects = [
       mockProject,
       { ...mockProject, id: 2, name: 'Dev Project', status_name: 'Inactive' },
-      { ...mockProject, id: 3, name: 'Mobile App', status_name: 'Active' }
+      { ...mockProject, id: 3, name: 'Mobile App', status_name: 'Active' },
     ];
 
     // Mock the API to return these projects
@@ -278,7 +286,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -292,7 +300,7 @@ describe('Project Management Flow', () => {
     expect(screen.getByText('Mobile App')).toBeInTheDocument();
 
     // Verify the API was called to fetch the projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
   });
 
   it('should create a subproject', async () => {
@@ -319,7 +327,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -332,7 +340,7 @@ describe('Project Management Flow', () => {
     expect(projectContainer).toBeInTheDocument();
 
     // Verify the API was called to fetch projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Simulate API call that would normally be triggered by form submission
     // This avoids testing UI interactions while still testing API integration
@@ -341,7 +349,7 @@ describe('Project Management Flow', () => {
       description: 'Subproject Description',
       parent_id: 1,
       start_date: '2023-02-01',
-      due_date: '2023-11-30'
+      due_date: '2023-11-30',
     });
 
     // Verify API was called with correct data
@@ -367,7 +375,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -380,14 +388,14 @@ describe('Project Management Flow', () => {
     expect(projectCards.length).toBe(1); // One root project; subproject appears under it when expanded
 
     // Verify the API was called to fetch projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Simulate the API call that would normally happen after form submission
     // This focuses on the API integration without dealing with complex form interactions
     mockedApi.post('projects', {
       name: 'New Subproject',
       description: 'Another Subproject Description',
-      parent_id: 1
+      parent_id: 1,
     });
 
     // Verify API was called
@@ -424,7 +432,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -437,7 +445,7 @@ describe('Project Management Flow', () => {
     expect(projectCard).toBeInTheDocument();
 
     // Verify the API was called to fetch projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Note: We're only testing the API integration here, not UI interactions
     // that would be better tested in component-level tests
@@ -453,8 +461,22 @@ describe('Project Management Flow', () => {
 
     // Mock the API calls for task data
     const mockTasks = [
-      { id: 1, name: 'Task 1', project_id: 1, start_date: '2023-01-15', due_date: '2023-02-15', status_id: 1 },
-      { id: 2, name: 'Task 2', project_id: 1, start_date: '2023-02-01', due_date: '2023-03-01', status_id: 1 }
+      {
+        id: 1,
+        name: 'Task 1',
+        project_id: 1,
+        start_date: '2023-01-15',
+        due_date: '2023-02-15',
+        status_id: 1,
+      },
+      {
+        id: 2,
+        name: 'Task 2',
+        project_id: 1,
+        start_date: '2023-02-01',
+        due_date: '2023-03-01',
+        status_id: 1,
+      },
     ];
 
     mockedApi.get.mockImplementation((url: string) => {
@@ -470,7 +492,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -483,7 +505,7 @@ describe('Project Management Flow', () => {
     expect(projectCards.length).toBeGreaterThan(0);
 
     // Verify the API was called correctly
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
   });
 
   it('should manage subprojects relationship', async () => {
@@ -500,7 +522,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -513,7 +535,7 @@ describe('Project Management Flow', () => {
     expect(projectCards.length).toBe(1); // One root project; subproject shown when parent is expanded
 
     // Verify the API was called to fetch projects
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Note: We're testing the API integration by verifying the correct mocks were called
     // and that the component renders the mocked data correctly, without relying on exact text matching
@@ -528,8 +550,22 @@ describe('Project Management Flow', () => {
 
     // Mock the API calls for project details and tasks
     const mockTasks = [
-      { id: 1, name: 'Task 1', project_id: 1, start_date: '2023-01-15', due_date: '2023-02-15', status_id: 1 },
-      { id: 2, name: 'Task 2', project_id: 1, start_date: '2023-02-01', due_date: '2023-03-01', status_id: 1 }
+      {
+        id: 1,
+        name: 'Task 1',
+        project_id: 1,
+        start_date: '2023-01-15',
+        due_date: '2023-02-15',
+        status_id: 1,
+      },
+      {
+        id: 2,
+        name: 'Task 2',
+        project_id: 1,
+        start_date: '2023-02-01',
+        due_date: '2023-03-01',
+        status_id: 1,
+      },
     ];
 
     mockedApi.get.mockImplementation((url: string) => {
@@ -548,7 +584,7 @@ describe('Project Management Flow', () => {
         <TestWrapper>
           <Projects />
         </TestWrapper>
-      </LocalizationProvider>
+      </LocalizationProvider>,
     );
 
     // Wait for projects to load
@@ -561,9 +597,8 @@ describe('Project Management Flow', () => {
     expect(projectContainer).toBeInTheDocument();
 
     // Verify the API was called correctly
-    expect((projectsApi.getProjects as jest.Mock)).toHaveBeenCalled();
+    expect(projectsApi.getProjects as jest.Mock).toHaveBeenCalled();
 
     // Note: We're only testing API integration here, not UI rendering of the Gantt chart
   });
 });
-

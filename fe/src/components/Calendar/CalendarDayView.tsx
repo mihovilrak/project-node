@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Chip
-} from '@mui/material';
+import { Box, Paper, Typography, Chip } from '@mui/material';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
 import { useTasksByHour } from '../../hooks/calendar/useTasksByHour';
@@ -13,13 +8,19 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
   tasks,
   timeLogs,
   onTaskClick,
-  onTimeLogClick
+  onTimeLogClick,
 }) => {
-  const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(tasks, timeLogs);
+  const { hours, getTasksForHour, getTimeLogsForHour } = useTasksByHour(
+    tasks,
+    timeLogs,
+  );
 
   return (
-    <Box sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }} data-testid="day-view">
-      {hours.map(hour => (
+    <Box
+      sx={{ height: 'calc(100vh - 200px)', overflow: 'auto' }}
+      data-testid="day-view"
+    >
+      {hours.map((hour) => (
         <Paper
           key={hour}
           variant="outlined"
@@ -28,7 +29,8 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
             mb: 1,
             display: 'flex',
             minHeight: 80,
-            backgroundColor: hour % 2 === 0 ? 'background.default' : 'background.paper'
+            backgroundColor:
+              hour % 2 === 0 ? 'background.default' : 'background.paper',
           }}
         >
           <Typography
@@ -36,20 +38,20 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
             sx={{
               width: 50,
               color: 'text.secondary',
-              fontWeight: 'medium'
+              fontWeight: 'medium',
             }}
           >
             {hour.toString().padStart(2, '0')}:00
           </Typography>
           <Box sx={{ flex: 1 }}>
-            {getTasksForHour(hour).map(task => (
+            {getTasksForHour(hour).map((task) => (
               <Paper
                 key={task.id}
                 sx={{
                   p: 1,
                   mb: 1,
                   cursor: 'pointer',
-                  '&:hover': { backgroundColor: 'action.hover' }
+                  '&:hover': { backgroundColor: 'action.hover' },
                 }}
                 onClick={() => onTaskClick(task.id)}
                 data-testid={`task-chip-${task.id}`}
@@ -69,7 +71,7 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
                 </Box>
               </Paper>
             ))}
-            {getTimeLogsForHour(hour).map(timeLog => (
+            {getTimeLogsForHour(hour).map((timeLog) => (
               <Paper
                 key={timeLog.id}
                 sx={{
@@ -77,7 +79,7 @@ const CalendarDayView: React.FC<CalendarViewProps> = ({
                   mb: 1,
                   cursor: 'pointer',
                   backgroundColor: timeLog.activity_type_color,
-                  '&:hover': { opacity: 0.9 }
+                  '&:hover': { opacity: 0.9 },
                 }}
                 onClick={() => onTimeLogClick(timeLog.id)}
               >

@@ -101,10 +101,11 @@ describe('NotificationService', () => {
     ];
 
     it('should query for new notifications', async () => {
-      const mockQuery = jest.fn()
-        .mockResolvedValueOnce({})   // BEGIN
-        .mockResolvedValueOnce({ rows: [] })  // get_notifications_for_service
-        .mockResolvedValueOnce({});  // COMMIT
+      const mockQuery = jest
+        .fn()
+        .mockResolvedValueOnce({}) // BEGIN
+        .mockResolvedValueOnce({ rows: [] }) // get_notifications_for_service
+        .mockResolvedValueOnce({}); // COMMIT
       (pool.connect as jest.Mock).mockResolvedValue({
         query: mockQuery,
         release: jest.fn(),
@@ -112,14 +113,19 @@ describe('NotificationService', () => {
 
       await notificationService.processNewNotifications();
 
-      expect(mockQuery).toHaveBeenNthCalledWith(2, 'SELECT * FROM get_notifications_for_service($1)', [100]);
+      expect(mockQuery).toHaveBeenNthCalledWith(
+        2,
+        'SELECT * FROM get_notifications_for_service($1)',
+        [100],
+      );
     });
 
     it('should send email for each notification', async () => {
-      const mockQuery = jest.fn()
-        .mockResolvedValueOnce({})   // BEGIN
-        .mockResolvedValueOnce({ rows: mockNotifications })  // get_notifications_for_service
-        .mockResolvedValueOnce({})   // UPDATE (per notification)
+      const mockQuery = jest
+        .fn()
+        .mockResolvedValueOnce({}) // BEGIN
+        .mockResolvedValueOnce({ rows: mockNotifications }) // get_notifications_for_service
+        .mockResolvedValueOnce({}) // UPDATE (per notification)
         .mockResolvedValueOnce({}); // COMMIT
       (pool.connect as jest.Mock).mockResolvedValue({
         query: mockQuery,
@@ -132,12 +138,13 @@ describe('NotificationService', () => {
         'user@test.com',
         'Task Due Soon',
         'taskDueSoon',
-        { userName: 'testuser', taskUrl: '/tasks/1' }
+        { userName: 'testuser', taskUrl: '/tasks/1' },
       );
     });
 
     it('should increment notificationsSent metric', async () => {
-      const mockQuery = jest.fn()
+      const mockQuery = jest
+        .fn()
         .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: mockNotifications })
         .mockResolvedValueOnce({})
@@ -153,7 +160,8 @@ describe('NotificationService', () => {
     });
 
     it('should mark notification as read after sending', async () => {
-      const mockQuery = jest.fn()
+      const mockQuery = jest
+        .fn()
         .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: mockNotifications })
         .mockResolvedValueOnce({})
@@ -167,12 +175,14 @@ describe('NotificationService', () => {
 
       expect(mockQuery).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
-        ['1']
+        ['1'],
       );
     });
 
     it('should handle errors gracefully', async () => {
-      const mockQuery = jest.fn().mockRejectedValueOnce(new Error('Database error'));
+      const mockQuery = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Database error'));
       (pool.connect as jest.Mock).mockResolvedValue({
         query: mockQuery,
         release: jest.fn(),
@@ -186,10 +196,16 @@ describe('NotificationService', () => {
     it('should process multiple notifications', async () => {
       const multipleNotifications: DatabaseNotification[] = [
         { ...mockNotifications[0], id: '1' },
-        { ...mockNotifications[0], id: '2', email: 'user2@test.com', login: 'testuser2' },
+        {
+          ...mockNotifications[0],
+          id: '2',
+          email: 'user2@test.com',
+          login: 'testuser2',
+        },
       ];
 
-      const mockQuery = jest.fn()
+      const mockQuery = jest
+        .fn()
         .mockResolvedValueOnce({})
         .mockResolvedValueOnce({ rows: multipleNotifications })
         .mockResolvedValueOnce({})
@@ -230,7 +246,7 @@ describe('NotificationService', () => {
         'assignee@test.com',
         'Task Assigned',
         'taskAssigned',
-        { userName: 'assigneeuser', taskUrl: '/tasks/5' }
+        { userName: 'assigneeuser', taskUrl: '/tasks/5' },
       );
     });
 
@@ -241,13 +257,13 @@ describe('NotificationService', () => {
 
       expect(pool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
-        ['1']
+        ['1'],
       );
     });
 
     it('should increment emailErrors on failure', async () => {
       (emailService.sendEmailWithRetry as jest.Mock).mockRejectedValueOnce(
-        new Error('Email failed')
+        new Error('Email failed'),
       );
 
       await notificationService.sendNotificationEmail(mockNotification);
@@ -274,12 +290,12 @@ describe('NotificationService', () => {
       const result = await notificationService.generateNotification(
         'Task Due Soon',
         '456',
-        { taskId: 1 }
+        { taskId: 1 },
       );
 
       expect(pool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO notifications'),
-        ['Task Due Soon', '456', { taskId: 1 }]
+        ['Task Due Soon', '456', { taskId: 1 }],
       );
       expect(result).toEqual(mockResult.rows[0]);
     });
@@ -288,7 +304,9 @@ describe('NotificationService', () => {
       (pool.query as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       await expect(
-        notificationService.generateNotification('Task Due Soon', '456', { taskId: 1 })
+        notificationService.generateNotification('Task Due Soon', '456', {
+          taskId: 1,
+        }),
       ).rejects.toThrow('DB error');
     });
   });

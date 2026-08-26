@@ -27,7 +27,7 @@ export enum NotificationType {
   TaskCompleted = 5,
   ProjectUpdate = 6,
   TaskCreated = 7,
-  ProjectMemberAdded = 8
+  ProjectMemberAdded = 8,
 }
 
 export interface NotificationTypeInfo {

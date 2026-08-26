@@ -42,17 +42,23 @@ describe('theme', () => {
   describe('component overrides', () => {
     it('should have correct MuiGrid overrides', () => {
       expect(lightTheme.components?.MuiGrid).toBeDefined();
-      expect(lightTheme.components?.MuiGrid?.styleOverrides?.root).toBeDefined();
+      expect(
+        lightTheme.components?.MuiGrid?.styleOverrides?.root,
+      ).toBeDefined();
     });
 
     it('should have correct MuiCard overrides', () => {
       expect(lightTheme.components?.MuiCard).toBeDefined();
-      expect(lightTheme.components?.MuiCard?.styleOverrides?.root).toBeDefined();
+      expect(
+        lightTheme.components?.MuiCard?.styleOverrides?.root,
+      ).toBeDefined();
     });
 
     it('should have correct MuiCardContent overrides', () => {
       expect(lightTheme.components?.MuiCardContent).toBeDefined();
-      expect(lightTheme.components?.MuiCardContent?.styleOverrides?.root).toBeDefined();
+      expect(
+        lightTheme.components?.MuiCardContent?.styleOverrides?.root,
+      ).toBeDefined();
     });
   });
 });

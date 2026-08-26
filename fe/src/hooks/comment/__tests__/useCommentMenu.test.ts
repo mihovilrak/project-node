@@ -10,7 +10,7 @@ describe('useCommentMenu', () => {
     updated_on: new Date().toISOString(),
     task_id: 1,
     user_id: 1,
-    active: true
+    active: true,
   };
 
   const mockOnCommentUpdated = jest.fn();
@@ -32,7 +32,7 @@ describe('useCommentMenu', () => {
 
   it('should initialize with default state', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     expect(result.current.anchorEl).toBeNull();
@@ -42,7 +42,7 @@ describe('useCommentMenu', () => {
 
   it('should handle menu open', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     const button = document.createElement('button');
@@ -58,7 +58,7 @@ describe('useCommentMenu', () => {
 
   it('should handle menu close', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     // First open the menu
@@ -80,7 +80,7 @@ describe('useCommentMenu', () => {
 
   it('should handle edit click', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     act(() => {
@@ -93,7 +93,7 @@ describe('useCommentMenu', () => {
 
   it('should preserve selectedComment when opening edit dialog so dialog can show and save the comment', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     const button = document.createElement('button');
@@ -115,7 +115,7 @@ describe('useCommentMenu', () => {
 
   it('should handle edit close', () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     // First open the edit dialog
@@ -134,7 +134,7 @@ describe('useCommentMenu', () => {
 
   it('should handle edit save', async () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     await act(async () => {
@@ -148,7 +148,7 @@ describe('useCommentMenu', () => {
 
   it('should handle delete click', async () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     // First set a selected comment
@@ -171,7 +171,7 @@ describe('useCommentMenu', () => {
 
   it('should not call delete if no comment is selected', async () => {
     const { result } = renderHook(() =>
-      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted)
+      useCommentMenu(mockOnCommentUpdated, mockOnCommentDeleted),
     );
 
     await act(async () => {

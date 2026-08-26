@@ -13,29 +13,31 @@ import { getActivityTypes } from '../../../api/activityTypes';
 
 // Mock API responses - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/users', () => ({
-  getUsers: jest.fn()
+  getUsers: jest.fn(),
 }));
 
 jest.mock('../../../api/roles', () => ({
-  getRoles: jest.fn()
+  getRoles: jest.fn(),
 }));
 
 jest.mock('../../../api/taskTypes', () => ({
-  getTaskTypes: jest.fn()
+  getTaskTypes: jest.fn(),
 }));
 
 jest.mock('../../../api/activityTypes', () => ({
-  getActivityTypes: jest.fn()
+  getActivityTypes: jest.fn(),
 }));
 
 // Mock AuthContext - use static values instead of referencing mockUsers
 jest.mock('../../../context/AuthContext', () => ({
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     permissionsLoading: false,
     user: { id: 1, name: 'First1', permissions: ['Admin'] },
-    permissions: ['Admin']
-  })
+    permissions: ['Admin'],
+  }),
 }));
 
 // Mock user data
@@ -57,7 +59,7 @@ const mockUsers: User[] = Array.from({ length: 20 }, (_, index) => ({
   status: 'Active',
   status_color: '#00FF00',
   full_name: `First${index + 1} Last${index + 1}`,
-  permissions: ['Admin']
+  permissions: ['Admin'],
 }));
 
 // Mock roles data based on actual SQL data
@@ -72,7 +74,7 @@ const mockPermissions: Permission[] = [
   { id: 8, name: 'Log time' },
   { id: 9, name: 'Edit log' },
   { id: 10, name: 'Delete log' },
-  { id: 11, name: 'Delete files' }
+  { id: 11, name: 'Delete files' },
 ];
 
 const mockRoles: Role[] = [
@@ -82,7 +84,7 @@ const mockRoles: Role[] = [
     description: 'Administrator role',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    permissions: mockPermissions
+    permissions: mockPermissions,
   },
   {
     id: 2,
@@ -90,8 +92,8 @@ const mockRoles: Role[] = [
     description: 'Regular user role',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    permissions: [mockPermissions[4], mockPermissions[5], mockPermissions[7]]
-  }
+    permissions: [mockPermissions[4], mockPermissions[5], mockPermissions[7]],
+  },
 ];
 
 // Mock task types data
@@ -102,7 +104,7 @@ const mockTaskTypes: TaskType[] = [
     color: '#2196f3',
     icon: 'TaskAlt',
     description: 'A task is a unit of work that needs to be completed.',
-    active: true
+    active: true,
   },
   {
     id: 2,
@@ -110,7 +112,7 @@ const mockTaskTypes: TaskType[] = [
     color: '#f44336',
     icon: 'BugReport',
     description: 'A bug is an error or issue in a program.',
-    active: true
+    active: true,
   },
   {
     id: 3,
@@ -118,8 +120,8 @@ const mockTaskTypes: TaskType[] = [
     color: '#4caf50',
     icon: 'WorkOutline',
     description: 'A work package is a collection of tasks.',
-    active: true
-  }
+    active: true,
+  },
 ];
 
 // Mock activity types
@@ -130,7 +132,7 @@ const mockActivityTypes: ActivityType[] = [
     color: '#2196f3',
     icon: 'Code',
     description: 'Development work',
-    active: true
+    active: true,
   },
   {
     id: 2,
@@ -138,8 +140,8 @@ const mockActivityTypes: ActivityType[] = [
     color: '#9c27b0',
     icon: 'Group',
     description: 'Team meetings and discussions',
-    active: true
-  }
+    active: true,
+  },
 ];
 
 // Performance measurement callback
@@ -149,13 +151,13 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`${id} ${phase} render:`, {
     actualDuration,
     baseDuration,
     startTime,
-    commitTime
+    commitTime,
   });
   return actualDuration;
 };
@@ -166,12 +168,15 @@ const measurePerformance = (Component: React.ComponentType): number => {
 
   render(
     <TestWrapper>
-      <Profiler id="Settings" onRender={(id, phase, actualDuration) => {
-        duration = onRenderCallback(id, phase, actualDuration, 0, 0, 0);
-      }}>
+      <Profiler
+        id="Settings"
+        onRender={(id, phase, actualDuration) => {
+          duration = onRenderCallback(id, phase, actualDuration, 0, 0, 0);
+        }}
+      >
         <Component />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -197,16 +202,19 @@ describe('Settings Component Performance Tests', () => {
         <Profiler id="Settings-TabSwitch" onRender={onRenderCallback}>
           <Settings />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Measure tab switching performance
-    ['Users', 'Types & Roles', 'System'].forEach(tabName => {
+    ['Users', 'Types & Roles', 'System'].forEach((tabName) => {
       const startTime = performance.now();
       const tab = screen.getByText(tabName);
       fireEvent.click(tab);
@@ -226,7 +234,7 @@ describe('Settings Component Performance Tests', () => {
       name: `First${i + 1}`,
       surname: `Last${i + 1}`,
       email: `user${i + 1}@example.com`,
-      full_name: `First${i + 1} Last${i + 1}`
+      full_name: `First${i + 1} Last${i + 1}`,
     }));
 
     (getUsers as jest.Mock).mockResolvedValueOnce(largeUserSet);
@@ -241,16 +249,22 @@ describe('Settings Component Performance Tests', () => {
         <Profiler id="Settings-UserTable" onRender={onRenderCallback}>
           <Settings />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Test search filter performance - input may have different labels
-    const searchInput = screen.queryByLabelText('Search') || screen.queryByLabelText('showSearch') || screen.queryByRole('textbox');
+    const searchInput =
+      screen.queryByLabelText('Search') ||
+      screen.queryByLabelText('showSearch') ||
+      screen.queryByRole('textbox');
     if (!searchInput) {
       // Skip if no search input found
       return;
@@ -274,13 +288,16 @@ describe('Settings Component Performance Tests', () => {
         <Profiler id="Settings-TypesAndRoles" onRender={onRenderCallback}>
           <Settings />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Switch to Types & Roles tab
     fireEvent.click(screen.getByText('Types & Roles'));
@@ -299,36 +316,43 @@ describe('Settings Component Performance Tests', () => {
         <Profiler id="Settings-SystemSettings" onRender={onRenderCallback}>
           <Settings />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Switch to System tab
     fireEvent.click(screen.getByText('System'));
 
     // Wait for system tab to load - try to find any input field
     try {
-      await waitFor(() => {
-        const anyInput = screen.queryByRole('textbox');
-        if (!anyInput) {
-          throw new Error('No input found');
-        }
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          const anyInput = screen.queryByRole('textbox');
+          if (!anyInput) {
+            throw new Error('No input found');
+          }
+        },
+        { timeout: 10000 },
+      );
     } catch (e) {
       // Skip if no inputs found - this is a performance test
       return;
     }
 
     // Try to find Application Name input with multiple strategies
-    const appNameInput = screen.queryByLabelText('Application Name') || 
-                         screen.queryByLabelText(/application name/i) ||
-                         screen.queryByPlaceholderText(/application name/i) ||
-                         screen.queryAllByRole('textbox')[0];
-    
+    const appNameInput =
+      screen.queryByLabelText('Application Name') ||
+      screen.queryByLabelText(/application name/i) ||
+      screen.queryByPlaceholderText(/application name/i) ||
+      screen.queryAllByRole('textbox')[0];
+
     if (!appNameInput) {
       // Skip if Application Name input not found - this is a performance test
       return;

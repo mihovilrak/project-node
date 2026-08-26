@@ -25,7 +25,10 @@ export const createRole = async (roleData: Partial<Role>): Promise<Role> => {
 };
 
 // Update role
-export const updateRole = async (id: number, roleData: Partial<Role>): Promise<Role> => {
+export const updateRole = async (
+  id: number,
+  roleData: Partial<Role>,
+): Promise<Role> => {
   try {
     const response = await api.put(`/roles/${id}`, roleData);
     return response.data;

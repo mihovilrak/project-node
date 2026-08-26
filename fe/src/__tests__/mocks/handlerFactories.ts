@@ -20,11 +20,11 @@ export const createGetHandler = (
   url: string,
   data: any,
   status: number = 200,
-  delay?: number
+  delay?: number,
 ) => {
   return rest.get(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     return res(ctx.status(status), ctx.json(data));
   });
@@ -37,11 +37,11 @@ export const createPostHandler = (
   url: string,
   responseData: any,
   status: number = 200,
-  delay?: number
+  delay?: number,
 ) => {
   return rest.post(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     return res(ctx.status(status), ctx.json(responseData));
   });
@@ -54,11 +54,11 @@ export const createPutHandler = (
   url: string,
   responseData: any,
   status: number = 200,
-  delay?: number
+  delay?: number,
 ) => {
   return rest.put(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     return res(ctx.status(status), ctx.json(responseData));
   });
@@ -71,11 +71,11 @@ export const createPatchHandler = (
   url: string,
   responseData: any,
   status: number = 200,
-  delay?: number
+  delay?: number,
 ) => {
   return rest.patch(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     return res(ctx.status(status), ctx.json(responseData));
   });
@@ -87,11 +87,11 @@ export const createPatchHandler = (
 export const createDeleteHandler = (
   url: string,
   status: number = 200,
-  delay?: number
+  delay?: number,
 ) => {
   return rest.delete(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     return res(ctx.status(status), ctx.json({}));
   });
@@ -104,11 +104,11 @@ export const createErrorHandler = (
   url: string,
   status: number,
   error: string | { error: string },
-  delay?: number
+  delay?: number,
 ) => {
   return rest.all(url, async (req, res, ctx) => {
     if (delay) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     const errorMessage = typeof error === 'string' ? error : error.error;
     return res(ctx.status(status), ctx.json({ error: errorMessage }));

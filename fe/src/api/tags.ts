@@ -25,7 +25,10 @@ export const createTag = async (tagData: Partial<Tag>): Promise<Tag> => {
 };
 
 // Add tags to task
-export const addTaskTags = async (taskId: number, tagIds: number[]): Promise<Tag[]> => {
+export const addTaskTags = async (
+  taskId: number,
+  tagIds: number[],
+): Promise<Tag[]> => {
   try {
     const response = await api.post(`/tasks/${taskId}/tags`, { tagIds });
     return response.data;
@@ -36,7 +39,10 @@ export const addTaskTags = async (taskId: number, tagIds: number[]): Promise<Tag
 };
 
 // Remove tag from task
-export const removeTaskTag = async (taskId: number, tagId: number): Promise<void> => {
+export const removeTaskTag = async (
+  taskId: number,
+  tagId: number,
+): Promise<void> => {
   try {
     await api.delete(`/tasks/${taskId}/tags/${tagId}`);
   } catch (error) {

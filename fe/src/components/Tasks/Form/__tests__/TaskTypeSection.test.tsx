@@ -7,7 +7,9 @@ import { TaskFormState } from '../../../../types/task';
 // Mock TaskTypeSelect component
 jest.mock('../../TaskTypeSelect', () => {
   return jest.fn((props) => {
-    return <div data-testid="mock-task-type-select">TaskTypeSelect Component</div>;
+    return (
+      <div data-testid="mock-task-type-select">TaskTypeSelect Component</div>
+    );
   });
 });
 
@@ -25,9 +27,9 @@ describe('TaskTypeSection', () => {
       assignee_id: null,
       start_date: null,
       due_date: null,
-      estimated_time: null
+      estimated_time: null,
     } as TaskFormState,
-    handleChange: jest.fn()
+    handleChange: jest.fn(),
   };
 
   beforeEach(() => {
@@ -46,15 +48,15 @@ describe('TaskTypeSection', () => {
       expect.objectContaining({
         value: defaultProps.formData.type_id || 0,
         required: true,
-        onChange: expect.any(Function)
-      })
+        onChange: expect.any(Function),
+      }),
     );
   });
 
   it('handles null type_id correctly', () => {
     const propsWithNullType = {
       ...defaultProps,
-      formData: { ...defaultProps.formData, type_id: null }
+      formData: { ...defaultProps.formData, type_id: null },
     };
     render(<TaskTypeSection {...propsWithNullType} />);
     expect(TaskTypeSelect).toHaveBeenCalled();
@@ -62,8 +64,8 @@ describe('TaskTypeSection', () => {
       expect.objectContaining({
         value: 0,
         required: true,
-        onChange: expect.any(Function)
-      })
+        onChange: expect.any(Function),
+      }),
     );
   });
 
@@ -76,8 +78,8 @@ describe('TaskTypeSection', () => {
     expect(defaultProps.handleChange).toHaveBeenCalledWith({
       target: {
         name: 'type_id',
-        value: 2
-      }
+        value: 2,
+      },
     });
   });
 

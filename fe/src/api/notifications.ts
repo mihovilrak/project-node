@@ -17,7 +17,10 @@ export const getNotifications = async (): Promise<Notification[]> => {
 // Mark one notification as read, or all of them when no id is given
 export const markAsRead = async (notificationId?: number): Promise<void> => {
   try {
-    await api.patch('/notifications', notificationId ? { notification_id: notificationId } : {});
+    await api.patch(
+      '/notifications',
+      notificationId ? { notification_id: notificationId } : {},
+    );
   } catch (error) {
     logger.error('Failed to mark notifications as read:', error);
     throw error;
@@ -25,7 +28,9 @@ export const markAsRead = async (notificationId?: number): Promise<void> => {
 };
 
 // Delete notification
-export const deleteNotification = async (notificationId: number): Promise<void> => {
+export const deleteNotification = async (
+  notificationId: number,
+): Promise<void> => {
   try {
     await api.delete(`/notifications/${notificationId}`);
   } catch (error) {

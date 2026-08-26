@@ -26,7 +26,7 @@ jest.mock('../../TimeLog/TimeLogDialog', () => ({
     >
       TimeLogDialog
     </div>
-  )
+  ),
 }));
 
 jest.mock('../../TimeLog/TimeLogList', () => ({
@@ -43,13 +43,19 @@ jest.mock('../../TimeLog/TimeLogList', () => ({
         if (props.onDelete) props.onDelete('delete-id');
       }}
       {...props}
-    >TimeLogList</div>
-  )
+    >
+      TimeLogList
+    </div>
+  ),
 }));
 
 jest.mock('../../TimeLog/TimeLogStats', () => ({
   __esModule: true,
-  default: (props: any) => <div data-testid="time-log-stats" {...props}>TimeLogStats</div>
+  default: (props: any) => (
+    <div data-testid="time-log-stats" {...props}>
+      TimeLogStats
+    </div>
+  ),
 }));
 
 const mockTimeLogs: TimeLog[] = [
@@ -62,8 +68,8 @@ const mockTimeLogs: TimeLog[] = [
     spent_time: 2,
     description: 'Test log',
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const defaultProps = {
@@ -75,14 +81,14 @@ const defaultProps = {
   onTimeLogSubmit: jest.fn(),
   onTimeLogDelete: jest.fn(),
   onTimeLogEdit: jest.fn(),
-  onTimeLogDialogClose: jest.fn()
+  onTimeLogDialogClose: jest.fn(),
 };
 
 const renderComponent = (props = {}) => {
   return render(
     <BrowserRouter>
       <TaskTimeLogging {...defaultProps} {...props} />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 
@@ -141,7 +147,9 @@ describe('TaskTimeLogging', () => {
     // For boolean props, React renders empty string if true, undefined if false
     expect(dialog.getAttribute('open')).not.toBeNull();
     // For object props, we stringified to data-timelog attribute in the mock
-    expect(dialog.getAttribute('data-timelog')).toBe(JSON.stringify(selectedTimeLog));
+    expect(dialog.getAttribute('data-timelog')).toBe(
+      JSON.stringify(selectedTimeLog),
+    );
   });
 
   it('handles dialog close correctly', () => {

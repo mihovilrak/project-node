@@ -24,24 +24,27 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
 
   return (
     <Grid container spacing={1}>
-      {days.map(day => {
+      {days.map((day) => {
         const totalHours = getTotalHoursForDate(day, timeLogs);
         const logs = getTimeLogsForDate(day, timeLogs);
 
         return (
-          <Grid size={{ xs: 12/7 }} key={day.toString()} role="gridcell">
-            <Tooltip title={
-              <Box data-testid="timelog-tooltip">
-                <Typography variant="subtitle2">
-                  {format(day, 'MMMM d, yyyy')}
-                </Typography>
-                {(logs || []).map(log => (
-                  <Typography key={log?.id || Math.random()} variant="body2">
-                    {log?.task_name || 'Unknown Task'}: {formatTime(log?.spent_time || 0)}
+          <Grid size={{ xs: 12 / 7 }} key={day.toString()} role="gridcell">
+            <Tooltip
+              title={
+                <Box data-testid="timelog-tooltip">
+                  <Typography variant="subtitle2">
+                    {format(day, 'MMMM d, yyyy')}
                   </Typography>
-                ))}
-              </Box>
-            }>
+                  {(logs || []).map((log) => (
+                    <Typography key={log?.id || Math.random()} variant="body2">
+                      {log?.task_name || 'Unknown Task'}:{' '}
+                      {formatTime(log?.spent_time || 0)}
+                    </Typography>
+                  ))}
+                </Box>
+              }
+            >
               <Paper
                 data-testid="timelog-day-paper"
                 elevation={isToday(day) ? 3 : 1}
@@ -49,15 +52,15 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
                   p: 1,
                   height: '100px',
                   backgroundColor: getDayColor(totalHours),
-                  border: isToday(day) ? `2px solid ${theme.palette.primary.main}` : 'none',
+                  border: isToday(day)
+                    ? `2px solid ${theme.palette.primary.main}`
+                    : 'none',
                   display: 'flex',
                   flexDirection: 'column',
                   position: 'relative',
                 }}
               >
-                <Typography variant="caption">
-                  {format(day, 'd')}
-                </Typography>
+                <Typography variant="caption">{format(day, 'd')}</Typography>
                 <Chip
                   size="small"
                   icon={<AccessTime />}
@@ -66,7 +69,7 @@ const TimeLogCalendarGrid: React.FC<TimeLogCalendarGridProps> = ({
                     position: 'absolute',
                     bottom: 4,
                     right: 4,
-                    backgroundColor: 'rgba(255,255,255,0.8)'
+                    backgroundColor: 'rgba(255,255,255,0.8)',
                   }}
                 />
               </Paper>

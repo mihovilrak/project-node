@@ -5,7 +5,7 @@ import logger from '../../../utils/logger';
 
 export const TaskFormActionButtons: React.FC<TaskFormActionButtonsProps> = ({
   isEditing,
-  onCancel
+  onCancel,
 }) => (
   <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
     <Button

@@ -11,7 +11,7 @@ const mockProjectMembers: ProjectMember[] = [
     created_on: '2023-01-01',
     name: 'John',
     surname: 'Doe',
-    role: 'Developer'
+    role: 'Developer',
   },
   {
     project_id: 1,
@@ -19,8 +19,8 @@ const mockProjectMembers: ProjectMember[] = [
     created_on: '2023-01-01',
     name: 'Jane',
     surname: 'Smith',
-    role: 'Project Manager'
-  }
+    role: 'Project Manager',
+  },
 ];
 
 const mockFormData: TaskFormState = {
@@ -35,7 +35,7 @@ const mockFormData: TaskFormState = {
   assignee_id: null,
   start_date: null,
   due_date: null,
-  estimated_time: null
+  estimated_time: null,
 };
 
 const mockHandleChange = jest.fn();
@@ -49,7 +49,7 @@ describe('AssigneeSelect', () => {
         projectMembers={mockProjectMembers}
         formData={mockFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
   };
 
@@ -60,7 +60,9 @@ describe('AssigneeSelect', () => {
   test('renders with correct label', async () => {
     renderAssigneeSelect();
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('combobox', { name: /assignee/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -82,8 +84,10 @@ describe('AssigneeSelect', () => {
     fireEvent.mouseDown(selectElement);
 
     await waitFor(() => {
-      mockProjectMembers.forEach(member => {
-        expect(screen.getByText(`${member.name} ${member.surname}`)).toBeInTheDocument();
+      mockProjectMembers.forEach((member) => {
+        expect(
+          screen.getByText(`${member.name} ${member.surname}`),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -107,7 +111,7 @@ describe('AssigneeSelect', () => {
   test('uses correct initial value from formData', async () => {
     const formDataWithAssignee = {
       ...mockFormData,
-      assignee_id: 1
+      assignee_id: 1,
     };
 
     const { container } = render(
@@ -117,12 +121,14 @@ describe('AssigneeSelect', () => {
         projectMembers={mockProjectMembers}
         formData={formDataWithAssignee}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     await waitFor(() => {
       // Check if the displayed value shows the expected user
-      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('combobox', { name: /assignee/i }),
+      ).toBeInTheDocument();
       // The input has the selected value or its display value
       const selectText = container.querySelector('.MuiSelect-select');
       expect(selectText?.textContent).toContain('John Doe');
@@ -134,9 +140,13 @@ describe('AssigneeSelect', () => {
 
     await waitFor(() => {
       // Select itself should be there
-      expect(screen.getByRole('combobox', { name: /assignee/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('combobox', { name: /assignee/i }),
+      ).toBeInTheDocument();
       // Verify the component render with the fullWidth prop
-      const textFieldRoot = container.querySelector('.MuiFormControl-fullWidth');
+      const textFieldRoot = container.querySelector(
+        '.MuiFormControl-fullWidth',
+      );
       expect(textFieldRoot).not.toBeNull();
     });
   });
@@ -149,7 +159,7 @@ describe('AssigneeSelect', () => {
         projectMembers={[]}
         formData={mockFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     // Open the dropdown
@@ -158,7 +168,9 @@ describe('AssigneeSelect', () => {
 
     // Material-UI renders menu items in a portal, so we need to look at the document body
     await waitFor(() => {
-      const unassignedItem = screen.getByRole('option', { name: /unassigned/i });
+      const unassignedItem = screen.getByRole('option', {
+        name: /unassigned/i,
+      });
       expect(unassignedItem).toBeInTheDocument();
 
       // Make sure there's only one option (Unassigned)

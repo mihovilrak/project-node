@@ -14,7 +14,9 @@ export const getUserSettings = async (): Promise<UserSettings> => {
 };
 
 // Update User Settings
-export const updateUserSettings = async (settings: UserSettings): Promise<void> => {
+export const updateUserSettings = async (
+  settings: UserSettings,
+): Promise<void> => {
   try {
     await api.put('/settings/user_settings', settings);
   } catch (error) {
@@ -35,7 +37,9 @@ export const getSystemSettings = async (): Promise<AppSettings> => {
 };
 
 // Update System Settings
-export const updateSystemSettings = async (settings: AppSettings): Promise<void> => {
+export const updateSystemSettings = async (
+  settings: AppSettings,
+): Promise<void> => {
   try {
     await api.put('/settings/app_settings', settings);
   } catch (error) {
@@ -45,7 +49,9 @@ export const updateSystemSettings = async (settings: AppSettings): Promise<void>
 };
 
 // Get App Theme (public endpoint)
-export const getAppTheme = async (): Promise<{ theme: 'light' | 'dark' | 'system' }> => {
+export const getAppTheme = async (): Promise<{
+  theme: 'light' | 'dark' | 'system';
+}> => {
   try {
     const response = await api.get('/settings/app_theme');
     return response.data;
@@ -84,7 +90,9 @@ export const getEnvSettings = async (): Promise<EnvEntry[]> => {
   }
 };
 
-export const updateEnvSettings = async (updates: Record<string, string>): Promise<EnvEntry[]> => {
+export const updateEnvSettings = async (
+  updates: Record<string, string>,
+): Promise<EnvEntry[]> => {
   try {
     const response = await api.patch('/settings/env', { updates });
     return response.data;
@@ -101,7 +109,9 @@ export interface SmtpTestResult {
   messageId?: string;
 }
 
-export const testSmtpConnection = async (email: string): Promise<SmtpTestResult> => {
+export const testSmtpConnection = async (
+  email: string,
+): Promise<SmtpTestResult> => {
   try {
     const response = await api.post('/settings/test-smtp', { email });
     return response.data;
@@ -113,7 +123,7 @@ export const testSmtpConnection = async (email: string): Promise<SmtpTestResult>
     }
     return {
       success: false,
-      message: 'Failed to test SMTP connection'
+      message: 'Failed to test SMTP connection',
     };
   }
 };

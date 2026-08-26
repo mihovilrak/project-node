@@ -5,9 +5,7 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   rootDir: '..',
   roots: ['<rootDir>'],
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
@@ -18,6 +16,6 @@ const config: Config.InitialOptions = {
   verbose: true,
   collectCoverage: true,
   coverageDirectory: '<rootDir>/__tests__/coverage',
-}
+};
 
 export default config;

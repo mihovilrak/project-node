@@ -6,12 +6,13 @@ const isTest = process.env.NODE_ENV === 'test';
 
 const logger = pino({
   level,
-  ...(isDev && !isTest && {
-    transport: {
-      target: 'pino/file',
-      options: { destination: 1 },
-    },
-  }),
+  ...(isDev &&
+    !isTest && {
+      transport: {
+        target: 'pino/file',
+        options: { destination: 1 },
+      },
+    }),
 });
 
 export { logger };

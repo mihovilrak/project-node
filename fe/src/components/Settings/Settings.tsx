@@ -5,7 +5,7 @@ import {
   Typography,
   Tabs,
   Tab,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import UserManager from './UserManager';
@@ -21,9 +21,12 @@ const Settings: React.FC = () => {
   const { permissionsLoading } = useAuth();
   const [activeTab, setActiveTab] = React.useState<number>(0);
 
-  const handleTabChange = useCallback((_event: React.SyntheticEvent, newValue: number): void => {
-    setActiveTab(newValue);
-  }, []);
+  const handleTabChange = useCallback(
+    (_event: React.SyntheticEvent, newValue: number): void => {
+      setActiveTab(newValue);
+    },
+    [],
+  );
 
   const activeTabContent = useMemo(() => {
     switch (activeTab) {

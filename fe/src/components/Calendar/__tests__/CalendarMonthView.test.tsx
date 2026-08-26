@@ -39,7 +39,7 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2024-03-15',
-    estimated_time: null
+    estimated_time: null,
   },
   {
     id: 2,
@@ -70,8 +70,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2024-03-15',
-    estimated_time: null
-  }
+    estimated_time: null,
+  },
 ];
 
 const mockTimeLogs: TimeLog[] = [
@@ -84,8 +84,8 @@ const mockTimeLogs: TimeLog[] = [
     spent_time: 120,
     description: '',
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockCalendarDay: CalendarDay = {
@@ -95,7 +95,7 @@ const mockCalendarDay: CalendarDay = {
   isWeekend: true,
   tasks: mockTasks,
   timeLogs: mockTimeLogs,
-  totalTime: 120
+  totalTime: 120,
 };
 
 const mockProps: CalendarViewProps = {
@@ -112,26 +112,26 @@ const mockProps: CalendarViewProps = {
       activity_type_id: 1,
       log_date: '2024-03-15',
       description: '',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ],
   onDateChange: jest.fn(),
   onViewChange: jest.fn(),
   onTaskClick: jest.fn(),
-  onTimeLogClick: jest.fn()
+  onTimeLogClick: jest.fn(),
 };
 
 describe('CalendarMonthView', () => {
   beforeEach(() => {
     (useCalendarDays as jest.Mock).mockReturnValue({
-      getDaysInMonth: () => Array(42).fill(mockCalendarDay)
+      getDaysInMonth: () => Array(42).fill(mockCalendarDay),
     });
   });
 
   it('renders days of the week', () => {
     render(<CalendarMonthView {...mockProps} />);
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    weekDays.forEach(day => {
+    weekDays.forEach((day) => {
       expect(screen.getByText(day)).toBeInTheDocument();
     });
   });
@@ -165,10 +165,12 @@ describe('CalendarMonthView', () => {
   it('shows more indicator when there are more than 3 tasks', () => {
     const manyTasks = Array(5).fill(mockCalendarDay.tasks[0]);
     (useCalendarDays as jest.Mock).mockReturnValue({
-      getDaysInMonth: () => [{
-        ...mockCalendarDay,
-        tasks: manyTasks
-      }]
+      getDaysInMonth: () => [
+        {
+          ...mockCalendarDay,
+          tasks: manyTasks,
+        },
+      ],
     });
 
     render(<CalendarMonthView {...mockProps} />);

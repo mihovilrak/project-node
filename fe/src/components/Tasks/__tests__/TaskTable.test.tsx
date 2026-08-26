@@ -9,7 +9,7 @@ import { ProjectMember } from '../../../types/project';
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate
+  useNavigate: () => mockNavigate,
 }));
 
 const mockTasks: Task[] = [
@@ -40,7 +40,7 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'John Doe',
     created_on: '2023-01-01',
-    estimated_time: 8
+    estimated_time: 8,
   },
   {
     id: 2,
@@ -69,8 +69,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'John Doe',
     created_on: '2023-01-01',
-    estimated_time: 16
-  }
+    estimated_time: 16,
+  },
 ];
 
 const mockPriorities: TaskPriority[] = [
@@ -81,7 +81,7 @@ const mockPriorities: TaskPriority[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -90,8 +90,8 @@ const mockPriorities: TaskPriority[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockStatuses: TaskStatus[] = [
@@ -102,7 +102,7 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 5,
@@ -111,8 +111,8 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 // Update mock users to be ProjectMembers
@@ -123,7 +123,7 @@ const mockUsers: ProjectMember[] = [
     created_on: '2023-01-01',
     name: 'John',
     surname: 'Doe',
-    role: 'Developer'
+    role: 'Developer',
   },
   {
     project_id: 1,
@@ -131,13 +131,13 @@ const mockUsers: ProjectMember[] = [
     created_on: '2023-01-01',
     name: 'Jane',
     surname: 'Smith',
-    role: 'Developer'
-  }
+    role: 'Developer',
+  },
 ];
 
 const mockTaskTypes: TaskType[] = [
   { id: 1, name: 'Bug', color: '#f44336', icon: 'bug' },
-  { id: 2, name: 'Feature', color: '#4caf50', icon: 'feature' }
+  { id: 2, name: 'Feature', color: '#4caf50', icon: 'feature' },
 ];
 
 // Update the interface for renderTaskTable props
@@ -154,13 +154,13 @@ const renderTaskTable = (props: {
     statuses: mockStatuses,
     users: mockUsers,
     taskTypes: mockTaskTypes,
-    ...props
+    ...props,
   };
 
   return render(
     <MemoryRouter>
       <TaskTable {...defaultProps} />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };
 
@@ -184,9 +184,9 @@ describe('TaskTable', () => {
       'Priority',
       'Assignee',
       'Due Date',
-      'Actions'
+      'Actions',
     ];
-    headers.forEach(header => {
+    headers.forEach((header) => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
   });
@@ -208,8 +208,10 @@ describe('TaskTable', () => {
     // Accepts dates like 31.12.2023, 31. 12. 2023., 12/31/2023, etc.
     expect(
       screen.getByText((content) =>
-        /\b(31\s*[./-]\s*12\s*[./-]\s*2023\.?)+\b|\b(12\s*[./-]\s*31\s*[./-]\s*2023\.?)+\b|\b(2023\s*[./-]\s*12\s*[./-]\s*31\.?)+\b/.test(content)
-      )
+        /\b(31\s*[./-]\s*12\s*[./-]\s*2023\.?)+\b|\b(12\s*[./-]\s*31\s*[./-]\s*2023\.?)+\b|\b(2023\s*[./-]\s*12\s*[./-]\s*31\.?)+\b/.test(
+          content,
+        ),
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
@@ -227,8 +229,10 @@ describe('TaskTable', () => {
     renderTaskTable({ tasks: mockTasks, loading: false });
 
     const statusChips = screen.getAllByText(/In Progress|Done/);
-    const doneChip = statusChips.find(chip => chip.textContent === 'Done');
-    expect(doneChip?.closest('[class*="MuiChip-colorSuccess"]')).toBeInTheDocument();
+    const doneChip = statusChips.find((chip) => chip.textContent === 'Done');
+    expect(
+      doneChip?.closest('[class*="MuiChip-colorSuccess"]'),
+    ).toBeInTheDocument();
   });
 
   test('applies correct priority colors', () => {
@@ -237,15 +241,27 @@ describe('TaskTable', () => {
     const priorityChips = screen.getAllByText(/High\/Should|Normal\/Could/);
     expect(priorityChips).toHaveLength(2);
 
-    const highPriorityChip = priorityChips.find(chip => chip.textContent === 'High/Should');
-    expect(highPriorityChip?.closest('[class*="MuiChip-colorWarning"]')).toBeInTheDocument();
+    const highPriorityChip = priorityChips.find(
+      (chip) => chip.textContent === 'High/Should',
+    );
+    expect(
+      highPriorityChip?.closest('[class*="MuiChip-colorWarning"]'),
+    ).toBeInTheDocument();
   });
 
   test('renders empty table when no tasks provided', () => {
     renderTaskTable({ tasks: [], loading: false });
 
-    const headers = ['Name', 'Type', 'Status', 'Priority', 'Assignee', 'Due Date', 'Actions'];
-    headers.forEach(header => {
+    const headers = [
+      'Name',
+      'Type',
+      'Status',
+      'Priority',
+      'Assignee',
+      'Due Date',
+      'Actions',
+    ];
+    headers.forEach((header) => {
       expect(screen.getByText(header)).toBeInTheDocument();
     });
 

@@ -1,24 +1,13 @@
 import React, { useRef } from 'react';
-import {
-  Button,
-  Box,
-  LinearProgress,
-  Typography,
-  Alert
-} from '@mui/material';
+import { Button, Box, LinearProgress, Typography, Alert } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useFileUpload } from '../../hooks/file/useFileUpload';
 import { FileUploadProps } from '../../types/file';
 
 const FileUpload: React.FC<FileUploadProps> = ({ taskId, onFileUploaded }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const {
-    uploading,
-    progress,
-    error,
-    handleFileChange,
-    setError
-  } = useFileUpload(taskId, onFileUploaded);
+  const { uploading, progress, error, handleFileChange, setError } =
+    useFileUpload(taskId, onFileUploaded);
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -55,11 +44,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ taskId, onFileUploaded }) => {
       )}
 
       {error && (
-        <Alert
-          severity="error"
-          onClose={() => setError(null)}
-          sx={{ mt: 2 }}
-        >
+        <Alert severity="error" onClose={() => setError(null)} sx={{ mt: 2 }}>
           {error}
         </Alert>
       )}

@@ -14,38 +14,40 @@ jest.mock('../../../api/api');
 // Mock AuthContext to prevent session checks
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: { id: 1, name: 'Test User' },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock users API
 jest.mock('../../../api/users', () => ({
   getUsers: jest.fn().mockResolvedValue([
     { id: 1, name: 'User 1', login: 'user1', email: 'user1@test.com' },
-    { id: 2, name: 'User 2', login: 'user2', email: 'user2@test.com' }
-  ])
+    { id: 2, name: 'User 2', login: 'user2', email: 'user2@test.com' },
+  ]),
 }));
 
 // Mock watchers API
 jest.mock('../../../api/watchers', () => ({
   getProjectWatchers: jest.fn().mockResolvedValue([]),
   addWatcher: jest.fn().mockResolvedValue({}),
-  removeWatcher: jest.fn().mockResolvedValue({})
+  removeWatcher: jest.fn().mockResolvedValue({}),
 }));
 
 // Custom test wrapper
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </BrowserRouter>
   );
 };
@@ -56,14 +58,14 @@ const mockWatchers: TaskWatcher[] = [
     task_id: 1,
     user_id: 1,
     user_name: 'Test User 1',
-    role: 'Developer'
+    role: 'Developer',
   },
   {
     task_id: 1,
     user_id: 2,
     user_name: 'Test User 2',
-    role: 'Project Manager'
-  }
+    role: 'Project Manager',
+  },
 ];
 
 // Performance measurement callback
@@ -73,7 +75,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log performance metrics
   console.log(`${id} - ${phase}`);
@@ -83,7 +85,10 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => (
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => (
   <PerfTestWrapper>
     <Profiler id={Component.name} onRender={onRenderCallback}>
       <Component {...props} />
@@ -98,8 +103,8 @@ describe('WatcherList Performance', () => {
         watchers: [],
         canManageWatchers: true,
         onRemoveWatcher: () => {},
-        onManageWatchers: () => {}
-      })
+        onManageWatchers: () => {},
+      }),
     );
   });
 
@@ -109,8 +114,8 @@ describe('WatcherList Performance', () => {
         watchers: mockWatchers,
         canManageWatchers: true,
         onRemoveWatcher: () => {},
-        onManageWatchers: () => {}
-      })
+        onManageWatchers: () => {},
+      }),
     );
   });
 
@@ -120,8 +125,8 @@ describe('WatcherList Performance', () => {
         watchers: mockWatchers,
         canManageWatchers: false,
         onRemoveWatcher: () => {},
-        onManageWatchers: () => {}
-      })
+        onManageWatchers: () => {},
+      }),
     );
   });
 });
@@ -135,8 +140,8 @@ describe('WatcherDialog Performance', () => {
         projectId: 1,
         currentWatchers: [],
         onAddWatcher: () => {},
-        onRemoveWatcher: () => {}
-      })
+        onRemoveWatcher: () => {},
+      }),
     );
   });
 
@@ -148,8 +153,8 @@ describe('WatcherDialog Performance', () => {
         projectId: 1,
         currentWatchers: [],
         onAddWatcher: () => {},
-        onRemoveWatcher: () => {}
-      })
+        onRemoveWatcher: () => {},
+      }),
     );
   });
 
@@ -161,8 +166,8 @@ describe('WatcherDialog Performance', () => {
         projectId: 1,
         currentWatchers: mockWatchers,
         onAddWatcher: () => {},
-        onRemoveWatcher: () => {}
-      })
+        onRemoveWatcher: () => {},
+      }),
     );
   });
 });

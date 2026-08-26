@@ -14,7 +14,7 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   const theme = useTheme();
 
   const navigateMonth = (direction: 'next' | 'prev') => {
-    setCurrentDate(current => {
+    setCurrentDate((current) => {
       if (direction === 'next') {
         return addMonths(current, 1);
       } else {
@@ -24,7 +24,7 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   };
 
   const getTimeLogsForDate = (date: Date, timeLogs: TimeLog[]): TimeLog[] => {
-    return timeLogs.filter(log => {
+    return timeLogs.filter((log) => {
       const logDate = new Date(log.created_on!);
       return logDate.toDateString() === date.toDateString();
     });
@@ -33,7 +33,10 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   const getTotalHoursForDate = (date: Date, timeLogs: TimeLog[]): number => {
     const logs = getTimeLogsForDate(date, timeLogs);
     return logs.reduce((total, log) => {
-      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      const hours =
+        typeof log.spent_time === 'string'
+          ? parseFloat(log.spent_time)
+          : log.spent_time;
       return total + hours;
     }, 0);
   };
@@ -62,7 +65,10 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
 
   const getTotalMonthHours = (timeLogs: TimeLog[]): number => {
     return timeLogs.reduce((total, log) => {
-      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      const hours =
+        typeof log.spent_time === 'string'
+          ? parseFloat(log.spent_time)
+          : log.spent_time;
       return total + hours;
     }, 0);
   };

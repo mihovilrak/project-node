@@ -7,15 +7,10 @@ const Header: React.FC = () => {
   const { currentUser, isScrolled } = useHeader();
 
   return (
-    <AppBar
-      position="fixed"
-      elevation={isScrolled ? 4 : 0}
-    >
+    <AppBar position="fixed" elevation={isScrolled ? 4 : 0}>
       <Toolbar>
         <Box sx={{ flexGrow: 1 }} />
-        {currentUser?.id && (
-          <NotificationCenter userId={currentUser.id} />
-        )}
+        {currentUser?.id && <NotificationCenter userId={currentUser.id} />}
       </Toolbar>
     </AppBar>
   );

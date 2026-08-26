@@ -7,20 +7,20 @@ describe('FilterPanel', () => {
   const mockOptions = {
     statuses: [
       { id: 1, name: 'Active' },
-      { id: 2, name: 'Completed' }
+      { id: 2, name: 'Completed' },
     ],
     priorities: [
       { id: 1, name: 'High' },
-      { id: 2, name: 'Low' }
+      { id: 2, name: 'Low' },
     ],
-    search: true
+    search: true,
   };
 
   const defaultProps: FilterPanelProps = {
     type: 'tasks',
     filters: {},
     options: mockOptions,
-    onFilterChange: jest.fn()
+    onFilterChange: jest.fn(),
   };
 
   const setup = (props = defaultProps) => {
@@ -38,14 +38,16 @@ describe('FilterPanel', () => {
 
   it('expands when clicking expand button', () => {
     setup();
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
     expect(screen.getByText('Apply Filters')).toBeVisible();
   });
 
   it('renders filter chips for applied filters', () => {
     const filters: FilterValues = {
-      status_id: 1
+      status_id: 1,
     };
     setup({ ...defaultProps, filters });
     expect(screen.getByText(/Status: Active/)).toBeInTheDocument();
@@ -53,11 +55,13 @@ describe('FilterPanel', () => {
 
   it('applies empty filters when user clicks Clear then Apply', () => {
     const filters: FilterValues = {
-      status_id: 1
+      status_id: 1,
     };
     setup({ ...defaultProps, filters });
 
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
 
     const clearButton = screen.getByText('Clear');
@@ -72,7 +76,9 @@ describe('FilterPanel', () => {
   it('applies filter when user adds filter, selects value, and clicks Apply', async () => {
     setup();
 
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
 
     await waitFor(() => {
@@ -97,7 +103,7 @@ describe('FilterPanel', () => {
 
     await waitFor(() => {
       expect(defaultProps.onFilterChange).toHaveBeenCalledWith(
-        expect.objectContaining({ status_id: 1 })
+        expect.objectContaining({ status_id: 1 }),
       );
     });
   });
@@ -105,7 +111,9 @@ describe('FilterPanel', () => {
   it('keeps panel open when clicking Apply Filters', async () => {
     setup();
 
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
 
     const applyButton = screen.getByText('Apply Filters');
@@ -119,7 +127,9 @@ describe('FilterPanel', () => {
   it('collapses panel when clicking Apply & Close', async () => {
     setup();
 
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
 
     const applyCloseButton = screen.getByTestId('apply-close-filters-button');
@@ -133,7 +143,9 @@ describe('FilterPanel', () => {
   it('collapses panel when clicking Close', async () => {
     setup();
 
-    const expandButton = screen.getByRole('button', { name: /expand filters/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand filters/i,
+    });
     fireEvent.click(expandButton);
 
     const closeButton = screen.getByTestId('close-filters-button');

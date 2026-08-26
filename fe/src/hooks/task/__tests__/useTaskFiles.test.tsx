@@ -17,7 +17,7 @@ describe('useTaskFiles', () => {
       mime_type: 'text/plain',
       size: 1024,
       uploaded_on: '2024-01-25T00:00:00Z',
-      uploaded_by: 'Test User'
+      uploaded_by: 'Test User',
     },
     {
       id: 2,
@@ -28,8 +28,8 @@ describe('useTaskFiles', () => {
       mime_type: 'text/plain',
       size: 2048,
       uploaded_on: '2024-01-25T00:00:00Z',
-      uploaded_by: 'Test User'
-    }
+      uploaded_by: 'Test User',
+    },
   ];
 
   beforeEach(() => {
@@ -60,10 +60,12 @@ describe('useTaskFiles', () => {
       mime_type: 'text/plain',
       size: 4096,
       uploaded_on: '2024-01-25T00:00:00Z',
-      uploaded_by: 'Test User'
+      uploaded_by: 'Test User',
     };
 
-    const mockFile = new File(['test content'], 'new.txt', { type: 'text/plain'     });
+    const mockFile = new File(['test content'], 'new.txt', {
+      type: 'text/plain',
+    });
     (uploadFile as jest.Mock).mockResolvedValue(newFile);
     (getTaskFiles as jest.Mock).mockResolvedValue([...mockFiles, newFile]);
 
@@ -72,7 +74,7 @@ describe('useTaskFiles', () => {
 
     await act(async () => {
       await result.current.handleFileUpload(mockFile);
-        });
+    });
 
     await waitFor(() => {
       expect(uploadFile).toHaveBeenCalledWith(1, expect.any(FormData));
@@ -90,7 +92,7 @@ describe('useTaskFiles', () => {
 
     await act(async () => {
       await result.current.handleFileDelete(1);
-        });
+    });
 
     await waitFor(() => {
       expect(deleteFile).toHaveBeenCalledWith(1, 1);
@@ -102,14 +104,18 @@ describe('useTaskFiles', () => {
 
   it('should handle file upload error', async () => {
     const error = new Error('Failed to upload file');
-    const mockFile = new File(['test content'], 'error.txt', { type: 'text/plain'     });
+    const mockFile = new File(['test content'], 'error.txt', {
+      type: 'text/plain',
+    });
     (uploadFile as jest.Mock).mockRejectedValue(error);
 
     const { result } = renderHook(() => useTaskFiles('1'));
     // await waitForNextUpdate();
 
     await waitFor(() => {
-      expect(result.current.handleFileUpload(mockFile)).rejects.toThrow('Failed to upload file');
+      expect(result.current.handleFileUpload(mockFile)).rejects.toThrow(
+        'Failed to upload file',
+      );
     });
   });
 
@@ -121,7 +127,9 @@ describe('useTaskFiles', () => {
     // await waitForNextUpdate();
 
     await waitFor(() => {
-      expect(result.current.handleFileDelete(1)).rejects.toThrow('Failed to delete file');
+      expect(result.current.handleFileDelete(1)).rejects.toThrow(
+        'Failed to delete file',
+      );
     });
   });
 

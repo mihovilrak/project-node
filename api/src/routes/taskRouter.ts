@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
 import {
   requireProjectAccess,
-  requireTaskAccess
+  requireTaskAccess,
 } from '../middleware/projectAccessMiddleware';
 import * as taskController from '../controllers/taskController';
 import commentRouter from './commentRouter';
@@ -11,7 +11,7 @@ import fileRouter from './fileRouter';
 import {
   getTaskTags,
   addTaskTags,
-  removeTaskTag
+  removeTaskTag,
 } from '../controllers/tagController';
 import * as timeLogController from '../controllers/timeLogController';
 import * as watcherController from '../controllers/watcherController';
@@ -27,32 +27,94 @@ export default (pool: Pool): Router => {
   router.get('/priorities', withPool(pool, taskController.getPriorities));
   router.get('/active', withPool(pool, taskController.getActiveTasks));
   router.get('/:id', taskAccess, withPool(pool, taskController.getTaskById));
-  router.post('/', checkPermission(pool, 'Create tasks'), requireProjectAccess(pool, 'project_id'), withPool(pool, taskController.createTask));
-  router.put('/:id', checkPermission(pool, 'Edit tasks'), taskAccess, withPool(pool, taskController.updateTask));
-  router.delete('/:id', checkPermission(pool, 'Delete tasks'), taskAccess, withPool(pool, taskController.deleteTask));
-  router.get('/:id/subtasks', taskAccess, withPool(pool, taskController.getSubtasks));
+  router.post(
+    '/',
+    checkPermission(pool, 'Create tasks'),
+    requireProjectAccess(pool, 'project_id'),
+    withPool(pool, taskController.createTask),
+  );
+  router.put(
+    '/:id',
+    checkPermission(pool, 'Edit tasks'),
+    taskAccess,
+    withPool(pool, taskController.updateTask),
+  );
+  router.delete(
+    '/:id',
+    checkPermission(pool, 'Delete tasks'),
+    taskAccess,
+    withPool(pool, taskController.deleteTask),
+  );
+  router.get(
+    '/:id/subtasks',
+    taskAccess,
+    withPool(pool, taskController.getSubtasks),
+  );
 
-  router.use('/:id/comments', taskAccess, ((req, res, next) => {
-    (req as any).taskId = req.params.id;
-    next();
-  }) as RequestHandler, commentRouter(pool));
+  router.use(
+    '/:id/comments',
+    taskAccess,
+    ((req, res, next) => {
+      (req as any).taskId = req.params.id;
+      next();
+    }) as RequestHandler,
+    commentRouter(pool),
+  );
 
-  router.use('/:id/files', taskAccess, ((req, res, next) => {
-    (req as any).taskId = req.params.id;
-    next();
-  }) as RequestHandler, fileRouter(pool));
+  router.use(
+    '/:id/files',
+    taskAccess,
+    ((req, res, next) => {
+      (req as any).taskId = req.params.id;
+      next();
+    }) as RequestHandler,
+    fileRouter(pool),
+  );
 
-  router.patch('/:id', checkPermission(pool, 'Edit tasks'), taskAccess, withPool(pool, taskController.updateTask));
-  router.patch('/:id/change-status', taskAccess, withPool(pool, taskController.changeTaskStatus));
+  router.patch(
+    '/:id',
+    checkPermission(pool, 'Edit tasks'),
+    taskAccess,
+    withPool(pool, taskController.updateTask),
+  );
+  router.patch(
+    '/:id/change-status',
+    taskAccess,
+    withPool(pool, taskController.changeTaskStatus),
+  );
   router.get('/:id/tags', taskAccess, withPool(pool, getTaskTags));
   router.post('/:id/tags', taskAccess, withPool(pool, addTaskTags));
   router.delete('/:id/tags/:tagId', taskAccess, withPool(pool, removeTaskTag));
-  router.get('/:id/time-logs', taskAccess, withPool(pool, timeLogController.getTaskTimeLogs));
-  router.get('/:id/spent-time', taskAccess, withPool(pool, timeLogController.getTaskSpentTime));
-  router.post('/:id/time-logs', taskAccess, withPool(pool, timeLogController.createTimeLog));
-  router.get('/:id/watchers', taskAccess, withPool(pool, watcherController.getTaskWatchers));
-  router.post('/:id/watchers', taskAccess, withPool(pool, watcherController.addTaskWatcher));
-  router.delete('/:id/watchers/:userId', taskAccess, withPool(pool, watcherController.removeTaskWatcher));
+  router.get(
+    '/:id/time-logs',
+    taskAccess,
+    withPool(pool, timeLogController.getTaskTimeLogs),
+  );
+  router.get(
+    '/:id/spent-time',
+    taskAccess,
+    withPool(pool, timeLogController.getTaskSpentTime),
+  );
+  router.post(
+    '/:id/time-logs',
+    taskAccess,
+    withPool(pool, timeLogController.createTimeLog),
+  );
+  router.get(
+    '/:id/watchers',
+    taskAccess,
+    withPool(pool, watcherController.getTaskWatchers),
+  );
+  router.post(
+    '/:id/watchers',
+    taskAccess,
+    withPool(pool, watcherController.addTaskWatcher),
+  );
+  router.delete(
+    '/:id/watchers/:userId',
+    taskAccess,
+    withPool(pool, watcherController.removeTaskWatcher),
+  );
 
   return router;
-}
+};

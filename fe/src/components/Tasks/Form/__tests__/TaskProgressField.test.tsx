@@ -6,7 +6,7 @@ import { TaskProgressFieldProps } from '../../../../types/task';
 describe('TaskProgressField', () => {
   const defaultProps: TaskProgressFieldProps = {
     value: 50,
-    handleChange: jest.fn()
+    handleChange: jest.fn(),
   };
 
   it('renders progress field correctly', () => {
@@ -33,9 +33,9 @@ describe('TaskProgressField', () => {
       expect.objectContaining({
         target: expect.objectContaining({
           value: '75',
-          name: 'progress'
-        })
-      })
+          name: 'progress',
+        }),
+      }),
     );
   });
 
@@ -50,13 +50,17 @@ describe('TaskProgressField', () => {
 
   it('has proper material-ui styling', () => {
     render(<TaskProgressField {...defaultProps} />);
-    const textFieldRoot = screen.getByLabelText('Progress (%)').closest('.MuiTextField-root');
+    const textFieldRoot = screen
+      .getByLabelText('Progress (%)')
+      .closest('.MuiTextField-root');
     expect(textFieldRoot).toHaveStyle({ marginBottom: '16px' }); // mb: 2 converts to 16px
   });
 
   it('renders as a full width input', () => {
     render(<TaskProgressField {...defaultProps} />);
-    const textFieldRoot = screen.getByLabelText('Progress (%)').closest('.MuiTextField-root');
+    const textFieldRoot = screen
+      .getByLabelText('Progress (%)')
+      .closest('.MuiTextField-root');
     expect(textFieldRoot).toHaveClass('MuiTextField-root');
     expect(textFieldRoot).toHaveStyle({ width: '100%' });
   });

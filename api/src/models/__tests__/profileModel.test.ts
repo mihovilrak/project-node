@@ -3,7 +3,7 @@ import * as profileModel from '../profileModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 describe('ProfileModel', () => {
@@ -14,12 +14,12 @@ describe('ProfileModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -35,15 +35,17 @@ describe('ProfileModel', () => {
         role_id: 1,
         role_name: 'Admin',
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockProfile]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockProfile]),
+      );
 
       const result = await profileModel.getProfile(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT *'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockProfile);
     });
@@ -67,19 +69,21 @@ describe('ProfileModel', () => {
         surname: 'Name',
         role_id: 1,
         created_on: new Date(),
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([updatedProfile]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([updatedProfile]),
+      );
 
       const result = await profileModel.updateProfile(mockPool, '1', {
         email: 'newemail@example.com',
         name: 'Updated',
-        surname: 'Name'
+        surname: 'Name',
       });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE users'),
-        ['newemail@example.com', 'Updated', 'Name', '1']
+        ['newemail@example.com', 'Updated', 'Name', '1'],
       );
       expect(result).toEqual(updatedProfile);
     });
@@ -90,7 +94,7 @@ describe('ProfileModel', () => {
       const result = await profileModel.updateProfile(mockPool, '999', {
         email: 'test@example.com',
         name: 'Test',
-        surname: 'User'
+        surname: 'User',
       });
 
       expect(result).toBeNull();
@@ -99,21 +103,35 @@ describe('ProfileModel', () => {
 
   describe('verifyPassword', () => {
     it('should return true when password is correct', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([{ exists: true }]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ exists: true }]),
+      );
 
-      const result = await profileModel.verifyPassword(mockPool, '1', 'correctpassword');
+      const result = await profileModel.verifyPassword(
+        mockPool,
+        '1',
+        'correctpassword',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringMatching(/SELECT EXISTS[\s\S]*FROM users[\s\S]*WHERE id = \$1 AND password = crypt\(\$2, password\)/),
-        ['1', 'correctpassword']
+        expect.stringMatching(
+          /SELECT EXISTS[\s\S]*FROM users[\s\S]*WHERE id = \$1 AND password = crypt\(\$2, password\)/,
+        ),
+        ['1', 'correctpassword'],
       );
       expect(result).toBe(true);
     });
 
     it('should return false when password is incorrect', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([{ exists: false }]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ exists: false }]),
+      );
 
-      const result = await profileModel.verifyPassword(mockPool, '1', 'wrongpassword');
+      const result = await profileModel.verifyPassword(
+        mockPool,
+        '1',
+        'wrongpassword',
+      );
 
       expect(result).toBe(false);
     });
@@ -127,15 +145,21 @@ describe('ProfileModel', () => {
         email: 'test@example.com',
         name: 'Test',
         surname: 'User',
-        updated_on: new Date()
+        updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([updatedUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([updatedUser]),
+      );
 
-      const result = await profileModel.changePassword(mockPool, '1', 'newpassword');
+      const result = await profileModel.changePassword(
+        mockPool,
+        '1',
+        'newpassword',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE users'),
-        ['newpassword', '1']
+        ['newpassword', '1'],
       );
       expect(result).toEqual(updatedUser);
     });
@@ -143,7 +167,11 @@ describe('ProfileModel', () => {
     it('should return null when user not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await profileModel.changePassword(mockPool, '999', 'newpassword');
+      const result = await profileModel.changePassword(
+        mockPool,
+        '999',
+        'newpassword',
+      );
 
       expect(result).toBeNull();
     });
@@ -157,23 +185,25 @@ describe('ProfileModel', () => {
           name: 'Task 1',
           project_id: 1,
           status_id: 1,
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 2,
           name: 'Task 2',
           project_id: 1,
           status_id: 2,
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
       const result = await profileModel.getRecentTasks(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM recent_tasks($1)',
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockTasks);
     });
@@ -194,22 +224,24 @@ describe('ProfileModel', () => {
           id: 1,
           name: 'Project 1',
           status_id: 1,
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 2,
           name: 'Project 2',
           status_id: 1,
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockProjects));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockProjects),
+      );
 
       const result = await profileModel.getRecentProjects(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM recent_projects($1)',
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockProjects);
     });

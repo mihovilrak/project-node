@@ -20,7 +20,7 @@ const mockUsers: User[] = [
     status_id: 1,
     created_on: '2024-01-01',
     updated_on: null,
-    last_login: null
+    last_login: null,
   },
   {
     id: 2,
@@ -32,19 +32,19 @@ const mockUsers: User[] = [
     status_id: 1,
     created_on: '2024-01-01',
     updated_on: null,
-    last_login: null
-  }
+    last_login: null,
+  },
 ];
 
 const mockCurrentMembers: ProjectMember[] = [
   {
     project_id: 1,
     user_id: 1,
-    role: "Admin",
+    role: 'Admin',
     created_on: '2024-01-01',
     name: 'John',
-    surname: 'Doe'
-  }
+    surname: 'Doe',
+  },
 ];
 
 describe('EditMembersDialog', () => {
@@ -64,7 +64,7 @@ describe('EditMembersDialog', () => {
         currentMembers={mockCurrentMembers}
         onSave={mockOnSave}
         projectId={1}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -82,7 +82,7 @@ describe('EditMembersDialog', () => {
         currentMembers={mockCurrentMembers}
         onSave={mockOnSave}
         projectId={1}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -107,13 +107,16 @@ describe('EditMembersDialog', () => {
         currentMembers={mockCurrentMembers}
         onSave={mockOnSave}
         projectId={1}
-      />
+      />,
     );
 
-    await waitFor(() => {
-      // Error message uses error.message if available, otherwise falls back to default
-      expect(screen.getByText('API Error')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // Error message uses error.message if available, otherwise falls back to default
+        expect(screen.getByText('API Error')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it('saves selected members', async () => {
@@ -125,7 +128,7 @@ describe('EditMembersDialog', () => {
         currentMembers={mockCurrentMembers}
         onSave={mockOnSave}
         projectId={1}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -149,7 +152,7 @@ describe('EditMembersDialog', () => {
         currentMembers={mockCurrentMembers}
         onSave={mockOnSave}
         projectId={1}
-      />
+      />,
     );
 
     const cancelButton = screen.getByText('Cancel');

@@ -8,7 +8,7 @@ import {
   Link,
   ListItemSecondaryAction,
   Box,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -21,7 +21,7 @@ import { Link as RouterLink } from 'react-router-dom';
 const FileList: React.FC<FileListProps> = ({
   files,
   taskId,
-  onFileDeleted
+  onFileDeleted,
 }) => {
   const { formatFileSize } = useFileList(onFileDeleted);
 
@@ -45,7 +45,7 @@ const FileList: React.FC<FileListProps> = ({
             borderColor: 'divider',
             '&:hover': {
               bgcolor: 'action.hover',
-            }
+            },
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -53,14 +53,17 @@ const FileList: React.FC<FileListProps> = ({
             <ListItemText
               primary={
                 <Typography variant="body1" component="div">
-                  {file?.original_name ? decodeURIComponent(escape(file.original_name)) : 'Unknown file'}
+                  {file?.original_name
+                    ? decodeURIComponent(escape(file.original_name))
+                    : 'Unknown file'}
                 </Typography>
               }
               secondaryTypographyProps={{ component: 'div' }}
               secondary={
                 <Box component="div">
                   <Typography variant="caption" component="div" display="block">
-                    Uploaded by: {file?.user_id ? (
+                    Uploaded by:{' '}
+                    {file?.user_id ? (
                       <Link
                         component={RouterLink}
                         to={`/users/${file.user_id}`}
@@ -73,10 +76,16 @@ const FileList: React.FC<FileListProps> = ({
                     )}
                   </Typography>
                   <Typography variant="caption" component="div" display="block">
-                    Size: <span data-testid="file-size">{formatFileSize(file?.size || 0)}</span>
+                    Size:{' '}
+                    <span data-testid="file-size">
+                      {formatFileSize(file?.size || 0)}
+                    </span>
                   </Typography>
                   <Typography variant="caption" component="div" display="block">
-                    Uploaded on: {file?.uploaded_on ? new Date(file.uploaded_on).toLocaleString() : 'Unknown'}
+                    Uploaded on:{' '}
+                    {file?.uploaded_on
+                      ? new Date(file.uploaded_on).toLocaleString()
+                      : 'Unknown'}
                   </Typography>
                 </Box>
               }
@@ -86,7 +95,9 @@ const FileList: React.FC<FileListProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="download"
-                  onClick={() => file?.id && taskId && downloadFile(taskId, file.id)}
+                  onClick={() =>
+                    file?.id && taskId && downloadFile(taskId, file.id)
+                  }
                   sx={{ mr: 1 }}
                   disabled={!file?.id || !taskId}
                 >
