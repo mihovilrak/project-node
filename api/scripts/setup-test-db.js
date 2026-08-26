@@ -2,7 +2,8 @@
  * Start a dedicated test Postgres in Docker and run db/init/*.sql.
  * Run from api/: yarn setup-test-db
  * Requires: Docker. No .env or existing Postgres needed.
- * Uses: container pm_test_db, port 5433, user pm_user, password pm_password, db pm_test.
+ * Uses: container pm_test_db, port 5433, user pm_user, password pm_password,
+ * db pm_test.
  */
 
 const path = require('path');
@@ -38,18 +39,27 @@ function main() {
   console.log('Setting up integration test DB (Docker)...');
 
   if (!runQuiet('docker', ['info'])) {
-    console.error('Docker is not running or not in PATH. Start Docker and try again.');
+    console.error(
+      'Docker is not running or not in PATH. Start Docker and try again.',
+    );
     process.exit(1);
   }
 
-  const inspect = spawnSync('docker', ['inspect', '-f', '{{.State.Running}}', CONTAINER], {
+  const inspect = spawnSync('docker', [
+    'inspect',
+    '-f',
+    '{{.State.Running}}',
+    CONTAINER
+  ], {
     stdio: 'pipe',
     encoding: 'utf8',
   });
   const running = inspect.status === 0 && inspect.stdout.trim() === 'true';
 
   if (!running) {
-    const exists = spawnSync('docker', ['inspect', CONTAINER], { stdio: 'pipe' });
+    const exists = spawnSync('docker', ['inspect', CONTAINER], {
+      stdio: 'pipe',
+    });
     if (exists.status === 0) {
       console.log('Starting existing container %s...', CONTAINER);
       docker(['start', CONTAINER]);
@@ -104,11 +114,18 @@ function main() {
   for (const file of files) {
     const filePath = path.join(initDir, file);
     const sql = fs.readFileSync(filePath, 'utf8');
-    const proc = spawnSync(
-      'docker',
-      ['exec', '-i', CONTAINER, 'psql', '-U', USER, '-d', DB, '-v', 'ON_ERROR_STOP=1'],
-      { input: sql, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
-    );
+    const proc = spawnSync('docker', [
+      'exec',
+      '-i',
+      CONTAINER,
+      'psql',
+      '-U',
+      USER,
+      '-d',
+      DB,
+      '-v',
+      'ON_ERROR_STOP=1',
+    ], { input: sql, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
     if (proc.status !== 0) {
       console.error('%s failed:', file);
       if (proc.stderr) process.stderr.write(proc.stderr);
@@ -122,17 +139,18 @@ function main() {
 }
 
 function printNext() {
-  console.log('');
-  console.log('Run integration tests from api/ with:');
-  console.log('');
-  console.log('  Windows (cmd):');
-  console.log('    set TEST_DB_HOST=localhost& set TEST_DB_PORT=%d& set TEST_DB_PASSWORD=%s& set SESSION_SECRET=test& yarn test:integration', PORT, PASSWORD);
-  console.log('');
-  console.log('  Windows (PowerShell):');
-  console.log('    $env:TEST_DB_HOST="localhost"; $env:TEST_DB_PORT="%d"; $env:TEST_DB_PASSWORD="%s"; $env:SESSION_SECRET="test"; yarn test:integration', PORT, PASSWORD);
-  console.log('');
-  console.log('  Linux / macOS / Git Bash:');
-  console.log('    TEST_DB_HOST=localhost TEST_DB_PORT=%d TEST_DB_PASSWORD=%s SESSION_SECRET=test yarn test:integration', PORT, PASSWORD);
+  console.log(`
+    Run integration tests from api/ with:
+
+    Windows (cmd):
+      set TEST_DB_HOST=localhost& set TEST_DB_PORT=%d& set TEST_DB_PASSWORD=%s& set SESSION_SECRET=test& yarn test:integration', PORT, PASSWORD
+
+    Windows (PowerShell):
+      $env:TEST_DB_HOST="localhost"; $env:TEST_DB_PORT="%d"; $env:TEST_DB_PASSWORD="%s"; $env:SESSION_SECRET="test"; yarn test:integration', PORT, PASSWORD
+
+    Linux / macOS / Git Bash:
+      TEST_DB_HOST=localhost TEST_DB_PORT=%d TEST_DB_PASSWORD=%s SESSION_SECRET=test yarn test:integration', PORT, PASSWORD`
+  );
 }
 
 main();
