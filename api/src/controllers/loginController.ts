@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, CookieOptions } from 'express';
 import { Pool } from 'pg';
 import * as loginModel from '../models/loginModel';
 import * as permissionModel from '../models/permissionModel';
@@ -49,36 +49,56 @@ export const login = async (
     });
   }
 
-  // Set session cookie if credentials are correct
-  req.session.user = {
-    id: user.id,
-    login: user.login,
-    role_id: user.role_id,
-  };
-
   // Log login to table app_logins
   await loginModel.app_logins(pool, user.id);
 
   const permissions = await permissionModel.getUserPermissions(pool, String(user.id));
 
-  // Save session to store before sending response so the next request finds the session
-  req.session.save((err) => {
-    if (err) {
+  // Issue a brand new session id now that the user is authenticated, so a session
+  // value planted before login (session fixation) cannot be reused afterwards.
+  req.session.regenerate((regenerateErr) => {
+    if (regenerateErr) {
       return res.status(500).json({
         error: 'Session error',
-        message: 'Failed to save session'
+        message: 'Failed to establish session'
       });
     }
-    res.status(200).json({
-      message: 'Login successful',
-      user: req.session.user,
-      permissions
+
+    req.session.user = {
+      id: user.id,
+      login: user.login,
+      role_id: user.role_id,
+    };
+
+    // Save session to store before sending response so the next request finds the session
+    req.session.save((err) => {
+      if (err) {
+        return res.status(500).json({
+          error: 'Session error',
+          message: 'Failed to save session'
+        });
+      }
+      res.status(200).json({
+        message: 'Login successful',
+        user: req.session.user,
+        permissions
+      });
     });
   });
 };
 
 // Logout controller
 export const logout = (req: Request, res: Response): void => {
+  // Capture the cookie attributes before the session is destroyed: clearCookie only
+  // removes a cookie when path/sameSite/secure/httpOnly match the ones it was set with.
+  const { path, sameSite, secure, httpOnly } = req.session?.cookie ?? {};
+  const cookieOptions: CookieOptions = {
+    path: path || '/',
+    sameSite,
+    secure: secure === 'auto' ? req.secure : secure,
+    httpOnly
+  };
+
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({
@@ -87,7 +107,7 @@ export const logout = (req: Request, res: Response): void => {
     }
 
     // Clear cookie
-    res.clearCookie('connect.sid');
+    res.clearCookie('connect.sid', cookieOptions);
     return res.status(200).json({
       message: 'Logged out successfully'
     });

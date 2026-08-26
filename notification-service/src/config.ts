@@ -36,6 +36,7 @@ export function validateConfig(): void {
   if (!process.env.POSTGRES_USER) missing.push('POSTGRES_USER');
   if (!process.env.POSTGRES_DB) missing.push('POSTGRES_DB');
   if (!process.env.POSTGRES_PASSWORD) missing.push('POSTGRES_PASSWORD');
+  if (!process.env.NOTIFICATION_API_KEY) missing.push('NOTIFICATION_API_KEY');
   if (process.env.EMAIL_ENABLED === 'true') {
     if (!process.env.EMAIL_USER) missing.push('EMAIL_USER');
     if (!process.env.EMAIL_PASSWORD) missing.push('EMAIL_PASSWORD');

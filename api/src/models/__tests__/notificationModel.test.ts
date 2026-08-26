@@ -112,12 +112,22 @@ describe('NotificationModel', () => {
     it('should soft delete a notification', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      await notificationModel.deleteNotification(mockPool, '1');
+      await notificationModel.deleteNotification(mockPool, '1', '2');
 
+      // The owner is part of the WHERE clause, so a delete cannot reach another
+      // user's notification.
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
-        ['1']
+        ['1', '2']
       );
+    });
+
+    it('should report failure when nothing was deleted', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+
+      const deleted = await notificationModel.deleteNotification(mockPool, '1', '2');
+
+      expect(deleted).toBe(false);
     });
   });
 

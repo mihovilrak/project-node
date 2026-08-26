@@ -5,6 +5,7 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
+import { requireTaskAccessBy } from '../middleware/projectAccessMiddleware';
 import * as fileController from '../controllers/fileController';
 import { withPool } from '../utils/withPool';
 
@@ -39,12 +40,15 @@ export default (pool: Pool): Router => {
     }
     next();
   });
+.
+  const taskAccess = requireTaskAccessBy(pool, (req) => (req as any).taskId);
 
   // Get task files
-  router.get('/', withPool(pool, fileController.getTaskFiles));
+  router.get('/', taskAccess, withPool(pool, fileController.getTaskFiles));
 
   // Upload a file
   router.post('/',
+    taskAccess,
     upload.single('file'),
     withPool(pool, fileController.uploadFile));
 

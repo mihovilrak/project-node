@@ -15,7 +15,7 @@ export const getNotificationsByUserId = async (
   return result.rows;
 };
 
-// Mark notifications as read
+// Mark all of a user's notifications as read
 export const markNotificationsAsRead = async (
   pool: Pool,
   user_id: string
@@ -31,17 +31,39 @@ export const markNotificationsAsRead = async (
   return result.rows;
 };
 
-// Delete notification
+export const markNotificationAsRead = async (
+  pool: Pool,
+  id: string,
+  user_id: string
+): Promise<Notification[]> => {
+  const result = await pool.query(
+    `UPDATE notifications
+    SET (is_read, read_on) = (true, current_timestamp)
+    WHERE id = $1
+    AND user_id = $2
+    AND is_read = false
+    RETURNING *`,
+    [id, user_id]
+  );
+  return result.rows;
+};
+
+// Delete notification. Scoped to the owner: returns false when the notification
+// does not exist or belongs to another user.
 export const deleteNotification = async (
   pool: Pool,
-  id: string
-): Promise<void> => {
-  await pool.query(
+  id: string,
+  user_id: string
+): Promise<boolean> => {
+  const result = await pool.query(
     `UPDATE notifications
     SET active = false
-    WHERE id = $1`,
-    [id]
+    WHERE id = $1
+    AND user_id = $2
+    RETURNING id`,
+    [id, user_id]
   );
+  return (result.rowCount ?? 0) > 0;
 };
 
 // Create watcher notifications

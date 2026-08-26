@@ -130,15 +130,18 @@ export const createUser = async (
 
 // Update a user (body is the update payload directly; id comes from URL)
 export const updateUser = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   pool: Pool
 ): Promise<Response | void> => {
   const { id } = req.params;
   const body = req.body || {};
   const allowedKeys = ['login', 'name', 'surname', 'email', 'password', 'role_id', 'status_id'];
+  const isSelfUpdate = String(req.session?.user?.id) === String(id);
+  const selfProtectedKeys = ['role_id', 'status_id'];
   const updates = Object.keys(body)
     .filter((key) => allowedKeys.includes(key))
+    .filter((key) => !(isSelfUpdate && selfProtectedKeys.includes(key)))
     .reduce<Record<string, unknown>>((acc, key) => {
       acc[key] = body[key];
       return acc;

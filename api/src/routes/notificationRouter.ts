@@ -6,8 +6,8 @@ import { withPool } from '../utils/withPool';
 export default (pool: Pool): Router => {
   const router = Router();
 
-  router.get('/:user_id', withPool(pool, notificationController.getUserNotifications));
-  router.patch('/:user_id', withPool(pool, notificationController.markAsRead));
+  router.get('/', withPool(pool, notificationController.getUserNotifications));
+  router.patch('/', withPool(pool, notificationController.markAsRead));
   router.delete('/:id', withPool(pool, notificationController.deleteNotification));
 
   return router;

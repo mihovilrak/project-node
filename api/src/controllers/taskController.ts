@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import { CustomRequest } from '../types/express';
 import { TaskCreateInput, TaskUpdateInput, TaskQueryFilters } from '../types/task';
 import * as taskModel from '../models/taskModel';
+import { filterByProjectAccess } from '../models/accessModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
@@ -36,6 +37,12 @@ export const getTasks = async (
   pool: Pool
 ): Promise<void> => {
   try {
+    const userId = (req as CustomRequest).session?.user?.id;
+    if (!userId) {
+      res.status(401).json({ error: 'Not authenticated' });
+      return;
+    }
+
     const {
       id,
       project_id,
@@ -66,7 +73,7 @@ export const getTasks = async (
     ].some(Boolean);
     if (project_id && !otherFilters) {
       const tasks = await taskModel.getTasksByProject(pool, project_id as string);
-      res.status(200).json(tasks);
+      res.status(200).json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
       return;
     }
 
@@ -124,7 +131,8 @@ export const getTasks = async (
 
     const hasFilters = Object.keys(filters).length > 0;
     const tasks = await taskModel.getTasks(pool, hasFilters ? filters : undefined);
-    res.status(200).json(tasks);
+    // Tasks inherit their project's tenancy, so a listing is scoped the same way.
+    res.status(200).json(await filterByProjectAccess(pool, userId, tasks, 'project_id'));
   } catch (error) {
     logger.error({ err: error }, 'Error fetching tasks');
     res.status(500).json({ error: 'Internal server error' });
