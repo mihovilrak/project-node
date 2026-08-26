@@ -22,18 +22,18 @@ describe('Authentication Flow', () => {
     // Override login handler for successful login
     server.use(
       rest.post('/api/login', async (req, res, ctx) => {
-        const body = await req.json() as { login: string; password: string };
+        const body = (await req.json()) as { login: string; password: string };
         if (body.login === 'testuser' && body.password === 'password123') {
           return res(ctx.json({ user: defaultUser }));
         }
         return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
-      })
+      }),
     );
 
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for initial loading to complete
@@ -54,9 +54,12 @@ describe('Authentication Flow', () => {
     await user.click(submitButton);
 
     // Wait for navigation to root (/) as per useLogin hook
-    await waitFor(() => {
-      expect(window.location.pathname).toBe('/');
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(window.location.pathname).toBe('/');
+      },
+      { timeout: 3000 },
+    );
   });
 
   it('should display error message for invalid credentials', async () => {
@@ -66,13 +69,13 @@ describe('Authentication Flow', () => {
     server.use(
       rest.post('/api/login', (req, res, ctx) => {
         return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
-      })
+      }),
     );
 
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for initial loading
@@ -101,7 +104,7 @@ describe('Authentication Flow', () => {
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const submitButton = screen.getByTestId('login-submit');
@@ -118,7 +121,7 @@ describe('Authentication Flow', () => {
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const passwordInput = screen.getByTestId('password-input');
@@ -147,13 +150,13 @@ describe('Authentication Flow', () => {
     server.use(
       rest.post('/api/login', () => {
         throw new Error('Network Error');
-      })
+      }),
     );
 
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     await waitFor(() => {
@@ -181,14 +184,17 @@ describe('Authentication Flow', () => {
     // Override login handler to return 500
     server.use(
       rest.post('/api/login', (req, res, ctx) => {
-        return res(ctx.status(500), ctx.json({ error: 'Internal server error' }));
-      })
+        return res(
+          ctx.status(500),
+          ctx.json({ error: 'Internal server error' }),
+        );
+      }),
     );
 
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     await waitFor(() => {
@@ -216,7 +222,7 @@ describe('Authentication Flow', () => {
     render(
       <TestWrapper>
         <Login />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     await waitFor(() => {

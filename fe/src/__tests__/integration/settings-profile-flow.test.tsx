@@ -24,7 +24,7 @@ describe('Settings Profile Integration Tests', () => {
     time_zone: 'UTC',
     theme: 'light',
     welcome_message: 'Welcome to Project Manager',
-    created_on: '2025-01-26'
+    created_on: '2025-01-26',
   };
 
   const mockTaskType: TaskType = {
@@ -33,7 +33,7 @@ describe('Settings Profile Integration Tests', () => {
     color: '#ff0000',
     icon: 'bug',
     description: 'Software bug that needs fixing',
-    active: true
+    active: true,
   };
 
   const mockActivityType: ActivityType = {
@@ -42,7 +42,7 @@ describe('Settings Profile Integration Tests', () => {
     color: '#00ff00',
     icon: 'code',
     description: 'Software development work',
-    active: true
+    active: true,
   };
 
   const mockRole: Role = {
@@ -50,7 +50,7 @@ describe('Settings Profile Integration Tests', () => {
     name: 'Developer',
     permissions: [5, 6, 7, 8, 9, 10],
     created_on: '2025-01-26',
-    updated_on: null
+    updated_on: null,
   };
 
   beforeEach(() => {
@@ -61,13 +61,17 @@ describe('Settings Profile Integration Tests', () => {
       id: 1,
       name: 'Test User',
       email: 'test@example.com',
-      role_id: 1
+      role_id: 1,
     };
 
     const mockPermissions = [
-      { id: 1, permission: 'MANAGE_SETTINGS', description: 'Manage app settings' },
+      {
+        id: 1,
+        permission: 'MANAGE_SETTINGS',
+        description: 'Manage app settings',
+      },
       { id: 2, permission: 'MANAGE_USERS', description: 'Manage users' },
-      { id: 3, permission: 'MANAGE_TASKS', description: 'Manage tasks' }
+      { id: 3, permission: 'MANAGE_TASKS', description: 'Manage tasks' },
     ];
 
     // Mock users for UserManager component
@@ -78,7 +82,7 @@ describe('Settings Profile Integration Tests', () => {
         email: 'admin@example.com',
         role_id: 1,
         active: true,
-        created_on: '2025-01-01'
+        created_on: '2025-01-01',
       },
       {
         id: 2,
@@ -86,8 +90,8 @@ describe('Settings Profile Integration Tests', () => {
         email: 'user@example.com',
         role_id: 2,
         active: true,
-        created_on: '2025-01-02'
-      }
+        created_on: '2025-01-02',
+      },
     ];
 
     // Mock API calls
@@ -108,7 +112,10 @@ describe('Settings Profile Integration Tests', () => {
 
       switch (url) {
         case '/check-session':
-          return Promise.resolve({ status: 200, data: { user: mockUser, permissions: mockPermissions } });
+          return Promise.resolve({
+            status: 200,
+            data: { user: mockUser, permissions: mockPermissions },
+          });
         case '/settings/app_settings':
           return Promise.resolve({ data: mockAppSettings });
         case '/users':
@@ -137,7 +144,10 @@ describe('Settings Profile Integration Tests', () => {
     expect(screen.getByRole('tab', { name: /system/i })).toBeInTheDocument();
 
     // Verify Users tab is selected by default (aria-selected="true")
-    expect(screen.getByRole('tab', { name: /users/i })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /users/i })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   });
 
   // Test 2: Navigate through main tabs
@@ -191,7 +201,7 @@ describe('Settings Profile Integration Tests', () => {
       color: '#0000ff',
       icon: 'star',
       description: 'New feature implementation',
-      active: true
+      active: true,
     };
 
     mockedApi.post.mockResolvedValue({ data: newTaskType });
@@ -217,7 +227,7 @@ describe('Settings Profile Integration Tests', () => {
     const updatedSettings = {
       ...mockAppSettings,
       app_name: 'Updated App Name',
-      theme: 'dark'
+      theme: 'dark',
     };
 
     mockedApi.put.mockResolvedValue({ data: updatedSettings });
@@ -240,7 +250,7 @@ describe('Settings Profile Integration Tests', () => {
     const updatedRole = {
       ...mockRole,
       name: 'Senior Developer',
-      permissions: [1, 2, 3, 5, 6, 7, 8, 9, 10]
+      permissions: [1, 2, 3, 5, 6, 7, 8, 9, 10],
     };
 
     mockedApi.put.mockResolvedValue({ data: updatedRole });
@@ -266,7 +276,7 @@ describe('Settings Profile Integration Tests', () => {
       color: '#ff00ff',
       icon: 'test',
       description: 'Software testing activities',
-      active: true
+      active: true,
     };
 
     mockedApi.post.mockResolvedValue({ data: newActivityType });

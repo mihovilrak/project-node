@@ -6,12 +6,9 @@ import { Project } from '../types/project';
 // Get user profile
 export const getProfile = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<Profile | null> => {
-  const result = await pool.query(
-    'SELECT * FROM get_profile($1)',
-    [userId]
-  );
+  const result = await pool.query('SELECT * FROM get_profile($1)', [userId]);
   return result.rows[0] || null;
 };
 
@@ -19,7 +16,7 @@ export const getProfile = async (
 export const updateProfile = async (
   pool: Pool,
   userId: string,
-  profileData: ProfileUpdateInput
+  profileData: ProfileUpdateInput,
 ): Promise<Profile | null> => {
   const { email, name, surname } = profileData;
 
@@ -29,7 +26,7 @@ export const updateProfile = async (
      = ($1, $2, $3, CURRENT_TIMESTAMP)
      WHERE id = $4
      RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
-    [email, name, surname, userId]
+    [email, name, surname, userId],
   );
   return result.rows[0] || null;
 };
@@ -38,14 +35,14 @@ export const updateProfile = async (
 export const verifyPassword = async (
   pool: Pool,
   userId: string,
-  password: string
+  password: string,
 ): Promise<boolean> => {
   const result = await pool.query(
     `SELECT EXISTS(
       SELECT 1 FROM users
       WHERE id = $1 AND password = crypt($2, password)
     )`,
-    [userId, password]
+    [userId, password],
   );
   return result.rows[0].exists;
 };
@@ -54,7 +51,7 @@ export const verifyPassword = async (
 export const changePassword = async (
   pool: Pool,
   userId: string,
-  password: string
+  password: string,
 ): Promise<Profile | null> => {
   const result = await pool.query(
     `UPDATE users
@@ -62,7 +59,7 @@ export const changePassword = async (
      = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
      WHERE id = $2
      RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
-    [password, userId]
+    [password, userId],
   );
   return result.rows[0] || null;
 };
@@ -70,23 +67,19 @@ export const changePassword = async (
 // Get recent tasks
 export const getRecentTasks = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<Task[]> => {
-  const result = await pool.query(
-    `SELECT * FROM recent_tasks($1)`,
-    [userId]
-  );
+  const result = await pool.query(`SELECT * FROM recent_tasks($1)`, [userId]);
   return result.rows;
 };
 
 // Get recent projects
 export const getRecentProjects = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<Project[]> => {
-  const result = await pool.query(
-    `SELECT * FROM recent_projects($1)`,
-    [userId]
-  );
+  const result = await pool.query(`SELECT * FROM recent_projects($1)`, [
+    userId,
+  ]);
   return result.rows;
 };

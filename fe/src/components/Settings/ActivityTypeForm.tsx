@@ -10,29 +10,23 @@ import {
   InputLabel,
   Dialog,
   DialogTitle,
-  DialogContent
+  DialogContent,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { MuiColorInput } from 'mui-color-input';
 import { useIconSelector } from '../../hooks/setting/useIconSelector';
-import {
-  ActivityTypeFormProps,
-  IconSelectorProps
-} from '../../types/setting';
+import { ActivityTypeFormProps, IconSelectorProps } from '../../types/setting';
 
 const IconSelector = ({ value, onChange }: IconSelectorProps) => {
-  const {
-    icons,
-    open,
-    handleOpen,
-    handleClose,
-    handleSelect
-  } = useIconSelector(value);
+  const { icons, open, handleOpen, handleClose, handleSelect } =
+    useIconSelector(value);
 
   const getIconComponent = (iconName?: string) => {
     if (!iconName) return null;
     try {
-      const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+      const IconComponent = Icons[
+        iconName as keyof typeof Icons
+      ] as React.ComponentType<any>;
       return IconComponent ? <IconComponent /> : null;
     } catch {
       return null;
@@ -49,7 +43,7 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
             border: '1px dashed grey',
             borderRadius: 1,
             width: '100%',
-            height: '56px'
+            height: '56px',
           }}
         >
           {value ? getIconComponent(value) || value : 'Select Icon'}
@@ -61,7 +55,9 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         <DialogContent>
           <Grid container spacing={1} sx={{ p: 2 }}>
             {(icons || []).map((iconName) => {
-              const IconComponent = iconName ? getIconComponent(iconName) : null;
+              const IconComponent = iconName
+                ? getIconComponent(iconName)
+                : null;
               return (
                 <Grid key={iconName || Math.random()} size={{ xs: 6, sm: 4 }}>
                   <IconButton
@@ -73,8 +69,9 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
                     }}
                     disabled={!iconName}
                     sx={{
-                      border: value === iconName ? '2px solid primary.main' : 'none',
-                      borderRadius: 1
+                      border:
+                        value === iconName ? '2px solid primary.main' : 'none',
+                      borderRadius: 1,
                     }}
                   >
                     {IconComponent || iconName || 'Unknown'}
@@ -89,7 +86,10 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
   );
 };
 
-export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({ formData, onChange }) => {
+export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({
+  formData,
+  onChange,
+}) => {
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
       <Grid size={{ xs: 12 }}>

@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Users from '../Users';
 import { getUsers, deleteUser, getUserStatuses } from '../../../api/users';
@@ -10,15 +16,17 @@ import logger from '../../../utils/logger';
 jest.mock('../../../hooks/common/usePermission', () => ({
   usePermission: () => ({
     hasPermission: true,
-    loading: false
-  })
+    loading: false,
+  }),
 }));
 
 // Mock the API calls
 jest.mock('../../../api/users');
 const mockedGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
 const mockedDeleteUser = deleteUser as jest.MockedFunction<typeof deleteUser>;
-const mockedGetUserStatuses = getUserStatuses as jest.MockedFunction<typeof getUserStatuses>;
+const mockedGetUserStatuses = getUserStatuses as jest.MockedFunction<
+  typeof getUserStatuses
+>;
 
 // Mock the navigate function
 const mockedNavigate = jest.fn();
@@ -56,7 +64,7 @@ const mockUsers: User[] = [
     created_on: '2023-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Admin'
+    role_name: 'Admin',
   },
   {
     id: 2,
@@ -71,20 +79,20 @@ const mockUsers: User[] = [
     created_on: '2023-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Reporter'
-  }
+    role_name: 'Reporter',
+  },
 ];
 
 describe('Users Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockedGetUsers.mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve(mockUsers), 0))
+      () => new Promise((resolve) => setTimeout(() => resolve(mockUsers), 0)),
     );
     mockedGetUserStatuses.mockResolvedValue([
       { id: 1, name: 'Active' },
       { id: 2, name: 'Inactive' },
-      { id: 3, name: 'Deleted' }
+      { id: 3, name: 'Deleted' },
     ]);
   });
 
@@ -92,7 +100,7 @@ describe('Users Component', () => {
     return render(
       <MemoryRouter>
         <Users />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -143,7 +151,7 @@ describe('Users Component', () => {
     });
 
     const sortSelectTrigger = container.querySelector(
-      'div[role="combobox"][aria-haspopup="listbox"]'
+      'div[role="combobox"][aria-haspopup="listbox"]',
     );
     fireEvent.mouseDown(sortSelectTrigger!);
     const descOption = await screen.findByRole('option', { name: 'Z-A' });
@@ -161,7 +169,7 @@ describe('Users Component', () => {
     // After deletion, the component calls fetchUsers again, so mock should return filtered list
     mockedGetUsers
       .mockResolvedValueOnce(mockUsers) // Initial load
-      .mockResolvedValueOnce(mockUsers.filter(u => u.id !== 1)); // After deletion
+      .mockResolvedValueOnce(mockUsers.filter((u) => u.id !== 1)); // After deletion
 
     await act(async () => {
       renderUsers();
@@ -177,7 +185,9 @@ describe('Users Component', () => {
 
     // Wait for delete confirmation dialog to appear
     await waitFor(() => {
-      expect(screen.getByText(/Are you sure you want to delete user/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete user/),
+      ).toBeInTheDocument();
     });
 
     // Click confirm button in dialog
@@ -187,11 +197,14 @@ describe('Users Component', () => {
     await waitFor(() => {
       expect(mockedDeleteUser).toHaveBeenCalledWith(1);
     });
-    
+
     // Wait for user to be removed from list (after API refresh)
-    await waitFor(() => {
-      expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 
   test('handles navigation', async () => {
@@ -203,7 +216,8 @@ describe('Users Component', () => {
     });
 
     // Use data-testid for Add New User button if available, else robust text query
-    const addButton = screen.getByTestId('add-user-btn') || screen.getByText('Add New User');
+    const addButton =
+      screen.getByTestId('add-user-btn') || screen.getByText('Add New User');
     fireEvent.click(addButton);
     expect(mockedNavigate).toHaveBeenCalledWith('/users/new');
 
@@ -222,6 +236,9 @@ describe('Users Component', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    expect(logger.error).toHaveBeenCalledWith('Failed to fetch users', expect.any(Error));
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to fetch users',
+      expect.any(Error),
+    );
   });
 });

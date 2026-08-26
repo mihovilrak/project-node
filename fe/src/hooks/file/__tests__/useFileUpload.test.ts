@@ -15,8 +15,8 @@ describe('useFileUpload', () => {
   const mockEvent = {
     target: {
       files: [mockFile],
-      value: 'test.txt'
-    }
+      value: 'test.txt',
+    },
   } as unknown as React.ChangeEvent<HTMLInputElement>;
 
   const mockTaskFile: TaskFile = {
@@ -27,7 +27,7 @@ describe('useFileUpload', () => {
     original_name: 'test.txt',
     mime_type: 'text/plain',
     size: 4,
-    uploaded_on: '2023-01-01'
+    uploaded_on: '2023-01-01',
   };
 
   beforeEach(() => {
@@ -35,7 +35,9 @@ describe('useFileUpload', () => {
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     expect(result.current.uploading).toBe(false);
     expect(result.current.progress).toBe(0);
@@ -45,7 +47,9 @@ describe('useFileUpload', () => {
   it('should handle successful file upload', async () => {
     mockedUploadFile.mockResolvedValueOnce(mockTaskFile);
 
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     await act(async () => {
       await result.current.handleFileChange(mockEvent);
@@ -61,14 +65,18 @@ describe('useFileUpload', () => {
   it('should handle upload progress', async () => {
     let progressCallbackRef: ((e: AxiosProgressEvent) => void) | undefined;
     let resolveUpload: (() => void) | undefined;
-    const uploadPromise = new Promise<TaskFile>(resolve => { resolveUpload = () => resolve(mockTaskFile); });
+    const uploadPromise = new Promise<TaskFile>((resolve) => {
+      resolveUpload = () => resolve(mockTaskFile);
+    });
 
     mockedUploadFile.mockImplementation(async (_, __, onProgress) => {
       progressCallbackRef = onProgress;
       return uploadPromise;
     });
 
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     // Start the upload (do not await yet)
     const uploadTask = result.current.handleFileChange(mockEvent);
@@ -94,7 +102,9 @@ describe('useFileUpload', () => {
     const errorMessage = 'Upload failed';
     mockedUploadFile.mockRejectedValueOnce(new Error(errorMessage));
 
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     await act(async () => {
       await result.current.handleFileChange(mockEvent);
@@ -107,10 +117,12 @@ describe('useFileUpload', () => {
 
   it('should handle empty file selection', async () => {
     const emptyEvent = {
-      target: { files: null }
+      target: { files: null },
     } as unknown as React.ChangeEvent<HTMLInputElement>;
 
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     await act(async () => {
       await result.current.handleFileChange(emptyEvent);
@@ -121,7 +133,9 @@ describe('useFileUpload', () => {
   });
 
   it('should allow manual error state reset', () => {
-    const { result } = renderHook(() => useFileUpload(mockTaskId, mockOnFileUploaded));
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
 
     act(() => {
       result.current.setError('test error');

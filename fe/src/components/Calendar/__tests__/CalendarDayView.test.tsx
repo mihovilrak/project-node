@@ -9,9 +9,11 @@ jest.mock('../../../hooks/calendar/useTasksByHour', () => ({
   useTasksByHour: (tasks: Task[], timeLogs: TimeLog[]) => ({
     hours: Array.from({ length: 24 }, (_, i) => i),
     getTasksForHour: (hour: number) =>
-      tasks.filter(task => new Date(task.start_date!).getHours() === hour),
+      tasks.filter((task) => new Date(task.start_date!).getHours() === hour),
     getTimeLogsForHour: (hour: number) =>
-      timeLogs.filter(timeLog => new Date(timeLog.created_on).getHours() === hour),
+      timeLogs.filter(
+        (timeLog) => new Date(timeLog.created_on).getHours() === hour,
+      ),
   }),
 }));
 
@@ -43,7 +45,7 @@ describe('CalendarDayView', () => {
       created_by: 1,
       created_by_name: 'Test Creator',
       created_on: '2024-01-01T10:00:00Z',
-      estimated_time: null
+      estimated_time: null,
     },
     {
       id: 2,
@@ -71,8 +73,8 @@ describe('CalendarDayView', () => {
       created_by: 1,
       created_by_name: 'Test Creator',
       created_on: '2024-01-01T14:00:00Z',
-      estimated_time: null
-    }
+      estimated_time: null,
+    },
   ];
 
   const mockTimeLogs: TimeLog[] = [
@@ -87,7 +89,7 @@ describe('CalendarDayView', () => {
       created_on: '2024-01-01T10:00:00Z',
       updated_on: null,
       task_name: 'Test TimeLog 1',
-      activity_type_color: '#ff0000'
+      activity_type_color: '#ff0000',
     },
     {
       id: 2,
@@ -100,8 +102,8 @@ describe('CalendarDayView', () => {
       created_on: '2024-01-01T14:00:00Z',
       updated_on: null,
       task_name: 'Test TimeLog 2',
-      activity_type_color: '#00ff00'
-    }
+      activity_type_color: '#00ff00',
+    },
   ];
 
   const mockProps = {

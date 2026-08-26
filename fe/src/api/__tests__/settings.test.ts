@@ -5,7 +5,7 @@ import {
   updateUserSettings,
   getSystemSettings,
   updateSystemSettings,
-  getAppTheme
+  getAppTheme,
 } from '../settings';
 
 // Mock the api module
@@ -69,7 +69,10 @@ describe('Settings API', () => {
 
       await updateUserSettings(mockUserSettings);
 
-      expect(mockedApi.put).toHaveBeenCalledWith('/settings/user_settings', mockUserSettings);
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        '/settings/user_settings',
+        mockUserSettings,
+      );
     });
 
     it('should throw error when update fails', async () => {
@@ -104,14 +107,19 @@ describe('Settings API', () => {
 
       await updateSystemSettings(mockAppSettings);
 
-      expect(mockedApi.put).toHaveBeenCalledWith('/settings/app_settings', mockAppSettings);
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        '/settings/app_settings',
+        mockAppSettings,
+      );
     });
 
     it('should throw error when update fails', async () => {
       const error = new Error('Update failed');
       mockedApi.put.mockRejectedValueOnce(error);
 
-      await expect(updateSystemSettings(mockAppSettings)).rejects.toThrow(error);
+      await expect(updateSystemSettings(mockAppSettings)).rejects.toThrow(
+        error,
+      );
     });
   });
 

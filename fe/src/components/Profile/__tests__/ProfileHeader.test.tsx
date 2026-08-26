@@ -18,7 +18,8 @@ const mockUser: User = {
   last_login: null,
   role_name: 'Developer',
   status_name: 'Active',
-  status_color: '#00ff00'};
+  status_color: '#00ff00',
+};
 
 describe('ProfileHeader', () => {
   test('renders user information correctly', () => {
@@ -32,7 +33,7 @@ describe('ProfileHeader', () => {
   test('renders avatar with fallback when no avatar_url', () => {
     const userWithoutAvatar = {
       ...mockUser,
-      avatar_url: null
+      avatar_url: null,
     };
     render(<ProfileHeader user={userWithoutAvatar} />);
 
@@ -54,7 +55,7 @@ describe('ProfileHeader', () => {
     const avatar = screen.getByTestId('user-avatar');
     expect(avatar).toHaveStyle({
       width: '80px',
-      height: '80px'
+      height: '80px',
     });
   });
 });

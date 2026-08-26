@@ -16,12 +16,12 @@ const mockedUsersApi = usersApi as jest.Mocked<typeof usersApi>;
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate
+  useNavigate: () => mockNavigate,
 }));
 
 // Mock usePermission so edit/delete buttons are rendered
 jest.mock('../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 describe('User Management Flow', () => {
@@ -38,13 +38,27 @@ describe('User Management Flow', () => {
     last_login: null,
     role_name: 'Reporter',
     status_name: 'Active',
-    status_color: 'green'
+    status_color: 'green',
   };
 
   const mockUsers: User[] = [
     mockUser,
-    { ...mockUser, id: 2, login: 'admin', name: 'Admin', surname: 'User', role_name: 'Admin' },
-    { ...mockUser, id: 3, login: 'manager', name: 'Manager', surname: 'User', role_name: 'Manager' }
+    {
+      ...mockUser,
+      id: 2,
+      login: 'admin',
+      name: 'Admin',
+      surname: 'User',
+      role_name: 'Admin',
+    },
+    {
+      ...mockUser,
+      id: 3,
+      login: 'manager',
+      name: 'Manager',
+      surname: 'User',
+      role_name: 'Manager',
+    },
   ];
 
   beforeEach(() => {
@@ -59,7 +73,7 @@ describe('User Management Flow', () => {
     render(
       <TestWrapper>
         <Users />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -79,7 +93,7 @@ describe('User Management Flow', () => {
     render(
       <TestWrapper>
         <Users />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -101,7 +115,7 @@ describe('User Management Flow', () => {
     render(
       <TestWrapper>
         <Users />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -124,7 +138,7 @@ describe('User Management Flow', () => {
     render(
       <TestWrapper>
         <Users />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish
@@ -138,7 +152,9 @@ describe('User Management Flow', () => {
 
     // Wait for dialog to open
     await waitFor(() => {
-      expect(screen.getByText(/Are you sure you want to delete user/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete user/),
+      ).toBeInTheDocument();
     });
 
     // Click confirm button in dialog
@@ -157,7 +173,7 @@ describe('User Management Flow', () => {
     render(
       <TestWrapper>
         <Users />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish

@@ -11,7 +11,7 @@ describe('useRoleDialog', () => {
   const mockPermissions: Permission[] = [
     { id: 1, name: 'project_create' },
     { id: 2, name: 'project_edit' },
-    { id: 3, name: 'user_create' }
+    { id: 3, name: 'user_create' },
   ];
 
   const mockRole: Role = {
@@ -21,7 +21,7 @@ describe('useRoleDialog', () => {
     active: true,
     permissions: [1, 2],
     created_on: '2024-01-25T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   };
 
   beforeEach(() => {
@@ -32,43 +32,47 @@ describe('useRoleDialog', () => {
   it('should initialize with empty form data when no role is provided', async () => {
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({})); // Wait for permissions to load
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    ); // Wait for permissions to load
 
     expect(result.current.formData).toEqual({
       name: '',
       description: '',
       active: true,
-      permissions: []
+      permissions: [],
     });
   });
 
   it('should initialize with role data when role is provided', async () => {
     const { result } = renderHook(() => useRoleDialog(mockRole));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({})); // Wait for permissions to load
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    ); // Wait for permissions to load
 
     expect(result.current.formData).toEqual({
       name: mockRole.name,
       description: mockRole.description,
       active: mockRole.active,
-      permissions: mockRole.permissions
+      permissions: mockRole.permissions,
     });
   });
 
   it('should fetch and group permissions on mount', async () => {
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({}));
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    );
 
     expect(getAllPermissions).toHaveBeenCalledTimes(1);
     expect(result.current.groupedPermissions).toEqual({
-      'project': [
+      project: [
         { id: 1, name: 'project_create' },
-        { id: 2, name: 'project_edit' }
+        { id: 2, name: 'project_edit' },
       ],
-      'user': [
-        { id: 3, name: 'user_create' }
-      ]
+      user: [{ id: 3, name: 'user_create' }],
     });
   });
 
@@ -78,14 +82,17 @@ describe('useRoleDialog', () => {
 
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.error).toBe('Failed to fetch permissions'));
-
+    await waitFor(() =>
+      expect(result.current.error).toBe('Failed to fetch permissions'),
+    );
   });
 
   it('should handle form field changes', async () => {
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({}));
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    );
 
     act(() => {
       result.current.handleChange('name', 'New Role');
@@ -103,7 +110,9 @@ describe('useRoleDialog', () => {
   it('should handle permission toggle', async () => {
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({})); // Wait for permissions to load
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    ); // Wait for permissions to load
 
     const permission = mockPermissions[0];
 
@@ -125,7 +134,9 @@ describe('useRoleDialog', () => {
   it('should clear error when requested', async () => {
     const { result } = renderHook(() => useRoleDialog(undefined));
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({}));
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    );
 
     act(() => {
       result.current.setError('Some error');
@@ -141,12 +152,13 @@ describe('useRoleDialog', () => {
   });
 
   it('should update form data when role prop changes', async () => {
-    const { result, rerender } = renderHook(
-      (props) => useRoleDialog(props),
-      { initialProps: undefined as Role | undefined }
-    );
+    const { result, rerender } = renderHook((props) => useRoleDialog(props), {
+      initialProps: undefined as Role | undefined,
+    });
 
-    await waitFor(() => expect(result.current.groupedPermissions).not.toEqual({}));
+    await waitFor(() =>
+      expect(result.current.groupedPermissions).not.toEqual({}),
+    );
 
     // Initial state
     expect(result.current.formData.name).toBe('');
@@ -158,7 +170,7 @@ describe('useRoleDialog', () => {
       name: mockRole.name,
       description: mockRole.description,
       active: mockRole.active,
-      permissions: mockRole.permissions
+      permissions: mockRole.permissions,
     });
 
     // Update back to undefined
@@ -168,7 +180,7 @@ describe('useRoleDialog', () => {
       name: '',
       description: '',
       active: true,
-      permissions: []
+      permissions: [],
     });
   });
 });

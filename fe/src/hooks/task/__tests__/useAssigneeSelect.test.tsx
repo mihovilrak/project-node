@@ -15,7 +15,7 @@ describe('useAssigneeSelect', () => {
       surname: 'Doe',
       project_id: 1,
       role: 'Admin',
-      created_on: '2024-01-25T00:00:00Z'
+      created_on: '2024-01-25T00:00:00Z',
     },
     {
       user_id: 2,
@@ -23,8 +23,8 @@ describe('useAssigneeSelect', () => {
       surname: 'Smith',
       project_id: 1,
       role: 'Developer',
-      created_on: '2024-01-25T00:00:00Z'
-    }
+      created_on: '2024-01-25T00:00:00Z',
+    },
   ];
 
   beforeEach(() => {
@@ -56,7 +56,10 @@ describe('useAssigneeSelect', () => {
 
     await waitFor(() => {
       expect(getProjectMembers).toHaveBeenCalledWith(1);
-      expect(logger.error).toHaveBeenCalledWith('Error fetching project members:', error);
+      expect(logger.error).toHaveBeenCalledWith(
+        'Error fetching project members:',
+        error,
+      );
       expect(result.current.projectMembers).toEqual([]);
     });
   });
@@ -64,23 +67,19 @@ describe('useAssigneeSelect', () => {
   it('should update project members when projectId changes', async () => {
     const { result, rerender } = renderHook(
       (props) => useAssigneeSelect(props),
-      { initialProps: 1 }
+      { initialProps: 1 },
     );
 
     await waitFor(() => {
       expect(result.current.projectMembers).toEqual(mockProjectMembers);
     });
 
-    (getProjectMembers as jest.Mock).mockResolvedValue([
-      mockProjectMembers[1]
-    ]);
+    (getProjectMembers as jest.Mock).mockResolvedValue([mockProjectMembers[1]]);
 
     rerender(2);
     await waitFor(() => {
       expect(getProjectMembers).toHaveBeenCalledWith(2);
-      expect(result.current.projectMembers).toEqual([
-        mockProjectMembers[1]
-      ]);
+      expect(result.current.projectMembers).toEqual([mockProjectMembers[1]]);
     });
   });
 });

@@ -26,70 +26,71 @@ describe('EmailService', () => {
   describe('loadTemplate', () => {
     it('should load and compile a template file', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskDueSoon');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
 
     it('should cache loaded templates', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template1 = await emailService.loadTemplate('default');
       const template2 = await emailService.loadTemplate('default');
-      
+
       expect(template1).toBe(template2);
     });
 
     it('should throw error for non-existent template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
-      await expect(emailService.loadTemplate('nonExistentTemplate'))
-        .rejects.toThrow();
+
+      await expect(
+        emailService.loadTemplate('nonExistentTemplate'),
+      ).rejects.toThrow();
     });
 
     it('should load taskAssigned template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskAssigned');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
 
     it('should load taskUpdated template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskUpdated');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
 
     it('should load taskComment template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskComment');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
 
     it('should load taskCompleted template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskCompleted');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
 
     it('should load projectUpdate template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('projectUpdate');
-      
+
       expect(template).toBeDefined();
       expect(typeof template).toBe('function');
     });
@@ -98,25 +99,35 @@ describe('EmailService', () => {
   describe('validateTemplate', () => {
     it('should return true for valid template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const isValid = await emailService.validateTemplate('default');
-      
+
       expect(isValid).toBe(true);
     });
 
     it('should return false for invalid template', async () => {
       const { emailService } = await import('../../services/emailService');
-      
-      const isValid = await emailService.validateTemplate('nonExistentTemplate');
-      
+
+      const isValid = await emailService.validateTemplate(
+        'nonExistentTemplate',
+      );
+
       expect(isValid).toBe(false);
     });
 
     it('should validate all notification templates', async () => {
       const { emailService } = await import('../../services/emailService');
-      
-      const templates = ['taskDueSoon', 'taskAssigned', 'taskUpdated', 'taskComment', 'taskCompleted', 'projectUpdate', 'default'];
-      
+
+      const templates = [
+        'taskDueSoon',
+        'taskAssigned',
+        'taskUpdated',
+        'taskComment',
+        'taskCompleted',
+        'projectUpdate',
+        'default',
+      ];
+
       for (const templateName of templates) {
         const isValid = await emailService.validateTemplate(templateName);
         expect(isValid).toBe(true);
@@ -127,21 +138,21 @@ describe('EmailService', () => {
   describe('template rendering', () => {
     it('should render template with data', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('default');
       const html = template({
         userName: 'John Doe',
         message: 'Test message',
         taskUrl: 'http://example.com/task/1',
       });
-      
+
       expect(html).toContain('John Doe');
       expect(html).toContain('http://example.com/task/1');
     });
 
     it('should render taskDueSoon template correctly', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       const template = await emailService.loadTemplate('taskDueSoon');
       const html = template({
         userName: 'Jane Doe',
@@ -152,7 +163,7 @@ describe('EmailService', () => {
         status: 'In Progress',
         taskUrl: 'http://example.com/task/2',
       });
-      
+
       expect(html).toContain('Jane Doe');
       expect(html).toContain('Complete report');
       expect(html).toContain('tomorrow');
@@ -163,13 +174,13 @@ describe('EmailService', () => {
   describe('transporter', () => {
     it('should have transporter defined', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       expect(emailService.transporter).toBeDefined();
     });
 
     it('should have templates object', async () => {
       const { emailService } = await import('../../services/emailService');
-      
+
       expect(emailService.templates).toBeDefined();
       expect(typeof emailService.templates).toBe('object');
     });
@@ -179,16 +190,16 @@ describe('EmailService', () => {
     it('should not send email when EMAIL_ENABLED is false', async () => {
       process.env.EMAIL_ENABLED = 'false';
       jest.resetModules();
-      
+
       const { emailService } = await import('../../services/emailService');
-      
+
       const result = await emailService.sendEmail(
         'recipient@test.com',
         'Test Subject',
         'default',
-        { userName: 'Test User' }
+        { userName: 'Test User' },
       );
-      
+
       expect(result).toBeUndefined();
     });
   });
@@ -197,23 +208,23 @@ describe('EmailService', () => {
     it('should call sendEmail method', async () => {
       process.env.EMAIL_ENABLED = 'false';
       jest.resetModules();
-      
+
       const { emailService } = await import('../../services/emailService');
       const sendEmailSpy = jest.spyOn(emailService, 'sendEmail');
-      
+
       await emailService.sendEmailWithRetry(
         'recipient@test.com',
         'Test Subject',
         'default',
         { userName: 'Test User' },
-        1
+        1,
       );
-      
+
       expect(sendEmailSpy).toHaveBeenCalledWith(
         'recipient@test.com',
         'Test Subject',
         'default',
-        { userName: 'Test User' }
+        { userName: 'Test User' },
       );
     });
   });

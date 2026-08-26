@@ -6,7 +6,11 @@ import userEvent from '@testing-library/user-event';
 import Calendar from '../../components/Calendar/Calendar';
 import { TestWrapper } from '../TestWrapper';
 import { server } from '../mocks/server';
-import { defaultTask, defaultUser, defaultPermissions } from '../mocks/handlers';
+import {
+  defaultTask,
+  defaultUser,
+  defaultPermissions,
+} from '../mocks/handlers';
 
 // MSW v1 API
 const { rest } = require('msw');
@@ -21,7 +25,7 @@ describe('Calendar Integration Workflow', () => {
     return render(
       <TestWrapper>
         <Calendar />
-      </TestWrapper>
+      </TestWrapper>,
     );
   };
 
@@ -30,9 +34,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Verify month grid is present
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -44,9 +51,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Verify month grid is rendered (tasks would be displayed within it)
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -57,15 +67,18 @@ describe('Calendar Integration Workflow', () => {
       server.use(
         rest.get('/api/tasks/calendar', (req, res, ctx) => {
           return res(ctx.json([]));
-        })
+        }),
       );
 
       renderCalendar();
 
       // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Calendar should still render with empty state
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -75,16 +88,22 @@ describe('Calendar Integration Workflow', () => {
       // Override handler to return error
       server.use(
         rest.get('/api/tasks/calendar', (req, res, ctx) => {
-          return res(ctx.status(500), ctx.json({ error: 'Internal server error' }));
-        })
+          return res(
+            ctx.status(500),
+            ctx.json({ error: 'Internal server error' }),
+          );
+        }),
       );
 
       renderCalendar();
 
       // Wait for loading to complete (error should be handled gracefully)
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Calendar should still render (error handling in hook)
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -97,9 +116,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Find and click Today button
       const todayButton = screen.getByLabelText('Today');
@@ -118,9 +140,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Click previous month button
       const prevButton = screen.getByLabelText('Previous Month');
@@ -141,9 +166,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Click next month button
       const nextButton = screen.getByLabelText('Next Month');
@@ -163,9 +191,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Switch to day view
       const dayButton = screen.getByText('Day');
@@ -182,9 +213,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Switch to week view
       const weekButton = screen.getByText('Week');
@@ -201,9 +235,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Switch to week view first
       const weekButton = screen.getByText('Week');
@@ -230,9 +267,12 @@ describe('Calendar Integration Workflow', () => {
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Find a task in the calendar (if rendered)
       // Note: This depends on how tasks are rendered in CalendarMonthView
@@ -258,15 +298,18 @@ describe('Calendar Integration Workflow', () => {
       server.use(
         rest.get('/api/tasks/calendar', () => {
           throw new Error('Network Error');
-        })
+        }),
       );
 
       renderCalendar();
 
       // Wait for error to be handled
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Calendar should still render (error handled in hook)
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -277,15 +320,18 @@ describe('Calendar Integration Workflow', () => {
       server.use(
         rest.get('/api/tasks/calendar', (req, res, ctx) => {
           return res(ctx.status(404), ctx.json({ error: 'Not found' }));
-        })
+        }),
       );
 
       renderCalendar();
 
       // Wait for error to be handled
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Calendar should still render
       expect(screen.getByTestId('month-grid')).toBeInTheDocument();
@@ -304,15 +350,18 @@ describe('Calendar Integration Workflow', () => {
           requestCount++;
           lastRequestParams = req.url.searchParams;
           return res(ctx.json([defaultTask]));
-        })
+        }),
       );
 
       renderCalendar();
 
       // Wait for initial load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const initialRequestCount = requestCount;
 
@@ -321,9 +370,12 @@ describe('Calendar Integration Workflow', () => {
       await user.click(nextButton);
 
       // Wait for new data to load
-      await waitFor(() => {
-        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Should have made additional API call with new date range
       expect(requestCount).toBeGreaterThan(initialRequestCount);

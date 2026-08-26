@@ -6,7 +6,7 @@ import {
   TimelineSeparator,
   TimelineDot,
   TimelineConnector,
-  TimelineContent
+  TimelineContent,
 } from '@mui/lab';
 import { Activity } from '../../types/profile';
 import { Box, Typography } from '@mui/material';
@@ -18,14 +18,16 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
 
   const renderTimelineItem = (activity: Activity, index: number) => {
     if (!activity) return null;
-    
+
     const Icon = getActivityIcon(activity?.type || 'default');
 
     return (
       <TimelineItem key={activity?.id || index}>
         <TimelineOppositeContent sx={{ flex: 0.2 }}>
           <Typography variant="caption" color="text.secondary">
-            {activity?.timestamp ? new Date(activity.timestamp).toLocaleString() : 'Unknown date'}
+            {activity?.timestamp
+              ? new Date(activity.timestamp).toLocaleString()
+              : 'Unknown date'}
           </Typography>
         </TimelineOppositeContent>
         <TimelineSeparator>
@@ -55,7 +57,9 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ activities }) => {
 
   return (
     <Timeline>
-      {(activities || []).map((activity, index) => renderTimelineItem(activity, index))}
+      {(activities || []).map((activity, index) =>
+        renderTimelineItem(activity, index),
+      )}
     </Timeline>
   );
 };

@@ -10,7 +10,7 @@ describe('useCommentEdit', () => {
     updated_on: new Date().toISOString(),
     task_id: 1,
     user_id: 1,
-    active: true
+    active: true,
   };
 
   const mockOnSave = jest.fn();
@@ -28,13 +28,17 @@ describe('useCommentEdit', () => {
   });
 
   it('should initialize with comment text when comment provided', () => {
-    const { result } = renderHook(() => useCommentEdit(mockComment, mockOnSave));
+    const { result } = renderHook(() =>
+      useCommentEdit(mockComment, mockOnSave),
+    );
 
     expect(result.current.editedText).toBe(mockComment.comment);
   });
 
   it('should update editedText when setEditedText is called', () => {
-    const { result } = renderHook(() => useCommentEdit(mockComment, mockOnSave));
+    const { result } = renderHook(() =>
+      useCommentEdit(mockComment, mockOnSave),
+    );
 
     act(() => {
       result.current.setEditedText('Updated text');
@@ -44,7 +48,9 @@ describe('useCommentEdit', () => {
   });
 
   it('should handle successful save', async () => {
-    const { result } = renderHook(() => useCommentEdit(mockComment, mockOnSave));
+    const { result } = renderHook(() =>
+      useCommentEdit(mockComment, mockOnSave),
+    );
 
     act(() => {
       result.current.setEditedText('Updated text');
@@ -65,7 +71,9 @@ describe('useCommentEdit', () => {
   it('should handle save error', async () => {
     const mockError = new Error('Failed to save');
     const mockOnSaveError = jest.fn().mockRejectedValue(mockError);
-    const { result } = renderHook(() => useCommentEdit(mockComment, mockOnSaveError));
+    const { result } = renderHook(() =>
+      useCommentEdit(mockComment, mockOnSaveError),
+    );
 
     await act(async () => {
       await result.current.handleSave();
@@ -76,7 +84,9 @@ describe('useCommentEdit', () => {
   });
 
   it('should reset form when resetForm is called', () => {
-    const { result } = renderHook(() => useCommentEdit(mockComment, mockOnSave));
+    const { result } = renderHook(() =>
+      useCommentEdit(mockComment, mockOnSave),
+    );
 
     act(() => {
       result.current.setEditedText('Updated text');

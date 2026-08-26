@@ -4,16 +4,22 @@ import { useAuth } from '../context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
 import { PrivateRouteProps } from '../types/admin';
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ element: Component, requiredPermission }) => {
+const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  element: Component,
+  requiredPermission,
+}) => {
   const { currentUser, hasPermission, permissionsLoading } = useAuth();
 
   if (permissionsLoading) {
     return (
-      <Box sx={{ display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <CircularProgress />
       </Box>
     );

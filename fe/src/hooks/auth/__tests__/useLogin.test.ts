@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 // Mock dependencies
 jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 
 jest.mock('../../../context/AuthContext', () => ({
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }));
 
 describe('useLogin', () => {
@@ -30,7 +30,7 @@ describe('useLogin', () => {
 
     expect(result.current.loginDetails).toEqual({
       login: '',
-      password: ''
+      password: '',
     });
     expect(result.current.error).toBe('');
   });
@@ -40,7 +40,7 @@ describe('useLogin', () => {
 
     act(() => {
       result.current.handleInputChange({
-        target: { name: 'login', value: 'testuser' }
+        target: { name: 'login', value: 'testuser' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -53,10 +53,10 @@ describe('useLogin', () => {
     // Set login details
     act(() => {
       result.current.handleInputChange({
-        target: { name: 'login', value: 'testuser' }
+        target: { name: 'login', value: 'testuser' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'password', value: 'password123' }
+        target: { name: 'password', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -65,7 +65,7 @@ describe('useLogin', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: () => {}
+        preventDefault: () => {},
       } as React.FormEvent<HTMLFormElement>);
     });
 
@@ -78,7 +78,7 @@ describe('useLogin', () => {
     // Mock failed login - login() returns false and context provides error
     (useAuth as jest.Mock).mockReturnValue({
       login: mockLogin,
-      error: 'Login failed. Please check your credentials.'
+      error: 'Login failed. Please check your credentials.',
     });
     mockLogin.mockResolvedValueOnce(false);
 
@@ -86,12 +86,14 @@ describe('useLogin', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: () => {}
+        preventDefault: () => {},
       } as React.FormEvent<HTMLFormElement>);
     });
 
     expect(mockNavigate).not.toHaveBeenCalled();
-    expect(result.current.error).toBe('Login failed. Please check your credentials.');
+    expect(result.current.error).toBe(
+      'Login failed. Please check your credentials.',
+    );
   });
 
   it('should prevent default form submission', async () => {
@@ -100,7 +102,7 @@ describe('useLogin', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault
+        preventDefault,
       } as unknown as React.FormEvent<HTMLFormElement>);
     });
 

@@ -4,7 +4,7 @@ import {
   getProjectMembers,
   addProjectMember,
   removeProjectMember,
-  updateProjectMember
+  updateProjectMember,
 } from '../../../api/projects';
 import { ProjectMember } from '../../../types/project';
 
@@ -19,7 +19,7 @@ describe('useProjectMembers', () => {
       created_on: '2024-01-01',
       name: 'John',
       surname: 'Doe',
-      role: 'Developer'
+      role: 'Developer',
     },
     {
       project_id: 1,
@@ -27,8 +27,8 @@ describe('useProjectMembers', () => {
       created_on: '2024-01-01',
       name: 'Jane',
       surname: 'Smith',
-      role: 'Project Manager'
-    }
+      role: 'Project Manager',
+    },
   ];
 
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('useProjectMembers', () => {
       created_on: '2024-01-01',
       name: 'Bob',
       surname: 'Johnson',
-      role: 'Developer'
+      role: 'Developer',
     };
     (addProjectMember as jest.Mock).mockResolvedValue(newMember);
     (getProjectMembers as jest.Mock)
@@ -83,7 +83,7 @@ describe('useProjectMembers', () => {
     (getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
     const updatedMember = {
       ...mockMembers[0],
-      role: 'Senior Developer'
+      role: 'Senior Developer',
     };
     (updateProjectMember as jest.Mock).mockResolvedValue(updatedMember);
 
@@ -127,7 +127,7 @@ describe('useProjectMembers', () => {
       created_on: '2024-01-01',
       name: 'Bob',
       surname: 'Johnson',
-      role: 'Developer'
+      role: 'Developer',
     };
     (addProjectMember as jest.Mock).mockResolvedValue(newMember);
     // Make getProjectMembers return the updated list after add
@@ -160,7 +160,9 @@ describe('useProjectMembers', () => {
       await result.current.loadMembers();
     });
 
-    await expect(result.current.handleMemberUpdate(1, 'Senior Developer')).rejects.toThrow('Failed to update member');
+    await expect(
+      result.current.handleMemberUpdate(1, 'Senior Developer'),
+    ).rejects.toThrow('Failed to update member');
   });
 
   it('should toggle manage members dialog', () => {

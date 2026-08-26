@@ -1,14 +1,12 @@
-import { Task } from "./task";
-import { User } from "./user";
+import { Task } from './task';
+import { User } from './user';
 import { Dayjs } from 'dayjs';
 import {
   ValidResourceInstance,
-  FormatterFn
+  FormatterFn,
 } from '@devexpress/dx-react-scheduler';
-import {
-  AppointmentTooltip
-} from '@devexpress/dx-react-scheduler-material-ui';
-import { TimeLog, TimeLogCreate } from "./timeLog";
+import { AppointmentTooltip } from '@devexpress/dx-react-scheduler-material-ui';
+import { TimeLog, TimeLogCreate } from './timeLog';
 
 export interface Project {
   id: number;
@@ -173,7 +171,7 @@ export type AppointmentComponentProps = {
   draggable: boolean;
   resources: ValidResourceInstance[];
   [key: string]: any;
-}
+};
 
 export type AppointmentContentComponentProps = {
   children?: React.ReactNode;
@@ -185,11 +183,11 @@ export type AppointmentContentComponentProps = {
   recurringIconComponent: React.ComponentType<object>;
   resources: ValidResourceInstance[];
   [key: string]: any;
-}
+};
 
 export type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
   appointmentData: FormattedTask;
-}
+};
 
 export interface ProjectActionsProps {
   canEdit: boolean;
@@ -263,9 +261,14 @@ export interface ProjectDetailsFormProps {
   parentId: string | null;
   statuses?: ProjectStatus[];
   statusesLoading?: boolean;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   handleStatusChange: (event: any) => void;
-  handleDateChange: (field: 'start_date' | 'due_date', newValue: Dayjs | null) => void;
+  handleDateChange: (
+    field: 'start_date' | 'due_date',
+    newValue: Dayjs | null,
+  ) => void;
   handleParentChange: (e: any) => void;
   handleCancel: () => void;
   onSubmit: () => void;

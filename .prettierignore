@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+coverage
+db/db_data
+db/backup
+uploads
+*.min.js
+*.log
+yarn.lock
+package-lock.json

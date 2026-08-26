@@ -53,6 +53,6 @@ export const useNavigation = () => {
 
   return {
     activeTab,
-    handleTabChange
+    handleTabChange,
   };
 };

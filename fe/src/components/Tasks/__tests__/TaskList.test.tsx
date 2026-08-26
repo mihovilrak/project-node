@@ -16,12 +16,12 @@ const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
 const mockedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate
+  useNavigate: () => mockedNavigate,
 }));
 
 // Mock usePermission to always grant permission
 jest.mock('../../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 // Mock sample tasks
@@ -52,7 +52,7 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Creator 1',
     created_on: '2023-01-01',
-    estimated_time: 8
+    estimated_time: 8,
   },
   {
     id: 2,
@@ -80,8 +80,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'Creator 1',
     created_on: '2023-01-01',
-    estimated_time: 8
-  }
+    estimated_time: 8,
+  },
 ];
 
 const renderTaskList = () => {
@@ -90,7 +90,7 @@ const renderTaskList = () => {
       <MemoryRouter>
         <TaskList />
       </MemoryRouter>
-    </AuthProvider>
+    </AuthProvider>,
   );
 };
 
@@ -133,7 +133,9 @@ describe('TaskList Component', () => {
 
     // Wait for delete confirmation dialog to appear
     await waitFor(() => {
-      expect(screen.getByText(/Are you sure you want to delete task/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete task/),
+      ).toBeInTheDocument();
     });
 
     // Click confirm button in dialog
@@ -181,9 +183,15 @@ describe('TaskList Component', () => {
 
     renderTaskList();
 
-    await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to fetch tasks:', expect.any(Error));
-    }, { timeout: 8000 });
+    await waitFor(
+      () => {
+        expect(logger.error).toHaveBeenCalledWith(
+          'Failed to fetch tasks:',
+          expect.any(Error),
+        );
+      },
+      { timeout: 8000 },
+    );
   });
 
   test('renders correct chip colors based on status and priority', async () => {
@@ -193,10 +201,14 @@ describe('TaskList Component', () => {
     await waitFor(() => {
       // Get all Chip roots by their label text, then go up to the parent (Chip root)
       const statusChipLabels = screen.getAllByText(/Done|In Progress/);
-      const priorityChipLabels = screen.getAllByText(/High\/Should|Normal\/Could/);
+      const priorityChipLabels = screen.getAllByText(
+        /High\/Should|Normal\/Could/,
+      );
       // The parentElement of the label span is the Chip root
-      const statusChips = statusChipLabels.map(label => label.parentElement);
-      const priorityChips = priorityChipLabels.map(label => label.parentElement);
+      const statusChips = statusChipLabels.map((label) => label.parentElement);
+      const priorityChips = priorityChipLabels.map(
+        (label) => label.parentElement,
+      );
       expect(statusChips[1]).toHaveClass('MuiChip-colorSuccess'); // Done status
       expect(priorityChips[0]).toHaveClass('MuiChip-colorWarning'); // High/Should priority
     });

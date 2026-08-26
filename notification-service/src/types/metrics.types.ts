@@ -1,4 +1,5 @@
-export type MetricType = 'notificationsSent' | 'emailErrors' | 'notificationErrors';
+export type MetricType =
+  'notificationsSent' | 'emailErrors' | 'notificationErrors';
 
 export interface Metrics {
   notificationsSent: number;

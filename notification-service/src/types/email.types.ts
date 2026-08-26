@@ -22,7 +22,18 @@ export interface EmailService {
   templates: EmailTemplates;
   initializeTemplates(): Promise<void>;
   loadTemplate(name: string): Promise<TemplateDelegate>;
-  sendEmail(to: string, subject: string, templateName: string, data: any): Promise<EmailInfo | void>;
-  sendEmailWithRetry(to: string, subject: string, templateName: string, data: any, retries?: number): Promise<EmailInfo | void>;
+  sendEmail(
+    to: string,
+    subject: string,
+    templateName: string,
+    data: any,
+  ): Promise<EmailInfo | void>;
+  sendEmailWithRetry(
+    to: string,
+    subject: string,
+    templateName: string,
+    data: any,
+    retries?: number,
+  ): Promise<EmailInfo | void>;
   validateTemplate(name: string): Promise<boolean>;
 }

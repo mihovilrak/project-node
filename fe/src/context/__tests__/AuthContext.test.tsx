@@ -11,7 +11,11 @@ jest.mock('../../api/api', () => ({
   },
 }));
 
-const TestComponent = ({ children }: { children: (auth: any) => ReactNode }) => {
+const TestComponent = ({
+  children,
+}: {
+  children: (auth: any) => ReactNode;
+}) => {
   const auth = useAuth();
   return <div data-testid="test-component">{children(auth)}</div>;
 };
@@ -28,7 +32,7 @@ describe('AuthContext', () => {
     { permission: 'Log time' },
     { permission: 'Edit log' },
     { permission: 'Delete log' },
-    { permission: 'Delete files' }
+    { permission: 'Delete files' },
   ];
 
   beforeEach(() => {
@@ -44,11 +48,13 @@ describe('AuthContext', () => {
           {(auth) => (
             <>
               <div data-testid="user">{JSON.stringify(auth.currentUser)}</div>
-              <div data-testid="permissions">{JSON.stringify(auth.userPermissions)}</div>
+              <div data-testid="permissions">
+                {JSON.stringify(auth.userPermissions)}
+              </div>
             </>
           )}
         </TestComponent>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -70,14 +76,16 @@ describe('AuthContext', () => {
         <TestComponent>
           {(auth) => (
             <div data-testid="auth-state">
-              <button onClick={() => auth.login('admin', 'password')}>Login</button>
+              <button onClick={() => auth.login('admin', 'password')}>
+                Login
+              </button>
               <div data-testid="admin-permission">
                 {auth.hasPermission('Admin').toString()}
               </div>
             </div>
           )}
         </TestComponent>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await userEvent.click(screen.getByText('Login'));
@@ -114,13 +122,14 @@ describe('AuthContext', () => {
             </div>
           )}
         </TestComponent>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
       mockPermissions.forEach(({ permission }) => {
-        expect(screen.getByTestId(`permission-${permission}`).textContent)
-          .toBe('true');
+        expect(screen.getByTestId(`permission-${permission}`).textContent).toBe(
+          'true',
+        );
       });
     }); // waitFor ensures all state is updated
   });
@@ -131,11 +140,9 @@ describe('AuthContext', () => {
     render(
       <AuthProvider>
         <TestComponent>
-          {(auth) => (
-            <button onClick={() => auth.logout()}>Logout</button>
-          )}
+          {(auth) => <button onClick={() => auth.logout()}>Logout</button>}
         </TestComponent>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await userEvent.click(screen.getByText('Logout'));
@@ -144,27 +151,34 @@ describe('AuthContext', () => {
   });
 
   it('should handle login errors', async () => {
-    (api.post as jest.Mock).mockRejectedValueOnce(new Error('Invalid credentials'));
-    (api.get as jest.Mock).mockImplementation(() => Promise.resolve({ data: [] }));
+    (api.post as jest.Mock).mockRejectedValueOnce(
+      new Error('Invalid credentials'),
+    );
+    (api.get as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ data: [] }),
+    );
 
     render(
       <AuthProvider>
         <TestComponent>
           {(auth) => (
             <>
-              <button onClick={() => auth.login('bad', 'credentials')}>Login</button>
+              <button onClick={() => auth.login('bad', 'credentials')}>
+                Login
+              </button>
               <div data-testid="error">{auth.error || ''}</div>
             </>
           )}
         </TestComponent>
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await userEvent.click(screen.getByText('Login'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('error').textContent)
-        .toBe('Login failed. Please check your credentials.');
+      expect(screen.getByTestId('error').textContent).toBe(
+        'Login failed. Please check your credentials.',
+      );
     });
   });
 });

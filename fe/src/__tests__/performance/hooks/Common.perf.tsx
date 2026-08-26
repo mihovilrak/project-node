@@ -14,7 +14,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`${id} - ${phase}:`);
   console.log(`Actual duration: ${actualDuration.toFixed(2)}ms`);
@@ -34,12 +34,15 @@ const measureHookPerformance = (useHook: Function, props: any = {}) => {
 
   render(
     <TestWrapper>
-      <Profiler id={useHook.name} onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id={useHook.name}
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <TestComponent />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -48,7 +51,10 @@ const measureHookPerformance = (useHook: Function, props: any = {}) => {
 describe('Common Hooks Performance Tests', () => {
   describe('usePermission Performance Tests', () => {
     test('usePermission initial render performance', () => {
-      const renderTime = measureHookPerformance(usePermission, 'test.permission');
+      const renderTime = measureHookPerformance(
+        usePermission,
+        'test.permission',
+      );
       expect(renderTime).toBeLessThan(100); // Expect render to take less than 100ms
     });
 
@@ -71,12 +77,12 @@ describe('Common Hooks Performance Tests', () => {
           >
             <TestComponent />
           </Profiler>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       await act(async () => {
         // Trigger a permission check update
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       });
 
       expect(updateTime).toBeLessThan(50); // Expect updates to be faster than initial render
@@ -90,14 +96,24 @@ describe('Common Hooks Performance Tests', () => {
     const type = 'tasks' as const;
 
     test('useFilterPanel initial render performance', () => {
-      const renderTime = measureHookPerformance(useFilterPanel, [mockFilters, mockOnFilterChange, mockOptions, type]);
+      const renderTime = measureHookPerformance(useFilterPanel, [
+        mockFilters,
+        mockOnFilterChange,
+        mockOptions,
+        type,
+      ]);
       expect(renderTime).toBeLessThan(100);
     });
 
     test('useFilterPanel state update performance', () => {
       let updateTime = 0;
       const TestComponent = () => {
-        const { expanded, setExpanded, handleFilterChange } = useFilterPanel(mockFilters, mockOnFilterChange, mockOptions, type);
+        const { expanded, setExpanded, handleFilterChange } = useFilterPanel(
+          mockFilters,
+          mockOnFilterChange,
+          mockOptions,
+          type,
+        );
         React.useEffect(() => {
           setExpanded(true);
           handleFilterChange('status_id', 1);
@@ -117,7 +133,7 @@ describe('Common Hooks Performance Tests', () => {
           >
             <TestComponent />
           </Profiler>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(updateTime).toBeLessThan(50);
@@ -129,14 +145,20 @@ describe('Common Hooks Performance Tests', () => {
     const mockOnClose = jest.fn();
 
     test('useDeleteConfirm initial render performance', () => {
-      const renderTime = measureHookPerformance(useDeleteConfirm, [mockOnConfirm, mockOnClose]);
+      const renderTime = measureHookPerformance(useDeleteConfirm, [
+        mockOnConfirm,
+        mockOnClose,
+      ]);
       expect(renderTime).toBeLessThan(100);
     });
 
     test('useDeleteConfirm state update performance', () => {
       let updateTime = 0;
       const TestComponent = () => {
-        const { isDeleting, handleConfirm } = useDeleteConfirm(mockOnConfirm, mockOnClose);
+        const { isDeleting, handleConfirm } = useDeleteConfirm(
+          mockOnConfirm,
+          mockOnClose,
+        );
         React.useEffect(() => {
           handleConfirm();
         }, []);
@@ -155,7 +177,7 @@ describe('Common Hooks Performance Tests', () => {
           >
             <TestComponent />
           </Profiler>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(updateTime).toBeLessThan(50);

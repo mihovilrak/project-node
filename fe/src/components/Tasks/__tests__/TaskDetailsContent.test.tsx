@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import TaskDetailsContent from '../TaskDetailsContent';
-import { Task} from '../../../types/task';
+import { Task } from '../../../types/task';
 import { TimeLog } from '../../../types/timeLog';
 import { Comment } from '../../../types/comment';
 
@@ -14,16 +14,23 @@ jest.mock('../SubtaskList', () => ({
         <div key={subtask.id} data-testid={`subtask-${subtask.id}`}>
           {subtask.name}
           <button onClick={() => onSubtaskDeleted(subtask.id)}>Delete</button>
-          <button onClick={() => onSubtaskUpdated(subtask.id, subtask)}>Update</button>
+          <button onClick={() => onSubtaskUpdated(subtask.id, subtask)}>
+            Update
+          </button>
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 jest.mock('../TaskTimeLogging', () => ({
   __esModule: true,
-  default: ({ timeLogs, onTimeLogSubmit, onTimeLogDelete, onTimeLogEdit }: any) => (
+  default: ({
+    timeLogs,
+    onTimeLogSubmit,
+    onTimeLogDelete,
+    onTimeLogEdit,
+  }: any) => (
     <div data-testid="time-logging">
       {timeLogs.map((log: TimeLog) => (
         <div key={log.id} data-testid={`time-log-${log.id}`}>
@@ -33,7 +40,7 @@ jest.mock('../TaskTimeLogging', () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 jest.mock('../TaskCommentSection', () => ({
@@ -47,7 +54,7 @@ jest.mock('../TaskCommentSection', () => ({
         </div>
       ))}
     </div>
-  )
+  ),
 }));
 
 const mockTask: Task = {
@@ -76,12 +83,12 @@ const mockTask: Task = {
   created_by: 1,
   created_by_name: 'Test Creator',
   created_on: '2023-01-01',
-  estimated_time: 8
+  estimated_time: 8,
 };
 
 const mockSubtasks: Task[] = [
   { ...mockTask, id: 2, name: 'Subtask 1', parent_id: 1 },
-  { ...mockTask, id: 3, name: 'Subtask 2', parent_id: 1 }
+  { ...mockTask, id: 3, name: 'Subtask 2', parent_id: 1 },
 ];
 
 const mockTimeLogs: TimeLog[] = [
@@ -94,7 +101,7 @@ const mockTimeLogs: TimeLog[] = [
     log_date: '2024-03-20',
     description: 'Work on feature',
     created_on: '2024-03-20T10:00:00Z',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -105,8 +112,8 @@ const mockTimeLogs: TimeLog[] = [
     log_date: '2024-03-21',
     description: 'Continue work',
     created_on: '2024-03-21T10:00:00Z',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockComments: Comment[] = [
@@ -118,7 +125,7 @@ const mockComments: Comment[] = [
     user_name: 'John Doe',
     created_on: '2024-03-20T10:00:00Z',
     updated_on: null,
-    active: true
+    active: true,
   },
   {
     id: 2,
@@ -128,8 +135,8 @@ const mockComments: Comment[] = [
     user_name: 'John Doe',
     created_on: '2024-03-21T10:00:00Z',
     updated_on: null,
-    active: true
-  }
+    active: true,
+  },
 ];
 
 const mockProps = {
@@ -153,7 +160,7 @@ const mockProps = {
   onEditStart: jest.fn(),
   onEditEnd: jest.fn(),
   onAddSubtaskClick: jest.fn(),
-  onTimeLogClick: jest.fn()
+  onTimeLogClick: jest.fn(),
 };
 
 describe('TaskDetailsContent', () => {
@@ -177,7 +184,7 @@ describe('TaskDetailsContent', () => {
     const subtaskList = screen.getByTestId('subtask-list');
     expect(subtaskList).toBeInTheDocument();
 
-    mockSubtasks.forEach(subtask => {
+    mockSubtasks.forEach((subtask) => {
       expect(screen.getByTestId(`subtask-${subtask.id}`)).toBeInTheDocument();
     });
   });
@@ -188,7 +195,7 @@ describe('TaskDetailsContent', () => {
     const timeLogging = screen.getByTestId('time-logging');
     expect(timeLogging).toBeInTheDocument();
 
-    mockTimeLogs.forEach(log => {
+    mockTimeLogs.forEach((log) => {
       expect(screen.getByTestId(`time-log-${log.id}`)).toBeInTheDocument();
     });
   });
@@ -199,7 +206,7 @@ describe('TaskDetailsContent', () => {
     const commentSection = screen.getByTestId('comment-section');
     expect(commentSection).toBeInTheDocument();
 
-    mockComments.forEach(comment => {
+    mockComments.forEach((comment) => {
       expect(screen.getByTestId(`comment-${comment.id}`)).toBeInTheDocument();
     });
   });

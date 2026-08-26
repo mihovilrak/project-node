@@ -19,7 +19,7 @@ import {
   Divider,
   Grid,
   Autocomplete,
-  ListSubheader
+  ListSubheader,
 } from '@mui/material';
 import {
   FormatBold,
@@ -28,14 +28,20 @@ import {
   LooksOne,
   LooksTwo,
   Looks3,
-  Send as SendIcon
+  Send as SendIcon,
 } from '@mui/icons-material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
 import { sanitizeHtml } from '../../utils/sanitize';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
-import { testSmtpConnection, SmtpTestResult, getEnvSettings, updateEnvSettings, EnvEntry } from '../../api/settings';
+import {
+  testSmtpConnection,
+  SmtpTestResult,
+  getEnvSettings,
+  updateEnvSettings,
+  EnvEntry,
+} from '../../api/settings';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -46,19 +52,11 @@ interface TabPanelProps {
 const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+    <div role="tabpanel" hidden={value !== index} {...other}>
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
-}
+};
 
 const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) {
@@ -97,8 +95,12 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 1">
         <IconButton
           size="small"
-          color={editor.isActive('heading', { level: 1 }) ? 'primary' : 'default'}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          color={
+            editor.isActive('heading', { level: 1 }) ? 'primary' : 'default'
+          }
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
         >
           <LooksOne />
         </IconButton>
@@ -106,8 +108,12 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 2">
         <IconButton
           size="small"
-          color={editor.isActive('heading', { level: 2 }) ? 'primary' : 'default'}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          color={
+            editor.isActive('heading', { level: 2 }) ? 'primary' : 'default'
+          }
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
         >
           <LooksTwo />
         </IconButton>
@@ -115,8 +121,12 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 3">
         <IconButton
           size="small"
-          color={editor.isActive('heading', { level: 3 }) ? 'primary' : 'default'}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          color={
+            editor.isActive('heading', { level: 3 }) ? 'primary' : 'default'
+          }
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
         >
           <Looks3 />
         </IconButton>
@@ -126,20 +136,38 @@ const MenuBar = ({ editor }: { editor: any }) => {
 };
 
 const SystemSettings: React.FC = () => {
-  const { state, timezones, timezonesLoading, timezonesError, handleSubmit, handleChange } = useSystemSettings();
+  const {
+    state,
+    timezones,
+    timezonesLoading,
+    timezonesError,
+    handleSubmit,
+    handleChange,
+  } = useSystemSettings();
   const [tabValue, setTabValue] = React.useState(0);
   const [smtpTestEmail, setSmtpTestEmail] = React.useState('');
   const [smtpTestLoading, setSmtpTestLoading] = React.useState(false);
-  const [smtpTestResult, setSmtpTestResult] = React.useState<SmtpTestResult | null>(null);
+  const [smtpTestResult, setSmtpTestResult] =
+    React.useState<SmtpTestResult | null>(null);
   const [envEntries, setEnvEntries] = React.useState<EnvEntry[]>([]);
   const [envLoading, setEnvLoading] = React.useState(false);
   const [envError, setEnvError] = React.useState<string | null>(null);
   const [envSaving, setEnvSaving] = React.useState(false);
   const [envSuccess, setEnvSuccess] = React.useState<string | null>(null);
   const [envEdits, setEnvEdits] = React.useState<Record<string, string>>({});
-  const [envValidation, setEnvValidation] = React.useState<Record<string, string>>({});
+  const [envValidation, setEnvValidation] = React.useState<
+    Record<string, string>
+  >({});
 
-  const EDITABLE_KEYS = ['PORT', 'FE_URL', 'LOG_LEVEL', 'EMAIL_ENABLED', 'EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_FROM'];
+  const EDITABLE_KEYS = [
+    'PORT',
+    'FE_URL',
+    'LOG_LEVEL',
+    'EMAIL_ENABLED',
+    'EMAIL_HOST',
+    'EMAIL_PORT',
+    'EMAIL_FROM',
+  ];
   const LOG_LEVEL_OPTIONS = ['error', 'warn', 'info', 'debug'];
 
   const validateEnvValue = (key: string, value: string): string | null => {
@@ -159,12 +187,14 @@ const SystemSettings: React.FC = () => {
         }
         return null;
       case 'EMAIL_ENABLED':
-        if (v !== '' && v !== 'true' && v !== 'false') return 'Must be true or false';
+        if (v !== '' && v !== 'true' && v !== 'false')
+          return 'Must be true or false';
         return null;
       case 'FE_URL':
       case 'EMAIL_HOST':
       case 'EMAIL_FROM':
-        if (v.length === 0 && EDITABLE_KEYS.includes(key)) return 'Cannot be empty';
+        if (v.length === 0 && EDITABLE_KEYS.includes(key))
+          return 'Cannot be empty';
         return null;
       default:
         return null;
@@ -174,7 +204,9 @@ const SystemSettings: React.FC = () => {
   const handleEnvEdit = (key: string, value: string) => {
     setEnvEdits((prev) => ({ ...prev, [key]: value }));
     const err = validateEnvValue(key, value);
-    setEnvValidation((prev) => (err ? { ...prev, [key]: err } : { ...prev, [key]: '' }));
+    setEnvValidation((prev) =>
+      err ? { ...prev, [key]: err } : { ...prev, [key]: '' },
+    );
   };
 
   const handleSaveEnv = async () => {
@@ -198,7 +230,9 @@ const SystemSettings: React.FC = () => {
       await updateEnvSettings(updates);
       setEnvEdits({});
       setEnvValidation({});
-      setEnvSuccess('Environment variables updated. Changes are applied in the container.');
+      setEnvSuccess(
+        'Environment variables updated. Changes are applied in the container.',
+      );
       await loadEnvSettings();
     } catch {
       setEnvError('Failed to update environment variables.');
@@ -209,7 +243,10 @@ const SystemSettings: React.FC = () => {
 
   const handleSmtpTest = async () => {
     if (!smtpTestEmail) {
-      setSmtpTestResult({ success: false, message: 'Please enter an email address' });
+      setSmtpTestResult({
+        success: false,
+        message: 'Please enter an email address',
+      });
       return;
     }
 
@@ -220,26 +257,26 @@ const SystemSettings: React.FC = () => {
       const result = await testSmtpConnection(smtpTestEmail);
       setSmtpTestResult(result);
     } catch (error) {
-      setSmtpTestResult({ success: false, message: 'Failed to test SMTP connection' });
+      setSmtpTestResult({
+        success: false,
+        message: 'Failed to test SMTP connection',
+      });
     } finally {
       setSmtpTestLoading(false);
     }
   };
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline
-    ],
+    extensions: [StarterKit, Underline],
     content: state.settings.welcome_message || '',
     onUpdate: ({ editor }) => {
       handleChange({
         target: {
           name: 'welcome_message',
-          value: editor.getHTML()
-        }
+          value: editor.getHTML(),
+        },
       } as React.ChangeEvent<HTMLInputElement>);
-    }
+    },
   });
 
   React.useEffect(() => {
@@ -263,8 +300,8 @@ const SystemSettings: React.FC = () => {
     handleChange({
       target: {
         name: 'theme',
-        value: event.target.value
-      }
+        value: event.target.value,
+      },
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
@@ -344,19 +381,25 @@ const SystemSettings: React.FC = () => {
                 groupBy={(option) => option.region}
                 renderGroup={(params) => (
                   <React.Fragment key={params.key}>
-                    <ListSubheader sx={{ fontWeight: 700 }}>{params.group}</ListSubheader>
+                    <ListSubheader sx={{ fontWeight: 700 }}>
+                      {params.group}
+                    </ListSubheader>
                     {params.children}
                   </React.Fragment>
                 )}
                 getOptionLabel={(option) => option.label}
-                value={timezones.find((tz) => tz.name === state.settings.time_zone) || null}
+                value={
+                  timezones.find(
+                    (tz) => tz.name === state.settings.time_zone,
+                  ) || null
+                }
                 onChange={(_, newValue) => {
                   const value = newValue?.name || '';
                   handleChange({
                     target: {
                       name: 'time_zone',
-                      value
-                    }
+                      value,
+                    },
                   } as React.ChangeEvent<HTMLInputElement>);
                 }}
                 renderInput={(params) => (
@@ -395,33 +438,43 @@ const SystemSettings: React.FC = () => {
                   </Tabs>
                 </Box>
                 <TabPanel value={tabValue} index={0}>
-                  <Box sx={{
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    bgcolor: 'background.paper',
-                    '.ProseMirror': {
-                      minHeight: '200px',
-                      padding: 2,
-                      '&:focus': {
-                        outline: 'none'
-                      }
-                    }
-                  }}>
+                  <Box
+                    sx={{
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      bgcolor: 'background.paper',
+                      '.ProseMirror': {
+                        minHeight: '200px',
+                        padding: 2,
+                        '&:focus': {
+                          outline: 'none',
+                        },
+                      },
+                    }}
+                  >
                     <MenuBar editor={editor} />
                     <EditorContent editor={editor} />
                   </Box>
                 </TabPanel>
                 <TabPanel value={tabValue} index={1}>
-                  <Box sx={{
-                    p: 2,
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    minHeight: '200px',
-                    bgcolor: 'background.paper'
-                  }}>
-                    <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(state.settings.welcome_message ?? '') }} />
+                  <Box
+                    sx={{
+                      p: 2,
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      minHeight: '200px',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(
+                          state.settings.welcome_message ?? '',
+                        ),
+                      }}
+                    />
                   </Box>
                 </TabPanel>
               </Box>
@@ -445,7 +498,8 @@ const SystemSettings: React.FC = () => {
               Test Email Configuration
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Send a test email to verify your SMTP configuration is working correctly.
+              Send a test email to verify your SMTP configuration is working
+              correctly.
             </Typography>
 
             {smtpTestResult && (
@@ -475,7 +529,13 @@ const SystemSettings: React.FC = () => {
                 color="primary"
                 onClick={handleSmtpTest}
                 disabled={smtpTestLoading || !smtpTestEmail}
-                startIcon={smtpTestLoading ? <CircularProgress size={20} /> : <SendIcon />}
+                startIcon={
+                  smtpTestLoading ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <SendIcon />
+                  )
+                }
                 data-testid="smtp-test-button"
               >
                 {smtpTestLoading ? 'Sending...' : 'Send Test Email'}
@@ -490,15 +550,24 @@ const SystemSettings: React.FC = () => {
               Environment Variables
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Editable configuration. Changes update the .env file in the container. Passwords and secrets are not displayed.
+              Editable configuration. Changes update the .env file in the
+              container. Passwords and secrets are not displayed.
             </Typography>
             {envError && (
-              <Alert severity="error" sx={{ mb: 2 }} onClose={() => setEnvError(null)}>
+              <Alert
+                severity="error"
+                sx={{ mb: 2 }}
+                onClose={() => setEnvError(null)}
+              >
                 {envError}
               </Alert>
             )}
             {envSuccess && (
-              <Alert severity="success" sx={{ mb: 2 }} onClose={() => setEnvSuccess(null)}>
+              <Alert
+                severity="success"
+                sx={{ mb: 2 }}
+                onClose={() => setEnvSuccess(null)}
+              >
                 {envSuccess}
               </Alert>
             )}
@@ -509,20 +578,36 @@ const SystemSettings: React.FC = () => {
             ) : envEntries.length > 0 ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {envEntries.map((entry) => {
-                  const isEditable = EDITABLE_KEYS.includes(entry.key) && !entry.masked;
-                  const displayValue = envEdits[entry.key] !== undefined ? envEdits[entry.key] : (entry.masked ? '****' : entry.value);
+                  const isEditable =
+                    EDITABLE_KEYS.includes(entry.key) && !entry.masked;
+                  const displayValue =
+                    envEdits[entry.key] !== undefined
+                      ? envEdits[entry.key]
+                      : entry.masked
+                        ? '****'
+                        : entry.value;
                   const error = envValidation[entry.key];
                   return (
                     <Box key={entry.key}>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mb: 0.5 }}
+                      >
                         {entry.key}
                       </Typography>
                       {isEditable ? (
                         entry.key === 'LOG_LEVEL' ? (
-                          <FormControl fullWidth size="small" error={Boolean(error)}>
+                          <FormControl
+                            fullWidth
+                            size="small"
+                            error={Boolean(error)}
+                          >
                             <Select
                               value={displayValue || ''}
-                              onChange={(e) => handleEnvEdit(entry.key, e.target.value)}
+                              onChange={(e) =>
+                                handleEnvEdit(entry.key, e.target.value)
+                              }
                               displayEmpty
                             >
                               {LOG_LEVEL_OPTIONS.map((opt) => (
@@ -531,34 +616,77 @@ const SystemSettings: React.FC = () => {
                                 </MenuItem>
                               ))}
                             </Select>
-                            {error && <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>{error}</Typography>}
+                            {error && (
+                              <Typography
+                                variant="caption"
+                                color="error"
+                                sx={{ mt: 0.5 }}
+                              >
+                                {error}
+                              </Typography>
+                            )}
                           </FormControl>
                         ) : entry.key === 'EMAIL_ENABLED' ? (
-                          <FormControl fullWidth size="small" error={Boolean(error)}>
+                          <FormControl
+                            fullWidth
+                            size="small"
+                            error={Boolean(error)}
+                          >
                             <Select
-                              value={displayValue === 'true' || displayValue === 'false' ? displayValue : ''}
-                              onChange={(e) => handleEnvEdit(entry.key, e.target.value)}
+                              value={
+                                displayValue === 'true' ||
+                                displayValue === 'false'
+                                  ? displayValue
+                                  : ''
+                              }
+                              onChange={(e) =>
+                                handleEnvEdit(entry.key, e.target.value)
+                              }
                               displayEmpty
                             >
                               <MenuItem value="true">true</MenuItem>
                               <MenuItem value="false">false</MenuItem>
                             </Select>
-                            {error && <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>{error}</Typography>}
+                            {error && (
+                              <Typography
+                                variant="caption"
+                                color="error"
+                                sx={{ mt: 0.5 }}
+                              >
+                                {error}
+                              </Typography>
+                            )}
                           </FormControl>
                         ) : (
                           <TextField
                             fullWidth
                             size="small"
                             value={displayValue}
-                            onChange={(e) => handleEnvEdit(entry.key, e.target.value)}
-                            onBlur={() => validateEnvValue(entry.key, envEdits[entry.key] ?? entry.value)}
+                            onChange={(e) =>
+                              handleEnvEdit(entry.key, e.target.value)
+                            }
+                            onBlur={() =>
+                              validateEnvValue(
+                                entry.key,
+                                envEdits[entry.key] ?? entry.value,
+                              )
+                            }
                             error={Boolean(error)}
                             helperText={error}
-                            type={entry.key === 'PORT' || entry.key === 'EMAIL_PORT' ? 'number' : 'text'}
+                            type={
+                              entry.key === 'PORT' || entry.key === 'EMAIL_PORT'
+                                ? 'number'
+                                : 'text'
+                            }
                           />
                         )
                       ) : (
-                        <TextField fullWidth size="small" value={displayValue} disabled />
+                        <TextField
+                          fullWidth
+                          size="small"
+                          value={displayValue}
+                          disabled
+                        />
                       )}
                     </Box>
                   );
@@ -573,8 +701,13 @@ const SystemSettings: React.FC = () => {
                   {envSaving ? 'Saving...' : 'Save env changes'}
                 </Button>
               </Box>
-            ) : !envError && !envLoading && (
-              <Typography color="text.secondary">No environment variables available.</Typography>
+            ) : (
+              !envError &&
+              !envLoading && (
+                <Typography color="text.secondary">
+                  No environment variables available.
+                </Typography>
+              )
             )}
           </Box>
         </Grid>

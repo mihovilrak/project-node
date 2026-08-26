@@ -2,14 +2,20 @@ import { Pool } from 'pg';
 import * as watcherModel from '../watcherModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: any[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: any[]) => ({
+  rows,
+  rowCount: rows.length,
+  command: '',
+  oid: 0,
+  fields: [],
+});
 
 describe('WatcherModel', () => {
   let mockPool: jest.Mocked<Pool>;
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -17,13 +23,15 @@ describe('WatcherModel', () => {
   describe('getTaskWatchers', () => {
     it('should return task watchers', async () => {
       const mockWatchers = [{ task_id: '1', user_id: '1', name: 'User 1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockWatchers));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockWatchers),
+      );
 
       const result = await watcherModel.getTaskWatchers(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_task_watchers'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockWatchers);
     });
@@ -32,13 +40,15 @@ describe('WatcherModel', () => {
   describe('addTaskWatcher', () => {
     it('should add a task watcher', async () => {
       const mockWatcher = { task_id: '1', user_id: '2' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockWatcher]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockWatcher]),
+      );
 
       const result = await watcherModel.addTaskWatcher(mockPool, '1', '2');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO watchers'),
-        ['1', '2']
+        ['1', '2'],
       );
       expect(result).toEqual(mockWatcher);
     });
@@ -60,7 +70,7 @@ describe('WatcherModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('DELETE FROM watchers'),
-        ['1', '2']
+        ['1', '2'],
       );
       expect(result).toBe(1);
     });

@@ -14,7 +14,7 @@ const TaskTimeLogging: React.FC<TaskTimeLoggingProps> = ({
   onTimeLogSubmit,
   onTimeLogDelete,
   onTimeLogEdit,
-  onTimeLogDialogClose
+  onTimeLogDialogClose,
 }) => {
   return (
     <Paper sx={{ p: 2, mb: 2 }}>

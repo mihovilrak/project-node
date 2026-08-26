@@ -10,22 +10,26 @@ jest.mock('../../../hooks/setting/useTypesAndRoles');
 // Mock the child components
 jest.mock('../TaskTypesTable', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-types-table">TaskTypesTable</div>
+  default: () => <div data-testid="task-types-table">TaskTypesTable</div>,
 }));
 
 jest.mock('../ActivityTypesTable', () => ({
   __esModule: true,
-  default: () => <div data-testid="activity-types-table">ActivityTypesTable</div>
+  default: () => (
+    <div data-testid="activity-types-table">ActivityTypesTable</div>
+  ),
 }));
 
 jest.mock('../RolesTable', () => ({
   __esModule: true,
-  default: () => <div data-testid="roles-table">RolesTable</div>
+  default: () => <div data-testid="roles-table">RolesTable</div>,
 }));
 
 jest.mock('../TypesAndRolesDialog', () => ({
   __esModule: true,
-  TypesAndRolesDialog: () => <div data-testid="types-and-roles-dialog">Dialog</div>
+  TypesAndRolesDialog: () => (
+    <div data-testid="types-and-roles-dialog">Dialog</div>
+  ),
 }));
 
 describe('TypesAndRolesManager', () => {
@@ -37,7 +41,7 @@ describe('TypesAndRolesManager', () => {
     loading: false,
     error: null,
     dialogOpen: false,
-    selectedItem: null
+    selectedItem: null,
   };
 
   const mockHandlers = {
@@ -47,13 +51,13 @@ describe('TypesAndRolesManager', () => {
     handleDialogClose: jest.fn(),
     handleSave: jest.fn(),
     handleDelete: jest.fn(),
-    handleRoleUpdate: jest.fn()
+    handleRoleUpdate: jest.fn(),
   };
 
   beforeEach(() => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: mockState,
-      ...mockHandlers
+      ...mockHandlers,
     });
   });
 
@@ -76,7 +80,7 @@ describe('TypesAndRolesManager', () => {
   it('shows loading state', () => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, loading: true },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);
@@ -87,7 +91,7 @@ describe('TypesAndRolesManager', () => {
     const errorMessage = 'Test error message';
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, error: errorMessage },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);
@@ -97,7 +101,7 @@ describe('TypesAndRolesManager', () => {
   it('renders TaskTypesTable when activeTab is 0', () => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 0 },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);
@@ -107,7 +111,7 @@ describe('TypesAndRolesManager', () => {
   it('renders ActivityTypesTable when activeTab is 1', () => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 1 },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);
@@ -117,7 +121,7 @@ describe('TypesAndRolesManager', () => {
   it('renders RolesTable when activeTab is 2', () => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 2 },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);
@@ -140,7 +144,7 @@ describe('TypesAndRolesManager', () => {
     // Activity Types tab
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 1 },
-      ...mockHandlers
+      ...mockHandlers,
     });
     rerender(<TypesAndRolesManager />);
     expect(screen.getByText('Add Activity Type')).toBeInTheDocument();
@@ -148,7 +152,7 @@ describe('TypesAndRolesManager', () => {
     // Roles tab
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, activeTab: 2 },
-      ...mockHandlers
+      ...mockHandlers,
     });
     rerender(<TypesAndRolesManager />);
     expect(screen.getByText('Add Role')).toBeInTheDocument();
@@ -164,7 +168,7 @@ describe('TypesAndRolesManager', () => {
   it('renders TypesAndRolesDialog with correct props', () => {
     (useTypesAndRoles as jest.Mock).mockReturnValue({
       state: { ...mockState, dialogOpen: true },
-      ...mockHandlers
+      ...mockHandlers,
     });
 
     render(<TypesAndRolesManager />);

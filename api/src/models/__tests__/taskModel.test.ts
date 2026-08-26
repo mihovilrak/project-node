@@ -3,7 +3,7 @@ import * as taskModel from '../taskModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 describe('TaskModel', () => {
@@ -14,7 +14,7 @@ describe('TaskModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   const mockTask = {
@@ -32,12 +32,12 @@ describe('TaskModel', () => {
     assignee_id: 2,
     created_by: 1,
     created_on: new Date(),
-    updated_on: new Date()
+    updated_on: new Date(),
   };
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -45,36 +45,88 @@ describe('TaskModel', () => {
   describe('getTasks', () => {
     it('should return active tasks only when no filters (default)', async () => {
       const mockTasks = [mockTask, { ...mockTask, id: 2, name: 'Task 2' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
       const result = await taskModel.getTasks(mockPool);
 
       const expectedNoFilter = [
-        null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false,
-        null, null, null, null, null, null, null
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        true,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        expectedNoFilter
+        expectedNoFilter,
       );
       expect(result).toEqual(mockTasks);
     });
 
     it('should return tasks with filters', async () => {
       const mockTasks = [mockTask];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
       const result = await taskModel.getTasks(mockPool, {
-        whereParams: { project_id: 1, status_id: 1 }
+        whereParams: { project_id: 1, status_id: 1 },
       });
 
       const expectedWithFilter = [
-        null, 1, null, null, 1, null, null, null, false, null, null, null, null, null, null, null, null, null, false,
-        null, null, null, null, null, null, null
+        null,
+        1,
+        null,
+        null,
+        1,
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        expectedWithFilter
+        expectedWithFilter,
       );
       expect(result).toEqual(mockTasks);
     });
@@ -85,21 +137,50 @@ describe('TaskModel', () => {
       const result = await taskModel.getTasks(mockPool);
 
       const expectedNoFilter = [
-        null, null, null, null, null, null, null, null, true, null, null, null, null, null, null, null, null, null, false,
-        null, null, null, null, null, null, null
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        true,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       ];
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        expectedNoFilter
+        expectedNoFilter,
       );
       expect(result).toEqual([]);
     });
 
     it('should pass array params when filter is array', async () => {
       const mockTasks = [mockTask];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTasks),
+      );
 
-      const result = await taskModel.getTasks(mockPool, { status_id: [1, 2], priority_id: [2, 3] });
+      const result = await taskModel.getTasks(mockPool, {
+        status_id: [1, 2],
+        priority_id: [2, 3],
+      });
 
       const args = (mockPool.query as jest.Mock).mock.calls[0][1];
       expect(args[19]).toEqual([1, 2]);
@@ -110,13 +191,15 @@ describe('TaskModel', () => {
 
   describe('getTaskById', () => {
     it('should return a task by ID', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockTask]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockTask]),
+      );
 
       const result = await taskModel.getTaskById(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockTask);
     });
@@ -145,16 +228,18 @@ describe('TaskModel', () => {
         holder_id: 1,
         assignee_id: 2,
         created_by: 1,
-        tag_ids: [1, 2]
+        tag_ids: [1, 2],
       };
       const watchers = [1, 2];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([{ task_id: 1 }]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ task_id: 1 }]),
+      );
 
       const result = await taskModel.createTask(mockPool, taskData, watchers);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT * FROM create_task'),
-        expect.arrayContaining([taskData.name, taskData.description])
+        expect.arrayContaining([taskData.name, taskData.description]),
       );
       expect(result).toEqual({ task_id: 1 });
     });
@@ -163,18 +248,22 @@ describe('TaskModel', () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
       await expect(
-        taskModel.createTask(mockPool, {
-          name: 'Test',
-          start_date: new Date(),
-          due_date: new Date(),
-          priority_id: 1,
-          status_id: 1,
-          type_id: 1,
-          project_id: 1,
-          holder_id: 1,
-          assignee_id: 2,
-          created_by: 1
-        }, [1])
+        taskModel.createTask(
+          mockPool,
+          {
+            name: 'Test',
+            start_date: new Date(),
+            due_date: new Date(),
+            priority_id: 1,
+            status_id: 1,
+            type_id: 1,
+            project_id: 1,
+            holder_id: 1,
+            assignee_id: 2,
+            created_by: 1,
+          },
+          [1],
+        ),
       ).rejects.toThrow('Task creation failed - no task ID returned');
     });
   });
@@ -182,13 +271,17 @@ describe('TaskModel', () => {
   describe('updateTask', () => {
     it('should update a task', async () => {
       const updatedTask = { ...mockTask, name: 'Updated Task' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([updatedTask]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([updatedTask]),
+      );
 
-      const result = await taskModel.updateTask(mockPool, '1', { name: 'Updated Task' });
+      const result = await taskModel.updateTask(mockPool, '1', {
+        name: 'Updated Task',
+      });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tasks'),
-        ['Updated Task', '1']
+        ['Updated Task', '1'],
       );
       expect(result).toEqual(updatedTask);
     });
@@ -202,7 +295,9 @@ describe('TaskModel', () => {
     it('should return null when task not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await taskModel.updateTask(mockPool, '999', { name: 'Test' });
+      const result = await taskModel.updateTask(mockPool, '999', {
+        name: 'Test',
+      });
 
       expect(result).toBeNull();
     });
@@ -211,13 +306,15 @@ describe('TaskModel', () => {
   describe('changeTaskStatus', () => {
     it('should change task status', async () => {
       const updatedTask = { ...mockTask, status_id: 2 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([updatedTask]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([updatedTask]),
+      );
 
       const result = await taskModel.changeTaskStatus(mockPool, 1, 2);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tasks'),
-        [2, 1]
+        [2, 1],
       );
       expect(result).toEqual(updatedTask);
     });
@@ -234,13 +331,15 @@ describe('TaskModel', () => {
   describe('deleteTask', () => {
     it('should soft delete a task', async () => {
       const deletedTask = { ...mockTask, status_id: 3 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([deletedTask]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([deletedTask]),
+      );
 
       const result = await taskModel.deleteTask(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tasks'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(deletedTask);
     });
@@ -259,14 +358,16 @@ describe('TaskModel', () => {
       const mockStatuses = [
         { id: 1, name: 'To Do', color: '#2196F3' },
         { id: 2, name: 'In Progress', color: '#FF9800' },
-        { id: 3, name: 'Done', color: '#4CAF50' }
+        { id: 3, name: 'Done', color: '#4CAF50' },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockStatuses));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockStatuses),
+      );
 
       const result = await taskModel.getTaskStatuses(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, name, color')
+        expect.stringContaining('SELECT id, name, color'),
       );
       expect(result).toEqual(mockStatuses);
     });
@@ -277,14 +378,16 @@ describe('TaskModel', () => {
       const mockPriorities = [
         { id: 1, name: 'Low', color: '#4CAF50' },
         { id: 2, name: 'Medium', color: '#2196F3' },
-        { id: 3, name: 'High', color: '#FFA726' }
+        { id: 3, name: 'High', color: '#FFA726' },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockPriorities));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockPriorities),
+      );
 
       const result = await taskModel.getPriorities(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, name, color')
+        expect.stringContaining('SELECT id, name, color'),
       );
       expect(result).toEqual(mockPriorities);
     });
@@ -293,13 +396,15 @@ describe('TaskModel', () => {
   describe('getActiveTasks', () => {
     it('should return active tasks for a user', async () => {
       const activeTasks = [mockTask, { ...mockTask, id: 2 }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(activeTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(activeTasks),
+      );
 
       const result = await taskModel.getActiveTasks(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(activeTasks);
     });
@@ -316,13 +421,15 @@ describe('TaskModel', () => {
   describe('getTasksByProject', () => {
     it('should return tasks for a project', async () => {
       const projectTasks = [mockTask, { ...mockTask, id: 2 }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(projectTasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(projectTasks),
+      );
 
       const result = await taskModel.getTasksByProject(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(projectTasks);
     });
@@ -332,15 +439,17 @@ describe('TaskModel', () => {
     it('should return subtasks for a parent task', async () => {
       const subtasks = [
         { ...mockTask, id: 2, parent_id: 1 },
-        { ...mockTask, id: 3, parent_id: 1 }
+        { ...mockTask, id: 3, parent_id: 1 },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(subtasks));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(subtasks),
+      );
 
       const result = await taskModel.getSubtasks(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(subtasks);
     });

@@ -9,7 +9,7 @@ import {
   Typography,
   Paper,
   Tooltip,
-  Box
+  Box,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Delete as DeleteIcon } from '@mui/icons-material';
@@ -20,7 +20,7 @@ const WatcherList: React.FC<WatcherListProps> = ({
   watchers,
   canManageWatchers,
   onRemoveWatcher,
-  onManageWatchers
+  onManageWatchers,
 }) => {
   if (!watchers?.length) {
     return (
@@ -47,13 +47,15 @@ const WatcherList: React.FC<WatcherListProps> = ({
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3,
-        px: 2
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          px: 2,
+        }}
+      >
         <Typography variant="h5" component="h2">
           Watchers:
         </Typography>
@@ -75,17 +77,19 @@ const WatcherList: React.FC<WatcherListProps> = ({
           return (
             <ListItem key={watcher.user_id} sx={{ py: 1 }}>
               <ListItemText
-                primary={watcher.user_id ? (
-                  <Link
-                    component={RouterLink}
-                    to={`/users/${watcher.user_id}`}
-                    color="primary"
-                  >
-                    {watcher?.user_name || 'Unknown User'}
-                  </Link>
-                ) : (
-                  <span>{watcher?.user_name || 'Unknown User'}</span>
-                )}
+                primary={
+                  watcher.user_id ? (
+                    <Link
+                      component={RouterLink}
+                      to={`/users/${watcher.user_id}`}
+                      color="primary"
+                    >
+                      {watcher?.user_name || 'Unknown User'}
+                    </Link>
+                  ) : (
+                    <span>{watcher?.user_name || 'Unknown User'}</span>
+                  )
+                }
                 secondary={watcher?.role || 'No role'}
               />
               {canManageWatchers && (

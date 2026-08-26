@@ -9,12 +9,9 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { TimeLogListProps } from '../../types/timeLog';
 import PermissionButton from '../common/PermissionButton';
@@ -32,7 +29,7 @@ const formatTime = (hours: number | string): string => {
 const TimeLogList: React.FC<TimeLogListProps> = ({
   timeLogs,
   onEdit,
-  onDelete
+  onDelete,
 }) => {
   if (!timeLogs || timeLogs.length === 0) {
     return (
@@ -57,7 +54,11 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
           <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
           <TableCell sx={{ fontWeight: 600 }}>User</TableCell>
           <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
-          {(onEdit || onDelete) && <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>}
+          {(onEdit || onDelete) && (
+            <TableCell sx={{ fontWeight: 600 }} align="right">
+              Actions
+            </TableCell>
+          )}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -68,19 +69,21 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
               key={log.id}
               sx={{
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                }
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
               }}
             >
               <TableCell sx={{ whiteSpace: 'nowrap' }}>#{log.id}</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatTime(log?.spent_time || 0)} h</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                {formatTime(log?.spent_time || 0)} h
+              </TableCell>
               <TableCell>
                 <Chip
                   label={log?.activity_type_name || 'Unknown'}
                   size="small"
                   sx={{
                     backgroundColor: log?.activity_type_color || '#666',
-                    color: 'white'
+                    color: 'white',
                   }}
                 />
               </TableCell>
@@ -94,7 +97,9 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                 )}
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {log?.log_date ? new Date(log.log_date).toLocaleDateString() : '—'}
+                {log?.log_date
+                  ? new Date(log.log_date).toLocaleDateString()
+                  : '—'}
               </TableCell>
               <TableCell>
                 {log?.user_id ? (

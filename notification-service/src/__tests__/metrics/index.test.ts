@@ -45,8 +45,12 @@ describe('Metrics', () => {
       const afterTime = new Date();
 
       expect(metrics.lastProcessingTime).not.toBeNull();
-      expect(metrics.lastProcessingTime!.getTime()).toBeGreaterThanOrEqual(beforeTime.getTime());
-      expect(metrics.lastProcessingTime!.getTime()).toBeLessThanOrEqual(afterTime.getTime());
+      expect(metrics.lastProcessingTime!.getTime()).toBeGreaterThanOrEqual(
+        beforeTime.getTime(),
+      );
+      expect(metrics.lastProcessingTime!.getTime()).toBeLessThanOrEqual(
+        afterTime.getTime(),
+      );
     });
 
     it('should call scheduleLogMetrics when setting processing time', () => {
@@ -79,7 +83,7 @@ describe('Metrics', () => {
         notificationsSent: 0,
         emailErrors: 0,
         notificationErrors: 0,
-        lastProcessingTime: null
+        lastProcessingTime: null,
       };
 
       // Reset to check

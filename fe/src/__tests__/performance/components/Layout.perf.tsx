@@ -24,8 +24,8 @@ jest.mock('../../../context/AuthContext', () => {
       error: null,
       userPermissions: [],
       permissionsLoading: false,
-      hasPermission: jest.fn().mockReturnValue(true)
-    })
+      hasPermission: jest.fn().mockReturnValue(true),
+    }),
   };
 });
 
@@ -41,7 +41,7 @@ const mockCurrentUser: User = {
   avatar_url: null,
   created_on: new Date().toISOString(),
   updated_on: null,
-  last_login: null
+  last_login: null,
 };
 
 // Performance measurement callback
@@ -51,7 +51,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log performance metrics
   console.log(`${id} - ${phase}`);
@@ -61,7 +61,10 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => (
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => (
   <TestWrapper>
     <AuthProvider>
       <Profiler id={Component.name} onRender={onRenderCallback}>
@@ -76,8 +79,8 @@ describe('Layout Components Performance', () => {
     it('renders efficiently with default configuration', () => {
       render(
         measurePerformance(Layout, {
-          children: <div>Test Content</div>
-        })
+          children: <div>Test Content</div>,
+        }),
       );
     });
 
@@ -90,8 +93,8 @@ describe('Layout Components Performance', () => {
               <div>Child 2</div>
               <div>Child 3</div>
             </>
-          )
-        })
+          ),
+        }),
       );
     });
   });

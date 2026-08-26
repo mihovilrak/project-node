@@ -8,11 +8,13 @@ import { Role } from '../../../types/role';
 
 // Mock the custom hook
 jest.mock('../../../hooks/user/useUserForm');
-const mockedUseUserForm = useUserForm as jest.MockedFunction<typeof useUserForm>;
+const mockedUseUserForm = useUserForm as jest.MockedFunction<
+  typeof useUserForm
+>;
 
 const mockRoles: Role[] = [
   { id: 1, name: 'Admin' },
-  { id: 2, name: 'User' }
+  { id: 2, name: 'User' },
 ];
 
 const defaultMockFormValues: FormData = {
@@ -26,12 +28,12 @@ const defaultMockFormValues: FormData = {
   role_id: 1,
 };
 
-const mockHandleSubmit = jest.fn().mockImplementation(
-  async (e: React.FormEvent): Promise<void> => {
+const mockHandleSubmit = jest
+  .fn()
+  .mockImplementation(async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     return Promise.resolve();
-  }
-);
+  });
 
 describe('UserForm', () => {
   beforeEach(() => {
@@ -42,7 +44,9 @@ describe('UserForm', () => {
       fieldErrors: {},
       roles: mockRoles,
       formValues: defaultMockFormValues,
-      handleInputChange: jest.fn((e: React.ChangeEvent<HTMLInputElement>) => {}),
+      handleInputChange: jest.fn(
+        (e: React.ChangeEvent<HTMLInputElement>) => {},
+      ),
       handleSubmit: mockHandleSubmit,
     });
   });
@@ -54,7 +58,7 @@ describe('UserForm', () => {
           <Route path="/users/new" element={<UserForm />} />
           <Route path="/users/:id/edit" element={<UserForm />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
   };
 
@@ -63,8 +67,12 @@ describe('UserForm', () => {
     expect(screen.getByText('Add New User')).toBeInTheDocument();
     expect(screen.getByLabelText(/login/i)).toBeInTheDocument();
     // Robust DOM queries for password fields
-    expect(container.querySelector('input[name="password"]')).toBeInTheDocument();
-    expect(container.querySelector('input[name="confirmPassword"]')).toBeInTheDocument();
+    expect(
+      container.querySelector('input[name="password"]'),
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector('input[name="confirmPassword"]'),
+    ).toBeInTheDocument();
   });
 
   test('renders edit user form correctly', () => {
@@ -80,7 +88,9 @@ describe('UserForm', () => {
 
     renderComponent('/users/1/edit');
     const heading = screen.getByRole('heading', { level: 4 });
-    expect(heading.textContent?.replace(/\s+/g, ' ').trim()).toBe('Edit User John Doe');
+    expect(heading.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Edit User John Doe',
+    );
   });
 
   test('displays error message when present', () => {
@@ -92,10 +102,12 @@ describe('UserForm', () => {
       roles: mockRoles,
       formValues: defaultMockFormValues,
       handleInputChange: jest.fn(),
-      handleSubmit: jest.fn().mockImplementation(async (e: React.FormEvent): Promise<void> => {
-        e.preventDefault();
-        return Promise.resolve();
-      }),
+      handleSubmit: jest
+        .fn()
+        .mockImplementation(async (e: React.FormEvent): Promise<void> => {
+          e.preventDefault();
+          return Promise.resolve();
+        }),
     });
 
     renderComponent();

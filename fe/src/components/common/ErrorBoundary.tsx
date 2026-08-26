@@ -22,7 +22,6 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     if (process.env.NODE_ENV !== 'test') {
-       
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
   }
@@ -38,7 +37,7 @@ class ErrorBoundary extends Component<Props, State> {
             justifyContent: 'center',
             minHeight: '50vh',
             p: 3,
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           <Typography variant="h5" gutterBottom>

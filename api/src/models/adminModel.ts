@@ -4,12 +4,9 @@ import { SystemStats, SystemLog, Permission } from '../types/admin';
 // Check if user is admin
 export const isUserAdmin = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
-  const result = await pool.query(
-    `SELECT is_admin($1)`,
-    [userId]
-  );
+  const result = await pool.query(`SELECT is_admin($1)`, [userId]);
   return result.rows[0].is_admin;
 };
 
@@ -24,7 +21,7 @@ export const getSystemLogs = async (
   pool: Pool,
   startDate?: string,
   endDate?: string,
-  type?: string
+  type?: string,
 ): Promise<SystemLog[]> => {
   let query = `
     SELECT tl.*,
@@ -36,7 +33,10 @@ export const getSystemLogs = async (
     WHERE tl.created_on BETWEEN $1 AND $2
   `;
 
-  const params: (string | Date)[] = [startDate || '1970-01-01', endDate || 'NOW()'];
+  const params: (string | Date)[] = [
+    startDate || '1970-01-01',
+    endDate || 'NOW()',
+  ];
 
   if (type) {
     query += ' AND tl.activity_type_id = $3';
@@ -55,7 +55,7 @@ export const getAllPermissions = async (pool: Pool): Promise<Permission[]> => {
     `SELECT id,
      name
      FROM permissions
-     ORDER BY name ASC`
+     ORDER BY name ASC`,
   );
   return result.rows;
 };

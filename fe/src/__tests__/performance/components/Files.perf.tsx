@@ -20,7 +20,7 @@ const mockFiles: TaskFile[] = Array.from({ length: 10 }, (_, index) => ({
   created_by: 1,
   created_by_name: 'Test User',
   uploaded_by: 'Test User',
-  user_avatar: undefined
+  user_avatar: undefined,
 }));
 
 // Performance measurement callback
@@ -30,7 +30,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log performance metrics
   console.log(`${id} - ${phase}:`);
@@ -40,17 +40,23 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => {
   let duration = 0;
 
   render(
     <TestWrapper>
-      <Profiler id={Component.name} onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id={Component.name}
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <Component {...props} />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -63,7 +69,7 @@ describe('Files Components Performance Tests', () => {
       const renderTime = measurePerformance(FileList, {
         files: [],
         taskId: 1,
-        onFileDeleted: jest.fn()
+        onFileDeleted: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(150); // Adjust threshold to account for test environment variability
@@ -73,7 +79,7 @@ describe('Files Components Performance Tests', () => {
       const renderTime = measurePerformance(FileList, {
         files: mockFiles,
         taskId: 1,
-        onFileDeleted: jest.fn()
+        onFileDeleted: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(600); // Adjust threshold to account for test environment variability
@@ -83,13 +89,13 @@ describe('Files Components Performance Tests', () => {
       const largeFileList = Array.from({ length: 50 }, (_, index) => ({
         ...mockFiles[0],
         id: index + 1,
-        name: `test-file-${index + 1}.txt`
+        name: `test-file-${index + 1}.txt`,
       }));
 
       const renderTime = measurePerformance(FileList, {
         files: largeFileList,
         taskId: 1,
-        onFileDeleted: jest.fn()
+        onFileDeleted: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(2000); // Large file list (50 files) may take longer to render
@@ -101,7 +107,7 @@ describe('Files Components Performance Tests', () => {
     test('FileUpload initial render performance', () => {
       const renderTime = measurePerformance(FileUpload, {
         taskId: 1,
-        onFileUploaded: jest.fn()
+        onFileUploaded: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(150); // Adjust threshold to account for test environment variability
@@ -115,13 +121,13 @@ describe('Files Components Performance Tests', () => {
           progress: 50,
           error: null,
           handleFileChange: jest.fn(),
-          setError: jest.fn()
-        })
+          setError: jest.fn(),
+        }),
       }));
 
       const renderTime = measurePerformance(FileUpload, {
         taskId: 1,
-        onFileUploaded: jest.fn()
+        onFileUploaded: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(120); // Adjust threshold as needed
@@ -135,13 +141,13 @@ describe('Files Components Performance Tests', () => {
           progress: 0,
           error: 'Test error message',
           handleFileChange: jest.fn(),
-          setError: jest.fn()
-        })
+          setError: jest.fn(),
+        }),
       }));
 
       const renderTime = measurePerformance(FileUpload, {
         taskId: 1,
-        onFileUploaded: jest.fn()
+        onFileUploaded: jest.fn(),
       });
 
       expect(renderTime).toBeLessThan(120); // Adjust threshold as needed

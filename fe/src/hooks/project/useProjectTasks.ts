@@ -33,6 +33,6 @@ export const useProjectTasks = (projectId: string): ProjectTasksHook => {
     taskFormOpen,
     setTaskFormOpen,
     handleTaskCreate,
-    loadTasks
+    loadTasks,
   };
 };

@@ -24,9 +24,7 @@ export const useTimeLogData = ({
     const loadInitialData = async () => {
       try {
         setIsLoading(true);
-        const [activityTypesData] = await Promise.all([
-          getActivityTypes()
-        ]);
+        const [activityTypesData] = await Promise.all([getActivityTypes()]);
         setActivityTypes(activityTypesData);
       } catch (error) {
         logger.error('Error loading data:', error);
@@ -44,9 +42,7 @@ export const useTimeLogData = ({
     const loadProjectsAndTasks = async () => {
       try {
         setIsLoading(true);
-        const [projectsData] = await Promise.all([
-          getProjects()
-        ]);
+        const [projectsData] = await Promise.all([getProjects()]);
         setProjects(projectsData);
 
         if (hasAdminPermission) {

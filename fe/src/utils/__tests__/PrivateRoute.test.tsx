@@ -10,18 +10,18 @@ import { Permission } from '../../types/auth';
 jest.mock('../../context/AuthContext');
 jest.mock('react-router-dom', () => ({
   Navigate: jest.fn(() => null),
-  Outlet: jest.fn(() => null)
+  Outlet: jest.fn(() => null),
 }));
 jest.mock('@mui/material', () => ({
   Box: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CircularProgress: () => <div data-testid="loading-spinner">Loading...</div>
+  CircularProgress: () => <div data-testid="loading-spinner">Loading...</div>,
 }));
 
 describe('PrivateRoute', () => {
   const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
   const mockPermission: Permission = {
-    permission: 'Admin'
+    permission: 'Admin',
   };
 
   const mockUser: User = {
@@ -35,7 +35,7 @@ describe('PrivateRoute', () => {
     avatar_url: null,
     created_on: new Date().toISOString(),
     updated_on: null,
-    last_login: null
+    last_login: null,
   };
 
   beforeEach(() => {
@@ -50,7 +50,7 @@ describe('PrivateRoute', () => {
       userPermissions: [],
       error: null,
       login: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     });
 
     render(<PrivateRoute />);
@@ -65,11 +65,14 @@ describe('PrivateRoute', () => {
       userPermissions: [],
       error: null,
       login: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     });
 
     render(<PrivateRoute />);
-    expect(Navigate).toHaveBeenCalledWith(expect.objectContaining({ to: '/login' }), undefined);
+    expect(Navigate).toHaveBeenCalledWith(
+      expect.objectContaining({ to: '/login' }),
+      undefined,
+    );
   });
 
   it('should redirect to home when user lacks required permission', () => {
@@ -80,11 +83,14 @@ describe('PrivateRoute', () => {
       userPermissions: [],
       error: null,
       login: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     });
 
     render(<PrivateRoute requiredPermission="CreateProject" />);
-    expect(Navigate).toHaveBeenCalledWith(expect.objectContaining({ to: '/' }), undefined);
+    expect(Navigate).toHaveBeenCalledWith(
+      expect.objectContaining({ to: '/' }),
+      undefined,
+    );
   });
 
   it('should render component when user has required permission', () => {
@@ -95,11 +101,13 @@ describe('PrivateRoute', () => {
       userPermissions: [mockPermission],
       error: null,
       login: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     });
 
     const TestComponent = () => <div>Test Component</div>;
-    render(<PrivateRoute element={<TestComponent />} requiredPermission="Admin" />);
+    render(
+      <PrivateRoute element={<TestComponent />} requiredPermission="Admin" />,
+    );
     expect(screen.getByText('Test Component')).toBeInTheDocument();
   });
 
@@ -111,7 +119,7 @@ describe('PrivateRoute', () => {
       userPermissions: [],
       error: null,
       login: jest.fn(),
-      logout: jest.fn()
+      logout: jest.fn(),
     });
 
     render(<PrivateRoute />);

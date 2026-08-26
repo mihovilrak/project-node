@@ -4,7 +4,7 @@ import { useAuth } from '../../../context/AuthContext';
 
 // Mock the useAuth hook
 jest.mock('../../../context/AuthContext', () => ({
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }));
 
 describe('usePermission', () => {
@@ -18,7 +18,7 @@ describe('usePermission', () => {
   it('should return hasPermission true when user has permission', () => {
     mockUseAuth.mockReturnValue({
       hasPermission: (perm: string) => perm === 'test.permission',
-      permissionsLoading: false
+      permissionsLoading: false,
     });
 
     const { result } = renderHook(() => usePermission('test.permission'));
@@ -30,7 +30,7 @@ describe('usePermission', () => {
   it('should return hasPermission false when user does not have permission', () => {
     mockUseAuth.mockReturnValue({
       hasPermission: () => false,
-      permissionsLoading: false
+      permissionsLoading: false,
     });
 
     const { result } = renderHook(() => usePermission('test.permission'));
@@ -42,7 +42,7 @@ describe('usePermission', () => {
   it('should return loading state correctly', () => {
     mockUseAuth.mockReturnValue({
       hasPermission: () => false,
-      permissionsLoading: true
+      permissionsLoading: true,
     });
 
     const { result } = renderHook(() => usePermission('test.permission'));
@@ -51,18 +51,19 @@ describe('usePermission', () => {
   });
 
   it('should update hasPermission when checkPermission result changes', () => {
-    const mockHasPermission = jest.fn()
+    const mockHasPermission = jest
+      .fn()
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(true);
 
     mockUseAuth.mockReturnValue({
       hasPermission: mockHasPermission,
-      permissionsLoading: false
+      permissionsLoading: false,
     });
 
     const { result, rerender } = renderHook(
       ({ permission }) => usePermission(permission),
-      { initialProps: { permission: 'test.permission' } }
+      { initialProps: { permission: 'test.permission' } },
     );
 
     expect(result.current.hasPermission).toBe(false);
@@ -74,7 +75,7 @@ describe('usePermission', () => {
   it('should handle empty permission string', () => {
     mockUseAuth.mockReturnValue({
       hasPermission: () => false,
-      permissionsLoading: false
+      permissionsLoading: false,
     });
 
     const { result } = renderHook(() => usePermission(''));

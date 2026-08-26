@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback
-} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,27 +6,23 @@ import {
   DialogActions,
   TextField,
   Button,
-  Alert
+  Alert,
 } from '@mui/material';
 import { updateProfile } from '../../api/profiles';
-import {
-  ProfileEditDialogProps,
-  FormData
-} from '../../types/profile';
+import { ProfileEditDialogProps, FormData } from '../../types/profile';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
-
 
 const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   open,
   onClose,
   profile,
-  onProfileUpdate
+  onProfileUpdate,
 }) => {
   const [formData, setFormData] = useState<FormData>({
     name: profile?.name || '',
     surname: profile?.surname || '',
-    email: profile?.email || ''
+    email: profile?.email || '',
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,32 +32,35 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       setFormData({
         name: profile.name || '',
         surname: profile.surname || '',
-        email: profile.email || ''
+        email: profile.email || '',
       });
     }
   }, [profile]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const updatedProfile = await updateProfile(formData);
-      await onProfileUpdate(updatedProfile);
-      onClose();
-    } catch (err: unknown) {
-      logger.error('Failed to update profile:', err);
-      setError(getApiErrorMessage(err, 'Failed to update profile'));
-    } finally {
-      setLoading(false);
-    }
-  }, [formData, onProfileUpdate, onClose]);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        const updatedProfile = await updateProfile(formData);
+        await onProfileUpdate(updatedProfile);
+        onClose();
+      } catch (err: unknown) {
+        logger.error('Failed to update profile:', err);
+        setError(getApiErrorMessage(err, 'Failed to update profile'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [formData, onProfileUpdate, onClose],
+  );
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -108,11 +103,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading}
-          >
+          <Button type="submit" variant="contained" disabled={loading}>
             Save Changes
           </Button>
         </DialogActions>

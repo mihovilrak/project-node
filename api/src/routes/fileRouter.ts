@@ -17,13 +17,13 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Multer configuration
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
     cb(null, uniqueName);
-  }
+  },
 });
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -40,23 +40,29 @@ export default (pool: Pool): Router => {
     }
     next();
   });
-.
+
   const taskAccess = requireTaskAccessBy(pool, (req) => (req as any).taskId);
 
   // Get task files
   router.get('/', taskAccess, withPool(pool, fileController.getTaskFiles));
 
   // Upload a file
-  router.post('/',
+  router.post(
+    '/',
     taskAccess,
     upload.single('file'),
-    withPool(pool, fileController.uploadFile));
+    withPool(pool, fileController.uploadFile),
+  );
 
   // Download a file
   router.get('/:fileId/download', withPool(pool, fileController.downloadFile));
 
   // Delete a file
-  router.delete('/:fileId', checkPermission(pool, 'Delete files'), withPool(pool, fileController.deleteFile));
+  router.delete(
+    '/:fileId',
+    checkPermission(pool, 'Delete files'),
+    withPool(pool, fileController.deleteFile),
+  );
 
   return router;
 };

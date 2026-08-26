@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { ProjectTimeLogsHook } from '../../types/project';
-import { getTaskTimeLogs, createTimeLog, updateTimeLog, deleteTimeLog } from '../../api/timeLogs';
+import {
+  getTaskTimeLogs,
+  createTimeLog,
+  updateTimeLog,
+  deleteTimeLog,
+} from '../../api/timeLogs';
 import { getProjectTasks } from '../../api/tasks';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -25,7 +30,10 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
                 allLogs = [...allLogs, ...taskLogs];
               }
             } catch (taskError) {
-              logger.error(`Failed to load time logs for task ${task.id}:`, taskError);
+              logger.error(
+                `Failed to load time logs for task ${task.id}:`,
+                taskError,
+              );
               // Continue with other tasks even if one fails
             }
           }
@@ -84,6 +92,6 @@ export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
     handleTimeLogSubmit,
     handleTimeLogEdit,
     handleTimeLogDelete,
-    loadTimeLogs
+    loadTimeLogs,
   };
 };

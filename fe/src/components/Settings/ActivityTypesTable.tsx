@@ -11,7 +11,7 @@ import {
   Chip,
   Box,
   CircularProgress,
-  Icon
+  Icon,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { ActivityType, ActivityTypesTableProps } from '../../types/setting';
@@ -19,7 +19,7 @@ import { ActivityType, ActivityTypesTableProps } from '../../types/setting';
 const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
   activityTypes,
   onEdit,
-  loading
+  loading,
 }) => {
   if (loading) {
     return (
@@ -57,7 +57,7 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
                     backgroundColor: activityType.color,
                     width: 24,
                     height: 24,
-                    borderRadius: 4
+                    borderRadius: 4,
                   }}
                 />
               </TableCell>

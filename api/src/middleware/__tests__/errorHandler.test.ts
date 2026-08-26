@@ -12,7 +12,7 @@ describe('ErrorHandler Middleware', () => {
     mockReq = {};
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     mockNext = jest.fn();
     jest.clearAllMocks();
@@ -26,30 +26,40 @@ describe('ErrorHandler Middleware', () => {
     const validationError: CustomError = {
       name: 'ValidationError',
       message: 'Validation failed',
-      details: { field: 'email', message: 'Invalid email format' }
+      details: { field: 'email', message: 'Invalid email format' },
     };
 
-    await errorHandler(validationError, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      validationError,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       error: 'Validation Error',
-      details: validationError.details
+      details: validationError.details,
     });
   });
 
   it('should handle UnauthorizedError', async () => {
     const unauthorizedError: CustomError = {
       name: 'UnauthorizedError',
-      message: 'Unauthorized'
+      message: 'Unauthorized',
     };
 
-    await errorHandler(unauthorizedError, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      unauthorizedError,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.status).toHaveBeenCalledWith(401);
     expect(mockRes.json).toHaveBeenCalledWith({
       error: 'Unauthorized',
-      message: 'Invalid token or no token provided'
+      message: 'Invalid token or no token provided',
     });
   });
 
@@ -57,10 +67,15 @@ describe('ErrorHandler Middleware', () => {
     const genericError: CustomError = {
       name: 'Error',
       message: 'Custom error message',
-      status: 422
+      status: 422,
     };
 
-    await errorHandler(genericError, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      genericError,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.status).toHaveBeenCalledWith(422);
   });
@@ -68,10 +83,15 @@ describe('ErrorHandler Middleware', () => {
   it('should default to 500 status when no status provided', async () => {
     const genericError: CustomError = {
       name: 'Error',
-      message: 'Something went wrong'
+      message: 'Something went wrong',
     };
 
-    await errorHandler(genericError, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      genericError,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
   });
@@ -81,15 +101,20 @@ describe('ErrorHandler Middleware', () => {
     const errorWithStack: CustomError = {
       name: 'Error',
       message: 'Test error',
-      stack: 'Error stack trace'
+      stack: 'Error stack trace',
     };
 
-    await errorHandler(errorWithStack, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      errorWithStack,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        stack: 'Error stack trace'
-      })
+        stack: 'Error stack trace',
+      }),
     );
   });
 
@@ -98,13 +123,18 @@ describe('ErrorHandler Middleware', () => {
     const errorWithStack: CustomError = {
       name: 'Error',
       message: 'Test error',
-      stack: 'Error stack trace'
+      stack: 'Error stack trace',
     };
 
-    await errorHandler(errorWithStack, mockReq as Request, mockRes as Response, mockNext);
+    await errorHandler(
+      errorWithStack,
+      mockReq as Request,
+      mockRes as Response,
+      mockNext,
+    );
 
     expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Test error'
+      error: 'Test error',
     });
   });
 });

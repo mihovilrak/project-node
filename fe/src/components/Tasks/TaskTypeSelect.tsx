@@ -6,14 +6,11 @@ import {
   MenuItem,
   Box,
   CircularProgress,
-  SelectChangeEvent
+  SelectChangeEvent,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { getTaskTypes } from '../../api/taskTypes';
-import {
-  TaskType,
-  TaskTypeSelectProps,
-} from '../../types/task';
+import { TaskType, TaskTypeSelectProps } from '../../types/task';
 import logger from '../../utils/logger';
 
 const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
@@ -61,19 +58,23 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
         onChange={handleChange}
         label="Task Type"
       >
-        {(!taskTypes || taskTypes.length === 0) ? (
+        {!taskTypes || taskTypes.length === 0 ? (
           <MenuItem value="" disabled>
             No task types available
           </MenuItem>
         ) : (
           taskTypes.map((type) => {
             if (!type?.id) return null;
-            const Icon = type?.icon ? Icons[type.icon as keyof typeof Icons] : null;
+            const Icon = type?.icon
+              ? Icons[type.icon as keyof typeof Icons]
+              : null;
             return (
               <MenuItem key={type.id} value={type.id}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   {Icon && <Icon sx={{ color: type?.color || '#666' }} />}
-                  <span style={{ color: type?.color || '#666' }}>{type?.name || 'Unknown'}</span>
+                  <span style={{ color: type?.color || '#666' }}>
+                    {type?.name || 'Unknown'}
+                  </span>
                 </Box>
               </MenuItem>
             );

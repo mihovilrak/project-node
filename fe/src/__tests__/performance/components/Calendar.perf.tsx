@@ -15,13 +15,15 @@ jest.mock('../../../api/api');
 // Mock AuthContext to prevent session checks
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: { id: 1, name: 'Test User' },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock useCalendar hook
@@ -35,44 +37,50 @@ jest.mock('../../../hooks/calendar/useCalendar', () => ({
     handleDateChange: jest.fn(),
     handleViewChange: jest.fn(),
     handleTaskClick: jest.fn(),
-    handleTimeLogClick: jest.fn()
-  })
+    handleTimeLogClick: jest.fn(),
+  }),
 }));
 
 // Mock useCalendarWeek hook
 jest.mock('../../../hooks/calendar/useCalendarWeek', () => ({
   useCalendarWeek: () => ({
-    getWeekDays: () => Array(7).fill(null).map((_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - date.getDay() + i);
-      return date;
-    }),
+    getWeekDays: () =>
+      Array(7)
+        .fill(null)
+        .map((_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - date.getDay() + i);
+          return date;
+        }),
     getTasksForDay: () => [],
-    getTimeLogsForDay: () => []
-  })
+    getTimeLogsForDay: () => [],
+  }),
 }));
 
 // Mock useCalendarDays hook
 jest.mock('../../../hooks/calendar/useCalendarDays', () => ({
   useCalendarDays: () => ({
-    getDaysInMonth: () => Array(35).fill(null).map((_, i) => ({
-      date: new Date(),
-      isToday: i === 15,
-      isCurrentMonth: i >= 3 && i < 33,
-      tasks: [],
-      totalTime: 0
-    }))
-  })
+    getDaysInMonth: () =>
+      Array(35)
+        .fill(null)
+        .map((_, i) => ({
+          date: new Date(),
+          isToday: i === 15,
+          isCurrentMonth: i >= 3 && i < 33,
+          tasks: [],
+          totalTime: 0,
+        })),
+  }),
 }));
 
 // Custom test wrapper
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </BrowserRouter>
   );
 };
@@ -84,7 +92,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -96,7 +104,10 @@ const onRenderCallback = (
 
 describe('Calendar Components Performance Tests', () => {
   // Helper function to measure render performance
-  const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+  const measurePerformance = (
+    Component: React.ComponentType<any>,
+    props = {},
+  ) => {
     const start = performance.now();
 
     render(
@@ -104,7 +115,7 @@ describe('Calendar Components Performance Tests', () => {
         <Profiler id={Component.name} onRender={onRenderCallback}>
           <Component {...props} />
         </Profiler>
-      </PerfTestWrapper>
+      </PerfTestWrapper>,
     );
 
     const end = performance.now();
@@ -123,7 +134,7 @@ describe('Calendar Components Performance Tests', () => {
       tasks: [],
       timeLogs: [],
       onTaskClick: () => {},
-      onTimeLogClick: () => {}
+      onTimeLogClick: () => {},
     });
     expect(renderTime).toBeLessThan(1000); // Should render under 1000ms (accounting for parallel test runs)
   });
@@ -134,7 +145,7 @@ describe('Calendar Components Performance Tests', () => {
       tasks: [],
       timeLogs: [],
       onTaskClick: () => {},
-      onTimeLogClick: () => {}
+      onTimeLogClick: () => {},
     });
     expect(renderTime).toBeLessThan(1000); // Should render under 1000ms (accounting for parallel test runs)
   });
@@ -145,32 +156,36 @@ describe('Calendar Components Performance Tests', () => {
       tasks: [],
       timeLogs: [],
       onTaskClick: () => {},
-      onTimeLogClick: () => {}
+      onTimeLogClick: () => {},
     });
     expect(renderTime).toBeLessThan(1000); // Should render under 1000ms (accounting for parallel test runs)
   });
 
   // Test re-render performance with data updates
   test('Calendar components re-render performance with data', () => {
-    const mockTasks = Array(50).fill(null).map((_, i) => ({
-      id: i,
-      title: `Task ${i}`,
-      description: 'Test task',
-      dueDate: new Date(),
-      status: 'pending'
-    }));
+    const mockTasks = Array(50)
+      .fill(null)
+      .map((_, i) => ({
+        id: i,
+        title: `Task ${i}`,
+        description: 'Test task',
+        dueDate: new Date(),
+        status: 'pending',
+      }));
 
-    const mockTimeLogs = Array(20).fill(null).map((_, i) => ({
-      id: i,
-      taskId: i,
-      startTime: new Date(),
-      endTime: new Date(),
-      duration: 3600
-    }));
+    const mockTimeLogs = Array(20)
+      .fill(null)
+      .map((_, i) => ({
+        id: i,
+        taskId: i,
+        startTime: new Date(),
+        endTime: new Date(),
+        duration: 3600,
+      }));
 
     const renderTime = measurePerformance(Calendar, {
       initialTasks: mockTasks,
-      initialTimeLogs: mockTimeLogs
+      initialTimeLogs: mockTimeLogs,
     });
 
     expect(renderTime).toBeLessThan(2000); // Should render under 2000ms with substantial data (accounting for test environment)

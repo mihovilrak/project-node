@@ -5,12 +5,11 @@ import { getProjectTasks } from '../../../api/tasks';
 import { Task } from '../../../types/task';
 import logger from '../../../utils/logger';
 
-
 // Mock dependencies
 jest.mock('../../../api/tasks');
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -48,7 +47,7 @@ describe('useProjectTasks', () => {
       progress: 50,
       created_by: 1,
       created_by_name: 'John Doe',
-      created_on: '2024-01-01'
+      created_on: '2024-01-01',
     },
     {
       id: 2,
@@ -79,8 +78,8 @@ describe('useProjectTasks', () => {
       progress: 0,
       created_by: 1,
       created_by_name: 'John Doe',
-      created_on: '2024-01-01'
-    }
+      created_on: '2024-01-01',
+    },
   ];
 
   beforeEach(() => {
@@ -103,7 +102,7 @@ describe('useProjectTasks', () => {
     const newTask = {
       ...mockTasks[0],
       id: 3,
-      name: 'New Task'
+      name: 'New Task',
     };
     const mockNavigate = jest.fn();
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);

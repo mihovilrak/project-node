@@ -34,12 +34,10 @@ describe('Task CRUD Operations', () => {
     testProject = await seedTestProject(testUser.id);
 
     // Login to get auth cookies
-    const loginResponse = await request(app)
-      .post('/api/login')
-      .send({
-        login: 'testuser',
-        password: 'password123'
-      });
+    const loginResponse = await request(app).post('/api/login').send({
+      login: 'testuser',
+      password: 'password123',
+    });
 
     authCookies = cookieHeader(loginResponse.headers['set-cookie']);
   });
@@ -55,8 +53,7 @@ describe('Task CRUD Operations', () => {
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/tasks');
+      const response = await request(app).get('/api/tasks');
 
       expect(response.status).toBe(401);
     });
@@ -87,7 +84,7 @@ describe('Task CRUD Operations', () => {
         type_id: 1,
         start_date: new Date().toISOString(),
         due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        estimated_time: 8
+        estimated_time: 8,
       };
 
       const response = await request(app)
@@ -104,18 +101,16 @@ describe('Task CRUD Operations', () => {
         .post('/api/tasks')
         .set('Cookie', authCookies)
         .send({
-          description: 'Missing required fields'
+          description: 'Missing required fields',
         });
 
       expect(response.status).toBe(400);
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await request(app)
-        .post('/api/tasks')
-        .send({
-          name: 'Test Task'
-        });
+      const response = await request(app).post('/api/tasks').send({
+        name: 'Test Task',
+      });
 
       expect(response.status).toBe(401);
     });
@@ -158,7 +153,7 @@ describe('Task CRUD Operations', () => {
     it('should update task details', async () => {
       const updateData = {
         name: 'Updated Task Name',
-        description: 'Updated description'
+        description: 'Updated description',
       };
 
       const response = await request(app)

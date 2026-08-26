@@ -5,7 +5,7 @@ import {
   Typography,
   Button,
   CircularProgress,
-  Alert
+  Alert,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import UserTable from './UserTable';
@@ -24,15 +24,15 @@ const UserManager: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-    
+
     // Listen for user deletion events from other components
     const handleUserDeleted = (event: Event) => {
       // Refresh the user list when a user is deleted from another component
       fetchUsers();
     };
-    
+
     window.addEventListener('userDeleted', handleUserDeleted);
-    
+
     return () => {
       window.removeEventListener('userDeleted', handleUserDeleted);
     };
@@ -74,12 +74,14 @@ const UserManager: React.FC = () => {
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Typography variant="h5">User Management</Typography>
         <Button
           variant="contained"

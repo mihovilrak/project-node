@@ -1,6 +1,12 @@
 import { api } from '../api';
 import { Tag } from '../../types/tag';
-import { getTags, createTag, addTaskTags, removeTaskTag, getTaskTags } from '../tags';
+import {
+  getTags,
+  createTag,
+  addTaskTags,
+  removeTaskTag,
+  getTaskTags,
+} from '../tags';
 
 // Mock the api module
 jest.mock('../api');
@@ -16,7 +22,7 @@ describe('Tags API', () => {
     created_by: 1,
     active: true,
     created_on: '2023-01-01T00:00:00Z',
-    creator_name: 'Test User'
+    creator_name: 'Test User',
   };
 
   beforeEach(() => {
@@ -45,7 +51,7 @@ describe('Tags API', () => {
     const newTagData = {
       name: 'New Tag',
       color: '#00FF00',
-      description: 'New Description'
+      description: 'New Description',
     };
 
     it('should create tag successfully', async () => {
@@ -73,7 +79,9 @@ describe('Tags API', () => {
 
       const result = await addTaskTags(taskId, tagIds);
 
-      expect(mockedApi.post).toHaveBeenCalledWith(`/tasks/${taskId}/tags`, { tagIds });
+      expect(mockedApi.post).toHaveBeenCalledWith(`/tasks/${taskId}/tags`, {
+        tagIds,
+      });
       expect(result).toEqual([mockTag]);
     });
 
@@ -93,7 +101,9 @@ describe('Tags API', () => {
 
       await removeTaskTag(taskId, tagId);
 
-      expect(mockedApi.delete).toHaveBeenCalledWith(`/tasks/${taskId}/tags/${tagId}`);
+      expect(mockedApi.delete).toHaveBeenCalledWith(
+        `/tasks/${taskId}/tags/${tagId}`,
+      );
     });
 
     it('should throw error when removing tag fails', async () => {

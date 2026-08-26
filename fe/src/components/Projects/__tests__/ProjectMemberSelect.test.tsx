@@ -9,21 +9,42 @@ jest.mock('@mui/material', () => {
   return {
     ...originalModule,
     Checkbox: ({ checked, ...props }: any) => (
-      <input type="checkbox" data-testid="checkbox" checked={checked} {...props} />
+      <input
+        type="checkbox"
+        data-testid="checkbox"
+        checked={checked}
+        {...props}
+      />
     ),
     ListItem: ({ children, onClick, ...props }: any) => (
-      <li onClick={onClick} data-testid="list-item" {...props}>{children}</li>
+      <li onClick={onClick} data-testid="list-item" {...props}>
+        {children}
+      </li>
     ),
-    ListItemIcon: ({ children }: any) => <div data-testid="list-item-icon">{children}</div>,
+    ListItemIcon: ({ children }: any) => (
+      <div data-testid="list-item-icon">{children}</div>
+    ),
     ListItemText: ({ primary, secondary }: any) => (
       <div data-testid="list-item-text">
         <span data-testid="list-item-primary">{primary}</span>
         <span data-testid="list-item-secondary">{secondary}</span>
       </div>
     ),
-    Paper: ({ children, ...props }: any) => <div data-testid="paper" {...props}>{children}</div>,
-    Typography: ({ children, ...props }: any) => <div data-testid="typography" {...props}>{children}</div>,
-    List: ({ children, ...props }: any) => <ul data-testid="list" {...props}>{children}</ul>
+    Paper: ({ children, ...props }: any) => (
+      <div data-testid="paper" {...props}>
+        {children}
+      </div>
+    ),
+    Typography: ({ children, ...props }: any) => (
+      <div data-testid="typography" {...props}>
+        {children}
+      </div>
+    ),
+    List: ({ children, ...props }: any) => (
+      <ul data-testid="list" {...props}>
+        {children}
+      </ul>
+    ),
   };
 });
 
@@ -40,7 +61,7 @@ const mockUsers: User[] = [
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Developer'
+    role_name: 'Developer',
   },
   {
     id: 2,
@@ -54,8 +75,8 @@ const mockUsers: User[] = [
     created_on: '2024-01-01',
     updated_on: null,
     last_login: null,
-    role_name: 'Project Manager'
-  }
+    role_name: 'Project Manager',
+  },
 ];
 
 const mockSelectedUsers = [1];
@@ -73,7 +94,7 @@ describe('ProjectMemberSelect', () => {
         users={mockUsers}
         selectedUsers={mockSelectedUsers}
         onUserSelect={mockOnUserSelect}
-      />
+      />,
     );
 
     // Check for user names using test ids
@@ -88,7 +109,7 @@ describe('ProjectMemberSelect', () => {
         users={mockUsers}
         selectedUsers={mockSelectedUsers}
         onUserSelect={mockOnUserSelect}
-      />
+      />,
     );
 
     // Check for user roles using test ids
@@ -103,7 +124,7 @@ describe('ProjectMemberSelect', () => {
         users={mockUsers}
         selectedUsers={mockSelectedUsers}
         onUserSelect={mockOnUserSelect}
-      />
+      />,
     );
 
     // Get all checkboxes
@@ -118,7 +139,7 @@ describe('ProjectMemberSelect', () => {
         users={mockUsers}
         selectedUsers={mockSelectedUsers}
         onUserSelect={mockOnUserSelect}
-      />
+      />,
     );
 
     // Click on list items directly

@@ -6,14 +6,14 @@ import { changePassword } from '../../../api/profiles';
 
 // Mock the API call
 jest.mock('../../../api/profiles', () => ({
-  changePassword: jest.fn().mockResolvedValue({})
+  changePassword: jest.fn().mockResolvedValue({}),
 }));
 
 describe('PasswordChangeDialog', () => {
   const mockOnClose = jest.fn();
   const defaultProps = {
     open: true,
-    onClose: mockOnClose
+    onClose: mockOnClose,
   };
 
   beforeEach(() => {
@@ -66,13 +66,19 @@ describe('PasswordChangeDialog', () => {
     const { getByTestId } = render(<PasswordChangeDialog {...defaultProps} />);
 
     // Get password fields
-    const currentField = getByTestId('current-password-field').querySelector('input');
+    const currentField = getByTestId('current-password-field').querySelector(
+      'input',
+    );
     const newField = getByTestId('new-password-field').querySelector('input');
-    const confirmField = getByTestId('confirm-password-field').querySelector('input');
+    const confirmField = getByTestId('confirm-password-field').querySelector(
+      'input',
+    );
 
     // Type in each field
     if (currentField) {
-      fireEvent.change(currentField, { target: { value: 'CurrentPassword123' } });
+      fireEvent.change(currentField, {
+        target: { value: 'CurrentPassword123' },
+      });
       expect(currentField.value).toBe('CurrentPassword123');
     }
 

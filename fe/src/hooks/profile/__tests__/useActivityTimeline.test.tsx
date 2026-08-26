@@ -4,7 +4,7 @@ import {
   Task as TaskIcon,
   Comment as CommentIcon,
   InsertDriveFile as FileIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
 } from '@mui/icons-material';
 
 describe('useActivityTimeline', () => {

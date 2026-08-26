@@ -30,6 +30,6 @@ export const useProjectOverview = (projectId: number | undefined) => {
 
   return {
     subprojects,
-    handleAddSubproject
+    handleAddSubproject,
   };
 };

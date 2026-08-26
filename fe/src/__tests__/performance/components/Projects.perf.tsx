@@ -8,7 +8,7 @@ import { getProjects } from '../../../api/projects';
 
 // Mock API response - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/projects', () => ({
-  getProjects: jest.fn()
+  getProjects: jest.fn(),
 }));
 
 // Mock project data
@@ -27,7 +27,7 @@ const mockProjects: Project[] = Array.from({ length: 20 }, (_, index) => ({
   created_on: '2024-01-26T00:00:00Z',
   estimated_time: 80,
   spent_time: 20,
-  progress: 25
+  progress: 25,
 }));
 
 // Performance measurement callback
@@ -37,7 +37,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -48,17 +48,23 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}): number => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+): number => {
   let duration = 0;
 
   render(
     <TestWrapper>
-      <Profiler id="ProjectsComponent" onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id="ProjectsComponent"
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <Component {...props} />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -77,14 +83,14 @@ describe('Projects Component Performance Tests', () => {
 
   test('Projects component render performance with filter', async () => {
     const renderTime = measurePerformance(Projects, {
-      initialFilter: 'Project 1' // Test filtering performance
+      initialFilter: 'Project 1', // Test filtering performance
     });
     expect(renderTime).toBeLessThan(300); // Filtering should be efficient
   });
 
   test('Projects component render performance with sort', async () => {
     const renderTime = measurePerformance(Projects, {
-      initialSortOrder: 'desc' // Test sorting performance
+      initialSortOrder: 'desc', // Test sorting performance
     });
     expect(renderTime).toBeLessThan(300); // Sorting should be efficient
   });
@@ -94,7 +100,7 @@ describe('Projects Component Performance Tests', () => {
     const largeDataset = Array.from({ length: 100 }, (_, index) => ({
       ...mockProjects[0],
       id: index + 1,
-      name: `Project ${index + 1}`
+      name: `Project ${index + 1}`,
     }));
 
     (getProjects as jest.Mock).mockResolvedValueOnce(largeDataset);
@@ -113,7 +119,7 @@ describe('Projects Component Performance Tests', () => {
   // Test grid layout performance
   test('Projects grid layout render performance', async () => {
     const renderTime = measurePerformance(Projects, {
-      projects: mockProjects.slice(0, 10) // Test with 10 projects
+      projects: mockProjects.slice(0, 10), // Test with 10 projects
     });
     expect(renderTime).toBeLessThan(300); // Grid layout should render efficiently
   });

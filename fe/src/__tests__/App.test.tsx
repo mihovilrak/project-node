@@ -9,50 +9,65 @@ import { useAuth } from '../context/AuthContext';
 // Mock MUI components
 jest.mock('@mui/material', () => ({
   ...jest.requireActual('@mui/material'),
-  CircularProgress: () => React.createElement('div', { 'data-testid': 'mock-progress' }, 'Loading...'),
+  CircularProgress: () =>
+    React.createElement(
+      'div',
+      { 'data-testid': 'mock-progress' },
+      'Loading...',
+    ),
 }));
 
 // Mock mui-color-input
 jest.mock('mui-color-input', () => ({
-  MuiColorInput: () => React.createElement('input', { type: 'text', 'data-testid': 'mock-color-input' })
+  MuiColorInput: () =>
+    React.createElement('input', {
+      type: 'text',
+      'data-testid': 'mock-color-input',
+    }),
 }));
 
 // Mock Layout component
 jest.mock('../components/Layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('div', { 'data-testid': 'mock-layout' }, children)
+    React.createElement('div', { 'data-testid': 'mock-layout' }, children),
 }));
 
 // Mock route components
 jest.mock('../components/Home/Home', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-home' }, 'Home')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-home' }, 'Home'),
 }));
 
 jest.mock('../components/Auth/Login', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-login' }, 'Login')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-login' }, 'Login'),
 }));
 
 jest.mock('../components/Users/Users', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-users' }, 'Users')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-users' }, 'Users'),
 }));
 
 jest.mock('../components/Projects/Projects', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-projects' }, 'Projects')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-projects' }, 'Projects'),
 }));
 
 jest.mock('../components/Tasks/Tasks', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-tasks' }, 'Tasks')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-tasks' }, 'Tasks'),
 }));
 
 jest.mock('../components/Settings/Settings', () => ({
   __esModule: true,
-  default: () => React.createElement('div', { 'data-testid': 'mock-settings' }, 'Settings')
+  default: () =>
+    React.createElement('div', { 'data-testid': 'mock-settings' }, 'Settings'),
 }));
 
 // Mock hooks
@@ -60,24 +75,24 @@ jest.mock('../hooks/app/useAppRoutes', () => ({
   useTaskFileWrapper: () => ({
     taskId: 1,
     handleFileUploaded: jest.fn(),
-    handleFileDeleted: jest.fn()
+    handleFileDeleted: jest.fn(),
   }),
   useTimeLogCalendarWrapper: () => ({
-    projectId: 1
+    projectId: 1,
   }),
   useTaskTimeLogsWrapper: () => ({
-    task: null
+    task: null,
   }),
   useAppState: () => ({
     taskFormOpen: false,
     handleTaskCreated: jest.fn(),
-    handleTaskFormClose: jest.fn()
-  })
+    handleTaskFormClose: jest.fn(),
+  }),
 }));
 
 jest.mock('../context/AuthContext', () => ({
   ...jest.requireActual('../context/AuthContext'),
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }));
 
 describe('App Component', () => {
@@ -88,7 +103,7 @@ describe('App Component', () => {
     hasPermission: jest.fn(),
     permissionsLoading: false,
     error: null,
-    userPermissions: []
+    userPermissions: [],
   };
 
   beforeEach(() => {
@@ -102,13 +117,13 @@ describe('App Component', () => {
   test('renders without crashing', async () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
       ...mockUseAuth,
-      currentUser: { id: 1, name: 'Test User' }
+      currentUser: { id: 1, name: 'Test User' },
     }));
 
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByTestId('mock-layout')).toBeInTheDocument();
@@ -119,7 +134,7 @@ describe('App Component', () => {
     render(
       <MemoryRouter initialEntries={['/login']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByText('Login')).toBeInTheDocument();
@@ -130,7 +145,7 @@ describe('App Component', () => {
     render(
       <MemoryRouter initialEntries={['/projects']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Login')).toBeInTheDocument();
   });
@@ -138,13 +153,13 @@ describe('App Component', () => {
   test('renders home page for authenticated user', async () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
       ...mockUseAuth,
-      currentUser: { id: 1, name: 'Test User' }
+      currentUser: { id: 1, name: 'Test User' },
     }));
 
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -156,13 +171,13 @@ describe('App Component', () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
       ...mockUseAuth,
       currentUser: { id: 1, name: 'Test User' },
-      hasPermission: () => true
+      hasPermission: () => true,
     }));
 
     render(
       <MemoryRouter initialEntries={['/projects']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -174,11 +189,11 @@ describe('App Component', () => {
     render(
       <MemoryRouter>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Verify theme provider is present
     expect(document.querySelector('body')).toHaveStyle({
-      margin: '0'  // CssBaseline effect
+      margin: '0', // CssBaseline effect
     });
   });
 
@@ -186,7 +201,7 @@ describe('App Component', () => {
     const { container } = render(
       <MemoryRouter>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Verify LocalizationProvider is working
     expect(container.querySelector('.MuiPickersLayout-root')).toBeFalsy();
@@ -195,13 +210,13 @@ describe('App Component', () => {
   test('renders task wrapper components correctly', async () => {
     (useAuth as jest.Mock).mockImplementation(() => ({
       ...mockUseAuth,
-      currentUser: { id: 1, name: 'Test User' }
+      currentUser: { id: 1, name: 'Test User' },
     }));
 
     render(
       <MemoryRouter initialEntries={['/tasks/1/files']}>
         <App />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Wait for task file wrapper to be rendered

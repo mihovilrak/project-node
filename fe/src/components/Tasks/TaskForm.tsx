@@ -38,12 +38,12 @@ const TaskForm: React.FC = () => {
     isEditing,
     isLoading,
     handleChange,
-    handleSubmit
+    handleSubmit,
   } = useTaskForm({
     taskId: id,
     projectIdFromQuery,
     parentTaskId: parentId,
-    currentUserId: currentUser?.id
+    currentUserId: currentUser?.id,
   });
 
   // Force project and parent task IDs from URL
@@ -52,8 +52,8 @@ const TaskForm: React.FC = () => {
       handleChange({
         target: {
           name: 'project_id',
-          value: parseInt(projectIdFromQuery, 10)
-        }
+          value: parseInt(projectIdFromQuery, 10),
+        },
       });
     }
   }, [projectIdFromQuery, handleChange]);
@@ -63,16 +63,18 @@ const TaskForm: React.FC = () => {
       handleChange({
         target: {
           name: 'parent_id',
-          value: parseInt(parentId, 10)
-        }
+          value: parseInt(parentId, 10),
+        },
       });
     }
   }, [parentId, handleChange]);
 
   const handleFormChange = (e: SimpleChangeEvent) => {
     // Don't allow changing project_id and parent_id if they come from URL
-    if ((e.target.name === 'project_id' && projectIdFromQuery) ||
-        (e.target.name === 'parent_id' && parentId)) {
+    if (
+      (e.target.name === 'project_id' && projectIdFromQuery) ||
+      (e.target.name === 'parent_id' && parentId)
+    ) {
       return;
     }
     handleChange(e);
@@ -87,7 +89,7 @@ const TaskForm: React.FC = () => {
   return (
     <Box component={Paper} sx={{ p: 3, maxWidth: 800, mx: 'auto', mt: 3 }}>
       <Typography variant="h4" gutterBottom>
-        {isLoading ? 'Loading...' : (isEditing ? 'Edit Task' : 'Create Task')}
+        {isLoading ? 'Loading...' : isEditing ? 'Edit Task' : 'Create Task'}
       </Typography>
       <form onSubmit={onSubmit} data-testid="task-form">
         <Grid container spacing={2}>
@@ -129,7 +131,10 @@ const TaskForm: React.FC = () => {
             <DatePickerSection
               formData={formData}
               handleChange={handleFormChange}
-              errors={{ start_date: fieldErrors.start_date, due_date: fieldErrors.due_date }}
+              errors={{
+                start_date: fieldErrors.start_date,
+                due_date: fieldErrors.due_date,
+              }}
             />
           </Grid>
 

@@ -3,7 +3,7 @@ import * as notificationModel from '../notificationModel';
 
 // Mock the pg module
 jest.mock('pg', () => ({
-  Pool: jest.fn()
+  Pool: jest.fn(),
 }));
 
 describe('NotificationModel', () => {
@@ -14,12 +14,12 @@ describe('NotificationModel', () => {
     rowCount: rows.length,
     command: '',
     oid: 0,
-    fields: []
+    fields: [],
   });
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -34,7 +34,7 @@ describe('NotificationModel', () => {
           task_id: 1,
           is_read: false,
           read_on: null,
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 2,
@@ -43,16 +43,21 @@ describe('NotificationModel', () => {
           task_id: 2,
           is_read: true,
           read_on: new Date(),
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockNotifications));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockNotifications),
+      );
 
-      const result = await notificationModel.getNotificationsByUserId(mockPool, '1');
+      const result = await notificationModel.getNotificationsByUserId(
+        mockPool,
+        '1',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT * FROM notifications'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockNotifications);
     });
@@ -60,7 +65,10 @@ describe('NotificationModel', () => {
     it('should return empty array when no notifications exist', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await notificationModel.getNotificationsByUserId(mockPool, '999');
+      const result = await notificationModel.getNotificationsByUserId(
+        mockPool,
+        '999',
+      );
 
       expect(result).toEqual([]);
     });
@@ -76,7 +84,7 @@ describe('NotificationModel', () => {
           task_id: 1,
           is_read: true,
           read_on: new Date(),
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 3,
@@ -85,16 +93,21 @@ describe('NotificationModel', () => {
           task_id: 3,
           is_read: true,
           read_on: new Date(),
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(updatedNotifications));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(updatedNotifications),
+      );
 
-      const result = await notificationModel.markNotificationsAsRead(mockPool, '1');
+      const result = await notificationModel.markNotificationsAsRead(
+        mockPool,
+        '1',
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(updatedNotifications);
     });
@@ -102,7 +115,10 @@ describe('NotificationModel', () => {
     it('should return empty array when no unread notifications', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await notificationModel.markNotificationsAsRead(mockPool, '1');
+      const result = await notificationModel.markNotificationsAsRead(
+        mockPool,
+        '1',
+      );
 
       expect(result).toEqual([]);
     });
@@ -118,14 +134,18 @@ describe('NotificationModel', () => {
       // user's notification.
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE notifications'),
-        ['1', '2']
+        ['1', '2'],
       );
     });
 
     it('should report failure when nothing was deleted', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const deleted = await notificationModel.deleteNotification(mockPool, '1', '2');
+      const deleted = await notificationModel.deleteNotification(
+        mockPool,
+        '1',
+        '2',
+      );
 
       expect(deleted).toBe(false);
     });
@@ -141,7 +161,7 @@ describe('NotificationModel', () => {
           task_id: 1,
           is_read: false,
           read_on: null,
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 2,
@@ -150,20 +170,25 @@ describe('NotificationModel', () => {
           task_id: 1,
           is_read: false,
           read_on: null,
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(createdNotifications));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(createdNotifications),
+      );
 
-      const result = await notificationModel.createWatcherNotifications(mockPool, {
-        task_id: 1,
-        action_user_id: 1,
-        type_id: 1
-      });
+      const result = await notificationModel.createWatcherNotifications(
+        mockPool,
+        {
+          task_id: 1,
+          action_user_id: 1,
+          type_id: 1,
+        },
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM create_watcher_notifications($1, $2, $3)',
-        [1, 1, 1]
+        [1, 1, 1],
       );
       expect(result).toEqual(createdNotifications);
     });
@@ -179,7 +204,7 @@ describe('NotificationModel', () => {
           project_id: 1,
           is_read: false,
           read_on: null,
-          created_on: new Date()
+          created_on: new Date(),
         },
         {
           id: 4,
@@ -188,20 +213,25 @@ describe('NotificationModel', () => {
           project_id: 1,
           is_read: false,
           read_on: null,
-          created_on: new Date()
-        }
+          created_on: new Date(),
+        },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(createdNotifications));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(createdNotifications),
+      );
 
-      const result = await notificationModel.createProjectMemberNotifications(mockPool, {
-        project_id: 1,
-        action_user_id: 1,
-        type_id: 2
-      });
+      const result = await notificationModel.createProjectMemberNotifications(
+        mockPool,
+        {
+          project_id: 1,
+          action_user_id: 1,
+          type_id: 2,
+        },
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM create_project_member_notifications($1, $2, $3)',
-        [1, 1, 2]
+        [1, 1, 2],
       );
       expect(result).toEqual(createdNotifications);
     });

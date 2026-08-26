@@ -17,7 +17,7 @@ jest.mock('../TaskHeader', () => ({
       <button onClick={props.onTimeLogClick}>Time Log</button>
       <button onClick={props.onAddSubtaskClick}>Add Subtask</button>
     </div>
-  )
+  ),
 }));
 
 const mockTask: Task = {
@@ -46,7 +46,7 @@ const mockTask: Task = {
   created_by: 1,
   created_by_name: 'Test Creator',
   created_on: '2024-03-20',
-  estimated_time: 8
+  estimated_time: 8,
 };
 
 const mockStatuses: TaskStatus[] = [
@@ -57,7 +57,7 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2024-03-20',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -66,8 +66,8 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2024-03-20',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 describe('TaskDetailsHeader', () => {
@@ -82,7 +82,7 @@ describe('TaskDetailsHeader', () => {
     onTimeLogClick: jest.fn(),
     onAddSubtaskClick: jest.fn(),
     canEdit: true,
-    canDelete: true
+    canDelete: true,
   };
 
   beforeEach(() => {
@@ -93,7 +93,9 @@ describe('TaskDetailsHeader', () => {
     render(<TaskDetailsHeader {...defaultProps} />);
     expect(screen.getByTestId('task-header')).toBeInTheDocument();
     expect(screen.getByText(`Task Name: ${mockTask.name}`)).toBeInTheDocument();
-    expect(screen.getByText(`Status Count: ${mockStatuses.length}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Status Count: ${mockStatuses.length}`),
+    ).toBeInTheDocument();
   });
 
   it('passes all props correctly to TaskHeader', () => {
@@ -103,12 +105,22 @@ describe('TaskDetailsHeader', () => {
     expect(taskHeader).toBeInTheDocument();
 
     // Verify that the TaskHeader receives all necessary props
-    expect(screen.getByRole('button', { name: 'Status Menu' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Close Menu' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Change Status' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Status Menu' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Close Menu' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Change Status' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Time Log' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Add Subtask' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Time Log' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add Subtask' }),
+    ).toBeInTheDocument();
   });
 
   it('handles empty statuses array gracefully', () => {
@@ -153,7 +165,7 @@ describe('TaskDetailsHeader', () => {
       onTimeLogClick: jest.fn(),
       onAddSubtaskClick: jest.fn(),
       canEdit: false,
-      canDelete: false
+      canDelete: false,
     };
 
     render(<TaskDetailsHeader {...minimalProps} />);

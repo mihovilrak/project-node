@@ -5,7 +5,7 @@ import { TaskStatusSelectProps } from '../../../types/task';
 export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
   formData,
   statuses,
-  handleChange
+  handleChange,
 }) => (
   <TextField
     select
@@ -27,7 +27,7 @@ export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
                 height: 16,
                 borderRadius: 0.5,
                 backgroundColor: status.color,
-                flexShrink: 0
+                flexShrink: 0,
               }}
             />
           )}

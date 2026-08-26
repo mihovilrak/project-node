@@ -15,7 +15,7 @@ const UPLOADS_DIR = path.resolve(__dirname, '../../uploads');
 export const getTaskFiles = async (
   req: TaskRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const taskId = req.taskId || '';
   const files = await fileModel.getTaskFiles(pool, taskId);
@@ -26,7 +26,7 @@ export const getTaskFiles = async (
 export const uploadFile = async (
   req: FileUploadRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const taskId = req.taskId;
   const userId = req.session?.user?.id;
@@ -55,7 +55,7 @@ export const uploadFile = async (
     file.filename,
     file.size,
     file.mimetype,
-    filePath
+    filePath,
   );
 
   res.status(201).json(fileData);
@@ -65,7 +65,7 @@ export const uploadFile = async (
 export const downloadFile = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { fileId } = req.params;
   const userId = (req as CustomRequest).session?.user?.id;
@@ -99,7 +99,7 @@ export const downloadFile = async (
 export const deleteFile = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   const { fileId } = req.params;
   const userId = (req as CustomRequest).session?.user?.id;

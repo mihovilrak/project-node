@@ -16,7 +16,7 @@ const mockProjectMembers: ProjectMember[] = [
     name: 'John',
     surname: 'Doe',
     role: 'Developer',
-    created_on: '2024-01-01T00:00:00Z'
+    created_on: '2024-01-01T00:00:00Z',
   },
   {
     project_id: 1,
@@ -24,7 +24,7 @@ const mockProjectMembers: ProjectMember[] = [
     name: 'Jane',
     surname: 'Smith',
     role: 'Project Manager',
-    created_on: '2024-01-01T00:00:00Z'
+    created_on: '2024-01-01T00:00:00Z',
   },
 ];
 
@@ -47,15 +47,16 @@ describe('WatcherDialog', () => {
   });
 
   it('shows loading state initially', () => {
-    (getProjectMembers as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (getProjectMembers as jest.Mock).mockImplementation(
+      () => new Promise(() => {}),
+    );
     render(<WatcherDialog {...defaultProps} />);
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   it('displays project members after loading', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockResolvedValueOnce(mockProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {
@@ -65,22 +66,22 @@ describe('WatcherDialog', () => {
   });
 
   it('handles API error gracefully', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockRejectedValueOnce(new Error('API Error'));
+    (getProjectMembers as jest.Mock).mockRejectedValueOnce(
+      new Error('API Error'),
+    );
 
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {
       expect(logger.error).toHaveBeenCalledWith(
         'Failed to fetch project members:',
-        expect.any(Error)
+        expect.any(Error),
       );
     });
   });
 
   it('calls onAddWatcher when adding a new watcher', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockResolvedValueOnce(mockProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {
@@ -92,8 +93,7 @@ describe('WatcherDialog', () => {
   });
 
   it('calls onRemoveWatcher when removing a watcher', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockResolvedValueOnce(mockProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {
@@ -105,8 +105,7 @@ describe('WatcherDialog', () => {
   });
 
   it('closes dialog when Close button is clicked', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockResolvedValueOnce(mockProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
     render(<WatcherDialog {...defaultProps} />);
 
     const closeButton = screen.getByText('Close');
@@ -116,8 +115,7 @@ describe('WatcherDialog', () => {
   });
 
   it('shows correct checkbox state for current watchers', async () => {
-    (getProjectMembers as jest.Mock)
-      .mockResolvedValueOnce(mockProjectMembers);
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
     render(<WatcherDialog {...defaultProps} />);
 
     await waitFor(() => {

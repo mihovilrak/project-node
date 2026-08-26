@@ -8,7 +8,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   children,
   fallback,
   showLoading = true,
-  loadingComponent
+  loadingComponent,
 }) => {
   const { hasPermission, loading } = usePermission(requiredPermission);
 
@@ -24,12 +24,14 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   }
 
   if (!hasPermission) {
-    return fallback || (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-        <Typography color="error">
-          You don't have permission to view this content
-        </Typography>
-      </Box>
+    return (
+      fallback || (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+          <Typography color="error">
+            You don't have permission to view this content
+          </Typography>
+        </Box>
+      )
     );
   }
 

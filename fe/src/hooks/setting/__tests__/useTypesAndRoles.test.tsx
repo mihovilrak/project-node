@@ -4,19 +4,15 @@ import {
   getTaskTypes,
   createTaskType,
   updateTaskType,
-  deleteTaskType
+  deleteTaskType,
 } from '../../../api/taskTypes';
 import {
   getActivityTypes,
   createActivityType,
   updateActivityType,
-  deleteActivityType
+  deleteActivityType,
 } from '../../../api/activityTypes';
-import {
-  getRoles,
-  createRole,
-  updateRole
-} from '../../../api/roles';
+import { getRoles, createRole, updateRole } from '../../../api/roles';
 import { Role } from '../../../types/role';
 import { TaskType } from '../../../types/setting';
 import { ActivityType } from '../../../types/setting';
@@ -29,17 +25,17 @@ jest.mock('../../../api/roles');
 describe('useTypesAndRoles', () => {
   const mockTaskTypes: TaskType[] = [
     { id: 1, name: 'Task Type 1', color: '#000000', active: true },
-    { id: 2, name: 'Task Type 2', color: '#ffffff', active: false }
+    { id: 2, name: 'Task Type 2', color: '#ffffff', active: false },
   ];
 
   const mockActivityTypes: ActivityType[] = [
     { id: 1, name: 'Activity Type 1', color: '#000000', active: true },
-    { id: 2, name: 'Activity Type 2', color: '#ffffff', active: false }
+    { id: 2, name: 'Activity Type 2', color: '#ffffff', active: false },
   ];
 
   const mockRoles: Role[] = [
     { id: 1, name: 'Role 1', description: 'Description 1', permissions: [] },
-    { id: 2, name: 'Role 2', description: 'Description 2', permissions: [] }
+    { id: 2, name: 'Role 2', description: 'Description 2', permissions: [] },
   ];
 
   beforeEach(() => {
@@ -123,7 +119,11 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should create new task type', async () => {
-    const newTaskType = { name: 'New Task Type', color: '#123456', active: true };
+    const newTaskType = {
+      name: 'New Task Type',
+      color: '#123456',
+      active: true,
+    };
     (createTaskType as jest.Mock).mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(useTypesAndRoles);
@@ -138,7 +138,12 @@ describe('useTypesAndRoles', () => {
   });
 
   it('should update existing task type', async () => {
-    const updatedTaskType = { id: 1, name: 'Updated Task Type', color: '#123456', active: true };
+    const updatedTaskType = {
+      id: 1,
+      name: 'Updated Task Type',
+      color: '#123456',
+      active: true,
+    };
     (updateTaskType as jest.Mock).mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(useTypesAndRoles);
@@ -171,7 +176,7 @@ describe('useTypesAndRoles', () => {
       id: 1,
       name: 'Updated Role',
       description: 'Updated Description',
-      permissions: [{ id: 1, name: 'Permission 1' }]
+      permissions: [{ id: 1, name: 'Permission 1' }],
     };
 
     (updateRole as jest.Mock).mockResolvedValueOnce(undefined);
@@ -183,18 +188,21 @@ describe('useTypesAndRoles', () => {
       await result.current.handleRoleUpdate(updatedRole);
     });
 
-    expect(updateRole).toHaveBeenCalledWith(1, expect.objectContaining({
-      id: 1,
-      name: 'Updated Role',
-      description: 'Updated Description',
-      permissions: expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          name: 'Permission 1',
-          active: true
-        })
-      ])
-    }));
+    expect(updateRole).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        id: 1,
+        name: 'Updated Role',
+        description: 'Updated Description',
+        permissions: expect.arrayContaining([
+          expect.objectContaining({
+            id: 1,
+            name: 'Permission 1',
+            active: true,
+          }),
+        ]),
+      }),
+    );
   });
 
   it('should update existing role when item has no id but selectedItem is set (edit mode)', async () => {
@@ -202,7 +210,7 @@ describe('useTypesAndRoles', () => {
       name: 'Renamed Role',
       description: 'Desc',
       active: true,
-      permissions: [1]
+      permissions: [1],
     };
     (updateRole as jest.Mock).mockResolvedValueOnce(undefined);
 
@@ -229,7 +237,7 @@ describe('useTypesAndRoles', () => {
       id: 1,
       name: 'Updated Activity Type',
       color: '#123456',
-      active: true
+      active: true,
     };
     (updateActivityType as jest.Mock).mockResolvedValueOnce(undefined);
 

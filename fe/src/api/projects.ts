@@ -14,7 +14,7 @@ export const getProjects = async (params?: {
 }): Promise<Project[]> => {
   try {
     const response = await api.get('/projects', {
-      params
+      params,
     });
     return response.data;
   } catch (error) {
@@ -35,7 +35,9 @@ export const getProjectById = async (id: number): Promise<Project> => {
 };
 
 // Get project details
-export const getProjectDetails = async (id: number): Promise<Project | null> => {
+export const getProjectDetails = async (
+  id: number,
+): Promise<Project | null> => {
   try {
     const response = await api.get(`/projects/${id}/details`);
     return response.data || null;
@@ -51,7 +53,9 @@ export const getProjectDetails = async (id: number): Promise<Project | null> => 
 };
 
 // Create project
-export const createProject = async (values: Partial<Project>): Promise<Project> => {
+export const createProject = async (
+  values: Partial<Project>,
+): Promise<Project> => {
   try {
     const response = await api.post('/projects', values);
     return response.data;
@@ -73,7 +77,10 @@ export const changeProjectStatus = async (id: number): Promise<Project> => {
 };
 
 // Update project
-export const updateProject = async (id: number, updates: Partial<Project>): Promise<Project> => {
+export const updateProject = async (
+  id: number,
+  updates: Partial<Project>,
+): Promise<Project> => {
   try {
     const response = await api.put(`/projects/${id}`, updates);
     return response.data;
@@ -94,7 +101,9 @@ export const deleteProject = async (id: number): Promise<void> => {
 };
 
 // Get project members
-export const getProjectMembers = async (id: number): Promise<ProjectMember[]> => {
+export const getProjectMembers = async (
+  id: number,
+): Promise<ProjectMember[]> => {
   try {
     const response = await api.get(`/projects/${id}/members`);
     return response.data || [];
@@ -105,9 +114,14 @@ export const getProjectMembers = async (id: number): Promise<ProjectMember[]> =>
 };
 
 // Add project member
-export const addProjectMember = async (projectId: number, userId: number): Promise<ProjectMember> => {
+export const addProjectMember = async (
+  projectId: number,
+  userId: number,
+): Promise<ProjectMember> => {
   try {
-    const response = await api.post(`/projects/${projectId}/members`, { userId });
+    const response = await api.post(`/projects/${projectId}/members`, {
+      userId,
+    });
     return response.data;
   } catch (error) {
     logger.error('Error adding project member:', error);
@@ -116,7 +130,10 @@ export const addProjectMember = async (projectId: number, userId: number): Promi
 };
 
 // Remove project member
-export const removeProjectMember = async (projectId: number, userId: number): Promise<void> => {
+export const removeProjectMember = async (
+  projectId: number,
+  userId: number,
+): Promise<void> => {
   try {
     await api.delete(`/projects/${projectId}/members`, { data: { userId } });
   } catch (error) {
@@ -126,9 +143,15 @@ export const removeProjectMember = async (projectId: number, userId: number): Pr
 };
 
 // Update project member
-export const updateProjectMember = async (projectId: number, userId: number, role: string): Promise<ProjectMember> => {
+export const updateProjectMember = async (
+  projectId: number,
+  userId: number,
+  role: string,
+): Promise<ProjectMember> => {
   try {
-    const response = await api.put(`/projects/${projectId}/members/${userId}`, { role });
+    const response = await api.put(`/projects/${projectId}/members/${userId}`, {
+      role,
+    });
     return response.data;
   } catch (error) {
     logger.error('Error updating project member:', error);
@@ -148,7 +171,9 @@ export const getSubprojects = async (projectId: number): Promise<Project[]> => {
 };
 
 // Get project spent time
-export const getProjectSpentTime = async (projectId: number): Promise<number> => {
+export const getProjectSpentTime = async (
+  projectId: number,
+): Promise<number> => {
   try {
     const response = await api.get(`/projects/${projectId}/spent-time`);
     return response.data;

@@ -2,7 +2,7 @@ import {
   createTheme,
   ThemeOptions,
   Components,
-  Theme
+  Theme,
 } from '@mui/material/styles';
 
 const components: Components<Theme> = {
@@ -12,22 +12,22 @@ const components: Components<Theme> = {
         '&.MuiGrid-container': {
           width: '100%',
           margin: 0,
-          padding: 0
+          padding: 0,
         },
         '&.MuiGrid-item': {
-          padding: '12px'
-        }
-      }
-    }
+          padding: '12px',
+        },
+      },
+    },
   },
   MuiCard: {
     styleOverrides: {
       root: {
         height: '100%',
         display: 'flex',
-        flexDirection: 'column'
-      }
-    }
+        flexDirection: 'column',
+      },
+    },
   },
   MuiCardContent: {
     styleOverrides: {
@@ -35,11 +35,11 @@ const components: Components<Theme> = {
         flexGrow: 1,
         padding: '16px !important',
         '&:last-child': {
-          paddingBottom: '16px !important'
-        }
-      }
-    }
-  }
+          paddingBottom: '16px !important',
+        },
+      },
+    },
+  },
 };
 
 export const lightTheme: ThemeOptions = {
@@ -53,7 +53,7 @@ export const lightTheme: ThemeOptions = {
       paper: '#ffffff',
     },
   },
-  components
+  components,
 };
 
 export const darkTheme: ThemeOptions = {
@@ -67,7 +67,7 @@ export const darkTheme: ThemeOptions = {
       paper: '#424242',
     },
   },
-  components
+  components,
 };
 
 export const createAppTheme = (mode: 'light' | 'dark') => {

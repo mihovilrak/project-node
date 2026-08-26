@@ -15,14 +15,14 @@ const mockTaskTypes: TaskType[] = [
     id: 1,
     name: 'Task',
     color: '#2196f3',
-    icon: 'TaskAlt'
+    icon: 'TaskAlt',
   },
   {
     id: 2,
     name: 'Bug',
     color: '#f44336',
-    icon: 'BugReport'
-  }
+    icon: 'BugReport',
+  },
 ];
 
 describe('TaskTypeSelect', () => {
@@ -35,12 +35,7 @@ describe('TaskTypeSelect', () => {
   it('shows loading state initially', () => {
     (getTaskTypes as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} />);
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
@@ -48,12 +43,7 @@ describe('TaskTypeSelect', () => {
   it('renders task types after loading', async () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -73,12 +63,7 @@ describe('TaskTypeSelect', () => {
   it('handles API errors gracefully', async () => {
     (getTaskTypes as jest.Mock).mockRejectedValue(new Error('Failed to fetch'));
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -86,19 +71,14 @@ describe('TaskTypeSelect', () => {
 
     expect(logger.error).toHaveBeenCalledWith(
       'Failed to fetch task types:',
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 
   it('calls onChange when a type is selected', async () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -112,7 +92,8 @@ describe('TaskTypeSelect', () => {
     fireEvent.click(screen.getByRole('option', { name: 'Bug' }));
 
     expect(mockOnChange).toHaveBeenCalled();
-    const changeEvent = mockOnChange.mock.calls[0][0] as SelectChangeEvent<number>;
+    const changeEvent = mockOnChange.mock
+      .calls[0][0] as SelectChangeEvent<number>;
     expect(changeEvent.target.value).toBeTruthy();
   });
 
@@ -120,11 +101,7 @@ describe('TaskTypeSelect', () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
 
     render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-        required={true}
-      />
+      <TaskTypeSelect value={1} onChange={mockOnChange} required={true} />,
     );
 
     await waitFor(() => {
@@ -137,13 +114,7 @@ describe('TaskTypeSelect', () => {
   it('shows error state when error prop is true', async () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-        error={true}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} error={true} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
@@ -156,12 +127,7 @@ describe('TaskTypeSelect', () => {
   it('renders icons for task types that have them', async () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
 
-    render(
-      <TaskTypeSelect
-        value={1}
-        onChange={mockOnChange}
-      />
-    );
+    render(<TaskTypeSelect value={1} onChange={mockOnChange} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();

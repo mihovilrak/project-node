@@ -6,12 +6,12 @@ import { getAppTheme } from '../../api/settings';
 
 // Mock the theme creation
 jest.mock('../../theme/theme', () => ({
-  createAppTheme: jest.fn().mockReturnValue({})
+  createAppTheme: jest.fn().mockReturnValue({}),
 }));
 
 // Mock the API call
 jest.mock('../../api/settings', () => ({
-  getAppTheme: jest.fn()
+  getAppTheme: jest.fn(),
 }));
 
 // Mock component to test useTheme hook
@@ -37,7 +37,7 @@ describe('ThemeContext', () => {
 
     Object.defineProperty(window, 'localStorage', {
       value: {
-        getItem: jest.fn(key => localStorageMock[key]),
+        getItem: jest.fn((key) => localStorageMock[key]),
         setItem: jest.fn((key, value) => {
           localStorageMock[key] = value;
         }),
@@ -48,11 +48,11 @@ describe('ThemeContext', () => {
           delete localStorageMock[key];
         }),
       },
-      writable: true
+      writable: true,
     });
 
     // Mock matchMedia for system theme detection
-    matchMediaMock = jest.fn().mockImplementation(query => ({
+    matchMediaMock = jest.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -77,7 +77,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -93,7 +93,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -105,7 +105,7 @@ describe('ThemeContext', () => {
 
   it('should handle system theme preference', async () => {
     (getAppTheme as jest.Mock).mockResolvedValue({ theme: 'system' });
-    matchMediaMock.mockImplementation(query => ({
+    matchMediaMock.mockImplementation((query) => ({
       matches: query === '(prefers-color-scheme: dark)',
       media: query,
       onchange: null,
@@ -119,7 +119,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -134,12 +134,15 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('theme-mode')).toHaveTextContent('light');
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('theme-mode')).toHaveTextContent('light');
+      },
+      { timeout: 3000 },
+    );
 
     const toggleButton = screen.getByTestId('theme-toggle');
 
@@ -151,10 +154,13 @@ describe('ThemeContext', () => {
     });
 
     // Wait for the state to update
-    await waitFor(() => {
-      expect(screen.getByTestId('theme-mode')).toHaveTextContent('dark');
-    }, { timeout: 3000 });
-    
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('theme-mode')).toHaveTextContent('dark');
+      },
+      { timeout: 3000 },
+    );
+
     expect(localStorage.setItem).toHaveBeenCalledWith('themeMode', 'dark');
 
     act(() => {
@@ -162,9 +168,12 @@ describe('ThemeContext', () => {
     });
 
     // Wait for the state to update back
-    await waitFor(() => {
-      expect(screen.getByTestId('theme-mode')).toHaveTextContent('light');
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('theme-mode')).toHaveTextContent('light');
+      },
+      { timeout: 3000 },
+    );
     expect(localStorage.setItem).toHaveBeenCalledWith('themeMode', 'light');
   }, 10000);
 
@@ -174,7 +183,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -196,7 +205,7 @@ describe('ThemeContext', () => {
     const { getByTestId } = render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -212,7 +221,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -228,7 +237,7 @@ describe('ThemeContext', () => {
     render(
       <ThemeProvider>
         <TestComponent />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {

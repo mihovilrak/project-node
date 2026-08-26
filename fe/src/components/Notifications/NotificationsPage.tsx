@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Tabs,
   Tab,
-  Paper
+  Paper,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -21,7 +21,7 @@ import {
   Comment as CommentIcon,
   Alarm as AlarmIcon,
   Info as InfoIcon,
-  DoneAll as DoneAllIcon
+  DoneAll as DoneAllIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useNotificationCenter } from '../../hooks/notification/useNotificationCenter';
@@ -32,7 +32,7 @@ const iconMap: { [key: string]: React.ComponentType } = {
   comment: CommentIcon,
   deadline: AlarmIcon,
   mention: NotificationsIcon,
-  system: InfoIcon
+  system: InfoIcon,
 };
 
 type TabValue = 'all' | 'read' | 'unread';
@@ -50,7 +50,7 @@ const NotificationsPage: React.FC = () => {
     handleNotificationClick,
     handleDeleteNotification,
     handleMarkAllAsRead,
-    fetchNotifications
+    fetchNotifications,
   } = useNotificationCenter(userId, 60000);
 
   const filteredNotifications = useMemo(() => {
@@ -77,14 +77,25 @@ const NotificationsPage: React.FC = () => {
   if (userId == null) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography color="text.secondary">Sign in to view notifications.</Typography>
+        <Typography color="text.secondary">
+          Sign in to view notifications.
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 720, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+          mb: 2,
+        }}
+      >
         <Typography variant="h5" component="h1">
           Notifications
         </Typography>
@@ -92,7 +103,9 @@ const NotificationsPage: React.FC = () => {
           <Button
             variant="outlined"
             size="small"
-            startIcon={markingAll ? <CircularProgress size={16} /> : <DoneAllIcon />}
+            startIcon={
+              markingAll ? <CircularProgress size={16} /> : <DoneAllIcon />
+            }
             onClick={onMarkAllAsRead}
             disabled={markingAll}
             data-testid="mark-all-read"
@@ -116,13 +129,14 @@ const NotificationsPage: React.FC = () => {
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress data-testid="loading-spinner" aria-label="Loading notifications" />
+            <CircularProgress
+              data-testid="loading-spinner"
+              aria-label="Loading notifications"
+            />
           </Box>
         ) : filteredNotifications.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-            <Typography color="text.secondary">
-              No notifications
-            </Typography>
+            <Typography color="text.secondary">No notifications</Typography>
           </Box>
         ) : (
           <List sx={{ p: 0 }}>
@@ -131,17 +145,26 @@ const NotificationsPage: React.FC = () => {
               return (
                 <ListItem
                   key={notification?.id}
-                  onClick={() => notification && handleNotificationClick(notification)}
+                  onClick={() =>
+                    notification && handleNotificationClick(notification)
+                  }
                   sx={{
                     backgroundColor: isRead ? 'inherit' : 'action.hover',
-                    '&:hover': { cursor: 'pointer' }
+                    '&:hover': { cursor: 'pointer' },
                   }}
                 >
-                  <ListItemIcon>{getIcon(notification?.type_name || '')}</ListItemIcon>
+                  <ListItemIcon>
+                    {getIcon(notification?.type_name || '')}
+                  </ListItemIcon>
                   <ListItemText
                     primary={
                       <>
-                        <Typography component="span" variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mr: 0.5 }}
+                        >
                           #{notification?.id}
                         </Typography>
                         {notification?.title || 'No title'}
@@ -150,7 +173,10 @@ const NotificationsPage: React.FC = () => {
                     secondary={notification?.message || 'No message'}
                   />
                   <IconButton
-                    onClick={(e) => notification?.id && handleDeleteNotification(notification.id, e)}
+                    onClick={(e) =>
+                      notification?.id &&
+                      handleDeleteNotification(notification.id, e)
+                    }
                     size="small"
                     aria-label="delete notification"
                     disabled={!notification?.id}

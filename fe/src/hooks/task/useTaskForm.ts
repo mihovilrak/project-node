@@ -7,14 +7,14 @@ import {
   updateTask,
   getTaskStatuses,
   getPriorities,
-  changeTaskStatus
+  changeTaskStatus,
 } from '../../api/tasks';
 import { getTaskTags, getTags } from '../../api/tags';
 import {
   TaskStatus,
   TaskPriority,
   TaskFormState,
-  UseTaskFormProps
+  UseTaskFormProps,
 } from '../../types/task';
 import { ProjectMember } from '../../types/project';
 import { Tag } from '../../types/tag';
@@ -27,7 +27,7 @@ export const useTaskForm = ({
   projectId,
   projectIdFromQuery,
   parentTaskId,
-  currentUserId
+  currentUserId,
 }: UseTaskFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +36,11 @@ export const useTaskForm = ({
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
     description: '',
-    project_id: projectIdFromQuery ? Number(projectIdFromQuery) : (projectId ? Number(projectId) : null),
+    project_id: projectIdFromQuery
+      ? Number(projectIdFromQuery)
+      : projectId
+        ? Number(projectId)
+        : null,
     type_id: 1,
     priority_id: 2,
     status_id: 1,
@@ -48,7 +52,7 @@ export const useTaskForm = ({
     estimated_time: 0,
     progress: 0,
     created_by: currentUserId,
-    tags: []
+    tags: [],
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -60,7 +64,7 @@ export const useTaskForm = ({
   const {
     projects,
     projectMembers: fetchedProjectMembers,
-    projectTasks
+    projectTasks,
   } = useProjectSelect(formData.project_id, taskId);
 
   useEffect(() => {
@@ -83,8 +87,12 @@ export const useTaskForm = ({
           const taskTags = await getTaskTags(Number(taskId));
 
           // Format dates properly
-          const formattedStartDate = taskData.start_date ? dayjs(taskData.start_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
-          const formattedDueDate = taskData.due_date ? dayjs(taskData.due_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : null;
+          const formattedStartDate = taskData.start_date
+            ? dayjs(taskData.start_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+            : null;
+          const formattedDueDate = taskData.due_date
+            ? dayjs(taskData.due_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+            : null;
 
           setFormData({
             name: taskData.name || '',
@@ -101,7 +109,7 @@ export const useTaskForm = ({
             estimated_time: taskData.estimated_time || 0,
             progress: taskData.progress || 0,
             created_by: taskData.created_by || currentUserId,
-            tags: taskTags || []
+            tags: taskTags || [],
           });
         }
       } catch (error) {
@@ -117,7 +125,7 @@ export const useTaskForm = ({
         const [statusesData, prioritiesData, tagsData] = await Promise.all([
           getTaskStatuses(),
           getPriorities(),
-          getTags()
+          getTags(),
         ]);
 
         setStatuses(statusesData || []);
@@ -135,9 +143,12 @@ export const useTaskForm = ({
     fetchData();
   }, [taskId, currentUserId]);
 
-  const handleChange = async (e: { target: { name: string; value: string | number | boolean } }) => {
+  const handleChange = async (e: {
+    target: { name: string; value: string | number | boolean };
+  }) => {
     const { name, value } = e.target;
-    let newValue: string | number | boolean | null = value === '' ? null : value;
+    let newValue: string | number | boolean | null =
+      value === '' ? null : value;
     if (name === 'holder_id' || name === 'assignee_id') {
       if (value === '') {
         newValue = null;
@@ -147,7 +158,7 @@ export const useTaskForm = ({
       }
     }
 
-    setFieldErrors(prev => {
+    setFieldErrors((prev) => {
       if (prev[name]) {
         const next = { ...prev };
         delete next[name];
@@ -155,29 +166,29 @@ export const useTaskForm = ({
       }
       return prev;
     });
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: newValue
+      [name]: newValue,
     }));
 
     // If we're editing and the status changes, update it immediately
     if (isEditing && name === 'status_id' && newValue !== null) {
       const statusId = Number(newValue);
       if (!Number.isNaN(statusId)) {
-      try {
-        const updatedTask = await changeTaskStatus(Number(taskId), statusId);
-        setFormData(prev => ({
-          ...prev,
-          status_id: updatedTask.status_id
-        }));
-      } catch (error) {
-        logger.error('Error updating task status:', error);
-        // Revert the status if update fails
-        setFormData(prev => ({
-          ...prev,
-          status_id: prev.status_id
-        }));
-      }
+        try {
+          const updatedTask = await changeTaskStatus(Number(taskId), statusId);
+          setFormData((prev) => ({
+            ...prev,
+            status_id: updatedTask.status_id,
+          }));
+        } catch (error) {
+          logger.error('Error updating task status:', error);
+          // Revert the status if update fails
+          setFormData((prev) => ({
+            ...prev,
+            status_id: prev.status_id,
+          }));
+        }
       }
     }
   };
@@ -191,7 +202,9 @@ export const useTaskForm = ({
     if (!formData.due_date) err.due_date = 'Due date is required';
     if (formData.holder_id == null) err.holder_id = 'Holder is required';
     if (formData.assignee_id == null) err.assignee_id = 'Assignee is required';
-    const start = formData.start_date ? dayjs(formData.start_date).valueOf() : null;
+    const start = formData.start_date
+      ? dayjs(formData.start_date).valueOf()
+      : null;
     const due = formData.due_date ? dayjs(formData.due_date).valueOf() : null;
     if (start != null && due != null && due < start) {
       err.due_date = err.due_date || 'Due date must be on or after start date';
@@ -204,14 +217,22 @@ export const useTaskForm = ({
     try {
       const taskData = {
         ...formData,
-        project_id: formData.project_id ? Number(formData.project_id) : undefined,
+        project_id: formData.project_id
+          ? Number(formData.project_id)
+          : undefined,
         type_id: formData.type_id ? Number(formData.type_id) : undefined,
-        priority_id: formData.priority_id ? Number(formData.priority_id) : undefined,
+        priority_id: formData.priority_id
+          ? Number(formData.priority_id)
+          : undefined,
         status_id: formData.status_id ? Number(formData.status_id) : undefined,
         holder_id: formData.holder_id ? Number(formData.holder_id) : undefined,
-        assignee_id: formData.assignee_id ? Number(formData.assignee_id) : undefined,
+        assignee_id: formData.assignee_id
+          ? Number(formData.assignee_id)
+          : undefined,
         parent_id: formData.parent_id ? Number(formData.parent_id) : undefined,
-        estimated_time: formData.estimated_time ? Number(formData.estimated_time) : undefined
+        estimated_time: formData.estimated_time
+          ? Number(formData.estimated_time)
+          : undefined,
       };
 
       if (isEditing) {
@@ -243,6 +264,6 @@ export const useTaskForm = ({
     isEditing,
     isLoading,
     handleChange,
-    handleSubmit
+    handleSubmit,
   };
 };

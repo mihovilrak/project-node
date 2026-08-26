@@ -33,7 +33,7 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockNext).toHaveBeenCalled();
@@ -50,14 +50,14 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Invalid notification data',
-        })
+        }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -72,14 +72,14 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Invalid notification data',
-        })
+        }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -94,14 +94,14 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Invalid notification data',
-        })
+        }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -112,20 +112,27 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Invalid notification data',
-        })
+        }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
 
     it('should accept valid data with different notification types', () => {
-      const validTypes = ['Task Due Soon', 'Task Assigned', 'Task Updated', 'Task Comment', 'Task Completed', 'Project Update'];
+      const validTypes = [
+        'Task Due Soon',
+        'Task Assigned',
+        'Task Updated',
+        'Task Comment',
+        'Task Completed',
+        'Project Update',
+      ];
 
       validTypes.forEach((type) => {
         mockNext.mockClear();
@@ -140,7 +147,7 @@ describe('Validation Middleware', () => {
         validateNotification(
           mockRequest as Request<{}, {}, NotificationCreateRequest>,
           mockResponse as Response,
-          mockNext
+          mockNext,
         );
 
         expect(mockNext).toHaveBeenCalled();
@@ -157,7 +164,7 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockJson).toHaveBeenCalledWith({
@@ -179,12 +186,12 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
-        expect.objectContaining({ error: 'Invalid notification type' })
+        expect.objectContaining({ error: 'Invalid notification type' }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -199,12 +206,12 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
-        expect.objectContaining({ error: 'Invalid user id' })
+        expect.objectContaining({ error: 'Invalid user id' }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -219,12 +226,12 @@ describe('Validation Middleware', () => {
       validateNotification(
         mockRequest as Request<{}, {}, NotificationCreateRequest>,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith(
-        expect.objectContaining({ error: 'Invalid user id' })
+        expect.objectContaining({ error: 'Invalid user id' }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });

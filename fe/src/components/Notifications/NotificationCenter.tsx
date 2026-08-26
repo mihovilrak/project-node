@@ -14,7 +14,7 @@ import {
   CircularProgress,
   Paper,
   Tabs,
-  Tab
+  Tab,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -24,7 +24,7 @@ import {
   Comment as CommentIcon,
   Alarm as AlarmIcon,
   Info as InfoIcon,
-  List as ListIcon
+  List as ListIcon,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { NotificationCenterProps } from '../../types/notification';
@@ -36,7 +36,7 @@ const iconMap: { [key: string]: React.ComponentType } = {
   comment: CommentIcon,
   deadline: AlarmIcon,
   mention: NotificationsIcon,
-  system: InfoIcon
+  system: InfoIcon,
 };
 
 // Map for test IDs to ensure consistent naming in tests
@@ -48,7 +48,7 @@ const testIdMap: { [key: string]: string } = {
   mention: 'NotificationsIcon',
   system: 'InfoIcon',
   // Default for fallback
-  default: 'NotificationsIcon'
+  default: 'NotificationsIcon',
 };
 
 // Extended props to include testMode for testing
@@ -61,7 +61,7 @@ type TabValue = 'all' | 'read' | 'unread';
 const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   userId,
   className,
-  testMode = false // Default to false for production use
+  testMode = false, // Default to false for production use
 }) => {
   const [tabValue, setTabValue] = useState<TabValue>('all');
   const {
@@ -72,7 +72,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
     handleClick,
     handleClose,
     handleNotificationClick,
-    handleDeleteNotification
+    handleDeleteNotification,
   } = useNotificationCenter(userId);
 
   const filteredNotifications = useMemo(() => {
@@ -103,7 +103,12 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   const renderMenuContent = () => (
     <>
       <Box
-        sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        sx={{
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
         data-testid="notifications-menu"
       >
         <Typography variant="h6">Notifications</Typography>
@@ -134,21 +139,23 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         renderLoadingComponent()
       ) : filteredNotifications.length === 0 ? (
         <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography color="text.secondary">
-            No notifications
-          </Typography>
+          <Typography color="text.secondary">No notifications</Typography>
         </Box>
       ) : (
         <List sx={{ p: 0 }}>
           {filteredNotifications.map((notification) => (
             <ListItem
               key={notification?.id}
-              onClick={() => notification && handleNotificationClick(notification)}
+              onClick={() =>
+                notification && handleNotificationClick(notification)
+              }
               sx={{
-                backgroundColor: notification?.is_read ? 'inherit' : 'action.hover',
+                backgroundColor: notification?.is_read
+                  ? 'inherit'
+                  : 'action.hover',
                 '&:hover': {
-                  cursor: 'pointer'
-                }
+                  cursor: 'pointer',
+                },
               }}
             >
               <ListItemIcon>
@@ -159,7 +166,10 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
                 secondary={notification?.message || 'No message'}
               />
               <IconButton
-                onClick={(e) => notification?.id && handleDeleteNotification(notification.id, e)}
+                onClick={(e) =>
+                  notification?.id &&
+                  handleDeleteNotification(notification.id, e)
+                }
                 size="small"
                 aria-label="delete notification"
                 disabled={!notification?.id}
@@ -195,13 +205,13 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
 
       {/* In test mode, render menu content directly for easier testing */}
       {testMode && (
-        <Paper 
-          data-testid="test-menu-content" 
-          sx={{ 
-            position: 'absolute', 
-            zIndex: 1000, 
+        <Paper
+          data-testid="test-menu-content"
+          sx={{
+            position: 'absolute',
+            zIndex: 1000,
             width: '360px',
-            bgcolor: 'background.paper'
+            bgcolor: 'background.paper',
           }}
           className="notification-menu"
         >
@@ -216,7 +226,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
           open={Boolean(anchorEl)}
           onClose={handleClose}
           PaperProps={{
-            sx: { width: 360, maxHeight: 480 }
+            sx: { width: 360, maxHeight: 480 },
           }}
         >
           {renderMenuContent()}

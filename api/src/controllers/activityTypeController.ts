@@ -13,7 +13,7 @@ import logger from '../utils/logger';
 export const getActivityTypes = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const activityTypes = await activityTypeModel.getActivityTypes(pool);
@@ -28,15 +28,11 @@ export const getActivityTypes = async (
 export const createActivityType = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
-    const {
-      name,
-      description,
-      color,
-      icon,
-    } = req.body as ActivityTypeCreateInput;
+    const { name, description, color, icon } =
+      req.body as ActivityTypeCreateInput;
     const userId = req.session?.user?.id;
 
     if (!userId) {
@@ -52,7 +48,7 @@ export const createActivityType = async (
       name,
       description || null,
       color,
-      icon || null
+      icon || null,
     );
     res.status(201).json(activityType);
   } catch (error) {
@@ -65,16 +61,12 @@ export const createActivityType = async (
 export const updateActivityType = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
-    const {
-      name,
-      description,
-      color,
-      icon,
-    } = req.body as ActivityTypeUpdateInput;
+    const { name, description, color, icon } =
+      req.body as ActivityTypeUpdateInput;
 
     // Validate color format when provided (must be hex #RRGGBB for DB varchar(7))
     if (color != null && color !== '' && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
@@ -87,7 +79,7 @@ export const updateActivityType = async (
       name || '',
       description || '',
       color || '',
-      icon || ''
+      icon || '',
     );
 
     if (!activityType) {
@@ -105,7 +97,7 @@ export const updateActivityType = async (
 export const deleteActivityType = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { id } = req.params;
@@ -125,7 +117,7 @@ export const deleteActivityType = async (
 // Get available icons
 export const getAvailableIcons = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<Response | void> => {
   try {
     res.status(200).json(AVAILABLE_ICONS);

@@ -7,15 +7,41 @@ import { withPool } from '../utils/withPool';
 export default (pool: Pool): Router => {
   const router = Router();
 
-  router.get('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getSystemSettings));
-  router.put('/app_settings', checkPermission(pool, 'Admin'), withPool(pool, settingsController.updateSystemSettings));
+  router.get(
+    '/app_settings',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, settingsController.getSystemSettings),
+  );
+  router.put(
+    '/app_settings',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, settingsController.updateSystemSettings),
+  );
   router.get('/app_theme', withPool(pool, settingsController.getAppTheme));
   router.get('/timezones', withPool(pool, settingsController.getTimezones));
-  router.get('/user_settings', withPool(pool, settingsController.getUserSettings));
-  router.put('/user_settings', withPool(pool, settingsController.updateUserSettings));
-  router.get('/env', checkPermission(pool, 'Admin'), withPool(pool, settingsController.getEnvSettings));
-  router.patch('/env', checkPermission(pool, 'Admin'), withPool(pool, settingsController.updateEnvSettings));
-  router.post('/test-smtp', checkPermission(pool, 'Admin'), withPool(pool, settingsController.testSmtpConnection));
+  router.get(
+    '/user_settings',
+    withPool(pool, settingsController.getUserSettings),
+  );
+  router.put(
+    '/user_settings',
+    withPool(pool, settingsController.updateUserSettings),
+  );
+  router.get(
+    '/env',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, settingsController.getEnvSettings),
+  );
+  router.patch(
+    '/env',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, settingsController.updateEnvSettings),
+  );
+  router.post(
+    '/test-smtp',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, settingsController.testSmtpConnection),
+  );
 
   return router;
 };

@@ -12,6 +12,8 @@
     "type-check:watch": "tsc --noEmit --watch",
     "lint": "eslint src --max-warnings 0",
     "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
@@ -22,8 +24,8 @@
     "handlebars": "^4.7.8",
     "node-schedule": "^2.1.1",
     "nodemailer": "^7.0.2",
-    "pino": "^9.5.0",
-    "pg": "^8.17.2"
+    "pg": "^8.17.2",
+    "pino": "^9.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -38,6 +40,7 @@
     "jest": "^30.0.2",
     "nodemailer-mock": "^2.0.6",
     "nodemon": "^3.1.11",
+    "prettier": "^3.9.6",
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
     "ts-node-dev": "^2.0.0",

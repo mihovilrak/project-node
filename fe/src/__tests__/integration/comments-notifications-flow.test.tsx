@@ -14,7 +14,7 @@ const mockedApi = api as jest.Mocked<typeof api>;
 
 // Ensure permission-gated buttons (edit/delete) are rendered in Tasks
 jest.mock('../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 describe('Comments and Notifications Flow', () => {
@@ -44,7 +44,7 @@ describe('Comments and Notifications Flow', () => {
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2025-01-25',
-    estimated_time: 8
+    estimated_time: 8,
   };
 
   const mockComment: Comment = {
@@ -54,7 +54,7 @@ describe('Comments and Notifications Flow', () => {
     user_id: 1,
     created_on: '2025-01-25',
     updated_on: '2025-01-25',
-    active: true
+    active: true,
   };
 
   const mockNotification: Notification = {
@@ -70,7 +70,7 @@ describe('Comments and Notifications Flow', () => {
     created_on: '2025-01-25',
     type_name: 'Comment',
     type_color: 'blue',
-    type_icon: 'comment'
+    type_icon: 'comment',
   };
 
   beforeEach(() => {
@@ -78,37 +78,46 @@ describe('Comments and Notifications Flow', () => {
     // Mock initial API responses
     mockedApi.get.mockImplementation((url: string) => {
       const normalizedUrl = url.startsWith('/') ? url.substring(1) : url;
-      
+
       // Mock tasks active endpoint
-      if (normalizedUrl === 'tasks/active' || normalizedUrl === '/tasks/active') {
+      if (
+        normalizedUrl === 'tasks/active' ||
+        normalizedUrl === '/tasks/active'
+      ) {
         return Promise.resolve({ data: [mockTask] });
       }
       // Mock tasks statuses endpoint
-      if (normalizedUrl === 'tasks/statuses' || normalizedUrl === '/tasks/statuses') {
+      if (
+        normalizedUrl === 'tasks/statuses' ||
+        normalizedUrl === '/tasks/statuses'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'To Do', color: '#FF0000' },
             { id: 2, name: 'In Progress', color: '#00FF00' },
-            { id: 3, name: 'Done', color: '#0000FF' }
-          ]
+            { id: 3, name: 'Done', color: '#0000FF' },
+          ],
         });
       }
       // Mock tasks priorities endpoint
-      if (normalizedUrl === 'tasks/priorities' || normalizedUrl === '/tasks/priorities') {
+      if (
+        normalizedUrl === 'tasks/priorities' ||
+        normalizedUrl === '/tasks/priorities'
+      ) {
         return Promise.resolve({
           data: [
             { id: 1, name: 'High', color: '#FF0000' },
             { id: 2, name: 'Medium', color: '#FFA500' },
-            { id: 3, name: 'Low', color: '#00FF00' }
-          ]
+            { id: 3, name: 'Low', color: '#00FF00' },
+          ],
         });
       }
       // Mock projects endpoint
       if (normalizedUrl === 'projects' || normalizedUrl === '/projects') {
         return Promise.resolve({
           data: [
-            { id: 1, name: 'Test Project', description: 'Test Description' }
-          ]
+            { id: 1, name: 'Test Project', description: 'Test Description' },
+          ],
         });
       }
       // Mock tasks endpoint
@@ -131,8 +140,8 @@ describe('Comments and Notifications Flow', () => {
             id: 1,
             username: 'testuser',
             email: 'test@example.com',
-            role: 'admin'
-          }
+            role: 'admin',
+          },
         });
       }
       if (url.includes('/users/permissions')) {
@@ -140,8 +149,8 @@ describe('Comments and Notifications Flow', () => {
           data: [
             { id: 1, name: 'VIEW_TASKS' },
             { id: 2, name: 'EDIT_TASKS' },
-            { id: 3, name: 'CREATE_COMMENT' }
-          ]
+            { id: 3, name: 'CREATE_COMMENT' },
+          ],
         });
       }
       if (url.includes('/user')) {
@@ -149,8 +158,8 @@ describe('Comments and Notifications Flow', () => {
           data: {
             id: 1,
             username: 'testuser',
-            email: 'test@example.com'
-          }
+            email: 'test@example.com',
+          },
         });
       }
       return Promise.resolve({ data: [] });
@@ -166,13 +175,16 @@ describe('Comments and Notifications Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish (use tasks-loading; task cards have progressbar)
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Open the task via its name link (current UI uses task name as a link, not a Details button)
     const taskLink = await screen.findByRole('link', { name: 'Test Task' });
@@ -185,8 +197,12 @@ describe('Comments and Notifications Flow', () => {
 
     // Test task actions: edit/delete icon buttons are rendered
     expect(screen.getByRole('link', { name: 'Test Task' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /edit task/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete task/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /edit task/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /delete task/i }),
+    ).toBeInTheDocument();
 
     // Since we can't test comment functionality directly due to the way the app is structured,
     // we'll verify that we can see the task details
@@ -199,14 +215,16 @@ describe('Comments and Notifications Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish (use tasks-loading; task cards have progressbar)
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
-
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Instead of testing UI interaction which depends on components we don't have access to,
     // let's test that the Tasks component renders properly with our mocked data
@@ -224,13 +242,16 @@ describe('Comments and Notifications Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to finish (use tasks-loading; task cards have progressbar)
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Verify that filter panel is rendered
     expect(screen.getByTestId('filter-panel')).toBeInTheDocument();
@@ -241,8 +262,12 @@ describe('Comments and Notifications Flow', () => {
 
     // Test that task link and edit/delete icon buttons are rendered
     expect(screen.getByRole('link', { name: 'Test Task' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /edit task/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete task/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /edit task/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /delete task/i }),
+    ).toBeInTheDocument();
   }, 15000);
 
   it('should handle error cases', async () => {
@@ -259,19 +284,19 @@ describe('Comments and Notifications Flow', () => {
     render(
       <TestWrapper>
         <Tasks />
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Should display error message
     await waitFor(() => {
       expect(
-        screen.getByText('Failed to load tasks. Please try again later.')
+        screen.getByText('Failed to load tasks. Please try again later.'),
       ).toBeInTheDocument();
     });
 
     // Just verify that the error message is displayed properly
     expect(screen.getByTestId('task-error')).toHaveTextContent(
-      'Failed to load tasks. Please try again later.'
+      'Failed to load tasks. Please try again later.',
     );
   });
 });

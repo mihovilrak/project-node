@@ -32,8 +32,8 @@ const mockTasks: Task[] = [
     created_by: 1,
     created_by_name: 'John',
     created_on: '2023-01-01',
-    estimated_time: null
-  }
+    estimated_time: null,
+  },
 ];
 
 const renderWithRouter = (component: React.ReactNode) => {
@@ -49,7 +49,11 @@ describe('ProfileTaskList', () => {
 
   it('shows loading state when loading prop is true', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={[]} loading={true} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={[]}
+        loading={true}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
     expect(screen.queryByText('Recent Tasks')).not.toBeInTheDocument();
@@ -57,7 +61,11 @@ describe('ProfileTaskList', () => {
 
   it('renders empty list when no tasks are provided', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={[]} loading={false} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={[]}
+        loading={false}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
     expect(screen.getByText('Recent Tasks')).toBeInTheDocument();
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
@@ -65,7 +73,11 @@ describe('ProfileTaskList', () => {
 
   it('renders tasks with correct information', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={mockTasks}
+        loading={false}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
 
     expect(screen.getByText('Test Task 1')).toBeInTheDocument();
@@ -76,7 +88,11 @@ describe('ProfileTaskList', () => {
 
   it('renders correct number of tasks', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={mockTasks}
+        loading={false}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
 
     const listItems = screen.getAllByRole('listitem');
@@ -85,7 +101,11 @@ describe('ProfileTaskList', () => {
 
   it('calls onTaskClick with correct task id when clicked', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={mockTasks}
+        loading={false}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
 
     const taskItem = screen.getByText('Test Task 1').closest('li');
@@ -97,7 +117,11 @@ describe('ProfileTaskList', () => {
 
   it('renders chips with correct text', () => {
     renderWithRouter(
-      <ProfileTaskList tasks={mockTasks} loading={false} onTaskClick={mockOnTaskClick} />
+      <ProfileTaskList
+        tasks={mockTasks}
+        loading={false}
+        onTaskClick={mockOnTaskClick}
+      />,
     );
 
     // Get all chips by test IDs

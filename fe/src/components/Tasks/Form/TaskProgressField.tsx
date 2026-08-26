@@ -4,14 +4,14 @@ import { TaskProgressFieldProps } from '../../../types/task';
 
 export const TaskProgressField: React.FC<TaskProgressFieldProps> = ({
   value,
-  handleChange
+  handleChange,
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleChange({
       target: {
         name: e.target.name,
-        value: e.target.value
-      }
+        value: e.target.value,
+      },
     });
   };
 
@@ -26,7 +26,7 @@ export const TaskProgressField: React.FC<TaskProgressFieldProps> = ({
       inputProps={{
         min: 0,
         max: 100,
-        step: 1
+        step: 1,
       }}
       sx={{ mb: 2 }}
     />

@@ -10,11 +10,15 @@ import { useTimeLogCalendar } from '../../../hooks/timeLog/useTimeLogCalendar';
 // Mock dependencies
 jest.mock('../../../api/timeLogs');
 jest.mock('../../../hooks/timeLog/useTimeLogCalendar');
-jest.mock('../TimeLogCalendarHeader', () => ({ currentDate, totalHours }: any) => (
-  <div data-testid="mock-calendar-header">
-    Header: {currentDate.toISOString()} - {totalHours}h
-  </div>
-));
+jest.mock(
+  '../TimeLogCalendarHeader',
+  () =>
+    ({ currentDate, totalHours }: any) => (
+      <div data-testid="mock-calendar-header">
+        Header: {currentDate.toISOString()} - {totalHours}h
+      </div>
+    ),
+);
 jest.mock('../TimeLogCalendarGrid', () => ({ days, timeLogs }: any) => (
   <div data-testid="mock-calendar-grid">
     Grid: {days.length} days, {timeLogs.length} logs
@@ -33,8 +37,8 @@ const mockTimeLogs: TimeLog[] = [
     description: 'Test log',
     created_on: '2023-01-01T10:00:00Z',
     updated_on: null,
-    task_name: 'Test Task'
-  }
+    task_name: 'Test Task',
+  },
 ];
 
 const defaultMockHookReturn = {
@@ -45,22 +49,26 @@ const defaultMockHookReturn = {
   getDayColor: jest.fn(),
   formatTime: jest.fn(),
   getCalendarDays: jest.fn(() => [new Date('2023-01-01')]),
-  getTotalMonthHours: jest.fn(() => 8)
+  getTotalMonthHours: jest.fn(() => 8),
 };
 
 describe('TimeLogCalendar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useTimeLogCalendar as jest.Mock).mockReturnValue({ ...defaultMockHookReturn });
+    (useTimeLogCalendar as jest.Mock).mockReturnValue({
+      ...defaultMockHookReturn,
+    });
   });
 
   test('shows loading state initially', () => {
-    (getProjectTimeLogs as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (getProjectTimeLogs as jest.Mock).mockImplementation(
+      () => new Promise(() => {}),
+    );
 
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -72,18 +80,24 @@ describe('TimeLogCalendar', () => {
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     // Wait for loading to finish first
-    await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     // Then wait for error message to appear (error.message is used if available)
-    await waitFor(() => {
-      expect(screen.getByText('API Error')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('API Error')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 
   test('renders calendar components with data when API succeeds', async () => {
@@ -92,7 +106,7 @@ describe('TimeLogCalendar', () => {
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -107,7 +121,7 @@ describe('TimeLogCalendar', () => {
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -118,7 +132,7 @@ describe('TimeLogCalendar', () => {
     // Simulate date change with a new mock object
     const updatedMockHookReturn = {
       ...defaultMockHookReturn,
-      currentDate: new Date('2023-02-01')
+      currentDate: new Date('2023-02-01'),
     };
     act(() => {
       (useTimeLogCalendar as jest.Mock).mockReturnValue(updatedMockHookReturn);
@@ -135,7 +149,7 @@ describe('TimeLogCalendar', () => {
     render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {

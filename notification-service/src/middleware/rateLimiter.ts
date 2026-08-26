@@ -7,5 +7,5 @@ const max = Number.isNaN(parsed) || parsed <= 0 ? 100 : parsed;
 export const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max,
-  message: 'Too many notifications created from this IP'
+  message: 'Too many notifications created from this IP',
 });

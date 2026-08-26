@@ -6,21 +6,21 @@ import {
   ListItemIcon,
   ListItemText,
   Paper,
-  Typography
+  Typography,
 } from '@mui/material';
 import { ProjectMemberSelectProps } from '../../types/project';
 
 const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
   users,
   selectedUsers,
-  onUserSelect
+  onUserSelect,
 }) => {
   return (
     <Paper sx={{ mt: 2, p: 2 }}>
       <Typography variant="h6" gutterBottom>
         Select Project Members
       </Typography>
-      {(!users || users.length === 0) ? (
+      {!users || users.length === 0 ? (
         <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
           No users available
         </Typography>
@@ -45,7 +45,10 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
                   />
                 </ListItemIcon>
                 <ListItemText
-                  primary={`${user?.name || ''} ${user?.surname || ''}`.trim() || 'Unknown User'}
+                  primary={
+                    `${user?.name || ''} ${user?.surname || ''}`.trim() ||
+                    'Unknown User'
+                  }
                   secondary={`Role: ${user?.role_name || 'No role'}`}
                 />
               </ListItem>

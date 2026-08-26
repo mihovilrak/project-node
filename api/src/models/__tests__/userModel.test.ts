@@ -2,14 +2,20 @@ import { Pool } from 'pg';
 import * as userModel from '../userModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: any[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: any[]) => ({
+  rows,
+  rowCount: rows.length,
+  command: '',
+  oid: 0,
+  fields: [],
+});
 
 describe('UserModel', () => {
   let mockPool: jest.Mocked<Pool>;
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -19,14 +25,16 @@ describe('UserModel', () => {
       const mockStatuses = [
         { id: 1, name: 'Active' },
         { id: 2, name: 'Inactive' },
-        { id: 3, name: 'Deleted' }
+        { id: 3, name: 'Deleted' },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockStatuses));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockStatuses),
+      );
 
       const result = await userModel.getUserStatuses(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT id, name, color FROM user_statuses ORDER BY id'
+        'SELECT id, name, color FROM user_statuses ORDER BY id',
       );
       expect(result).toEqual(mockStatuses);
     });
@@ -36,50 +44,69 @@ describe('UserModel', () => {
     it('should return all users without filters', async () => {
       const mockUsers = [
         { id: '1', login: 'user1', name: 'User One' },
-        { id: '2', login: 'user2', name: 'User Two' }
+        { id: '2', login: 'user2', name: 'User Two' },
       ];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockUsers),
+      );
 
       const result = await userModel.getUsers(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_users($1, $2, $3)', [null, null, false]);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM get_users($1, $2, $3)',
+        [null, null, false],
+      );
       expect(result).toEqual(mockUsers);
     });
 
     it('should return filtered users with whereParams', async () => {
-      const mockUsers = [{ id: '1', login: 'user1', name: 'User One', status_id: 1 }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+      const mockUsers = [
+        { id: '1', login: 'user1', name: 'User One', status_id: 1 },
+      ];
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockUsers),
+      );
 
-      const result = await userModel.getUsers(mockPool, { whereParams: { status_id: '1' } });
+      const result = await userModel.getUsers(mockPool, {
+        whereParams: { status_id: '1' },
+      });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM get_users($1, $2, $3)',
-        [1, null, false]
+        [1, null, false],
       );
       expect(result).toEqual(mockUsers);
     });
 
     it('should handle multiple filter parameters', async () => {
       const mockUsers: any[] = [];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockUsers),
+      );
 
-      await userModel.getUsers(mockPool, { whereParams: { status_id: '1', role_id: '2' } });
+      await userModel.getUsers(mockPool, {
+        whereParams: { status_id: '1', role_id: '2' },
+      });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM get_users($1, $2, $3)',
-        [1, 2, false]
+        [1, 2, false],
       );
     });
 
     it('should ignore disallowed whereParams keys', async () => {
       const mockUsers = [{ id: '1', login: 'user1' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockUsers));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockUsers),
+      );
 
-      await userModel.getUsers(mockPool, { whereParams: { status_id: '1', evil_key: 'x' } as any });
+      await userModel.getUsers(mockPool, {
+        whereParams: { status_id: '1', evil_key: 'x' } as any,
+      });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM get_users($1, $2, $3)',
-        [1, null, false]
+        [1, null, false],
       );
     });
   });
@@ -87,13 +114,15 @@ describe('UserModel', () => {
   describe('getUserById', () => {
     it('should return a user by ID', async () => {
       const mockUser = { id: '1', login: 'user1', name: 'User One' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.getUserById(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'SELECT * FROM get_user_by_id($1)',
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockUser);
     });
@@ -109,14 +138,31 @@ describe('UserModel', () => {
 
   describe('createUser', () => {
     it('should create a new user', async () => {
-      const mockUser = { id: '1', login: 'newuser', name: 'New', surname: 'User', email: 'new@example.com', role_id: 2 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+      const mockUser = {
+        id: '1',
+        login: 'newuser',
+        name: 'New',
+        surname: 'User',
+        email: 'new@example.com',
+        role_id: 2,
+      };
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockUser]),
+      );
 
-      const result = await userModel.createUser(mockPool, 'newuser', 'New', 'User', 'new@example.com', 'password123', 2);
+      const result = await userModel.createUser(
+        mockPool,
+        'newuser',
+        'New',
+        'User',
+        'new@example.com',
+        'password123',
+        2,
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO users'),
-        ['newuser', 'New', 'User', 'new@example.com', 'password123', 2]
+        ['newuser', 'New', 'User', 'new@example.com', 'password123', 2],
       );
       expect(result).toEqual(mockUser);
     });
@@ -124,24 +170,42 @@ describe('UserModel', () => {
 
   describe('updateUser', () => {
     it('should update a user and return the updated user', async () => {
-      const mockUser = { id: '1', login: 'user1', name: 'Updated', email: 'user1@test.com' };
+      const mockUser = {
+        id: '1',
+        login: 'user1',
+        name: 'Updated',
+        email: 'user1@test.com',
+      };
       (mockPool.query as jest.Mock)
         .mockResolvedValueOnce({ rowCount: 1 })
         .mockResolvedValueOnce(mockQueryResult([mockUser]));
 
-      const result = await userModel.updateUser(mockPool, { name: 'Updated' }, '1');
+      const result = await userModel.updateUser(
+        mockPool,
+        { name: 'Updated' },
+        '1',
+      );
 
       expect(mockPool.query).toHaveBeenCalledTimes(2);
       expect(result).toEqual(mockUser);
     });
 
     it('should handle password update with encryption', async () => {
-      const mockUser = { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' };
+      const mockUser = {
+        id: '1',
+        login: 'user1',
+        name: 'User 1',
+        email: 'user1@test.com',
+      };
       (mockPool.query as jest.Mock)
         .mockResolvedValueOnce({ rowCount: 1 })
         .mockResolvedValueOnce(mockQueryResult([mockUser]));
 
-      const result = await userModel.updateUser(mockPool, { password: 'newpassword' }, '1');
+      const result = await userModel.updateUser(
+        mockPool,
+        { password: 'newpassword' },
+        '1',
+      );
 
       const updateQuery = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(updateQuery).toContain('crypt');
@@ -151,19 +215,28 @@ describe('UserModel', () => {
 
     it('should return user from getUserById when updates object is empty', async () => {
       const mockUser = { id: '1', login: 'user1', name: 'User One' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.updateUser(mockPool, {}, '1');
 
       expect(mockPool.query).toHaveBeenCalledTimes(1);
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT * FROM get_user_by_id($1)', ['1']);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM get_user_by_id($1)',
+        ['1'],
+      );
       expect(result).toEqual(mockUser);
     });
 
     it('should return null when no row was updated', async () => {
       (mockPool.query as jest.Mock).mockResolvedValueOnce({ rowCount: 0 });
 
-      const result = await userModel.updateUser(mockPool, { name: 'Updated' }, '999');
+      const result = await userModel.updateUser(
+        mockPool,
+        { name: 'Updated' },
+        '999',
+      );
 
       expect(mockPool.query).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
@@ -173,13 +246,15 @@ describe('UserModel', () => {
   describe('changeUserStatus', () => {
     it('should change user status', async () => {
       const mockUser = { id: '1', status_id: 2 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.changeUserStatus(mockPool, '1', 2);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE users'),
-        [2, '1']
+        [2, '1'],
       );
       expect(result).toEqual(mockUser);
     });
@@ -196,13 +271,15 @@ describe('UserModel', () => {
   describe('deleteUser', () => {
     it('should soft delete a user by setting status to 3', async () => {
       const mockUser = { id: '1', status_id: 3 };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.deleteUser(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SET (status_id, updated_on) = (3'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockUser);
     });

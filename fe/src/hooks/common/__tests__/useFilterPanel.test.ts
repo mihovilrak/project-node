@@ -9,19 +9,19 @@ describe('useFilterPanel', () => {
   const initialFilters: FilterValues = {
     search: 'test',
     status_id: 1,
-    priority_id: 2
+    priority_id: 2,
   };
 
   const mockOptions: FilterPanelOptions = {
     statuses: [
       { id: 1, name: 'Active' },
-      { id: 2, name: 'Inactive' }
+      { id: 2, name: 'Inactive' },
     ],
     priorities: [
       { id: 1, name: 'High' },
-      { id: 2, name: 'Low' }
+      { id: 2, name: 'Low' },
     ],
-    users: []
+    users: [],
   };
 
   const type = 'tasks';
@@ -32,7 +32,7 @@ describe('useFilterPanel', () => {
 
   it('should initialize with correct default values', () => {
     const { result } = renderHook(() =>
-      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type),
     );
 
     expect(result.current.expanded).toBe(false);
@@ -40,7 +40,7 @@ describe('useFilterPanel', () => {
 
   it('should handle filter changes correctly', () => {
     const { result } = renderHook(() =>
-      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type),
     );
 
     act(() => {
@@ -49,22 +49,28 @@ describe('useFilterPanel', () => {
 
     expect(mockOnFilterChange).toHaveBeenCalledWith({
       ...initialFilters,
-      status_id: 2
+      status_id: 2,
     });
   });
 
   it('should get applied filters correctly', () => {
     const { result } = renderHook(() =>
-      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type),
     );
 
     const appliedFilters = result.current.getAppliedFilters(mockOptions);
 
     expect(appliedFilters).toHaveLength(3);
-    expect(appliedFilters.map((f) => ({ field: f.field, displayLabel: f.displayLabel, displayValue: f.displayValue }))).toEqual([
+    expect(
+      appliedFilters.map((f) => ({
+        field: f.field,
+        displayLabel: f.displayLabel,
+        displayValue: f.displayValue,
+      })),
+    ).toEqual([
       { field: 'search', displayLabel: 'Search', displayValue: 'test' },
       { field: 'status_id', displayLabel: 'Status', displayValue: 'Active' },
-      { field: 'priority_id', displayLabel: 'Priority', displayValue: 'Low' }
+      { field: 'priority_id', displayLabel: 'Priority', displayValue: 'Low' },
     ]);
     appliedFilters.forEach((f) => {
       expect((f as { id?: string }).id).toBeDefined();
@@ -73,7 +79,7 @@ describe('useFilterPanel', () => {
 
   it('should rehydrate single dropdown value with valueMulti so dropdown shows selection', () => {
     const { result } = renderHook(() =>
-      useFilterPanel({ priority_id: 2 }, mockOnFilterChange, mockOptions, type)
+      useFilterPanel({ priority_id: 2 }, mockOnFilterChange, mockOptions, type),
     );
 
     expect(result.current.activeFilters).toHaveLength(1);
@@ -84,7 +90,7 @@ describe('useFilterPanel', () => {
 
   it('should handle display value for non-existing option', () => {
     const { result } = renderHook(() =>
-      useFilterPanel({ status_id: 999 }, mockOnFilterChange, mockOptions, type)
+      useFilterPanel({ status_id: 999 }, mockOnFilterChange, mockOptions, type),
     );
 
     const appliedFilters = result.current.getAppliedFilters(mockOptions);
@@ -93,7 +99,7 @@ describe('useFilterPanel', () => {
 
   it('should clear staged filters without applying until user clicks Apply', () => {
     const { result } = renderHook(() =>
-      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type),
     );
 
     act(() => {
@@ -106,7 +112,7 @@ describe('useFilterPanel', () => {
 
   it('should toggle expanded state', () => {
     const { result } = renderHook(() =>
-      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(initialFilters, mockOnFilterChange, mockOptions, type),
     );
 
     act(() => {
@@ -126,11 +132,11 @@ describe('useFilterPanel', () => {
     const filtersWithEmpty: FilterValues = {
       search: '',
       status_id: null as unknown as number,
-      priority_id: undefined
+      priority_id: undefined,
     };
 
     const { result } = renderHook(() =>
-      useFilterPanel(filtersWithEmpty, mockOnFilterChange, mockOptions, type)
+      useFilterPanel(filtersWithEmpty, mockOnFilterChange, mockOptions, type),
     );
 
     const appliedFilters = result.current.getAppliedFilters(mockOptions);
@@ -140,7 +146,15 @@ describe('useFilterPanel', () => {
   it('should add filter and update filter; applyFilters sends to parent', () => {
     const { result } = renderHook(() => {
       const [filters, setFilters] = React.useState<FilterValues>({});
-      return useFilterPanel(filters, (next) => { setFilters(next); mockOnFilterChange(next); }, mockOptions, type);
+      return useFilterPanel(
+        filters,
+        (next) => {
+          setFilters(next);
+          mockOnFilterChange(next);
+        },
+        mockOptions,
+        type,
+      );
     });
 
     act(() => {
@@ -148,7 +162,7 @@ describe('useFilterPanel', () => {
         key: 'status_id',
         label: 'Status',
         kind: 'dropdown',
-        optionKey: 'statuses'
+        optionKey: 'statuses',
       });
     });
 
@@ -157,7 +171,9 @@ describe('useFilterPanel', () => {
     expect(result.current.activeFilters[0].operator).toBe('is');
 
     act(() => {
-      result.current.updateFilter(result.current.activeFilters[0].id, { value: 1 });
+      result.current.updateFilter(result.current.activeFilters[0].id, {
+        value: 1,
+      });
     });
 
     expect(mockOnFilterChange).not.toHaveBeenCalled();
@@ -166,13 +182,25 @@ describe('useFilterPanel', () => {
       result.current.applyFilters();
     });
 
-    expect(mockOnFilterChange).toHaveBeenCalledWith(expect.objectContaining({ status_id: 1 }));
+    expect(mockOnFilterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ status_id: 1 }),
+    );
   });
 
   it('should remove filter from staged state without applying', () => {
     const { result } = renderHook(() => {
-      const [filters, setFilters] = React.useState<FilterValues>({ status_id: 1 });
-      return useFilterPanel(filters, (next) => { setFilters(next); mockOnFilterChange(next); }, mockOptions, type);
+      const [filters, setFilters] = React.useState<FilterValues>({
+        status_id: 1,
+      });
+      return useFilterPanel(
+        filters,
+        (next) => {
+          setFilters(next);
+          mockOnFilterChange(next);
+        },
+        mockOptions,
+        type,
+      );
     });
 
     const initialCount = result.current.activeFilters.length;

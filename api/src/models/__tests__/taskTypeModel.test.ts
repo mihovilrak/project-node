@@ -2,14 +2,20 @@ import { Pool } from 'pg';
 import * as taskTypeModel from '../taskTypeModel';
 
 // Helper to create mock query result
-const mockQueryResult = (rows: any[]) => ({ rows, rowCount: rows.length, command: '', oid: 0, fields: [] });
+const mockQueryResult = (rows: any[]) => ({
+  rows,
+  rowCount: rows.length,
+  command: '',
+  oid: 0,
+  fields: [],
+});
 
 describe('TaskTypeModel', () => {
   let mockPool: jest.Mocked<Pool>;
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -17,11 +23,15 @@ describe('TaskTypeModel', () => {
   describe('getTaskTypes', () => {
     it('should return all active task types', async () => {
       const mockTypes = [{ id: '1', name: 'Bug', color: '#FF0000' }];
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(mockTypes));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult(mockTypes),
+      );
 
       const result = await taskTypeModel.getTaskTypes(mockPool);
 
-      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('WHERE active = true'));
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('WHERE active = true'),
+      );
       expect(result).toEqual(mockTypes);
     });
   });
@@ -29,7 +39,9 @@ describe('TaskTypeModel', () => {
   describe('getTaskTypeById', () => {
     it('should return a task type by ID', async () => {
       const mockType = { id: '1', name: 'Bug', color: '#FF0000' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockType]),
+      );
 
       const result = await taskTypeModel.getTaskTypeById(mockPool, '1');
 
@@ -48,15 +60,22 @@ describe('TaskTypeModel', () => {
   describe('createTaskType', () => {
     it('should create a task type', async () => {
       const mockType = { id: '1', name: 'Feature', color: '#00FF00' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockType]),
+      );
 
       const result = await taskTypeModel.createTaskType(
-        mockPool, 'Feature', 'Feature description', '#00FF00', 'icon', true
+        mockPool,
+        'Feature',
+        'Feature description',
+        '#00FF00',
+        'icon',
+        true,
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO task_types'),
-        ['Feature', 'Feature description', '#00FF00', 'icon', true]
+        ['Feature', 'Feature description', '#00FF00', 'icon', true],
       );
       expect(result).toEqual(mockType);
     });
@@ -65,10 +84,18 @@ describe('TaskTypeModel', () => {
   describe('updateTaskType', () => {
     it('should update a task type', async () => {
       const mockType = { id: '1', name: 'Updated Bug' };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockType]),
+      );
 
       const result = await taskTypeModel.updateTaskType(
-        mockPool, '1', 'Updated Bug', 'Updated description', '#0000FF', 'newicon', true
+        mockPool,
+        '1',
+        'Updated Bug',
+        'Updated description',
+        '#0000FF',
+        'newicon',
+        true,
       );
 
       expect(result).toEqual(mockType);
@@ -78,7 +105,13 @@ describe('TaskTypeModel', () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
       const result = await taskTypeModel.updateTaskType(
-        mockPool, '999', 'Updated', null, null, null, null
+        mockPool,
+        '999',
+        'Updated',
+        null,
+        null,
+        null,
+        null,
       );
 
       expect(result).toBeNull();
@@ -88,13 +121,15 @@ describe('TaskTypeModel', () => {
   describe('deleteTaskType', () => {
     it('should soft delete a task type', async () => {
       const mockType = { id: '1', active: false };
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([mockType]));
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([mockType]),
+      );
 
       const result = await taskTypeModel.deleteTaskType(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('SET (active, updated_on) = (false'),
-        ['1']
+        ['1'],
       );
       expect(result).toEqual(mockType);
     });

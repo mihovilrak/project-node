@@ -21,12 +21,13 @@ jest.mock('../useTimeLogData', () => ({
   }),
 }));
 
-
 jest.mock('../useTimeLogValidation', () => ({
   useTimeLogValidation: () => ({
     timeError: '',
     validateTime: jest.fn().mockReturnValue(true),
-    validateAndFormatTime: jest.fn().mockImplementation((time) => parseFloat(time)),
+    validateAndFormatTime: jest
+      .fn()
+      .mockImplementation((time) => parseFloat(time)),
   }),
 }));
 
@@ -39,7 +40,7 @@ const mockTimeLog: TimeLog = {
   spent_time: 4,
   description: 'Test log',
   created_on: '2025-01-25T10:00:00Z',
-  updated_on: null
+  updated_on: null,
 };
 
 const mockUser: User = {
@@ -53,7 +54,7 @@ const mockUser: User = {
   avatar_url: null,
   created_on: '2025-01-25T10:00:00Z',
   updated_on: null,
-  last_login: null
+  last_login: null,
 };
 
 const mockTask: Task = {
@@ -82,7 +83,7 @@ const mockTask: Task = {
   created_by: 1,
   created_by_name: 'Test Creator',
   created_on: '2025-01-25T10:00:00Z',
-  estimated_time: null
+  estimated_time: null,
 };
 
 const defaultProps = {
@@ -129,10 +130,14 @@ describe('useTimeLogDialog', () => {
 
     expect(result.current.selectedTaskId).toBe(mockTimeLog.task_id);
     expect(result.current.selectedUserId).toBe(mockTimeLog.user_id);
-    expect(result.current.selectedActivityTypeId).toBe(mockTimeLog.activity_type_id);
+    expect(result.current.selectedActivityTypeId).toBe(
+      mockTimeLog.activity_type_id,
+    );
     expect(result.current.spentTime).toBe(String(mockTimeLog.spent_time));
     expect(result.current.description).toBe(mockTimeLog.description || '');
-    expect(result.current.logDate.format('YYYY-MM-DD')).toBe(mockTimeLog.log_date);
+    expect(result.current.logDate.format('YYYY-MM-DD')).toBe(
+      mockTimeLog.log_date,
+    );
   });
 
   it('should handle project change', () => {
@@ -196,7 +201,7 @@ describe('useTimeLogDialog', () => {
       activity_type_id: 0,
       log_date: expect.any(String),
       spent_time: 2.5,
-      description: 'Test description'
+      description: 'Test description',
     });
     expect(onClose).toHaveBeenCalled();
   });

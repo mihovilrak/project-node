@@ -1,16 +1,13 @@
 import React from 'react';
 import { Box, Button } from '@mui/material';
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { ProjectActionsProps } from '../../types/project';
 
 const ProjectActions: React.FC<ProjectActionsProps> = ({
   canEdit,
   canDelete,
   onEdit,
-  onDelete
+  onDelete,
 }) => {
   return (
     <Box>

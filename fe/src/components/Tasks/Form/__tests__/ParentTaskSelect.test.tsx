@@ -31,7 +31,7 @@ describe('ParentTaskSelect', () => {
       created_by: 1,
       created_by_name: 'Creator 1',
       created_on: '2024-01-01',
-      estimated_time: null
+      estimated_time: null,
     },
     {
       id: 2,
@@ -59,8 +59,8 @@ describe('ParentTaskSelect', () => {
       created_by: 1,
       created_by_name: 'Creator 1',
       created_on: '2024-01-01',
-      estimated_time: null
-    }
+      estimated_time: null,
+    },
   ];
 
   const mockFormData: TaskFormState = {
@@ -75,7 +75,7 @@ describe('ParentTaskSelect', () => {
     assignee_id: null,
     start_date: null,
     due_date: null,
-    estimated_time: null
+    estimated_time: null,
   };
 
   const mockHandleChange = jest.fn();
@@ -87,7 +87,7 @@ describe('ParentTaskSelect', () => {
         projectTasks={mockTasks}
         handleChange={mockHandleChange}
         parentIdFromUrl={null}
-      />
+      />,
     );
 
     expect(screen.getByLabelText('Parent Task')).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe('ParentTaskSelect', () => {
         projectTasks={mockTasks}
         handleChange={mockHandleChange}
         parentIdFromUrl={null}
-      />
+      />,
     );
 
     expect(screen.queryByLabelText('Parent Task')).not.toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('ParentTaskSelect', () => {
         projectTasks={mockTasks}
         handleChange={mockHandleChange}
         parentIdFromUrl={null}
-      />
+      />,
     );
 
     const select = screen.getByLabelText('Parent Task');
@@ -132,10 +132,13 @@ describe('ParentTaskSelect', () => {
         projectTasks={mockTasks}
         handleChange={mockHandleChange}
         parentIdFromUrl="1"
-      />
+      />,
     );
 
-    expect(screen.getByLabelText('Parent Task')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByLabelText('Parent Task')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('calls handleChange when selection changes', () => {
@@ -145,7 +148,7 @@ describe('ParentTaskSelect', () => {
         projectTasks={mockTasks}
         handleChange={mockHandleChange}
         parentIdFromUrl={null}
-      />
+      />,
     );
 
     const select = screen.getByLabelText('Parent Task');

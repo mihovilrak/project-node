@@ -1,4 +1,4 @@
-import { AxiosProgressEvent } from "axios";
+import { AxiosProgressEvent } from 'axios';
 
 export interface FileUploadProps {
   taskId: number;

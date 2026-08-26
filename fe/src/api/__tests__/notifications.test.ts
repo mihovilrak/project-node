@@ -3,7 +3,7 @@ import { Notification } from '../../types/notification';
 import {
   getNotifications,
   markAsRead,
-  deleteNotification
+  deleteNotification,
 } from '../notifications';
 
 jest.mock('../api');
@@ -20,7 +20,7 @@ describe('Notifications API', () => {
     is_read: false,
     read_on: null,
     active: true,
-    created_on: '2023-01-01T00:00:00Z'
+    created_on: '2023-01-01T00:00:00Z',
   };
 
   beforeEach(() => {
@@ -31,9 +31,9 @@ describe('Notifications API', () => {
     it('should fetch notifications for a user', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockNotification] });
 
-      const notifications = await getNotifications(1);
+      const notifications = await getNotifications();
 
-      expect(mockedApi.get).toHaveBeenCalledWith('/notifications/1');
+      expect(mockedApi.get).toHaveBeenCalledWith('/notifications');
       expect(notifications).toEqual([mockNotification]);
     });
 
@@ -41,8 +41,8 @@ describe('Notifications API', () => {
       const error = new Error('Network error');
       mockedApi.get.mockRejectedValueOnce(error);
 
-      await expect(getNotifications(1)).rejects.toThrow(error);
-      expect(mockedApi.get).toHaveBeenCalledWith('/notifications/1');
+      await expect(getNotifications()).rejects.toThrow(error);
+      expect(mockedApi.get).toHaveBeenCalledWith('/notifications');
     });
   });
 
@@ -52,7 +52,9 @@ describe('Notifications API', () => {
 
       await markAsRead(1);
 
-      expect(mockedApi.patch).toHaveBeenCalledWith('/notifications/1');
+      expect(mockedApi.patch).toHaveBeenCalledWith('/notifications', {
+        notification_id: 1,
+      });
     });
 
     it('should throw error when marking as read fails', async () => {
@@ -60,7 +62,9 @@ describe('Notifications API', () => {
       mockedApi.patch.mockRejectedValueOnce(error);
 
       await expect(markAsRead(1)).rejects.toThrow(error);
-      expect(mockedApi.patch).toHaveBeenCalledWith('/notifications/1');
+      expect(mockedApi.patch).toHaveBeenCalledWith('/notifications', {
+        notification_id: 1,
+      });
     });
   });
 

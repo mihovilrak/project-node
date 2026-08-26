@@ -7,7 +7,7 @@ import {
   TextField,
   Button,
   CircularProgress,
-  Box
+  Box,
 } from '@mui/material';
 import { CommentEditDialogProps } from '../../types/comment';
 import { useCommentEdit } from '../../hooks/comment/useCommentEdit';
@@ -16,7 +16,7 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   open,
   comment,
   onClose,
-  onSave
+  onSave,
 }) => {
   const {
     editedText,
@@ -24,7 +24,7 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
     isSubmitting,
     error,
     handleSave,
-    resetForm
+    resetForm,
   } = useCommentEdit(comment, onSave);
 
   React.useEffect(() => {
@@ -46,12 +46,7 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-    >
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Edit Comment</DialogTitle>
       <DialogContent>
         <TextField
@@ -69,10 +64,7 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={onClose}
-          disabled={isSubmitting}
-        >
+        <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
         <Box sx={{ position: 'relative' }}>
@@ -91,7 +83,7 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
                 top: '50%',
                 left: '50%',
                 marginTop: '-12px',
-                marginLeft: '-12px'
+                marginLeft: '-12px',
               }}
             />
           )}

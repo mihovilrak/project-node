@@ -6,32 +6,32 @@ import Profile from '../Profile';
 // Mock all child components
 jest.mock('../ProfileHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="profile-header" />
+  default: () => <div data-testid="profile-header" />,
 }));
 
 jest.mock('../ProfileStats', () => ({
   __esModule: true,
-  default: () => <div data-testid="profile-stats" />
+  default: () => <div data-testid="profile-stats" />,
 }));
 
 jest.mock('../ProfileTaskList', () => ({
   __esModule: true,
-  default: () => <div data-testid="profile-task-list" />
+  default: () => <div data-testid="profile-task-list" />,
 }));
 
 jest.mock('../ProfileProjectList', () => ({
   __esModule: true,
-  default: () => <div data-testid="profile-project-list" />
+  default: () => <div data-testid="profile-project-list" />,
 }));
 
 jest.mock('../ProfileEditDialog', () => ({
   __esModule: true,
-  default: () => <div data-testid="profile-edit-dialog" />
+  default: () => <div data-testid="profile-edit-dialog" />,
 }));
 
 jest.mock('../PasswordChangeDialog', () => ({
   __esModule: true,
-  default: () => <div data-testid="password-change-dialog" />
+  default: () => <div data-testid="password-change-dialog" />,
 }));
 
 // Mock functions
@@ -46,7 +46,7 @@ const mockUseProfileData = {
   profile: {
     id: 1,
     name: 'John Doe',
-    email: 'john@example.com'
+    email: 'john@example.com',
   },
   recentTasks: [],
   recentProjects: [],
@@ -63,19 +63,19 @@ const mockUseProfileData = {
   getTypedProfile: () => ({
     id: 1,
     name: 'John Doe',
-    email: 'john@example.com'
+    email: 'john@example.com',
   }),
   getProfileStats: () => ({
     totalTasks: 10,
     completedTasks: 5,
     activeProjects: 2,
-    totalHours: 100
-  })
+    totalHours: 100,
+  }),
 };
 
 // Mock the useProfileData hook
 jest.mock('../../../hooks/profile/useProfileData', () => ({
-  useProfileData: jest.fn()
+  useProfileData: jest.fn(),
 }));
 
 // Import the mocked module
@@ -92,7 +92,7 @@ describe('Profile', () => {
     // Override the mock for this specific test
     (useProfileData as jest.Mock).mockReturnValue({
       ...mockUseProfileData,
-      loading: true
+      loading: true,
     });
 
     render(<Profile />);
@@ -104,7 +104,7 @@ describe('Profile', () => {
     (useProfileData as jest.Mock).mockReturnValue({
       ...mockUseProfileData,
       loading: false,
-      error: 'Error message'
+      error: 'Error message',
     });
 
     render(<Profile />);
@@ -137,18 +137,20 @@ describe('Profile', () => {
     // Override the mock for this specific test
     (useProfileData as jest.Mock).mockReturnValue({
       ...mockUseProfileData,
-      updateSuccess: true
+      updateSuccess: true,
     });
 
     render(<Profile />);
-    expect(screen.getByText('Profile updated successfully')).toBeInTheDocument();
+    expect(
+      screen.getByText('Profile updated successfully'),
+    ).toBeInTheDocument();
   });
 
   test('handles success alert dismissal', () => {
     // Override the mock for this specific test
     (useProfileData as jest.Mock).mockReturnValue({
       ...mockUseProfileData,
-      updateSuccess: true
+      updateSuccess: true,
     });
 
     render(<Profile />);

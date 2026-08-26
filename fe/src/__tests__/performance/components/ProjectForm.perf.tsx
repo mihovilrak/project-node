@@ -22,7 +22,7 @@ const mockProject: Project = {
   created_on: '2024-01-26T00:00:00Z',
   estimated_time: 80,
   spent_time: 20,
-  progress: 25
+  progress: 25,
 };
 
 // Mock users data
@@ -39,7 +39,7 @@ const mockUsers: User[] = Array.from({ length: 10 }, (_, index) => ({
   avatar_url: null,
   created_on: '2024-01-26T00:00:00Z',
   updated_on: null,
-  last_login: null
+  last_login: null,
 }));
 
 // Mock API functions
@@ -47,7 +47,7 @@ jest.mock('../../../api/projects', () => ({
   createProject: jest.fn().mockResolvedValue({ id: 999 }),
   addProjectMember: jest.fn().mockResolvedValue({ success: true }),
   getProjects: jest.fn().mockResolvedValue([]),
-  getProjectStatuses: jest.fn().mockResolvedValue([])
+  getProjectStatuses: jest.fn().mockResolvedValue([]),
 }));
 
 jest.mock('../../../api/users', () => ({
@@ -61,7 +61,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log or assert performance metrics
   console.log(`${id} - ${phase} - Actual Duration: ${actualDuration}ms`);
@@ -69,16 +69,22 @@ const onRenderCallback = (
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}): number => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+): number => {
   let duration = 0;
   render(
-    <Profiler id="test" onRender={(id, phase, actualDuration) => {
-      duration = actualDuration;
-    }}>
+    <Profiler
+      id="test"
+      onRender={(id, phase, actualDuration) => {
+        duration = actualDuration;
+      }}
+    >
       <TestWrapper>
         <Component {...props} />
       </TestWrapper>
-    </Profiler>
+    </Profiler>,
   );
   return duration;
 };
@@ -92,7 +98,7 @@ describe('ProjectForm Component Performance Tests', () => {
     const renderDuration = measurePerformance(ProjectForm, {
       project: mockProject,
       onSubmit: jest.fn(),
-      onClose: jest.fn()
+      onClose: jest.fn(),
     });
     expect(renderDuration).toBeLessThan(500);
   });
@@ -107,7 +113,7 @@ describe('ProjectForm Component Performance Tests', () => {
             onClose={jest.fn()}
           />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Measure input performance
@@ -115,11 +121,11 @@ describe('ProjectForm Component Performance Tests', () => {
       const startTime = performance.now();
 
       fireEvent.change(getByLabelText(/name/i), {
-        target: { value: 'Updated Project Name' }
+        target: { value: 'Updated Project Name' },
       });
 
       fireEvent.change(getByLabelText(/description/i), {
-        target: { value: 'Updated Project Description' }
+        target: { value: 'Updated Project Description' },
       });
 
       const endTime = performance.now();
@@ -144,7 +150,9 @@ describe('ProjectForm Component Performance Tests', () => {
 
     // Update mock implementations
     require('../../../api/users').getUsers.mockResolvedValue(largeUserList);
-    require('../../../api/projects').getProjects.mockResolvedValue(largeProjectList);
+    require('../../../api/projects').getProjects.mockResolvedValue(
+      largeProjectList,
+    );
 
     const startTime = performance.now();
 
@@ -153,7 +161,7 @@ describe('ProjectForm Component Performance Tests', () => {
         <Profiler id="ProjectFormLarge" onRender={onRenderCallback}>
           <ProjectForm onSubmit={jest.fn()} onClose={jest.fn()} />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     const renderTime = performance.now() - startTime;
@@ -167,7 +175,7 @@ describe('ProjectForm Component Performance Tests', () => {
         <Profiler id="ProjectFormRapid" onRender={onRenderCallback}>
           <ProjectForm onSubmit={jest.fn()} onClose={jest.fn()} />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     await act(async () => {
@@ -176,7 +184,7 @@ describe('ProjectForm Component Performance Tests', () => {
       // Perform 10 rapid updates
       for (let i = 0; i < 10; i++) {
         fireEvent.change(getByLabelText(/name/i), {
-          target: { value: `Test Project ${i}` }
+          target: { value: `Test Project ${i}` },
         });
       }
 

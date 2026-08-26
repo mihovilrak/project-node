@@ -13,7 +13,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('../../../api/tasks', () => ({
   deleteTask: jest.fn(),
-  getSubtasks: jest.fn()
+  getSubtasks: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -46,7 +46,7 @@ const mockSubtasks: Task[] = [
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2024-01-01',
-    estimated_time: null
+    estimated_time: null,
   },
   {
     id: 2,
@@ -74,15 +74,15 @@ const mockSubtasks: Task[] = [
     created_by: 1,
     created_by_name: 'Test Creator',
     created_on: '2024-01-01',
-    estimated_time: null
-  }
+    estimated_time: null,
+  },
 ];
 
 const defaultProps = {
   subtasks: mockSubtasks,
   onSubtaskDeleted: jest.fn(),
   onSubtaskUpdated: jest.fn(),
-  parentTaskId: 1
+  parentTaskId: 1,
 };
 
 describe('SubtaskList', () => {
@@ -174,9 +174,12 @@ describe('SubtaskList', () => {
 
     await waitFor(
       () => {
-        expect(logger.error).toHaveBeenCalledWith('Failed to delete subtask', expect.any(Error));
+        expect(logger.error).toHaveBeenCalledWith(
+          'Failed to delete subtask',
+          expect.any(Error),
+        );
       },
-      { timeout: 2000 }
+      { timeout: 2000 },
     );
   }, 5000);
 
@@ -186,14 +189,16 @@ describe('SubtaskList', () => {
         ...mockSubtasks[0],
         id: 3,
         name: 'Nested Subtask',
-        parent_id: 1
-      }
+        parent_id: 1,
+      },
     ];
     (getSubtasks as jest.Mock).mockResolvedValue(nestedTasks);
 
     render(<SubtaskList {...defaultProps} />);
 
-    const expandButtons = screen.getAllByRole('button', { name: /expand subtasks/i });
+    const expandButtons = screen.getAllByRole('button', {
+      name: /expand subtasks/i,
+    });
     fireEvent.click(expandButtons[0]);
 
     await waitFor(() => {

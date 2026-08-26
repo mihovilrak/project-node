@@ -6,7 +6,15 @@ import { useActivityTypeDialog } from '../../../hooks/setting/useActivityTypeDia
 
 // Mock the mui-color-input module to fix the import error
 jest.mock('mui-color-input', () => ({
-  MuiColorInput: ({ label, onChange, value }: { label: string; onChange: (value: string) => void; value: string }) => (
+  MuiColorInput: ({
+    label,
+    onChange,
+    value,
+  }: {
+    label: string;
+    onChange: (value: string) => void;
+    value: string;
+  }) => (
     <div data-testid={`color-input-${label}`}>
       <label htmlFor={`color-input-field-${label}`}>{label}</label>
       <input
@@ -27,8 +35,8 @@ jest.mock('../../../hooks/setting/useIconSelector', () => ({
     open: false,
     handleOpen: jest.fn(),
     handleClose: jest.fn(),
-    handleSelect: jest.fn()
-  })
+    handleSelect: jest.fn(),
+  }),
 }));
 
 jest.mock('../../../hooks/setting/useActivityTypeDialog');
@@ -40,7 +48,7 @@ describe('ActivityTypeDialog', () => {
     color: '#000000',
     description: 'Test Description',
     active: true,
-    icon: 'test_icon'
+    icon: 'test_icon',
   };
 
   const defaultProps = {
@@ -57,7 +65,7 @@ describe('ActivityTypeDialog', () => {
       handleChange: jest.fn(),
       setError: jest.fn(),
       clearError: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
   });
 
@@ -74,10 +82,12 @@ describe('ActivityTypeDialog', () => {
       color: '#000000',
       description: 'Test Description',
       active: true,
-      icon: 'test_icon'
+      icon: 'test_icon',
     };
 
-    render(<ActivityTypeDialog {...defaultProps} activityType={activityType} />);
+    render(
+      <ActivityTypeDialog {...defaultProps} activityType={activityType} />,
+    );
     expect(screen.getByText('Edit Activity Type')).toBeInTheDocument();
     expect(screen.getByText('Save Changes')).toBeInTheDocument();
   });
@@ -102,16 +112,24 @@ describe('ActivityTypeDialog', () => {
       color: '#000000',
       description: 'Test Description',
       active: true,
-      icon: 'test_icon'
+      icon: 'test_icon',
     };
     const onSave = jest.fn().mockResolvedValue(undefined);
-    render(<ActivityTypeDialog {...defaultProps} activityType={activityType} onSave={onSave} />);
+    render(
+      <ActivityTypeDialog
+        {...defaultProps}
+        activityType={activityType}
+        onSave={onSave}
+      />,
+    );
 
     const form = screen.getByRole('form');
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ ...mockFormData, id: activityType.id }));
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ ...mockFormData, id: activityType.id }),
+      );
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
@@ -127,7 +145,7 @@ describe('ActivityTypeDialog', () => {
       error: undefined,
       handleChange: jest.fn(),
       setError: mockSetError,
-      clearError: jest.fn()
+      clearError: jest.fn(),
     });
 
     render(<ActivityTypeDialog {...defaultProps} onSave={onSave} />);

@@ -67,6 +67,6 @@ export const useCalendar = () => {
     handleDateChange,
     handleViewChange,
     handleTaskClick,
-    handleTimeLogClick
+    handleTimeLogClick,
   };
 };

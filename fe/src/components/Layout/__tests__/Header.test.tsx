@@ -10,7 +10,14 @@ import '@testing-library/jest-dom';
 // Mock MUI AppBar to capture elevation prop
 jest.mock('@mui/material', () => ({
   ...jest.requireActual('@mui/material'),
-  AppBar: ({ elevation, children, ...props }: { elevation: number, children: React.ReactNode }) => (
+  AppBar: ({
+    elevation,
+    children,
+    ...props
+  }: {
+    elevation: number;
+    children: React.ReactNode;
+  }) => (
     <header role="banner" data-elevation={elevation} {...props}>
       {children}
     </header>
@@ -20,7 +27,7 @@ jest.mock('@mui/material', () => ({
   ),
   Box: ({ children, ...props }: { children: React.ReactNode }) => (
     <div {...props}>{children}</div>
-  )
+  ),
 }));
 
 // Mock the custom hook
@@ -47,7 +54,7 @@ const mockUser: User = {
   avatar_url: null,
   created_on: '2024-01-01',
   updated_on: null,
-  last_login: null
+  last_login: null,
 };
 
 const theme = createTheme();
@@ -57,7 +64,7 @@ describe('Header', () => {
     return render(
       <ThemeProvider theme={theme}>
         <Header />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
   };
 
@@ -69,7 +76,7 @@ describe('Header', () => {
   it('renders with elevation when scrolled', () => {
     (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
-      isScrolled: true
+      isScrolled: true,
     });
 
     renderHeader();
@@ -80,7 +87,7 @@ describe('Header', () => {
   it('renders without elevation when not scrolled', () => {
     (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
-      isScrolled: false
+      isScrolled: false,
     });
 
     renderHeader();
@@ -91,7 +98,7 @@ describe('Header', () => {
   it('renders notification center with user id when user is present', () => {
     (useHeader as jest.Mock).mockReturnValue({
       currentUser: mockUser,
-      isScrolled: false
+      isScrolled: false,
     });
 
     renderHeader();
@@ -102,7 +109,7 @@ describe('Header', () => {
   it('does not render notification center when user is null', () => {
     (useHeader as jest.Mock).mockReturnValue({
       currentUser: null,
-      isScrolled: false
+      isScrolled: false,
     });
 
     renderHeader();

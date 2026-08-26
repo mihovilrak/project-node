@@ -17,7 +17,7 @@ describe('ProjectActions', () => {
         canDelete={false}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     expect(screen.queryByText('Edit')).not.toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('ProjectActions', () => {
         canDelete={false}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     expect(screen.getByText('Edit')).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('ProjectActions', () => {
         canDelete={true}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     expect(screen.queryByText('Edit')).not.toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('ProjectActions', () => {
         canDelete={true}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     expect(screen.getByText('Edit')).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('ProjectActions', () => {
         canDelete={true}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Edit'));
@@ -87,7 +87,7 @@ describe('ProjectActions', () => {
         canDelete={true}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText('Delete'));
@@ -101,7 +101,7 @@ describe('ProjectActions', () => {
         canDelete={false}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     const editButton = screen.getByText('Edit').closest('button');
@@ -115,7 +115,7 @@ describe('ProjectActions', () => {
         canDelete={true}
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
-      />
+      />,
     );
 
     const deleteButton = screen.getByText('Delete').closest('button');

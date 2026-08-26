@@ -9,12 +9,12 @@ import { getUsers, deleteUser } from '../../../api/users';
 // Mock API calls - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/users', () => ({
   getUsers: jest.fn(),
-  deleteUser: jest.fn()
+  deleteUser: jest.fn(),
 }));
 
 // Mock usePermission so delete/edit buttons are rendered
 jest.mock('../../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 // Mock user data
@@ -36,7 +36,7 @@ const mockUsers: User[] = Array.from({ length: 20 }, (_, index) => ({
   status: 'Active',
   status_color: '#00FF00',
   full_name: `John${index + 1} Doe${index + 1}`,
-  permissions: ['read', 'write']
+  permissions: ['read', 'write'],
 }));
 
 // Performance measurement callback
@@ -46,7 +46,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -62,12 +62,15 @@ const measurePerformance = (Component: React.ComponentType): number => {
 
   render(
     <TestWrapper>
-      <Profiler id="Users" onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id="Users"
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <Component />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -91,16 +94,22 @@ describe('Users Component Performance Tests', () => {
         <Profiler id="UsersFiltering" onRender={onRenderCallback}>
           <Users />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // The input may have different labels depending on rendering, try to find any input
-    const searchInput = screen.queryByLabelText('Search') || screen.queryByLabelText('showSearch') || screen.queryByRole('textbox');
+    const searchInput =
+      screen.queryByLabelText('Search') ||
+      screen.queryByLabelText('showSearch') ||
+      screen.queryByRole('textbox');
     if (!searchInput) {
       // Skip if no search input found - this is a performance test not a functionality test
       return;
@@ -122,13 +131,16 @@ describe('Users Component Performance Tests', () => {
         <Profiler id="UsersSorting" onRender={onRenderCallback}>
           <Users />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // The sort select uses combobox role
     const sortSelect = screen.getByRole('combobox');
@@ -149,13 +161,16 @@ describe('Users Component Performance Tests', () => {
         <Profiler id="UsersDeletion" onRender={onRenderCallback}>
           <Users />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     const deleteButton = screen.getByTestId('delete-user-1');
     const startTime = performance.now();

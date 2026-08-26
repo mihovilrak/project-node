@@ -14,7 +14,9 @@ export const getActivityTypes = async (): Promise<ActivityType[]> => {
 };
 
 // Create activity type
-export const createActivityType = async (data: Partial<ActivityType>): Promise<ActivityType> => {
+export const createActivityType = async (
+  data: Partial<ActivityType>,
+): Promise<ActivityType> => {
   try {
     const response = await api.post('/admin/activity-types', data);
     return response.data;
@@ -25,7 +27,10 @@ export const createActivityType = async (data: Partial<ActivityType>): Promise<A
 };
 
 // Update activity type
-export const updateActivityType = async (id: number, data: Partial<ActivityType>): Promise<ActivityType> => {
+export const updateActivityType = async (
+  id: number,
+  data: Partial<ActivityType>,
+): Promise<ActivityType> => {
   try {
     const response = await api.put(`/admin/activity-types/${id}`, data);
     return response.data;

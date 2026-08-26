@@ -1,14 +1,11 @@
 import React, {
-    createContext,
-    useContext,
-    useState,
-    useEffect,
-    useCallback
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
 } from 'react';
-import {
-    ThemeProvider
-    as MuiThemeProvider
-} from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { createAppTheme } from '../theme/theme';
 import { ThemeContextType } from '../types/admin';
 import { getAppTheme } from '../api/settings';
@@ -24,26 +21,34 @@ export const useTheme = () => useContext(ThemeContext);
 // Helper function to detect system theme preference
 const getSystemTheme = (): 'light' | 'dark' => {
   if (typeof window !== 'undefined' && window.matchMedia) {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
   }
   return 'light';
 };
 
 // Helper function to resolve theme from app settings
-const resolveTheme = (appTheme: 'light' | 'dark' | 'system'): 'light' | 'dark' => {
+const resolveTheme = (
+  appTheme: 'light' | 'dark' | 'system',
+): 'light' | 'dark' => {
   if (appTheme === 'system') {
     return getSystemTheme();
   }
   return appTheme;
 };
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [mode, setMode] = useState<'light' | 'dark'>(() => {
     // Initialize with localStorage as fallback, will be updated when app theme is fetched
     const savedMode = localStorage.getItem('themeMode');
     return (savedMode as 'light' | 'dark') || 'light';
   });
-  const [appTheme, setAppTheme] = useState<'light' | 'dark' | 'system'>('light');
+  const [appTheme, setAppTheme] = useState<'light' | 'dark' | 'system'>(
+    'light',
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch app theme from server
@@ -114,7 +119,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     window.addEventListener('appThemeUpdated', handleThemeUpdate);
-    return () => window.removeEventListener('appThemeUpdated', handleThemeUpdate);
+    return () =>
+      window.removeEventListener('appThemeUpdated', handleThemeUpdate);
   }, [fetchAppTheme]);
 
   const toggleTheme = () => {
@@ -129,9 +135,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return (
     <ThemeContext.Provider value={{ mode, toggleTheme }}>
-      <MuiThemeProvider theme={theme}>
-        {children}
-      </MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };

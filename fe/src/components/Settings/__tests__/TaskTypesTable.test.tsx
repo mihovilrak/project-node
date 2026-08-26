@@ -10,7 +10,7 @@ const mockTaskTypes: TaskType[] = [
     color: '#2196f3',
     icon: 'TaskAlt',
     description: 'A task is a unit of work that needs to be completed.',
-    active: true
+    active: true,
   },
   {
     id: 2,
@@ -18,8 +18,8 @@ const mockTaskTypes: TaskType[] = [
     color: '#f44336',
     icon: 'BugReport',
     description: 'A bug is an error or issue in a program.',
-    active: false
-  }
+    active: false,
+  },
 ];
 
 describe('TaskTypesTable', () => {
@@ -37,7 +37,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={true}
-      />
+      />,
     );
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
@@ -49,7 +49,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     // Check table headers
@@ -62,7 +62,9 @@ describe('TaskTypesTable', () => {
     // Check task type data
     expect(screen.getByText('Task')).toBeInTheDocument();
     expect(screen.getByText('Bug')).toBeInTheDocument();
-    expect(screen.getByText('A task is a unit of work that needs to be completed.')).toBeInTheDocument();
+    expect(
+      screen.getByText('A task is a unit of work that needs to be completed.'),
+    ).toBeInTheDocument();
   });
 
   it('calls onEdit when edit button is clicked', () => {
@@ -72,7 +74,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     const editButtons = screen.getAllByRole('button');
@@ -88,7 +90,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     expect(screen.getByText('Active')).toBeInTheDocument();
@@ -102,7 +104,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     expect(screen.getByText('Task')).toBeInTheDocument();
@@ -114,7 +116,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     expect(screen.getByText('Task')).toBeInTheDocument();
@@ -128,7 +130,7 @@ describe('TaskTypesTable', () => {
         onEdit={mockOnEdit}
         onDelete={mockOnDelete}
         loading={false}
-      />
+      />,
     );
 
     // Use data-testid to reliably find color boxes
@@ -141,7 +143,11 @@ describe('TaskTypesTable', () => {
 
     // Verify the color boxes have the correct background colors
     // Check computed style instead of inline style attributes
-    expect(window.getComputedStyle(firstColorBox).backgroundColor).toBe('rgb(33, 150, 243)');
-    expect(window.getComputedStyle(secondColorBox).backgroundColor).toBe('rgb(244, 67, 54)');
+    expect(window.getComputedStyle(firstColorBox).backgroundColor).toBe(
+      'rgb(33, 150, 243)',
+    );
+    expect(window.getComputedStyle(secondColorBox).backgroundColor).toBe(
+      'rgb(244, 67, 54)',
+    );
   });
 });

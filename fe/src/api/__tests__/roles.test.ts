@@ -14,7 +14,7 @@ describe('Roles API', () => {
     description: 'Administrator role',
     active: true,
     created_on: '2023-01-01T00:00:00Z',
-    permissions: [1, 2, 3]
+    permissions: [1, 2, 3],
   };
 
   beforeEach(() => {
@@ -44,11 +44,13 @@ describe('Roles API', () => {
       name: 'New Role',
       description: 'New role description',
       active: true,
-      permissions: [1, 2]
+      permissions: [1, 2],
     };
 
     it('should create role successfully', async () => {
-      mockedApi.post.mockResolvedValueOnce({ data: { ...mockRole, ...newRole } });
+      mockedApi.post.mockResolvedValueOnce({
+        data: { ...mockRole, ...newRole },
+      });
 
       const result = await createRole(newRole);
 
@@ -67,7 +69,7 @@ describe('Roles API', () => {
   describe('updateRole', () => {
     const updateData = {
       name: 'Updated Role',
-      description: 'Updated description'
+      description: 'Updated description',
     };
 
     it('should update role successfully', async () => {

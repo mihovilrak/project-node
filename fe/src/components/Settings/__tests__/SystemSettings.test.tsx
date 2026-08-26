@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import SystemSettings from '../SystemSettings';
 import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
 import { AppSettings, TimezoneOption } from '../../../types/setting';
@@ -21,16 +27,16 @@ jest.mock('@tiptap/react', () => ({
         toggleBold: () => ({ run: jest.fn() }),
         toggleItalic: () => ({ run: jest.fn() }),
         toggleUnderline: () => ({ run: jest.fn() }),
-        toggleHeading: () => ({ run: jest.fn() })
-      })
+        toggleHeading: () => ({ run: jest.fn() }),
+      }),
     }),
     isActive: () => false,
     getHTML: () => '<p>Test content</p>',
     commands: {
-      setContent: jest.fn()
-    }
+      setContent: jest.fn(),
+    },
   }),
-  EditorContent: () => <div data-testid="editor-content">Editor Content</div>
+  EditorContent: () => <div data-testid="editor-content">Editor Content</div>,
 }));
 
 jest.mock('@tiptap/starter-kit', () => ({}));
@@ -43,7 +49,7 @@ const mockSettings: AppSettings = {
   sender_email: 'test@example.com',
   time_zone: 'Europe/Zagreb',
   theme: 'light',
-  welcome_message: '<p>Welcome</p>'
+  welcome_message: '<p>Welcome</p>',
 };
 
 const mockTimezones: TimezoneOption[] = [
@@ -53,7 +59,7 @@ const mockTimezones: TimezoneOption[] = [
     abbrev: 'CET',
     utcOffsetSeconds: 3600,
     isDst: false,
-    label: 'Europe/Zagreb (UTC+01:00)'
+    label: 'Europe/Zagreb (UTC+01:00)',
   },
   {
     name: 'America/New_York',
@@ -61,8 +67,8 @@ const mockTimezones: TimezoneOption[] = [
     abbrev: 'EST',
     utcOffsetSeconds: -18000,
     isDst: false,
-    label: 'America/New_York (UTC-05:00)'
-  }
+    label: 'America/New_York (UTC-05:00)',
+  },
 ];
 
 describe('SystemSettings', () => {
@@ -76,13 +82,13 @@ describe('SystemSettings', () => {
         settings: mockSettings,
         loading: false,
         error: null,
-        success: false
+        success: false,
       },
       timezones: mockTimezones,
       timezonesLoading: false,
       timezonesError: null,
       handleSubmit: mockHandleSubmit,
-      handleChange: mockHandleChange
+      handleChange: mockHandleChange,
     });
   });
 
@@ -92,13 +98,13 @@ describe('SystemSettings', () => {
         settings: mockSettings,
         loading: true,
         error: null,
-        success: false
+        success: false,
       },
       timezones: [],
       timezonesLoading: true,
       timezonesError: null,
       handleSubmit: mockHandleSubmit,
-      handleChange: mockHandleChange
+      handleChange: mockHandleChange,
     });
 
     render(<SystemSettings />);
@@ -136,17 +142,19 @@ describe('SystemSettings', () => {
         settings: mockSettings,
         loading: false,
         error: null,
-        success: true
+        success: true,
       },
       timezones: mockTimezones,
       timezonesLoading: false,
       timezonesError: null,
       handleSubmit: mockHandleSubmit,
-      handleChange: mockHandleChange
+      handleChange: mockHandleChange,
     });
 
     render(<SystemSettings />);
-    expect(screen.getByText(/settings updated successfully/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/settings updated successfully/i),
+    ).toBeInTheDocument();
   });
 
   it('displays error message when update fails', () => {
@@ -155,13 +163,13 @@ describe('SystemSettings', () => {
         settings: mockSettings,
         loading: false,
         error: 'Update failed',
-        success: false
+        success: false,
       },
       timezones: mockTimezones,
       timezonesLoading: false,
       timezonesError: null,
       handleSubmit: mockHandleSubmit,
-      handleChange: mockHandleChange
+      handleChange: mockHandleChange,
     });
 
     render(<SystemSettings />);
@@ -185,7 +193,7 @@ describe('SystemSettings', () => {
     // Find select by name attribute
     const inputs = container.querySelectorAll('input, select');
     const themeInput = Array.from(inputs).find(
-      input => input.getAttribute('name') === 'theme'
+      (input) => input.getAttribute('name') === 'theme',
     );
 
     // Verify input exists and simulate change
@@ -219,7 +227,9 @@ describe('SystemSettings', () => {
   it('renders timezone autocomplete and allows selecting a timezone', async () => {
     render(<SystemSettings />);
 
-    const timezoneInput = screen.getByLabelText(/Time Zone/i) as HTMLInputElement;
+    const timezoneInput = screen.getByLabelText(
+      /Time Zone/i,
+    ) as HTMLInputElement;
     expect(timezoneInput).toBeInTheDocument();
 
     fireEvent.change(timezoneInput, { target: { value: 'America/New_York' } });
@@ -237,7 +247,7 @@ describe('SystemSettings', () => {
 
     it('renders SMTP test section', () => {
       render(<SystemSettings />);
-      
+
       expect(screen.getByText(/Test Email Configuration/i)).toBeInTheDocument();
       expect(screen.getByTestId('smtp-test-email')).toBeInTheDocument();
       expect(screen.getByTestId('smtp-test-button')).toBeInTheDocument();
@@ -245,17 +255,19 @@ describe('SystemSettings', () => {
 
     it('disables send button when email field is empty', () => {
       render(<SystemSettings />);
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       expect(sendButton).toBeDisabled();
     });
 
     it('enables send button when email is entered', () => {
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       expect(sendButton).not.toBeDisabled();
     });
@@ -267,15 +279,19 @@ describe('SystemSettings', () => {
       });
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(settingsApi.testSmtpConnection).toHaveBeenCalledWith('test@example.com');
+        expect(settingsApi.testSmtpConnection).toHaveBeenCalledWith(
+          'test@example.com',
+        );
       });
     });
 
@@ -286,15 +302,19 @@ describe('SystemSettings', () => {
       });
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Test email sent successfully/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Test email sent successfully/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -305,10 +325,12 @@ describe('SystemSettings', () => {
       });
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
@@ -319,7 +341,7 @@ describe('SystemSettings', () => {
 
     it('shows error when trying to send without email', async () => {
       render(<SystemSettings />);
-      
+
       // The button should be disabled, but if somehow clicked
       const sendButton = screen.getByTestId('smtp-test-button');
       expect(sendButton).toBeDisabled();
@@ -330,14 +352,18 @@ describe('SystemSettings', () => {
       const pendingPromise = new Promise((resolve) => {
         resolvePromise = resolve;
       });
-      
-      (settingsApi.testSmtpConnection as jest.Mock).mockReturnValue(pendingPromise);
+
+      (settingsApi.testSmtpConnection as jest.Mock).mockReturnValue(
+        pendingPromise,
+      );
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
@@ -351,18 +377,24 @@ describe('SystemSettings', () => {
     });
 
     it('handles API exception gracefully', async () => {
-      (settingsApi.testSmtpConnection as jest.Mock).mockRejectedValue(new Error('Network error'));
+      (settingsApi.testSmtpConnection as jest.Mock).mockRejectedValue(
+        new Error('Network error'),
+      );
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Failed to test SMTP connection/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Failed to test SMTP connection/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -373,56 +405,64 @@ describe('SystemSettings', () => {
       });
 
       render(<SystemSettings />);
-      
-      const emailInput = screen.getByTestId('smtp-test-email').querySelector('input');
+
+      const emailInput = screen
+        .getByTestId('smtp-test-email')
+        .querySelector('input');
       fireEvent.change(emailInput!, { target: { value: 'test@example.com' } });
-      
+
       const sendButton = screen.getByTestId('smtp-test-button');
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Test email sent successfully/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Test email sent successfully/i),
+        ).toBeInTheDocument();
       });
 
       // Find the success alert by its message (there may be another alert e.g. env error) and click close
       const successMessage = screen.getByText(/Test email sent successfully/i);
       const alert = successMessage.closest('[role="alert"]');
       expect(alert).toBeTruthy();
-      const closeButton = within(alert as HTMLElement).getByRole('button', { name: /close/i });
+      const closeButton = within(alert as HTMLElement).getByRole('button', {
+        name: /close/i,
+      });
       fireEvent.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByText(/Test email sent successfully/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/Test email sent successfully/i),
+        ).not.toBeInTheDocument();
       });
     });
 
-  it('updates document.title when app_name changes', () => {
-    const originalTitle = document.title;
-    
-    const { rerender } = render(<SystemSettings />);
-    
-    // Simulate app_name change
-    (useSystemSettings as jest.Mock).mockReturnValue({
-      state: {
-        settings: { ...mockSettings, app_name: 'New App Name' },
-        loading: false,
-        error: null,
-        success: false
-      },
-      timezones: mockTimezones,
-      timezonesLoading: false,
-      timezonesError: null,
-      handleSubmit: mockHandleSubmit,
-      handleChange: mockHandleChange
+    it('updates document.title when app_name changes', () => {
+      const originalTitle = document.title;
+
+      const { rerender } = render(<SystemSettings />);
+
+      // Simulate app_name change
+      (useSystemSettings as jest.Mock).mockReturnValue({
+        state: {
+          settings: { ...mockSettings, app_name: 'New App Name' },
+          loading: false,
+          error: null,
+          success: false,
+        },
+        timezones: mockTimezones,
+        timezonesLoading: false,
+        timezonesError: null,
+        handleSubmit: mockHandleSubmit,
+        handleChange: mockHandleChange,
+      });
+
+      rerender(<SystemSettings />);
+
+      // Check that document.title was updated
+      expect(document.title).toBe('New App Name');
+
+      // Restore original title
+      document.title = originalTitle;
     });
-
-    rerender(<SystemSettings />);
-
-    // Check that document.title was updated
-    expect(document.title).toBe('New App Name');
-    
-    // Restore original title
-    document.title = originalTitle;
   });
-});
 });

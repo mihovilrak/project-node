@@ -9,7 +9,7 @@ describe('useActivityTypeDialog', () => {
     color: '#FF0000',
     description: 'Test Description',
     active: true,
-    icon: 'test-icon'
+    icon: 'test-icon',
   };
 
   it('should initialize with default values when no activity type is provided', () => {
@@ -20,20 +20,22 @@ describe('useActivityTypeDialog', () => {
       color: '#2196f3',
       description: '',
       active: true,
-      icon: undefined
+      icon: undefined,
     });
     expect(result.current.error).toBeUndefined();
   });
 
   it('should initialize with activity type data when provided', () => {
-    const { result } = renderHook(() => useActivityTypeDialog(mockActivityType));
+    const { result } = renderHook(() =>
+      useActivityTypeDialog(mockActivityType),
+    );
 
     expect(result.current.formData).toEqual({
       name: mockActivityType.name,
       color: mockActivityType.color,
       description: mockActivityType.description,
       active: mockActivityType.active,
-      icon: mockActivityType.icon
+      icon: mockActivityType.icon,
     });
   });
 
@@ -73,7 +75,7 @@ describe('useActivityTypeDialog', () => {
   it('should update form data when activity type prop changes', () => {
     const { result, rerender } = renderHook(
       (props) => useActivityTypeDialog(props),
-      { initialProps: undefined as ActivityType | undefined }
+      { initialProps: undefined as ActivityType | undefined },
     );
 
     // Initial state
@@ -86,14 +88,14 @@ describe('useActivityTypeDialog', () => {
       color: mockActivityType.color,
       description: mockActivityType.description,
       active: mockActivityType.active,
-      icon: mockActivityType.icon
+      icon: mockActivityType.icon,
     });
 
     // Update with different activity type
     const newActivityType = {
       ...mockActivityType,
       name: 'New Activity',
-      color: '#00FF00'
+      color: '#00FF00',
     };
     rerender(newActivityType);
     expect(result.current.formData.name).toBe('New Activity');
@@ -106,7 +108,7 @@ describe('useActivityTypeDialog', () => {
       color: '#2196f3',
       description: '',
       active: true,
-      icon: undefined
+      icon: undefined,
     });
   });
 });

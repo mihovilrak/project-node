@@ -29,18 +29,20 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onEditEnd,
   onAddSubtaskClick,
   onTimeLogClick,
-  onCommentRefresh
+  onCommentRefresh,
 }) => (
   <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3,
-        px: 2,
-        py: 1
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          px: 2,
+          py: 1,
+        }}
+      >
         <Typography variant="h5" component="h2">
           Subtasks:
         </Typography>
@@ -63,14 +65,16 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
     </Paper>
 
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3,
-        px: 2,
-        py: 1
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          px: 2,
+          py: 1,
+        }}
+      >
         <Typography variant="h5" component="h2">
           Time Logs:
         </Typography>
@@ -97,14 +101,16 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
     </Paper>
 
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3,
-        px: 2,
-        py: 1
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          px: 2,
+          py: 1,
+        }}
+      >
         <Typography variant="h5" component="h2">
           Comments:
         </Typography>

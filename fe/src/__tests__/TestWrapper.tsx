@@ -19,9 +19,7 @@ export const TestWrapper: React.FC<TestWrapperProps> = ({ children }) => {
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </LocalizationProvider>
       </ThemeProvider>
     </BrowserRouter>
@@ -35,7 +33,7 @@ type CustomRenderOptions = {
 
 export function customRender(
   ui: React.ReactElement,
-  options?: CustomRenderOptions
+  options?: CustomRenderOptions,
 ): RenderResult {
   // Set up any specific route if provided
   if (options?.route) {

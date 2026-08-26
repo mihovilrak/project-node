@@ -3,7 +3,9 @@ import { TaskWatcher } from '../types/watcher';
 import logger from '../utils/logger';
 
 // Get task watchers
-export const getTaskWatchers = async (taskId: number): Promise<TaskWatcher[]> => {
+export const getTaskWatchers = async (
+  taskId: number,
+): Promise<TaskWatcher[]> => {
   try {
     const response = await api.get(`/tasks/${taskId}/watchers`);
     return response.data;
@@ -11,10 +13,13 @@ export const getTaskWatchers = async (taskId: number): Promise<TaskWatcher[]> =>
     logger.error('Failed to fetch task watchers', error);
     throw error;
   }
-  };
+};
 
 // Add task watcher
-export const addTaskWatcher = async (taskId: number, userId: number): Promise<TaskWatcher> => {
+export const addTaskWatcher = async (
+  taskId: number,
+  userId: number,
+): Promise<TaskWatcher> => {
   try {
     const response = await api.post(`/tasks/${taskId}/watchers`, { userId });
     return response.data;
@@ -22,10 +27,13 @@ export const addTaskWatcher = async (taskId: number, userId: number): Promise<Ta
     logger.error('Failed to add task watcher', error);
     throw error;
   }
-  };
+};
 
 // Remove task watcher
-export const removeTaskWatcher = async (taskId: number, userId: number): Promise<void> => {
+export const removeTaskWatcher = async (
+  taskId: number,
+  userId: number,
+): Promise<void> => {
   try {
     await api.delete(`/tasks/${taskId}/watchers/${userId}`);
   } catch (error) {

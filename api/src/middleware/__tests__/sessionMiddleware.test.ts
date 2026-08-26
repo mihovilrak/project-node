@@ -12,7 +12,7 @@ jest.mock('connect-pg-simple', () => {
   return jest.fn(() => {
     return jest.fn().mockImplementation((options) => ({
       ...options,
-      type: 'pg-session-store'
+      type: 'pg-session-store',
     }));
   });
 });
@@ -22,7 +22,7 @@ describe('SessionMiddleware', () => {
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn()
+      query: jest.fn(),
     } as unknown as jest.Mocked<Pool>;
     jest.clearAllMocks();
   });
@@ -30,7 +30,7 @@ describe('SessionMiddleware', () => {
   describe('createSessionMiddleware', () => {
     it('should create session middleware with correct configuration', () => {
       const sessionSecret = 'test-secret-key';
-      
+
       const middleware = createSessionMiddleware(mockPool, sessionSecret);
 
       expect(session).toHaveBeenCalledWith(
@@ -43,16 +43,16 @@ describe('SessionMiddleware', () => {
             sameSite: 'lax',
             maxAge: 60 * 60 * 1000, // 1 hour
             secure: false,
-            httpOnly: true
-          })
-        })
+            httpOnly: true,
+          }),
+        }),
       );
       expect(middleware).toBeDefined();
     });
 
     it('should configure session store with pool', () => {
       const sessionSecret = 'another-secret';
-      
+
       createSessionMiddleware(mockPool, sessionSecret);
 
       // Verify session was called with store configuration
@@ -62,9 +62,9 @@ describe('SessionMiddleware', () => {
             pool: mockPool,
             tableName: 'session',
             createTableIfMissing: false,
-            pruneSessionInterval: 60
-          })
-        })
+            pruneSessionInterval: 60,
+          }),
+        }),
       );
     });
 
@@ -75,39 +75,54 @@ describe('SessionMiddleware', () => {
     });
 
     it('should set secure cookie when feUrl is https', () => {
-      createSessionMiddleware(mockPool, 'secret', 'production', 'https://example.com');
+      createSessionMiddleware(
+        mockPool,
+        'secret',
+        'production',
+        'https://example.com',
+      );
 
       expect(session).toHaveBeenCalledWith(
         expect.objectContaining({
           cookie: expect.objectContaining({
             secure: true,
-            httpOnly: true
-          })
-        })
+            httpOnly: true,
+          }),
+        }),
       );
     });
 
     it('should set secure false when feUrl is http (e.g. localhost)', () => {
-      createSessionMiddleware(mockPool, 'secret', 'development', 'http://localhost:3000');
+      createSessionMiddleware(
+        mockPool,
+        'secret',
+        'development',
+        'http://localhost:3000',
+      );
 
       expect(session).toHaveBeenCalledWith(
         expect.objectContaining({
           cookie: expect.objectContaining({
-            secure: false
-          })
-        })
+            secure: false,
+          }),
+        }),
       );
     });
 
     it('should set secure false when feUrl is http even in production', () => {
-      createSessionMiddleware(mockPool, 'secret', 'production', 'http://localhost:3000');
+      createSessionMiddleware(
+        mockPool,
+        'secret',
+        'production',
+        'http://localhost:3000',
+      );
 
       expect(session).toHaveBeenCalledWith(
         expect.objectContaining({
           cookie: expect.objectContaining({
-            secure: false
-          })
-        })
+            secure: false,
+          }),
+        }),
       );
     });
   });

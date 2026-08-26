@@ -5,28 +5,30 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Alert
+  Alert,
 } from '@mui/material';
 import { ActivityTypeDialogProps } from '../../types/setting';
 import { useActivityTypeDialog } from '../../hooks/setting/useActivityTypeDialog';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { ActivityTypeForm } from './ActivityTypeForm';
 
-const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityType, onClose, onSave }) => {
-  const {
-    formData,
-    error,
-    handleChange,
-    setError,
-    clearError
-  } = useActivityTypeDialog(activityType);
+const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({
+  open,
+  activityType,
+  onClose,
+  onSave,
+}) => {
+  const { formData, error, handleChange, setError, clearError } =
+    useActivityTypeDialog(activityType);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
 
     try {
-      await onSave(activityType ? { ...formData, id: activityType.id } : formData);
+      await onSave(
+        activityType ? { ...formData, id: activityType.id } : formData,
+      );
       onClose();
     } catch (error: unknown) {
       setError(getApiErrorMessage(error, 'Failed to save activity type'));
@@ -45,10 +47,7 @@ const ActivityTypeDialog: React.FC<ActivityTypeDialogProps> = ({ open, activityT
               {error}
             </Alert>
           )}
-          <ActivityTypeForm
-            formData={formData}
-            onChange={handleChange}
-          />
+          <ActivityTypeForm formData={formData} onChange={handleChange} />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>

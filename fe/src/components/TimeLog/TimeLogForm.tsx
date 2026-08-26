@@ -55,9 +55,13 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
     }
   };
 
-  const currentHours = spentTime === '' || spentTime === undefined
-    ? 0
-    : Math.max(MIN_HOURS, Math.min(MAX_HOURS, parseFloat(String(spentTime)) || 0));
+  const currentHours =
+    spentTime === '' || spentTime === undefined
+      ? 0
+      : Math.max(
+          MIN_HOURS,
+          Math.min(MAX_HOURS, parseFloat(String(spentTime)) || 0),
+        );
 
   const handleIncrement = () => {
     const next = Math.round((currentHours + STEP) * 100) / 100;
@@ -70,26 +74,30 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
   };
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 2,
-      width: '100%'
-    }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%',
+      }}
+    >
       <FormControl fullWidth disabled={isProjectReadOnly}>
         <InputLabel id="project-label">Project</InputLabel>
         <Select
           labelId="project-label"
           id="project-select"
           value={selectedProjectId?.toString() || ''}
-          onChange={(e: SelectChangeEvent) => onProjectChange(Number(e.target.value), tasks)}
+          onChange={(e: SelectChangeEvent) =>
+            onProjectChange(Number(e.target.value), tasks)
+          }
           label="Project"
           required
         >
           {projects.length === 0 ? (
             <MenuItem disabled>No projects available</MenuItem>
           ) : (
-            projects.map(project => (
+            projects.map((project) => (
               <MenuItem key={project?.id} value={project?.id}>
                 {project?.name || 'Unknown'}
               </MenuItem>
@@ -104,14 +112,16 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
           labelId="task-label"
           id="task-select"
           value={selectedTaskId?.toString() || ''}
-          onChange={(e: SelectChangeEvent) => onTaskChange(Number(e.target.value), tasks)}
+          onChange={(e: SelectChangeEvent) =>
+            onTaskChange(Number(e.target.value), tasks)
+          }
           label="Task"
           required
         >
           {tasks.length === 0 ? (
             <MenuItem disabled>No tasks available</MenuItem>
           ) : (
-            tasks.map(task => (
+            tasks.map((task) => (
               <MenuItem key={task?.id} value={task?.id}>
                 {task?.name || 'Unknown'}
               </MenuItem>
@@ -126,11 +136,13 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
           labelId="activity-type-label"
           id="activity-type-select"
           value={selectedActivityTypeId?.toString() || ''}
-          onChange={(e: SelectChangeEvent) => onActivityTypeChange(Number(e.target.value))}
+          onChange={(e: SelectChangeEvent) =>
+            onActivityTypeChange(Number(e.target.value))
+          }
           label="Activity Type"
           required
         >
-          {activityTypes.map(type => (
+          {activityTypes.map((type) => (
             <MenuItem key={type.id} value={type.id}>
               {type.name}
             </MenuItem>
@@ -145,14 +157,16 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             labelId="user-label"
             id="user-select"
             value={selectedUserId?.toString() || ''}
-            onChange={(e: SelectChangeEvent) => onUserChange(Number(e.target.value))}
+            onChange={(e: SelectChangeEvent) =>
+              onUserChange(Number(e.target.value))
+            }
             label="User"
             required
           >
             {users.length === 0 ? (
               <MenuItem disabled>No users available</MenuItem>
             ) : (
-              users.map(user => (
+              users.map((user) => (
                 <MenuItem key={user?.id} value={user?.id}>
                   {user?.name || 'Unknown'}
                 </MenuItem>
@@ -170,17 +184,17 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             value={spentTime}
             onChange={handleSpentTimeChange}
             error={Boolean(timeError)}
-            helperText={timeError || "Enter time in hours (increments of 0.25)"}
+            helperText={timeError || 'Enter time in hours (increments of 0.25)'}
             required
             fullWidth
             inputProps={{
               step: STEP,
               min: MIN_HOURS,
               max: MAX_HOURS,
-              pattern: "^\\d*\\.?([0-9]{1,2})?$"
+              pattern: '^\\d*\\.?([0-9]{1,2})?$',
             }}
             slotProps={{
-              htmlInput: { 'aria-label': 'Time spent in hours' }
+              htmlInput: { 'aria-label': 'Time spent in hours' },
             }}
             InputProps={{
               endAdornment: (
@@ -206,7 +220,7 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
                     </IconButton>
                   </Box>
                 </InputAdornment>
-              )
+              ),
             }}
           />
         </Grid>
@@ -218,8 +232,8 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             slotProps={{
               textField: {
                 fullWidth: true,
-                required: true
-              }
+                required: true,
+              },
             }}
           />
         </Grid>

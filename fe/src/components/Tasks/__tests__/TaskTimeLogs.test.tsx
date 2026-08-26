@@ -18,13 +18,23 @@ jest.mock('../../TimeLog/TimeLogDialog', () => ({
       data-open={open ? 'true' : ''}
       data-timelog={timeLog ? JSON.stringify(timeLog) : ''}
     >
-      <button data-testid="mock-close-dialog" onClick={onClose}>Close</button>
-      <button data-testid="mock-submit-dialog" onClick={() => onSubmit && onSubmit({
-        task_id: 1,
-        activity_type_id: 1,
-        log_date: '2023-01-01',
-        spent_time: 2
-      })}>Submit</button>
+      <button data-testid="mock-close-dialog" onClick={onClose}>
+        Close
+      </button>
+      <button
+        data-testid="mock-submit-dialog"
+        onClick={() =>
+          onSubmit &&
+          onSubmit({
+            task_id: 1,
+            activity_type_id: 1,
+            log_date: '2023-01-01',
+            spent_time: 2,
+          })
+        }
+      >
+        Submit
+      </button>
       TimeLogDialog
     </div>
   ),
@@ -32,15 +42,22 @@ jest.mock('../../TimeLog/TimeLogDialog', () => ({
 
 jest.mock('../../TimeLog/TimeLogStats', () => ({
   __esModule: true,
-  default: () => <div data-testid="time-log-stats">TimeLogStats</div>
+  default: () => <div data-testid="time-log-stats">TimeLogStats</div>,
 }));
 
 jest.mock('../../TimeLog/TimeLogList', () => ({
   __esModule: true,
   default: ({ onEdit, onDelete }: any) => (
     <div data-testid="time-log-list">
-      <button data-testid="mock-edit" onClick={() => onEdit && onEdit({ id: 1 })}>Edit</button>
-      <button data-testid="mock-delete" onClick={() => onDelete && onDelete(1)}>Delete</button>
+      <button
+        data-testid="mock-edit"
+        onClick={() => onEdit && onEdit({ id: 1 })}
+      >
+        Edit
+      </button>
+      <button data-testid="mock-delete" onClick={() => onDelete && onDelete(1)}>
+        Delete
+      </button>
       TimeLogList
     </div>
   ),
@@ -50,8 +67,8 @@ jest.mock('../../TimeLog/TimeLogList', () => ({
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({
-    id: '1'
-  })
+    id: '1',
+  }),
 }));
 
 const mockTimeLogs: TimeLog[] = [
@@ -64,8 +81,8 @@ const mockTimeLogs: TimeLog[] = [
     spent_time: 2,
     description: 'Test log',
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockTask: Task = {
@@ -94,7 +111,7 @@ const mockTask: Task = {
   estimated_time: 0,
   created_by: 1,
   created_by_name: 'Test Creator',
-  created_on: '2023-01-01'
+  created_on: '2023-01-01',
 };
 
 const renderComponent = async () => {
@@ -102,7 +119,7 @@ const renderComponent = async () => {
     render(
       <BrowserRouter>
         <TaskTimeLogs task={mockTask} />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
   });
 };
@@ -149,7 +166,10 @@ describe('TaskTimeLogs', () => {
 
     fireEvent.click(screen.getByText('Log Time'));
 
-    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
+    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute(
+      'data-open',
+      'true',
+    );
   });
 
   it('handles time log deletion', async () => {
@@ -176,7 +196,10 @@ describe('TaskTimeLogs', () => {
     // Simulate edit callback from TimeLogList (mock button)
     fireEvent.click(screen.getByTestId('mock-edit'));
 
-    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
+    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute(
+      'data-open',
+      'true',
+    );
   });
 
   it('closes dialog and resets selected time log', async () => {
@@ -188,7 +211,10 @@ describe('TaskTimeLogs', () => {
 
     // Open dialog
     fireEvent.click(screen.getByText('Log Time'));
-    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute('data-open', 'true');
+    expect(screen.getByTestId('time-log-dialog')).toHaveAttribute(
+      'data-open',
+      'true',
+    );
 
     // Close dialog
     fireEvent.click(screen.getByTestId('mock-close-dialog'));

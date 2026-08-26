@@ -20,7 +20,7 @@ describe('TaskTagsSection', () => {
     created_by: 1,
     active: true,
     created_on: '2023-01-01',
-    creator_name: 'Test User'
+    creator_name: 'Test User',
   };
 
   const defaultProps = {
@@ -37,9 +37,9 @@ describe('TaskTagsSection', () => {
       start_date: null,
       due_date: null,
       estimated_time: null,
-      tags: [mockTag]
+      tags: [mockTag],
     },
-    handleChange: jest.fn()
+    handleChange: jest.fn(),
   };
 
   beforeEach(() => {
@@ -64,8 +64,8 @@ describe('TaskTagsSection', () => {
       ...defaultProps,
       formData: {
         ...defaultProps.formData,
-        tags: []
-      }
+        tags: [],
+      },
     };
     render(<TaskTagsSection {...propsWithoutTags} />);
     const call = (TagSelect as jest.Mock).mock.calls[0][0];
@@ -82,8 +82,8 @@ describe('TaskTagsSection', () => {
     expect(defaultProps.handleChange).toHaveBeenCalledWith({
       target: {
         name: 'tags',
-        value: newTags
-      }
+        value: newTags,
+      },
     });
   });
 

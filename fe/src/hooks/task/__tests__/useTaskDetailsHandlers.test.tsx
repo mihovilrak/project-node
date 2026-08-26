@@ -14,7 +14,7 @@ describe('useTaskDetailsHandlers', () => {
     active: true,
     created_on: '2024-01-25T00:00:00Z',
     updated_on: null,
-    user_name: 'Test User'
+    user_name: 'Test User',
   };
 
   const mockStatuses: TaskStatus[] = [
@@ -25,8 +25,8 @@ describe('useTaskDetailsHandlers', () => {
       description: null,
       active: true,
       created_on: '2024-01-25T00:00:00Z',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   const mockEvent = {
@@ -57,7 +57,7 @@ describe('useTaskDetailsHandlers', () => {
     getModifierState: () => false,
     movementX: 0,
     movementY: 0,
-    relatedTarget: null
+    relatedTarget: null,
   } as unknown as React.MouseEvent<HTMLElement>;
 
   it('should handle status menu click and close', () => {
@@ -101,7 +101,11 @@ describe('useTaskDetailsHandlers', () => {
 
     // Save comment
     await act(async () => {
-      await result.current.handleSaveComment(1, 'Updated comment', mockOnCommentUpdate);
+      await result.current.handleSaveComment(
+        1,
+        'Updated comment',
+        mockOnCommentUpdate,
+      );
     });
 
     expect(mockOnCommentUpdate).toHaveBeenCalledWith(1, 'Updated comment');
@@ -114,7 +118,7 @@ describe('useTaskDetailsHandlers', () => {
       activity_type_id: 1,
       log_date: '2024-01-25',
       spent_time: 2,
-      description: 'Test time log'
+      description: 'Test time log',
     };
     const mockTimeLog: TimeLog = {
       id: 1,
@@ -126,7 +130,7 @@ describe('useTaskDetailsHandlers', () => {
       description: 'Test time log',
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      activity_type_name: 'Development'
+      activity_type_name: 'Development',
     };
     const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useTaskDetailsHandlers());
@@ -167,7 +171,7 @@ describe('useTaskDetailsHandlers', () => {
       activity_type_id: 1,
       log_date: '2024-01-25',
       spent_time: 2,
-      description: 'Test time log'
+      description: 'Test time log',
     };
     const error = new Error('Failed to submit time log');
     const mockOnSubmit = jest.fn().mockRejectedValue(error);
@@ -178,7 +182,10 @@ describe('useTaskDetailsHandlers', () => {
     });
 
     expect(mockOnSubmit).toHaveBeenCalledWith(mockTimeLogData);
-    expect(logger.error).toHaveBeenCalledWith('Error handling time log:', error);
+    expect(logger.error).toHaveBeenCalledWith(
+      'Error handling time log:',
+      error,
+    );
     expect(result.current.state.timeLogDialogOpen).toBe(true);
     expect(result.current.state.selectedTimeLog).toBeNull();
   });

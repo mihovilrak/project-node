@@ -12,7 +12,7 @@ jest.mock('../../context/AuthContext');
 jest.mock('../../hooks/app/useAppRoutes');
 jest.mock('@mui/material', () => ({
   ...jest.requireActual('@mui/material'),
-  useMediaQuery: jest.fn()
+  useMediaQuery: jest.fn(),
 }));
 
 // Mock DOM elements for testing
@@ -54,25 +54,25 @@ describe('Navigation and Layout Flow', () => {
       isAuthenticated: true,
       login: jest.fn(),
       logout: jest.fn(),
-      loading: false
+      loading: false,
     });
 
     (useNavigation as jest.Mock).mockReturnValue({
       activeTab: 0,
       handleTabChange: mockHandleTabChange,
       isSidebarOpen: true,
-      toggleSidebar: mockToggleSidebar
+      toggleSidebar: mockToggleSidebar,
     });
 
     (useTheme as jest.Mock).mockReturnValue({
       mode: 'light',
-      toggleTheme: mockToggleTheme
+      toggleTheme: mockToggleTheme,
     });
 
     (useAppState as jest.Mock).mockReturnValue({
       taskFormOpen: false,
       handleTaskCreated: mockHandleTaskCreated,
-      handleTaskFormClose: mockHandleTaskFormClose
+      handleTaskFormClose: mockHandleTaskFormClose,
     });
 
     (useMediaQuery as jest.Mock).mockReturnValue(false);

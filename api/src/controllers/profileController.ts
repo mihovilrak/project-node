@@ -9,14 +9,14 @@ import logger from '../utils/logger';
 export const getProfile = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
 
     if (!userId) {
       return res.status(401).json({
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       });
     }
 
@@ -25,7 +25,7 @@ export const getProfile = async (
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };
@@ -34,7 +34,7 @@ export const getProfile = async (
 export const updateProfile = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
@@ -42,20 +42,16 @@ export const updateProfile = async (
 
     if (!userId) {
       return res.status(401).json({
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       });
     }
 
-    const profile = await profileModel.updateProfile(
-      pool,
-      userId,
-      profileData
-    );
+    const profile = await profileModel.updateProfile(pool, userId, profileData);
     res.status(200).json(profile);
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };
@@ -64,7 +60,7 @@ export const updateProfile = async (
 export const changePassword = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
@@ -75,40 +71,47 @@ export const changePassword = async (
 
     if (!userId) {
       return res.status(401).json({
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       });
     }
 
     if (!currentPassword || !new_password) {
       return res.status(400).json({
-        error: 'Current password and new password are required'
+        error: 'Current password and new password are required',
       });
     }
 
     // Verify current password
-    const verifyResult = await profileModel.verifyPassword(pool, userId, currentPassword);
+    const verifyResult = await profileModel.verifyPassword(
+      pool,
+      userId,
+      currentPassword,
+    );
 
     if (!verifyResult) {
       return res.status(400).json({
-        error: 'Current password is incorrect'
+        error: 'Current password is incorrect',
       });
     }
 
     // Update password
-    const updatedUser = await profileModel.changePassword(pool, userId, new_password);
+    const updatedUser = await profileModel.changePassword(
+      pool,
+      userId,
+      new_password,
+    );
     if (!updatedUser) {
       return res.status(500).json({
-        error: 'Failed to update password'
+        error: 'Failed to update password',
       });
     }
     res.status(200).json({
       message: `Password updated successfully on ${updatedUser.updated_on}`,
     });
-
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };
@@ -117,14 +120,14 @@ export const changePassword = async (
 export const getRecentTasks = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
 
     if (!userId) {
       return res.status(401).json({
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       });
     }
 
@@ -133,7 +136,7 @@ export const getRecentTasks = async (
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };
@@ -142,7 +145,7 @@ export const getRecentTasks = async (
 export const getRecentProjects = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
@@ -156,7 +159,7 @@ export const getRecentProjects = async (
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 };

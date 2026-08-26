@@ -6,9 +6,15 @@ import { TaskFile } from '../../../types/file';
 import { TaskWatcher } from '../../../types/watcher';
 
 // Mock child components
-jest.mock('../TaskFileSection', () => () => <div data-testid="task-file-section">TaskFileSection</div>);
-jest.mock('../../Watchers/WatcherList', () => () => <div data-testid="watcher-list">WatcherList</div>);
-jest.mock('../../Watchers/WatcherDialog', () => () => <div data-testid="watcher-dialog">WatcherDialog</div>);
+jest.mock('../TaskFileSection', () => () => (
+  <div data-testid="task-file-section">TaskFileSection</div>
+));
+jest.mock('../../Watchers/WatcherList', () => () => (
+  <div data-testid="watcher-list">WatcherList</div>
+));
+jest.mock('../../Watchers/WatcherDialog', () => () => (
+  <div data-testid="watcher-dialog">WatcherDialog</div>
+));
 
 const mockFiles: TaskFile[] = [
   {
@@ -46,7 +52,8 @@ const defaultProps = {
   onManageWatchers: jest.fn(),
 };
 
-const renderWithRouter = (ui: React.ReactElement) => render(<BrowserRouter>{ui}</BrowserRouter>);
+const renderWithRouter = (ui: React.ReactElement) =>
+  render(<BrowserRouter>{ui}</BrowserRouter>);
 
 describe('TaskDetailsSidebar', () => {
   beforeEach(() => {
@@ -62,33 +69,47 @@ describe('TaskDetailsSidebar', () => {
   });
 
   it('passes correct props to TaskFileSection', () => {
-    const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
-    const fileSection = container.querySelector('[data-testid="task-file-section"]');
+    const { container } = renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} />,
+    );
+    const fileSection = container.querySelector(
+      '[data-testid="task-file-section"]',
+    );
 
     expect(fileSection).toBeInTheDocument();
   });
 
   it('passes correct props to WatcherList', () => {
-    const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
+    const { container } = renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} />,
+    );
     const watcherList = container.querySelector('[data-testid="watcher-list"]');
 
     expect(watcherList).toBeInTheDocument();
   });
 
   it('passes correct props to WatcherDialog', () => {
-    const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
-    const watcherDialog = container.querySelector('[data-testid="watcher-dialog"]');
+    const { container } = renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} />,
+    );
+    const watcherDialog = container.querySelector(
+      '[data-testid="watcher-dialog"]',
+    );
 
     expect(watcherDialog).toBeInTheDocument();
   });
 
   it('renders with open watcher dialog', () => {
-    renderWithRouter(<TaskDetailsSidebar {...defaultProps} watcherDialogOpen={true} />);
+    renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} watcherDialogOpen={true} />,
+    );
     expect(screen.getByTestId('watcher-dialog')).toBeInTheDocument();
   });
 
   it('maintains correct layout structure', () => {
-    const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
+    const { container } = renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} />,
+    );
     // Check for the actual content rendered by the component
     const boxes = container.querySelectorAll('.MuiBox-root');
     expect(boxes.length).toBeGreaterThanOrEqual(2);
@@ -97,7 +118,9 @@ describe('TaskDetailsSidebar', () => {
   });
 
   it('applies correct grid props', () => {
-    const { container } = renderWithRouter(<TaskDetailsSidebar {...defaultProps} />);
+    const { container } = renderWithRouter(
+      <TaskDetailsSidebar {...defaultProps} />,
+    );
     // In Grid v2, verify the component renders correctly by checking for its content
     expect(screen.getByTestId('task-file-section')).toBeInTheDocument();
     // Check that Grid element exists (even if it doesn't have the old item class)

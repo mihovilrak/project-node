@@ -14,7 +14,7 @@ describe('ErrorBoundary', () => {
         <ErrorBoundary>
           <div data-testid="child">Child content</div>
         </ErrorBoundary>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByTestId('child')).toHaveTextContent('Child content');
   });
@@ -25,7 +25,7 @@ describe('ErrorBoundary', () => {
         <ErrorBoundary>
           <ThrowError />
         </ErrorBoundary>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Go to Home')).toBeInTheDocument();

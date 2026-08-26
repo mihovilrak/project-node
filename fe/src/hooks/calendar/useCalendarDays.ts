@@ -2,7 +2,11 @@ import { Task } from '../../types/task';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarDay } from '../../types/calendar';
 
-export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) => {
+export const useCalendarDays = (
+  date: Date,
+  tasks: Task[],
+  timeLogs: TimeLog[],
+) => {
   const getDaysInMonth = (): CalendarDay[] => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -20,7 +24,7 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
         isWeekend: prevDate.getDay() === 0 || prevDate.getDay() === 6,
         tasks: getTasksForDay(prevDate),
         timeLogs: getTimeLogsForDay(prevDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(prevDate))
+        totalTime: calculateTotalTime(getTimeLogsForDay(prevDate)),
       });
     }
 
@@ -34,7 +38,7 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
         isWeekend: currentDate.getDay() === 0 || currentDate.getDay() === 6,
         tasks: getTasksForDay(currentDate),
         timeLogs: getTimeLogsForDay(currentDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(currentDate))
+        totalTime: calculateTotalTime(getTimeLogsForDay(currentDate)),
       });
     }
 
@@ -49,7 +53,7 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
         isWeekend: nextDate.getDay() === 0 || nextDate.getDay() === 6,
         tasks: getTasksForDay(nextDate),
         timeLogs: getTimeLogsForDay(nextDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(nextDate))
+        totalTime: calculateTotalTime(getTimeLogsForDay(nextDate)),
       });
     }
 
@@ -60,13 +64,15 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
     if (!tasks || !Array.isArray(tasks)) {
       return [];
     }
-    return tasks.filter(task => {
+    return tasks.filter((task) => {
       const startDate = task.start_date ? new Date(task.start_date) : null;
       const endDate = task.end_date ? new Date(task.end_date) : null;
       const dueDate = task.due_date ? new Date(task.due_date) : null;
-      return (startDate && startDate.toDateString() === day.toDateString()) ||
-             (endDate && endDate.toDateString() === day.toDateString()) ||
-             (dueDate && dueDate.toDateString() === day.toDateString());
+      return (
+        (startDate && startDate.toDateString() === day.toDateString()) ||
+        (endDate && endDate.toDateString() === day.toDateString()) ||
+        (dueDate && dueDate.toDateString() === day.toDateString())
+      );
     });
   };
 
@@ -74,7 +80,7 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
     if (!timeLogs || !Array.isArray(timeLogs)) {
       return [];
     }
-    return timeLogs.filter(timeLog => {
+    return timeLogs.filter((timeLog) => {
       const logDate = new Date(timeLog.created_on);
       return logDate.toDateString() === day.toDateString();
     });
@@ -82,7 +88,10 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
 
   const calculateTotalTime = (dayTimeLogs: TimeLog[]): number => {
     return dayTimeLogs.reduce((total, log) => {
-      const hours = typeof log.spent_time === 'string' ? parseFloat(log.spent_time) : log.spent_time;
+      const hours =
+        typeof log.spent_time === 'string'
+          ? parseFloat(log.spent_time)
+          : log.spent_time;
       return total + (hours || 0);
     }, 0);
   };
@@ -91,6 +100,6 @@ export const useCalendarDays = (date: Date, tasks: Task[], timeLogs: TimeLog[]) 
     getDaysInMonth,
     getTasksForDay,
     getTimeLogsForDay,
-    calculateTotalTime
+    calculateTotalTime,
   };
 };

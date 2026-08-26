@@ -4,12 +4,11 @@ import { Comment, CommentWithUser } from '../types/comment';
 // Get all comments for a task
 export const getTaskComments = async (
   pool: Pool,
-  taskId: string
+  taskId: string,
 ): Promise<CommentWithUser[]> => {
-  const result = await pool.query(
-    'SELECT * FROM get_task_comments($1)',
-    [taskId]
-  );
+  const result = await pool.query('SELECT * FROM get_task_comments($1)', [
+    taskId,
+  ]);
   return result.rows;
 };
 
@@ -18,13 +17,13 @@ export const createComment = async (
   pool: Pool,
   taskId: string,
   userId: string,
-  comment: string
+  comment: string,
 ): Promise<Comment> => {
   const result = await pool.query(
     `INSERT INTO comments (task_id, user_id, comment)
      VALUES ($1, $2, $3)
      RETURNING *`,
-    [taskId, userId, comment]
+    [taskId, userId, comment],
   );
   return result.rows[0];
 };
@@ -32,12 +31,9 @@ export const createComment = async (
 // Fetch the created comment with user details
 export const commentWithUser = async (
   pool: Pool,
-  id: string
+  id: string,
 ): Promise<CommentWithUser | null> => {
-  const result = await pool.query(
-    'SELECT * FROM get_comment_by_id($1)',
-    [id]
-  );
+  const result = await pool.query('SELECT * FROM get_comment_by_id($1)', [id]);
   return result.rows[0] || null;
 };
 
@@ -45,35 +41,32 @@ export const commentWithUser = async (
 export const editComment = async (
   pool: Pool,
   id: string,
-  comment: string
+  comment: string,
 ): Promise<CommentWithUser | null> => {
   // Update the comment
   await pool.query(
     `UPDATE comments
     SET (comment, updated_on) = ($2, current_timestamp)
     WHERE id = $1`,
-    [id, comment]
+    [id, comment],
   );
-  
+
   // Fetch the updated comment with user details
-  const result = await pool.query(
-    'SELECT * FROM get_comment_by_id($1)',
-    [id]
-  );
-  
+  const result = await pool.query('SELECT * FROM get_comment_by_id($1)', [id]);
+
   return result.rows[0] || null;
 };
 
 // Delete a comment
 export const deleteComment = async (
   pool: Pool,
-  id: string
+  id: string,
 ): Promise<Comment | null> => {
   const result = await pool.query(
     `UPDATE comments
     SET (active, updated_on) = (false, current_timestamp)
     WHERE id = $1`,
-    [id]
+    [id],
   );
   return result.rows[0] || null;
 };

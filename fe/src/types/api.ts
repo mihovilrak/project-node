@@ -2,9 +2,9 @@ import { AxiosProgressEvent } from 'axios';
 
 // Generic API Response wrapper
 export interface ApiResponse<T = any> {
-    data: T;
-    message?: string;
-    status: number;
+  data: T;
+  message?: string;
+  status: number;
 }
 
 // File upload options

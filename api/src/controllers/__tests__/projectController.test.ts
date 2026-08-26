@@ -11,7 +11,9 @@ import { ProjectRequest } from '../../types/express';
 jest.mock('../../models/projectModel');
 jest.mock('../../models/notificationModel');
 jest.mock('../../models/accessModel', () => ({
-  filterByProjectAccess: jest.fn(async (_pool: unknown, _userId: string, rows: unknown[]) => rows)
+  filterByProjectAccess: jest.fn(
+    async (_pool: unknown, _userId: string, rows: unknown[]) => rows,
+  ),
 }));
 
 describe('ProjectController', () => {
@@ -29,7 +31,7 @@ describe('ProjectController', () => {
         httpOnly: true,
         path: '/',
         domain: undefined,
-        sameSite: 'strict'
+        sameSite: 'strict',
       },
       regenerate: jest.fn((callback: (err: any) => void) => {
         callback(null);
@@ -52,15 +54,16 @@ describe('ProjectController', () => {
       user: {
         id: '1',
         login: 'test',
-        role_id: 1
-      }
-    } as unknown as Session & Partial<{ user: { id: string; login: string; role_id: number } }>;
+        role_id: 1,
+      },
+    } as unknown as Session &
+      Partial<{ user: { id: string; login: string; role_id: number } }>;
 
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession
+      session: mockSession,
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
@@ -74,17 +77,19 @@ describe('ProjectController', () => {
     it('should return all projects with default active-only filter', async () => {
       const mockProjects = [
         { id: '1', name: 'Project 1', status_id: 1 },
-        { id: '2', name: 'Project 2', status_id: 1 }
+        { id: '2', name: 'Project 2', status_id: 1 },
       ];
       (projectModel.getProjects as jest.Mock).mockResolvedValue(mockProjects);
 
       await projectController.getProjects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, { status_id: 1 });
+      expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, {
+        status_id: 1,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockProjects);
     });
@@ -92,18 +97,25 @@ describe('ProjectController', () => {
     it('should hide projects the user is not a member of', async () => {
       const mockProjects = [
         { id: '1', name: 'Mine', status_id: 1 },
-        { id: '2', name: "Somebody else's", status_id: 1 }
+        { id: '2', name: "Somebody else's", status_id: 1 },
       ];
       (projectModel.getProjects as jest.Mock).mockResolvedValue(mockProjects);
-      (accessModel.filterByProjectAccess as jest.Mock).mockResolvedValueOnce([mockProjects[0]]);
+      (accessModel.filterByProjectAccess as jest.Mock).mockResolvedValueOnce([
+        mockProjects[0],
+      ]);
 
       await projectController.getProjects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(accessModel.filterByProjectAccess).toHaveBeenCalledWith(mockPool, '1', mockProjects, 'id');
+      expect(accessModel.filterByProjectAccess).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        mockProjects,
+        'id',
+      );
       expect(mockRes.json).toHaveBeenCalledWith([mockProjects[0]]);
     });
 
@@ -114,7 +126,7 @@ describe('ProjectController', () => {
       await projectController.getProjects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.getProjects).not.toHaveBeenCalled();
@@ -127,7 +139,7 @@ describe('ProjectController', () => {
       await projectController.getProjects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -135,16 +147,20 @@ describe('ProjectController', () => {
     });
 
     it('should handle errors', async () => {
-      (projectModel.getProjects as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjects as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -157,7 +173,7 @@ describe('ProjectController', () => {
       await projectController.getProjectById(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.getProjectById).toHaveBeenCalledWith(mockPool, '1');
@@ -172,7 +188,7 @@ describe('ProjectController', () => {
       await projectController.getProjectById(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -181,32 +197,46 @@ describe('ProjectController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.getProjectById as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjectById as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjectById(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getProjectDetails', () => {
     it('should return project details when found', async () => {
-      const mockDetails = { id: '1', name: 'Project 1', status_id: 1, tasks_count: 5 };
+      const mockDetails = {
+        id: '1',
+        name: 'Project 1',
+        status_id: 1,
+        tasks_count: 5,
+      };
       mockReq.params = { id: '1' };
-      (projectModel.getProjectDetails as jest.Mock).mockResolvedValue(mockDetails);
+      (projectModel.getProjectDetails as jest.Mock).mockResolvedValue(
+        mockDetails,
+      );
 
       await projectController.getProjectDetails(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.getProjectDetails).toHaveBeenCalledWith(mockPool, '1');
+      expect(projectModel.getProjectDetails).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockDetails);
     });
@@ -218,7 +248,7 @@ describe('ProjectController', () => {
       await projectController.getProjectDetails(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -227,16 +257,20 @@ describe('ProjectController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.getProjectDetails as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjectDetails as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjectDetails(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -247,16 +281,18 @@ describe('ProjectController', () => {
         description: 'Project description',
         start_date: new Date(),
         due_date: new Date(),
-        parent_id: null
+        parent_id: null,
       };
       const createdProject = { id: '3', ...mockProjectData, created_by: '1' };
       mockReq.body = mockProjectData;
-      (projectModel.createProject as jest.Mock).mockResolvedValue(createdProject);
+      (projectModel.createProject as jest.Mock).mockResolvedValue(
+        createdProject,
+      );
 
       await projectController.createProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.createProject).toHaveBeenCalled();
@@ -271,11 +307,13 @@ describe('ProjectController', () => {
       await projectController.createProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not authenticated' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'User not authenticated',
+      });
     });
 
     it('should return 400 when required fields are missing', async () => {
@@ -284,15 +322,15 @@ describe('ProjectController', () => {
       await projectController.createProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Invalid request',
-          message: 'name is required and must be a non-empty string'
-        })
+          message: 'name is required and must be a non-empty string',
+        }),
       );
       expect(projectModel.createProject).not.toHaveBeenCalled();
     });
@@ -301,18 +339,22 @@ describe('ProjectController', () => {
       mockReq.body = {
         name: 'New Project',
         start_date: new Date(),
-        due_date: new Date()
+        due_date: new Date(),
       };
-      (projectModel.createProject as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.createProject as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.createProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -321,15 +363,21 @@ describe('ProjectController', () => {
       const updatedProject = { id: '1', name: 'Project 1', status_id: 2 };
       mockReq.params = { id: '1' };
       mockReq.body = { status: 'completed' };
-      (projectModel.changeProjectStatus as jest.Mock).mockResolvedValue(updatedProject);
+      (projectModel.changeProjectStatus as jest.Mock).mockResolvedValue(
+        updatedProject,
+      );
 
       await projectController.changeProjectStatus(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.changeProjectStatus).toHaveBeenCalledWith(mockPool, '1', 'completed');
+      expect(projectModel.changeProjectStatus).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        'completed',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedProject);
     });
@@ -342,7 +390,7 @@ describe('ProjectController', () => {
       await projectController.changeProjectStatus(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -352,31 +400,41 @@ describe('ProjectController', () => {
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { status: 'completed' };
-      (projectModel.changeProjectStatus as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.changeProjectStatus as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.changeProjectStatus(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('updateProject', () => {
     it('should update a project successfully', async () => {
       const updates = { name: 'Updated Project Name' };
-      const updatedProject = { id: '1', name: 'Updated Project Name', status_id: 1 };
+      const updatedProject = {
+        id: '1',
+        name: 'Updated Project Name',
+        status_id: 1,
+      };
       mockReq.params = { id: '1' };
       mockReq.body = updates;
-      (projectModel.updateProject as jest.Mock).mockResolvedValue(updatedProject);
+      (projectModel.updateProject as jest.Mock).mockResolvedValue(
+        updatedProject,
+      );
 
       await projectController.updateProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.updateProject).toHaveBeenCalled();
@@ -392,7 +450,7 @@ describe('ProjectController', () => {
       await projectController.updateProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -402,28 +460,34 @@ describe('ProjectController', () => {
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { name: 'Updated Name' };
-      (projectModel.updateProject as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.updateProject as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.updateProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('deleteProject', () => {
     it('should delete a project successfully', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.deleteProject as jest.Mock).mockResolvedValue({ success: true });
+      (projectModel.deleteProject as jest.Mock).mockResolvedValue({
+        success: true,
+      });
 
       await projectController.deleteProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.deleteProject).toHaveBeenCalledWith(mockPool, '1');
@@ -438,7 +502,7 @@ describe('ProjectController', () => {
       await projectController.deleteProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -447,16 +511,20 @@ describe('ProjectController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.deleteProject as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.deleteProject as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.deleteProject(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -464,34 +532,43 @@ describe('ProjectController', () => {
     it('should return project members', async () => {
       const mockMembers = [
         { id: '1', name: 'User 1' },
-        { id: '2', name: 'User 2' }
+        { id: '2', name: 'User 2' },
       ];
       mockReq.params = { id: '1' };
-      (projectModel.getProjectMembers as jest.Mock).mockResolvedValue(mockMembers);
+      (projectModel.getProjectMembers as jest.Mock).mockResolvedValue(
+        mockMembers,
+      );
 
       await projectController.getProjectMembers(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.getProjectMembers).toHaveBeenCalledWith(mockPool, '1');
+      expect(projectModel.getProjectMembers).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockMembers);
     });
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.getProjectMembers as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjectMembers as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjectMembers(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -500,17 +577,27 @@ describe('ProjectController', () => {
       const mockResult = { project_id: '1', user_id: '2' };
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
-      (projectModel.addProjectMember as jest.Mock).mockResolvedValue(mockResult);
-      (notificationModel.createProjectMemberNotifications as jest.Mock).mockResolvedValue(undefined);
+      (projectModel.addProjectMember as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+      (
+        notificationModel.createProjectMemberNotifications as jest.Mock
+      ).mockResolvedValue(undefined);
 
       await projectController.addProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.addProjectMember).toHaveBeenCalledWith(mockPool, '1', '2');
-      expect(notificationModel.createProjectMemberNotifications).toHaveBeenCalled();
+      expect(projectModel.addProjectMember).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        '2',
+      );
+      expect(
+        notificationModel.createProjectMemberNotifications,
+      ).toHaveBeenCalled();
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(mockResult);
     });
@@ -523,26 +610,32 @@ describe('ProjectController', () => {
       await projectController.addProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Project or user not found' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Project or user not found',
+      });
     });
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
-      (projectModel.addProjectMember as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.addProjectMember as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.addProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -551,15 +644,21 @@ describe('ProjectController', () => {
       const mockResult = { success: true };
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
-      (projectModel.deleteProjectMember as jest.Mock).mockResolvedValue(mockResult);
+      (projectModel.deleteProjectMember as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
 
       await projectController.deleteProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.deleteProjectMember).toHaveBeenCalledWith(mockPool, '1', '2');
+      expect(projectModel.deleteProjectMember).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        '2',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockResult);
     });
@@ -572,41 +671,49 @@ describe('ProjectController', () => {
       await projectController.deleteProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Project member not found' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Project member not found',
+      });
     });
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
-      (projectModel.deleteProjectMember as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.deleteProjectMember as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.deleteProjectMember(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
   describe('getSubprojects', () => {
     it('should return subprojects', async () => {
       const mockSubprojects = [
-        { id: '2', name: 'Subproject 1', parent_id: '1' }
+        { id: '2', name: 'Subproject 1', parent_id: '1' },
       ];
       mockReq.params = { id: '1' };
-      (projectModel.getSubprojects as jest.Mock).mockResolvedValue(mockSubprojects);
+      (projectModel.getSubprojects as jest.Mock).mockResolvedValue(
+        mockSubprojects,
+      );
 
       await projectController.getSubprojects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.getSubprojects).toHaveBeenCalledWith(mockPool, '1');
@@ -616,16 +723,20 @@ describe('ProjectController', () => {
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.getSubprojects as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getSubprojects as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getSubprojects(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -633,7 +744,7 @@ describe('ProjectController', () => {
     it('should return project tasks', async () => {
       const mockTasks = [
         { id: '1', name: 'Task 1', project_id: '1' },
-        { id: '2', name: 'Task 2', project_id: '1' }
+        { id: '2', name: 'Task 2', project_id: '1' },
       ];
       mockReq.params = { id: '1' };
       (projectModel.getProjectTasks as jest.Mock).mockResolvedValue(mockTasks);
@@ -641,10 +752,14 @@ describe('ProjectController', () => {
       await projectController.getProjectTasks(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(projectModel.getProjectTasks).toHaveBeenCalledWith(mockPool, '1', {});
+      expect(projectModel.getProjectTasks).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        {},
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
     });
@@ -658,29 +773,33 @@ describe('ProjectController', () => {
       await projectController.getProjectTasks(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.getProjectTasks).toHaveBeenCalledWith(mockPool, '1', {
         status: 'active',
         priority: 'high',
-        assignee: '2'
+        assignee: '2',
       });
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
 
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
-      (projectModel.getProjectTasks as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjectTasks as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjectTasks(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -688,14 +807,16 @@ describe('ProjectController', () => {
     it('should return project statuses', async () => {
       const mockStatuses = [
         { id: 1, name: 'Active' },
-        { id: 2, name: 'Completed' }
+        { id: 2, name: 'Completed' },
       ];
-      (projectModel.getProjectStatuses as jest.Mock).mockResolvedValue(mockStatuses);
+      (projectModel.getProjectStatuses as jest.Mock).mockResolvedValue(
+        mockStatuses,
+      );
 
       await projectController.getProjectStatuses(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(projectModel.getProjectStatuses).toHaveBeenCalledWith(mockPool);
@@ -704,16 +825,20 @@ describe('ProjectController', () => {
     });
 
     it('should handle errors', async () => {
-      (projectModel.getProjectStatuses as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (projectModel.getProjectStatuses as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await projectController.getProjectStatuses(
         mockReq as any,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 });

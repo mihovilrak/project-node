@@ -14,7 +14,7 @@ const TaskDetailsHeader: React.FC<TaskDetailsHeaderProps> = ({
   onTimeLogClick,
   onAddSubtaskClick,
   canEdit,
-  canDelete
+  canDelete,
 }) => {
   if (!task) {
     return null;

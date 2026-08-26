@@ -4,11 +4,17 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import ProfileEditDialog from '../ProfileEditDialog';
 import { updateProfile } from '../../../api/profiles';
-import { FormData, ProfileData, ProfileEditDialogProps } from '../../../types/profile';
+import {
+  FormData,
+  ProfileData,
+  ProfileEditDialogProps,
+} from '../../../types/profile';
 
 // Mock the API call
 jest.mock('../../../api/profiles');
-const mockUpdateProfile = updateProfile as jest.MockedFunction<typeof updateProfile>;
+const mockUpdateProfile = updateProfile as jest.MockedFunction<
+  typeof updateProfile
+>;
 
 describe('ProfileEditDialog', () => {
   beforeEach(() => {
@@ -30,18 +36,18 @@ describe('ProfileEditDialog', () => {
     avatar_url: 'https://example.com/avatar.jpg',
     created_on: '2023-01-01T00:00:00Z',
     updated_on: '2023-01-01T00:00:00Z',
-    last_login: '2023-01-01T00:00:00Z'
+    last_login: '2023-01-01T00:00:00Z',
   };
 
   const mockProps: ProfileEditDialogProps = {
     open: true,
     onClose: jest.fn(),
     profile: mockProfile,
-    onProfileUpdate: jest.fn().mockImplementation(
-      async (formData: FormData): Promise<void> => {
+    onProfileUpdate: jest
+      .fn()
+      .mockImplementation(async (formData: FormData): Promise<void> => {
         return Promise.resolve();
-      }
-    )
+      }),
   };
 
   test('renders with profile data', () => {
@@ -72,13 +78,17 @@ describe('ProfileEditDialog', () => {
 
     // Fix: Remove type coercion from waitFor
     await waitFor(() => {
-      expect(mockProps.onProfileUpdate).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockProps.onProfileUpdate).toHaveBeenCalledWith(
+        expect.any(Object),
+      );
     });
   });
 
   test('handles submission error', async () => {
     // getApiErrorMessage reads response.data.error; fallback is 'Failed to update profile'
-    mockUpdateProfile.mockRejectedValueOnce({ response: { data: { error: 'Update failed' } } });
+    mockUpdateProfile.mockRejectedValueOnce({
+      response: { data: { error: 'Update failed' } },
+    });
 
     render(<ProfileEditDialog {...mockProps} />);
 
@@ -115,7 +125,7 @@ describe('ProfileEditDialog', () => {
     const updatedProfile: ProfileData = {
       ...mockProfile,
       name: 'Jane',
-      surname: 'Smith'
+      surname: 'Smith',
     };
 
     rerender(<ProfileEditDialog {...mockProps} profile={updatedProfile} />);
@@ -127,21 +137,28 @@ describe('ProfileEditDialog', () => {
   test('handles email validation', async () => {
     render(<ProfileEditDialog {...mockProps} />);
 
-    const emailInput = await screen.findByLabelText(/email/i, {}, { timeout: 10000 });
+    const emailInput = await screen.findByLabelText(
+      /email/i,
+      {},
+      { timeout: 10000 },
+    );
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, 'invalid-email');
 
     const submitButton = screen.getByText(/save changes/i);
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(emailInput).toBeInvalid();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(emailInput).toBeInvalid();
+      },
+      { timeout: 10000 },
+    );
   }, 15000);
 
   const createDeferred = <T,>() => {
     let resolve: ((value: T) => void) | undefined;
-    const promise = new Promise<T>(_resolve => {
+    const promise = new Promise<T>((_resolve) => {
       resolve = _resolve;
     });
     return { promise, resolve: resolve! };

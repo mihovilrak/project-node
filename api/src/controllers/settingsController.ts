@@ -12,7 +12,7 @@ import logger from '../utils/logger';
 export const getSystemSettings = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const settings = await settingsModel.getSystemSettings(pool);
@@ -27,7 +27,7 @@ export const getSystemSettings = async (
 export const getTimezones = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const timezones = await settingsModel.getTimezones(pool);
@@ -42,7 +42,7 @@ export const getTimezones = async (
 export const getAppTheme = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const settings = await settingsModel.getSystemSettings(pool);
@@ -60,10 +60,13 @@ export const getAppTheme = async (
 export const updateSystemSettings = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
-    const settings = await settingsModel.updateSystemSettings(pool, req.body as SettingsUpdateInput);
+    const settings = await settingsModel.updateSystemSettings(
+      pool,
+      req.body as SettingsUpdateInput,
+    );
     res.status(200).json(settings);
   } catch (error) {
     logger.error({ err: error });
@@ -75,7 +78,7 @@ export const updateSystemSettings = async (
 export const getUserSettings = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
@@ -94,14 +97,18 @@ export const getUserSettings = async (
 export const updateUserSettings = async (
   req: CustomRequest,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const userId = req.session?.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
-    const settings = await settingsModel.updateUserSettings(pool, userId, req.body as SettingsUpdateInput);
+    const settings = await settingsModel.updateUserSettings(
+      pool,
+      userId,
+      req.body as SettingsUpdateInput,
+    );
     res.status(200).json(settings);
   } catch (error) {
     logger.error({ err: error });
@@ -110,12 +117,32 @@ export const updateUserSettings = async (
 };
 
 // Allowed env keys to expose. Secrets are masked and not editable.
-const ALLOWED_ENV_KEYS = ['NODE_ENV', 'PORT', 'FE_URL', 'LOG_LEVEL', 'EMAIL_ENABLED', 'EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_FROM'];
-const EDITABLE_ENV_KEYS = ['PORT', 'FE_URL', 'LOG_LEVEL', 'EMAIL_ENABLED', 'EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_FROM'];
+const ALLOWED_ENV_KEYS = [
+  'NODE_ENV',
+  'PORT',
+  'FE_URL',
+  'LOG_LEVEL',
+  'EMAIL_ENABLED',
+  'EMAIL_HOST',
+  'EMAIL_PORT',
+  'EMAIL_FROM',
+];
+const EDITABLE_ENV_KEYS = [
+  'PORT',
+  'FE_URL',
+  'LOG_LEVEL',
+  'EMAIL_ENABLED',
+  'EMAIL_HOST',
+  'EMAIL_PORT',
+  'EMAIL_FROM',
+];
 const SECRET_PATTERNS = /PASSWORD|SECRET|KEY|TOKEN|CREDENTIAL/i;
 const LOG_LEVELS = ['error', 'warn', 'info', 'debug'];
 
-function validateEnvValue(key: string, value: string): { valid: boolean; message?: string } {
+function validateEnvValue(
+  key: string,
+  value: string,
+): { valid: boolean; message?: string } {
   if (value === undefined || value === null) {
     return { valid: false, message: 'Value is required' };
   }
@@ -124,19 +151,28 @@ function validateEnvValue(key: string, value: string): { valid: boolean; message
     case 'PORT': {
       const num = parseInt(v, 10);
       if (Number.isNaN(num) || num < 1 || num > 65535) {
-        return { valid: false, message: 'PORT must be a number between 1 and 65535' };
+        return {
+          valid: false,
+          message: 'PORT must be a number between 1 and 65535',
+        };
       }
       return { valid: true };
     }
     case 'LOG_LEVEL':
       if (!LOG_LEVELS.includes(v.toLowerCase())) {
-        return { valid: false, message: `LOG_LEVEL must be one of: ${LOG_LEVELS.join(', ')}` };
+        return {
+          valid: false,
+          message: `LOG_LEVEL must be one of: ${LOG_LEVELS.join(', ')}`,
+        };
       }
       return { valid: true };
     case 'EMAIL_PORT': {
       const num = parseInt(v, 10);
       if (Number.isNaN(num) || num < 1 || num > 65535) {
-        return { valid: false, message: 'EMAIL_PORT must be a number between 1 and 65535' };
+        return {
+          valid: false,
+          message: 'EMAIL_PORT must be a number between 1 and 65535',
+        };
       }
       return { valid: true };
     }
@@ -171,7 +207,10 @@ function readEnvFile(filePath: string): Record<string, string> {
     const eq = trimmed.indexOf('=');
     if (eq > 0) {
       const key = trimmed.slice(0, eq).trim();
-      const value = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+      const value = trimmed
+        .slice(eq + 1)
+        .trim()
+        .replace(/^["']|["']$/g, '');
       out[key] = value;
     }
   }
@@ -184,7 +223,9 @@ function writeEnvFile(filePath: string, data: Record<string, string>): void {
   for (const key of keys) {
     const value = data[key];
     const needsQuote = /[\s#="']/.test(value);
-    lines.push(`${key}=${needsQuote ? `"${value.replace(/"/g, '\\"')}"` : value}`);
+    lines.push(
+      `${key}=${needsQuote ? `"${value.replace(/"/g, '\\"')}"` : value}`,
+    );
   }
   fs.writeFileSync(filePath, lines.join('\n') + '\n', 'utf-8');
 }
@@ -192,7 +233,7 @@ function writeEnvFile(filePath: string, data: Record<string, string>): void {
 export const getEnvSettings = async (
   req: Request,
   res: Response,
-  _pool: Pool
+  _pool: Pool,
 ): Promise<Response | void> => {
   try {
     const entries: { key: string; value: string; masked: boolean }[] = [];
@@ -202,7 +243,7 @@ export const getEnvSettings = async (
       entries.push({
         key,
         value: masked ? '****' : (value ?? ''),
-        masked
+        masked,
       });
     }
     res.status(200).json(entries);
@@ -215,11 +256,12 @@ export const getEnvSettings = async (
 export const updateEnvSettings = async (
   req: Request,
   res: Response,
-  _pool: Pool
+  _pool: Pool,
 ): Promise<Response | void> => {
   try {
     const body = req.body as { updates?: Record<string, string> };
-    const updates = body?.updates && typeof body.updates === 'object' ? body.updates : {};
+    const updates =
+      body?.updates && typeof body.updates === 'object' ? body.updates : {};
     const filePath = getEnvFilePath();
 
     for (const key of Object.keys(updates)) {
@@ -229,7 +271,9 @@ export const updateEnvSettings = async (
       const value = String(updates[key] ?? '').trim();
       const validation = validateEnvValue(key, value);
       if (!validation.valid) {
-        return res.status(400).json({ error: validation.message || 'Invalid value' });
+        return res
+          .status(400)
+          .json({ error: validation.message || 'Invalid value' });
       }
     }
 
@@ -250,7 +294,7 @@ export const updateEnvSettings = async (
       entries.push({
         key: k,
         value: masked ? '****' : (value ?? ''),
-        masked
+        masked,
       });
     }
     res.status(200).json(entries);
@@ -264,32 +308,33 @@ export const updateEnvSettings = async (
 export const testSmtpConnection = async (
   req: Request,
   res: Response,
-  pool: Pool
+  pool: Pool,
 ): Promise<Response | void> => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email address is required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required',
       });
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid email address format' 
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email address format',
       });
     }
 
     // Check if email is enabled
     if (process.env.EMAIL_ENABLED !== 'true') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email sending is disabled. Set EMAIL_ENABLED=true in environment.' 
+      return res.status(400).json({
+        success: false,
+        message:
+          'Email sending is disabled. Set EMAIL_ENABLED=true in environment.',
       });
     }
 
@@ -309,7 +354,8 @@ export const testSmtpConnection = async (
 
     // Send test email
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'Project Management <noreply@example.com>',
+      from:
+        process.env.EMAIL_FROM || 'Project Management <noreply@example.com>',
       to: email,
       subject: 'SMTP Test - Project Management App',
       html: `
@@ -342,17 +388,18 @@ export const testSmtpConnection = async (
       `,
     });
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       message: `Test email sent successfully to ${email}`,
-      messageId: info.messageId
+      messageId: info.messageId,
     });
   } catch (error) {
     logger.error({ err: error }, 'SMTP test failed');
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      success: false, 
-      message: `SMTP test failed: ${errorMessage}` 
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      message: `SMTP test failed: ${errorMessage}`,
     });
   }
 };

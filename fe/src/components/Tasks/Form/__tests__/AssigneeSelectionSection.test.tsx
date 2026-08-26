@@ -12,7 +12,7 @@ jest.mock('../../AssigneeSelect', () => ({
       Name: {name}
       Members: {projectMembers.length}
     </div>
-  )
+  ),
 }));
 
 describe('AssigneeSelectionSection', () => {
@@ -23,7 +23,7 @@ describe('AssigneeSelectionSection', () => {
       created_on: '2024-01-01',
       name: 'John',
       surname: 'Doe',
-      role: 'Developer'
+      role: 'Developer',
     },
     {
       project_id: 1,
@@ -31,8 +31,8 @@ describe('AssigneeSelectionSection', () => {
       created_on: '2024-01-01',
       name: 'Jane',
       surname: 'Smith',
-      role: 'Project Manager'
-    }
+      role: 'Project Manager',
+    },
   ];
 
   const mockFormData: TaskFormState = {
@@ -47,7 +47,7 @@ describe('AssigneeSelectionSection', () => {
     assignee_id: null,
     start_date: null,
     due_date: null,
-    estimated_time: null
+    estimated_time: null,
   };
 
   const mockHandleChange = jest.fn();
@@ -55,14 +55,18 @@ describe('AssigneeSelectionSection', () => {
   const defaultProps = {
     formData: mockFormData,
     projectMembers: mockProjectMembers,
-    handleChange: mockHandleChange
+    handleChange: mockHandleChange,
   };
 
   it('renders both holder and assignee selects', () => {
     render(<AssigneeSelectionSection {...defaultProps} />);
 
-    expect(screen.getByTestId('mock-assignee-select-holder_id')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-assignee-select-assignee_id')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('mock-assignee-select-holder_id'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('mock-assignee-select-assignee_id'),
+    ).toBeInTheDocument();
   });
 
   it('passes correct props to holder select', () => {
@@ -77,21 +81,22 @@ describe('AssigneeSelectionSection', () => {
   it('passes correct props to assignee select', () => {
     render(<AssigneeSelectionSection {...defaultProps} />);
 
-    const assigneeSelect = screen.getByTestId('mock-assignee-select-assignee_id');
+    const assigneeSelect = screen.getByTestId(
+      'mock-assignee-select-assignee_id',
+    );
     expect(assigneeSelect).toHaveTextContent('Label: Assignee');
     expect(assigneeSelect).toHaveTextContent('Name: assignee_id');
     expect(assigneeSelect).toHaveTextContent('Members: 2');
   });
 
   it('renders with empty project members', () => {
-    render(
-      <AssigneeSelectionSection
-        {...defaultProps}
-        projectMembers={[]}
-      />
-    );
+    render(<AssigneeSelectionSection {...defaultProps} projectMembers={[]} />);
 
-    expect(screen.getByTestId('mock-assignee-select-holder_id')).toHaveTextContent('Members: 0');
-    expect(screen.getByTestId('mock-assignee-select-assignee_id')).toHaveTextContent('Members: 0');
+    expect(
+      screen.getByTestId('mock-assignee-select-holder_id'),
+    ).toHaveTextContent('Members: 0');
+    expect(
+      screen.getByTestId('mock-assignee-select-assignee_id'),
+    ).toHaveTextContent('Members: 0');
   });
 });

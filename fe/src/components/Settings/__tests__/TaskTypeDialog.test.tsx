@@ -11,8 +11,8 @@ jest.mock('../../../hooks/setting/useIconSelector', () => ({
     handleOpen: jest.fn(),
     handleClose: jest.fn(),
     handleSelect: jest.fn(),
-    value: initialValue
-  })
+    value: initialValue,
+  }),
 }));
 
 const mockTaskType: TaskType = {
@@ -21,7 +21,7 @@ const mockTaskType: TaskType = {
   color: '#2196f3',
   description: 'Test Description',
   icon: 'TestIcon',
-  active: true
+  active: true,
 };
 
 const mockProps = {
@@ -53,7 +53,9 @@ describe('TaskTypeDialog', () => {
       expect(screen.getByText('Edit Task Type')).toBeInTheDocument();
       expect(screen.getByLabelText(/^Name/)).toHaveValue('Test Task');
       expect(screen.getByLabelText(/^Color/)).toHaveValue('#2196f3');
-      expect(screen.getByLabelText(/^Description/)).toHaveValue('Test Description');
+      expect(screen.getByLabelText(/^Description/)).toHaveValue(
+        'Test Description',
+      );
       // Icon selector should be present - check for the label
       expect(screen.getByText('Icon')).toBeInTheDocument();
     });
@@ -78,11 +80,15 @@ describe('TaskTypeDialog', () => {
       render(<TaskTypeDialog {...mockProps} />);
 
       // Switch component might be accessed via label or role
-      const activeSwitch = screen.getByLabelText(/Active/i) || screen.getByRole('checkbox', { hidden: true });
+      const activeSwitch =
+        screen.getByLabelText(/Active/i) ||
+        screen.getByRole('checkbox', { hidden: true });
       fireEvent.click(activeSwitch);
 
       // After clicking, the switch should toggle - check via the input element
-      const switchInput = document.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      const switchInput = document.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
       if (switchInput) {
         expect(switchInput.checked).toBe(false);
       }
@@ -92,8 +98,12 @@ describe('TaskTypeDialog', () => {
       render(<TaskTypeDialog {...mockProps} />);
 
       // Use fireEvent.change instead of slow userEvent.type
-      fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'New Task' } });
-      fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'New Description' } });
+      fireEvent.change(screen.getByLabelText(/^Name/), {
+        target: { value: 'New Task' },
+      });
+      fireEvent.change(screen.getByLabelText(/^Description/), {
+        target: { value: 'New Description' },
+      });
 
       const submitButton = screen.getByText('Create');
       fireEvent.click(submitButton);
@@ -104,8 +114,8 @@ describe('TaskTypeDialog', () => {
           color: '#2196f3',
           description: 'New Description',
           icon: 'Task',
-          active: true
-        })
+          active: true,
+        }),
       );
     });
 
@@ -122,8 +132,8 @@ describe('TaskTypeDialog', () => {
           color: mockTaskType.color,
           description: mockTaskType.description,
           icon: mockTaskType.icon,
-          active: mockTaskType.active
-        })
+          active: mockTaskType.active,
+        }),
       );
     });
 
@@ -133,12 +143,12 @@ describe('TaskTypeDialog', () => {
       // Submit form with default 'Task' icon
       const form = screen.getByRole('dialog').querySelector('form')!;
       fireEvent.submit(form);
-      
+
       await waitFor(() => {
         expect(mockProps.onSave).toHaveBeenCalledWith(
           expect.objectContaining({
-            icon: 'Task'
-          })
+            icon: 'Task',
+          }),
         );
       });
     });
@@ -162,7 +172,8 @@ describe('TaskTypeDialog', () => {
 
     it('clears error on new submission', async () => {
       const error = new Error('Failed to save');
-      const mockSaveWithError = jest.fn()
+      const mockSaveWithError = jest
+        .fn()
         .mockRejectedValueOnce(error)
         .mockResolvedValueOnce(undefined);
 

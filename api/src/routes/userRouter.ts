@@ -14,10 +14,26 @@ export default (pool: Pool): Router => {
   router.get('/permissions', withPool(pool, userController.getUserPermissions));
   router.get('/time-logs', withPool(pool, timeLogController.getUserTimeLogs));
   router.get('/:id', withPool(pool, userController.getUserById));
-  router.post('/', checkPermission(pool, 'Admin'), withPool(pool, userController.createUser));
-  router.put('/:id', checkPermission(pool, 'Admin'), withPool(pool, userController.updateUser));
-  router.patch('/:id/status', checkPermission(pool, 'Admin'), withPool(pool, userController.changeUserStatus));
-  router.delete('/:id', checkPermission(pool, 'Admin'), withPool(pool, userController.deleteUser));
+  router.post(
+    '/',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.createUser),
+  );
+  router.put(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.updateUser),
+  );
+  router.patch(
+    '/:id/status',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.changeUserStatus),
+  );
+  router.delete(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.deleteUser),
+  );
 
   return router;
 };

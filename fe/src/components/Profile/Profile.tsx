@@ -6,7 +6,7 @@ import {
   CircularProgress,
   Alert,
   Button,
-  Grid
+  Grid,
 } from '@mui/material';
 import { Edit, Lock } from '@mui/icons-material';
 import { useProfileData } from '../../hooks/profile/useProfileData';
@@ -34,7 +34,7 @@ const Profile: React.FC = () => {
     handleProfileUpdate,
     handleTaskClick,
     getTypedProfile,
-    getProfileStats
+    getProfileStats,
   } = useProfileData();
 
   if (loading) {
@@ -92,7 +92,14 @@ const Profile: React.FC = () => {
       <ProfileHeader user={profile} />
 
       <ProfileStats
-        stats={stats || { totalTasks: 0, completedTasks: 0, activeProjects: 0, totalHours: 0 }}
+        stats={
+          stats || {
+            totalTasks: 0,
+            completedTasks: 0,
+            activeProjects: 0,
+            totalHours: 0,
+          }
+        }
         loading={loading}
       />
 
@@ -119,7 +126,7 @@ const Profile: React.FC = () => {
       <ProfileEditDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        profile={typedProfile as ProfileData || undefined}
+        profile={(typedProfile as ProfileData) || undefined}
         onProfileUpdate={handleProfileUpdate}
       />
 

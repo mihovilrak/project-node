@@ -6,27 +6,27 @@ import { ActivityType } from '../../../types/setting';
 const mockActivityTypes: ActivityType[] = [
   {
     id: 1,
-    name: "Development",
-    description: "Software development tasks",
-    color: "#FF0000",
-    icon: "code",
-    active: true
+    name: 'Development',
+    description: 'Software development tasks',
+    color: '#FF0000',
+    icon: 'code',
+    active: true,
   },
   {
     id: 2,
-    name: "Meeting",
-    description: "Team meetings",
-    color: "#00FF00",
+    name: 'Meeting',
+    description: 'Team meetings',
+    color: '#00FF00',
     icon: undefined,
-    active: false
-  }
+    active: false,
+  },
 ];
 
 const defaultProps = {
   activityTypes: mockActivityTypes,
   onEdit: jest.fn(),
   onDelete: jest.fn(),
-  loading: false
+  loading: false,
 };
 
 describe('ActivityTypesTable', () => {

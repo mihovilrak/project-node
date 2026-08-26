@@ -25,7 +25,8 @@ class EmailService implements IEmailService {
     });
 
     this.templates = {};
-    this.templateDir = process.env.TEMPLATES_PATH ?? path.join(__dirname, '..', 'templates');
+    this.templateDir =
+      process.env.TEMPLATES_PATH ?? path.join(__dirname, '..', 'templates');
     this.initializeTemplates();
   }
 
@@ -59,7 +60,7 @@ class EmailService implements IEmailService {
     to: string,
     subject: string,
     templateName: string,
-    data: any
+    data: any,
   ): Promise<EmailInfo | void> {
     if (!config.app.emailEnabled) {
       logger.info('Email sending is disabled');
@@ -91,7 +92,7 @@ class EmailService implements IEmailService {
     subject: string,
     templateName: string,
     data: any,
-    retries = 3
+    retries = 3,
   ): Promise<EmailInfo | void> {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
@@ -99,7 +100,7 @@ class EmailService implements IEmailService {
       } catch (error) {
         logger.warn({ err: error, attempt }, 'Email attempt failed');
         if (attempt === retries) throw error;
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     }
   }

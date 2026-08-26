@@ -3,7 +3,7 @@ import { useNotificationCenter } from '../useNotificationCenter';
 import {
   getNotifications,
   markAsRead,
-  deleteNotification
+  deleteNotification,
 } from '../../../api/notifications';
 import { MemoryRouter } from 'react-router-dom';
 import { Notification } from '../../../types/notification';
@@ -17,7 +17,7 @@ jest.mock('../../../api/notifications', () => ({
 }));
 
 // Helper to flush all pending promises
-const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 // Mock data
 const mockNotifications: Notification[] = [
@@ -62,7 +62,9 @@ describe('useNotificationCenter', () => {
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => useNotificationCenter(undefined, 0), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(undefined, 0), {
+      wrapper,
+    });
 
     expect(result.current.notifications).toEqual([]);
     expect(result.current.loading).toBe(false);
@@ -73,7 +75,9 @@ describe('useNotificationCenter', () => {
   it('should fetch notifications when userId is provided', async () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
 
-    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     await act(async () => {
       jest.advanceTimersByTime(1);
@@ -94,7 +98,9 @@ describe('useNotificationCenter', () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
     (markAsRead as jest.Mock).mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     await act(async () => {
       await result.current.handleNotificationClick(mockNotifications[0]);
@@ -108,7 +114,9 @@ describe('useNotificationCenter', () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
     (deleteNotification as jest.Mock).mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     const mockEvent = {
       stopPropagation: jest.fn(),
@@ -124,7 +132,9 @@ describe('useNotificationCenter', () => {
   });
 
   it('should handle anchor element for notification menu', () => {
-    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     const mockEvent = {
       currentTarget: document.createElement('button'),
@@ -146,7 +156,9 @@ describe('useNotificationCenter', () => {
   it('should poll for notifications every minute', async () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
 
-    const { unmount } = renderHook(() => useNotificationCenter(1, 100), { wrapper });
+    const { unmount } = renderHook(() => useNotificationCenter(1, 100), {
+      wrapper,
+    });
 
     // Initial fetch
     expect(getNotifications).toHaveBeenCalledTimes(1);
@@ -168,7 +180,9 @@ describe('useNotificationCenter', () => {
     (getNotifications as jest.Mock).mockResolvedValue(mockNotifications);
     (markAsRead as jest.Mock).mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     await act(async () => {
       await result.current.handleMarkAllAsRead();
@@ -181,7 +195,9 @@ describe('useNotificationCenter', () => {
   it('should handle API errors gracefully', async () => {
     (getNotifications as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), { wrapper });
+    const { result, unmount } = renderHook(() => useNotificationCenter(1, 0), {
+      wrapper,
+    });
 
     await act(async () => {
       jest.advanceTimersByTime(1);
@@ -190,7 +206,10 @@ describe('useNotificationCenter', () => {
     unmount();
     await flushPromises();
     await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith('Failed to fetch notifications:', expect.any(Error));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to fetch notifications:',
+        expect.any(Error),
+      );
       expect(result.current.notifications).toEqual([]);
       expect(result.current.loading).toBe(false);
     });

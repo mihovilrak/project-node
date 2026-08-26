@@ -21,7 +21,7 @@ export const defaultUser = {
   last_login: null,
   role_name: 'Admin',
   status_name: 'Active',
-  status_color: 'green'
+  status_color: 'green',
 };
 
 // Default permissions
@@ -30,7 +30,7 @@ export const defaultPermissions = [
   { id: 2, permission: 'EDIT_TASKS', description: 'Edit tasks' },
   { id: 3, permission: 'CREATE_COMMENT', description: 'Create comments' },
   { id: 4, permission: 'MANAGE_USERS', description: 'Manage users' },
-  { id: 5, permission: 'MANAGE_PROJECTS', description: 'Manage projects' }
+  { id: 5, permission: 'MANAGE_PROJECTS', description: 'Manage projects' },
 ];
 
 // Default project data
@@ -49,7 +49,7 @@ export const defaultProject = {
   created_on: '2023-01-01',
   estimated_time: 40,
   spent_time: 0,
-  progress: 0
+  progress: 0,
 };
 
 // Default task data
@@ -79,7 +79,7 @@ export const defaultTask = {
   created_by: 1,
   created_by_name: 'Test Creator',
   created_on: '2025-01-25',
-  estimated_time: 8
+  estimated_time: 8,
 };
 
 /**
@@ -93,7 +93,7 @@ export const handlers = [
   }),
 
   rest.post('/api/login', async (req, res, ctx) => {
-    const body = await req.json() as { login: string; password: string };
+    const body = (await req.json()) as { login: string; password: string };
     if (body.login === 'testuser' && body.password === 'password123') {
       return res(ctx.json({ user: defaultUser }));
     }
@@ -120,13 +120,13 @@ export const handlers = [
   }),
 
   rest.post('/api/users', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultUser, ...body, id: Date.now() }));
   }),
 
   rest.put('/api/users/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultUser, id: Number(id), ...body }));
   }),
 
@@ -163,13 +163,13 @@ export const handlers = [
   }),
 
   rest.post('/api/projects', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultProject, ...body, id: Date.now() }));
   }),
 
   rest.put('/api/projects/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultProject, id: Number(id), ...body }));
   }),
 
@@ -188,15 +188,17 @@ export const handlers = [
 
   rest.post('/api/projects/:id/members', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as { userId: number };
-    return res(ctx.json({
-      user_id: body.userId,
-      project_id: Number(id),
-      role: 'Member',
-      name: 'Test',
-      surname: 'User',
-      created_on: new Date().toISOString()
-    }));
+    const body = (await req.json()) as { userId: number };
+    return res(
+      ctx.json({
+        user_id: body.userId,
+        project_id: Number(id),
+        role: 'Member',
+        name: 'Test',
+        surname: 'User',
+        created_on: new Date().toISOString(),
+      }),
+    );
   }),
 
   rest.delete('/api/projects/:id/members', (req, res, ctx) => {
@@ -205,15 +207,17 @@ export const handlers = [
 
   rest.put('/api/projects/:id/members/:userId', async (req, res, ctx) => {
     const { id, userId } = req.params;
-    const body = await req.json() as { role: string };
-    return res(ctx.json({
-      user_id: Number(userId),
-      project_id: Number(id),
-      role: body.role,
-      name: 'Test',
-      surname: 'User',
-      created_on: new Date().toISOString()
-    }));
+    const body = (await req.json()) as { role: string };
+    return res(
+      ctx.json({
+        user_id: Number(userId),
+        project_id: Number(id),
+        role: body.role,
+        name: 'Test',
+        surname: 'User',
+        created_on: new Date().toISOString(),
+      }),
+    );
   }),
 
   rest.get('/api/projects/:id/subprojects', (req, res, ctx) => {
@@ -230,10 +234,12 @@ export const handlers = [
   }),
 
   rest.get('/api/projects/statuses', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'Active' },
-      { id: 2, name: 'Inactive' }
-    ]));
+    return res(
+      ctx.json([
+        { id: 1, name: 'Active' },
+        { id: 2, name: 'Inactive' },
+      ]),
+    );
   }),
 
   // Tasks endpoints
@@ -247,13 +253,13 @@ export const handlers = [
   }),
 
   rest.post('/api/tasks', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultTask, ...body, id: Date.now() }));
   }),
 
   rest.put('/api/tasks/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultTask, id: Number(id), ...body }));
   }),
 
@@ -271,7 +277,7 @@ export const handlers = [
 
   rest.patch('/api/tasks/:id/dates', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultTask, id: Number(id), ...body }));
   }),
 
@@ -281,29 +287,35 @@ export const handlers = [
 
   rest.patch('/api/tasks/:id/change-status', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as { statusId: number };
-    return res(ctx.json({
-      ...defaultTask,
-      id: Number(id),
-      status_id: body.statusId,
-      status_name: 'In Progress'
-    }));
+    const body = (await req.json()) as { statusId: number };
+    return res(
+      ctx.json({
+        ...defaultTask,
+        id: Number(id),
+        status_id: body.statusId,
+        status_name: 'In Progress',
+      }),
+    );
   }),
 
   rest.get('/api/tasks/statuses', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'To Do', color: '#FF0000' },
-      { id: 2, name: 'In Progress', color: '#00FF00' },
-      { id: 3, name: 'Done', color: '#0000FF' }
-    ]));
+    return res(
+      ctx.json([
+        { id: 1, name: 'To Do', color: '#FF0000' },
+        { id: 2, name: 'In Progress', color: '#00FF00' },
+        { id: 3, name: 'Done', color: '#0000FF' },
+      ]),
+    );
   }),
 
   rest.get('/api/tasks/priorities', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'High', color: '#FF0000' },
-      { id: 2, name: 'Medium', color: '#FFFF00' },
-      { id: 3, name: 'Low', color: '#00FF00' }
-    ]));
+    return res(
+      ctx.json([
+        { id: 1, name: 'High', color: '#FF0000' },
+        { id: 2, name: 'Medium', color: '#FFFF00' },
+        { id: 3, name: 'Low', color: '#00FF00' },
+      ]),
+    );
   }),
 
   rest.put('/api/tasks/:id/tags', (req, res, ctx) => {
@@ -328,29 +340,33 @@ export const handlers = [
   }),
 
   rest.post('/api/tasks/:id/comments', async (req, res, ctx) => {
-    const body = await req.json() as { comment: string };
-    return res(ctx.json({
-      id: Date.now(),
-      task_id: 1,
-      comment: body.comment,
-      user_id: 1,
-      created_on: new Date().toISOString(),
-      updated_on: null,
-      active: true
-    }));
+    const body = (await req.json()) as { comment: string };
+    return res(
+      ctx.json({
+        id: Date.now(),
+        task_id: 1,
+        comment: body.comment,
+        user_id: 1,
+        created_on: new Date().toISOString(),
+        updated_on: null,
+        active: true,
+      }),
+    );
   }),
 
   rest.put('/api/tasks/:id/comments/:commentId', async (req, res, ctx) => {
-    const body = await req.json() as { comment: string };
-    return res(ctx.json({
-      id: 1,
-      task_id: 1,
-      comment: body.comment,
-      user_id: 1,
-      created_on: new Date().toISOString(),
-      updated_on: new Date().toISOString(),
-      active: true
-    }));
+    const body = (await req.json()) as { comment: string };
+    return res(
+      ctx.json({
+        id: 1,
+        task_id: 1,
+        comment: body.comment,
+        user_id: 1,
+        created_on: new Date().toISOString(),
+        updated_on: new Date().toISOString(),
+        active: true,
+      }),
+    );
   }),
 
   rest.delete('/api/tasks/:id/comments/:commentId', (req, res, ctx) => {
@@ -363,23 +379,25 @@ export const handlers = [
   }),
 
   rest.post('/api/files', async (req, res, ctx) => {
-    return res(ctx.json({
-      id: 1,
-      task_id: 1,
-      user_id: 1,
-      name: 'test-file.txt',
-      original_name: 'test-file.txt',
-      size: 1024,
-      mime_type: 'text/plain',
-      uploaded_by: 'Test User',
-      uploaded_on: new Date().toISOString()
-    }));
+    return res(
+      ctx.json({
+        id: 1,
+        task_id: 1,
+        user_id: 1,
+        name: 'test-file.txt',
+        original_name: 'test-file.txt',
+        size: 1024,
+        mime_type: 'text/plain',
+        uploaded_by: 'Test User',
+        uploaded_on: new Date().toISOString(),
+      }),
+    );
   }),
 
   rest.get('/api/files/:id/download', (req, res, ctx) => {
     return res(
       ctx.body('test content'),
-      ctx.set('content-disposition', 'attachment; filename="test-file.txt"')
+      ctx.set('content-disposition', 'attachment; filename="test-file.txt"'),
     );
   }),
 
@@ -422,21 +440,28 @@ export const handlers = [
   }),
 
   rest.post('/api/time-logs/tasks/:id/logs', async (req, res, ctx) => {
-    const body = await req.json() as { log_date: string; spent_time: number; description: string; activity_type_id?: number };
-    return res(ctx.json({
-      id: Date.now(),
-      task_id: 1,
-      user_id: 1,
-      activity_type_id: body.activity_type_id || 1,
-      log_date: body.log_date,
-      spent_time: body.spent_time,
-      description: body.description,
-      created_on: new Date().toISOString(),
-      updated_on: null,
-      activity_type_name: 'Development',
-      activity_type_color: '#4CAF50',
-      activity_type_icon: 'code'
-    }));
+    const body = (await req.json()) as {
+      log_date: string;
+      spent_time: number;
+      description: string;
+      activity_type_id?: number;
+    };
+    return res(
+      ctx.json({
+        id: Date.now(),
+        task_id: 1,
+        user_id: 1,
+        activity_type_id: body.activity_type_id || 1,
+        log_date: body.log_date,
+        spent_time: body.spent_time,
+        description: body.description,
+        created_on: new Date().toISOString(),
+        updated_on: null,
+        activity_type_name: 'Development',
+        activity_type_color: '#4CAF50',
+        activity_type_icon: 'code',
+      }),
+    );
   }),
 
   rest.get('/api/time-logs/user/logs', (req, res, ctx) => {
@@ -445,21 +470,28 @@ export const handlers = [
 
   rest.put('/api/time-logs/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as { log_date: string; spent_time: number; description: string; activity_type_id?: number };
-    return res(ctx.json({
-      id: Number(id),
-      task_id: 1,
-      user_id: 1,
-      activity_type_id: body.activity_type_id || 1,
-      log_date: body.log_date,
-      spent_time: body.spent_time,
-      description: body.description,
-      created_on: new Date().toISOString(),
-      updated_on: new Date().toISOString(),
-      activity_type_name: 'Development',
-      activity_type_color: '#4CAF50',
-      activity_type_icon: 'code'
-    }));
+    const body = (await req.json()) as {
+      log_date: string;
+      spent_time: number;
+      description: string;
+      activity_type_id?: number;
+    };
+    return res(
+      ctx.json({
+        id: Number(id),
+        task_id: 1,
+        user_id: 1,
+        activity_type_id: body.activity_type_id || 1,
+        log_date: body.log_date,
+        spent_time: body.spent_time,
+        description: body.description,
+        created_on: new Date().toISOString(),
+        updated_on: new Date().toISOString(),
+        activity_type_name: 'Development',
+        activity_type_color: '#4CAF50',
+        activity_type_icon: 'code',
+      }),
+    );
   }),
 
   rest.delete('/api/time-logs/:id', (req, res, ctx) => {
@@ -468,31 +500,55 @@ export const handlers = [
 
   // Roles endpoints
   rest.get('/api/roles', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'Admin', permissions: [1, 2, 3, 4, 5], created_on: '2025-01-25', updated_on: null },
-      { id: 2, name: 'Manager', permissions: [1, 2, 3], created_on: '2025-01-25', updated_on: null },
-      { id: 3, name: 'User', permissions: [1], created_on: '2025-01-25', updated_on: null }
-    ]));
+    return res(
+      ctx.json([
+        {
+          id: 1,
+          name: 'Admin',
+          permissions: [1, 2, 3, 4, 5],
+          created_on: '2025-01-25',
+          updated_on: null,
+        },
+        {
+          id: 2,
+          name: 'Manager',
+          permissions: [1, 2, 3],
+          created_on: '2025-01-25',
+          updated_on: null,
+        },
+        {
+          id: 3,
+          name: 'User',
+          permissions: [1],
+          created_on: '2025-01-25',
+          updated_on: null,
+        },
+      ]),
+    );
   }),
 
   rest.post('/api/roles', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Date.now(),
-      ...body,
-      created_on: new Date().toISOString(),
-      updated_on: null
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Date.now(),
+        ...body,
+        created_on: new Date().toISOString(),
+        updated_on: null,
+      }),
+    );
   }),
 
   rest.put('/api/roles/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Number(id),
-      ...body,
-      updated_on: new Date().toISOString()
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Number(id),
+        ...body,
+        updated_on: new Date().toISOString(),
+      }),
+    );
   }),
 
   rest.delete('/api/roles/:id', (req, res, ctx) => {
@@ -501,11 +557,13 @@ export const handlers = [
 
   // Settings endpoints
   rest.get('/api/settings/user_settings', (req, res, ctx) => {
-    return res(ctx.json({
-      theme: 'light',
-      language: 'en',
-      notifications: true
-    }));
+    return res(
+      ctx.json({
+        theme: 'light',
+        language: 'en',
+        notifications: true,
+      }),
+    );
   }),
 
   rest.put('/api/settings/user_settings', (req, res, ctx) => {
@@ -513,16 +571,18 @@ export const handlers = [
   }),
 
   rest.get('/api/settings/app_settings', (req, res, ctx) => {
-    return res(ctx.json({
-      id: 1,
-      app_name: 'Project Manager',
-      company_name: 'Test Company',
-      sender_email: 'noreply@test.com',
-      time_zone: 'UTC',
-      theme: 'light',
-      welcome_message: 'Welcome to Project Manager',
-      created_on: '2025-01-26'
-    }));
+    return res(
+      ctx.json({
+        id: 1,
+        app_name: 'Project Manager',
+        company_name: 'Test Company',
+        sender_email: 'noreply@test.com',
+        time_zone: 'UTC',
+        theme: 'light',
+        welcome_message: 'Welcome to Project Manager',
+        created_on: '2025-01-26',
+      }),
+    );
   }),
 
   rest.put('/api/settings/app_settings', (req, res, ctx) => {
@@ -530,25 +590,29 @@ export const handlers = [
   }),
 
   rest.post('/api/settings/test-smtp', (req, res, ctx) => {
-    return res(ctx.json({
-      success: true,
-      message: 'SMTP test successful'
-    }));
+    return res(
+      ctx.json({
+        success: true,
+        message: 'SMTP test successful',
+      }),
+    );
   }),
 
   // Profile endpoints
   rest.get('/api/profile', (req, res, ctx) => {
-    return res(ctx.json({
-      ...defaultUser,
-      total_tasks: 10,
-      completed_tasks: 5,
-      active_projects: 3,
-      total_hours: 40
-    }));
+    return res(
+      ctx.json({
+        ...defaultUser,
+        total_tasks: 10,
+        completed_tasks: 5,
+        active_projects: 3,
+        total_hours: 40,
+      }),
+    );
   }),
 
   rest.put('/api/profile', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
+    const body = (await req.json()) as Record<string, any>;
     return res(ctx.json({ ...defaultUser, ...body }));
   }),
 
@@ -571,40 +635,62 @@ export const handlers = [
 
   // Task types endpoints
   rest.get('/api/admin/task-types', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'Bug', color: '#ff0000', icon: 'bug', description: 'Software bug', active: true },
-      { id: 2, name: 'Feature', color: '#00ff00', icon: 'star', description: 'New feature', active: true }
-    ]));
+    return res(
+      ctx.json([
+        {
+          id: 1,
+          name: 'Bug',
+          color: '#ff0000',
+          icon: 'bug',
+          description: 'Software bug',
+          active: true,
+        },
+        {
+          id: 2,
+          name: 'Feature',
+          color: '#00ff00',
+          icon: 'star',
+          description: 'New feature',
+          active: true,
+        },
+      ]),
+    );
   }),
 
   rest.get('/api/admin/task-types/:id', (req, res, ctx) => {
     const { id } = req.params;
-    return res(ctx.json({
-      id: Number(id),
-      name: 'Bug',
-      color: '#ff0000',
-      icon: 'bug',
-      description: 'Software bug',
-      active: true
-    }));
+    return res(
+      ctx.json({
+        id: Number(id),
+        name: 'Bug',
+        color: '#ff0000',
+        icon: 'bug',
+        description: 'Software bug',
+        active: true,
+      }),
+    );
   }),
 
   rest.post('/api/admin/task-types', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Date.now(),
-      ...body,
-      active: true
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Date.now(),
+        ...body,
+        active: true,
+      }),
+    );
   }),
 
   rest.put('/api/admin/task-types/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Number(id),
-      ...body
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Number(id),
+        ...body,
+      }),
+    );
   }),
 
   rest.delete('/api/admin/task-types/:id', (req, res, ctx) => {
@@ -613,28 +699,48 @@ export const handlers = [
 
   // Activity types endpoints
   rest.get('/api/admin/activity-types', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'Development', color: '#4CAF50', icon: 'code', description: 'Software development', active: true },
-      { id: 2, name: 'Testing', color: '#2196F3', icon: 'test', description: 'Software testing', active: true }
-    ]));
+    return res(
+      ctx.json([
+        {
+          id: 1,
+          name: 'Development',
+          color: '#4CAF50',
+          icon: 'code',
+          description: 'Software development',
+          active: true,
+        },
+        {
+          id: 2,
+          name: 'Testing',
+          color: '#2196F3',
+          icon: 'test',
+          description: 'Software testing',
+          active: true,
+        },
+      ]),
+    );
   }),
 
   rest.post('/api/admin/activity-types', async (req, res, ctx) => {
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Date.now(),
-      ...body,
-      active: true
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Date.now(),
+        ...body,
+        active: true,
+      }),
+    );
   }),
 
   rest.put('/api/admin/activity-types/:id', async (req, res, ctx) => {
     const { id } = req.params;
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Number(id),
-      ...body
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Number(id),
+        ...body,
+      }),
+    );
   }),
 
   rest.delete('/api/admin/activity-types/:id', (req, res, ctx) => {
@@ -647,13 +753,15 @@ export const handlers = [
   }),
 
   rest.post('/api/tasks/:id/watchers', async (req, res, ctx) => {
-    const body = await req.json() as { userId: number };
-    return res(ctx.json({
-      task_id: 1,
-      user_id: body.userId,
-      user_name: 'Test Watcher',
-      role: 'Developer'
-    }));
+    const body = (await req.json()) as { userId: number };
+    return res(
+      ctx.json({
+        task_id: 1,
+        user_id: body.userId,
+        user_name: 'Test Watcher',
+        role: 'Developer',
+      }),
+    );
   }),
 
   rest.delete('/api/tasks/:id/watchers/:userId', (req, res, ctx) => {
@@ -666,16 +774,18 @@ export const handlers = [
   }),
 
   rest.post('/api/tags', async (req: any, res: any, ctx: any) => {
-    const body = await req.json() as Record<string, any>;
-    return res(ctx.json({
-      id: Date.now(),
-      ...body,
-      active: true
-    }));
+    const body = (await req.json()) as Record<string, any>;
+    return res(
+      ctx.json({
+        id: Date.now(),
+        ...body,
+        active: true,
+      }),
+    );
   }),
 
   // User endpoint (for current user)
   rest.get('/api/user', (req: any, res: any, ctx: any) => {
     return res(ctx.json(defaultUser));
-  })
+  }),
 ];

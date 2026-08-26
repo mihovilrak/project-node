@@ -10,7 +10,7 @@ describe('PermissionButton', () => {
   const mockUsePermission = usePermission as jest.Mock;
   const defaultProps = {
     requiredPermission: 'test.permission',
-    children: 'Test Button'
+    children: 'Test Button',
   };
 
   beforeEach(() => {
@@ -87,7 +87,7 @@ describe('PermissionButton', () => {
         {...defaultProps}
         data-testid="test-button"
         className="custom-class"
-      />
+      />,
     );
 
     const button = screen.getByRole('button');

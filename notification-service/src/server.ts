@@ -26,9 +26,9 @@ app.get('/health', async (req: Request, res: Response) => {
       metrics: {
         notificationsSent: metrics.notificationsSent,
         emailErrors: metrics.emailErrors,
-        lastProcessingTime: metrics.lastProcessingTime
+        lastProcessingTime: metrics.lastProcessingTime,
       },
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   } catch (error) {
     logger.error({ err: error }, 'Health check failed');

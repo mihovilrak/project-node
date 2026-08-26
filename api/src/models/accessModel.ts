@@ -6,7 +6,7 @@ const MEMBERSHIP_PREDICATE = `(pu.user_id IS NOT NULL OR p.created_by = $2)`;
 export const isProjectMember = async (
   pool: Pool,
   projectId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   const result = await pool.query(
     `SELECT 1
@@ -14,7 +14,7 @@ export const isProjectMember = async (
     LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $2
     WHERE p.id = $1 AND ${MEMBERSHIP_PREDICATE}
     LIMIT 1`,
-    [projectId, userId]
+    [projectId, userId],
   );
   return (result.rowCount ?? 0) > 0;
 };
@@ -23,7 +23,7 @@ export const isProjectMember = async (
 export const isTaskProjectMember = async (
   pool: Pool,
   taskId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   const result = await pool.query(
     `SELECT 1
@@ -32,7 +32,7 @@ export const isTaskProjectMember = async (
     LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $2
     WHERE t.id = $1 AND ${MEMBERSHIP_PREDICATE}
     LIMIT 1`,
-    [taskId, userId]
+    [taskId, userId],
   );
   return (result.rowCount ?? 0) > 0;
 };
@@ -40,14 +40,14 @@ export const isTaskProjectMember = async (
 // Every project id the user may see, for scoping list endpoints
 export const getAccessibleProjectIds = async (
   pool: Pool,
-  userId: string
+  userId: string,
 ): Promise<number[]> => {
   const result = await pool.query<{ id: number }>(
     `SELECT DISTINCT p.id
     FROM projects p
     LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $1
     WHERE pu.user_id IS NOT NULL OR p.created_by = $1`,
-    [userId]
+    [userId],
   );
   return result.rows.map((row) => Number(row.id));
 };
@@ -58,7 +58,7 @@ export const filterByProjectAccess = async <T extends Record<string, any>>(
   pool: Pool,
   userId: string,
   rows: T[],
-  projectIdKey: keyof T & string
+  projectIdKey: keyof T & string,
 ): Promise<T[]> => {
   if (rows.length === 0) return rows;
   if (await hasPermission(pool, userId, 'Admin')) return rows;

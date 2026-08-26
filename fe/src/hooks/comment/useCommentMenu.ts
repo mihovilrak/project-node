@@ -2,12 +2,18 @@ import { useState } from 'react';
 import { Comment } from '../../types/comment';
 import logger from '../../utils/logger';
 
-export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => Promise<void>, onCommentDeleted: (id: number) => Promise<void>) => {
+export const useCommentMenu = (
+  onCommentUpdated: (id: number, text: string) => Promise<void>,
+  onCommentDeleted: (id: number) => Promise<void>,
+) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, comment: Comment): void => {
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    comment: Comment,
+  ): void => {
     setAnchorEl(event.currentTarget);
     setSelectedComment(comment);
   };
@@ -27,7 +33,10 @@ export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => P
     setSelectedComment(null);
   };
 
-  const handleEditSave = async (commentId: number, newText: string): Promise<void> => {
+  const handleEditSave = async (
+    commentId: number,
+    newText: string,
+  ): Promise<void> => {
     try {
       await onCommentUpdated(commentId, newText);
       handleEditClose();
@@ -54,6 +63,6 @@ export const useCommentMenu = (onCommentUpdated: (id: number, text: string) => P
     handleEditClick,
     handleEditClose,
     handleEditSave,
-    handleDeleteClick
+    handleDeleteClick,
   };
 };

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
-export const useDeleteConfirm = (onConfirm: () => void, onClose: () => void) => {
+export const useDeleteConfirm = (
+  onConfirm: () => void,
+  onClose: () => void,
+) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirm = async () => {
@@ -15,6 +18,6 @@ export const useDeleteConfirm = (onConfirm: () => void, onClose: () => void) => 
 
   return {
     isDeleting,
-    handleConfirm
+    handleConfirm,
   };
 };

@@ -12,25 +12,27 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
   useLocation: () => ({
-    search: '?projectId=1'
+    search: '?projectId=1',
   }),
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 // Mock the auth context
 jest.mock('../../../context/AuthContext', () => ({
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: {
       id: 1,
-      name: 'Test User'
-    }
-  })
+      name: 'Test User',
+    },
+  }),
 }));
 
 // Mock the useTaskForm hook - use jest.fn() to avoid hoisting issues
 jest.mock('../../../hooks/task/useTaskForm', () => ({
-  useTaskForm: jest.fn()
+  useTaskForm: jest.fn(),
 }));
 
 // Mock data - define these AFTER jest.mock() but they will be used in beforeEach
@@ -42,7 +44,7 @@ const mockStatuses: TaskStatus[] = [
     description: 'Task is pending',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -51,8 +53,8 @@ const mockStatuses: TaskStatus[] = [
     description: 'Task is in progress',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockPriorities: TaskPriority[] = [
@@ -63,7 +65,7 @@ const mockPriorities: TaskPriority[] = [
     description: 'Low priority',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -72,8 +74,8 @@ const mockPriorities: TaskPriority[] = [
     description: 'High priority',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const mockProjectMembers: ProjectMember[] = [
@@ -83,8 +85,8 @@ const mockProjectMembers: ProjectMember[] = [
     created_on: '2024-01-26T00:00:00Z',
     name: 'John Doe',
     surname: 'Doe',
-    role: 'Admin'
-  }
+    role: 'Admin',
+  },
 ];
 
 // Performance measurement callback
@@ -94,7 +96,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   return actualDuration;
 };
@@ -118,7 +120,7 @@ describe('TaskForm Performance Tests', () => {
         estimated_time: 0,
         progress: 0,
         created_by: 1,
-        tags: []
+        tags: [],
       },
       fieldErrors: {},
       projects: [],
@@ -129,21 +131,27 @@ describe('TaskForm Performance Tests', () => {
       isEditing: false,
       isLoading: false,
       handleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
   });
 
   // Helper function to measure render performance
-  const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+  const measurePerformance = (
+    Component: React.ComponentType<any>,
+    props = {},
+  ) => {
     let renderTime = 0;
     render(
       <TestWrapper>
-        <Profiler id="TaskFormTest" onRender={(id, phase, actualDuration) => {
-          renderTime = actualDuration;
-        }}>
+        <Profiler
+          id="TaskFormTest"
+          onRender={(id, phase, actualDuration) => {
+            renderTime = actualDuration;
+          }}
+        >
           <Component {...props} />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
     return renderTime;
   };
@@ -163,7 +171,7 @@ describe('TaskForm Performance Tests', () => {
       created_on: '2024-01-26T00:00:00Z',
       name: `User ${index + 1}`,
       surname: `User ${index + 1}`,
-      role: 'User'
+      role: 'User',
     }));
 
     // Update the mock to use many project members
@@ -183,7 +191,7 @@ describe('TaskForm Performance Tests', () => {
         estimated_time: 0,
         progress: 0,
         created_by: 1,
-        tags: []
+        tags: [],
       },
       fieldErrors: {},
       projects: [],
@@ -194,7 +202,7 @@ describe('TaskForm Performance Tests', () => {
       isEditing: false,
       isLoading: false,
       handleChange: jest.fn(),
-      handleSubmit: jest.fn()
+      handleSubmit: jest.fn(),
     });
 
     const renderTime = measurePerformance(TaskForm);

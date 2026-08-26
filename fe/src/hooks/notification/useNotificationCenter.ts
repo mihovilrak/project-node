@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   getNotifications,
   markAsRead,
-  deleteNotification
+  deleteNotification,
 } from '../../api/notifications';
 import { Notification } from '../../types/notification';
 import logger from '../../utils/logger';
 
 export const useNotificationCenter = (
   userId: number | undefined,
-  pollIntervalMs: number = 60000
+  pollIntervalMs: number = 60000,
 ) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -25,7 +25,7 @@ export const useNotificationCenter = (
       setLoading(true);
       const data = await getNotifications();
       setNotifications(data || []);
-      setUnreadCount((data || []).filter(n => !n?.is_read).length);
+      setUnreadCount((data || []).filter((n) => !n?.is_read).length);
     } catch (error: unknown) {
       logger.error('Failed to fetch notifications:', error);
       setNotifications([]);
@@ -53,7 +53,9 @@ export const useNotificationCenter = (
     setAnchorEl(null);
   };
 
-  const handleNotificationClick = async (notification: Notification): Promise<void> => {
+  const handleNotificationClick = async (
+    notification: Notification,
+  ): Promise<void> => {
     try {
       if (!userId) return;
       if (!notification) return;
@@ -76,7 +78,10 @@ export const useNotificationCenter = (
     }
   };
 
-  const handleDeleteNotification = async (id: number, event: React.MouseEvent): Promise<void> => {
+  const handleDeleteNotification = async (
+    id: number,
+    event: React.MouseEvent,
+  ): Promise<void> => {
     event.stopPropagation();
     try {
       if (!id) return;
@@ -108,6 +113,6 @@ export const useNotificationCenter = (
     handleClose,
     handleNotificationClick,
     handleDeleteNotification,
-    handleMarkAllAsRead
+    handleMarkAllAsRead,
   };
 };

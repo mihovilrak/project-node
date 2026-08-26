@@ -25,7 +25,9 @@ export const getTaskTypeById = async (id: number): Promise<TaskType> => {
 };
 
 // Create task type
-export const createTaskType = async (taskTypeData: Partial<TaskType>): Promise<TaskType> => {
+export const createTaskType = async (
+  taskTypeData: Partial<TaskType>,
+): Promise<TaskType> => {
   try {
     const response = await api.post('/admin/task-types', taskTypeData);
     return response.data;
@@ -36,7 +38,10 @@ export const createTaskType = async (taskTypeData: Partial<TaskType>): Promise<T
 };
 
 // Update task type
-export const updateTaskType = async (id: number, taskTypeData: Partial<TaskType>): Promise<TaskType> => {
+export const updateTaskType = async (
+  id: number,
+  taskTypeData: Partial<TaskType>,
+): Promise<TaskType> => {
   try {
     const response = await api.put(`/admin/task-types/${id}`, taskTypeData);
     return response.data;

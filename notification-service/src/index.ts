@@ -19,7 +19,6 @@ const initializeService = async (): Promise<void> => {
       await notificationService.processNewNotifications();
     });
     logger.info('Email processing scheduled');
-
   } catch (error) {
     logger.error({ err: error }, 'Service initialization failed');
     process.exit(1);
@@ -35,12 +34,15 @@ const shutdown = (signal: string): void => {
       process.exit(1);
     }
     logger.info('Server closed');
-    pool.end().then(() => {
-      process.exit(0);
-    }).catch((error) => {
-      logger.error({ err: error }, 'Error closing pool');
-      process.exit(1);
-    });
+    pool
+      .end()
+      .then(() => {
+        process.exit(0);
+      })
+      .catch((error) => {
+        logger.error({ err: error }, 'Error closing pool');
+        process.exit(1);
+      });
   });
 };
 

@@ -9,7 +9,7 @@ describe('Permissions API', () => {
   const mockPermission: Permission = {
     id: 1,
     name: 'TEST_PERMISSION',
-    created_on: '2023-01-01T00:00:00Z'
+    created_on: '2023-01-01T00:00:00Z',
   };
 
   beforeEach(() => {

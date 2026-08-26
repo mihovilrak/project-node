@@ -27,7 +27,7 @@ describe('Users API', () => {
     status_id: 1,
     created_on: '2024-01-01T00:00:00Z',
     updated_on: null,
-    last_login: null
+    last_login: null,
   };
 
   const mockUserCreate: UserCreate = {
@@ -36,19 +36,19 @@ describe('Users API', () => {
     name: 'Test',
     surname: 'User',
     email: 'test@example.com',
-    role_id: 1
+    role_id: 1,
   };
 
   const mockUserUpdate: UserUpdate = {
     id: 1,
     name: 'Updated',
-    surname: 'User'
+    surname: 'User',
   };
 
   const mockRole: Role = {
     id: 1,
     name: 'Admin',
-    active: true
+    active: true,
   };
 
   beforeEach(() => {
@@ -164,7 +164,9 @@ describe('Users API', () => {
     it('should update user roles', async () => {
       mockedApi.put.mockResolvedValueOnce({ data: undefined });
       await updateUserRoles(1, [1, 2]);
-      expect(mockedApi.put).toHaveBeenCalledWith('/users/1/roles', { roles: [1, 2] });
+      expect(mockedApi.put).toHaveBeenCalledWith('/users/1/roles', {
+        roles: [1, 2],
+      });
     });
 
     it('should handle error when updating user roles', async () => {

@@ -25,12 +25,10 @@ describe('Authentication Flow', () => {
     });
 
     it('should login successfully with correct credentials', async () => {
-      const response = await request(app)
-        .post('/api/login')
-        .send({
-          login: 'testuser',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/login').send({
+        login: 'testuser',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('user');
@@ -38,23 +36,19 @@ describe('Authentication Flow', () => {
     });
 
     it('should return 401 with incorrect password', async () => {
-      const response = await request(app)
-        .post('/api/login')
-        .send({
-          login: 'testuser',
-          password: 'wrongpassword'
-        });
+      const response = await request(app).post('/api/login').send({
+        login: 'testuser',
+        password: 'wrongpassword',
+      });
 
       expect(response.status).toBe(401);
     });
 
     it('should return 401 with non-existent user', async () => {
-      const response = await request(app)
-        .post('/api/login')
-        .send({
-          login: 'nonexistent',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/login').send({
+        login: 'nonexistent',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(401);
     });
@@ -62,8 +56,7 @@ describe('Authentication Flow', () => {
 
   describe('GET /api/check-session', () => {
     it('should return 401 when not logged in', async () => {
-      const response = await request(app)
-        .get('/api/check-session');
+      const response = await request(app).get('/api/check-session');
 
       expect(response.status).toBe(401);
     });
@@ -72,12 +65,10 @@ describe('Authentication Flow', () => {
       await seedTestUser();
 
       // Login first
-      const loginResponse = await request(app)
-        .post('/api/login')
-        .send({
-          login: 'testuser',
-          password: 'password123'
-        });
+      const loginResponse = await request(app).post('/api/login').send({
+        login: 'testuser',
+        password: 'password123',
+      });
 
       const cookies = loginResponse.headers['set-cookie'];
 
@@ -98,12 +89,10 @@ describe('Authentication Flow', () => {
       await seedTestUser();
 
       // Login first
-      const loginResponse = await request(app)
-        .post('/api/login')
-        .send({
-          login: 'testuser',
-          password: 'password123'
-        });
+      const loginResponse = await request(app).post('/api/login').send({
+        login: 'testuser',
+        password: 'password123',
+      });
 
       const cookies = loginResponse.headers['set-cookie'];
       const cookie = cookieHeader(cookies);

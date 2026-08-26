@@ -18,42 +18,44 @@ import { useTaskFiles } from '../../../hooks/task/useTaskFiles';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 // Mock the auth context
 jest.mock('../../../context/AuthContext', () => ({
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: {
       id: 1,
-      name: 'Test User'
+      name: 'Test User',
     },
     hasPermission: () => true,
     permissionsLoading: false,
-    userPermissions: [{ permission: 'Admin' }]
-  })
+    userPermissions: [{ permission: 'Admin' }],
+  }),
 }));
 
 // Mock task hooks - use jest.fn() to avoid hoisting issues
 jest.mock('../../../hooks/task/useTaskCore', () => ({
-  useTaskCore: jest.fn()
+  useTaskCore: jest.fn(),
 }));
 
 jest.mock('../../../hooks/task/useTaskTimeLogs', () => ({
-  useTaskTimeLogs: jest.fn()
+  useTaskTimeLogs: jest.fn(),
 }));
 
 jest.mock('../../../hooks/task/useTaskWatchers', () => ({
-  useTaskWatchers: jest.fn()
+  useTaskWatchers: jest.fn(),
 }));
 
 jest.mock('../../../hooks/task/useTaskComments', () => ({
-  useTaskComments: jest.fn()
+  useTaskComments: jest.fn(),
 }));
 
 jest.mock('../../../hooks/task/useTaskFiles', () => ({
-  useTaskFiles: jest.fn()
+  useTaskFiles: jest.fn(),
 }));
 
 jest.mock('../../../hooks/task/useTaskDetailsHandlers', () => ({
@@ -63,7 +65,7 @@ jest.mock('../../../hooks/task/useTaskDetailsHandlers', () => ({
       editingComment: null,
       timeLogDialogOpen: false,
       selectedTimeLog: null,
-      watcherDialogOpen: false
+      watcherDialogOpen: false,
     },
     handleStatusMenuClick: jest.fn(),
     handleStatusMenuClose: jest.fn(),
@@ -77,8 +79,8 @@ jest.mock('../../../hooks/task/useTaskDetailsHandlers', () => ({
     handleSubtaskUpdate: jest.fn(),
     handleSubtaskDelete: jest.fn(),
     handleWatcherDialogOpen: jest.fn(),
-    handleWatcherDialogClose: jest.fn()
-  })
+    handleWatcherDialogClose: jest.fn(),
+  }),
 }));
 
 // Mock data
@@ -111,16 +113,18 @@ const mockTask: Task = {
   progress: 50,
   created_by: 1,
   created_by_name: 'Test User',
-  created_on: '2024-01-26T00:00:00Z'
+  created_on: '2024-01-26T00:00:00Z',
 };
 
-const mockSubtasks: Task[] = Array(5).fill(null).map((_, index) => ({
-  ...mockTask,
-  id: index + 2,
-  parent_id: 1,
-  parent_name: 'Test Task',
-  name: `Subtask ${index + 1}`
-}));
+const mockSubtasks: Task[] = Array(5)
+  .fill(null)
+  .map((_, index) => ({
+    ...mockTask,
+    id: index + 2,
+    parent_id: 1,
+    parent_name: 'Test Task',
+    name: `Subtask ${index + 1}`,
+  }));
 
 const mockStatuses: TaskStatus[] = [
   {
@@ -130,7 +134,7 @@ const mockStatuses: TaskStatus[] = [
     description: 'Tasks that need to be started',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -139,7 +143,7 @@ const mockStatuses: TaskStatus[] = [
     description: 'Tasks that are being worked on',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 3,
@@ -148,57 +152,65 @@ const mockStatuses: TaskStatus[] = [
     description: 'Completed tasks',
     active: true,
     created_on: '2024-01-26T00:00:00Z',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
-const mockTimeLogs: TimeLog[] = Array(3).fill(null).map((_, index) => ({
-  id: index + 1,
-  task_id: 1,
-  user_id: 1,
-  activity_type_id: 1,
-  log_date: '2024-01-26',
-  spent_time: 60,
-  description: `Time log ${index + 1}`,
-  created_on: '2024-01-26T00:00:00Z',
-  updated_on: null,
-  task_name: 'Test Task',
-  project_name: 'Test Project',
-  user: 'Test User',
-  activity_type_name: 'Development',
-  activity_type_color: '#2196F3'
-}));
+const mockTimeLogs: TimeLog[] = Array(3)
+  .fill(null)
+  .map((_, index) => ({
+    id: index + 1,
+    task_id: 1,
+    user_id: 1,
+    activity_type_id: 1,
+    log_date: '2024-01-26',
+    spent_time: 60,
+    description: `Time log ${index + 1}`,
+    created_on: '2024-01-26T00:00:00Z',
+    updated_on: null,
+    task_name: 'Test Task',
+    project_name: 'Test Project',
+    user: 'Test User',
+    activity_type_name: 'Development',
+    activity_type_color: '#2196F3',
+  }));
 
-const mockComments: Comment[] = Array(5).fill(null).map((_, index) => ({
-  id: index + 1,
-  task_id: 1,
-  user_id: 1,
-  comment: `Comment ${index + 1}`,
-  active: true,
-  created_on: '2024-01-26T00:00:00Z',
-  updated_on: null,
-  user_name: 'Test User',
-  user_avatar: undefined
-}));
+const mockComments: Comment[] = Array(5)
+  .fill(null)
+  .map((_, index) => ({
+    id: index + 1,
+    task_id: 1,
+    user_id: 1,
+    comment: `Comment ${index + 1}`,
+    active: true,
+    created_on: '2024-01-26T00:00:00Z',
+    updated_on: null,
+    user_name: 'Test User',
+    user_avatar: undefined,
+  }));
 
-const mockFiles: TaskFile[] = Array(3).fill(null).map((_, index) => ({
-  id: index + 1,
-  task_id: 1,
-  user_id: 1,
-  name: `file${index + 1}.txt`,
-  original_name: `file${index + 1}.txt`,
-  size: 1024,
-  mime_type: 'text/plain',
-  url: `/files/${index + 1}/download?taskId=1`,
-  uploaded_on: '2024-01-26T00:00:00Z'
-}));
+const mockFiles: TaskFile[] = Array(3)
+  .fill(null)
+  .map((_, index) => ({
+    id: index + 1,
+    task_id: 1,
+    user_id: 1,
+    name: `file${index + 1}.txt`,
+    original_name: `file${index + 1}.txt`,
+    size: 1024,
+    mime_type: 'text/plain',
+    url: `/files/${index + 1}/download?taskId=1`,
+    uploaded_on: '2024-01-26T00:00:00Z',
+  }));
 
-const mockWatchers: TaskWatcher[] = Array(3).fill(null).map((_, index) => ({
-  task_id: 1,
-  user_id: index + 1,
-  user_name: `Test User ${index + 1}`,
-  role: 'Member'
-}));
+const mockWatchers: TaskWatcher[] = Array(3)
+  .fill(null)
+  .map((_, index) => ({
+    task_id: 1,
+    user_id: index + 1,
+    user_name: `Test User ${index + 1}`,
+    role: 'Member',
+  }));
 
 // Performance measurement callback
 const onRenderCallback = (
@@ -207,23 +219,29 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   return actualDuration;
 };
 
 // Helper function to measure render performance
-const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+const measurePerformance = (
+  Component: React.ComponentType<any>,
+  props = {},
+) => {
   let duration = 0;
 
   render(
     <TestWrapper>
-      <Profiler id="TaskDetails" onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id="TaskDetails"
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <Component {...props} />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -232,7 +250,7 @@ const measurePerformance = (Component: React.ComponentType<any>, props = {}) => 
 describe('TaskDetails Performance Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Set up default mocks
     (useTaskCore as jest.Mock).mockReturnValue({
       task: mockTask,
@@ -242,34 +260,34 @@ describe('TaskDetails Performance Tests', () => {
       error: null,
       handleStatusChange: jest.fn(),
       handleDelete: jest.fn(),
-      setSubtasks: jest.fn()
+      setSubtasks: jest.fn(),
     });
-    
+
     (useTaskTimeLogs as jest.Mock).mockReturnValue({
       timeLogs: mockTimeLogs,
       handleTimeLogSubmit: jest.fn(),
       deleteTimeLog: jest.fn(),
-      fetchTimeLogs: jest.fn()
+      fetchTimeLogs: jest.fn(),
     });
-    
+
     (useTaskWatchers as jest.Mock).mockReturnValue({
       watchers: mockWatchers,
       handleAddWatcher: jest.fn(),
-      handleRemoveWatcher: jest.fn()
+      handleRemoveWatcher: jest.fn(),
     });
-    
+
     (useTaskComments as jest.Mock).mockReturnValue({
       comments: mockComments,
       handleCommentSubmit: jest.fn(),
       handleCommentUpdate: jest.fn(),
-      handleCommentDelete: jest.fn()
+      handleCommentDelete: jest.fn(),
     });
-    
+
     (useTaskFiles as jest.Mock).mockReturnValue({
       files: mockFiles,
       handleFileUpload: jest.fn(),
       handleFileDelete: jest.fn(),
-      refreshFiles: jest.fn()
+      refreshFiles: jest.fn(),
     });
   });
 
@@ -284,19 +302,21 @@ describe('TaskDetails Performance Tests', () => {
     // Mock useTaskCore with many subtasks
     (useTaskCore as jest.Mock).mockReturnValue({
       task: mockTask,
-      subtasks: Array(50).fill(null).map((_, index) => ({
-        ...mockTask,
-        id: index + 2,
-        parent_id: 1,
-        parent_name: 'Test Task',
-        name: `Subtask ${index + 1}`
-      })),
+      subtasks: Array(50)
+        .fill(null)
+        .map((_, index) => ({
+          ...mockTask,
+          id: index + 2,
+          parent_id: 1,
+          parent_name: 'Test Task',
+          name: `Subtask ${index + 1}`,
+        })),
       statuses: mockStatuses,
       loading: false,
       error: null,
       handleStatusChange: jest.fn(),
       handleDelete: jest.fn(),
-      setSubtasks: jest.fn()
+      setSubtasks: jest.fn(),
     });
 
     const renderTime = measurePerformance(TaskDetails);
@@ -307,14 +327,16 @@ describe('TaskDetails Performance Tests', () => {
   test('TaskDetails render performance with many comments', () => {
     // Mock useTaskComments with many comments
     (useTaskComments as jest.Mock).mockReturnValue({
-      comments: Array(100).fill(null).map((_, index) => ({
-        ...mockComments[0],
-        id: index + 1,
-        comment: `Comment ${index + 1}`
-      })),
+      comments: Array(100)
+        .fill(null)
+        .map((_, index) => ({
+          ...mockComments[0],
+          id: index + 1,
+          comment: `Comment ${index + 1}`,
+        })),
       handleCommentSubmit: jest.fn(),
       handleCommentUpdate: jest.fn(),
-      handleCommentDelete: jest.fn()
+      handleCommentDelete: jest.fn(),
     });
 
     const renderTime = measurePerformance(TaskDetails);
@@ -325,14 +347,16 @@ describe('TaskDetails Performance Tests', () => {
   test('TaskDetails render performance with many files', () => {
     // Mock useTaskFiles with many files
     (useTaskFiles as jest.Mock).mockReturnValue({
-      files: Array(50).fill(null).map((_, index) => ({
-        ...mockFiles[0],
-        id: index + 1,
-        name: `file${index + 1}.txt`
-      })),
+      files: Array(50)
+        .fill(null)
+        .map((_, index) => ({
+          ...mockFiles[0],
+          id: index + 1,
+          name: `file${index + 1}.txt`,
+        })),
       handleFileUpload: jest.fn(),
       handleFileDelete: jest.fn(),
-      refreshFiles: jest.fn()
+      refreshFiles: jest.fn(),
     });
 
     const renderTime = measurePerformance(TaskDetails);
@@ -350,7 +374,7 @@ describe('TaskDetails Performance Tests', () => {
       error: null,
       handleStatusChange: jest.fn(),
       handleDelete: jest.fn(),
-      setSubtasks: jest.fn()
+      setSubtasks: jest.fn(),
     });
 
     const renderTime = measurePerformance(TaskDetails);

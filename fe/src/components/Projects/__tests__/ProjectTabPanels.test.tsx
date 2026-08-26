@@ -5,11 +5,21 @@ import ProjectTabPanels from '../ProjectTabPanels';
 import { Project } from '../../../types/project';
 
 // Mock child components
-jest.mock('../tabs/ProjectOverview', () => () => <div data-testid="project-overview">Overview</div>);
-jest.mock('../tabs/ProjectTaskList', () => () => <div data-testid="project-task-list">Tasks</div>);
-jest.mock('../ProjectGantt', () => () => <div data-testid="project-gantt">Gantt</div>);
-jest.mock('../tabs/ProjectMembersList', () => () => <div data-testid="project-members-list">Members</div>);
-jest.mock('../../TimeLog/TimeLogList', () => () => <div data-testid="time-log-list">Time Logs</div>);
+jest.mock('../tabs/ProjectOverview', () => () => (
+  <div data-testid="project-overview">Overview</div>
+));
+jest.mock('../tabs/ProjectTaskList', () => () => (
+  <div data-testid="project-task-list">Tasks</div>
+));
+jest.mock('../ProjectGantt', () => () => (
+  <div data-testid="project-gantt">Gantt</div>
+));
+jest.mock('../tabs/ProjectMembersList', () => () => (
+  <div data-testid="project-members-list">Members</div>
+));
+jest.mock('../../TimeLog/TimeLogList', () => () => (
+  <div data-testid="time-log-list">Time Logs</div>
+));
 
 const mockProject: Project = {
   id: 1,
@@ -28,7 +38,7 @@ const mockProject: Project = {
   updated_on: null,
   estimated_time: 100,
   spent_time: 50,
-  progress: 50
+  progress: 50,
 };
 
 const mockProps = {
@@ -45,7 +55,7 @@ const mockProps = {
   onTimeLogCreate: jest.fn(),
   onTimeLogEdit: jest.fn(),
   onTimeLogDelete: jest.fn(),
-  onMemberRemove: jest.fn()
+  onMemberRemove: jest.fn(),
 };
 
 const renderWithRouter = (ui: React.ReactElement) => {
@@ -78,7 +88,9 @@ describe('ProjectTabPanels', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={3} />);
     expect(screen.getByTestId('time-log-list')).toBeInTheDocument();
     // Using role to find the Typography component with Time Logs text
-    expect(screen.getByRole('heading', { name: 'Time Logs' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Time Logs' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Log Time')).toBeInTheDocument();
   });
 
@@ -116,7 +128,9 @@ describe('ProjectTabPanels', () => {
 
     // Other content should be hidden
     expect(screen.queryByTestId('project-task-list')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('project-members-list')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('project-members-list'),
+    ).not.toBeInTheDocument();
     expect(screen.queryByTestId('time-log-list')).not.toBeInTheDocument();
     expect(screen.queryByTestId('project-gantt')).not.toBeInTheDocument();
   });

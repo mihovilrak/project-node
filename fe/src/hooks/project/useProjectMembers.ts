@@ -4,7 +4,7 @@ import {
   getProjectMembers,
   updateProjectMember,
   removeProjectMember,
-  addProjectMember
+  addProjectMember,
 } from '../../api/projects';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -27,20 +27,24 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
   const handleMemberUpdate = async (memberId: number, role: string) => {
     try {
       await updateProjectMember(Number(projectId), memberId, role);
-      const updatedMembers = members.map(member =>
-        member?.user_id === memberId ? { ...member, role } : member
+      const updatedMembers = members.map((member) =>
+        member?.user_id === memberId ? { ...member, role } : member,
       );
       setMembers(updatedMembers);
     } catch (error: unknown) {
       logger.error('Failed to update member role:', error);
-      throw new Error(getApiErrorMessage(error, 'Failed to update member role'));
+      throw new Error(
+        getApiErrorMessage(error, 'Failed to update member role'),
+      );
     }
   };
 
   const handleMemberRemove = async (memberId: number) => {
     try {
       await removeProjectMember(Number(projectId), memberId);
-      const updatedMembers = members.filter(member => member?.user_id !== memberId);
+      const updatedMembers = members.filter(
+        (member) => member?.user_id !== memberId,
+      );
       setMembers(updatedMembers);
     } catch (error: unknown) {
       logger.error('Failed to remove member:', error);
@@ -51,11 +55,11 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
   const handleMembersUpdate = async (selectedUsers: number[]) => {
     try {
       const membersToRemove = members
-        .filter(member => !selectedUsers.includes(member.user_id))
-        .map(member => member.user_id);
+        .filter((member) => !selectedUsers.includes(member.user_id))
+        .map((member) => member.user_id);
 
       const membersToAdd = selectedUsers.filter(
-        userId => !members.some(member => member.user_id === userId)
+        (userId) => !members.some((member) => member.user_id === userId),
       );
 
       for (const userId of membersToRemove) {
@@ -81,6 +85,6 @@ export const useProjectMembers = (projectId: string): ProjectMembersHook => {
     handleMemberUpdate,
     handleMemberRemove,
     handleMembersUpdate,
-    loadMembers
+    loadMembers,
   };
 };

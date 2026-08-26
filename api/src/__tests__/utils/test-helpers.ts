@@ -16,12 +16,10 @@ export const createTestUser = async () => {
 };
 
 export const loginTestUser = async (app: Express) => {
-  const response = await request(app)
-    .post('/api/auth/login')
-    .send({
-      username: 'testuser',
-      password: 'password123'
-    });
+  const response = await request(app).post('/api/auth/login').send({
+    username: 'testuser',
+    password: 'password123',
+  });
   return response.headers['set-cookie'];
 };
 

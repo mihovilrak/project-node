@@ -5,7 +5,7 @@ import { TaskPrioritySelectProps } from '../../../types/task';
 export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
   formData,
   priorities,
-  handleChange
+  handleChange,
 }) => (
   <TextField
     select
@@ -27,7 +27,7 @@ export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
                 height: 16,
                 borderRadius: 0.5,
                 backgroundColor: priority.color,
-                flexShrink: 0
+                flexShrink: 0,
               }}
             />
           )}

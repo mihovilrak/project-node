@@ -2,8 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { NotificationCreateRequest } from '../types/notification-routes.types';
 
 const VALID_NOTIFICATION_TYPES = [
-  'Task Due Soon', 'Task Assigned', 'Task Updated', 'Task Comment',
-  'Task Completed', 'Project Update'
+  'Task Due Soon',
+  'Task Assigned',
+  'Task Updated',
+  'Task Comment',
+  'Task Completed',
+  'Project Update',
 ] as const;
 
 const errorResponse = (message: string) => ({
@@ -11,13 +15,13 @@ const errorResponse = (message: string) => ({
   type_id: 0,
   user_id: '',
   created_on: new Date(),
-  error: message
+  error: message,
 });
 
 export const validateNotification = (
   req: Request<{}, {}, NotificationCreateRequest>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> | void => {
   const { type, userId, data } = req.body;
   if (!type || !userId || !data) {
@@ -25,7 +29,11 @@ export const validateNotification = (
     return;
   }
   const typeStr = String(type).trim();
-  if (!VALID_NOTIFICATION_TYPES.includes(typeStr as typeof VALID_NOTIFICATION_TYPES[number])) {
+  if (
+    !VALID_NOTIFICATION_TYPES.includes(
+      typeStr as (typeof VALID_NOTIFICATION_TYPES)[number],
+    )
+  ) {
     res.status(400).json(errorResponse('Invalid notification type'));
     return;
   }

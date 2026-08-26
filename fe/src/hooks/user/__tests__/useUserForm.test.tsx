@@ -1,6 +1,11 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useUserForm } from '../useUserForm';
-import { fetchRoles, createUser, getUserById, updateUser } from '../../../api/users';
+import {
+  fetchRoles,
+  createUser,
+  getUserById,
+  updateUser,
+} from '../../../api/users';
 import { useNavigate } from 'react-router-dom';
 import { Role } from '../../../types/role';
 import { User } from '../../../types/user';
@@ -8,7 +13,7 @@ import { User } from '../../../types/user';
 // Mock the API functions and react-router-dom
 jest.mock('../../../api/users');
 jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn()
+  useNavigate: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -17,7 +22,7 @@ const mockNavigate = jest.fn();
 describe('useUserForm', () => {
   const mockRoles: Role[] = [
     { id: 1, name: 'Admin' },
-    { id: 2, name: 'User' }
+    { id: 2, name: 'User' },
   ];
 
   const mockUser: User = {
@@ -29,7 +34,7 @@ describe('useUserForm', () => {
     role_id: 2,
     status_id: 1,
     created_on: '2025-02-01',
-    updated_on: null
+    updated_on: null,
   };
 
   beforeEach(() => {
@@ -53,7 +58,7 @@ describe('useUserForm', () => {
       password: '',
       currentPassword: '',
       confirmPassword: '',
-      role_id: 4
+      role_id: 4,
     });
 
     // Wait for roles to be fetched
@@ -83,7 +88,7 @@ describe('useUserForm', () => {
       password: '',
       currentPassword: '',
       confirmPassword: '',
-      role_id: mockUser.role_id
+      role_id: mockUser.role_id,
     });
   });
 
@@ -92,7 +97,7 @@ describe('useUserForm', () => {
 
     await act(async () => {
       result.current.handleInputChange({
-        target: { name: 'login', value: 'newlogin' }
+        target: { name: 'login', value: 'newlogin' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -106,31 +111,33 @@ describe('useUserForm', () => {
     // Set form values
     await act(async () => {
       result.current.handleInputChange({
-        target: { name: 'login', value: 'newuser' }
+        target: { name: 'login', value: 'newuser' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'name', value: 'New' }
+        target: { name: 'name', value: 'New' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'surname', value: 'User' }
+        target: { name: 'surname', value: 'User' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'email', value: 'new@example.com' }
+        target: { name: 'email', value: 'new@example.com' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'password', value: 'password123' }
+        target: { name: 'password', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'confirmPassword', value: 'password123' }
+        target: { name: 'confirmPassword', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
     const mockEvent = {
-      preventDefault: jest.fn()
+      preventDefault: jest.fn(),
     };
 
     await act(async () => {
-      await result.current.handleSubmit(mockEvent as unknown as React.FormEvent);
+      await result.current.handleSubmit(
+        mockEvent as unknown as React.FormEvent,
+      );
     });
 
     expect(createUser).toHaveBeenCalledWith({
@@ -139,7 +146,7 @@ describe('useUserForm', () => {
       surname: 'User',
       email: 'new@example.com',
       password: 'password123',
-      role_id: 4
+      role_id: 4,
     });
     expect(mockNavigate).toHaveBeenCalledWith('/users');
   });
@@ -155,22 +162,24 @@ describe('useUserForm', () => {
     // Update password
     await act(async () => {
       result.current.handleInputChange({
-        target: { name: 'password', value: 'newpassword' }
+        target: { name: 'password', value: 'newpassword' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'currentPassword', value: 'oldpassword' }
+        target: { name: 'currentPassword', value: 'oldpassword' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'confirmPassword', value: 'newpassword' }
+        target: { name: 'confirmPassword', value: 'newpassword' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
     const mockEvent = {
-      preventDefault: jest.fn()
+      preventDefault: jest.fn(),
     };
 
     await act(async () => {
-      await result.current.handleSubmit(mockEvent as unknown as React.FormEvent);
+      await result.current.handleSubmit(
+        mockEvent as unknown as React.FormEvent,
+      );
     });
 
     expect(updateUser).toHaveBeenCalledWith(1, {
@@ -180,15 +189,14 @@ describe('useUserForm', () => {
       email: mockUser.email,
       role_id: mockUser.role_id,
       password: 'newpassword',
-      currentPassword: 'oldpassword'
+      currentPassword: 'oldpassword',
     });
     expect(mockNavigate).toHaveBeenCalledWith('/users');
   });
 
-
   it('should handle API errors', async () => {
     (createUser as jest.Mock).mockRejectedValue({
-      response: { data: { error: 'API Error' } }
+      response: { data: { error: 'API Error' } },
     });
 
     const { result } = renderHook(() => useUserForm({}));
@@ -196,31 +204,33 @@ describe('useUserForm', () => {
     // Set required form values
     await act(async () => {
       result.current.handleInputChange({
-        target: { name: 'login', value: 'newuser' }
+        target: { name: 'login', value: 'newuser' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'name', value: 'New' }
+        target: { name: 'name', value: 'New' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'surname', value: 'User' }
+        target: { name: 'surname', value: 'User' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'email', value: 'new@example.com' }
+        target: { name: 'email', value: 'new@example.com' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'password', value: 'password123' }
+        target: { name: 'password', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'confirmPassword', value: 'password123' }
+        target: { name: 'confirmPassword', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
     const mockEvent = {
-      preventDefault: jest.fn()
+      preventDefault: jest.fn(),
     };
 
     await act(async () => {
-      await result.current.handleSubmit(mockEvent as unknown as React.FormEvent);
+      await result.current.handleSubmit(
+        mockEvent as unknown as React.FormEvent,
+      );
     });
 
     expect(result.current.error).toBe('API Error');

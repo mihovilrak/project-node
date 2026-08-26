@@ -8,7 +8,10 @@ export default (pool: Pool): Router => {
 
   router.get('/', withPool(pool, notificationController.getUserNotifications));
   router.patch('/', withPool(pool, notificationController.markAsRead));
-  router.delete('/:id', withPool(pool, notificationController.deleteNotification));
+  router.delete(
+    '/:id',
+    withPool(pool, notificationController.deleteNotification),
+  );
 
   return router;
 };

@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Alert
+  Alert,
 } from '@mui/material';
 import { Role } from '../../types/role';
 import { RoleDialogProps } from '../../types/role';
@@ -13,7 +13,12 @@ import { useRoleDialog } from '../../hooks/setting/useRoleDialog';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { RoleForm } from './RoleForm';
 
-const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) => {
+const RoleDialog: React.FC<RoleDialogProps> = ({
+  open,
+  role,
+  onClose,
+  onSave,
+}) => {
   const {
     formData,
     error,
@@ -21,7 +26,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
     handleChange,
     handlePermissionToggle,
     clearError,
-    setError
+    setError,
   } = useRoleDialog(role);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +38,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
       name: formData.name,
       description: formData.description,
       active: formData.active,
-      permissions: formData.permissions
+      permissions: formData.permissions,
     };
 
     try {
@@ -47,9 +52,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form role="form" onSubmit={handleSubmit}>
-        <DialogTitle>
-          {role ? 'Edit Role' : 'Create Role'}
-        </DialogTitle>
+        <DialogTitle>{role ? 'Edit Role' : 'Create Role'}</DialogTitle>
         <DialogContent>
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -65,11 +68,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, role, onClose, onSave }) 
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-          >
+          <Button type="submit" variant="contained" color="primary">
             {role ? 'Save Changes' : 'Create'}
           </Button>
         </DialogActions>

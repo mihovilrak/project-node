@@ -6,7 +6,7 @@ import {
   getProjectById,
   getProjectDetails,
   updateProject,
-  deleteProject
+  deleteProject,
 } from '../../api/projects';
 import { useProjectMembers } from './useProjectMembers';
 import { useProjectTasks } from './useProjectTasks';
@@ -26,7 +26,7 @@ export const useProjectDetails = (projectId: string) => {
     deleteDialogOpen: false,
     createTaskDialogOpen: false,
     membersDialogOpen: false,
-    timeLogs: []
+    timeLogs: [],
   });
 
   const navigate = useNavigate();
@@ -38,35 +38,37 @@ export const useProjectDetails = (projectId: string) => {
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        setState(prev => ({ ...prev, loading: true, error: null }));
+        setState((prev) => ({ ...prev, loading: true, error: null }));
 
         const [projectData, projectDetails] = await Promise.all([
           getProjectById(Number(projectId)),
-          getProjectDetails(Number(projectId))
+          getProjectDetails(Number(projectId)),
         ]);
 
         // Check if project was found
         if (!projectData) {
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             error: 'Project not found',
-            loading: false
+            loading: false,
           }));
           return;
         }
 
         // Ensure projectDetails has spent_time as a number (handle null/undefined)
-        const safeProjectDetails = projectDetails ? {
-          ...projectDetails,
-          spent_time: projectDetails.spent_time ?? 0
-        } : null;
+        const safeProjectDetails = projectDetails
+          ? {
+              ...projectDetails,
+              spent_time: projectDetails.spent_time ?? 0,
+            }
+          : null;
 
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           project: projectData,
           projectDetails: safeProjectDetails,
           loading: false,
-          error: null
+          error: null,
         }));
 
         // Load data from other hooks
@@ -74,7 +76,7 @@ export const useProjectDetails = (projectId: string) => {
           await Promise.all([
             memberHooks.loadMembers(),
             taskHooks.loadTasks(),
-            timeLogHooks.loadTimeLogs()
+            timeLogHooks.loadTimeLogs(),
           ]);
         } catch (hookError) {
           // Log hook errors but don't fail the whole page
@@ -82,10 +84,10 @@ export const useProjectDetails = (projectId: string) => {
         }
       } catch (error: unknown) {
         logger.error('Error fetching project data:', error);
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           error: getApiErrorMessage(error, 'Failed to load project details'),
-          loading: false
+          loading: false,
         }));
       }
     };
@@ -95,42 +97,55 @@ export const useProjectDetails = (projectId: string) => {
     }
   }, [projectId]);
 
-  const handleProjectUpdate = useCallback(async (updatedProject: Project) => {
-    try {
-      await updateProject(Number(projectId), updatedProject);
-      setState(prev => ({
-        ...prev,
-        project: { ...prev.project!, ...updatedProject },
-        editDialogOpen: false
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: 'Failed to update project'
-      }));
-    }
-  }, [projectId]);
+  const handleProjectUpdate = useCallback(
+    async (updatedProject: Project) => {
+      try {
+        await updateProject(Number(projectId), updatedProject);
+        setState((prev) => ({
+          ...prev,
+          project: { ...prev.project!, ...updatedProject },
+          editDialogOpen: false,
+        }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: 'Failed to update project',
+        }));
+      }
+    },
+    [projectId],
+  );
 
   const handleProjectDelete = useCallback(async () => {
     try {
       await deleteProject(Number(projectId));
       navigate('/projects');
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Failed to delete project'
+        error: 'Failed to delete project',
       }));
     }
   }, [projectId, navigate]);
 
-  const isProjectMember = useMemo(() => 
-    memberHooks.members.some(member => member.user_id === currentUser?.id),
-    [memberHooks.members, currentUser?.id]
+  const isProjectMember = useMemo(
+    () =>
+      memberHooks.members.some((member) => member.user_id === currentUser?.id),
+    [memberHooks.members, currentUser?.id],
   );
 
-  const canEdit = useMemo(() => hasPermission('Edit projects'), [hasPermission]);
-  const canDelete = useMemo(() => hasPermission('Delete projects'), [hasPermission]);
-  const canManageMembers = useMemo(() => hasPermission('Manage project members'), [hasPermission]);
+  const canEdit = useMemo(
+    () => hasPermission('Edit projects'),
+    [hasPermission],
+  );
+  const canDelete = useMemo(
+    () => hasPermission('Delete projects'),
+    [hasPermission],
+  );
+  const canManageMembers = useMemo(
+    () => hasPermission('Manage project members'),
+    [hasPermission],
+  );
 
   return {
     ...state,
@@ -143,6 +158,6 @@ export const useProjectDetails = (projectId: string) => {
     isProjectMember,
     canEdit,
     canDelete,
-    canManageMembers
+    canManageMembers,
   };
 };

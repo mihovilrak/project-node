@@ -5,7 +5,11 @@ import { CustomRequest } from '../types/express';
 import { hasPermission } from '../models/permissionModel';
 
 export default (pool: Pool, requiredPermission: Permission) => {
-  return async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     const userId = req.session.user?.id;
 
     if (!userId) {
@@ -16,7 +20,9 @@ export default (pool: Pool, requiredPermission: Permission) => {
     try {
       const hasAccess = await hasPermission(pool, userId, requiredPermission);
       if (!hasAccess) {
-        res.status(403).json({ error: `Permission denied: ${requiredPermission} required` });
+        res
+          .status(403)
+          .json({ error: `Permission denied: ${requiredPermission} required` });
         return;
       }
       next();
@@ -24,4 +30,4 @@ export default (pool: Pool, requiredPermission: Permission) => {
       next(error);
     }
   };
-}
+};

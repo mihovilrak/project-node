@@ -6,7 +6,7 @@ import {
   Tab,
   Typography,
   Button,
-  Alert
+  Alert,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import TaskTypesTable from './TaskTypesTable';
@@ -24,7 +24,7 @@ const TypesAndRolesManager: React.FC = () => {
     handleDialogClose,
     handleSave,
     handleDelete,
-    handleRoleUpdate
+    handleRoleUpdate,
   } = useTypesAndRoles();
 
   const renderContent = () => {

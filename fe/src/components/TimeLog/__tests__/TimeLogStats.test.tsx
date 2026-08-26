@@ -21,7 +21,7 @@ describe('TimeLogStats', () => {
       spent_time: 2.5,
       description: 'Test',
       created_on: '2023-01-01',
-      updated_on: null
+      updated_on: null,
     },
     {
       id: 2,
@@ -32,8 +32,8 @@ describe('TimeLogStats', () => {
       spent_time: 1.75,
       description: 'Test',
       created_on: '2023-01-01',
-      updated_on: null
-    }
+      updated_on: null,
+    },
   ];
 
   test('renders without crashing', () => {
@@ -47,20 +47,24 @@ describe('TimeLogStats', () => {
   });
 
   test('correctly calculates total time from number values', () => {
-    const numberTimeLogs: TimeLog[] = [{
-      ...mockTimeLogs[0],
-      spent_time: 2.5 // 2 hours 30 minutes
-    }];
+    const numberTimeLogs: TimeLog[] = [
+      {
+        ...mockTimeLogs[0],
+        spent_time: 2.5, // 2 hours 30 minutes
+      },
+    ];
 
     renderTimeLogStats(numberTimeLogs);
     expect(screen.getByText('2h 30m')).toBeInTheDocument();
   });
 
   test('correctly calculates total time from string values', () => {
-    const stringTimeLogs: TimeLog[] = [{
-      ...mockTimeLogs[0],
-      spent_time: 1.75
-    }];
+    const stringTimeLogs: TimeLog[] = [
+      {
+        ...mockTimeLogs[0],
+        spent_time: 1.75,
+      },
+    ];
 
     renderTimeLogStats(stringTimeLogs);
     expect(screen.getByText('1h 45m')).toBeInTheDocument();
@@ -72,30 +76,36 @@ describe('TimeLogStats', () => {
   });
 
   test('handles invalid time values gracefully', () => {
-    const invalidTimeLogs: TimeLog[] = [{
-      ...mockTimeLogs[0],
-      spent_time: Number('invalid')
-    }];
+    const invalidTimeLogs: TimeLog[] = [
+      {
+        ...mockTimeLogs[0],
+        spent_time: Number('invalid'),
+      },
+    ];
 
     renderTimeLogStats(invalidTimeLogs);
     expect(screen.getByText('0h 0m')).toBeInTheDocument();
   });
 
   test('rounds minutes correctly', () => {
-    const roundingTimeLogs: TimeLog[] = [{
-      ...mockTimeLogs[0],
-      spent_time: 1.99
-    }];
+    const roundingTimeLogs: TimeLog[] = [
+      {
+        ...mockTimeLogs[0],
+        spent_time: 1.99,
+      },
+    ];
 
     renderTimeLogStats(roundingTimeLogs);
     expect(screen.getByText('1h 59m')).toBeInTheDocument();
   });
 
   test('handles null/undefined spent_time values', () => {
-    const nullTimeLogs: TimeLog[] = [{
-      ...mockTimeLogs[0],
-      spent_time: null as any
-    }];
+    const nullTimeLogs: TimeLog[] = [
+      {
+        ...mockTimeLogs[0],
+        spent_time: null as any,
+      },
+    ];
 
     renderTimeLogStats(nullTimeLogs);
     expect(screen.getByText('0h 0m')).toBeInTheDocument();

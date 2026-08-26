@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  IconButton,
-} from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import {
   CalendarMonth,
   NavigateBefore,
@@ -19,12 +15,14 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 }) => {
   return (
     <>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
         <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}>
           <CalendarMonth sx={{ mr: 1 }} />
           Time Log Calendar
@@ -44,7 +42,13 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="subtitle2" color="textSecondary">
-          Total hours this month: {typeof totalHours === 'number' && !isNaN(totalHours) ? (totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1)) : 0}h
+          Total hours this month:{' '}
+          {typeof totalHours === 'number' && !isNaN(totalHours)
+            ? totalHours % 1 === 0
+              ? totalHours
+              : totalHours.toFixed(1)
+            : 0}
+          h
         </Typography>
       </Box>
     </>

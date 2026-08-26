@@ -6,7 +6,7 @@ import {
   getSubtasks,
   getTaskStatuses,
   changeTaskStatus,
-  deleteTask
+  deleteTask,
 } from '../../api/tasks';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -17,7 +17,7 @@ export const useTaskCore = (taskId: string) => {
     subtasks: [],
     statuses: [],
     loading: true,
-    error: null
+    error: null,
   });
 
   const navigate = useNavigate();
@@ -27,27 +27,27 @@ export const useTaskCore = (taskId: string) => {
       if (!taskId) return;
 
       try {
-        setState(prev => ({ ...prev, loading: true, error: null }));
+        setState((prev) => ({ ...prev, loading: true, error: null }));
 
         const [taskData, subtasksData, statusesData] = await Promise.all([
           getTaskById(Number(taskId)),
           getSubtasks(Number(taskId)),
-          getTaskStatuses()
+          getTaskStatuses(),
         ]);
 
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           task: taskData,
           subtasks: subtasksData,
           statuses: statusesData,
-          loading: false
+          loading: false,
         }));
       } catch (error: unknown) {
         logger.error('Error fetching task data:', error);
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           error: getApiErrorMessage(error, 'Failed to load task details'),
-          loading: false
+          loading: false,
         }));
       }
     };
@@ -60,16 +60,16 @@ export const useTaskCore = (taskId: string) => {
 
     try {
       const updatedTask = await changeTaskStatus(state.task.id, statusId);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         task: updatedTask,
-        error: null
+        error: null,
       }));
     } catch (error: unknown) {
       logger.error('Failed to update task status:', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: getApiErrorMessage(error, 'Failed to update task status')
+        error: getApiErrorMessage(error, 'Failed to update task status'),
       }));
     }
   };
@@ -82,21 +82,21 @@ export const useTaskCore = (taskId: string) => {
       navigate('/tasks');
     } catch (error: unknown) {
       logger.error('Failed to delete task:', error);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: getApiErrorMessage(error, 'Failed to delete task')
+        error: getApiErrorMessage(error, 'Failed to delete task'),
       }));
     }
   };
 
   const setSubtasks = (subtasks: Task[]) => {
-    setState(prev => ({ ...prev, subtasks }));
+    setState((prev) => ({ ...prev, subtasks }));
   };
 
   return {
     ...state,
     handleStatusChange,
     handleDelete,
-    setSubtasks
+    setSubtasks,
   };
 };

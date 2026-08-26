@@ -4,14 +4,17 @@ import {
   Chip,
   TextField,
   CircularProgress,
-  Box
+  Box,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { getTags } from '../../api/tags';
 import { Tag, TagSelectProps } from '../../types/tag';
 import logger from '../../utils/logger';
 
-const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => {
+const TagSelect: React.FC<TagSelectProps> = ({
+  selectedTags,
+  onTagsChange,
+}) => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -19,10 +22,10 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
     const fetchTags = async (): Promise<void> => {
       try {
         setLoading(true);
-        const fetchedTags = await getTags() as Tag[];
+        const fetchedTags = (await getTags()) as Tag[];
         const activeTags = (fetchedTags || [])
-          .filter(tag => tag?.active)
-          .map(tag => ({
+          .filter((tag) => tag?.active)
+          .map((tag) => ({
             id: tag?.id || 0,
             name: tag?.name || 'Unknown',
             color: tag?.color || '#666',
@@ -31,7 +34,7 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
             created_by: tag?.created_by || 0,
             active: tag?.active || false,
             created_on: tag?.created_on || '',
-            creator_name: tag?.creator_name || ''
+            creator_name: tag?.creator_name || '',
           }));
         setTags(activeTags);
       } catch (error) {
@@ -54,8 +57,12 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
 
   const getIconComponent = (iconName?: string): React.ReactElement => {
     const name = iconName || 'Label';
-    const IconComponent = Icons[name as keyof typeof Icons] as React.ComponentType<any>;
-    return IconComponent ? React.createElement(IconComponent) : React.createElement(Icons.Label);
+    const IconComponent = Icons[
+      name as keyof typeof Icons
+    ] as React.ComponentType<any>;
+    return IconComponent
+      ? React.createElement(IconComponent)
+      : React.createElement(Icons.Label);
   };
 
   return (
@@ -67,14 +74,14 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
       getOptionLabel={(tag) => tag.name}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Tags"
-          placeholder="Select tags"
-        />
+        <TextField {...params} label="Tags" placeholder="Select tags" />
       )}
       renderOption={(props, tag) => (
-        <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          component="li"
+          {...props}
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
           {getIconComponent(tag?.icon)}
           <span>{tag?.name || 'Unknown'}</span>
         </Box>
@@ -82,7 +89,7 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
       renderTags={(tagValue, getTagProps) =>
         (tagValue || []).map((tag, index) => {
           const Icon = getIconComponent(tag?.icon);
-          
+
           return (
             <Chip
               {...getTagProps({ index })}
@@ -93,14 +100,14 @@ const TagSelect: React.FC<TagSelectProps> = ({ selectedTags, onTagsChange }) => 
                 backgroundColor: tag?.color || '#666',
                 color: 'white',
                 '& .MuiChip-icon': {
-                  color: 'white !important'
+                  color: 'white !important',
                 },
                 '& .MuiChip-deleteIcon': {
                   color: 'white',
                   '&:hover': {
-                    color: 'rgba(255, 255, 255, 0.7)'
-                  }
-                }
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  },
+                },
               }}
             />
           );

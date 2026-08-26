@@ -22,6 +22,6 @@ export const useFileList = (onFileDeleted: (fileId: number) => void) => {
   };
 
   return {
-    formatFileSize
+    formatFileSize,
   };
 };

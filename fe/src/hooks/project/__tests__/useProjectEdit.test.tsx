@@ -23,13 +23,13 @@ describe('useProjectEdit', () => {
     spent_time: 50,
     progress: 50,
     parent_id: null,
-    parent_name: null
+    parent_name: null,
   };
 
   const mockStatuses: ProjectStatus[] = [
     { id: 1, name: 'Active' },
     { id: 2, name: 'Completed' },
-    { id: 3, name: 'On Hold' }
+    { id: 3, name: 'On Hold' },
   ];
 
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('useProjectEdit', () => {
       description: null,
       start_date: '',
       due_date: '',
-      status_id: 1
+      status_id: 1,
     });
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
@@ -59,7 +59,7 @@ describe('useProjectEdit', () => {
       description: mockProject.description,
       start_date: '2024-01-01',
       due_date: '2024-12-31',
-      status_id: mockProject.status_id
+      status_id: mockProject.status_id,
     });
   });
 
@@ -67,7 +67,7 @@ describe('useProjectEdit', () => {
     const { result } = renderHook(() => useProjectEdit(null));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(getProjectStatuses).toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('useProjectEdit', () => {
 
     act(() => {
       result.current.handleTextChange('name')({
-        target: { value: 'New Project Name' }
+        target: { value: 'New Project Name' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -92,7 +92,7 @@ describe('useProjectEdit', () => {
     // Set start date
     act(() => {
       result.current.handleTextChange('start_date')({
-        target: { value: '2024-01-01' }
+        target: { value: '2024-01-01' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -101,7 +101,7 @@ describe('useProjectEdit', () => {
     // Set due date
     act(() => {
       result.current.handleTextChange('due_date')({
-        target: { value: '2024-12-31' }
+        target: { value: '2024-12-31' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -114,14 +114,14 @@ describe('useProjectEdit', () => {
     // Set start date
     act(() => {
       result.current.handleTextChange('start_date')({
-        target: { value: '2024-12-31' }
+        target: { value: '2024-12-31' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
     // Try to set due date before start date
     act(() => {
       result.current.handleTextChange('due_date')({
-        target: { value: '2024-01-01' }
+        target: { value: '2024-01-01' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
 
@@ -134,7 +134,7 @@ describe('useProjectEdit', () => {
 
     act(() => {
       result.current.handleStatusChange({
-        target: { value: 2 }
+        target: { value: 2 },
       } as SelectChangeEvent<number>);
     });
 
@@ -148,7 +148,7 @@ describe('useProjectEdit', () => {
     const { result } = renderHook(() => useProjectEdit(null));
 
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     expect(result.current.error).toBe('Failed to fetch statuses');

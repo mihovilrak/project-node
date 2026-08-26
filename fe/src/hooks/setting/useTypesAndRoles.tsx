@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
-import { TypesAndRolesState, TaskType, ActivityType } from '../../types/setting';
+import {
+  TypesAndRolesState,
+  TaskType,
+  ActivityType,
+} from '../../types/setting';
 import { Role as AdminRole } from '../../types/role';
 import { Permission } from '../../types/admin';
 import {
   deleteActivityType,
   updateActivityType,
   getActivityTypes,
-  createActivityType
+  createActivityType,
 } from '../../api/activityTypes';
-import {
-  getRoles,
-  updateRole,
-  createRole
-} from '../../api/roles';
+import { getRoles, updateRole, createRole } from '../../api/roles';
 import {
   getTaskTypes,
   deleteTaskType,
   updateTaskType,
-  createTaskType
+  createTaskType,
 } from '../../api/taskTypes';
 
 export const useTypesAndRoles = () => {
@@ -29,7 +29,7 @@ export const useTypesAndRoles = () => {
     loading: true,
     error: null,
     dialogOpen: false,
-    selectedItem: null
+    selectedItem: null,
   });
 
   useEffect(() => {
@@ -38,48 +38,63 @@ export const useTypesAndRoles = () => {
 
   const fetchData = async (): Promise<void> => {
     try {
-      setState(prev => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
       const [taskTypesData, activityTypesData, rolesData] = await Promise.all([
-        getTaskTypes().then(data => data.map((t: any) => ({ ...t, active: t.active ?? t.is_active ?? false }))),
-        getActivityTypes().then(data => data.map((t: any) => ({ ...t, active: t.active ?? t.is_active ?? false }))),
-        getRoles()
+        getTaskTypes().then((data) =>
+          data.map((t: any) => ({
+            ...t,
+            active: t.active ?? t.is_active ?? false,
+          })),
+        ),
+        getActivityTypes().then((data) =>
+          data.map((t: any) => ({
+            ...t,
+            active: t.active ?? t.is_active ?? false,
+          })),
+        ),
+        getRoles(),
       ]);
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         taskTypes: taskTypesData as TaskType[],
         activityTypes: activityTypesData as ActivityType[],
         roles: rolesData as AdminRole[],
-        loading: false
+        loading: false,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to fetch data',
-        loading: false
+        loading: false,
       }));
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number): void => {
-    setState(prev => ({ ...prev, activeTab: newValue }));
+  const handleTabChange = (
+    _event: React.SyntheticEvent,
+    newValue: number,
+  ): void => {
+    setState((prev) => ({ ...prev, activeTab: newValue }));
   };
 
   const handleCreate = (): void => {
-    setState(prev => ({ ...prev, dialogOpen: true, selectedItem: null }));
+    setState((prev) => ({ ...prev, dialogOpen: true, selectedItem: null }));
   };
 
   const handleEdit = (item: TaskType | ActivityType | AdminRole): void => {
-    setState(prev => ({ ...prev, dialogOpen: true, selectedItem: item }));
+    setState((prev) => ({ ...prev, dialogOpen: true, selectedItem: item }));
   };
 
   const handleDialogClose = (): void => {
-    setState(prev => ({ ...prev, dialogOpen: false, selectedItem: null }));
+    setState((prev) => ({ ...prev, dialogOpen: false, selectedItem: null }));
   };
 
-  const handleSave = async (item: Partial<TaskType | ActivityType | AdminRole>): Promise<void> => {
+  const handleSave = async (
+    item: Partial<TaskType | ActivityType | AdminRole>,
+  ): Promise<void> => {
     try {
-      setState(prev => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
 
       // Use item.id or selectedItem.id so we update existing record when editing (e.g. role dialog may not pass id)
       const resolveId = (): number | undefined => {
@@ -113,17 +128,17 @@ export const useTypesAndRoles = () => {
       handleDialogClose();
       await fetchData();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to save item',
-        loading: false
+        loading: false,
       }));
     }
   };
 
   const handleDelete = async (id: number): Promise<void> => {
     try {
-      setState(prev => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
       if (state.activeTab === 0) {
         await deleteTaskType(id);
       } else if (state.activeTab === 1) {
@@ -131,10 +146,10 @@ export const useTypesAndRoles = () => {
       }
       await fetchData();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to delete item',
-        loading: false
+        loading: false,
       }));
     }
   };
@@ -145,22 +160,25 @@ export const useTypesAndRoles = () => {
         id: updatedRole.id,
         name: updatedRole.name,
         description: updatedRole.description,
-        permissions: (updatedRole.permissions || []).map(p => ({
-          id: typeof p === 'number' ? p : p.id,
-          name: typeof p === 'number' ? String(p) : p.name,
-          active: true,
-          created_on: new Date().toISOString(),
-          updated_on: null
-        } as Permission))
+        permissions: (updatedRole.permissions || []).map(
+          (p) =>
+            ({
+              id: typeof p === 'number' ? p : p.id,
+              name: typeof p === 'number' ? String(p) : p.name,
+              active: true,
+              created_on: new Date().toISOString(),
+              updated_on: null,
+            }) as Permission,
+        ),
       };
 
       await updateRole(updatedRole.id, roleToUpdate);
       await fetchData();
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to update role',
-        loading: false
+        loading: false,
       }));
     }
   };
@@ -173,6 +191,6 @@ export const useTypesAndRoles = () => {
     handleDialogClose,
     handleSave,
     handleDelete,
-    handleRoleUpdate
+    handleRoleUpdate,
   };
 };

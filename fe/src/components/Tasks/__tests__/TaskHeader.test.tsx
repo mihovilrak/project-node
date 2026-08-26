@@ -32,7 +32,7 @@ const mockTask: Task = {
   created_by: 1,
   created_by_name: 'John Creator',
   created_on: '2023-01-01',
-  estimated_time: 20
+  estimated_time: 20,
 };
 
 const mockStatuses: TaskStatus[] = [
@@ -43,7 +43,7 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
+    updated_on: null,
   },
   {
     id: 2,
@@ -52,8 +52,8 @@ const mockStatuses: TaskStatus[] = [
     description: null,
     active: true,
     created_on: '2023-01-01',
-    updated_on: null
-  }
+    updated_on: null,
+  },
 ];
 
 const defaultProps = {
@@ -67,7 +67,7 @@ const defaultProps = {
   canDelete: true,
   onDelete: jest.fn(),
   onTimeLogClick: jest.fn(),
-  onAddSubtaskClick: jest.fn()
+  onAddSubtaskClick: jest.fn(),
 };
 
 const renderWithRouter = (ui: React.ReactElement) => {
@@ -83,22 +83,30 @@ describe('TaskHeader', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 
     expect(screen.getByText(mockTask.name)).toBeInTheDocument();
-    expect(screen.getByTestId('project-name')).toHaveTextContent(`Project: ${mockTask.project_name}`);
-    expect(screen.getByTestId('holder-name')).toHaveTextContent(`Holder: ${mockTask.holder_name}`);
-    expect(screen.getByTestId('assignee-name')).toHaveTextContent(`Assignee: ${mockTask.assignee_name}`);
+    expect(screen.getByTestId('project-name')).toHaveTextContent(
+      `Project: ${mockTask.project_name}`,
+    );
+    expect(screen.getByTestId('holder-name')).toHaveTextContent(
+      `Holder: ${mockTask.holder_name}`,
+    );
+    expect(screen.getByTestId('assignee-name')).toHaveTextContent(
+      `Assignee: ${mockTask.assignee_name}`,
+    );
   });
 
   it('renders parent task as none when there is no parent', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 
-    expect(screen.getByTestId('parent-task')).toHaveTextContent('Parent Task: None');
+    expect(screen.getByTestId('parent-task')).toHaveTextContent(
+      'Parent Task: None',
+    );
   });
 
   it('renders parent task link when parent exists', () => {
     const taskWithParent: Task = {
       ...mockTask,
       parent_id: 2,
-      parent_name: 'Parent Task'
+      parent_name: 'Parent Task',
     };
 
     renderWithRouter(<TaskHeader {...defaultProps} task={taskWithParent} />);
@@ -155,21 +163,35 @@ describe('TaskHeader', () => {
   it('renders dates in correct format', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 
-    expect(screen.getByText(`Created: ${new Date(mockTask.created_on).toLocaleDateString()}`)).toBeInTheDocument();
-    expect(screen.getByText(`Due: ${new Date(mockTask.due_date!).toLocaleDateString()}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        `Created: ${new Date(mockTask.created_on).toLocaleDateString()}`,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        `Due: ${new Date(mockTask.due_date!).toLocaleDateString()}`,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('renders progress when available', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 
-    expect(screen.getByText(`Progress: ${mockTask.progress}%`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Progress: ${mockTask.progress}%`),
+    ).toBeInTheDocument();
   });
 
   it('renders estimated and spent time when available', () => {
     renderWithRouter(<TaskHeader {...defaultProps} />);
 
-    expect(screen.getByText(`Estimated Time: ${mockTask.estimated_time} hours`)).toBeInTheDocument();
-    expect(screen.getByText(`Time Spent: ${mockTask.spent_time} hours`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Estimated Time: ${mockTask.estimated_time} hours`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`Time Spent: ${mockTask.spent_time} hours`),
+    ).toBeInTheDocument();
   });
 
   it('handles null task gracefully', () => {

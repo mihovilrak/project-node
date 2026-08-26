@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { createComment } from '../../api/comments';
-import {
-    Comment,
-    CommentError
-} from '../../types/comment';
+import { Comment, CommentError } from '../../types/comment';
 import logger from '../../utils/logger';
 
-export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment) => void) => {
+export const useCommentForm = (
+  taskId: number,
+  onCommentAdded: (comment: Comment) => void,
+) => {
   const [comment, setComment] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     if (!comment.trim()) return;
 
@@ -20,7 +22,7 @@ export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment
 
     try {
       const newComment = await createComment(taskId, {
-        comment: comment.trim()
+        comment: comment.trim(),
       });
 
       onCommentAdded(newComment);
@@ -39,6 +41,6 @@ export const useCommentForm = (taskId: number, onCommentAdded: (comment: Comment
     setComment,
     loading,
     error,
-    handleSubmit
+    handleSubmit,
   };
 };

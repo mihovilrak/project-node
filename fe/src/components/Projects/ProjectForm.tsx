@@ -14,7 +14,11 @@ import logger from '../../utils/logger';
 import ProjectDetailsForm from './ProjectDetailsForm';
 import ProjectMembersForm from './ProjectMembersForm';
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose }) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({
+  project,
+  onSubmit,
+  onClose,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const parentId = useMemo(() => {
@@ -38,7 +42,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     handleStatusChange,
     handleDateChange,
     handleParentChange,
-    validateForm
+    validateForm,
   } = useProjectForm(project, parentId);
 
   useEffect(() => {
@@ -68,10 +72,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
   }, []);
 
   const handleUserSelect = useCallback((userId: number) => {
-    setSelectedUsers(prev =>
+    setSelectedUsers((prev) =>
       prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
     );
     setMemberError('');
   }, []);
@@ -94,7 +98,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
       const response = await createProject(projectData);
 
       await Promise.all(
-        selectedUsers.map(userId => addProjectMember(response.id, userId))
+        selectedUsers.map((userId) => addProjectMember(response.id, userId)),
       );
 
       if (onSubmit) {
@@ -118,35 +122,35 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onClose })
     <Box sx={{ maxWidth: '800px', margin: '0 auto', p: 3 }}>
       <Paper sx={{ p: 3 }}>
         <form onSubmit={(e) => e.preventDefault()}>
-        {step === 'details' ? (
-          <ProjectDetailsForm
-            formData={formData}
-            errors={errors}
-            dateError={dateError}
-            availableProjects={availableProjects}
-            parentId={parentId}
-            statuses={statuses}
-            statusesLoading={statusesLoading}
-            handleChange={handleChange}
-            handleStatusChange={handleStatusChange}
-            handleDateChange={handleDateChange}
-            handleParentChange={handleParentChange}
-            handleCancel={handleCancel}
-            onSubmit={handleDetailsSubmit}
-            data-testid="project-details-form"
-          />
-        ) : (
-          <ProjectMembersForm
-            users={users || []}
-            selectedUsers={selectedUsers || []}
-            memberError={memberError}
-            onUserSelect={handleUserSelect}
-            onBack={() => setStep('details')}
-            onSubmit={handleMembersSubmit}
-            data-testid="project-members-form"
-          />
-        )}
-      </form>
+          {step === 'details' ? (
+            <ProjectDetailsForm
+              formData={formData}
+              errors={errors}
+              dateError={dateError}
+              availableProjects={availableProjects}
+              parentId={parentId}
+              statuses={statuses}
+              statusesLoading={statusesLoading}
+              handleChange={handleChange}
+              handleStatusChange={handleStatusChange}
+              handleDateChange={handleDateChange}
+              handleParentChange={handleParentChange}
+              handleCancel={handleCancel}
+              onSubmit={handleDetailsSubmit}
+              data-testid="project-details-form"
+            />
+          ) : (
+            <ProjectMembersForm
+              users={users || []}
+              selectedUsers={selectedUsers || []}
+              memberError={memberError}
+              onUserSelect={handleUserSelect}
+              onBack={() => setStep('details')}
+              onSubmit={handleMembersSubmit}
+              data-testid="project-members-form"
+            />
+          )}
+        </form>
       </Paper>
     </Box>
   );

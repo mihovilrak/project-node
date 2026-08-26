@@ -6,7 +6,9 @@ import { Task } from '../../types/task';
 import { TaskFile } from '../../types/file';
 
 export const useTaskDetailsUI = () => {
-  const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
+  const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
@@ -29,14 +31,18 @@ export const useTaskDetailsUI = () => {
   };
 
   // Subtask State Handlers
-  const handleSubtaskUpdated = (subtasks: Task[], subtaskId: number, updatedSubtask: Task) => {
-    return subtasks.map(subtask =>
-      subtask.id === subtaskId ? updatedSubtask : subtask
+  const handleSubtaskUpdated = (
+    subtasks: Task[],
+    subtaskId: number,
+    updatedSubtask: Task,
+  ) => {
+    return subtasks.map((subtask) =>
+      subtask.id === subtaskId ? updatedSubtask : subtask,
     );
   };
 
   const handleSubtaskDeleted = (subtasks: Task[], subtaskId: number) => {
-    return subtasks.filter(subtask => subtask.id !== subtaskId);
+    return subtasks.filter((subtask) => subtask.id !== subtaskId);
   };
 
   // File State Handlers
@@ -76,6 +82,6 @@ export const useTaskDetailsUI = () => {
     handleSubtaskDeleted,
     handleFileUploaded,
     handleTimeLogEdit,
-    handleTimeLogDialogClose
+    handleTimeLogDialogClose,
   };
 };

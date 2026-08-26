@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import { ProjectSelect } from '../ProjectSelect';
 import { Project } from '../../../types/project';
 import { TaskFormState } from '../../../types/task';
@@ -21,7 +27,7 @@ const mockProjects: Project[] = [
     updated_on: null,
     estimated_time: 100,
     spent_time: 50,
-    progress: 50
+    progress: 50,
   },
   {
     id: 2,
@@ -40,8 +46,8 @@ const mockProjects: Project[] = [
     updated_on: null,
     estimated_time: 100,
     spent_time: 50,
-    progress: 50
-  }
+    progress: 50,
+  },
 ];
 
 const mockFormData: TaskFormState = {
@@ -56,7 +62,7 @@ const mockFormData: TaskFormState = {
   assignee_id: null,
   start_date: null,
   due_date: null,
-  estimated_time: null
+  estimated_time: null,
 };
 
 const mockHandleChange = jest.fn();
@@ -69,7 +75,7 @@ describe('ProjectSelect', () => {
         formData={mockFormData}
         handleChange={mockHandleChange}
         projectIdFromQuery={projectIdFromQuery}
-      />
+      />,
     );
   };
 
@@ -93,8 +99,10 @@ describe('ProjectSelect', () => {
     const listbox = document.querySelector('[role="listbox"]');
     expect(listbox).not.toBeNull();
 
-    mockProjects.forEach(project => {
-      expect(within(listbox as HTMLElement).getByText(project.name)).toBeInTheDocument();
+    mockProjects.forEach((project) => {
+      expect(
+        within(listbox as HTMLElement).getByText(project.name),
+      ).toBeInTheDocument();
     });
   });
 
@@ -158,7 +166,7 @@ describe('ProjectSelect', () => {
         projects={[]}
         formData={emptyFormData}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     // The select should still render
@@ -181,7 +189,7 @@ describe('ProjectSelect', () => {
         projects={mockProjects}
         formData={formDataWithNull}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     const selectElement = screen.getByLabelText(/project/i);
@@ -189,13 +197,16 @@ describe('ProjectSelect', () => {
   });
 
   test('handles undefined project_id correctly', () => {
-    const formDataWithUndefined = { ...mockFormData, project_id: undefined as any };
+    const formDataWithUndefined = {
+      ...mockFormData,
+      project_id: undefined as any,
+    };
     render(
       <ProjectSelect
         projects={mockProjects}
         formData={formDataWithUndefined}
         handleChange={mockHandleChange}
-      />
+      />,
     );
 
     const selectElement = screen.getByLabelText(/project/i);

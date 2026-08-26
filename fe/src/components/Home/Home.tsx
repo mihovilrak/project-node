@@ -16,10 +16,12 @@ const Home: React.FC = (): React.ReactElement => {
             mb: 4,
             '& h1, & h2, & h3': {
               color: 'primary.main',
-              mb: 2
-            }
+              mb: 2,
+            },
           }}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(state.settings.welcome_message ?? '') }}
+          dangerouslySetInnerHTML={{
+            __html: sanitizeHtml(state.settings.welcome_message ?? ''),
+          }}
         />
       )}
       <ActiveTasks />

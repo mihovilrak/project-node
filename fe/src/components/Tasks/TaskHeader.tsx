@@ -10,7 +10,7 @@ import {
   Paper,
   Divider,
   Link,
-  Grid
+  Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as Icons from '@mui/icons-material';
@@ -19,11 +19,18 @@ import logger from '../../utils/logger';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
 
-const getIconComponent = (iconName?: string, color?: string): React.ReactElement | undefined => {
+const getIconComponent = (
+  iconName?: string,
+  color?: string,
+): React.ReactElement | undefined => {
   if (!iconName) return undefined;
   try {
-    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
-    return IconComponent ? React.createElement(IconComponent, { sx: { color } }) : undefined;
+    const IconComponent = Icons[
+      iconName as keyof typeof Icons
+    ] as React.ComponentType<any>;
+    return IconComponent
+      ? React.createElement(IconComponent, { sx: { color } })
+      : undefined;
   } catch {
     return undefined;
   }
@@ -38,7 +45,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   onStatusChange,
   canEdit,
   canDelete,
-  onDelete
+  onDelete,
 }) => {
   if (!task) return null;
 
@@ -47,21 +54,22 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
     logger.warn('No statuses available');
   }
 
-  const currentStatus = statuses?.find(status => status.id === Number(task.status_id));
+  const currentStatus = statuses?.find(
+    (status) => status.id === Number(task.status_id),
+  );
   const statusName = currentStatus?.name ?? 'Unknown Status';
   const statusColor = currentStatus?.color ?? '#808080';
 
   return (
-    <Paper
-      elevation={3}
-      sx={{ p: 4, mb: 4, bgcolor: 'background.default' }}
-    >
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        mb: 2 }}
-        >
+    <Paper elevation={3} sx={{ p: 4, mb: 4, bgcolor: 'background.default' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          mb: 2,
+        }}
+      >
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
             {task?.name || 'Unnamed Task'}
@@ -161,7 +169,10 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
-                Created: {task?.created_on ? new Date(task.created_on).toLocaleDateString() : 'Unknown'}
+                Created:{' '}
+                {task?.created_on
+                  ? new Date(task.created_on).toLocaleDateString()
+                  : 'Unknown'}
               </Typography>
             </Grid>
             {task?.due_date && (
@@ -179,9 +190,13 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             {task?.type_name && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  {task?.type_icon && getIconComponent(task.type_icon, task?.type_color)}
+                  {task?.type_icon &&
+                    getIconComponent(task.type_icon, task?.type_color)}
                   <Typography variant="body2">
-                    Type: <span style={{ color: task?.type_color || '#666' }}>{task.type_name}</span>
+                    Type:{' '}
+                    <span style={{ color: task?.type_color || '#666' }}>
+                      {task.type_name}
+                    </span>
                   </Typography>
                 </Box>
               </Grid>
@@ -193,13 +208,14 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                 </Typography>
               </Grid>
             )}
-            {task?.estimated_time !== undefined && task?.estimated_time !== null && (
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Typography variant="body2">
-                  Estimated Time: {task.estimated_time} hours
-                </Typography>
-              </Grid>
-            )}
+            {task?.estimated_time !== undefined &&
+              task?.estimated_time !== null && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Typography variant="body2">
+                    Estimated Time: {task.estimated_time} hours
+                  </Typography>
+                </Grid>
+              )}
             {task?.spent_time !== undefined && task?.spent_time !== null && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
@@ -263,8 +279,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             py: 1,
             '&:hover': {
               backgroundColor: statusColor,
-              opacity: 0.9
-            }
+              opacity: 0.9,
+            },
           }}
         >
           {statusName}

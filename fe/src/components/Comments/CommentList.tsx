@@ -8,7 +8,7 @@ import {
   Typography,
   Avatar,
   Box,
-  Paper
+  Paper,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -21,7 +21,7 @@ import { useCommentMenu } from '../../hooks/comment/useCommentMenu';
 const CommentList: React.FC<CommentListProps> = ({
   comments,
   onCommentUpdated,
-  onCommentDeleted
+  onCommentDeleted,
 }) => {
   const {
     anchorEl,
@@ -32,7 +32,7 @@ const CommentList: React.FC<CommentListProps> = ({
     handleEditClick,
     handleEditClose,
     handleEditSave,
-    handleDeleteClick
+    handleDeleteClick,
   } = useCommentMenu(onCommentUpdated, onCommentDeleted);
 
   if (!comments || comments.length === 0) {
@@ -54,11 +54,13 @@ const CommentList: React.FC<CommentListProps> = ({
             elevation={0}
             sx={{ mb: 2, p: 2, backgroundColor: 'background.default' }}
           >
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              mb: 1
-            }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                mb: 1,
+              }}
+            >
               <Avatar
                 src={comment?.user_avatar || undefined}
                 alt={comment?.user_name || 'User'}
@@ -70,28 +72,27 @@ const CommentList: React.FC<CommentListProps> = ({
                   sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
                   }}
                 >
                   <Typography variant="subtitle2">
-                  {comment?.user_id ? (
-                    <Link
-                      component={RouterLink}
-                      to={`/users/${comment.user_id}`}
-                      color="primary"
-                    >
-                      {comment?.user_name || 'Unknown User'}
-                    </Link>
-                  ) : (
-                    <span>{comment?.user_name || 'Unknown User'}</span>
-                  )}
-                </Typography>
+                    {comment?.user_id ? (
+                      <Link
+                        component={RouterLink}
+                        to={`/users/${comment.user_id}`}
+                        color="primary"
+                      >
+                        {comment?.user_name || 'Unknown User'}
+                      </Link>
+                    ) : (
+                      <span>{comment?.user_name || 'Unknown User'}</span>
+                    )}
+                  </Typography>
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
-                      {comment?.created_on ? new Date(comment.created_on).toLocaleString() : 'Unknown date'}
+                    <Typography variant="caption" color="text.secondary">
+                      {comment?.created_on
+                        ? new Date(comment.created_on).toLocaleString()
+                        : 'Unknown date'}
                     </Typography>
                     <IconButton
                       size="small"

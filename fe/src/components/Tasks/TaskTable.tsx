@@ -12,28 +12,32 @@ import {
   Tooltip,
   CircularProgress,
   Box,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TaskTableProps } from '../../types/task';
-import { chipPropsForPriority, chipPropsForStatus } from '../../utils/taskUtils';
+import {
+  chipPropsForPriority,
+  chipPropsForStatus,
+} from '../../utils/taskUtils';
 
-const getIconComponent = (iconName?: string): React.ReactElement | undefined => {
+const getIconComponent = (
+  iconName?: string,
+): React.ReactElement | undefined => {
   if (!iconName) return undefined;
   try {
-    const IconComponent = Icons[iconName as keyof typeof Icons] as React.ComponentType<any>;
+    const IconComponent = Icons[
+      iconName as keyof typeof Icons
+    ] as React.ComponentType<any>;
     return IconComponent ? React.createElement(IconComponent) : undefined;
   } catch {
     return undefined;
   }
 };
 
-const TaskTable: React.FC<TaskTableProps> = ({
-  tasks,
-  loading
-}) => {
+const TaskTable: React.FC<TaskTableProps> = ({ tasks, loading }) => {
   const navigate = useNavigate();
 
   if (loading) {
@@ -78,7 +82,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
                     size="small"
                     style={{
                       backgroundColor: task?.type_color || '#666',
-                      color: '#fff'
+                      color: '#fff',
                     }}
                   />
                 </TableCell>
@@ -86,19 +90,27 @@ const TaskTable: React.FC<TaskTableProps> = ({
                   <Chip
                     label={task?.status_name || 'Unknown'}
                     size="small"
-                    {...chipPropsForStatus(task?.status_name, task?.status_color)}
+                    {...chipPropsForStatus(
+                      task?.status_name,
+                      task?.status_color,
+                    )}
                   />
                 </TableCell>
                 <TableCell>
                   <Chip
                     label={task?.priority_name || 'Unknown'}
                     size="small"
-                    {...chipPropsForPriority(task?.priority_name, task?.priority_color)}
+                    {...chipPropsForPriority(
+                      task?.priority_name,
+                      task?.priority_color,
+                    )}
                   />
                 </TableCell>
                 <TableCell>{task?.holder_name || 'Unassigned'}</TableCell>
                 <TableCell>
-                  {task?.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}
+                  {task?.due_date
+                    ? new Date(task.due_date).toLocaleDateString()
+                    : '-'}
                 </TableCell>
                 <TableCell>
                   <Tooltip title="Edit Task">

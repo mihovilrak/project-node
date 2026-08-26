@@ -11,7 +11,9 @@ const metrics: Metrics = {
   notificationErrors: 0,
   lastProcessingTime: null,
 
-  increment(metric: 'notificationsSent' | 'emailErrors' | 'notificationErrors'): void {
+  increment(
+    metric: 'notificationsSent' | 'emailErrors' | 'notificationErrors',
+  ): void {
     this[metric]++;
     this.scheduleLogMetrics();
   },
@@ -34,7 +36,7 @@ const metrics: Metrics = {
     if (process.env.METRICS_ENABLED === 'true') {
       metricsLogger.info({ ...this }, 'metrics_update');
     }
-  }
+  },
 };
 
 export { metrics };

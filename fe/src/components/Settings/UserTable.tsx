@@ -17,19 +17,20 @@ import {
   Typography,
   Tooltip,
   Chip,
-  Alert
+  Alert,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
 import { UserTableProps } from '../../types/setting';
 
-const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted }) => {
+const UserTable: React.FC<UserTableProps> = ({
+  users,
+  onEditUser,
+  onUserDeleted,
+}) => {
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
@@ -41,7 +42,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -65,7 +68,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
       setUserToDelete(null);
     } catch (error: unknown) {
       logger.error('Failed to delete user:', error);
-      setDeleteError(getApiErrorMessage(error, 'Failed to delete user. Please try again.'));
+      setDeleteError(
+        getApiErrorMessage(error, 'Failed to delete user. Please try again.'),
+      );
       // Keep dialog open so user can see the error
     } finally {
       setDeleting(false);
@@ -112,8 +117,20 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
                       label={user.status_name || 'Unknown'}
                       size="small"
                       {...(user.status_color
-                        ? { sx: { backgroundColor: user.status_color, color: '#fff' } }
-                        : { color: user.status_id === 1 ? 'success' : user.status_id === 3 ? 'error' : 'default' })}
+                        ? {
+                            sx: {
+                              backgroundColor: user.status_color,
+                              color: '#fff',
+                            },
+                          }
+                        : {
+                            color:
+                              user.status_id === 1
+                                ? 'success'
+                                : user.status_id === 3
+                                  ? 'error'
+                                  : 'default',
+                          })}
                     />
                   </TableCell>
                   <TableCell align="right">
@@ -165,8 +182,8 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEditUser, onUserDeleted 
             </Alert>
           )}
           <Typography data-testid="delete-confirmation-text">
-            Are you sure you want to delete user {userToDelete?.name}?
-            This action cannot be undone.
+            Are you sure you want to delete user {userToDelete?.name}? This
+            action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>

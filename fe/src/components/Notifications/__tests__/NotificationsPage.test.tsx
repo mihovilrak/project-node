@@ -6,11 +6,11 @@ import { useAuth } from '../../../context/AuthContext';
 import { useNotificationCenter } from '../../../hooks/notification/useNotificationCenter';
 
 jest.mock('../../../context/AuthContext', () => ({
-  useAuth: jest.fn()
+  useAuth: jest.fn(),
 }));
 
 jest.mock('../../../hooks/notification/useNotificationCenter', () => ({
-  useNotificationCenter: jest.fn()
+  useNotificationCenter: jest.fn(),
 }));
 
 const mockHandleNotificationClick = jest.fn();
@@ -30,8 +30,8 @@ const mockNotifications = [
     active: true,
     read_on: null,
     created_on: '2025-01-01T00:00:00.000Z',
-    type_name: 'task'
-  }
+    type_name: 'task',
+  },
 ];
 
 const defaultHookReturn = {
@@ -41,13 +41,15 @@ const defaultHookReturn = {
   handleNotificationClick: mockHandleNotificationClick,
   handleDeleteNotification: mockHandleDeleteNotification,
   handleMarkAllAsRead: mockHandleMarkAllAsRead,
-  fetchNotifications: mockFetchNotifications
+  fetchNotifications: mockFetchNotifications,
 };
 
 describe('NotificationsPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuth as jest.Mock).mockReturnValue({ currentUser: { id: 1, login: 'user' } });
+    (useAuth as jest.Mock).mockReturnValue({
+      currentUser: { id: 1, login: 'user' },
+    });
     (useNotificationCenter as jest.Mock).mockReturnValue(defaultHookReturn);
   });
 
@@ -55,12 +57,14 @@ describe('NotificationsPage', () => {
     render(
       <MemoryRouter>
         <NotificationsPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
   it('renders page title and tabs', () => {
     renderPage();
-    expect(screen.getByRole('heading', { name: 'Notifications' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Notifications' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'All' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Read' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Unread' })).toBeInTheDocument();
@@ -74,7 +78,7 @@ describe('NotificationsPage', () => {
   it('hides Mark all as read when no unread notifications', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...defaultHookReturn,
-      unreadCount: 0
+      unreadCount: 0,
     });
     renderPage();
     expect(screen.queryByTestId('mark-all-read')).not.toBeInTheDocument();
@@ -83,7 +87,9 @@ describe('NotificationsPage', () => {
   it('shows sign in message when user is not authenticated', () => {
     (useAuth as jest.Mock).mockReturnValue({ currentUser: null });
     renderPage();
-    expect(screen.getByText(/Sign in to view notifications/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sign in to view notifications/i),
+    ).toBeInTheDocument();
   });
 
   it('renders notification list', () => {
@@ -104,7 +110,7 @@ describe('NotificationsPage', () => {
   it('shows loading spinner when loading', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...defaultHookReturn,
-      loading: true
+      loading: true,
     });
     renderPage();
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();

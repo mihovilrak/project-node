@@ -11,8 +11,8 @@ jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
     login: mockLogin,
     user: null,
-    logout: jest.fn()
-  })
+    logout: jest.fn(),
+  }),
 }));
 
 // Mock react-router-dom
@@ -29,7 +29,9 @@ describe('Login Component', () => {
     render(<Login />);
 
     // Check for heading
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Login');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Login',
+    );
 
     // Check for input fields using exact label text
     const usernameField = screen.getByLabelText(/Username/);
@@ -38,7 +40,9 @@ describe('Login Component', () => {
     expect(passwordField).toBeInTheDocument();
 
     // Check for login button
-    expect(screen.getByRole('button', { name: /^login$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^login$/i }),
+    ).toBeInTheDocument();
   });
 
   test('password visibility toggle works', async () => {
@@ -81,7 +85,9 @@ describe('Login Component', () => {
     await user.type(screen.getByLabelText(/Password/), 'testpass');
     await user.click(screen.getByRole('button', { name: /^login$/i }));
 
-    const errorMessage = await screen.findByText('Login failed. Please check your credentials.');
+    const errorMessage = await screen.findByText(
+      'Login failed. Please check your credentials.',
+    );
     expect(errorMessage).toBeInTheDocument();
   });
 

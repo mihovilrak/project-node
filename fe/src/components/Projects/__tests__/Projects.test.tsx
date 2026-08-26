@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Projects from '../Projects';
 import { getProjects } from '../../../api/projects';
@@ -7,7 +13,7 @@ import { Project } from '../../../types/project';
 
 // Mock the modules
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => jest.fn()
+  useNavigate: () => jest.fn(),
 }));
 
 jest.mock('../../../api/projects');
@@ -30,7 +36,7 @@ const mockProjects: Project[] = [
     updated_on: null,
     estimated_time: 100,
     spent_time: 50,
-    progress: 50
+    progress: 50,
   },
   {
     id: 2,
@@ -49,8 +55,8 @@ const mockProjects: Project[] = [
     updated_on: null,
     estimated_time: 100,
     spent_time: 0,
-    progress: 0
-  }
+    progress: 0,
+  },
 ];
 
 describe('Projects Component', () => {
@@ -63,9 +69,11 @@ describe('Projects Component', () => {
     (getProjectStatuses as jest.Mock).mockResolvedValue([
       { id: 1, name: 'Active' },
       { id: 2, name: 'Inactive' },
-      { id: 3, name: 'Deleted' }
+      { id: 3, name: 'Deleted' },
     ]);
-    jest.spyOn(require('react-router-dom'), 'useNavigate').mockReturnValue(mockNavigate);
+    jest
+      .spyOn(require('react-router-dom'), 'useNavigate')
+      .mockReturnValue(mockNavigate);
   });
 
   it('renders loading state initially', () => {
@@ -91,17 +99,26 @@ describe('Projects Component', () => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /expand filters/i }),
+    );
     await userEvent.click(screen.getByTestId('add-filter-search'));
     const filterPanel = screen.getByTestId('filter-panel');
-    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
+    const searchValueInput = within(filterPanel).getByRole('textbox', {
+      name: /value/i,
+    });
     await userEvent.type(searchValueInput, 'Project A');
-    await userEvent.click(screen.getByRole('button', { name: /apply filters/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /apply filters/i }),
+    );
 
-    await waitFor(() => {
-      expect(screen.getByText('Project A')).toBeInTheDocument();
-      expect(screen.queryByText('Project B')).not.toBeInTheDocument();
-    }, { timeout: 8000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Project A')).toBeInTheDocument();
+        expect(screen.queryByText('Project B')).not.toBeInTheDocument();
+      },
+      { timeout: 8000 },
+    );
   }, 10000);
 
   it('renders projects in correct order based on sort selection', async () => {
@@ -120,9 +137,14 @@ describe('Projects Component', () => {
   it('navigates to create project page when clicking create button', async () => {
     render(<Projects />);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByText('Loading projects...'),
+        ).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     const createButton = screen.getByTestId('create-project-button');
     fireEvent.click(createButton);
@@ -138,9 +160,13 @@ describe('Projects Component', () => {
     });
 
     const card1 = screen.getByTestId('project-card-1');
-    const projectTitle = within(card1).getByRole('heading', { name: /Project A/i });
+    const projectTitle = within(card1).getByRole('heading', {
+      name: /Project A/i,
+    });
     expect(projectTitle).toHaveTextContent('Project A');
-    expect(projectTitle.getAttribute('href') ?? projectTitle.getAttribute('to')).toBe('/projects/1');
+    expect(
+      projectTitle.getAttribute('href') ?? projectTitle.getAttribute('to'),
+    ).toBe('/projects/1');
   });
 
   it('displays "No projects yet" when project list is empty', async () => {
@@ -161,7 +187,9 @@ describe('Projects Component', () => {
     });
 
     const card1 = screen.getByTestId('project-card-1');
-    expect(within(card1).getByRole('heading', { name: /Project A/i })).toBeInTheDocument();
+    expect(
+      within(card1).getByRole('heading', { name: /Project A/i }),
+    ).toBeInTheDocument();
     expect(within(card1).getByText('50%')).toBeInTheDocument();
   });
 
@@ -176,7 +204,9 @@ describe('Projects Component', () => {
     fireEvent.click(listViewButton);
 
     const card1 = screen.getByTestId('project-card-1');
-    expect(within(card1).getByRole('heading', { name: /Project A/i })).toBeInTheDocument();
+    expect(
+      within(card1).getByRole('heading', { name: /Project A/i }),
+    ).toBeInTheDocument();
     expect(within(card1).getByText('50%')).toBeInTheDocument();
   });
 
@@ -187,8 +217,8 @@ describe('Projects Component', () => {
         ...mockProjects[0],
         id: 3,
         name: 'Subproject A1',
-        parent_id: 1
-      }
+        parent_id: 1,
+      },
     ];
     (getProjects as jest.Mock).mockResolvedValue(projectsWithChild);
 
@@ -198,7 +228,9 @@ describe('Projects Component', () => {
       expect(screen.queryByText('Loading projects...')).not.toBeInTheDocument();
     });
 
-    const expandButton = screen.getByRole('button', { name: /expand subprojects/i });
+    const expandButton = screen.getByRole('button', {
+      name: /expand subprojects/i,
+    });
     expect(expandButton).toBeInTheDocument();
     fireEvent.click(expandButton);
 
@@ -207,6 +239,8 @@ describe('Projects Component', () => {
     });
     const card1 = screen.getByTestId('project-card-1');
     expect(within(card1).getByText('Subproject A1')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /collapse subprojects/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /collapse subprojects/i }),
+    ).toBeInTheDocument();
   });
 });

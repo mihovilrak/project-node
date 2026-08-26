@@ -4,7 +4,7 @@ import {
   getTaskComments,
   createComment,
   editComment,
-  deleteComment
+  deleteComment,
 } from '../../../api/comments';
 import { Comment } from '../../../types/comment';
 
@@ -15,8 +15,8 @@ jest.mock('../../../api/comments');
 const mockCurrentUser = { id: 1, name: 'Test User' };
 jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
-    currentUser: mockCurrentUser
-  })
+    currentUser: mockCurrentUser,
+  }),
 }));
 
 describe('useTaskComments', () => {
@@ -29,7 +29,7 @@ describe('useTaskComments', () => {
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      user_name: 'Test User'
+      user_name: 'Test User',
     },
     {
       id: 2,
@@ -39,8 +39,8 @@ describe('useTaskComments', () => {
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      user_name: 'Test User'
-    }
+      user_name: 'Test User',
+    },
   ];
 
   beforeEach(() => {
@@ -66,7 +66,7 @@ describe('useTaskComments', () => {
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      user_name: 'Test User'
+      user_name: 'Test User',
     };
 
     (createComment as jest.Mock).mockResolvedValue(newComment);
@@ -93,7 +93,7 @@ describe('useTaskComments', () => {
       active: true,
       created_on: '2024-01-25T00:00:00Z',
       updated_on: null,
-      user_name: 'Test User'
+      user_name: 'Test User',
     };
 
     (createComment as jest.Mock).mockResolvedValue(duplicateComment);
@@ -116,7 +116,7 @@ describe('useTaskComments', () => {
     const updatedComment: Comment = {
       ...mockComments[0],
       comment: 'Updated comment',
-      updated_on: '2024-01-25T01:00:00Z'
+      updated_on: '2024-01-25T01:00:00Z',
     };
 
     (editComment as jest.Mock).mockResolvedValue(updatedComment);
@@ -130,7 +130,9 @@ describe('useTaskComments', () => {
       await result.current.handleCommentUpdate(1, 'Updated comment');
     });
 
-    expect(editComment).toHaveBeenCalledWith(1, 1, { comment: 'Updated comment' });
+    expect(editComment).toHaveBeenCalledWith(1, 1, {
+      comment: 'Updated comment',
+    });
     expect(result.current.comments[0]).toEqual(updatedComment);
   });
 
@@ -138,9 +140,12 @@ describe('useTaskComments', () => {
     (deleteComment as jest.Mock).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useTaskComments('1'));
-    await waitFor(() => {
-      expect(result.current.comments).toEqual(mockComments);
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(result.current.comments).toEqual(mockComments);
+      },
+      { timeout: 10000 },
+    );
 
     await act(async () => {
       await result.current.handleCommentDelete(1);
@@ -159,6 +164,8 @@ describe('useTaskComments', () => {
       expect(result.current.comments).toEqual(mockComments);
     });
 
-    await expect(result.current.handleCommentSubmit('New comment')).rejects.toThrow('Failed to add comment');
+    await expect(
+      result.current.handleCommentSubmit('New comment'),
+    ).rejects.toThrow('Failed to add comment');
   });
 });

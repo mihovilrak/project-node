@@ -12,14 +12,16 @@ jest.mock('../../../api/api');
 // Mock AuthContext to prevent session checks
 jest.mock('../../../context/AuthContext', () => ({
   ...jest.requireActual('../../../context/AuthContext'),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
   useAuth: () => ({
     currentUser: null,
     hasPermission: () => false,
     permissionsLoading: false,
     userPermissions: [],
-    login: jest.fn()
-  })
+    login: jest.fn(),
+  }),
 }));
 
 // Mock useLogin hook
@@ -28,18 +30,18 @@ jest.mock('../../../hooks/auth/useLogin', () => ({
     loginDetails: { login: '', password: '' },
     error: '',
     handleInputChange: jest.fn(),
-    handleSubmit: jest.fn()
-  })
+    handleSubmit: jest.fn(),
+  }),
 }));
 
 // Custom test wrapper
-const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PerfTestWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const theme = createAppTheme('light');
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </BrowserRouter>
   );
 };
@@ -51,7 +53,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   console.log(`Component: ${id}`);
   console.log(`Phase: ${phase}`);
@@ -63,7 +65,10 @@ const onRenderCallback = (
 
 describe('Login Component Performance Tests', () => {
   // Helper function to measure render performance
-  const measurePerformance = (Component: React.ComponentType<any>, props = {}) => {
+  const measurePerformance = (
+    Component: React.ComponentType<any>,
+    props = {},
+  ) => {
     const start = performance.now();
 
     render(
@@ -71,7 +76,7 @@ describe('Login Component Performance Tests', () => {
         <Profiler id={Component.name} onRender={onRenderCallback}>
           <Component {...props} />
         </Profiler>
-      </PerfTestWrapper>
+      </PerfTestWrapper>,
     );
 
     const end = performance.now();

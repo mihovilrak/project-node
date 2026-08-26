@@ -1,9 +1,5 @@
 import { api } from './api';
-import {
-  TimeLog,
-  TimeLogCreate,
-  TimeSpent
-} from '../types/timeLog';
+import { TimeLog, TimeLogCreate, TimeSpent } from '../types/timeLog';
 import logger from '../utils/logger';
 
 // Get all time logs (admin only)
@@ -40,9 +36,14 @@ export const getTaskSpentTime = async (taskId: number): Promise<TimeSpent> => {
 };
 
 // Get project time logs
-export const getProjectTimeLogs = async (projectId: number, params?: Record<string, any>): Promise<TimeLog[]> => {
+export const getProjectTimeLogs = async (
+  projectId: number,
+  params?: Record<string, any>,
+): Promise<TimeLog[]> => {
   try {
-    const response = await api.get(`/time-logs/projects/${projectId}/logs`, { params });
+    const response = await api.get(`/time-logs/projects/${projectId}/logs`, {
+      params,
+    });
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch project time logs', error);
@@ -51,9 +52,13 @@ export const getProjectTimeLogs = async (projectId: number, params?: Record<stri
 };
 
 // Get project spent time
-export const getProjectSpentTime = async (projectId: number): Promise<TimeSpent> => {
+export const getProjectSpentTime = async (
+  projectId: number,
+): Promise<TimeSpent> => {
   try {
-    const response = await api.get(`/time-logs/projects/${projectId}/spent-time`);
+    const response = await api.get(
+      `/time-logs/projects/${projectId}/spent-time`,
+    );
     return response.data;
   } catch (error) {
     logger.error('Failed to fetch project spent time', error);
@@ -62,13 +67,16 @@ export const getProjectSpentTime = async (projectId: number): Promise<TimeSpent>
 };
 
 // Create time log
-export const createTimeLog = async (taskId: number, timeLog: TimeLogCreate): Promise<TimeLog> => {
+export const createTimeLog = async (
+  taskId: number,
+  timeLog: TimeLogCreate,
+): Promise<TimeLog> => {
   try {
     const response = await api.post(`/time-logs/tasks/${taskId}/logs`, {
       log_date: timeLog.log_date,
       spent_time: timeLog.spent_time,
       description: timeLog.description ?? '',
-      activity_type_id: timeLog.activity_type_id
+      activity_type_id: timeLog.activity_type_id,
     });
     return response.data;
   } catch (error) {
@@ -78,7 +86,9 @@ export const createTimeLog = async (taskId: number, timeLog: TimeLogCreate): Pro
 };
 
 // Get user time logs
-export const getUserTimeLogs = async (params?: Record<string, any>): Promise<TimeLog[]> => {
+export const getUserTimeLogs = async (
+  params?: Record<string, any>,
+): Promise<TimeLog[]> => {
   try {
     const response = await api.get('/time-logs/user/logs', { params });
     return response.data;
@@ -89,13 +99,16 @@ export const getUserTimeLogs = async (params?: Record<string, any>): Promise<Tim
 };
 
 // Update time log
-export const updateTimeLog = async (timeLogId: number, timeLog: TimeLogCreate): Promise<TimeLog> => {
+export const updateTimeLog = async (
+  timeLogId: number,
+  timeLog: TimeLogCreate,
+): Promise<TimeLog> => {
   try {
     const response = await api.put(`/time-logs/${timeLogId}`, {
       log_date: timeLog.log_date,
       spent_time: timeLog.spent_time,
       description: timeLog.description,
-      activity_type_id: timeLog.activity_type_id
+      activity_type_id: timeLog.activity_type_id,
     });
     return response.data;
   } catch (error) {

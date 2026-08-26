@@ -7,7 +7,7 @@ import {
   DialogActions,
   Button,
   CircularProgress,
-  Alert
+  Alert,
 } from '@mui/material';
 import { DeleteConfirmDialogProps } from '../../types/common';
 import { useDeleteConfirm } from '../../hooks/common/useDeleteConfirm';
@@ -19,7 +19,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   onClose,
   onConfirm,
   loading = false,
-  error
+  error,
 }) => {
   const { isDeleting, handleConfirm } = useDeleteConfirm(onConfirm, onClose);
   const isDeletingState = loading || isDeleting;
@@ -31,9 +31,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
       aria-labelledby="delete-dialog-title"
       aria-describedby="delete-dialog-description"
     >
-      <DialogTitle id="delete-dialog-title">
-        {title}
-      </DialogTitle>
+      <DialogTitle id="delete-dialog-title">{title}</DialogTitle>
       <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} data-testid="delete-error">

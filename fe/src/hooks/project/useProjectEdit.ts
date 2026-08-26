@@ -11,11 +11,13 @@ export const useProjectEdit = (project: Project | null) => {
     description: null,
     start_date: '',
     due_date: '',
-    status_id: 1
+    status_id: 1,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [statuses, setStatuses] = useState<Array<{ id: number; name: string }>>([]);
+  const [statuses, setStatuses] = useState<Array<{ id: number; name: string }>>(
+    [],
+  );
 
   useEffect(() => {
     const fetchStatuses = async () => {
@@ -38,35 +40,39 @@ export const useProjectEdit = (project: Project | null) => {
         description: project?.description || null,
         start_date: project?.start_date ? project.start_date.split('T')[0] : '',
         due_date: project?.due_date ? project.due_date.split('T')[0] : '',
-        status_id: project?.status_id || 1
+        status_id: project?.status_id || 1,
       });
     }
   }, [project]);
 
-  const handleTextChange = (field: keyof FormData) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const value = event.target.value;
+  const handleTextChange =
+    (field: keyof FormData) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = event.target.value;
 
-    if (field === 'start_date' || field === 'due_date') {
-      const startDate = field === 'start_date' ? new Date(value) : new Date(formData.start_date);
-      const dueDate = field === 'due_date' ? new Date(value) : new Date(formData.due_date);
+      if (field === 'start_date' || field === 'due_date') {
+        const startDate =
+          field === 'start_date'
+            ? new Date(value)
+            : new Date(formData.start_date);
+        const dueDate =
+          field === 'due_date' ? new Date(value) : new Date(formData.due_date);
 
-      if (field === 'due_date' && startDate > dueDate) {
-        return; // Don't update if due date is before start date
+        if (field === 'due_date' && startDate > dueDate) {
+          return; // Don't update if due date is before start date
+        }
       }
-    }
 
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    };
 
   const handleStatusChange = (event: SelectChangeEvent<number>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      status_id: event.target.value as number
+      status_id: event.target.value as number,
     }));
   };
 
@@ -78,6 +84,6 @@ export const useProjectEdit = (project: Project | null) => {
     setError,
     setLoading,
     handleTextChange,
-    handleStatusChange
+    handleStatusChange,
   };
 };

@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen, within } from '@testing-library/react';
+import {
+  render,
+  fireEvent,
+  waitFor,
+  screen,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Profiler } from 'react';
 import Tasks from '../../../components/Tasks/Tasks';
@@ -12,12 +18,12 @@ jest.mock('../../../api/tasks', () => ({
   getTasks: jest.fn(),
   deleteTask: jest.fn(),
   getTaskStatuses: jest.fn().mockResolvedValue([]),
-  getPriorities: jest.fn().mockResolvedValue([])
+  getPriorities: jest.fn().mockResolvedValue([]),
 }));
 
 // Mock usePermission so delete/edit buttons are rendered
 jest.mock('../../../hooks/common/usePermission', () => ({
-  usePermission: () => ({ hasPermission: true, loading: false })
+  usePermission: () => ({ hasPermission: true, loading: false }),
 }));
 
 // Mock task data
@@ -50,7 +56,7 @@ const mockTasks: Task[] = Array.from({ length: 20 }, (_, index) => ({
   created_by: 1,
   created_by_name: 'John Doe',
   created_on: '2024-01-26T00:00:00Z',
-  estimated_time: 8
+  estimated_time: 8,
 }));
 
 // Performance measurement callback
@@ -60,7 +66,7 @@ const onRenderCallback = (
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number
+  commitTime: number,
 ) => {
   // Log performance metrics
   console.log(`Component: ${id}`);
@@ -77,12 +83,15 @@ const measurePerformance = (Component: React.ComponentType): number => {
 
   render(
     <TestWrapper>
-      <Profiler id="Tasks" onRender={(id, phase, actualDuration) => {
-        duration = actualDuration;
-      }}>
+      <Profiler
+        id="Tasks"
+        onRender={(id, phase, actualDuration) => {
+          duration = actualDuration;
+        }}
+      >
         <Component />
       </Profiler>
-    </TestWrapper>
+    </TestWrapper>,
   );
 
   return duration;
@@ -106,19 +115,26 @@ describe('Tasks Component Performance Tests', () => {
         <Profiler id="TasksFiltering" onRender={onRenderCallback}>
           <Tasks />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Tasks use FilterPanel: expand filters, add Search filter, then type in value input
-    await userEvent.click(screen.getByRole('button', { name: /expand filters/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /expand filters/i }),
+    );
     await userEvent.click(screen.getByTestId('add-filter-search'));
     const filterPanel = screen.getByTestId('filter-panel');
-    const searchValueInput = within(filterPanel).getByRole('textbox', { name: /value/i });
+    const searchValueInput = within(filterPanel).getByRole('textbox', {
+      name: /value/i,
+    });
     const startTime = performance.now();
 
     fireEvent.change(searchValueInput, { target: { value: 'Task 1' } });
@@ -135,13 +151,16 @@ describe('Tasks Component Performance Tests', () => {
         <Profiler id="TasksSorting" onRender={onRenderCallback}>
           <Tasks />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // The sort button shows "A-Z" text
     const sortSelect = screen.getByRole('combobox');
@@ -161,13 +180,16 @@ describe('Tasks Component Performance Tests', () => {
         <Profiler id="TasksDelete" onRender={onRenderCallback}>
           <Tasks />
         </Profiler>
-      </TestWrapper>
+      </TestWrapper>,
     );
 
     // Wait for tasks to load
-    await waitFor(() => {
-      expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByTestId('tasks-loading')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     const deleteButtons = screen.getAllByTestId('delete-task-icon');
     const startTime = performance.now();

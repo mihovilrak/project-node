@@ -5,12 +5,9 @@ import * as taskModel from './taskModel';
 // Get all files for a task
 export const getTaskFiles = async (
   pool: Pool,
-  taskId: string
+  taskId: string,
 ): Promise<FileWithUser[]> => {
-  const result = await pool.query(
-    `SELECT * FROM get_task_files($1)`,
-    [taskId]
-  );
+  const result = await pool.query(`SELECT * FROM get_task_files($1)`, [taskId]);
   return result.rows;
 };
 
@@ -23,7 +20,7 @@ export const createFile = async (
   storedName: string,
   size: number,
   mimeType: string,
-  filePath: string
+  filePath: string,
 ): Promise<File> => {
   const result = await pool.query(
     `INSERT INTO files (
@@ -36,7 +33,7 @@ export const createFile = async (
       file_path
     ) VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *`,
-    [taskId, userId, originalName, storedName, size, mimeType, filePath]
+    [taskId, userId, originalName, storedName, size, mimeType, filePath],
   );
   return result.rows[0];
 };
@@ -44,25 +41,22 @@ export const createFile = async (
 // Get a file by ID
 export const getFileById = async (
   pool: Pool,
-  fileId: string
+  fileId: string,
 ): Promise<File | null> => {
   const result = await pool.query(
     `SELECT * FROM files
     WHERE id = $1`,
-    [fileId]
+    [fileId],
   );
   return result.rows[0] || null;
 };
 
 // Delete a file
-export const deleteFile = async (
-  pool: Pool,
-  fileId: string
-): Promise<void> => {
+export const deleteFile = async (pool: Pool, fileId: string): Promise<void> => {
   await pool.query(
     `DELETE FROM files
     WHERE id = $1`,
-    [fileId]
+    [fileId],
   );
 };
 
@@ -70,7 +64,7 @@ export const deleteFile = async (
 export const canUserAccessFile = async (
   pool: Pool,
   userId: string,
-  fileId: string
+  fileId: string,
 ): Promise<boolean> => {
   const file = await getFileById(pool, fileId);
   if (!file) return false;
@@ -80,7 +74,7 @@ export const canUserAccessFile = async (
 
   const result = await pool.query(
     `SELECT 1 FROM project_users WHERE project_id = $1 AND user_id = $2 LIMIT 1`,
-    [task.project_id, userId]
+    [task.project_id, userId],
   );
   return result.rowCount !== null && result.rowCount > 0;
 };

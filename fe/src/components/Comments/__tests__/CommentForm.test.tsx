@@ -32,13 +32,19 @@ describe('CommentForm', () => {
 
   it('enables submit button when input has text', async () => {
     render(<CommentForm taskId={1} onCommentAdded={mockOnCommentAdded} />);
-    await userEvent.type(screen.getByPlaceholderText('Add a comment...'), 'Test comment');
+    await userEvent.type(
+      screen.getByPlaceholderText('Add a comment...'),
+      'Test comment',
+    );
     expect(screen.getByRole('button')).toBeEnabled();
   });
 
   it('calls onCommentAdded when form is submitted', async () => {
     render(<CommentForm taskId={1} onCommentAdded={mockOnCommentAdded} />);
-    await userEvent.type(screen.getByPlaceholderText('Add a comment...'), 'Test comment');
+    await userEvent.type(
+      screen.getByPlaceholderText('Add a comment...'),
+      'Test comment',
+    );
     await userEvent.click(screen.getByRole('button'));
     expect(mockOnCommentAdded).toHaveBeenCalled();
   });

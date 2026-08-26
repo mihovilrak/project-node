@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import UserTable from '../UserTable';
 import { User } from '../../../types/user';
 import { deleteUser } from '../../../api/users';
@@ -7,12 +13,12 @@ import logger from '../../../utils/logger';
 
 // Mock the deleteUser API call
 jest.mock('../../../api/users', () => ({
-  deleteUser: jest.fn()
+  deleteUser: jest.fn(),
 }));
 
 // Mock activityTypes API to prevent getAvailableIcons errors
 jest.mock('../../../api/activityTypes', () => ({
-  getAvailableIcons: jest.fn().mockResolvedValue([])
+  getAvailableIcons: jest.fn().mockResolvedValue([]),
 }));
 
 // Mock Material-UI components that might cause testing issues
@@ -37,7 +43,7 @@ const mockUsers: User[] = [
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
-    last_login: null
+    last_login: null,
   },
   {
     id: 2,
@@ -51,8 +57,8 @@ const mockUsers: User[] = [
     avatar_url: null,
     created_on: '2023-01-01',
     updated_on: null,
-    last_login: null
-  }
+    last_login: null,
+  },
 ];
 
 describe('UserTable', () => {
@@ -69,7 +75,7 @@ describe('UserTable', () => {
         users={mockUsers}
         onEditUser={mockOnEditUser}
         onUserDeleted={mockOnUserDeleted}
-      />
+      />,
     );
   };
 
@@ -90,9 +96,11 @@ describe('UserTable', () => {
     const cells = within(table).getAllByRole('cell');
 
     // Find cells containing the expected text (avoiding direct text matching)
-    expect(cells.some(cell => cell.textContent === 'johndoe')).toBe(true);
-    expect(cells.some(cell => cell.textContent === 'John Doe')).toBe(true);
-    expect(cells.some(cell => cell.textContent === 'john@example.com')).toBe(true);
+    expect(cells.some((cell) => cell.textContent === 'johndoe')).toBe(true);
+    expect(cells.some((cell) => cell.textContent === 'John Doe')).toBe(true);
+    expect(cells.some((cell) => cell.textContent === 'john@example.com')).toBe(
+      true,
+    );
 
     // For the Chip component, use a more specific approach
     const adminChip = screen.getByText('Admin');
@@ -128,7 +136,7 @@ describe('UserTable', () => {
       avatar_url: null,
       created_on: '2023-01-01',
       updated_on: null,
-      last_login: null
+      last_login: null,
     }));
 
     // Render with custom users array
@@ -137,7 +145,7 @@ describe('UserTable', () => {
         users={manyUsers}
         onEditUser={mockOnEditUser}
         onUserDeleted={mockOnUserDeleted}
-      />
+      />,
     );
 
     // Get the pagination component
@@ -168,7 +176,9 @@ describe('UserTable', () => {
 
     // Check that dialog content is displayed using data-testid
     const dialogContent = screen.getByTestId('delete-confirmation-text');
-    expect(dialogContent).toHaveTextContent(/Are you sure you want to delete user/);
+    expect(dialogContent).toHaveTextContent(
+      /Are you sure you want to delete user/,
+    );
     expect(dialogContent).toHaveTextContent(/John/);
   });
 
@@ -182,7 +192,9 @@ describe('UserTable', () => {
 
     // Wait for the dialog to be fully rendered
     await waitFor(() => {
-      expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('delete-confirmation-text'),
+      ).toBeInTheDocument();
     });
 
     // Find the confirm button in the dialog by data-testid and click it
@@ -207,7 +219,9 @@ describe('UserTable', () => {
 
     // Wait for the dialog to appear
     await waitFor(() => {
-      expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('delete-confirmation-text'),
+      ).toBeInTheDocument();
     });
 
     // Find and click the dialog's delete button by data-testid
@@ -215,31 +229,43 @@ describe('UserTable', () => {
     fireEvent.click(confirmButton);
 
     // Wait for the error message to appear in the dialog
-    await waitFor(() => {
-      expect(screen.getByTestId('delete-error')).toBeInTheDocument();
-      // Error message uses error.message if available, otherwise falls back to default
-      expect(screen.getByTestId('delete-error')).toHaveTextContent(/Delete failed|Failed to delete user/i);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('delete-error')).toBeInTheDocument();
+        // Error message uses error.message if available, otherwise falls back to default
+        expect(screen.getByTestId('delete-error')).toHaveTextContent(
+          /Delete failed|Failed to delete user/i,
+        );
+      },
+      { timeout: 3000 },
+    );
 
     // Verify error was logged
-    expect(logger.error).toHaveBeenCalledWith('Failed to delete user:', expect.any(Error));
-    
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to delete user:',
+      expect.any(Error),
+    );
+
     // Verify dialog stays open (doesn't close on error)
     expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
-    
+
     // Verify onUserDeleted was NOT called (since deletion failed)
     expect(mockOnUserDeleted).not.toHaveBeenCalled();
   });
 
   test('shows loading state while deleting', async () => {
-    (deleteUser as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    (deleteUser as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 100)),
+    );
 
     renderUserTable();
     const deleteButton = screen.getByTestId('delete-user-1');
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('delete-confirmation-text'),
+      ).toBeInTheDocument();
     });
 
     const confirmButton = screen.getByTestId('confirm-delete-button');
@@ -264,17 +290,27 @@ describe('UserTable', () => {
     fireEvent.click(deleteButton);
 
     // Wait for the dialog to appear
-    await waitFor(() => {
-      expect(screen.getByTestId('delete-confirmation-text')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId('delete-confirmation-text'),
+        ).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Find and click the cancel button by data-testid
     const cancelButton = screen.getByTestId('cancel-delete-button');
     fireEvent.click(cancelButton);
 
     // Check that the dialog is closed
-    await waitFor(() => {
-      expect(screen.queryByTestId('delete-confirmation-text')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByTestId('delete-confirmation-text'),
+        ).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
   }, 15000);
 });

@@ -7,7 +7,7 @@ import type { TaskFile } from '../../../types/file';
 
 // Mock the download file function
 jest.mock('../../../api/files', () => ({
-  downloadFile: jest.fn()
+  downloadFile: jest.fn(),
 }));
 
 const mockFiles: TaskFile[] = [
@@ -20,21 +20,21 @@ const mockFiles: TaskFile[] = [
     mime_type: 'application/pdf',
     size: 1024576, // 1MB
     uploaded_on: '2024-01-01T00:00:00Z',
-    uploaded_by: 'John Doe'
-  }
+    uploaded_by: 'John Doe',
+  },
 ];
 
 const defaultProps = {
   files: mockFiles,
   taskId: 1,
-  onFileDeleted: jest.fn()
+  onFileDeleted: jest.fn(),
 };
 
 const renderFileList = (props = {}) => {
   return render(
     <BrowserRouter>
       <FileList {...defaultProps} {...props} />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 
@@ -91,11 +91,13 @@ describe('FileList', () => {
   });
 
   it('properly formats file names with special characters', () => {
-    const filesWithSpecialChars: TaskFile[] = [{
-      ...mockFiles[0],
-      name: 'test%20file%20with%20spaces.pdf',
-      original_name: 'test file with spaces.pdf'
-    }];
+    const filesWithSpecialChars: TaskFile[] = [
+      {
+        ...mockFiles[0],
+        name: 'test%20file%20with%20spaces.pdf',
+        original_name: 'test file with spaces.pdf',
+      },
+    ];
     renderFileList({ files: filesWithSpecialChars });
     expect(screen.getByText('test file with spaces.pdf')).toBeInTheDocument();
   });

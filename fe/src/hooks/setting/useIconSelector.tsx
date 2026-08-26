@@ -33,6 +33,6 @@ export const useIconSelector = (initialValue: string | undefined) => {
     value,
     handleOpen,
     handleClose,
-    handleSelect
+    handleSelect,
   };
 };

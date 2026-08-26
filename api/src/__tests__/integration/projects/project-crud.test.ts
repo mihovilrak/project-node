@@ -19,16 +19,20 @@ beforeAll(async () => {
 describe('Project CRUD Operations', () => {
   beforeEach(async () => {
     // Clean up and seed test data
-    await cleanupTables(['projects', 'project_users', 'tasks', 'users', 'session']);
+    await cleanupTables([
+      'projects',
+      'project_users',
+      'tasks',
+      'users',
+      'session',
+    ]);
     testUser = await seedTestUser();
 
     // Login to get auth cookies
-    const loginResponse = await request(app)
-      .post('/api/login')
-      .send({
-        login: 'testuser',
-        password: 'password123'
-      });
+    const loginResponse = await request(app).post('/api/login').send({
+      login: 'testuser',
+      password: 'password123',
+    });
 
     authCookies = cookieHeader(loginResponse.headers['set-cookie']);
   });
@@ -44,8 +48,7 @@ describe('Project CRUD Operations', () => {
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await request(app)
-        .get('/api/projects');
+      const response = await request(app).get('/api/projects');
 
       expect(response.status).toBe(401);
     });
@@ -59,7 +62,9 @@ describe('Project CRUD Operations', () => {
           name: 'Test Project',
           description: 'Test description',
           start_date: new Date().toISOString(),
-          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          due_date: new Date(
+            Date.now() + 30 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         });
 
       const response = await request(app)
@@ -77,7 +82,7 @@ describe('Project CRUD Operations', () => {
         name: 'New Project',
         description: 'A new test project',
         start_date: new Date().toISOString(),
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       };
 
       const response = await request(app)
@@ -95,18 +100,16 @@ describe('Project CRUD Operations', () => {
         .post('/api/projects')
         .set('Cookie', authCookies)
         .send({
-          description: 'Missing required fields'
+          description: 'Missing required fields',
         });
 
       expect(response.status).toBe(400);
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await request(app)
-        .post('/api/projects')
-        .send({
-          name: 'Test Project'
-        });
+      const response = await request(app).post('/api/projects').send({
+        name: 'Test Project',
+      });
 
       expect(response.status).toBe(401);
     });
@@ -149,7 +152,7 @@ describe('Project CRUD Operations', () => {
     it('should update project details', async () => {
       const updateData = {
         name: 'Updated Project Name',
-        description: 'Updated description'
+        description: 'Updated description',
       };
 
       const response = await request(app)

@@ -1,12 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Chip
-} from '@mui/material';
+import { Box, Grid, Paper, Typography, Chip } from '@mui/material';
 import { CalendarViewProps } from '../../types/calendar';
 import { getPriorityColor } from '../../utils/taskUtils';
 import { useCalendarWeek } from '../../hooks/calendar/useCalendarWeek';
@@ -19,10 +13,14 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
   onDateChange,
   onViewChange,
   onTaskClick,
-  onTimeLogClick
+  onTimeLogClick,
 }) => {
   const navigate = useNavigate();
-  const { getWeekDays, getTasksForDay, getTimeLogsForDay } = useCalendarWeek(date, tasks, timeLogs);
+  const { getWeekDays, getTasksForDay, getTimeLogsForDay } = useCalendarWeek(
+    date,
+    tasks,
+    timeLogs,
+  );
   const days = getWeekDays();
 
   const formatTime = (hours: number): string => {
@@ -39,9 +37,10 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
             role="presentation"
             sx={{
               p: 2,
-              backgroundColor: day.toDateString() === new Date().toDateString()
-                ? 'action.hover'
-                : 'background.paper'
+              backgroundColor:
+                day.toDateString() === new Date().toDateString()
+                  ? 'action.hover'
+                  : 'background.paper',
             }}
           >
             <Typography
@@ -56,23 +55,26 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
               {day.toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
               })}
             </Typography>
-            {getTasksForDay(day).map(task => (
+            {getTasksForDay(day).map((task) => (
               <Paper
                 key={task?.id}
                 sx={{
                   p: 1,
                   mb: 1,
                   cursor: 'pointer',
-                  '&:hover': { backgroundColor: 'action.hover' }
+                  '&:hover': { backgroundColor: 'action.hover' },
                 }}
                 onClick={() => task?.id && onTaskClick(task.id)}
                 data-testid={`task-chip-${task?.id}`}
               >
                 <Typography variant="subtitle2">
-                  {task?.start_date ? dayjs(task.start_date).format('HH:mm') : 'No time'} - {task?.name || 'Unnamed Task'}
+                  {task?.start_date
+                    ? dayjs(task.start_date).format('HH:mm')
+                    : 'No time'}{' '}
+                  - {task?.name || 'Unnamed Task'}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                   <Chip
@@ -87,27 +89,35 @@ const CalendarWeekView: React.FC<CalendarViewProps> = ({
                   />
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                  {task?.due_date ? dayjs(task.due_date).format('HH:mm') : 'No due date'}
+                  {task?.due_date
+                    ? dayjs(task.due_date).format('HH:mm')
+                    : 'No due date'}
                 </Typography>
               </Paper>
             ))}
-            {getTimeLogsForDay(day).map(timeLog => (
+            {getTimeLogsForDay(day).map((timeLog) => (
               <Paper
                 key={timeLog?.id}
                 sx={{
                   p: 1,
                   mb: 1,
                   cursor: 'pointer',
-                  backgroundColor: timeLog?.activity_type_color || 'background.paper',
-                  '&:hover': { opacity: 0.9 }
+                  backgroundColor:
+                    timeLog?.activity_type_color || 'background.paper',
+                  '&:hover': { opacity: 0.9 },
                 }}
                 onClick={() => timeLog?.id && onTimeLogClick(timeLog.id)}
               >
                 <Typography variant="subtitle2">
-                  {timeLog?.created_on ? new Date(timeLog.created_on).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }) : 'Unknown'} - {timeLog?.task_name || 'Unknown Task'} ({timeLog?.spent_time ? formatTime(timeLog.spent_time) : '0'} hours)
+                  {timeLog?.created_on
+                    ? new Date(timeLog.created_on).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : 'Unknown'}{' '}
+                  - {timeLog?.task_name || 'Unknown Task'} (
+                  {timeLog?.spent_time ? formatTime(timeLog.spent_time) : '0'}{' '}
+                  hours)
                 </Typography>
               </Paper>
             ))}

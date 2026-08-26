@@ -5,7 +5,7 @@ import {
   getTaskComments,
   createComment,
   editComment,
-  deleteComment
+  deleteComment,
 } from '../../api/comments';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -35,7 +35,7 @@ export const useTaskComments = (taskId: string) => {
       if (!taskId) throw new Error('Task ID is required');
 
       const newComment = await createComment(Number(taskId), {
-        comment: content
+        comment: content,
       });
 
       if (!newComment) {
@@ -43,11 +43,11 @@ export const useTaskComments = (taskId: string) => {
       }
 
       // Check if comment already exists to prevent duplicates
-      setComments(prev => {
-        const exists = prev.some(c => c?.id === newComment.id);
+      setComments((prev) => {
+        const exists = prev.some((c) => c?.id === newComment.id);
         if (exists) {
           // If it exists, just refresh the list
-          return prev.map(c => c?.id === newComment.id ? newComment : c);
+          return prev.map((c) => (c?.id === newComment.id ? newComment : c));
         }
         return [...prev, newComment];
       });
@@ -63,16 +63,16 @@ export const useTaskComments = (taskId: string) => {
       if (!taskId) throw new Error('Task ID is required');
 
       const updatedComment = await editComment(commentId, Number(taskId), {
-        comment: newText
+        comment: newText,
       });
 
       if (!updatedComment) {
         throw new Error('Failed to update comment');
       }
 
-      setComments(prev => prev.map(c =>
-        c?.id === commentId ? updatedComment : c
-      ));
+      setComments((prev) =>
+        prev.map((c) => (c?.id === commentId ? updatedComment : c)),
+      );
       return updatedComment;
     } catch (error: unknown) {
       logger.error('Failed to update comment:', error);
@@ -85,7 +85,7 @@ export const useTaskComments = (taskId: string) => {
       if (!taskId) throw new Error('Task ID is required');
 
       await deleteComment(Number(taskId), commentId);
-      setComments(prev => prev.filter(c => c?.id !== commentId));
+      setComments((prev) => prev.filter((c) => c?.id !== commentId));
     } catch (error: unknown) {
       logger.error('Failed to delete comment:', error);
       throw new Error(getApiErrorMessage(error, 'Failed to delete comment'));
@@ -98,6 +98,6 @@ export const useTaskComments = (taskId: string) => {
     handleCommentSubmit,
     handleCommentUpdate,
     handleCommentDelete,
-    fetchComments
+    fetchComments,
   };
 };

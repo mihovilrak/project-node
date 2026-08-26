@@ -11,9 +11,11 @@ export const useRoleDialog = (role: Role | undefined) => {
     name: '',
     description: '',
     active: true,
-    permissions: []
+    permissions: [],
   });
-  const [availablePermissions, setAvailablePermissions] = useState<Permission[]>([]);
+  const [availablePermissions, setAvailablePermissions] = useState<
+    Permission[]
+  >([]);
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -27,15 +29,17 @@ export const useRoleDialog = (role: Role | undefined) => {
         description: role?.description || '',
         active: role?.active ?? true,
         permissions: role?.permissions
-        ? role.permissions.map(p => typeof p === 'number' ? p : (p?.id || 0)).filter(id => id > 0)
-        : []
+          ? role.permissions
+              .map((p) => (typeof p === 'number' ? p : p?.id || 0))
+              .filter((id) => id > 0)
+          : [],
       });
     } else {
       setFormData({
         name: '',
         description: '',
         active: true,
-        permissions: []
+        permissions: [],
       });
     }
   }, [role]);
@@ -52,24 +56,26 @@ export const useRoleDialog = (role: Role | undefined) => {
   };
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handlePermissionToggle = (permission: Permission) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       permissions: prev.permissions.includes(permission.id)
-        ? prev.permissions.filter(id => id !== permission.id)
-        : [...prev.permissions, permission.id]
+        ? prev.permissions.filter((id) => id !== permission.id)
+        : [...prev.permissions, permission.id],
     }));
   };
 
   const clearError = () => setError(undefined);
 
-  const groupedPermissions = availablePermissions.reduce<Record<string, Permission[]>>((acc, permission) => {
+  const groupedPermissions = availablePermissions.reduce<
+    Record<string, Permission[]>
+  >((acc, permission) => {
     const category = permission.name.split('_')[0];
     if (!acc[category]) {
       acc[category] = [];
@@ -85,6 +91,6 @@ export const useRoleDialog = (role: Role | undefined) => {
     handleChange,
     handlePermissionToggle,
     clearError,
-    setError
+    setError,
   };
 };

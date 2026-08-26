@@ -3,7 +3,7 @@ import { TaskWatcher } from '../../types/watcher';
 import {
   getTaskWatchers,
   addTaskWatcher,
-  removeTaskWatcher
+  removeTaskWatcher,
 } from '../../api/watchers';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -35,9 +35,10 @@ export const useTaskWatchers = (taskId: string) => {
       await fetchWatchers();
     } catch (error: any) {
       logger.error('Failed to add watcher:', error);
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
-                          'Failed to add watcher';
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        'Failed to add watcher';
       throw new Error(errorMessage);
     }
   };
@@ -60,6 +61,6 @@ export const useTaskWatchers = (taskId: string) => {
     setWatchers,
     handleAddWatcher,
     handleRemoveWatcher,
-    fetchWatchers
+    fetchWatchers,
   };
 };

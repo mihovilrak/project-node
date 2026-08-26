@@ -15,7 +15,7 @@ const safeEqual = (a: string, b: string): boolean => {
 export function apiKeyAuth(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -23,8 +23,9 @@ export function apiKeyAuth(
     return;
   }
   const header = req.headers['x-api-key'];
-  const key = (typeof header === 'string' ? header : undefined)
-    ?? (req.headers.authorization?.startsWith('Bearer ')
+  const key =
+    (typeof header === 'string' ? header : undefined) ??
+    (req.headers.authorization?.startsWith('Bearer ')
       ? req.headers.authorization.slice(7)
       : undefined);
   if (!key || !safeEqual(key, apiKey)) {

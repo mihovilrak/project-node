@@ -15,7 +15,7 @@ describe('RoleController', () => {
     mockReq = {
       params: {},
       query: {},
-      body: {}
+      body: {},
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
@@ -29,14 +29,14 @@ describe('RoleController', () => {
     it('should return all roles', async () => {
       const mockRoles = [
         { id: 1, name: 'Admin' },
-        { id: 2, name: 'User' }
+        { id: 2, name: 'User' },
       ];
       (roleModel.getRoles as jest.Mock).mockResolvedValue(mockRoles);
 
       await roleController.getRoles(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(roleModel.getRoles).toHaveBeenCalledWith(mockPool);
@@ -45,16 +45,20 @@ describe('RoleController', () => {
     });
 
     it('should handle errors', async () => {
-      (roleModel.getRoles as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (roleModel.getRoles as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await roleController.getRoles(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to get roles' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Failed to get roles',
+      });
     });
   });
 
@@ -67,14 +71,14 @@ describe('RoleController', () => {
       await roleController.createRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(roleModel.createRole).toHaveBeenCalledWith(mockPool, mockRoleData);
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Role created successfully',
-        id: 3
+        id: 3,
       });
     });
 
@@ -84,15 +88,19 @@ describe('RoleController', () => {
       await roleController.createRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Role name is required' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Role name is required',
+      });
     });
 
     it('should return 409 for duplicate role name', async () => {
-      const duplicateError = new Error('Unique constraint violation') as Error & { code: string };
+      const duplicateError = new Error(
+        'Unique constraint violation',
+      ) as Error & { code: string };
       duplicateError.code = '23505';
       mockReq.body = { name: 'Admin' };
       (roleModel.createRole as jest.Mock).mockRejectedValue(duplicateError);
@@ -100,25 +108,31 @@ describe('RoleController', () => {
       await roleController.createRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(409);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Role with this name already exists' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Role with this name already exists',
+      });
     });
 
     it('should handle other errors', async () => {
       mockReq.body = { name: 'New Role' };
-      (roleModel.createRole as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (roleModel.createRole as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await roleController.createRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to create role' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Failed to create role',
+      });
     });
   });
 
@@ -132,14 +146,18 @@ describe('RoleController', () => {
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
-      expect(roleModel.updateRole).toHaveBeenCalledWith(mockPool, '1', mockRoleData);
+      expect(roleModel.updateRole).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        mockRoleData,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         message: 'Role updated successfully',
-        id: '1'
+        id: '1',
       });
     });
 
@@ -150,11 +168,13 @@ describe('RoleController', () => {
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Role ID is required' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Role ID is required',
+      });
     });
 
     it('should return 400 when name is missing', async () => {
@@ -164,15 +184,19 @@ describe('RoleController', () => {
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Role name is required' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Role name is required',
+      });
     });
 
     it('should return 409 for duplicate role name', async () => {
-      const duplicateError = new Error('Unique constraint violation') as Error & { code: string };
+      const duplicateError = new Error(
+        'Unique constraint violation',
+      ) as Error & { code: string };
       duplicateError.code = '23505';
       mockReq.params = { id: '1' };
       mockReq.body = { name: 'Admin' };
@@ -181,11 +205,13 @@ describe('RoleController', () => {
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(409);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Role with this name already exists' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Role with this name already exists',
+      });
     });
 
     it('should return 404 when role not found', async () => {
@@ -198,7 +224,7 @@ describe('RoleController', () => {
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
@@ -208,16 +234,20 @@ describe('RoleController', () => {
     it('should handle other errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { name: 'Updated Role' };
-      (roleModel.updateRole as jest.Mock).mockRejectedValue(new Error('Database error'));
+      (roleModel.updateRole as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await roleController.updateRole(
         mockReq as Request,
         mockRes as Response,
-        mockPool as Pool
+        mockPool as Pool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Failed to update role' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Failed to update role',
+      });
     });
   });
 });

@@ -4,7 +4,7 @@ import {
   getTaskComments,
   createComment,
   editComment,
-  deleteComment
+  deleteComment,
 } from '../comments';
 
 jest.mock('../api');
@@ -18,7 +18,7 @@ describe('Comments API', () => {
     comment: 'Test comment',
     active: true,
     created_on: '2023-01-01T00:00:00Z',
-    updated_on: null
+    updated_on: null,
   };
 
   beforeEach(() => {
@@ -49,7 +49,9 @@ describe('Comments API', () => {
 
       const comment = await createComment(1, { comment: 'Test comment' });
 
-      expect(mockedApi.post).toHaveBeenCalledWith('/tasks/1/comments', { comment: 'Test comment' });
+      expect(mockedApi.post).toHaveBeenCalledWith('/tasks/1/comments', {
+        comment: 'Test comment',
+      });
       expect(comment).toEqual(mockComment);
     });
 
@@ -57,7 +59,9 @@ describe('Comments API', () => {
       const error = new Error('Network error');
       mockedApi.post.mockRejectedValueOnce(error);
 
-      await expect(createComment(1, { comment: 'Test comment' })).rejects.toThrow(error);
+      await expect(
+        createComment(1, { comment: 'Test comment' }),
+      ).rejects.toThrow(error);
     });
   });
 
@@ -67,7 +71,9 @@ describe('Comments API', () => {
 
       const comment = await editComment(1, 1, { comment: 'Updated comment' });
 
-      expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/comments/1', { comment: 'Updated comment' });
+      expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/comments/1', {
+        comment: 'Updated comment',
+      });
       expect(comment).toEqual(mockComment);
     });
 
@@ -75,7 +81,9 @@ describe('Comments API', () => {
       const error = new Error('Network error');
       mockedApi.put.mockRejectedValueOnce(error);
 
-      await expect(editComment(1, 1, { comment: 'Updated comment' })).rejects.toThrow(error);
+      await expect(
+        editComment(1, 1, { comment: 'Updated comment' }),
+      ).rejects.toThrow(error);
     });
   });
 

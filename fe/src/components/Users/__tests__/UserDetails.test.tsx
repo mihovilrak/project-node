@@ -6,12 +6,12 @@ import { User } from '../../../types/user';
 
 // Mock the router hook
 jest.mock('react-router-dom', () => ({
-  useParams: () => ({ id: '1' })
+  useParams: () => ({ id: '1' }),
 }));
 
 // Mock the API call
 jest.mock('../../../api/users', () => ({
-  getUserById: jest.fn()
+  getUserById: jest.fn(),
 }));
 
 const mockUser: User = {
@@ -28,7 +28,7 @@ const mockUser: User = {
   last_login: '2023-01-03T12:00:00Z',
   role_name: 'Admin',
   status_name: 'Active',
-  status_color: 'green'
+  status_color: 'green',
 };
 
 describe('UserDetails', () => {
@@ -62,10 +62,16 @@ describe('UserDetails', () => {
       expect(screen.getByText(mockUser.login)).toBeInTheDocument();
       expect(screen.getByText(`ID: ${mockUser.id}`)).toBeInTheDocument();
       expect(screen.getByText(`Name: ${mockUser.name}`)).toBeInTheDocument();
-      expect(screen.getByText(`Surname: ${mockUser.surname}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`Surname: ${mockUser.surname}`),
+      ).toBeInTheDocument();
       expect(screen.getByText(`Email: ${mockUser.email}`)).toBeInTheDocument();
-      expect(screen.getByText(`Status: ${mockUser.status_name}`)).toBeInTheDocument();
-      expect(screen.getByText(`Role: ${mockUser.role_name}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(`Status: ${mockUser.status_name}`),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(`Role: ${mockUser.role_name}`),
+      ).toBeInTheDocument();
     });
   });
 
@@ -77,7 +83,9 @@ describe('UserDetails', () => {
     await waitFor(() => {
       // Check for formatted dates (adjust expected format based on your locale)
       expect(screen.getByText(/Created on: 01\.01\.2023/)).toBeInTheDocument();
-      expect(screen.getByText(/Last updated: 02\.01\.2023/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Last updated: 02\.01\.2023/),
+      ).toBeInTheDocument();
       expect(screen.getByText(/Last login: 03\.01\.2023/)).toBeInTheDocument();
     });
   });
@@ -88,7 +96,7 @@ describe('UserDetails', () => {
       status_name: null,
       role_name: null,
       updated_on: null,
-      last_login: null
+      last_login: null,
     };
 
     (getUserById as jest.Mock).mockResolvedValue(userWithNulls);
@@ -96,26 +104,36 @@ describe('UserDetails', () => {
     render(<UserDetails />);
 
     await waitFor(() => {
-      expect(screen.getByText(
-        (content, element) => {
-          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Status: -'
-        }
-      )).toBeInTheDocument();
-      expect(screen.getByText(
-        (content, element) => {
-          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Role: -'
-        }
-      )).toBeInTheDocument();
-      expect(screen.getByText(
-        (content, element) => {
-          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Last updated: -'
-        }
-      )).toBeInTheDocument();
-      expect(screen.getByText(
-        (content, element) => {
-          return element?.textContent?.replace(/\s+/g, ' ').trim() === 'Last login: -'
-        }
-      )).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return (
+            element?.textContent?.replace(/\s+/g, ' ').trim() === 'Status: -'
+          );
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return (
+            element?.textContent?.replace(/\s+/g, ' ').trim() === 'Role: -'
+          );
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return (
+            element?.textContent?.replace(/\s+/g, ' ').trim() ===
+            'Last updated: -'
+          );
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return (
+            element?.textContent?.replace(/\s+/g, ' ').trim() ===
+            'Last login: -'
+          );
+        }),
+      ).toBeInTheDocument();
     });
   });
 

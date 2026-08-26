@@ -18,7 +18,7 @@ describe('SettingsController', () => {
     const mockSession = {
       id: 'test-session-id',
       cookie: { originalMaxAge: null },
-      user: { id: '1', login: 'test', role_id: 1 }
+      user: { id: '1', login: 'test', role_id: 1 },
     } as unknown as Session;
 
     mockReq = { params: {}, query: {}, body: {}, session: mockSession };
@@ -30,15 +30,27 @@ describe('SettingsController', () => {
   describe('getSystemSettings', () => {
     it('should return system settings', async () => {
       const mockSettings = { app_name: 'Test App', theme: 'dark' };
-      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(mockSettings);
-      await settingsController.getSystemSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(
+        mockSettings,
+      );
+      await settingsController.getSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockSettings);
     });
 
     it('should handle errors', async () => {
-      (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(new Error('DB error'));
-      await settingsController.getSystemSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
+      await settingsController.getSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
@@ -46,30 +58,52 @@ describe('SettingsController', () => {
   describe('getAppTheme', () => {
     it('should return app theme', async () => {
       const mockSettings = { app_name: 'Test App', theme: 'dark' };
-      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(mockSettings);
-      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(
+        mockSettings,
+      );
+      await settingsController.getAppTheme(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ theme: 'dark' });
     });
 
     it('should return default theme when no settings found', async () => {
       (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(null);
-      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.getAppTheme(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ theme: 'light' });
     });
 
     it('should return default theme when theme is not set', async () => {
       const mockSettings = { app_name: 'Test App' };
-      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(mockSettings);
-      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getSystemSettings as jest.Mock).mockResolvedValue(
+        mockSettings,
+      );
+      await settingsController.getAppTheme(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ theme: 'light' });
     });
 
     it('should handle errors', async () => {
-      (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(new Error('DB error'));
-      await settingsController.getAppTheme(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
+      await settingsController.getAppTheme(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
@@ -78,15 +112,27 @@ describe('SettingsController', () => {
     it('should update system settings', async () => {
       mockReq.body = { app_name: 'New App Name' };
       const updatedSettings = { app_name: 'New App Name' };
-      (settingsModel.updateSystemSettings as jest.Mock).mockResolvedValue(updatedSettings);
-      await settingsController.updateSystemSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.updateSystemSettings as jest.Mock).mockResolvedValue(
+        updatedSettings,
+      );
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
 
     it('should handle errors', async () => {
       mockReq.body = { app_name: 'New App Name' };
-      (settingsModel.updateSystemSettings as jest.Mock).mockRejectedValue(new Error('DB error'));
-      await settingsController.updateSystemSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.updateSystemSettings as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
@@ -94,21 +140,35 @@ describe('SettingsController', () => {
   describe('getUserSettings', () => {
     it('should return user settings', async () => {
       const mockSettings = { theme: 'light', notifications: true };
-      (settingsModel.getUserSettings as jest.Mock).mockResolvedValue(mockSettings);
-      await settingsController.getUserSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.getUserSettings as jest.Mock).mockResolvedValue(
+        mockSettings,
+      );
+      await settingsController.getUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockSettings);
     });
 
     it('should return 401 when not authenticated', async () => {
       mockReq.session.user = undefined;
-      await settingsController.getUserSettings(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.getUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(401);
     });
 
     it('should return empty object when no settings', async () => {
       (settingsModel.getUserSettings as jest.Mock).mockResolvedValue(null);
-      await settingsController.getUserSettings(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.getUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.json).toHaveBeenCalledWith({});
     });
   });
@@ -117,15 +177,25 @@ describe('SettingsController', () => {
     it('should update user settings', async () => {
       mockReq.body = { theme: 'dark' };
       const updatedSettings = { theme: 'dark' };
-      (settingsModel.updateUserSettings as jest.Mock).mockResolvedValue(updatedSettings);
-      await settingsController.updateUserSettings(mockReq, mockRes as Response, mockPool as Pool);
+      (settingsModel.updateUserSettings as jest.Mock).mockResolvedValue(
+        updatedSettings,
+      );
+      await settingsController.updateUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
 
     it('should return 401 when not authenticated', async () => {
       mockReq.session.user = undefined;
       mockReq.body = { theme: 'dark' };
-      await settingsController.updateUserSettings(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.updateUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(401);
     });
   });
@@ -139,24 +209,38 @@ describe('SettingsController', () => {
           abbrev: 'CET',
           utcOffsetSeconds: 3600,
           isDst: false,
-          label: 'Europe/Zagreb (UTC+01:00)'
-        }
+          label: 'Europe/Zagreb (UTC+01:00)',
+        },
       ];
-      (settingsModel.getTimezones as jest.Mock).mockResolvedValue(mockTimezones);
+      (settingsModel.getTimezones as jest.Mock).mockResolvedValue(
+        mockTimezones,
+      );
 
-      await settingsController.getTimezones(mockReq as Request, mockRes as Response, mockPool as Pool);
+      await settingsController.getTimezones(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTimezones);
     });
 
     it('should handle errors', async () => {
-      (settingsModel.getTimezones as jest.Mock).mockRejectedValue(new Error('DB error'));
+      (settingsModel.getTimezones as jest.Mock).mockRejectedValue(
+        new Error('DB error'),
+      );
 
-      await settingsController.getTimezones(mockReq as Request, mockRes as Response, mockPool as Pool);
+      await settingsController.getTimezones(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Internal server error',
+      });
     });
   });
 
@@ -182,113 +266,168 @@ describe('SettingsController', () => {
 
     it('should return 400 when email is missing', async () => {
       mockReq.body = {};
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Email address is required'
+        message: 'Email address is required',
       });
     });
 
     it('should return 400 for invalid email format', async () => {
       mockReq.body = { email: 'invalid-email' };
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Invalid email address format'
+        message: 'Invalid email address format',
       });
     });
 
     it('should return 400 when email is disabled', async () => {
       process.env.EMAIL_ENABLED = 'false';
       mockReq.body = { email: 'test@example.com' };
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Email sending is disabled. Set EMAIL_ENABLED=true in environment.'
+        message:
+          'Email sending is disabled. Set EMAIL_ENABLED=true in environment.',
       });
     });
 
     it('should send test email successfully', async () => {
-      const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-message-id' });
+      const mockSendMail = jest
+        .fn()
+        .mockResolvedValue({ messageId: 'test-message-id' });
       const mockVerify = jest.fn().mockResolvedValue(true);
       const mockTransporter = {
         sendMail: mockSendMail,
         verify: mockVerify,
       };
 
-      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(
+        mockTransporter,
+      );
 
       mockReq.body = { email: 'recipient@example.com' };
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
 
       expect(mockVerify).toHaveBeenCalled();
       expect(mockSendMail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: 'recipient@example.com',
           subject: 'SMTP Test - Project Management App',
-        })
+        }),
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         message: 'Test email sent successfully to recipient@example.com',
-        messageId: 'test-message-id'
+        messageId: 'test-message-id',
       });
     });
 
     it('should handle SMTP connection failure', async () => {
-      const mockVerify = jest.fn().mockRejectedValue(new Error('Connection refused'));
+      const mockVerify = jest
+        .fn()
+        .mockRejectedValue(new Error('Connection refused'));
       const mockTransporter = {
         verify: mockVerify,
         sendMail: jest.fn(),
       };
 
-      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(
+        mockTransporter,
+      );
 
       mockReq.body = { email: 'recipient@example.com' };
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'SMTP test failed: Connection refused'
+        message: 'SMTP test failed: Connection refused',
       });
     });
 
     it('should handle email sending failure', async () => {
       const mockVerify = jest.fn().mockResolvedValue(true);
-      const mockSendMail = jest.fn().mockRejectedValue(new Error('Authentication failed'));
+      const mockSendMail = jest
+        .fn()
+        .mockRejectedValue(new Error('Authentication failed'));
       const mockTransporter = {
         verify: mockVerify,
         sendMail: mockSendMail,
       };
 
-      (nodemailer.createTransport as jest.Mock).mockReturnValue(mockTransporter);
+      (nodemailer.createTransport as jest.Mock).mockReturnValue(
+        mockTransporter,
+      );
 
       mockReq.body = { email: 'recipient@example.com' };
-      await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'SMTP test failed: Authentication failed'
+        message: 'SMTP test failed: Authentication failed',
       });
     });
 
     it('should validate various email formats correctly', async () => {
-      const validEmails = ['user@example.com', 'user.name@domain.org', 'user+tag@sub.domain.com'];
-      const invalidEmails = ['invalid', '@example.com', 'user@', 'user @example.com'];
+      const validEmails = [
+        'user@example.com',
+        'user.name@domain.org',
+        'user+tag@sub.domain.com',
+      ];
+      const invalidEmails = [
+        'invalid',
+        '@example.com',
+        'user@',
+        'user @example.com',
+      ];
 
       for (const email of validEmails) {
         mockReq.body = { email };
         const mockVerify = jest.fn().mockResolvedValue(true);
-        const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-id' });
-        (nodemailer.createTransport as jest.Mock).mockReturnValue({ verify: mockVerify, sendMail: mockSendMail });
-        
-        await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+        const mockSendMail = jest
+          .fn()
+          .mockResolvedValue({ messageId: 'test-id' });
+        (nodemailer.createTransport as jest.Mock).mockReturnValue({
+          verify: mockVerify,
+          sendMail: mockSendMail,
+        });
+
+        await settingsController.testSmtpConnection(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        );
         expect(mockRes.status).toHaveBeenCalledWith(200);
         jest.clearAllMocks();
         mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
@@ -296,7 +435,11 @@ describe('SettingsController', () => {
 
       for (const email of invalidEmails) {
         mockReq.body = { email };
-        await settingsController.testSmtpConnection(mockReq, mockRes as Response, mockPool as Pool);
+        await settingsController.testSmtpConnection(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        );
         expect(mockRes.status).toHaveBeenCalledWith(400);
         jest.clearAllMocks();
         mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };

@@ -1,11 +1,6 @@
 import { api } from '../api';
 import { TaskFile } from '../../types/file';
-import {
-  getTaskFiles,
-  uploadFile,
-  downloadFile,
-  deleteFile
-} from '../files';
+import { getTaskFiles, uploadFile, downloadFile, deleteFile } from '../files';
 
 jest.mock('../api');
 const mockedApi = api as jest.Mocked<typeof api>;
@@ -19,7 +14,7 @@ describe('Files API', () => {
     original_name: 'test.txt',
     mime_type: 'text/plain',
     size: 1024,
-    uploaded_on: '2023-01-01T00:00:00Z'
+    uploaded_on: '2023-01-01T00:00:00Z',
   };
 
   beforeEach(() => {
@@ -36,7 +31,7 @@ describe('Files API', () => {
       const files = await getTaskFiles(1);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/files', {
-        params: { taskId: '1' }
+        params: { taskId: '1' },
       });
       expect(files).toEqual([mockFile]);
     });
@@ -59,7 +54,7 @@ describe('Files API', () => {
 
       expect(mockedApi.post).toHaveBeenCalledWith('/files', mockFormData, {
         onUploadProgress: mockProgress,
-        params: { taskId: '1' }
+        params: { taskId: '1' },
       });
       expect(result).toEqual(mockFile);
     });
@@ -85,7 +80,7 @@ describe('Files API', () => {
         href: '',
         setAttribute: jest.fn(),
         click: jest.fn(),
-        remove: jest.fn()
+        remove: jest.fn(),
       };
       document.createElement = jest.fn().mockReturnValue(mockLink);
       document.body.appendChild = jest.fn();
@@ -95,17 +90,20 @@ describe('Files API', () => {
       mockedApi.get.mockResolvedValueOnce({
         data: new Blob(['test']),
         headers: {
-          'content-disposition': 'attachment; filename="test.txt"'
-        }
+          'content-disposition': 'attachment; filename="test.txt"',
+        },
       });
 
       await downloadFile(1, 1);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/files/1/download', {
         params: { taskId: '1' },
-        responseType: 'blob'
+        responseType: 'blob',
       });
-      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'test.txt');
+      expect(mockLink.setAttribute).toHaveBeenCalledWith(
+        'download',
+        'test.txt',
+      );
       expect(mockLink.click).toHaveBeenCalled();
       expect(mockLink.remove).toHaveBeenCalled();
     });
@@ -113,12 +111,15 @@ describe('Files API', () => {
     it('should download file without content disposition', async () => {
       mockedApi.get.mockResolvedValueOnce({
         data: new Blob(['test']),
-        headers: {}
+        headers: {},
       });
 
       await downloadFile(1, 1);
 
-      expect(mockLink.setAttribute).toHaveBeenCalledWith('download', 'download');
+      expect(mockLink.setAttribute).toHaveBeenCalledWith(
+        'download',
+        'download',
+      );
     });
 
     it('should throw error when download fails', async () => {
@@ -136,7 +137,7 @@ describe('Files API', () => {
       await deleteFile(1, 1);
 
       expect(mockedApi.delete).toHaveBeenCalledWith('/files/1', {
-        params: { taskId: '1' }
+        params: { taskId: '1' },
       });
     });
 
