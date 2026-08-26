@@ -25,6 +25,7 @@ describe('TaskController', () => {
   let mockReq: Partial<Request & CustomRequest>;
   let mockRes: Partial<Response>;
   let mockPool: Partial<Pool>;
+  let mockClient: { query: jest.Mock; release: jest.Mock };
 
   beforeEach(() => {
     // Create a partial mock Session object with required properties
@@ -63,7 +64,10 @@ describe('TaskController', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
-    mockPool = {};
+    // Handlers that write run inside withTransaction, so the models receive the
+    // pooled client rather than the pool itself.
+    mockClient = { query: jest.fn().mockResolvedValue({ rows: [] }), release: jest.fn() };
+    mockPool = { connect: jest.fn().mockResolvedValue(mockClient) } as unknown as Partial<Pool>;
     jest.clearAllMocks();
   });
 
@@ -513,7 +517,7 @@ describe('TaskController', () => {
       );
 
       expect(taskModel.updateTask).toHaveBeenCalledWith(
-        mockPool,
+        mockClient,
         taskId,
         mockUpdateData,
       );
@@ -568,7 +572,7 @@ describe('TaskController', () => {
       );
 
       expect(taskModel.changeTaskStatus).toHaveBeenCalledWith(
-        mockPool,
+        mockClient,
         Number(taskId),
         newStatusId,
       );

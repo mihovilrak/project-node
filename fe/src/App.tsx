@@ -36,6 +36,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ThemeProvider } from './context/ThemeContext';
 import CssBaseline from '@mui/material/CssBaseline';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import NotFound from './components/common/NotFound';
 import {
   useTaskFileWrapper,
   useTimeLogCalendarWrapper,
@@ -108,11 +109,21 @@ const App: React.FC = () => {
                   <Route index element={<PrivateRoute element={<Home />} />} />
                   <Route
                     path="/users"
-                    element={<PrivateRoute element={<Users />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Users />}
+                        requiredPermission="Admin"
+                      />
+                    }
                   />
                   <Route
                     path="/users/new"
-                    element={<PrivateRoute element={<UserForm />} />}
+                    element={
+                      <PrivateRoute
+                        element={<UserForm />}
+                        requiredPermission="Admin"
+                      />
+                    }
                   />
                   <Route
                     path="/users/:id"
@@ -120,7 +131,12 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/users/:id/edit"
-                    element={<PrivateRoute element={<UserForm />} />}
+                    element={
+                      <PrivateRoute
+                        element={<UserForm />}
+                        requiredPermission="Admin"
+                      />
+                    }
                   />
                   <Route
                     path="/projects"
@@ -128,7 +144,12 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/projects/new"
-                    element={<PrivateRoute element={<ProjectForm />} />}
+                    element={
+                      <PrivateRoute
+                        element={<ProjectForm />}
+                        requiredPermission="Create projects"
+                      />
+                    }
                   />
                   <Route
                     path="/projects/:id"
@@ -140,7 +161,12 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/tasks/new"
-                    element={<PrivateRoute element={<TaskForm />} />}
+                    element={
+                      <PrivateRoute
+                        element={<TaskForm />}
+                        requiredPermission="Create tasks"
+                      />
+                    }
                   />
                   <Route
                     path="/tasks/:id"
@@ -148,7 +174,12 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/tasks/:id/edit"
-                    element={<PrivateRoute element={<TaskForm />} />}
+                    element={
+                      <PrivateRoute
+                        element={<TaskForm />}
+                        requiredPermission="Edit tasks"
+                      />
+                    }
                   />
                   <Route
                     path="/tasks/active"
@@ -156,7 +187,12 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/settings"
-                    element={<PrivateRoute element={<Settings />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Settings />}
+                        requiredPermission="Admin"
+                      />
+                    }
                   />
                   <Route
                     path="/notifications"
@@ -184,7 +220,9 @@ const App: React.FC = () => {
                       <PrivateRoute element={<TimeLogCalendarWrapper />} />
                     }
                   />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>

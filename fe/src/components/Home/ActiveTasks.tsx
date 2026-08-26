@@ -23,6 +23,7 @@ import {
   chipPropsForStatus,
 } from '../../utils/taskUtils';
 import { usePermission } from '../../hooks/common/usePermission';
+import { formatDate } from '../../utils/dateUtils';
 
 const TaskCard: React.FC<{
   task: Task;
@@ -126,7 +127,7 @@ const TaskCard: React.FC<{
             <Box>
               <strong>Start</strong>{' '}
               {task?.start_date
-                ? new Date(task.start_date).toLocaleDateString()
+                ? formatDate(task.start_date)
                 : '—'}
             </Box>
             <Box>
@@ -152,7 +153,7 @@ const TaskCard: React.FC<{
             <Box>
               <strong>Due</strong>{' '}
               {task?.due_date
-                ? new Date(task.due_date).toLocaleDateString()
+                ? formatDate(task.due_date)
                 : '—'}
             </Box>
             <Box />

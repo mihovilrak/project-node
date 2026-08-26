@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as watcherController from '../watcherController';
 import * as watcherModel from '../../models/watcherModel';
+import { isTaskProjectMember } from '../../models/accessModel';
 
 jest.mock('../../models/watcherModel');
+jest.mock('../../models/accessModel');
 
 describe('WatcherController', () => {
   let mockReq: any;
@@ -19,6 +21,7 @@ describe('WatcherController', () => {
     };
     mockPool = {};
     jest.clearAllMocks();
+    (isTaskProjectMember as jest.Mock).mockResolvedValue(true);
   });
 
   describe('getTaskWatchers', () => {
@@ -64,6 +67,31 @@ describe('WatcherController', () => {
       );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(mockWatcher);
+    });
+
+    it('should reject a non-numeric userId', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { userId: 'abc' };
+      await watcherController.addTaskWatcher(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(watcherModel.addTaskWatcher).not.toHaveBeenCalled();
+    });
+
+    it('should reject a user who cannot access the task', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { userId: '2' };
+      (isTaskProjectMember as jest.Mock).mockResolvedValue(false);
+      await watcherController.addTaskWatcher(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(watcherModel.addTaskWatcher).not.toHaveBeenCalled();
     });
 
     it('should handle errors', async () => {

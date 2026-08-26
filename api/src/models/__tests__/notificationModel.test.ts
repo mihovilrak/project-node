@@ -56,7 +56,7 @@ describe('NotificationModel', () => {
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT * FROM notifications'),
+        'SELECT * FROM user_notifications($1)',
         ['1'],
       );
       expect(result).toEqual(mockNotifications);

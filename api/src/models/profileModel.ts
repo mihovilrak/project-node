@@ -64,6 +64,22 @@ export const changePassword = async (
   return result.rows[0] || null;
 };
 
+// Drop every stored session belonging to a user except the one making the
+// request, so a password change signs the account out everywhere else.
+export const deleteOtherSessions = async (
+  pool: Pool,
+  userId: string,
+  currentSid?: string,
+): Promise<number> => {
+  const result = await pool.query(
+    `DELETE FROM session
+     WHERE sess -> 'user' ->> 'id' = $1
+       AND ($2::varchar IS NULL OR sid <> $2)`,
+    [String(userId), currentSid ?? null],
+  );
+  return result.rowCount ?? 0;
+};
+
 // Get recent tasks
 export const getRecentTasks = async (
   pool: Pool,

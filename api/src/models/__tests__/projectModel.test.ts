@@ -137,22 +137,18 @@ describe('ProjectModel', () => {
 
   describe('changeProjectStatus', () => {
     it('should change project status', async () => {
-      const mockProject = { id: '1', status: 'completed' };
+      const mockMessage = { message: 'Project status changed to inactive.' };
       (mockPool.query as jest.Mock).mockResolvedValue(
-        mockQueryResult([mockProject]),
+        mockQueryResult([mockMessage]),
       );
 
-      const result = await projectModel.changeProjectStatus(
-        mockPool,
-        '1',
-        'completed',
-      );
+      const result = await projectModel.changeProjectStatus(mockPool, '1', 2);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         `SELECT * FROM change_project_status($1, $2)`,
-        ['1', 'completed'],
+        ['1', 2],
       );
-      expect(result).toEqual(mockProject);
+      expect(result).toEqual(mockMessage);
     });
   });
 

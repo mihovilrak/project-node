@@ -331,8 +331,8 @@ describe('Profile Controller', () => {
     it('should update password with valid input (old_password)', async () => {
       const updatedOn = new Date();
       mockRequest.body = {
-        old_password: 'oldPass123',
-        new_password: 'newPass123',
+        old_password: 'oldPass123!A',
+        new_password: 'NewPass123!secure',
       };
 
       jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
@@ -345,12 +345,12 @@ describe('Profile Controller', () => {
       expect(profileModel.verifyPassword).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'oldPass123',
+        'oldPass123!A',
       );
       expect(profileModel.changePassword).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'newPass123',
+        'NewPass123!secure',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({
@@ -361,9 +361,9 @@ describe('Profile Controller', () => {
     it('should update password with valid input (current_password from frontend)', async () => {
       const updatedOn = new Date();
       mockRequest.body = {
-        current_password: 'currentPass123',
-        new_password: 'newPass456',
-        confirm_password: 'newPass456',
+        current_password: 'currentPass123!A',
+        new_password: 'NewPass456!secure',
+        confirm_password: 'NewPass456!secure',
       };
 
       jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
@@ -376,12 +376,12 @@ describe('Profile Controller', () => {
       expect(profileModel.verifyPassword).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'currentPass123',
+        'currentPass123!A',
       );
       expect(profileModel.changePassword).toHaveBeenCalledWith(
         mockPool,
         '1',
-        'newPass456',
+        'NewPass456!secure',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
     });
@@ -397,23 +397,43 @@ describe('Profile Controller', () => {
       });
     });
 
-    it('should return 400 with invalid passwords', async () => {
-      mockRequest.body = { old_password: ' ', new_password: '  ' };
+    it('should reject a new password that fails the policy', async () => {
+      mockRequest.body = {
+        old_password: 'oldPass123!A',
+        new_password: 'short',
+      };
 
-      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(false);
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
+
+      await changePassword(mockRequest as Request, mockResponse, mockPool);
+
+      expect(profileModel.verifyPassword).not.toHaveBeenCalled();
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({
+        error: 'Password must be at least 12 characters long',
+      });
+    });
+
+    it('should reject reusing the current password', async () => {
+      mockRequest.body = {
+        current_password: 'SamePass123!secure',
+        new_password: 'SamePass123!secure',
+      };
+
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
 
       await changePassword(mockRequest as Request, mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(400);
       expect(mockJson).toHaveBeenCalledWith({
-        error: 'Current password is incorrect',
+        error: 'New password must differ from the current password',
       });
     });
 
     it('should handle incorrect old password', async () => {
       mockRequest.body = {
-        old_password: 'wrongPass',
-        new_password: 'newPass123',
+        old_password: 'wrongPass!A1',
+        new_password: 'NewPass123!secure',
       };
       jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(false);
 

@@ -8,9 +8,11 @@ import {
   TaskQueryFilters,
 } from '../types/task';
 import { Pool, QueryResult } from 'pg';
-
-// Active task status IDs: New (1), In Progress (2), On Hold (3), Review (4). Excludes Done, Cancelled, Deleted.
-const ACTIVE_TASK_STATUS_IDS = [1, 2, 3, 4];
+import { Queryable } from '../utils/transaction';
+import {
+  ACTIVE_TASK_STATUS_IDS,
+  TaskStatusId,
+} from '../constants/taskStatus';
 
 /** Normalize number | number[] into single and array for get_tasks. */
 function singleOrArray(val: number | number[] | null | undefined): {
@@ -141,7 +143,7 @@ export const getTaskById = async (
 
 // Create a task
 export const createTask = async (
-  pool: Pool,
+  pool: Queryable,
   {
     name,
     description,
@@ -193,7 +195,7 @@ export const createTask = async (
 
 // Update a task
 export const updateTask = async (
-  pool: Pool,
+  pool: Queryable,
   taskId: string,
   taskData: TaskUpdateInput,
 ): Promise<Task | null> => {
@@ -243,7 +245,7 @@ export const updateTask = async (
 
 // Change a task status
 export const changeTaskStatus = async (
-  pool: Pool,
+  pool: Queryable,
   id: number,
   statusId: number,
 ): Promise<Task | null> => {
@@ -264,10 +266,10 @@ export const deleteTask = async (
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
     `UPDATE tasks
-    SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
+    SET (status_id, updated_on) = ($2, CURRENT_TIMESTAMP)
     WHERE id = $1
     RETURNING *`,
-    [id],
+    [id, TaskStatusId.Deleted],
   );
   return result.rows[0] || null;
 };

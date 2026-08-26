@@ -330,7 +330,7 @@ describe('TaskModel', () => {
 
   describe('deleteTask', () => {
     it('should soft delete a task', async () => {
-      const deletedTask = { ...mockTask, status_id: 3 };
+      const deletedTask = { ...mockTask, status_id: 7 };
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([deletedTask]),
       );
@@ -339,7 +339,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tasks'),
-        ['1'],
+        ['1', 7],
       );
       expect(result).toEqual(deletedTask);
     });

@@ -69,7 +69,11 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
                 />
               </TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => onEdit(activityType)} size="small">
+                <IconButton
+                  onClick={() => onEdit(activityType)}
+                  size="small"
+                  aria-label="Edit activity type"
+                >
                   <EditIcon />
                 </IconButton>
               </TableCell>

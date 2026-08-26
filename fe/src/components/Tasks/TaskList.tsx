@@ -20,6 +20,7 @@ import {
   chipPropsForPriority,
   chipPropsForStatus,
 } from '../../utils/taskUtils';
+import { formatDate } from '../../utils/dateUtils';
 
 const TaskList: React.FC = () => {
   const navigate = useNavigate();
@@ -139,7 +140,7 @@ const TaskList: React.FC = () => {
                 <Typography variant="body2" sx={{ mt: 1 }}>
                   Due:{' '}
                   {task?.due_date
-                    ? new Date(task.due_date).toLocaleDateString()
+                    ? formatDate(task.due_date)
                     : '-'}
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 1 }}>

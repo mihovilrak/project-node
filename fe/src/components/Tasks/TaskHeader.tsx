@@ -18,6 +18,7 @@ import { TaskHeaderProps } from '../../types/task';
 import logger from '../../utils/logger';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
+import { formatDate } from '../../utils/dateUtils';
 
 const getIconComponent = (
   iconName?: string,
@@ -171,14 +172,14 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
               <Typography variant="body2">
                 Created:{' '}
                 {task?.created_on
-                  ? new Date(task.created_on).toLocaleDateString()
+                  ? formatDate(task.created_on)
                   : 'Unknown'}
               </Typography>
             </Grid>
             {task?.due_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
-                  Due: {new Date(task.due_date).toLocaleDateString()}
+                  Due: {formatDate(task.due_date)}
                 </Typography>
               </Grid>
             )}
@@ -233,14 +234,14 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             {task?.start_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
-                  Start Date: {new Date(task.start_date).toLocaleDateString()}
+                  Start Date: {formatDate(task.start_date)}
                 </Typography>
               </Grid>
             )}
             {task?.end_date && (
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Typography variant="body2">
-                  End Date: {new Date(task.end_date).toLocaleDateString()}
+                  End Date: {formatDate(task.end_date)}
                 </Typography>
               </Grid>
             )}

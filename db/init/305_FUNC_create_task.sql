@@ -22,11 +22,15 @@ create or replace function create_task(
         v_task_id integer;
 
     begin
-        -- Validate required fields
+        -- Validate required fields. holder_id / assignee_id are nullable in
+        -- tasks, so an unassigned task is legal input.
+        -- A bare `return` here made invalid input indistinguishable from a
+        -- database error; raise so the API can map it to 400.
         if p_name is null or p_start_date is null or p_due_date is null
            or p_priority_id is null or p_status_id is null or p_type_id is null
-           or p_project_id is null or p_holder_id is null or p_assignee_id is null then
-            return;
+           or p_project_id is null or p_created_by is null then
+            raise exception 'create_task: name, start_date, due_date, priority_id, status_id, type_id, project_id and created_by are required'
+                using errcode = 'invalid_parameter_value';
         end if;
 
         -- Insert the task and get the new ID

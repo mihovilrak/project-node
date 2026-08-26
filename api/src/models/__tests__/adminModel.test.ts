@@ -128,7 +128,7 @@ describe('AdminModel', () => {
       expect(result).toEqual([mockLogs[0]]);
     });
 
-    it('should use default dates when not provided', async () => {
+    it('should bind nulls and let SQL supply the date defaults', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult(mockLogs),
       );
@@ -136,8 +136,8 @@ describe('AdminModel', () => {
       const result = await adminModel.getSystemLogs(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT tl.*'),
-        ['1970-01-01', 'NOW()'],
+        expect.stringContaining('COALESCE($2::timestamptz, now())'),
+        [null, null],
       );
       expect(result).toEqual(mockLogs);
     });

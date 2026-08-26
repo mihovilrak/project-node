@@ -6,7 +6,7 @@ create table if not exists time_logs (
     spent_time numeric(5, 2) not null,
     description text not null,
     activity_type_id int2 references activity_types(id) not null,
-    updated_on timestamptz default current_timestamp null,
+    updated_on timestamptz null,
     created_on timestamptz default current_timestamp not null,
     check (spent_time >= 0)
 );

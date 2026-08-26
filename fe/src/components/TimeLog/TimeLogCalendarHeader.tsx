@@ -28,13 +28,19 @@ const TimeLogCalendarHeader: React.FC<TimeLogCalendarHeaderProps> = ({
           Time Log Calendar
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton onClick={() => onNavigateMonth('prev')}>
+          <IconButton
+            onClick={() => onNavigateMonth('prev')}
+            aria-label="Previous month"
+          >
             <NavigateBefore />
           </IconButton>
           <Typography variant="h6" sx={{ mx: 2 }}>
             {currentDate ? format(currentDate, 'MMMM yyyy') : 'Invalid Date'}
           </Typography>
-          <IconButton onClick={() => onNavigateMonth('next')}>
+          <IconButton
+            onClick={() => onNavigateMonth('next')}
+            aria-label="Next month"
+          >
             <NavigateNext />
           </IconButton>
         </Box>

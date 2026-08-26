@@ -1,12 +1,15 @@
+// Shape returned by get_notifications_for_service(): the claimed row plus the
+// recipient's address.
 export interface DatabaseNotification {
   id: string;
   user_id: string;
   type_id: number;
   title: string;
+  message: string;
   link: string;
+  data: Record<string, unknown> | null;
+  email_attempts: number;
   created_on: Date;
-  read_on: Date | null;
-  active: boolean;
   email: string;
   login: string;
 }

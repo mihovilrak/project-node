@@ -65,7 +65,8 @@ export const deleteComment = async (
   const result = await pool.query(
     `UPDATE comments
     SET (active, updated_on) = (false, current_timestamp)
-    WHERE id = $1`,
+    WHERE id = $1 AND active
+    RETURNING *`,
     [id],
   );
   return result.rows[0] || null;

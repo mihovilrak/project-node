@@ -65,3 +65,29 @@ export const filterByProjectAccess = async <T extends Record<string, any>>(
   const accessible = new Set(await getAccessibleProjectIds(pool, userId));
   return rows.filter((row) => accessible.has(Number(row[projectIdKey])));
 };
+
+// A comment may only be edited or removed by its author
+export const isCommentAuthor = async (
+  pool: Pool,
+  commentId: string,
+  userId: string,
+): Promise<boolean> => {
+  const result = await pool.query(
+    `SELECT 1 FROM comments WHERE id = $1 AND user_id = $2 LIMIT 1`,
+    [commentId, userId],
+  );
+  return (result.rowCount ?? 0) > 0;
+};
+
+// A time log may only be edited or removed by the user who logged it
+export const isTimeLogOwner = async (
+  pool: Pool,
+  timeLogId: string,
+  userId: string,
+): Promise<boolean> => {
+  const result = await pool.query(
+    `SELECT 1 FROM time_logs WHERE id = $1 AND user_id = $2 LIMIT 1`,
+    [timeLogId, userId],
+  );
+  return (result.rowCount ?? 0) > 0;
+};

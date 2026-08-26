@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { File, FileWithUser } from '../types/file';
-import * as taskModel from './taskModel';
+import { isTaskProjectMember } from './accessModel';
 
 // Get all files for a task
 export const getTaskFiles = async (
@@ -51,13 +51,27 @@ export const getFileById = async (
   return result.rows[0] || null;
 };
 
-// Delete a file
-export const deleteFile = async (pool: Pool, fileId: string): Promise<void> => {
-  await pool.query(
-    `DELETE FROM files
-    WHERE id = $1`,
-    [fileId],
-  );
+// Delete a file. Returns the removed row, or null when the ownership predicate
+// did not match, so the caller only unlinks a blob it actually deleted.
+export const deleteFile = async (
+  pool: Pool,
+  fileId: string,
+  ownerId?: string,
+): Promise<File | null> => {
+  const result = ownerId
+    ? await pool.query(
+        `DELETE FROM files
+        WHERE id = $1 AND user_id = $2
+        RETURNING *`,
+        [fileId, ownerId],
+      )
+    : await pool.query(
+        `DELETE FROM files
+        WHERE id = $1
+        RETURNING *`,
+        [fileId],
+      );
+  return result.rows[0] || null;
 };
 
 // Check if user has access to file (user is member of the project that contains the file's task)
@@ -69,12 +83,5 @@ export const canUserAccessFile = async (
   const file = await getFileById(pool, fileId);
   if (!file) return false;
 
-  const task = await taskModel.getTaskById(pool, String(file.task_id));
-  if (!task || !task.project_id) return false;
-
-  const result = await pool.query(
-    `SELECT 1 FROM project_users WHERE project_id = $1 AND user_id = $2 LIMIT 1`,
-    [task.project_id, userId],
-  );
-  return result.rowCount !== null && result.rowCount > 0;
+  return isTaskProjectMember(pool, String(file.task_id), userId);
 };

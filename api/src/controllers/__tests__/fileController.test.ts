@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import * as fileModel from '../../models/fileModel';
+import { hasPermission } from '../../models/permissionModel';
 import {
   getTaskFiles,
   uploadFile,
@@ -16,6 +17,7 @@ import { Session, SessionData } from 'express-session';
 
 // Mock the dependencies
 jest.mock('../../models/fileModel');
+jest.mock('../../models/permissionModel');
 jest.mock('fs/promises');
 jest.mock('fs');
 jest.mock('path');
@@ -348,12 +350,13 @@ describe('fileController', () => {
       } as any as Partial<CustomRequest>;
       (path.resolve as jest.Mock).mockReturnValue('/path/to/file');
       (path.relative as jest.Mock).mockReturnValue('stored-test.txt');
+      (hasPermission as jest.Mock).mockResolvedValue(false);
     });
 
     it('should delete file successfully', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
       (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
-      (fileModel.deleteFile as jest.Mock).mockResolvedValue(undefined);
+      (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
       (fs.unlink as jest.Mock).mockResolvedValue(undefined);
 
       await deleteFile(
@@ -362,7 +365,8 @@ describe('fileController', () => {
         mockPool as Pool,
       );
 
-      expect(fileModel.deleteFile).toHaveBeenCalledWith(mockPool, '1');
+      // Non-admin: the owner id is passed so the model can scope the delete.
+      expect(fileModel.deleteFile).toHaveBeenCalledWith(mockPool, '1', '1');
       expect(fs.unlink).toHaveBeenCalledWith('/path/to/file');
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -432,10 +436,46 @@ describe('fileController', () => {
       expect(mockRes.status).not.toHaveBeenCalledWith(500);
     });
 
+    it('should return 403 when the file belongs to another user', async () => {
+      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
+      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
+      (fileModel.deleteFile as jest.Mock).mockResolvedValue(null);
+
+      await deleteFile(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(fs.unlink).not.toHaveBeenCalled();
+    });
+
+    it('should delete any file for an administrator', async () => {
+      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
+      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
+      (hasPermission as jest.Mock).mockResolvedValue(true);
+      (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
+      (fs.unlink as jest.Mock).mockResolvedValue(undefined);
+
+      await deleteFile(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(fileModel.deleteFile).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        undefined,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
     it('should succeed even if file does not exist on disk', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
       (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
-      (fileModel.deleteFile as jest.Mock).mockResolvedValue(undefined);
+      (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
       (fs.unlink as jest.Mock).mockRejectedValue(new Error('File not found'));
 
       await deleteFile(

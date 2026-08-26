@@ -113,15 +113,16 @@ export const createProject = async (
   return result.rows[0];
 };
 
-// Change a project status
+// Change a project status. The function returns a message row, or no row at all
+// when the project does not exist.
 export const changeProjectStatus = async (
   pool: Pool,
   id: string,
-  status: string,
-): Promise<Project | null> => {
-  const result: QueryResult<Project> = await pool.query(
+  statusId: number,
+): Promise<{ message: string } | null> => {
+  const result: QueryResult<{ message: string }> = await pool.query(
     `SELECT * FROM change_project_status($1, $2)`,
-    [id, status],
+    [id, statusId],
   );
   return result.rows[0] || null;
 };

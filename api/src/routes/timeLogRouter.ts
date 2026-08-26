@@ -5,6 +5,7 @@ import checkPermission from '../middleware/permissionMiddleware';
 import {
   requireProjectAccess,
   requireTaskAccess,
+  requireTimeLogOwnership,
 } from '../middleware/projectAccessMiddleware';
 import { withPool } from '../utils/withPool';
 
@@ -13,6 +14,8 @@ export default (pool: Pool): Router => {
   // Time logs are project data: reaching one means reaching its task's project.
   const taskAccess = requireTaskAccess(pool, 'taskId');
   const projectAccess = requireProjectAccess(pool, 'projectId');
+  // Holding "Edit log" lets you edit your own hours, not somebody else's.
+  const logOwnership = requireTimeLogOwnership(pool, 'timeLogId');
 
   router.get(
     '/',
@@ -48,11 +51,13 @@ export default (pool: Pool): Router => {
   router.put(
     '/:timeLogId',
     checkPermission(pool, 'Edit log'),
+    logOwnership,
     withPool(pool, timeLogController.updateTimeLog),
   );
   router.delete(
     '/:timeLogId',
     checkPermission(pool, 'Delete log'),
+    logOwnership,
     withPool(pool, timeLogController.deleteTimeLog),
   );
 

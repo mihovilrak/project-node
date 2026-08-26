@@ -199,9 +199,24 @@ describe('Projects API', () => {
       const error = new Error('Invalid status transition');
       mockedApi.patch.mockRejectedValueOnce(error);
 
-      await expect(changeProjectStatus(1)).rejects.toThrow(
+      await expect(changeProjectStatus(1, 2)).rejects.toThrow(
         'Invalid status transition',
       );
+    });
+
+    it('should send the numeric status id', async () => {
+      mockedApi.patch.mockResolvedValueOnce({
+        data: { message: 'Project status changed to inactive.' },
+      });
+
+      const result = await changeProjectStatus(1, 2);
+
+      expect(mockedApi.patch).toHaveBeenCalledWith('/projects/1/status', {
+        status_id: 2,
+      });
+      expect(result).toEqual({
+        message: 'Project status changed to inactive.',
+      });
     });
   });
 

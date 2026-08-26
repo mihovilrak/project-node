@@ -1,5 +1,5 @@
 import { logger } from '../utils/logger';
-import { Metrics } from '../types/metrics.types';
+import { Metrics, MetricType } from '../types/metrics.types';
 
 const metricsLogger = logger.child({ service: 'notification-metrics' });
 const METRICS_DEBOUNCE_MS = 30000;
@@ -9,11 +9,10 @@ const metrics: Metrics = {
   notificationsSent: 0,
   emailErrors: 0,
   notificationErrors: 0,
+  notificationsDeadLettered: 0,
   lastProcessingTime: null,
 
-  increment(
-    metric: 'notificationsSent' | 'emailErrors' | 'notificationErrors',
-  ): void {
+  increment(metric: MetricType): void {
     this[metric]++;
     this.scheduleLogMetrics();
   },
