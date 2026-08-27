@@ -126,9 +126,7 @@ const TaskCard: React.FC<{
             </Box>
             <Box>
               <strong>Start</strong>{' '}
-              {task?.start_date
-                ? formatDate(task.start_date)
-                : '—'}
+              {task?.start_date ? formatDate(task.start_date) : '—'}
             </Box>
             <Box>
               <strong>Project</strong>{' '}
@@ -152,9 +150,7 @@ const TaskCard: React.FC<{
             </Box>
             <Box>
               <strong>Due</strong>{' '}
-              {task?.due_date
-                ? formatDate(task.due_date)
-                : '—'}
+              {task?.due_date ? formatDate(task.due_date) : '—'}
             </Box>
             <Box />
           </Box>

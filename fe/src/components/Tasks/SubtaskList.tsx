@@ -268,9 +268,7 @@ const SubtaskList: React.FC<SubtaskListProps> = ({
               )}
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1, whiteSpace: 'nowrap' }}>
-              {subtask.due_date
-                ? formatDate(subtask.due_date)
-                : '—'}
+              {subtask.due_date ? formatDate(subtask.due_date) : '—'}
             </TableCell>
             <TableCell sx={{ py: 0.75, px: 1 }}>
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>

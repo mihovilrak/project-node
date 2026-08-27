@@ -5,10 +5,12 @@ import { TimeLog } from '../../types/timeLog';
 import { CalendarView } from '../../types/calendar';
 import { useNavigate } from 'react-router-dom';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useCalendar = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<CalendarView>('month');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
@@ -33,11 +35,13 @@ export const useCalendar = () => {
   const fetchTasks = async (start: Date, end: Date): Promise<void> => {
     try {
       setLoading(true);
+      setError(null);
       const tasksData = await getTasksByDateRange(start, end);
       setTasks(tasksData || []);
-    } catch (error: unknown) {
-      logger.error('Failed to fetch tasks:', error);
+    } catch (err: unknown) {
+      logger.error('Failed to fetch tasks:', err);
       setTasks([]);
+      setError(getApiErrorMessage(err, 'Failed to load calendar tasks'));
     } finally {
       setLoading(false);
     }
@@ -61,6 +65,7 @@ export const useCalendar = () => {
   return {
     tasks,
     loading,
+    error,
     view,
     selectedDate,
     timeLogs,

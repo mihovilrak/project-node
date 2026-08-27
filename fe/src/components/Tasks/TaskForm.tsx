@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Box, Typography, Paper, Grid } from '@mui/material';
+import { Box, Typography, Paper, Grid, Alert } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useTaskForm } from '../../hooks/task/useTaskForm';
 import { SimpleChangeEvent } from '../../types/task';
@@ -33,6 +33,7 @@ const TaskForm: React.FC = () => {
     projects,
     projectMembers,
     projectTasks,
+    selectError,
     statuses,
     priorities,
     isEditing,
@@ -91,6 +92,11 @@ const TaskForm: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         {isLoading ? 'Loading...' : isEditing ? 'Edit Task' : 'Create Task'}
       </Typography>
+      {selectError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {selectError}
+        </Alert>
+      )}
       <form onSubmit={onSubmit} data-testid="task-form">
         <Grid container spacing={2}>
           <Grid size={{ xs: 12 }}>

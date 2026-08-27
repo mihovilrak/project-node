@@ -8,6 +8,7 @@ import { getProjectTasks } from '../../api/tasks';
 import { getUsers } from '../../api/users';
 import { getActivityTypes } from '../../api/activityTypes';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTimeLogData = ({
   open,
@@ -19,15 +20,18 @@ export const useTimeLogData = ({
   const [users, setUsers] = useState<User[]>([]);
   const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         setIsLoading(true);
+        setLoadError(null);
         const [activityTypesData] = await Promise.all([getActivityTypes()]);
         setActivityTypes(activityTypesData);
-      } catch (error) {
-        logger.error('Error loading data:', error);
+      } catch (err) {
+        logger.error('Error loading data:', err);
+        setLoadError(getApiErrorMessage(err, 'Failed to load activity types'));
       } finally {
         setIsLoading(false);
       }
@@ -42,6 +46,7 @@ export const useTimeLogData = ({
     const loadProjectsAndTasks = async () => {
       try {
         setIsLoading(true);
+        setLoadError(null);
         const [projectsData] = await Promise.all([getProjects()]);
         setProjects(projectsData);
 
@@ -54,8 +59,9 @@ export const useTimeLogData = ({
           const projectTasks = await getProjectTasks(projectId);
           setTasks(projectTasks);
         }
-      } catch (error) {
-        logger.error('Error loading projects and tasks:', error);
+      } catch (err) {
+        logger.error('Error loading projects and tasks:', err);
+        setLoadError(getApiErrorMessage(err, 'Failed to load projects and tasks'));
       } finally {
         setIsLoading(false);
       }
@@ -68,10 +74,12 @@ export const useTimeLogData = ({
     if (projectId !== null) {
       setIsLoading(true);
       try {
+        setLoadError(null);
         const projectTasks = await getProjectTasks(projectId);
         setTasks(projectTasks);
-      } catch (error) {
-        logger.error('Error loading tasks:', error);
+      } catch (err) {
+        logger.error('Error loading tasks:', err);
+        setLoadError(getApiErrorMessage(err, 'Failed to load tasks'));
       } finally {
         setIsLoading(false);
       }
@@ -86,6 +94,7 @@ export const useTimeLogData = ({
     users,
     activityTypes,
     isLoading,
+    loadError,
     handleProjectSelect,
   };
 };

@@ -69,6 +69,8 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
                 <TableCell>
                   <Box
                     data-testid={`color-box-${type?.id || 'unknown'}`}
+                    role="img"
+                    aria-label={`Colour ${type?.color || '#666'}`}
                     sx={{
                       width: 24,
                       height: 24,

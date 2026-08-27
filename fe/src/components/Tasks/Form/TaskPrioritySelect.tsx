@@ -22,6 +22,7 @@ export const TaskPrioritySelect: React.FC<TaskPrioritySelectProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {priority.color && (
             <Box
+              aria-hidden="true"
               sx={{
                 width: 16,
                 height: 16,

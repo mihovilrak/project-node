@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   ChevronLeft,
@@ -25,6 +26,7 @@ const Calendar: React.FC = () => {
   const {
     tasks,
     loading,
+    error,
     view,
     selectedDate,
     timeLogs,
@@ -109,6 +111,12 @@ const Calendar: React.FC = () => {
             </Tooltip>
           </Box>
         </Box>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>

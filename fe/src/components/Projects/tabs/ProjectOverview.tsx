@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
   Link,
+  Alert,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -18,7 +19,11 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({
   project,
   projectDetails,
 }) => {
-  const { subprojects, handleAddSubproject } = useProjectOverview(project?.id);
+  const {
+    subprojects,
+    error: subprojectsError,
+    handleAddSubproject,
+  } = useProjectOverview(project?.id);
 
   if (!project || !projectDetails) {
     return <Typography>Loading project details...</Typography>;
@@ -26,6 +31,12 @@ const ProjectOverview: React.FC<ProjectOverviewProps> = ({
 
   return (
     <Grid container spacing={2}>
+      {subprojectsError && (
+        <Grid size={{ xs: 12 }}>
+          <Alert severity="error">{subprojectsError}</Alert>
+        </Grid>
+      )}
+
       <Grid size={{ xs: 12 }}>
         <Typography variant="body1" paragraph>
           <strong>Description:</strong>{' '}

@@ -22,6 +22,7 @@ export const TaskStatusSelect: React.FC<TaskStatusSelectProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {status.color && (
             <Box
+              aria-hidden="true"
               sx={{
                 width: 16,
                 height: 16,

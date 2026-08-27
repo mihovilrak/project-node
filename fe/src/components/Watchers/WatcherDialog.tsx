@@ -72,8 +72,9 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
       PaperProps={{
         sx: { minHeight: '50vh' },
       }}
+      aria-labelledby="watcher-dialog-title"
     >
-      <DialogTitle>Manage Watchers</DialogTitle>
+      <DialogTitle id="watcher-dialog-title">Manage Watchers</DialogTitle>
       <DialogContent>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>

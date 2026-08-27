@@ -63,9 +63,15 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="profile-edit-dialog-title"
+    >
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogTitle id="profile-edit-dialog-title">Edit Profile</DialogTitle>
         <DialogContent>
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>

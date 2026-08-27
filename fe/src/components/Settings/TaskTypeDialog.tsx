@@ -22,7 +22,7 @@ import { useIconSelector } from '../../hooks/setting/useIconSelector';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const IconSelector = ({ value, onChange }: IconSelectorProps) => {
-  const { icons, open, handleOpen, handleClose, handleSelect } =
+  const { icons, open, error, handleOpen, handleClose, handleSelect } =
     useIconSelector(value);
 
   const getIconComponent = (iconName?: string) => {
@@ -55,9 +55,18 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         </IconButton>
       </Box>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Select an Icon</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="task-type-dialog-title"
+      >
+        <DialogTitle id="task-type-dialog-title">Select an Icon</DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <Grid container spacing={1} sx={{ p: 2 }}>
             {(icons || []).map((iconName) => {
               const IconComponent = iconName
@@ -153,9 +162,15 @@ const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="task-type-dialog-title-2"
+    >
       <form onSubmit={handleSubmit}>
-        <DialogTitle>
+        <DialogTitle id="task-type-dialog-title-2">
           {taskType ? 'Edit Task Type' : 'Create Task Type'}
         </DialogTitle>
         <DialogContent>

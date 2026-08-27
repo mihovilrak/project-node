@@ -88,8 +88,11 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
       maxWidth="sm"
       fullWidth
       data-testid="password-change-dialog"
+      aria-labelledby="password-change-dialog-title"
     >
-      <DialogTitle data-testid="dialog-title">Change Password</DialogTitle>
+      <DialogTitle id="password-change-dialog-title" data-testid="dialog-title">
+        Change Password
+      </DialogTitle>
       <form onSubmit={handleSubmit} data-testid="password-form">
         <DialogContent>
           {error && (

@@ -171,9 +171,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="body2">
                 Created:{' '}
-                {task?.created_on
-                  ? formatDate(task.created_on)
-                  : 'Unknown'}
+                {task?.created_on ? formatDate(task.created_on) : 'Unknown'}
               </Typography>
             </Grid>
             {task?.due_date && (

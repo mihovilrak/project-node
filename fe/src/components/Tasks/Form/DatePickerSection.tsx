@@ -23,7 +23,7 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({
             handleChange({
               target: {
                 name: 'start_date',
-                value: newValue ? newValue.toISOString() : '',
+                value: newValue ? newValue.format('YYYY-MM-DD') : '',
               },
             })
           }
@@ -46,7 +46,7 @@ export const DatePickerSection: React.FC<DatePickerSectionProps> = ({
             handleChange({
               target: {
                 name: 'due_date',
-                value: newValue ? newValue.toISOString() : '',
+                value: newValue ? newValue.format('YYYY-MM-DD') : '',
               },
             })
           }

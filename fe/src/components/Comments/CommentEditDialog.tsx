@@ -46,8 +46,14 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Comment</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="comment-edit-dialog-title"
+    >
+      <DialogTitle id="comment-edit-dialog-title">Edit Comment</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus

@@ -30,6 +30,7 @@ const ProjectDetails: React.FC = () => {
     timeLogs,
     loading,
     error,
+    tasksError,
     editDialogOpen,
     deleteDialogOpen,
     taskFormOpen,
@@ -130,6 +131,12 @@ const ProjectDetails: React.FC = () => {
             data-testid="project-actions"
           />
         </Box>
+
+        {tasksError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {tasksError}
+          </Alert>
+        )}
 
         <Tabs
           value={activeTab}

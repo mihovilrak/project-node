@@ -4,12 +4,13 @@ import dayjs from 'dayjs';
 import { Project, ProjectFormData, ProjectStatus } from '../../types/project';
 import { getProjectStatuses } from '../../api/projects';
 import logger from '../../utils/logger';
+import { toDateOnlyString } from '../../utils/dateUtils';
 
 export const useProjectForm = (project?: Project, parentId?: string | null) => {
   const [formData, setFormData] = useState<ProjectFormData>({
     name: project?.name || '',
     description: project?.description || null,
-    start_date: project?.start_date || new Date().toISOString().split('T')[0],
+    start_date: project?.start_date || toDateOnlyString(new Date()),
     due_date: project?.due_date || '',
     status_id: project?.status_id || 1,
     parent_id: project?.parent_id || (parentId ? parseInt(parentId) : null),

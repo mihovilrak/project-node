@@ -65,7 +65,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Tooltip
             title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
           >
-            <IconButton color="inherit" onClick={toggleTheme} sx={{ ml: 1 }}>
+            <IconButton
+              color="inherit"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+              sx={{ ml: 1 }}
+            >
               {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
             </IconButton>
           </Tooltip>

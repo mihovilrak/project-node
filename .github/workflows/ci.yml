@@ -2,9 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
-    branches: [main, develop]
+    branches: [develop]
+  workflow_call:
 
 env:
   NODE_VERSION: '25.x'
@@ -160,8 +161,10 @@ jobs:
 
       - name: Initialize test database
         run: |
+          set -euo pipefail
           for f in ../db/init/*.sql; do
-            PGPASSWORD=pm_password psql -h localhost -U pm_user -d pm_test -f "$f"
+            echo "Applying $f"
+            PGPASSWORD=pm_password psql -v ON_ERROR_STOP=1 -h localhost -U pm_user -d pm_test -f "$f"
           done
         env:
           PGHOST: localhost

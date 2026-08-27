@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { FormattedTask } from '../../types/project';
+import { toLocalDate } from '../../utils/dateUtils';
 
 export const useProjectGantt = (initialTasks: any[]) => {
   const [tasks, setTasks] = useState<FormattedTask[]>([]);
@@ -15,8 +16,8 @@ export const useProjectGantt = (initialTasks: any[]) => {
       (task) => ({
         id: task.id,
         title: task.name,
-        startDate: new Date(task.start_date),
-        endDate: new Date(task.due_date),
+        startDate: toLocalDate(task.start_date) as Date,
+        endDate: toLocalDate(task.due_date) as Date,
         assigneeId: task.assignee_id,
         type_name: task.type_name,
         priority: task.priority_name,

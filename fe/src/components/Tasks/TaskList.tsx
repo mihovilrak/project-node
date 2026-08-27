@@ -138,10 +138,7 @@ const TaskList: React.FC = () => {
                   />
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  Due:{' '}
-                  {task?.due_date
-                    ? formatDate(task.due_date)
-                    : '-'}
+                  Due: {task?.due_date ? formatDate(task.due_date) : '-'}
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 1 }}>
                   Assignee: {task?.assignee_name || 'Unassigned'}
