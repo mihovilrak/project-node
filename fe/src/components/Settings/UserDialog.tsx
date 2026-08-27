@@ -40,9 +40,15 @@ const UserDialog: React.FC<UserDialogProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="user-dialog-title"
+    >
       <form onSubmit={handleSubmit} role="form">
-        <DialogTitle>
+        <DialogTitle id="user-dialog-title">
           {user ? `Edit user ${user.name} ${user.surname}` : 'Create New User'}
         </DialogTitle>
         <DialogContent>

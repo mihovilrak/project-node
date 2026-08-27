@@ -12,6 +12,7 @@ import {
   Tabs,
   Tab,
   Paper,
+  Alert,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -46,6 +47,8 @@ const NotificationsPage: React.FC = () => {
   const {
     notifications,
     loading,
+    error,
+    clearError,
     unreadCount,
     handleNotificationClick,
     handleDeleteNotification,
@@ -114,6 +117,12 @@ const NotificationsPage: React.FC = () => {
           </Button>
         )}
       </Box>
+
+      {error && (
+        <Alert severity="error" onClose={clearError} sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
         <Tabs

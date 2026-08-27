@@ -13,9 +13,16 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    needs: ci
     permissions:
       contents: read
       packages: write
@@ -46,7 +53,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
-            latest
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -62,7 +69,7 @@ jobs:
   docker-compose-test:
     name: Docker Compose Test
     runs-on: ubuntu-latest
-    needs: build
+    needs: [ci, build]
     if: github.event_name == 'pull_request'
 
     steps:
@@ -77,10 +84,37 @@ jobs:
         with:
           context: .
           push: false
+          load: true
           tags: pm:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+
+      - name: Create .env for the test stack
+        run: |
+          set -euo pipefail
+          {
+            echo 'APP_IMAGE=pm:latest'
+            echo 'POSTGRES_USER=pm_user'
+            echo 'POSTGRES_DB=pm_db'
+            echo 'POSTGRES_PASSWORD=ci_postgres_password'
+            echo 'ADMIN_PASSWORD=ci_admin_password'
+            echo 'TZ=UTC'
+            echo 'NODE_ENV=production'
+            echo 'FE_URL=http://localhost:3000'
+            echo 'EMAIL_ENABLED=false'
+            echo 'EMAIL_HOST=localhost'
+            echo 'EMAIL_PORT=587'
+            echo 'EMAIL_SECURE=false'
+            echo 'EMAIL_USER=ci@example.com'
+            echo 'EMAIL_PASSWORD=ci_email_password'
+            echo 'EMAIL_FROM=CI <ci@example.com>'
+            echo 'NOTIFICATION_RATE_LIMIT=100'
+            echo 'LOG_LEVEL=info'
+            # Secrets the app refuses to start without; random per run.
+            echo "SESSION_SECRET=$(openssl rand -hex 32)"
+            echo "NOTIFICATION_API_KEY=$(openssl rand -hex 32)"
+          } > .env
 
       - name: Start services with Docker Compose
         run: docker compose up -d
@@ -93,17 +127,49 @@ jobs:
 
       - name: Wait for application to be ready
         run: |
+          set -euo pipefail
           echo "Waiting for application to start..."
-          timeout 120 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 3; done'
+          timeout 120 bash -c 'until curl -fsS http://localhost:3000 > /dev/null; do sleep 3; done'
           echo "Application is ready!"
 
       - name: Verify services are running
         run: |
+          set -euo pipefail
           echo "Checking service status..."
           docker compose ps
+
           echo "Testing frontend endpoint..."
-          curl -f http://localhost:3000 || (echo "Frontend not accessible" && exit 1)
+          curl -fsS http://localhost:3000 > /dev/null
+
+          # Unauthenticated session check must reach Express and answer 401,
+          # not the SPA fallback that nginx serves for unknown paths.
+          echo "Testing API routing..."
+          session_status=$(curl -s -o /tmp/session.json -w '%{http_code}' http://localhost:3000/api/check-session)
+          echo "GET /api/check-session -> $session_status"
+          cat /tmp/session.json
+          if [ "$session_status" != "401" ]; then
+            echo "Expected 401 from /api/check-session, got $session_status"
+            exit 1
+          fi
+
+          # Rejected login proves the API reached the database: a dead pool
+          # surfaces as 500 from the error handler instead of 401.
+          echo "Testing API database connectivity..."
+          login_status=$(curl -s -o /tmp/login.json -w '%{http_code}'             -X POST http://localhost:3000/api/login             -H 'Content-Type: application/json'             -d '{"login":"ci-smoke-test","password":"ci-smoke-test"}')
+          echo "POST /api/login -> $login_status"
+          cat /tmp/login.json
+          if [ "$login_status" != "401" ]; then
+            echo "Expected 401 from /api/login, got $login_status"
+            exit 1
+          fi
+
           echo "All services are running correctly!"
+
+      - name: Dump service logs on failure
+        if: failure()
+        run: |
+          docker compose ps -a || true
+          docker compose logs --no-color --tail=500 || true
 
       - name: Stop services
         run: docker compose down -v

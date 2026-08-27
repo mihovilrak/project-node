@@ -43,6 +43,7 @@ export const useTimeLogDialog = ({
     users,
     activityTypes,
     isLoading,
+    loadError,
     handleProjectSelect: handleProjectDataFetch,
   } = useTimeLogData({
     open,
@@ -160,6 +161,7 @@ export const useTimeLogDialog = ({
     users,
     activityTypes,
     isLoading,
+    loadError,
     setSelectedProjectId,
     setSelectedTaskId,
     setSelectedUserId,

@@ -1,4 +1,5 @@
 import { Task } from '../../types/task';
+import { toLocalDate } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarDay } from '../../types/calendar';
 
@@ -65,9 +66,9 @@ export const useCalendarDays = (
       return [];
     }
     return tasks.filter((task) => {
-      const startDate = task.start_date ? new Date(task.start_date) : null;
-      const endDate = task.end_date ? new Date(task.end_date) : null;
-      const dueDate = task.due_date ? new Date(task.due_date) : null;
+      const startDate = toLocalDate(task.start_date);
+      const endDate = toLocalDate(task.end_date);
+      const dueDate = toLocalDate(task.due_date);
       return (
         (startDate && startDate.toDateString() === day.toDateString()) ||
         (endDate && endDate.toDateString() === day.toDateString()) ||

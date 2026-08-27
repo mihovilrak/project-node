@@ -7,6 +7,7 @@ import {
 } from '../../api/notifications';
 import { Notification } from '../../types/notification';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useNotificationCenter = (
   userId: number | undefined,
@@ -16,6 +17,7 @@ export const useNotificationCenter = (
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const fetchNotifications = async (): Promise<void> => {
@@ -23,13 +25,15 @@ export const useNotificationCenter = (
 
     try {
       setLoading(true);
+      setError(null);
       const data = await getNotifications();
       setNotifications(data || []);
       setUnreadCount((data || []).filter((n) => !n?.is_read).length);
-    } catch (error: unknown) {
-      logger.error('Failed to fetch notifications:', error);
+    } catch (err: unknown) {
+      logger.error('Failed to fetch notifications:', err);
       setNotifications([]);
       setUnreadCount(0);
+      setError(getApiErrorMessage(err, 'Failed to load notifications'));
     } finally {
       setLoading(false);
     }
@@ -87,9 +91,9 @@ export const useNotificationCenter = (
       if (!id) return;
       await deleteNotification(id);
       await fetchNotifications();
-    } catch (error: unknown) {
-      logger.error('Failed to delete notification:', error);
-      // Continue - user can try again
+    } catch (err: unknown) {
+      logger.error('Failed to delete notification:', err);
+      setError(getApiErrorMessage(err, 'Failed to delete notification'));
     }
   };
 
@@ -98,8 +102,9 @@ export const useNotificationCenter = (
     try {
       await markAsRead();
       await fetchNotifications();
-    } catch (error: unknown) {
-      logger.error('Failed to mark all notifications as read:', error);
+    } catch (err: unknown) {
+      logger.error('Failed to mark all notifications as read:', err);
+      setError(getApiErrorMessage(err, 'Failed to mark notifications as read'));
     }
   };
 
@@ -107,6 +112,8 @@ export const useNotificationCenter = (
     anchorEl,
     notifications,
     loading,
+    error,
+    clearError: () => setError(null),
     unreadCount,
     fetchNotifications,
     handleClick,

@@ -41,6 +41,7 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
     users,
     activityTypes,
     isLoading,
+    loadError,
     setSelectedProjectId,
     setSelectedTaskId,
     setSelectedUserId,
@@ -74,8 +75,9 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
           boxShadow: 3,
         },
       }}
+      aria-labelledby="time-log-dialog-title"
     >
-      <DialogTitle sx={{ pb: 0, mb: 0 }}>
+      <DialogTitle id="time-log-dialog-title" sx={{ pb: 0, mb: 0 }}>
         {timeLog ? 'Edit Time Log' : 'Log Time'}
       </DialogTitle>
       <DialogContent
@@ -89,6 +91,11 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
         {submitError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {submitError}
+          </Alert>
+        )}
+        {loadError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {loadError}
           </Alert>
         )}
         {isLoading ? (

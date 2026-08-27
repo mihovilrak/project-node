@@ -97,6 +97,7 @@ const WatcherList: React.FC<WatcherListProps> = ({
                   <Tooltip title="Remove watcher">
                     <IconButton
                       edge="end"
+                      aria-label={`Remove watcher ${watcher?.user_name || 'Unknown User'}`}
                       onClick={() => onRemoveWatcher(watcher.user_id)}
                       size="small"
                       disabled={!watcher.user_id}

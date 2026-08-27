@@ -173,8 +173,9 @@ const UserTable: React.FC<UserTableProps> = ({
         open={deleteDialogOpen}
         onClose={handleDeleteCancel}
         data-testid="delete-dialog"
+        aria-labelledby="user-table-title"
       >
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle id="user-table-title">Confirm Delete</DialogTitle>
         <DialogContent>
           {deleteError && (
             <Alert severity="error" sx={{ mb: 2 }} data-testid="delete-error">

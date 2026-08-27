@@ -58,8 +58,14 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Project</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="project-edit-dialog-title"
+    >
+      <DialogTitle id="project-edit-dialog-title">Edit Project</DialogTitle>
       <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} data-testid="error-alert">

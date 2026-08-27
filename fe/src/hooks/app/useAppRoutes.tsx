@@ -4,6 +4,7 @@ import { Task } from '../../types/task';
 import { TaskFile } from '../../types/file';
 import { getTaskById } from '../../api/tasks';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useTaskFileWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,23 +32,26 @@ export const useTimeLogCalendarWrapper = () => {
 
 export const useTaskTimeLogsWrapper = () => {
   const [task, setTask] = useState<Task | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     const fetchTask = async () => {
       if (id) {
         try {
+          setError(null);
           const taskData = await getTaskById(parseInt(id));
           setTask(taskData);
-        } catch (error) {
-          logger.error('Failed to fetch task:', error);
+        } catch (err) {
+          logger.error('Failed to fetch task:', err);
+          setError(getApiErrorMessage(err, 'Failed to load task'));
         }
       }
     };
     fetchTask();
   }, [id]);
 
-  return { task };
+  return { task, error };
 };
 
 export const useAppState = () => {

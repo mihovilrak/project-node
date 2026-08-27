@@ -23,6 +23,7 @@ import { updateTaskDates } from '../../api/tasks';
 import { ProjectGanttProps } from '../../types/project';
 import { useProjectGantt } from '../../hooks/project/useProjectGantt';
 import logger from '../../utils/logger';
+import { toDateOnlyString } from '../../utils/dateUtils';
 
 const ProjectGantt: React.FC<ProjectGanttProps> = ({
   projectId,
@@ -50,8 +51,8 @@ const ProjectGantt: React.FC<ProjectGanttProps> = ({
 
         if (updatedTask.startDate || updatedTask.endDate) {
           await updateTaskDates(parseInt(taskId), {
-            start_date: updatedTask.startDate?.toISOString().split('T')[0],
-            due_date: updatedTask.endDate?.toISOString().split('T')[0],
+            start_date: toDateOnlyString(updatedTask.startDate),
+            due_date: toDateOnlyString(updatedTask.endDate),
           });
         }
       }

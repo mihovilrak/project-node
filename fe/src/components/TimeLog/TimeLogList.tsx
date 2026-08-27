@@ -98,9 +98,7 @@ const TimeLogList: React.FC<TimeLogListProps> = ({
                 )}
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                {log?.log_date
-                  ? formatDate(log.log_date)
-                  : '—'}
+                {log?.log_date ? formatDate(log.log_date) : '—'}
               </TableCell>
               <TableCell>
                 {log?.user_id ? (

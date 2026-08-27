@@ -68,6 +68,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Bold">
         <IconButton
           size="small"
+          aria-label="Bold"
           color={editor.isActive('bold') ? 'primary' : 'default'}
           onClick={() => editor.chain().focus().toggleBold().run()}
         >
@@ -77,6 +78,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Italic">
         <IconButton
           size="small"
+          aria-label="Italic"
           color={editor.isActive('italic') ? 'primary' : 'default'}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         >
@@ -86,6 +88,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Underline">
         <IconButton
           size="small"
+          aria-label="Underline"
           color={editor.isActive('underline') ? 'primary' : 'default'}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
         >
@@ -95,6 +98,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 1">
         <IconButton
           size="small"
+          aria-label="Heading 1"
           color={
             editor.isActive('heading', { level: 1 }) ? 'primary' : 'default'
           }
@@ -108,6 +112,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 2">
         <IconButton
           size="small"
+          aria-label="Heading 2"
           color={
             editor.isActive('heading', { level: 2 }) ? 'primary' : 'default'
           }
@@ -121,6 +126,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <Tooltip title="Heading 3">
         <IconButton
           size="small"
+          aria-label="Heading 3"
           color={
             editor.isActive('heading', { level: 3 }) ? 'primary' : 'default'
           }

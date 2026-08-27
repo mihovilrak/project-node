@@ -4,21 +4,24 @@ import { Task } from '../../types/task';
 import { ProjectTasksHook } from '../../types/project';
 import { getProjectTasks } from '../../api/tasks';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
+  const [tasksError, setTasksError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const loadTasks = async () => {
     if (projectId) {
       try {
+        setTasksError(null);
         const tasks = await getProjectTasks(Number(projectId));
         setTasks(tasks || []);
-      } catch (error: unknown) {
-        logger.error('Failed to load tasks:', error);
+      } catch (err: unknown) {
+        logger.error('Failed to load tasks:', err);
         setTasks([]);
-        // Don't throw - let parent component handle error display
+        setTasksError(getApiErrorMessage(err, 'Failed to load project tasks'));
       }
     }
   };
@@ -30,6 +33,7 @@ export const useProjectTasks = (projectId: string): ProjectTasksHook => {
   return {
     tasks,
     setTasks,
+    tasksError,
     taskFormOpen,
     setTaskFormOpen,
     handleTaskCreate,

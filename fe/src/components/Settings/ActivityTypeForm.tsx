@@ -8,6 +8,7 @@ import {
   Box,
   FormControl,
   InputLabel,
+  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,7 +19,7 @@ import { useIconSelector } from '../../hooks/setting/useIconSelector';
 import { ActivityTypeFormProps, IconSelectorProps } from '../../types/setting';
 
 const IconSelector = ({ value, onChange }: IconSelectorProps) => {
-  const { icons, open, handleOpen, handleClose, handleSelect } =
+  const { icons, open, error, handleOpen, handleClose, handleSelect } =
     useIconSelector(value);
 
   const getIconComponent = (iconName?: string) => {
@@ -51,9 +52,18 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
         </IconButton>
       </Box>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Select an Icon</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="activity-type-form-title"
+      >
+        <DialogTitle id="activity-type-form-title">Select an Icon</DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <Grid container spacing={1} sx={{ p: 2 }}>
             {(icons || []).map((iconName) => {
               const IconComponent = iconName

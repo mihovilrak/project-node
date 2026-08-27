@@ -56,6 +56,19 @@ export const toLocalDate = (value: DateInput): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+/**
+ * 'YYYY-MM-DD' from a Date's local calendar parts. `toISOString()` would
+ * convert to UTC first and land on the neighbouring day either side of
+ * Greenwich.
+ */
+export const toDateOnlyString = (value: DateInput): string => {
+  const date = toLocalDate(value);
+  if (!date) return '';
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
 /** date-fns formatting for a calendar date, without the UTC-parse day shift. */
 export const formatDatePattern = (
   value: DateInput,

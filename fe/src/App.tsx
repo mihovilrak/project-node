@@ -6,6 +6,7 @@ import PrivateRoute from './utils/PrivateRoute';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 
 const Home = lazy(() => import('./components/Home/Home'));
 const Login = lazy(() => import('./components/Auth/Login'));
@@ -63,10 +64,14 @@ const TimeLogCalendarWrapper: React.FC = () => {
 };
 
 const TaskTimeLogsWrapper: React.FC = () => {
-  const { task } = useTaskTimeLogsWrapper();
+  const { task, error: taskError } = useTaskTimeLogsWrapper();
 
   if (!task) {
-    return null;
+    return taskError ? (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{taskError}</Alert>
+      </Box>
+    ) : null;
   }
 
   return <TaskTimeLogs task={task} />;

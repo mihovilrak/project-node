@@ -65,6 +65,7 @@ export const useTaskForm = ({
     projects,
     projectMembers: fetchedProjectMembers,
     projectTasks,
+    selectError,
   } = useProjectSelect(formData.project_id, taskId);
 
   useEffect(() => {
@@ -88,10 +89,10 @@ export const useTaskForm = ({
 
           // Format dates properly
           const formattedStartDate = taskData.start_date
-            ? dayjs(taskData.start_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+            ? dayjs(taskData.start_date).format('YYYY-MM-DD')
             : null;
           const formattedDueDate = taskData.due_date
-            ? dayjs(taskData.due_date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+            ? dayjs(taskData.due_date).format('YYYY-MM-DD')
             : null;
 
           setFormData({
@@ -258,6 +259,7 @@ export const useTaskForm = ({
     projects,
     projectMembers,
     projectTasks,
+    selectError,
     statuses,
     priorities,
     availableTags,

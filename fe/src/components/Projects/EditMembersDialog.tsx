@@ -74,8 +74,16 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Project Members</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="edit-members-dialog-title"
+    >
+      <DialogTitle id="edit-members-dialog-title">
+        Edit Project Members
+      </DialogTitle>
       <DialogContent>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>

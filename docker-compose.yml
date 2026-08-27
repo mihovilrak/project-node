@@ -23,7 +23,7 @@ services:
 
   app:
     <<: *defaults
-    image: ghcr.io/mihovilrak/project-node:latest
+    image: ${APP_IMAGE:-ghcr.io/mihovilrak/project-node:latest}
     container_name: pm_app
     environment:
       <<: *db

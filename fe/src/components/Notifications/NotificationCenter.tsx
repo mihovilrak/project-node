@@ -15,6 +15,7 @@ import {
   Paper,
   Tabs,
   Tab,
+  Alert,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -68,6 +69,8 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
     anchorEl,
     notifications,
     loading,
+    error,
+    clearError,
     unreadCount,
     handleClick,
     handleClose,
@@ -134,6 +137,12 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         <Tab label="Unread" value="unread" data-testid="tab-unread" />
       </Tabs>
       <Divider />
+
+      {error && (
+        <Alert severity="error" onClose={clearError} sx={{ m: 1 }}>
+          {error}
+        </Alert>
+      )}
 
       {loading ? (
         renderLoadingComponent()

@@ -109,14 +109,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, loading }) => {
                 </TableCell>
                 <TableCell>{task?.holder_name || 'Unassigned'}</TableCell>
                 <TableCell>
-                  {task?.due_date
-                    ? formatDate(task.due_date)
-                    : '-'}
+                  {task?.due_date ? formatDate(task.due_date) : '-'}
                 </TableCell>
                 <TableCell>
                   <Tooltip title="Edit Task">
                     <IconButton
                       size="small"
+                      aria-label={`Edit task ${task?.name ?? ''}`}
                       onClick={() => navigate(`/tasks/${task?.id}`)}
                     >
                       <EditIcon />

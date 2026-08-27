@@ -227,6 +227,7 @@ export interface ProjectMembersHook {
 export interface ProjectTasksHook {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  tasksError: string | null;
   taskFormOpen: boolean;
   setTaskFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleTaskCreate: (task: Task) => Promise<void>;
