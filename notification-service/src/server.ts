@@ -13,6 +13,15 @@ const app = express();
 app.use(express.json());
 app.use('/api/notifications', apiKeyAuth, rateLimiter, notificationRoutes);
 
+app.get('/ready', async (_req: Request, res: Response) => {
+  try {
+    await pool.query('SELECT 1');
+    res.status(200).json({ status: 'ready' });
+  } catch {
+    res.status(503).json({ status: 'not ready' });
+  }
+});
+
 // Health check endpoint
 app.get('/health', async (req: Request, res: Response) => {
   try {

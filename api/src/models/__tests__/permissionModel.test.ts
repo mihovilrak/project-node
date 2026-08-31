@@ -84,6 +84,29 @@ describe('PermissionModel', () => {
       expect(result).toBe(false);
     });
 
+    it('should cache permission checks for the same user and permission', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ permission_check: true }]),
+      );
+
+      await permissionModel.hasPermission(mockPool, '1', testPermission);
+      await permissionModel.hasPermission(mockPool, '1', testPermission);
+
+      expect(mockPool.query).toHaveBeenCalledTimes(1);
+    });
+
+    it('should query again after the user cache is invalidated', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ permission_check: true }]),
+      );
+
+      await permissionModel.hasPermission(mockPool, '1', testPermission);
+      permissionModel.invalidatePermissionCache(mockPool, '1');
+      await permissionModel.hasPermission(mockPool, '1', testPermission);
+
+      expect(mockPool.query).toHaveBeenCalledTimes(2);
+    });
+
     it('should handle database errors', async () => {
       (mockPool.query as jest.Mock).mockRejectedValue(
         new Error('Database error'),

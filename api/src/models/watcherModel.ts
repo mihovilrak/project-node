@@ -17,7 +17,7 @@ export const getTaskWatchers = async (
 export const addTaskWatcher = async (
   pool: Pool,
   taskId: string,
-  userId: string,
+  userId: number,
 ): Promise<TaskWatcher | null> => {
   const result: QueryResult<TaskWatcher> = await pool.query(
     `INSERT INTO watchers (task_id, user_id)
@@ -32,7 +32,7 @@ export const addTaskWatcher = async (
 export const removeTaskWatcher = async (
   pool: Pool,
   taskId: string,
-  userId: string,
+  userId: number,
 ): Promise<number | null> => {
   const result: QueryResult = await pool.query(
     `DELETE FROM watchers

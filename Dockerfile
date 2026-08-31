@@ -95,7 +95,7 @@ WORKDIR /app
 COPY start-app.sh /start-app.sh
 COPY db/backup.sh /usr/local/bin/backup.sh
 COPY db/seed-admin.sh /app/seed-admin.sh
-COPY db/pg_dump_cron /dp_dump_cron
+COPY db/pg_dump_cron /app/crontabs/nginx
 
 # Install dependencies and set up startup script
 RUN apk add --no-cache \
@@ -104,12 +104,11 @@ RUN apk add --no-cache \
     npm \
     postgresql-client && \
     chmod +x /start-app.sh && \
-    mkdir -p api service db-init && \
+    mkdir -p api service db-init uploads /backups /app/crontabs && \
     chmod +x /usr/local/bin/backup.sh && \
     chmod +x /app/seed-admin.sh && \
-    chmod 0644 /dp_dump_cron && \
-    mv /dp_dump_cron /etc/cron.d/pg_dump_cron && \
-    crontab /etc/cron.d/pg_dump_cron
+    chmod 0600 /app/crontabs/nginx && \
+    chown -R nginx:nginx /app /backups /var/cache/nginx
 
 # Copy database init scripts
 COPY db/init/ ./db-init/
@@ -124,7 +123,9 @@ COPY --from=notification-builder /app/service/dist/templates/ ./service/template
 COPY fe/nginx.conf /etc/nginx/nginx.conf
 
 # Expose ports
-EXPOSE 80 5000
+EXPOSE 8080 5000
+
+USER nginx
 
 # Start the application
 CMD ["/start-app.sh"]

@@ -48,6 +48,15 @@ const API_BODY_LIMIT = '1mb';
 app.use(express.json({ limit: API_BODY_LIMIT }));
 app.use(express.urlencoded({ extended: true, limit: API_BODY_LIMIT }));
 
+app.get('/api/health', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.status(200).json({ status: 'healthy' });
+  } catch {
+    res.status(503).json({ status: 'unhealthy' });
+  }
+});
+
 // Session cookie middleware
 app.use(
   sessionMiddleware(pool, config.sessionSecret, config.nodeEnv, config.feUrl),

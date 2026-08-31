@@ -10,7 +10,7 @@ export const checkAdminAccess = async (
   req: CustomRequest,
   res: Response,
   pool: Pool,
-): Promise<boolean | Response> => {
+): Promise<Response> => {
   try {
     const userId = req.session?.user?.id;
 
