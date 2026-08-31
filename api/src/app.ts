@@ -44,8 +44,9 @@ app.use(
 app.use(helmet());
 
 // Body parser middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const API_BODY_LIMIT = '1mb';
+app.use(express.json({ limit: API_BODY_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: API_BODY_LIMIT }));
 
 // Session cookie middleware
 app.use(
