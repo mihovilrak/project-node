@@ -13,7 +13,6 @@ import {
   addTaskTags,
   removeTaskTag,
 } from '../controllers/tagController';
-import * as timeLogController from '../controllers/timeLogController';
 import * as watcherController from '../controllers/watcherController';
 import { withPool } from '../utils/withPool';
 
@@ -85,21 +84,6 @@ export default (pool: Pool): Router => {
   router.get('/:id/tags', taskAccess, withPool(pool, getTaskTags));
   router.post('/:id/tags', taskAccess, withPool(pool, addTaskTags));
   router.delete('/:id/tags/:tagId', taskAccess, withPool(pool, removeTaskTag));
-  router.get(
-    '/:id/time-logs',
-    taskAccess,
-    withPool(pool, timeLogController.getTaskTimeLogs),
-  );
-  router.get(
-    '/:id/spent-time',
-    taskAccess,
-    withPool(pool, timeLogController.getTaskSpentTime),
-  );
-  router.post(
-    '/:id/time-logs',
-    taskAccess,
-    withPool(pool, timeLogController.createTimeLog),
-  );
   router.get(
     '/:id/watchers',
     taskAccess,

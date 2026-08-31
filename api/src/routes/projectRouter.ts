@@ -3,7 +3,6 @@ import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
 import { requireProjectAccess } from '../middleware/projectAccessMiddleware';
 import * as projectController from '../controllers/projectController';
-import * as timeLogController from '../controllers/timeLogController';
 import { withPool } from '../utils/withPool';
 
 export default (pool: Pool): Router => {
@@ -72,16 +71,5 @@ export default (pool: Pool): Router => {
     projectAccess,
     withPool(pool, projectController.getSubprojects),
   );
-  router.get(
-    '/:id/time-logs',
-    projectAccess,
-    withPool(pool, timeLogController.getProjectTimeLogs),
-  );
-  router.get(
-    '/:id/spent-time',
-    projectAccess,
-    withPool(pool, timeLogController.getProjectSpentTime),
-  );
-
   return router;
 };

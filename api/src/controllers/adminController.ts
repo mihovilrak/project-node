@@ -24,12 +24,10 @@ export const checkAdminAccess = async (
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Pass control to next middleware if user is admin
-    return true;
+    return res.status(200).json({ isAdmin: true });
   } catch (error) {
     logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-    return false;
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 

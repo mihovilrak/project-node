@@ -217,17 +217,51 @@ function readEnvFile(filePath: string): Record<string, string> {
   return out;
 }
 
-function writeEnvFile(filePath: string, data: Record<string, string>): void {
-  const lines: string[] = [];
-  const keys = Object.keys(data).sort();
-  for (const key of keys) {
-    const value = data[key];
-    const needsQuote = /[\s#="']/.test(value);
-    lines.push(
-      `${key}=${needsQuote ? `"${value.replace(/"/g, '\\"')}"` : value}`,
-    );
+function formatEnvValue(value: string): string {
+  if (!/[\s#="'\\]/.test(value)) return value;
+  return `"${value
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')}"`;
+}
+
+function writeEnvFile(filePath: string, updates: Record<string, string>): void {
+  const original = fs.existsSync(filePath)
+    ? fs.readFileSync(filePath, 'utf-8')
+    : '';
+  const newline = original.includes('\r\n') ? '\r\n' : '\n';
+  const hadTrailingNewline = /\r?\n$/.test(original);
+  const lines = original ? original.split(/\r?\n/) : [];
+  if (hadTrailingNewline) lines.pop();
+
+  const pending = new Map(Object.entries(updates));
+  const updatedLines = lines.map((line) => {
+    const match = line.match(/^(\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*).*$/);
+    if (!match || !pending.has(match[2])) return line;
+    const value = pending.get(match[2]) ?? '';
+    pending.delete(match[2]);
+    return `${match[1]}${formatEnvValue(value)}`;
+  });
+
+  for (const [key, value] of pending) {
+    updatedLines.push(`${key}=${formatEnvValue(value)}`);
   }
-  fs.writeFileSync(filePath, lines.join('\n') + '\n', 'utf-8');
+
+  fs.writeFileSync(
+    filePath,
+    updatedLines.join(newline) + (updatedLines.length ? newline : ''),
+    'utf-8',
+  );
+}
+
+function buildEnvEntries(filePath: string) {
+  const values = { ...process.env, ...readEnvFile(filePath) };
+  return ALLOWED_ENV_KEYS.map((key) => {
+    const value = values[key];
+    const masked = SECRET_PATTERNS.test(key) || !value;
+    return { key, value: masked ? '****' : (value ?? ''), masked };
+  });
 }
 
 export const getEnvSettings = async (
@@ -236,17 +270,7 @@ export const getEnvSettings = async (
   _pool: Pool,
 ): Promise<Response | void> => {
   try {
-    const entries: { key: string; value: string; masked: boolean }[] = [];
-    for (const key of ALLOWED_ENV_KEYS) {
-      const value = process.env[key];
-      const masked = SECRET_PATTERNS.test(key) || !value;
-      entries.push({
-        key,
-        value: masked ? '****' : (value ?? ''),
-        masked,
-      });
-    }
-    res.status(200).json(entries);
+    res.status(200).json(buildEnvEntries(getEnvFilePath()));
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });
@@ -277,27 +301,16 @@ export const updateEnvSettings = async (
       }
     }
 
-    const current = readEnvFile(filePath);
-    for (const [key, value] of Object.entries(updates)) {
-      current[key] = String(value).trim();
-    }
-    writeEnvFile(filePath, current);
+    const normalizedUpdates = Object.fromEntries(
+      Object.entries(updates).map(([key, value]) => [key, String(value).trim()]),
+    );
+    writeEnvFile(filePath, normalizedUpdates);
 
-    for (const [key, value] of Object.entries(updates)) {
-      process.env[key] = value;
-    }
-
-    const entries: { key: string; value: string; masked: boolean }[] = [];
-    for (const k of ALLOWED_ENV_KEYS) {
-      const value = process.env[k];
-      const masked = SECRET_PATTERNS.test(k) || !value;
-      entries.push({
-        key: k,
-        value: masked ? '****' : (value ?? ''),
-        masked,
-      });
-    }
-    res.status(200).json(entries);
+    res.status(200).json({
+      entries: buildEnvEntries(filePath),
+      restartRequired: true,
+      message: 'Settings saved. Restart the application to apply them.',
+    });
   } catch (error) {
     logger.error({ err: error });
     res.status(500).json({ error: 'Internal server error' });

@@ -18,6 +18,11 @@ export default (pool: Pool): Router => {
     checkPermission(pool, 'Admin'),
     withPool(pool, roleController.updateRole),
   );
+  router.delete(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, roleController.deleteRole),
+  );
 
   return router;
 };

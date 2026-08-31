@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as userController from '../controllers/userController';
-import * as timeLogController from '../controllers/timeLogController';
 import checkPermission from '../middleware/permissionMiddleware';
 import { withPool } from '../utils/withPool';
 
@@ -12,7 +11,6 @@ export default (pool: Pool): Router => {
   router.get('/', withPool(pool, userController.getUsers));
   router.get('/statuses', withPool(pool, userController.getUserStatuses));
   router.get('/permissions', withPool(pool, userController.getUserPermissions));
-  router.get('/time-logs', withPool(pool, timeLogController.getUserTimeLogs));
   router.get('/:id', withPool(pool, userController.getUserById));
   router.post(
     '/',

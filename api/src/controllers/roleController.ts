@@ -87,3 +87,28 @@ export const updateRole = async (
     res.status(500).json({ error: 'Failed to update role' });
   }
 };
+
+export const deleteRole = async (
+  req: Request,
+  res: Response,
+  pool: Pool,
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+    const deleted = await roleModel.deleteRole(pool, id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+
+    res.status(200).json({ message: 'Role deleted successfully' });
+  } catch (error) {
+    logger.error({ err: error }, 'Error deleting role');
+    if (error instanceof Error && 'code' in error && error.code === '23503') {
+      return res
+        .status(409)
+        .json({ error: 'Role cannot be deleted while assigned to users' });
+    }
+    res.status(500).json({ error: 'Failed to delete role' });
+  }
+};

@@ -67,7 +67,7 @@ describe('AdminController', () => {
   });
 
   describe('checkAdminAccess', () => {
-    it('should return true when user is admin', async () => {
+    it('should confirm access when user is admin', async () => {
       (adminModel.isUserAdmin as jest.Mock).mockResolvedValue(true);
 
       const result = await adminController.checkAdminAccess(
@@ -76,7 +76,9 @@ describe('AdminController', () => {
         mockPool as Pool,
       );
 
-      expect(result).toBe(true);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ isAdmin: true });
+      expect(result).toEqual(expect.any(Object));
       expect(adminModel.isUserAdmin).toHaveBeenCalledWith(mockPool, '1');
     });
 
@@ -125,7 +127,7 @@ describe('AdminController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Internal server error',
       });
-      expect(result).toBe(false);
+      expect(result).toEqual(expect.any(Object));
     });
   });
 

@@ -46,3 +46,8 @@ export const updateRole = async (
     throw error;
   }
 };
+
+export const deleteRole = async (pool: Pool, id: string): Promise<boolean> => {
+  const result = await pool.query('SELECT delete_role($1) AS deleted', [id]);
+  return result.rows[0]?.deleted === true;
+};
