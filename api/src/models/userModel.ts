@@ -5,6 +5,7 @@ import {
   UserUpdateInput,
   UserStatus,
 } from '../types/user';
+import { invalidatePermissionCache } from './permissionModel';
 
 // Get user statuses
 export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
@@ -112,6 +113,9 @@ export const updateUser = async (
   const result = await pool.query(query, values);
 
   if (result.rowCount && result.rowCount > 0) {
+    if (columns.includes('role_id') || columns.includes('status_id')) {
+      invalidatePermissionCache(pool, id);
+    }
     return getUserById(pool, id);
   }
   return null;
@@ -130,6 +134,7 @@ export const changeUserStatus = async (
     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [status, id],
   );
+  if (result.rows[0]) invalidatePermissionCache(pool, id);
   return result.rows[0] || null;
 };
 
@@ -145,5 +150,6 @@ export const deleteUser = async (
     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [id],
   );
+  if (result.rows[0]) invalidatePermissionCache(pool, id);
   return result.rows[0] || null;
 };

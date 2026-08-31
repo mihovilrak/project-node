@@ -44,11 +44,11 @@ describe('WatcherModel', () => {
         mockQueryResult([mockWatcher]),
       );
 
-      const result = await watcherModel.addTaskWatcher(mockPool, '1', '2');
+      const result = await watcherModel.addTaskWatcher(mockPool, '1', 2);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO watchers'),
-        ['1', '2'],
+        ['1', 2],
       );
       expect(result).toEqual(mockWatcher);
     });
@@ -56,7 +56,7 @@ describe('WatcherModel', () => {
     it('should return null when insert fails', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await watcherModel.addTaskWatcher(mockPool, '1', '2');
+      const result = await watcherModel.addTaskWatcher(mockPool, '1', 2);
 
       expect(result).toBeNull();
     });
@@ -66,11 +66,11 @@ describe('WatcherModel', () => {
     it('should remove a task watcher', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
 
-      const result = await watcherModel.removeTaskWatcher(mockPool, '1', '2');
+      const result = await watcherModel.removeTaskWatcher(mockPool, '1', 2);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('DELETE FROM watchers'),
-        ['1', '2'],
+        ['1', 2],
       );
       expect(result).toBe(1);
     });
@@ -78,7 +78,7 @@ describe('WatcherModel', () => {
     it('should return 0 when watcher not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 0 });
 
-      const result = await watcherModel.removeTaskWatcher(mockPool, '1', '999');
+      const result = await watcherModel.removeTaskWatcher(mockPool, '1', 999);
 
       expect(result).toBe(0);
     });

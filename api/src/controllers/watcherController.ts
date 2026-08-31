@@ -4,6 +4,18 @@ import * as watcherModel from '../models/watcherModel';
 import { isTaskProjectMember } from '../models/accessModel';
 import logger from '../utils/logger';
 
+const parsePositiveInteger = (value: unknown): number | null => {
+  if (
+    (typeof value !== 'string' && typeof value !== 'number') ||
+    !/^\d+$/.test(String(value))
+  ) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
 // Get task watchers
 export const getTaskWatchers = async (
   req: Request,
@@ -29,19 +41,20 @@ export const addTaskWatcher = async (
   const { id } = req.params;
   const { userId } = req.body;
   try {
-    if (userId === undefined || !/^\d+$/.test(String(userId))) {
+    const parsedUserId = parsePositiveInteger(userId);
+    if (parsedUserId === null) {
       res.status(400).json({ error: 'A numeric userId is required' });
       return;
     }
 
     // A watcher receives the task's notifications, so they must be able to
     // reach the task in the first place.
-    if (!(await isTaskProjectMember(pool, id, String(userId)))) {
+    if (!(await isTaskProjectMember(pool, id, String(parsedUserId)))) {
       res.status(403).json({ error: 'User cannot access this task' });
       return;
     }
 
-    const watcher = await watcherModel.addTaskWatcher(pool, id, String(userId));
+    const watcher = await watcherModel.addTaskWatcher(pool, id, parsedUserId);
     res.status(201).json(watcher);
   } catch (error) {
     logger.error({ err: error });
@@ -57,7 +70,17 @@ export const removeTaskWatcher = async (
 ): Promise<void> => {
   const { id, userId } = req.params;
   try {
-    const result = await watcherModel.removeTaskWatcher(pool, id, userId);
+    const parsedUserId = parsePositiveInteger(userId);
+    if (parsedUserId === null) {
+      res.status(400).json({ error: 'A numeric userId is required' });
+      return;
+    }
+
+    const result = await watcherModel.removeTaskWatcher(
+      pool,
+      id,
+      parsedUserId,
+    );
     if (result === 0) {
       res.status(404).json({ error: 'Watcher not found' });
       return;

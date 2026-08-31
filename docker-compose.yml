@@ -14,17 +14,42 @@ services:
     <<: *defaults
     image: postgres:18.1-alpine3.23
     container_name: pm_db
+    user: postgres
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 512m
+    cpus: 1.0
     environment:
       <<: *db
       PGTZ: ${TZ}
     volumes:
       - ./db/db_data:/var/lib/postgresql
       - ./db/backup:/backups
+    tmpfs:
+      - /tmp:mode=1777
+      - /var/run/postgresql:uid=70,gid=70,mode=0775
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   app:
     <<: *defaults
-    image: ${APP_IMAGE:-ghcr.io/mihovilrak/project-node:latest}
+    image: ${APP_IMAGE:-ghcr.io/mihovilrak/project-node:1.0.0}
     container_name: pm_app
+    user: nginx
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 1g
+    cpus: 2.0
     environment:
       <<: *db
       POSTGRES_HOST: db
@@ -42,10 +67,30 @@ services:
       NOTIFICATION_API_KEY: ${NOTIFICATION_API_KEY}
       LOG_LEVEL: ${LOG_LEVEL}
     ports:
-      - "3000:80"
+      - "3000:8080"
+    volumes:
+      - app_uploads:/app/uploads
+      - ./db/backup:/backups
+    tmpfs:
+      - /tmp:mode=1777
+      - /var/cache/nginx:uid=101,gid=101,mode=0750
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget -q -O /dev/null http://127.0.0.1:8080/api/health &&
+          wget -q -O /dev/null http://127.0.0.1:5001/ready
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 networks:
   pm_network:
     driver: bridge
+
+volumes:
+  app_uploads:

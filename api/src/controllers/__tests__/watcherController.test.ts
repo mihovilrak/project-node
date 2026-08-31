@@ -65,6 +65,11 @@ describe('WatcherController', () => {
         mockRes as Response,
         mockPool as Pool,
       );
+      expect(watcherModel.addTaskWatcher).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        2,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(mockWatcher);
     });
@@ -118,6 +123,11 @@ describe('WatcherController', () => {
         mockRes as Response,
         mockPool as Pool,
       );
+      expect(watcherModel.removeTaskWatcher).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        2,
+      );
       expect(mockRes.status).toHaveBeenCalledWith(204);
       expect(mockRes.send).toHaveBeenCalled();
     });
@@ -145,6 +155,19 @@ describe('WatcherController', () => {
         mockPool as Pool,
       );
       expect(mockRes.status).toHaveBeenCalledWith(500);
+    });
+
+    it('should reject a non-numeric userId parameter', async () => {
+      mockReq.params = { id: '1', userId: 'abc' };
+
+      await watcherController.removeTaskWatcher(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(watcherModel.removeTaskWatcher).not.toHaveBeenCalled();
     });
   });
 });

@@ -1,18 +1,5 @@
 #!/bin/sh
 
-# Function to set timezone
-setup_timezone() {
-    if [ ! -z "$TZ" ]; then
-        echo "Setting timezone to $TZ"
-        cp /usr/share/zoneinfo/$TZ /etc/localtime
-        echo "$TZ" > /etc/timezone
-    else
-        echo "No timezone set, using default UTC"
-        cp /usr/share/zoneinfo/UTC /etc/localtime
-        echo "UTC" > /etc/timezone
-    fi
-}
-
 # Function to wait for database
 wait_for_db() {
     echo "Waiting for database to be ready..."
@@ -40,14 +27,14 @@ init_database() {
         echo "Seeding admin user..."
         /app/seed-admin.sh
     fi
-    rm -rf /app/db-init
     echo "Database initialization completed successfully"
 }
 
 # Function to start backend services
 start_services() {
     echo "Starting crond service..."
-    crond
+    crond -f -c /app/crontabs &
+    CRON_PID=$!
 
     echo "Starting backend API service..."
     cd /app/api && node index.js &
@@ -68,15 +55,12 @@ handle_shutdown() {
     kill $BACKEND_PID
     kill $NOTIFICATION_PID
     kill $NGINX_PID
-    pkill crond
+    kill $CRON_PID
     exit 0
 }
 
 # Main execution
 main() {
-    # Set up timezone first
-    setup_timezone
-
     # Set up signal handling
     trap 'handle_shutdown' SIGTERM SIGINT
 

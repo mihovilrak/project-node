@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { Role, RoleCreateInput, RoleUpdateInput } from '../types/role';
 import logger from '../utils/logger';
+import { invalidatePermissionCache } from './permissionModel';
 
 // Get all roles
 export const getRoles = async (pool: Pool): Promise<Role[]> => {
@@ -41,6 +42,7 @@ export const updateRole = async (
       active,
       permissions,
     ]);
+    invalidatePermissionCache(pool);
   } catch (error) {
     logger.error({ err: error }, 'Error updating role');
     throw error;
@@ -49,5 +51,7 @@ export const updateRole = async (
 
 export const deleteRole = async (pool: Pool, id: string): Promise<boolean> => {
   const result = await pool.query('SELECT delete_role($1) AS deleted', [id]);
-  return result.rows[0]?.deleted === true;
+  const deleted = result.rows[0]?.deleted === true;
+  if (deleted) invalidatePermissionCache(pool);
+  return deleted;
 };
