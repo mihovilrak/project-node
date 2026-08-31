@@ -12,7 +12,7 @@ import {
   getActivityTypes,
   createActivityType,
 } from '../../api/activityTypes';
-import { getRoles, updateRole, createRole } from '../../api/roles';
+import { getRoles, updateRole, createRole, deleteRole } from '../../api/roles';
 import {
   getTaskTypes,
   deleteTaskType,
@@ -143,6 +143,8 @@ export const useTypesAndRoles = () => {
         await deleteTaskType(id);
       } else if (state.activeTab === 1) {
         await deleteActivityType(id);
+      } else if (state.activeTab === 2) {
+        await deleteRole(id);
       }
       await fetchData();
     } catch (error) {

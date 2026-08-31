@@ -233,12 +233,10 @@ const SystemSettings: React.FC = () => {
     setEnvError(null);
     setEnvSuccess(null);
     try {
-      await updateEnvSettings(updates);
+      const result = await updateEnvSettings(updates);
       setEnvEdits({});
       setEnvValidation({});
-      setEnvSuccess(
-        'Environment variables updated. Changes are applied in the container.',
-      );
+      setEnvSuccess(result.message);
       await loadEnvSettings();
     } catch {
       setEnvError('Failed to update environment variables.');
@@ -556,8 +554,9 @@ const SystemSettings: React.FC = () => {
               Environment Variables
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Editable configuration. Changes update the .env file in the
-              container. Passwords and secrets are not displayed.
+              Editable configuration. Changes update the .env file and take
+              effect after the application is restarted. Passwords and secrets
+              are not displayed.
             </Typography>
             {envError && (
               <Alert

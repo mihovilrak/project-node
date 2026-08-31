@@ -13,10 +13,15 @@ import {
   CircularProgress,
   Tooltip,
 } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { RolesTableProps } from '../../types/role';
 
-const RolesTable: React.FC<RolesTableProps> = ({ roles, onEdit, loading }) => {
+const RolesTable: React.FC<RolesTableProps> = ({
+  roles,
+  onEdit,
+  onDelete,
+  loading,
+}) => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -70,6 +75,16 @@ const RolesTable: React.FC<RolesTableProps> = ({ roles, onEdit, loading }) => {
                 >
                   <EditIcon />
                 </IconButton>
+                {onDelete && (
+                  <IconButton
+                    onClick={() => onDelete(role.id)}
+                    size="small"
+                    color="error"
+                    aria-label="Delete role"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
               </TableCell>
             </TableRow>
           ))}

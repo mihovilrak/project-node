@@ -80,6 +80,12 @@ export interface EnvEntry {
   masked: boolean;
 }
 
+export interface EnvUpdateResult {
+  entries: EnvEntry[];
+  restartRequired: boolean;
+  message: string;
+}
+
 export const getEnvSettings = async (): Promise<EnvEntry[]> => {
   try {
     const response = await api.get('/settings/env');
@@ -92,7 +98,7 @@ export const getEnvSettings = async (): Promise<EnvEntry[]> => {
 
 export const updateEnvSettings = async (
   updates: Record<string, string>,
-): Promise<EnvEntry[]> => {
+): Promise<EnvUpdateResult> => {
   try {
     const response = await api.patch('/settings/env', { updates });
     return response.data;

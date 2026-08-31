@@ -8,6 +8,8 @@ export default (pool: Pool): Router => {
   const router = Router();
 
   router.get('/', withPool(pool, taskTypeController.getTaskTypes));
+  router.get('/icons', ((req, res) =>
+    taskTypeController.getAvailableIcons(req, res)) as RequestHandler);
   router.get('/:id', withPool(pool, taskTypeController.getTaskTypeById));
   router.post(
     '/',
@@ -24,8 +26,5 @@ export default (pool: Pool): Router => {
     checkPermission(pool, 'Admin'),
     withPool(pool, taskTypeController.deleteTaskType),
   );
-  router.get('/icons', ((req, res) =>
-    taskTypeController.getAvailableIcons(req, res)) as RequestHandler);
-
   return router;
 };
