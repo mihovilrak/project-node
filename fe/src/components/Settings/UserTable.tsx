@@ -25,6 +25,7 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
 import { UserTableProps } from '../../types/setting';
+import { UserStatusId } from '../../constants/statusIds';
 
 const UserTable: React.FC<UserTableProps> = ({
   users,
@@ -125,9 +126,9 @@ const UserTable: React.FC<UserTableProps> = ({
                           }
                         : {
                             color:
-                              user.status_id === 1
+                              user.status_id === UserStatusId.Active
                                 ? 'success'
-                                : user.status_id === 3
+                                : user.status_id === UserStatusId.Deleted
                                   ? 'error'
                                   : 'default',
                           })}

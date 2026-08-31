@@ -4,7 +4,7 @@ returns table(message text) as $function$
 
         -- Update the active status of the given project
         update projects
-        set status_id = 3
+        set status_id = project_status_id('deleted')
         where id = $1;
 
         -- Return message query

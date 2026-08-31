@@ -43,7 +43,11 @@ begin
         select assignee_id, count(*)::bigint as total_tasks
         from tasks
         where not exists (
-            select 1 from (values (5), (6), (7)) as excluded(status_id)
+            select 1 from (values
+                (task_status_id('done')),
+                (task_status_id('cancelled')),
+                (task_status_id('deleted'))
+            ) as excluded(status_id)
             where tasks.status_id = excluded.status_id
         )
         group by assignee_id
@@ -58,7 +62,7 @@ begin
         select pu.user_id, count(*)::bigint as active_projects
         from project_users pu
         join projects p on pu.project_id = p.id
-        where p.status_id = 1
+        where p.status_id = project_status_id('active')
         group by pu.user_id
     ) ap on ap.user_id = u.id
     left join (
@@ -66,7 +70,7 @@ begin
         from time_logs
         group by user_id
     ) th on th.user_id = u.id
-    where u.status_id != 3
+    where u.status_id != user_status_id('deleted')
     and u.id = p_user_id;
 
 end;

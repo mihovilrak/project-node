@@ -4,58 +4,32 @@ import {
   ProjectMember,
   ProjectStatus,
   ProjectTaskFilters,
+  ProjectFilters,
+  ProjectTask,
 } from '../types/project';
 import { Pool, QueryResult } from 'pg';
-
-const ALLOWED_PROJECT_WHERE_KEYS = [
-  'status_id',
-  'created_by',
-  'parent_id',
-] as const;
-const RANGE_KEYS = [
-  'start_date_from',
-  'start_date_to',
-  'due_date_from',
-  'due_date_to',
-] as const;
 
 // Get all projects (with status_name, created_by_name, estimated_time, spent_time, progress from project_details)
 export const getProjects = async (
   pool: Pool,
-  whereParams?: Record<string, any>,
+  filters: ProjectFilters = {},
 ): Promise<Project[]> => {
-  const values: any[] = [];
+  const values: unknown[] = [];
   const conditions: string[] = [];
 
-  if (whereParams && Object.keys(whereParams).length > 0) {
-    const allowedEntries = Object.entries(whereParams).filter(([key]) =>
-      ALLOWED_PROJECT_WHERE_KEYS.includes(
-        key as (typeof ALLOWED_PROJECT_WHERE_KEYS)[number],
-      ),
-    );
-    for (const [key, value] of allowedEntries) {
-      conditions.push(`p.${key} = $${values.length + 1}`);
-      values.push(value);
-    }
-    const rangeEntries = Object.entries(whereParams).filter(([key]) =>
-      RANGE_KEYS.includes(key as (typeof RANGE_KEYS)[number]),
-    );
-    for (const [key, value] of rangeEntries) {
-      if (key === 'start_date_from') {
-        conditions.push(`p.start_date >= $${values.length + 1}`);
-        values.push(value);
-      } else if (key === 'start_date_to') {
-        conditions.push(`p.start_date <= $${values.length + 1}`);
-        values.push(value);
-      } else if (key === 'due_date_from') {
-        conditions.push(`p.due_date >= $${values.length + 1}`);
-        values.push(value);
-      } else if (key === 'due_date_to') {
-        conditions.push(`p.due_date <= $${values.length + 1}`);
-        values.push(value);
-      }
-    }
-  }
+  const addCondition = (sql: string, value: unknown) => {
+    if (value === undefined) return;
+    values.push(value);
+    conditions.push(`${sql} $${values.length}`);
+  };
+
+  addCondition('p.status_id =', filters.statusId);
+  addCondition('p.created_by =', filters.createdBy);
+  addCondition('p.parent_id =', filters.parentId);
+  addCondition('p.start_date >=', filters.startDateFrom);
+  addCondition('p.start_date <=', filters.startDateTo);
+  addCondition('p.due_date >=', filters.dueDateFrom);
+  addCondition('p.due_date <=', filters.dueDateTo);
 
   const whereClause =
     conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
@@ -242,7 +216,7 @@ export const getProjectTasks = async (
   pool: Pool,
   id: string,
   filters: ProjectTaskFilters = {},
-): Promise<any[]> => {
+): Promise<ProjectTask[]> => {
   const projectId = id != null && id !== '' ? String(id).trim() : null;
   if (!projectId) {
     return [];
@@ -259,7 +233,7 @@ export const getProjectTasks = async (
   const assignee_id =
     rawAssignee != null && !Number.isNaN(rawAssignee) ? rawAssignee : null;
 
-  const result: QueryResult = await pool.query(
+  const result: QueryResult<ProjectTask> = await pool.query(
     `SELECT * FROM get_tasks(
       null, $1, $2, null, $3, $4, null, null, false,
       null, null, null, null, null, null, null, null, null, false,

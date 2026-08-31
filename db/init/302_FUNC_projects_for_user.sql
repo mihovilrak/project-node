@@ -36,7 +36,7 @@ begin
     from projects p
     left join project_users pu on pu.project_id = p.id
     where (pu.user_id = $1 or p.created_by = $1)
-    and p.status_id != 3;
+    and p.status_id != project_status_id('deleted');
 end;
 
 $function$ language plpgsql;

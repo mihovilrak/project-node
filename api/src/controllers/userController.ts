@@ -4,6 +4,7 @@ import * as userModel from '../models/userModel';
 import * as permissionModel from '../models/permissionModel';
 import { CustomRequest } from '../types/express';
 import logger from '../utils/logger';
+import { UserStatusId } from '../constants/statusIds';
 
 // Get users
 export const getUsers = async (
@@ -17,9 +18,8 @@ export const getUsers = async (
       typeof req.query.whereParams === 'string'
         ? JSON.parse(req.query.whereParams)
         : undefined;
-    // Default to active users only (status_id = 1) when no filter is supplied, unless all=1 (e.g. Settings)
     if (!all && (!whereParams || Object.keys(whereParams).length === 0)) {
-      whereParams = { status_id: 1 };
+      whereParams = { status_id: UserStatusId.Active };
     }
     const users = await userModel.getUsers(pool, {
       whereParams: (whereParams || {}) as Record<string, string>,

@@ -17,7 +17,7 @@ begin
         join project_users pu on p.id = pu.project_id
         join lateral get_project_progress(p.id) vp on true
         where pu.user_id = p_user_id
-        and p.status_id = 1
+        and p.status_id = project_status_id('active')
         order by p.created_on desc
         limit 10;
 

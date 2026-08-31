@@ -59,13 +59,30 @@ export const cookieHeader = (
   return arr.map((c) => String(c).split(';')[0].trim()).join('; ');
 };
 
-// Database cleanup utilities
-export const cleanupTables = async (tables: string[]) => {
-  if (!testPool) return;
+const TEST_TABLES = [
+  'projects',
+  'project_users',
+  'session',
+  'task_tags',
+  'tasks',
+  'users',
+  'watchers',
+] as const;
+
+type TestTable = (typeof TEST_TABLES)[number];
+const testTableSet = new Set<string>(TEST_TABLES);
+
+export const cleanupTables = async (tables: readonly TestTable[]) => {
+  if (!testPool || tables.length === 0) return;
 
   for (const table of tables) {
-    await testPool.query(`TRUNCATE TABLE ${table} CASCADE`);
+    if (!testTableSet.has(table)) {
+      throw new Error(`Unsupported integration-test table: ${table}`);
+    }
   }
+
+  const identifiers = tables.map((table) => `"${table}"`).join(', ');
+  await testPool.query(`TRUNCATE TABLE ${identifiers} CASCADE`);
 };
 
 export const seedTestUser = async () => {

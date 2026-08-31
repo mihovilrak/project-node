@@ -88,10 +88,31 @@ describe('ProjectController', () => {
       );
 
       expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, {
-        status_id: 1,
+        statusId: 1,
       });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockProjects);
+    });
+
+    it('should map database-style query fields to model filters', async () => {
+      mockReq.query = {
+        status_id: '2',
+        created_by: '4',
+        due_date_from: '2026-01-01',
+      };
+      (projectModel.getProjects as jest.Mock).mockResolvedValue([]);
+
+      await projectController.getProjects(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(projectModel.getProjects).toHaveBeenCalledWith(mockPool, {
+        statusId: 2,
+        createdBy: 4,
+        dueDateFrom: '2026-01-01',
+      });
     });
 
     it('should hide projects the user is not a member of', async () => {

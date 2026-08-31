@@ -24,13 +24,16 @@ import { Project } from '../../types/project';
 import { ProjectStatus } from '../../types/project';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { ProjectStatusId } from '../../constants/statusIds';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues, FilterOption } from '../../types/filterPanel';
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filters, setFilters] = useState<FilterValues>({ status_id: 1 });
+  const [filters, setFilters] = useState<FilterValues>({
+    status_id: ProjectStatusId.Active,
+  });
   const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
   const [users, setUsers] = useState<FilterOption[]>([]);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');

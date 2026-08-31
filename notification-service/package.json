@@ -18,6 +18,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@pm/backend-common": "file:../packages/backend-common",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",

@@ -40,7 +40,7 @@ begin
         order by al.logged_on desc
         limit 1
     ) l on true
-    where u.status_id != 3
+    where u.status_id != user_status_id('deleted')
     and u.id = p_id;
 
 end;

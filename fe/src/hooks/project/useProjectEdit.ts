@@ -4,6 +4,7 @@ import { FormData, Project } from '../../types/project';
 import { getProjectStatuses } from '../../api/projects';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { ProjectStatusId } from '../../constants/statusIds';
 
 export const useProjectEdit = (project: Project | null) => {
   const [formData, setFormData] = useState<FormData>({
@@ -11,7 +12,7 @@ export const useProjectEdit = (project: Project | null) => {
     description: null,
     start_date: '',
     due_date: '',
-    status_id: 1,
+    status_id: ProjectStatusId.Active,
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ export const useProjectEdit = (project: Project | null) => {
         description: project?.description || null,
         start_date: project?.start_date ? project.start_date.split('T')[0] : '',
         due_date: project?.due_date ? project.due_date.split('T')[0] : '',
-        status_id: project?.status_id || 1,
+        status_id: project?.status_id || ProjectStatusId.Active,
       });
     }
   }, [project]);
