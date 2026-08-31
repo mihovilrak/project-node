@@ -60,6 +60,7 @@ const TypesAndRolesManager: React.FC = () => {
           <RolesTable
             roles={state.roles || []}
             onEdit={handleEdit}
+            onDelete={handleDelete}
             loading={state.loading}
           />
         );
