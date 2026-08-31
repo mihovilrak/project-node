@@ -5,6 +5,7 @@ import { Project, ProjectFormData, ProjectStatus } from '../../types/project';
 import { getProjectStatuses } from '../../api/projects';
 import logger from '../../utils/logger';
 import { toDateOnlyString } from '../../utils/dateUtils';
+import { ProjectStatusId } from '../../constants/statusIds';
 
 export const useProjectForm = (project?: Project, parentId?: string | null) => {
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -12,7 +13,7 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
     description: project?.description || null,
     start_date: project?.start_date || toDateOnlyString(new Date()),
     due_date: project?.due_date || '',
-    status_id: project?.status_id || 1,
+    status_id: project?.status_id || ProjectStatusId.Active,
     parent_id: project?.parent_id || (parentId ? parseInt(parentId) : null),
   });
 
@@ -32,7 +33,7 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
           !project &&
           statusList &&
           statusList.length > 0 &&
-          formData.status_id === 1
+          formData.status_id === ProjectStatusId.Active
         ) {
           setFormData((prev) => ({
             ...prev,

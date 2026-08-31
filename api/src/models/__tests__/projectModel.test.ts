@@ -41,13 +41,13 @@ describe('ProjectModel', () => {
       expect(result).toEqual(mockProjects);
     });
 
-    it('should return filtered projects with whereParams', async () => {
+    it('should return filtered projects', async () => {
       const mockProjects = [{ id: '1', name: 'Project 1', status_id: 1 }];
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult(mockProjects),
       );
 
-      const result = await projectModel.getProjects(mockPool, { status_id: 1 });
+      const result = await projectModel.getProjects(mockPool, { statusId: 1 });
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
@@ -55,16 +55,16 @@ describe('ProjectModel', () => {
       expect(result).toEqual(mockProjects);
     });
 
-    it('should ignore disallowed whereParams keys', async () => {
+    it('should ignore undefined filters', async () => {
       const mockProjects = [{ id: '1', name: 'Project 1' }];
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult(mockProjects),
       );
 
       const result = await projectModel.getProjects(mockPool, {
-        status_id: 1,
-        evil_key: 2,
-      } as any);
+        statusId: 1,
+        createdBy: undefined,
+      });
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');

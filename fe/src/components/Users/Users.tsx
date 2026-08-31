@@ -34,6 +34,7 @@ import { FilterValues } from '../../types/filterPanel';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { UserStatusId } from '../../constants/statusIds';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -41,7 +42,9 @@ const Users: React.FC = () => {
   const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>({ status_id: 1 });
+  const [filters, setFilters] = useState<FilterValues>({
+    status_id: UserStatusId.Active,
+  });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);

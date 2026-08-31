@@ -7,6 +7,7 @@ import {
   cleanupTables,
   cookieHeader,
 } from '../setup/integration.setup';
+import { TaskStatusId } from '../../../constants/statusIds';
 
 let app: Express;
 let authCookies = '';
@@ -200,14 +201,14 @@ describe('Task CRUD Operations', () => {
 
       expect(response.status).toBe(200);
 
-      // Verify task is marked as deleted (status_id = 3)
+      // Verify task is marked as deleted
       const getResponse = await request(app)
         .get(`/api/tasks/${taskId}`)
         .set('Cookie', authCookies);
 
       // Task might still be returned but with deleted status
       if (getResponse.status === 200) {
-        expect(getResponse.body.status_id).toBe(3);
+        expect(getResponse.body.status_id).toBe(TaskStatusId.Deleted);
       }
     });
   });

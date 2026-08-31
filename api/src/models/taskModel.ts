@@ -9,10 +9,6 @@ import {
 } from '../types/task';
 import { Pool, QueryResult } from 'pg';
 import { Queryable } from '../utils/transaction';
-import {
-  ACTIVE_TASK_STATUS_IDS,
-  TaskStatusId,
-} from '../constants/taskStatus';
 
 /** Normalize number | number[] into single and array for get_tasks. */
 function singleOrArray(val: number | number[] | null | undefined): {
@@ -266,10 +262,10 @@ export const deleteTask = async (
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
     `UPDATE tasks
-    SET (status_id, updated_on) = ($2, CURRENT_TIMESTAMP)
+    SET (status_id, updated_on) = (task_status_id('deleted'), CURRENT_TIMESTAMP)
     WHERE id = $1
     RETURNING *`,
-    [id, TaskStatusId.Deleted],
+    [id],
   );
   return result.rows[0] || null;
 };

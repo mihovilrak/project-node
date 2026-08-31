@@ -75,7 +75,7 @@ export const updateTag = async (
   icon?: string,
 ): Promise<Tag | null> => {
   const updates: string[] = [];
-  const values: any[] = [];
+  const values: unknown[] = [];
   let paramIndex = 1;
 
   if (name !== undefined) {

@@ -14,8 +14,6 @@ import ProjectForm from '../../components/Projects/ProjectForm';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-// Mock the API calls
-jest.mock('../../api/api');
 const mockedApi = api as jest.Mocked<typeof api>;
 
 describe('Project Management Flow', () => {

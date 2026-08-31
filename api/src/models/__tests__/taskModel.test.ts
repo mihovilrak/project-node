@@ -339,7 +339,10 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE tasks'),
-        ['1', 7],
+        ['1'],
+      );
+      expect((mockPool.query as jest.Mock).mock.calls[0][0]).toContain(
+        "task_status_id('deleted')",
       );
       expect(result).toEqual(deletedTask);
     });

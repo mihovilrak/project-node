@@ -21,6 +21,7 @@ import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { TaskStatusId } from '../../constants/statusIds';
 
 export const useTaskForm = ({
   taskId,
@@ -43,7 +44,7 @@ export const useTaskForm = ({
         : null,
     type_id: 1,
     priority_id: 2,
-    status_id: 1,
+    status_id: TaskStatusId.New,
     parent_id: parentTaskId ? Number(parentTaskId) : null,
     holder_id: currentUserId || null,
     assignee_id: null,
@@ -101,7 +102,7 @@ export const useTaskForm = ({
             project_id: taskData.project_id,
             type_id: taskData.type_id || 1,
             priority_id: taskData.priority_id || 2,
-            status_id: taskData.status_id || 1,
+            status_id: taskData.status_id || TaskStatusId.New,
             parent_id: taskData.parent_id || null,
             holder_id: taskData.holder_id || currentUserId || null,
             assignee_id: taskData.assignee_id || null,

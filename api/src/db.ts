@@ -1,23 +1,20 @@
 import { Pool, types } from 'pg';
 import config from './config';
 import logger from './utils/logger';
+import { createPool } from '@pm/backend-common';
 
 // `date` columns carry no time and no zone. Left to the default parser they
 // become JS Dates at local midnight, serialize to a UTC instant, and arrive in
 // the browser as the previous or next day. Hand them over as 'YYYY-MM-DD'.
 types.setTypeParser(types.builtins.DATE, (value: string) => value);
 
-export const pool: Pool = new Pool({
-  connectionString: config.databaseUrl,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+export const pool: Pool = createPool(
+  { connectionString: config.databaseUrl },
+  logger,
+  {
   maxUses: 7500,
-});
-
-pool.on('error', (err: Error) => {
-  logger.error({ err }, 'Unexpected error on idle client');
-});
+  },
+);
 
 export async function ensureConnection(): Promise<void> {
   try {

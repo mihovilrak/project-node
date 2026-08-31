@@ -45,7 +45,7 @@ begin
         order by al.logged_on desc
         limit 1
     ) l on true
-    where (p_include_deleted or ((p_status_id is null and u.status_id != 3) or u.status_id = p_status_id))
+    where (p_include_deleted or ((p_status_id is null and u.status_id != user_status_id('deleted')) or u.status_id = p_status_id))
     and (p_role_id is null or u.role_id = p_role_id);
 
 end;

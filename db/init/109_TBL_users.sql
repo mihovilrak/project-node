@@ -1,4 +1,4 @@
--- User "deletion" is soft: set status_id = 3. Tables referencing users(id) have no ON DELETE so hard deletes are restricted.
+-- User deletion is soft. Tables referencing users(id) have no ON DELETE, so hard deletes are restricted.
 create table if not exists users (
     id int primary key generated always as identity not null,
     login varchar(255) unique not null,

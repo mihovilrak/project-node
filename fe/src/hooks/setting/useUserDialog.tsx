@@ -5,6 +5,7 @@ import { createUser, updateUser, fetchRoles } from '../../api/users';
 import { Role } from '../../types/role';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { UserStatusId } from '../../constants/statusIds';
 
 export const useUserDialog = (
   user: User | null | undefined,
@@ -20,7 +21,7 @@ export const useUserDialog = (
     password: '',
     confirmPassword: '',
     role_id: 3,
-    status_id: 1,
+    status_id: UserStatusId.Active,
   });
   const [error, setError] = useState<string | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -73,7 +74,7 @@ export const useUserDialog = (
         password: '',
         confirmPassword: '',
         role_id: roles.length > 0 ? roles[0].id : 3,
-        status_id: 1,
+        status_id: UserStatusId.Active,
       });
     }
   }, [user, open, roles]);

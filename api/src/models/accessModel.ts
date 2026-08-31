@@ -54,11 +54,11 @@ export const getAccessibleProjectIds = async (
 
 // Drop rows belonging to projects the user cannot reach. Administrators keep
 // the full result set.
-export const filterByProjectAccess = async <T extends Record<string, any>>(
+export const filterByProjectAccess = async <T extends object>(
   pool: Pool,
   userId: string,
   rows: T[],
-  projectIdKey: keyof T & string,
+  projectIdKey: keyof T,
 ): Promise<T[]> => {
   if (rows.length === 0) return rows;
   if (await hasPermission(pool, userId, 'Admin')) return rows;

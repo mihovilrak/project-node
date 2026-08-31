@@ -33,6 +33,8 @@ FROM node:25.4.0-alpine3.23 AS backend-builder
 # Set working directory
 WORKDIR /app/api
 
+COPY packages/backend-common/ /app/packages/backend-common/
+
 # Copy package and lock files
 COPY api/package*.json api/yarn.lock api/tsconfig.json api/eslint.config.mjs ./
 
@@ -59,6 +61,8 @@ FROM node:25.4.0-alpine3.23 AS notification-builder
 
 # Set working directory
 WORKDIR /app/service
+
+COPY packages/backend-common/ /app/packages/backend-common/
 
 # Copy package and lock files
 COPY notification-service/package*.json notification-service/yarn.lock \

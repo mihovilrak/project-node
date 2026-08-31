@@ -95,7 +95,7 @@ export const updateUser = async (
   if (columns.length === 0) {
     return getUserById(pool, id);
   }
-  const values: any[] = [];
+  const values: unknown[] = [];
   const setExpressions = columns.map((column, index) => {
     if (column === 'password') {
       values.push((updates as UserUpdateInput)[column]);
@@ -145,7 +145,7 @@ export const deleteUser = async (
 ): Promise<User | null> => {
   const result = await pool.query(
     `UPDATE users
-    SET (status_id, updated_on) = (3, CURRENT_TIMESTAMP)
+    SET (status_id, updated_on) = (user_status_id('deleted'), CURRENT_TIMESTAMP)
     WHERE id = $1
     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
     [id],

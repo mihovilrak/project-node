@@ -269,7 +269,7 @@ describe('UserModel', () => {
   });
 
   describe('deleteUser', () => {
-    it('should soft delete a user by setting status to 3', async () => {
+    it('should soft delete a user using the named deleted status', async () => {
       const mockUser = { id: '1', status_id: 3 };
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([mockUser]),
@@ -278,7 +278,7 @@ describe('UserModel', () => {
       const result = await userModel.deleteUser(mockPool, '1');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SET (status_id, updated_on) = (3'),
+        expect.stringContaining("user_status_id('deleted')"),
         ['1'],
       );
       expect(result).toEqual(mockUser);

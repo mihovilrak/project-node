@@ -122,8 +122,13 @@ begin
     and (p_parent_id is null or t.parent_id = p_parent_id)
     and ((p_created_by is null and (p_created_by_ids is null or t.created_by = any(p_created_by_ids))) or t.created_by = p_created_by)
     and (
-      (p_inactive_statuses_only and t.status_id in (5, 6, 7))
-      or (not p_inactive_statuses_only and (not p_active_statuses_only or t.status_id in (1, 2, 3, 4)))
+      (p_inactive_statuses_only and t.status_id in (
+        task_status_id('done'), task_status_id('cancelled'), task_status_id('deleted')
+      ))
+      or (not p_inactive_statuses_only and (not p_active_statuses_only or t.status_id in (
+        task_status_id('new'), task_status_id('in_progress'),
+        task_status_id('on_hold'), task_status_id('review')
+      )))
     )
     and (p_due_date_from is null or t.due_date >= p_due_date_from)
     and (p_due_date_to is null or t.due_date <= p_due_date_to)

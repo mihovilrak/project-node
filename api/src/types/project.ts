@@ -1,4 +1,5 @@
 import { User } from './user';
+import { TaskDetails } from './task';
 
 export interface Project {
   id: number;
@@ -66,6 +67,25 @@ export interface ProjectTaskFilters {
   assignee?: string;
 }
 
-export interface ProjectQueryFilters {
-  whereParams?: Record<string, any>;
+export interface ProjectFilters {
+  statusId?: number;
+  createdBy?: number;
+  parentId?: number;
+  startDateFrom?: string;
+  startDateTo?: string;
+  dueDateFrom?: string;
+  dueDateTo?: string;
 }
+
+export interface ProjectQueryFilters {
+  status_id?: string;
+  created_by?: string;
+  parent_id?: string;
+  start_date_from?: string;
+  start_date_to?: string;
+  due_date_from?: string;
+  due_date_to?: string;
+  whereParams?: string | Record<string, unknown>;
+}
+
+export type ProjectTask = TaskDetails;

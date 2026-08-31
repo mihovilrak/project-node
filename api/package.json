@@ -25,6 +25,7 @@
     "test:perf": "k6 run src/__tests__/performance/load/*.perf.ts"
   },
   "dependencies": {
+    "@pm/backend-common": "file:../packages/backend-common",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

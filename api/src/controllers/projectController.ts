@@ -11,6 +11,8 @@ import { filterByProjectAccess } from '../models/accessModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
+import { ProjectStatusId } from '../constants/statusIds';
+import { mapProjectQueryFilters } from '../mappers/projectFilters';
 
 // Get all projects
 export const getProjects = async (
@@ -19,64 +21,9 @@ export const getProjects = async (
   pool: Pool,
 ): Promise<void> => {
   try {
-    const { whereParams } = req.query;
-
-    // Backwards compatibility: if whereParams is explicitly provided, pass it through
-    let effectiveWhereParams: Record<string, any> | undefined = whereParams;
-
-    // Otherwise, build whereParams from individual query params with an active-only default
-    if (!effectiveWhereParams) {
-      const builtWhereParams: Record<string, any> = {};
-
-      if (req.query && typeof req.query === 'object') {
-        const {
-          status_id,
-          created_by,
-          parent_id,
-          start_date_from,
-          start_date_to,
-          due_date_from,
-          due_date_to,
-        } = req.query as any;
-
-        const statusNum =
-          status_id !== undefined && status_id !== '' ? Number(status_id) : NaN;
-        if (!Number.isNaN(statusNum)) {
-          builtWhereParams.status_id = statusNum;
-        }
-        const createdByNum =
-          created_by !== undefined && created_by !== ''
-            ? Number(created_by)
-            : NaN;
-        if (!Number.isNaN(createdByNum)) {
-          builtWhereParams.created_by = createdByNum;
-        }
-        const parentNum =
-          parent_id !== undefined && parent_id !== '' ? Number(parent_id) : NaN;
-        if (!Number.isNaN(parentNum)) {
-          builtWhereParams.parent_id = parentNum;
-        }
-        if (start_date_from !== undefined && start_date_from !== '') {
-          builtWhereParams.start_date_from = start_date_from;
-        }
-        if (start_date_to !== undefined && start_date_to !== '') {
-          builtWhereParams.start_date_to = start_date_to;
-        }
-        if (due_date_from !== undefined && due_date_from !== '') {
-          builtWhereParams.due_date_from = due_date_from;
-        }
-        if (due_date_to !== undefined && due_date_to !== '') {
-          builtWhereParams.due_date_to = due_date_to;
-        }
-      }
-
-      // Enforce active-only default when no explicit status filter is supplied
-      if (builtWhereParams.status_id === undefined) {
-        builtWhereParams.status_id = 1;
-      }
-
-      effectiveWhereParams =
-        Object.keys(builtWhereParams).length > 0 ? builtWhereParams : undefined;
+    const filters = mapProjectQueryFilters(req.query);
+    if (filters.statusId === undefined) {
+      filters.statusId = ProjectStatusId.Active;
     }
 
     const userId = (req as unknown as CustomRequest).session?.user?.id;
@@ -85,7 +32,7 @@ export const getProjects = async (
       return;
     }
 
-    const projects = await projectModel.getProjects(pool, effectiveWhereParams);
+    const projects = await projectModel.getProjects(pool, filters);
     const visible = await filterByProjectAccess(pool, userId, projects, 'id');
     res.status(200).json(visible);
   } catch (error) {
