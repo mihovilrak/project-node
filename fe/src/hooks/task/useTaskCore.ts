@@ -77,16 +77,8 @@ export const useTaskCore = (taskId: string) => {
   const handleDelete = async () => {
     if (!state.task) return;
 
-    try {
-      await deleteTask(state.task.id);
-      navigate('/tasks');
-    } catch (error: unknown) {
-      logger.error('Failed to delete task:', error);
-      setState((prev) => ({
-        ...prev,
-        error: getApiErrorMessage(error, 'Failed to delete task'),
-      }));
-    }
+    await deleteTask(state.task.id);
+    navigate('/tasks');
   };
 
   const setSubtasks = (subtasks: Task[]) => {
