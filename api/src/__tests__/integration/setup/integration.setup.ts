@@ -60,11 +60,15 @@ export const cookieHeader = (
 };
 
 const TEST_TABLES = [
+  'comments',
+  'files',
+  'notifications',
   'projects',
   'project_users',
   'session',
   'task_tags',
   'tasks',
+  'time_logs',
   'users',
   'watchers',
 ] as const;
@@ -96,6 +100,24 @@ export const seedTestUser = async () => {
     ), 'Test', 'User', 2, 1)
     ON CONFLICT (login) DO UPDATE SET
       password = EXCLUDED.password,
+      updated_on = CURRENT_TIMESTAMP
+    RETURNING *
+  `);
+  return result.rows[0];
+};
+
+export const seedLowPrivilegeUser = async () => {
+  if (!testPool) return null;
+
+  const result = await testPool.query(`
+    INSERT INTO users (login, email, password, name, surname, role_id, status_id)
+    VALUES ('limiteduser', 'limited@example.com', crypt(
+      'password123',
+      gen_salt('bf', 12)
+    ), 'Limited', 'User', (SELECT id FROM roles WHERE name = 'Developer'), 1)
+    ON CONFLICT (login) DO UPDATE SET
+      password = EXCLUDED.password,
+      role_id = EXCLUDED.role_id,
       updated_on = CURRENT_TIMESTAMP
     RETURNING *
   `);

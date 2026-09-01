@@ -225,62 +225,31 @@ jest.mock('@mui/material/styles', () => {
   };
 });
 
-// Suppress MUI findDOMNode deprecation warnings and act() warnings
+// Suppress the third-party MUI findDOMNode deprecation warning.
 const originalConsoleError = console.error;
 console.error = (...args) => {
-  if (
-    /Warning.*not wrapped in act/.test(args[0]) ||
-    /not wrapped in act/.test(args[0])
-  ) {
-    return;
-  }
   if (/Warning: findDOMNode is deprecated in StrictMode/.test(args[0])) {
-    return;
-  }
-  if (
-    /The current testing environment is not configured to support act/.test(
-      args[0],
-    )
-  ) {
     return;
   }
   originalConsoleError(...args);
 };
 
 // Setup MSW (Mock Service Worker) for API mocking in tests
-// Use require() to avoid ES module parsing issues
-let server: any;
-try {
-  const serverModule = require('./__tests__/mocks/server');
-  server = serverModule.server;
-} catch (e) {
-  console.error('Failed to load MSW server:', e);
-  // Create a no-op server if MSW fails to load
-  server = {
-    listen: () => {},
-    resetHandlers: () => {},
-    close: () => {},
-  };
-}
+// Loading is intentionally fail-fast: tests must not run without HTTP mocks.
+const { server } = require('./__tests__/mocks/server');
 
 // Establish API mocking before all tests
 beforeAll(() => {
-  if (server && server.listen) {
-    server.listen({ onUnhandledRequest: 'warn' });
-  }
+  server.listen({ onUnhandledRequest: 'warn' });
 });
 
 // Reset any request handlers that are declared as a part of our tests
 // (i.e. for testing one-time error scenarios)
 afterEach(() => {
-  if (server && server.resetHandlers) {
-    server.resetHandlers();
-  }
+  server.resetHandlers();
 });
 
 // Clean up after the tests are finished
 afterAll(() => {
-  if (server && server.close) {
-    server.close();
-  }
+  server.close();
 });

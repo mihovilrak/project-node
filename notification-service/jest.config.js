@@ -16,6 +16,9 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: { statements: 64, branches: 52, functions: 68, lines: 66 },
+  },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/jest.setup.ts'],
   clearMocks: true,
   resetMocks: true,
