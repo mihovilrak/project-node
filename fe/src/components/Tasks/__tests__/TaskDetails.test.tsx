@@ -17,6 +17,9 @@ jest.mock('../../../hooks/task/useTaskWatchers');
 jest.mock('../../../hooks/task/useTaskFiles');
 jest.mock('../../../hooks/task/useTaskComments');
 jest.mock('../../../hooks/task/useTaskDetailsHandlers');
+jest.mock('../../../context/AuthContext', () => ({
+  useAuth: () => ({ hasPermission: () => true }),
+}));
 
 // Mock child components
 jest.mock('../TaskDetailsHeader', () => ({

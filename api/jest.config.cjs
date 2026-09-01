@@ -10,5 +10,11 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', 'integration'],
   coveragePathIgnorePatterns: ['/node_modules/'],
   collectCoverage: true,
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/__tests__/**'],
   coverageDirectory: '<rootDir>/src/__tests__/coverage',
+  coverageThreshold: {
+    global: { statements: 73, branches: 70, functions: 77, lines: 72 },
+  },
+  clearMocks: true,
+  restoreMocks: true,
 };

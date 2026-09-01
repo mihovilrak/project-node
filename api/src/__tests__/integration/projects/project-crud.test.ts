@@ -132,12 +132,12 @@ describe('Project CRUD Operations', () => {
       expect(response.body).toHaveProperty('id', projectId);
     });
 
-    it('should return 404 for non-existent project', async () => {
+    it('should conceal a non-existent project behind the access guard', async () => {
       const response = await request(app)
         .get('/api/projects/99999')
         .set('Cookie', authCookies);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(403);
     });
   });
 

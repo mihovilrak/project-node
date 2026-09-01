@@ -134,12 +134,12 @@ describe('Task CRUD Operations', () => {
       expect(response.body).toHaveProperty('id', taskId);
     });
 
-    it('should return 404 for non-existent task', async () => {
+    it('should conceal a non-existent task behind the access guard', async () => {
       const response = await request(app)
         .get('/api/tasks/99999')
         .set('Cookie', authCookies);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(403);
     });
   });
 

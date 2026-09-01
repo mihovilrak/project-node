@@ -72,7 +72,18 @@ BEGIN
     CROSS JOIN project_info
     WHERE pu.project_id = p_project_id
     AND pu.user_id != p_action_user_id
-    RETURNING *;
+    RETURNING
+        notifications.id,
+        notifications.user_id,
+        notifications.type_id,
+        notifications.title,
+        notifications.message,
+        notifications.link,
+        notifications.data,
+        notifications.is_read,
+        notifications.active,
+        notifications.read_on,
+        notifications.created_on;
 
 END;
 
