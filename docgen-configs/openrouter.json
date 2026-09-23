@@ -1,0 +1,64 @@
+{
+  "workspace": {
+    "projects": [
+      "api/tsconfig.json",
+      "fe/tsconfig.json",
+      "notification-service/tsconfig.json"
+    ],
+    "lockfile": "perProject",
+    "projectConcurrency": 1
+  },
+  "generate": {
+    "provider": {
+      "kind": "openai-compatible",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "apiKeyEnv": "OPENROUTER_API_KEY",
+      "contextWindowTokens": 128000
+    },
+    "model": "qwen/qwen3-coder",
+    "concurrency": 4,
+    "maxSymbolsPerRun": 2000
+  },
+  "judge": {
+    "enabled": true,
+    "provider": {
+      "kind": "openai-compatible",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "apiKeyEnv": "OPENROUTER_API_KEY",
+      "contextWindowTokens": 128000
+    },
+    "model": "qwen/qwen3-coder"
+  },
+  "exclude": [
+    "**/*.d.ts",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/__mocks__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/tests/**",
+    "**/__tests__/**"
+  ],
+  "symbols": {
+    "exportedOnly": false,
+    "visibility": [
+      "public",
+      "protected",
+      "private"
+    ],
+    "minBodyLines": 3
+  },
+  "docs": {
+    "leadingComments": {
+      "includeInContext": true,
+      "onGenerate": "replace"
+    }
+  },
+  "check": {
+    "reportMissing": true
+  }
+}
