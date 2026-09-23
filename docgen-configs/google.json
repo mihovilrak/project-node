@@ -13,8 +13,8 @@
       "kind": "google",
       "apiKeyEnv": "GEMINI_API_KEY"
     },
-    "model": "gemini-2.5-flash",
-    "concurrency": 4,
+    "model": "gemini-3.6-flash",
+    "concurrency": 1,
     "maxSymbolsPerRun": 2000
   },
   "judge": {
@@ -23,7 +23,7 @@
       "kind": "google",
       "apiKeyEnv": "GEMINI_API_KEY"
     },
-    "model": "gemini-2.5-flash-lite"
+    "model": "gemini-3.5-flash-lite"
   },
   "exclude": [
     "**/*.d.ts",
