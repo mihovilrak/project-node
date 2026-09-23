@@ -11,3 +11,4 @@ fe/build/
 .cursorrules
 mcp-test-server/
 api/uploads/
+.env.docgen

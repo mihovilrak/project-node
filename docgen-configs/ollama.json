@@ -1,0 +1,62 @@
+{
+  "workspace": {
+    "projects": [
+      "api/tsconfig.json",
+      "fe/tsconfig.json",
+      "notification-service/tsconfig.json"
+    ],
+    "lockfile": "perProject",
+    "projectConcurrency": 1
+  },
+  "generate": {
+    "provider": {
+      "kind": "openai-compatible",
+      "baseUrl": "http://host.docker.internal:11434/v1",
+      "contextWindowTokens": 32768
+    },
+    "model": "qwen3-coder",
+    "concurrency": 1,
+    "maxSymbolsPerRun": 2000
+  },
+  "judge": {
+    "enabled": true,
+    "provider": {
+      "kind": "openai-compatible",
+      "baseUrl": "http://host.docker.internal:11434/v1",
+      "contextWindowTokens": 32768
+    },
+    "model": "qwen3-coder"
+  },
+  "exclude": [
+    "**/*.d.ts",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/__mocks__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/tests/**",
+    "**/__tests__/**"
+  ],
+  "symbols": {
+    "exportedOnly": false,
+    "visibility": [
+      "public",
+      "protected",
+      "private"
+    ],
+    "minBodyLines": 3
+  },
+  "docs": {
+    "leadingComments": {
+      "includeInContext": true,
+      "onGenerate": "replace"
+    }
+  },
+  "check": {
+    "reportMissing": true
+  }
+}
