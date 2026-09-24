@@ -25,7 +25,9 @@ export const getSystemSettings = async (
 /**
  * Retrieve all available timezones with in-memory caching.
  *
- * Results are cached in memory to avoid repeated database queries. On error, returns a 500 status with a generic error message.
+ * Results are cached in memory to avoid repeated database queries. On error,
+ * returns a 500 status with a generic error message.
+ *
  * @param req Express request object
  * @param res Express response object for sending the timezone list
  * @param pool PostgreSQL connection pool for database access
@@ -45,9 +47,12 @@ export const getTimezones = async (
 };
 
 /**
- * Retrieve the application theme setting as a public endpoint requiring no authentication.
+ * Retrieve the application theme setting as a public endpoint requiring no
+ * authentication.
  *
- * Returns the configured theme value or defaults to 'light' if no theme is set. This endpoint is accessible without admin permissions.
+ * Returns the configured theme value or defaults to 'light' if no theme is set.
+ * This endpoint is accessible without admin permissions.
+ *
  * @param req Express request object
  * @param res Express response object
  * @param pool Database connection pool
@@ -122,11 +127,18 @@ function validateSettings(input: SettingsUpdateInput): string | null {
 }
 
 /**
- * Persist application-wide settings changes to the database while validating input and logging sensitive runtime configuration updates.
+ * Persist application-wide settings changes to the database while validating
+ * input and logging sensitive runtime configuration updates.
  *
- * Validates incoming settings against a schema before persisting. When runtime keys such as SMTP or public base URL are modified, logs the change with actor identity, originating IP address, and before/after values for audit purposes.
- * @param req The request object containing user session context and settings payload in the body
- * @param res The response object used to send the persisted settings or error details
+ * Validates incoming settings against a schema before persisting. When runtime
+ * keys such as SMTP or public base URL are modified, logs the change with actor
+ * identity, originating IP address, and before/after values for audit
+ * purposes.
+ *
+ * @param req The request object containing user session context and settings
+ *   payload in the body
+ * @param res The response object used to send the persisted settings or error
+ *   details
  * @param pool The database connection pool
  */
 export const updateSystemSettings = async (
@@ -176,7 +188,10 @@ export const updateSystemSettings = async (
 /**
  * Retrieve the authenticated user's application settings from the database.
  *
- * Requires an authenticated session; returns an empty object if no settings exist for the user. Responds with 401 if the user is not authenticated or 500 on database errors.
+ * Requires an authenticated session; returns an empty object if no settings
+ * exist for the user. Responds with 401 if the user is not authenticated or 500
+ * on database errors.
+ *
  * @param req Express request with session containing authenticated user ID
  * @param res Express response object for sending the settings data
  * @param pool Database connection pool
@@ -200,10 +215,15 @@ export const getUserSettings = async (
 };
 
 /**
- * Update the authenticated user's settings and return the persisted configuration.
+ * Update the authenticated user's settings and return the persisted
+ * configuration.
  *
- * Requires an authenticated session with a user ID. Omitted fields in the request body fall back to existing values. Returns a 401 error if the user is not authenticated and a 500 error on server failures.
- * @param req The HTTP request object with session data containing user authentication.
+ * Requires an authenticated session with a user ID. Omitted fields in the
+ * request body fall back to existing values. Returns a 401 error if the user is
+ * not authenticated and a 500 error on server failures.
+ *
+ * @param req The HTTP request object with session data containing user
+ *   authentication.
  * @param res The HTTP response object for sending JSON responses.
  * @param pool The database connection pool for accessing the settings model.
  */
@@ -232,8 +252,12 @@ export const updateUserSettings = async (
 /**
  * Verify SMTP configuration by sending a test email to a supplied address.
  *
- * Requires email to be enabled in system settings and validates the email address format before attempting to connect and send. Returns only an error code in the response while logging full details server-side.
- * @param req HTTP request containing the email address to test in the request body
+ * Requires email to be enabled in system settings and validates the email
+ * address format before attempting to connect and send. Returns only an error
+ * code in the response while logging full details server-side.
+ *
+ * @param req HTTP request containing the email address to test in the request
+ *   body
  * @param res HTTP response object
  * @param pool Database connection pool
  */

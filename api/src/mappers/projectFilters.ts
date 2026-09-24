@@ -10,8 +10,11 @@ const stringValue = (value: unknown): string | undefined =>
   typeof value === 'string' && value !== '' ? value : undefined;
 
 /**
- * Transform query string parameters into typed project filter objects with optional where clause parsing.
- * @param query Query filters from an HTTP request, optionally including a whereParams field for additional filter criteria.
+ * Transform query string parameters into typed project filter objects with
+ * optional where clause parsing.
+ *
+ * @param query Query filters from an HTTP request, optionally including a
+ *   whereParams field for additional filter criteria.
  */
 export const mapProjectQueryFilters = (
   query: ProjectQueryFilters,

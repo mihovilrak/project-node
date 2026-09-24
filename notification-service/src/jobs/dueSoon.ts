@@ -3,7 +3,8 @@ import { pool } from '../db';
 import { logger } from '../utils/logger';
 
 /**
- * Invoke a database function to create notifications for items due soon, logging how many were created or any error that occurs.
+ * Invoke a database function to create notifications for items due soon,
+ * logging how many were created or any error that occurs.
  */
 export const createDueSoonNotifications = async (): Promise<void> => {
   try {

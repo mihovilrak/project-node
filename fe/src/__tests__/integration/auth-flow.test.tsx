@@ -150,9 +150,7 @@ describe('Authentication Flow', () => {
     const user = userEvent.setup();
 
     // Override login handler to simulate network error
-    server.use(
-      http.post('/api/login', () => HttpResponse.error()),
-    );
+    server.use(http.post('/api/login', () => HttpResponse.error()));
 
     render(
       <TestWrapper>

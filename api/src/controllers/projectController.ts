@@ -17,10 +17,15 @@ import { ProjectStatusId } from '../constants/statusIds';
 import { mapProjectQueryFilters } from '../mappers/projectFilters';
 
 /**
- * Retrieve all projects accessible to the authenticated user, filtered and paginated according to query parameters.
+ * Retrieve all projects accessible to the authenticated user, filtered and
+ * paginated according to query parameters.
  *
- * Defaults to active projects if no status filter is provided. Scopes results to projects the user can access and applies pagination within the scoped dataset to prevent silently shortened pages. Requires authentication.
- * @param req Request object with optional query filters for status, creator, parent project, and date ranges
+ * Defaults to active projects if no status filter is provided. Scopes results
+ * to projects the user can access and applies pagination within the scoped
+ * dataset to prevent silently shortened pages. Requires authentication.
+ *
+ * @param req Request object with optional query filters for status, creator,
+ *   parent project, and date ranges
  * @param res Response object to send the projects list or error
  * @param pool Database connection pool
  */
@@ -58,8 +63,11 @@ export const getProjects = async (
 
 /**
  * Retrieve a single project by its identifier.
- * @param req Express request object containing the project ID in the URL parameters
- * @param res Express response object for sending the project data or error status
+ *
+ * @param req Express request object containing the project ID in the URL
+ *   parameters
+ * @param res Express response object for sending the project data or error
+ *   status
  * @param pool Database connection pool for querying project information
  */
 export const getProjectById = async (
@@ -82,7 +90,9 @@ export const getProjectById = async (
 };
 
 /**
- * Retrieve comprehensive project details including members, task counts, and metadata by project ID.
+ * Retrieve comprehensive project details including members, task counts, and
+ * metadata by project ID.
+ *
  * @param req Request object with project ID in URL parameters
  * @param res Response object to send project details or error status
  * @param pool Database connection pool for executing queries
@@ -110,10 +120,17 @@ const MAX_PROJECT_NAME_LENGTH = 500;
 const MAX_PROJECT_DESCRIPTION_LENGTH = 5000;
 
 /**
- * Create a new project with validation for name, description, and optional dates.
+ * Create a new project with validation for name, description, and optional
+ * dates.
  *
- * Requires an authenticated user. The project name is mandatory, must be a non-empty string, and cannot exceed the maximum length limit. Description is optional but cannot exceed the maximum length limit. Start date, due date, and parent project ID are optional. Returns the created project on success with HTTP 201 status.
- * @param req ProjectRequest containing body with name, description, start_date, due_date, and parent_id, along with authenticated user session
+ * Requires an authenticated user. The project name is mandatory, must be a
+ * non-empty string, and cannot exceed the maximum length limit. Description is
+ * optional but cannot exceed the maximum length limit. Start date, due date,
+ * and parent project ID are optional. Returns the created project on success
+ * with HTTP 201 status.
+ *
+ * @param req ProjectRequest containing body with name, description, start_date,
+ *   due_date, and parent_id, along with authenticated user session
  * @param res Response object for sending project data or error messages
  * @param pool Database connection pool for executing queries
  */
@@ -185,10 +202,15 @@ export const createProject = async (
 };
 
 /**
- * Update a project's status by ID, validating that the status identifier is a positive integer.
+ * Update a project's status by ID, validating that the status identifier is a
+ * positive integer.
  *
- * Accepts status_id or status in the request body, coercing to a number and rejecting values that are not positive integers. Returns 404 if the project is not found, 400 if status validation fails, and 500 on database errors.
- * @param req Request object with project id in params and status_id or status in body
+ * Accepts status_id or status in the request body, coercing to a number and
+ * rejecting values that are not positive integers. Returns 404 if the project
+ * is not found, 400 if status validation fails, and 500 on database errors.
+ *
+ * @param req Request object with project id in params and status_id or status
+ *   in body
  * @param res Response object for sending the operation result or error
  * @param pool Database connection pool for executing the status update
  */
@@ -217,10 +239,16 @@ export const changeProjectStatus = async (
 };
 
 /**
- * Modify project fields and return the updated project, or respond with 404 if not found.
+ * Modify project fields and return the updated project, or respond with 404 if
+ * not found.
  *
- * Coerces parent_id from string to number if provided. Returns 200 with updated project data on success, 404 if the project does not exist, or 500 on server error.
- * @param req Express request with project id in params and ProjectUpdateInput fields (name, description, start_date, due_date, status, parent_id) in body
+ * Coerces parent_id from string to number if provided. Returns 200 with updated
+ * project data on success, 404 if the project does not exist, or 500 on server
+ * error.
+ *
+ * @param req Express request with project id in params and ProjectUpdateInput
+ *   fields (name, description, start_date, due_date, status, parent_id) in
+ *   body
  * @param res Express response to send the updated project or error
  * @param pool Database connection pool for executing the update query
  */
@@ -250,7 +278,9 @@ export const updateProject = async (
 /**
  * Remove a project from the database by its identifier.
  *
- * Returns a 404 response if the project does not exist. Returns a 500 response on internal server errors.
+ * Returns a 404 response if the project does not exist. Returns a 500 response
+ * on internal server errors.
+ *
  * @param req Express request with project id in route parameters
  * @param res Express response to send the deletion result or error
  * @param pool Database connection pool for executing the delete operation
@@ -297,7 +327,10 @@ export const getProjectMembers = async (
 /**
  * Add a user to a project and notify all members atomically.
  *
- * Membership and notification creation are performed within a single transaction to ensure that a failed notification does not leave a member unannounced. Returns a 404 response if the project or user does not exist.
+ * Membership and notification creation are performed within a single
+ * transaction to ensure that a failed notification does not leave a member
+ * unannounced. Returns a 404 response if the project or user does not exist.
+ *
  * @param req Request object with project id in params and userId in body
  * @param res Response object for sending HTTP responses
  * @param pool Database connection pool
@@ -338,6 +371,7 @@ export const addProjectMember = async (
 
 /**
  * Remove a user from a project's membership list.
+ *
  * @param req Express request with project id in params and userId in body
  * @param res Express response object
  * @param pool Database connection pool
@@ -364,6 +398,7 @@ export const deleteProjectMember = async (
 
 /**
  * Retrieve child projects for a given parent project with pagination support.
+ *
  * @param req Request object with parent project ID in route parameters
  * @param res Response object for sending subprojects data
  * @param pool Database connection pool
@@ -388,10 +423,15 @@ export const getSubprojects = async (
 };
 
 /**
- * Retrieve tasks associated with a project, with optional filtering by status, priority, and assignee.
+ * Retrieve tasks associated with a project, with optional filtering by status,
+ * priority, and assignee.
  *
- * Accepts query parameters for status, priority, and assignee to filter results. Supports pagination through query parameters. Returns paginated task results with HTTP 200 on success or HTTP 500 on server error.
- * @param req Express request with project ID in path parameters and optional query filters for status, priority, assignee, and pagination
+ * Accepts query parameters for status, priority, and assignee to filter
+ * results. Supports pagination through query parameters. Returns paginated task
+ * results with HTTP 200 on success or HTTP 500 on server error.
+ *
+ * @param req Express request with project ID in path parameters and optional
+ *   query filters for status, priority, assignee, and pagination
  * @param res Express response object for sending task results or error messages
  * @param pool Database connection pool for executing queries
  */
@@ -424,6 +464,7 @@ export const getProjectTasks = async (
 
 /**
  * Retrieve all available project status definitions.
+ *
  * @param req Express request object
  * @param res Express response object for sending the status list
  * @param pool Database connection pool for querying project statuses

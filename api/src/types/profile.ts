@@ -26,15 +26,20 @@ export interface ProfileUpdateInput {
 }
 
 export interface PasswordUpdateInput {
-  /** Current password (sent by frontend as current_password) */
+  /**
+   * Current password (sent by frontend as current_password)
+   */
   current_password?: string;
-  /** Legacy field name (old_password) - accepted for compatibility */
+  /**
+   * Legacy field name (old_password) - accepted for compatibility
+   */
   old_password?: string;
   new_password: string;
 }
 
 /**
- * Capture aggregate task completion and time tracking metrics for a user profile.
+ * Capture aggregate task completion and time tracking metrics for a user
+ * profile.
  */
 export interface ProfileStats {
   total_tasks: number;

@@ -21,11 +21,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import GridViewIcon from '@mui/icons-material/GridView';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  getUsers,
-  deleteUser,
-  getUserStatuses,
-} from '../../api/users';
+import { getUsers, deleteUser, getUserStatuses } from '../../api/users';
 import { getRoles } from '../../api/roles';
 import { usePermission } from '../../hooks/common/usePermission';
 import { User } from '../../types/user';

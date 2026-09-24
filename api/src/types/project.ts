@@ -35,7 +35,8 @@ export interface ProjectMember {
 }
 
 /**
- * Extend project information with team members, task metrics, and an optional update timestamp.
+ * Extend project information with team members, task metrics, and an optional
+ * update timestamp.
  */
 export interface ProjectDetails extends Omit<Project, 'updated_on'> {
   updated_on?: Date | null;

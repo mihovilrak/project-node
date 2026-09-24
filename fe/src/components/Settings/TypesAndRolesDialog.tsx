@@ -7,8 +7,13 @@ import RoleDialog from './RoleDialog';
 import { TypesAndRolesDialogProps } from '../../types/setting';
 
 /**
- * Render the appropriate dialog for editing tasks, activities, or roles based on the active tab.
- * @param root0 Object containing activeTab to determine which dialog to display, dialogOpen to control visibility, selectedItem for editing, onClose callback when dialog closes, and onSave callback to persist changes.
+ * Render the appropriate dialog for editing tasks, activities, or roles based
+ * on the active tab.
+ *
+ * @param root0 Object containing activeTab to determine which dialog to
+ *   display, dialogOpen to control visibility, selectedItem for editing,
+ *   onClose callback when dialog closes, and onSave callback to persist
+ *   changes.
  */
 export const TypesAndRolesDialog: React.FC<TypesAndRolesDialogProps> = ({
   activeTab,

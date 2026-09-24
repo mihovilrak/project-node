@@ -1,7 +1,8 @@
 import { User } from './user';
 
 /**
- * Provide a flexible set of optional filter fields used to compose query parameters for listing and searching tasks, projects, users, or time logs.
+ * Provide a flexible set of optional filter fields used to compose query
+ * parameters for listing and searching tasks, projects, users, or time logs.
  */
 export interface FilterValues {
   search?: string;
@@ -29,22 +30,33 @@ export interface FilterValues {
   active?: boolean;
 }
 
-/** Operator for date filters */
+/**
+ * Operator for date filters
+ */
 export type DateFilterOperator = 'from' | 'to' | 'between';
 
-/** Operator for dropdown (e.g. Role, Status) filters */
+/**
+ * Operator for dropdown (e.g. Role, Status) filters
+ */
 export type DropdownFilterOperator = 'includes' | 'excludes' | 'is';
 
-/** Operator for number filters */
+/**
+ * Operator for number filters
+ */
 export type NumberFilterOperator =
   'equals' | 'gt' | 'gte' | 'lt' | 'lte' | 'between';
 
-/** Operator for text filters */
+/**
+ * Operator for text filters
+ */
 export type TextFilterOperator =
   'contains' | 'starts_with' | 'ends_with' | 'excludes';
 
 /**
- * Represent the union of allowed filter operators by combining the date ('from','to','between'), dropdown ('includes','excludes','is'), number ('equals','gt','gte','lt','lte','between') and text ('contains','starts_with','ends_with','excludes') operator sets.
+ * Represent the union of allowed filter operators by combining the date
+ * ('from','to','between'), dropdown ('includes','excludes','is'), number
+ * ('equals','gt','gte','lt','lte','between') and text
+ * ('contains','starts_with','ends_with','excludes') operator sets.
  */
 export type FilterOperator =
   | DateFilterOperator
@@ -52,26 +64,36 @@ export type FilterOperator =
   | NumberFilterOperator
   | TextFilterOperator;
 
-/** Logical date field name (maps to _from / _to keys) */
+/**
+ * Logical date field name (maps to _from / _to keys)
+ */
 export type DateLogicalField = 'start_date' | 'due_date' | 'created';
 
 export type ActiveFilterField = keyof FilterValues | DateLogicalField;
 
-/** One active filter row (field + operator + value(s)) */
+/**
+ * One active filter row (field + operator + value(s))
+ */
 export interface ActiveFilter {
   id: string;
   field: ActiveFilterField;
   operator: FilterOperator;
   value?: string | number | null;
   value2?: string | number | null;
-  /** For dropdown operator "includes": multiple selected option ids */
+  /**
+   * For dropdown operator "includes": multiple selected option ids
+   */
   valueMulti?: number[];
 }
 
-/** Kind of filter field for operator and input UI */
+/**
+ * Kind of filter field for operator and input UI
+ */
 export type FilterFieldKind = 'date' | 'dropdown' | 'number' | 'text';
 
-/** Available filter definition for "Add filter" list */
+/**
+ * Available filter definition for "Add filter" list
+ */
 export interface AvailableFilterDef {
   key: ActiveFilterField;
   label: string;
@@ -79,7 +101,9 @@ export interface AvailableFilterDef {
   optionKey?: keyof FilterPanelOptions; // e.g. 'statuses', 'roles' for dropdown options
 }
 
-/** Human-readable labels for filter keys (e.g. Status not status_id) */
+/**
+ * Human-readable labels for filter keys (e.g. Status not status_id)
+ */
 export const FILTER_FIELD_LABELS: Record<string, string> = {
   status_id: 'Status',
   priority_id: 'Priority',
@@ -121,7 +145,8 @@ export interface FilterPanelProps {
 }
 
 /**
- * Specify available option lists and boolean flags that configure which filters the panel shows.
+ * Specify available option lists and boolean flags that configure which filters
+ * the panel shows.
  */
 export interface FilterPanelOptions {
   statuses?: FilterOption[];
@@ -149,7 +174,9 @@ export interface FilterPanelOptions {
   id?: boolean;
 }
 
-/** Map date logical field to FilterValues keys */
+/**
+ * Map date logical field to FilterValues keys
+ */
 export const DATE_FIELD_TO_KEYS: Record<
   string,
   { from: keyof FilterValues; to: keyof FilterValues }

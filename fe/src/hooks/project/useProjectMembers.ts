@@ -11,7 +11,8 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
  * Manage project members with loading, updating, and removal capabilities.
- * @param projectId string identifier for the project
+ *
+ * @param projectId String identifier for the project
  */
 export const useProjectMembers = (projectId: string): ProjectMembersHook => {
   const [members, setMembers] = useState<ProjectMember[]>([]);

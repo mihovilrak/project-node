@@ -16,7 +16,9 @@ import { Session } from 'express-session';
 jest.mock('../../models/taskModel');
 jest.mock('../../models/notificationModel');
 jest.mock('../../models/accessModel', () => ({
-  resolveProjectScope: jest.fn(async (_pool: unknown, userId: string) => userId),
+  resolveProjectScope: jest.fn(
+    async (_pool: unknown, userId: string) => userId,
+  ),
 }));
 
 describe('TaskController', () => {
@@ -64,8 +66,13 @@ describe('TaskController', () => {
     };
     // Handlers that write run inside withTransaction, so the models receive the
     // pooled client rather than the pool itself.
-    mockClient = { query: jest.fn().mockResolvedValue({ rows: [] }), release: jest.fn() };
-    mockPool = { connect: jest.fn().mockResolvedValue(mockClient) } as unknown as Partial<Pool>;
+    mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [] }),
+      release: jest.fn(),
+    };
+    mockPool = {
+      connect: jest.fn().mockResolvedValue(mockClient),
+    } as unknown as Partial<Pool>;
     jest.clearAllMocks();
   });
 

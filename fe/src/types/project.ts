@@ -9,7 +9,8 @@ import { AppointmentTooltip } from '@devexpress/dx-react-scheduler-material-ui';
 import { TimeLog, TimeLogCreate } from './timeLog';
 
 /**
- * Represent a project's core metadata, scheduling, ownership, status, progress, and optional nested subprojects for frontend use.
+ * Represent a project's core metadata, scheduling, ownership, status, progress,
+ * and optional nested subprojects for frontend use.
  */
 export interface Project {
   id: number;
@@ -56,7 +57,9 @@ export interface ProjectGanttProps {
 }
 
 /**
- * Supply props for a subproject creation form: the parent project ID, an async onSubmit callback receiving name, description, start_date and due_date, and an onClose handler.
+ * Supply props for a subproject creation form: the parent project ID, an async
+ * onSubmit callback receiving name, description, start_date and due_date, and
+ * an onClose handler.
  */
 export interface SubprojectFormProps {
   projectId: number;
@@ -70,7 +73,8 @@ export interface SubprojectFormProps {
 }
 
 /**
- * Supply optional initial project data and handlers to submit changes or close the form.
+ * Supply optional initial project data and handlers to submit changes or close
+ * the form.
  */
 export interface ProjectFormProps {
   project?: Project;
@@ -79,7 +83,9 @@ export interface ProjectFormProps {
 }
 
 /**
- * Provide a task formatted for timeline views (Gantt/calendar) with Date start/end properties, assignee id, and optional type, priority, status, and description.
+ * Provide a task formatted for timeline views (Gantt/calendar) with Date
+ * start/end properties, assignee id, and optional type, priority, status, and
+ * description.
  */
 export interface FormattedTask {
   id: number;
@@ -94,7 +100,8 @@ export interface FormattedTask {
 }
 
 /**
- * Provide the form payload used when creating or editing a subproject, containing the name, description, and optional Dayjs start and due dates.
+ * Provide the form payload used when creating or editing a subproject,
+ * containing the name, description, and optional Dayjs start and due dates.
  */
 export interface SubprojectFormData {
   name: string;
@@ -126,7 +133,9 @@ export interface ProjectOverviewProps {
 }
 
 /**
- * Document the props used to render and interact with a project's task list, including the array of tasks and optional callbacks to create a task or start a time log for a task.
+ * Document the props used to render and interact with a project's task list,
+ * including the array of tasks and optional callbacks to create a task or start
+ * a time log for a task.
  */
 export interface ProjectTaskListProps {
   tasks: Task[];
@@ -135,7 +144,8 @@ export interface ProjectTaskListProps {
 }
 
 /**
- * Use these props to render a tab panel that displays its children only when its index matches the current active value.
+ * Use these props to render a tab panel that displays its children only when
+ * its index matches the current active value.
  */
 export interface TabPanelProps {
   children?: React.ReactNode;
@@ -158,7 +168,8 @@ export interface ProjectMemberSelectProps {
 }
 
 /**
- * Represent a project's status with a numeric identifier, a human-readable name, and an optional color value.
+ * Represent a project's status with a numeric identifier, a human-readable
+ * name, and an optional color value.
  */
 export interface ProjectStatus {
   id: number;
@@ -167,7 +178,8 @@ export interface ProjectStatus {
 }
 
 /**
- * Describe the runtime state used by a project details view, including loaded project data, lists, dialogs and loading/error flags.
+ * Describe the runtime state used by a project details view, including loaded
+ * project data, lists, dialogs and loading/error flags.
  */
 export interface ProjectDetailsState {
   project: Project | null;
@@ -193,7 +205,8 @@ export type AppointmentComponentProps = {
 };
 
 /**
- * Provide the props available to a custom appointment content component used to render a task appointment in the scheduler.
+ * Provide the props available to a custom appointment content component used to
+ * render a task appointment in the scheduler.
  */
 export type AppointmentContentComponentProps = {
   children?: React.ReactNode;
@@ -212,7 +225,8 @@ export type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
 };
 
 /**
- * Expose booleans and callbacks to enable editing and deleting a project from a UI.
+ * Expose booleans and callbacks to enable editing and deleting a project from a
+ * UI.
  */
 export interface ProjectActionsProps {
   canEdit: boolean;
@@ -222,7 +236,10 @@ export interface ProjectActionsProps {
 }
 
 /**
- * Provide the properties required to render and control a project's tab panels, including active tab index, project data and details, tasks, members, time logs, permission flag, project ID, and callbacks for task, member and time log actions.
+ * Provide the properties required to render and control a project's tab panels,
+ * including active tab index, project data and details, tasks, members, time
+ * logs, permission flag, project ID, and callbacks for task, member and time
+ * log actions.
  */
 export interface ProjectTabPanelsProps {
   activeTab: number;
@@ -242,7 +259,8 @@ export interface ProjectTabPanelsProps {
 }
 
 /**
- * Expose state and async handlers for loading, updating, and removing project members, plus control of the members management dialog.
+ * Expose state and async handlers for loading, updating, and removing project
+ * members, plus control of the members management dialog.
  */
 export interface ProjectMembersHook {
   members: ProjectMember[];
@@ -256,7 +274,8 @@ export interface ProjectMembersHook {
 }
 
 /**
- * Manage a project's task list state and actions, including loading tasks, creating tasks, and controlling the task form visibility.
+ * Manage a project's task list state and actions, including loading tasks,
+ * creating tasks, and controlling the task form visibility.
  */
 export interface ProjectTasksHook {
   tasks: Task[];
@@ -269,7 +288,8 @@ export interface ProjectTasksHook {
 }
 
 /**
- * Expose state and handlers to load, create, edit, delete, and select project time logs, and to control the time-log dialog visibility.
+ * Expose state and handlers to load, create, edit, delete, and select project
+ * time logs, and to control the time-log dialog visibility.
  */
 export interface ProjectTimeLogsHook {
   timeLogs: TimeLog[];
@@ -285,7 +305,8 @@ export interface ProjectTimeLogsHook {
 }
 
 /**
- * Provide properties to configure and handle a task creation form for a given project.
+ * Provide properties to configure and handle a task creation form for a given
+ * project.
  */
 export interface TaskFormProps {
   projectId: number;
@@ -295,7 +316,10 @@ export interface TaskFormProps {
 }
 
 /**
- * Provide properties and handlers required by a project details form, including form data, validation errors, available parent projects and statuses, loading state, and event handlers for input, status, date and parent changes, cancelation, and submission.
+ * Provide properties and handlers required by a project details form, including
+ * form data, validation errors, available parent projects and statuses, loading
+ * state, and event handlers for input, status, date and parent changes,
+ * cancelation, and submission.
  */
 export interface ProjectDetailsFormProps {
   formData: any;
@@ -319,7 +343,8 @@ export interface ProjectDetailsFormProps {
 }
 
 /**
- * Provide properties and callbacks for a form that selects and submits project members.
+ * Provide properties and callbacks for a form that selects and submits project
+ * members.
  */
 export interface ProjectMembersFormProps {
   users: User[];

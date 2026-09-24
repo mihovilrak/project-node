@@ -210,7 +210,9 @@ function activeFiltersToFilterValues(
 }
 
 /**
- * Construct the list of available filter definitions based on type and enabled options.
+ * Construct the list of available filter definitions based on type and enabled
+ * options.
+ *
  * @param type 'tasks' | 'projects' | 'users' | 'time_logs'
  * @param options FilterPanelOptions
  * @returns AvailableFilterDef[]
@@ -346,11 +348,16 @@ const getDefaultOperator = (
 };
 
 /**
- * Manage filter state and provide methods for applying, resetting, and displaying active filters.
+ * Manage filter state and provide methods for applying, resetting, and
+ * displaying active filters.
+ *
  * @param filters Current filter values to initialize and sync the filter state.
- * @param onFilterChange Callback invoked with updated filter values when filters are applied or cleared.
- * @param options Configuration object providing available options for filter fields such as statuses, priorities, and users.
- * @param type Filter context type determining which available filters are exposed: tasks, projects, users, or time_logs.
+ * @param onFilterChange Callback invoked with updated filter values when
+ *   filters are applied or cleared.
+ * @param options Configuration object providing available options for filter
+ *   fields such as statuses, priorities, and users.
+ * @param type Filter context type determining which available filters are
+ *   exposed: tasks, projects, users, or time_logs.
  */
 export const useFilterPanel = (
   filters: FilterValues,
@@ -516,7 +523,9 @@ export const useFilterPanel = (
       });
   };
 
-  /** Chips show applied state (from parent filters), not staged. */
+  /**
+   * Chips show applied state (from parent filters), not staged.
+   */
   const getAppliedFiltersFromValues = useCallback(
     (appliedFilters: FilterValues, optionsMap: FilterPanelOptions) => {
       const result: {

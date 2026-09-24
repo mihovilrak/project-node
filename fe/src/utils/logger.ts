@@ -2,7 +2,10 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const noop = (): void => {};
 
-/** Keys redacted in production logs: password, token, authorization, cookie, session, etc. */
+/**
+ * Keys redacted in production logs: password, token, authorization, cookie,
+ * session, etc.
+ */
 const SENSITIVE_KEYS = new Set([
   'password',
   'token',
@@ -45,8 +48,8 @@ const sanitizeString = (value: string): string => {
 };
 
 /**
- * Redacts sensitive values and safely traverses nested or circular log payloads.
- * Exported for testing.
+ * Redacts sensitive values and safely traverses nested or circular log
+ * payloads. Exported for testing.
  */
 export function sanitizeForLog(value: unknown): unknown {
   const sanitize = (

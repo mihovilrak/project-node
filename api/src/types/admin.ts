@@ -1,5 +1,6 @@
 /**
- * Represent a system administrator with user association and lifecycle tracking.
+ * Represent a system administrator with user association and lifecycle
+ * tracking.
  */
 export interface Admin {
   id: number;

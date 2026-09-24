@@ -25,7 +25,8 @@ const probeSmtp = async (): Promise<void> => {
 };
 
 /**
- * Start a background timer that periodically probes SMTP connectivity; do nothing if the probe is already scheduled.
+ * Start a background timer that periodically probes SMTP connectivity; do
+ * nothing if the probe is already scheduled.
  */
 export const startSmtpProbe = (): void => {
   if (smtpProbeTimer) return;
@@ -36,7 +37,8 @@ export const startSmtpProbe = (): void => {
 };
 
 /**
- * Stop the recurring SMTP probe timer if it's currently active by clearing its interval and resetting the timer reference.
+ * Stop the recurring SMTP probe timer if it's currently active by clearing its
+ * interval and resetting the timer reference.
  */
 export const stopSmtpProbe = (): void => {
   if (!smtpProbeTimer) return;
@@ -77,7 +79,8 @@ export const createServer = (): express.Express => {
 };
 
 /**
- * Start an HTTP server listening on the configured port, log the startup, initiate the SMTP probe, and return the Server instance.
+ * Start an HTTP server listening on the configured port, log the startup,
+ * initiate the SMTP probe, and return the Server instance.
  */
 export const startServer = (): Server => {
   const port = config.app.port || 5001;

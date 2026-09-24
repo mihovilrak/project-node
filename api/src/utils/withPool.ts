@@ -8,9 +8,12 @@ export type HandlerWithPool<Req = Request> = (
 ) => void | Response | Promise<void | Response>;
 
 /**
- * Create a request handler that injects a database pool into the handler function and catches promise rejections.
+ * Create a request handler that injects a database pool into the handler
+ * function and catches promise rejections.
+ *
  * @param pool The database pool instance to inject into the handler.
- * @param handler The async-capable handler function that receives the pool as its third argument.
+ * @param handler The async-capable handler function that receives the pool as
+ *   its third argument.
  */
 export function withPool<Req = Request>(
   pool: Pool,

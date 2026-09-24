@@ -3,8 +3,8 @@ import { http, HttpResponse } from 'msw';
 type JsonBody = Record<string, unknown>;
 
 /**
- * Default mock data for MSW handlers
- * These can be overridden in individual tests
+ * Default mock data for MSW handlers These can be overridden in individual
+ * tests
  */
 
 // Default user data
@@ -83,12 +83,14 @@ export const defaultTask = {
 };
 
 /**
- * Default MSW handlers for all API endpoints
- * These provide default responses that can be overridden in tests
+ * Default MSW handlers for all API endpoints These provide default responses
+ * that can be overridden in tests
  */
 export const handlers = [
   // Auth endpoints
-  http.get('/api/check-session', () => HttpResponse.json({ user: defaultUser })),
+  http.get('/api/check-session', () =>
+    HttpResponse.json({ user: defaultUser }),
+  ),
 
   http.post('/api/login', async ({ request }) => {
     const body = (await request.json()) as { login: string; password: string };

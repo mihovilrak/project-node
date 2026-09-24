@@ -51,7 +51,9 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1, 500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
+        1, 500, 0,
+      ]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -68,7 +70,9 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1, 500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
+        1, 500, 0,
+      ]);
       expect(result).toEqual(mockProjects);
     });
   });

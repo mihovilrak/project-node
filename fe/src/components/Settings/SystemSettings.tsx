@@ -501,9 +501,7 @@ const SystemSettings: React.FC = () => {
                 label="SMTP Port"
                 type="number"
                 value={state.settings.email_port ?? ''}
-                onChange={(e) =>
-                  setField('email_port', Number(e.target.value))
-                }
+                onChange={(e) => setField('email_port', Number(e.target.value))}
                 fullWidth
                 size="small"
               />

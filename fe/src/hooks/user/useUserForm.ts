@@ -14,7 +14,9 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
  * Manage user form state and submission for creating or editing user accounts.
- * @param root0 Object containing optional userId to load existing user data for editing.
+ *
+ * @param root0 Object containing optional userId to load existing user data for
+ *   editing.
  */
 export const useUserForm = ({ userId }: UserFormProps) => {
   const navigate = useNavigate();

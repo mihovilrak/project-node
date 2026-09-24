@@ -5,7 +5,10 @@ import { TaskFormState } from '../../types/task';
 
 /**
  * Render a dropdown selector for choosing a project in task form submission.
- * @param root0 Object containing projects array, current form data, change handler callback, and optional query parameter project ID to disable selection.
+ *
+ * @param root0 Object containing projects array, current form data, change
+ *   handler callback, and optional query parameter project ID to disable
+ *   selection.
  */
 export const ProjectSelect: React.FC<{
   projects: Project[];

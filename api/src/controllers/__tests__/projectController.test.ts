@@ -11,7 +11,9 @@ import { ProjectRequest } from '../../types/express';
 jest.mock('../../models/projectModel');
 jest.mock('../../models/notificationModel');
 jest.mock('../../models/accessModel', () => ({
-  resolveProjectScope: jest.fn(async (_pool: unknown, userId: string) => userId),
+  resolveProjectScope: jest.fn(
+    async (_pool: unknown, userId: string) => userId,
+  ),
 }));
 
 describe('ProjectController', () => {
@@ -150,7 +152,9 @@ describe('ProjectController', () => {
     });
 
     it('leaves the query unscoped for an administrator', async () => {
-      (accessModel.resolveProjectScope as jest.Mock).mockResolvedValueOnce(null);
+      (accessModel.resolveProjectScope as jest.Mock).mockResolvedValueOnce(
+        null,
+      );
       (projectModel.getProjects as jest.Mock).mockResolvedValue([]);
 
       await projectController.getProjects(
@@ -802,11 +806,10 @@ describe('ProjectController', () => {
         mockPool as Pool,
       );
 
-      expect(projectModel.getSubprojects).toHaveBeenCalledWith(
-        mockPool,
-        '1',
-        { limit: 500, offset: 0 },
-      );
+      expect(projectModel.getSubprojects).toHaveBeenCalledWith(mockPool, '1', {
+        limit: 500,
+        offset: 0,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockSubprojects);
     });

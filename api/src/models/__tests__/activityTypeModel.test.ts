@@ -145,16 +145,12 @@ describe('ActivityTypeModel', () => {
         mockQueryResult([updatedActivityType]),
       );
 
-      const result = await activityTypeModel.updateActivityType(
-        mockPool,
-        '1',
-        {
-          name: 'Updated Activity',
-          description: 'Updated description',
-          color: '#FFFF00',
-          icon: 'build',
-        },
-      );
+      const result = await activityTypeModel.updateActivityType(mockPool, '1', {
+        name: 'Updated Activity',
+        description: 'Updated description',
+        color: '#FFFF00',
+        icon: 'build',
+      });
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE activity_types'),

@@ -7,7 +7,9 @@ export type { Permission } from './admin';
 export type { TaskType } from './task';
 
 /**
- * Represent an activity classification used by the application, including display properties (name, color, optional icon and description), active state, and optional audit timestamps.
+ * Represent an activity classification used by the application, including
+ * display properties (name, color, optional icon and description), active
+ * state, and optional audit timestamps.
  */
 export interface ActivityType {
   id: number;
@@ -21,7 +23,9 @@ export interface ActivityType {
 }
 
 /**
- * Provide properties for a dialog component used to create or edit an activity type, including open state, the item being edited, and callbacks for close and save.
+ * Provide properties for a dialog component used to create or edit an activity
+ * type, including open state, the item being edited, and callbacks for close
+ * and save.
  */
 export interface ActivityTypeDialogProps {
   open: boolean;
@@ -41,7 +45,9 @@ export interface TaskTypeDialogProps {
 }
 
 /**
- * Provide the properties required by a table component that lists activity types and supports editing, deletion, and optional loading and management controls.
+ * Provide the properties required by a table component that lists activity
+ * types and supports editing, deletion, and optional loading and management
+ * controls.
  */
 export interface ActivityTypesTableProps {
   activityTypes: ActivityType[];
@@ -60,7 +66,9 @@ export interface TaskTypesTableProps {
 }
 
 /**
- * Represent the UI state for managing application-wide settings, including the current settings payload, loading/error flags, and whether the most recent save succeeded.
+ * Represent the UI state for managing application-wide settings, including the
+ * current settings payload, loading/error flags, and whether the most recent
+ * save succeeded.
  */
 export interface SystemSettingsState {
   settings: AppSettings;
@@ -83,7 +91,8 @@ export interface TypesAndRolesState {
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 /**
- * Represent the application's global configuration values and metadata used across the system.
+ * Represent the application's global configuration values and metadata used
+ * across the system.
  */
 export interface AppSettings {
   id: number;
@@ -104,7 +113,8 @@ export interface AppSettings {
 }
 
 /**
- * Provide a timezone option for selection UIs with canonical identifiers, UTC offset in seconds, DST indicator, and a display label.
+ * Provide a timezone option for selection UIs with canonical identifiers, UTC
+ * offset in seconds, DST indicator, and a display label.
  */
 export interface TimezoneOption {
   name: string;
@@ -116,7 +126,8 @@ export interface TimezoneOption {
 }
 
 /**
- * Provide props for a users list component: an array of User items, a callback to edit a user, and a callback invoked when a user is deleted.
+ * Provide props for a users list component: an array of User items, a callback
+ * to edit a user, and a callback invoked when a user is deleted.
  */
 export interface UserTableProps {
   users: User[];
@@ -130,7 +141,8 @@ export interface IconSelectorProps {
 }
 
 /**
- * Represent a user's locale and formatting preferences along with notification settings and timestamps.
+ * Represent a user's locale and formatting preferences along with notification
+ * settings and timestamps.
  */
 export interface UserSettings {
   user_id: number;
@@ -168,7 +180,10 @@ export interface ActivityTypeFormProps {
 type AdminRole = Role;
 
 /**
- * Specify the properties required by a dialog used to create or edit task types, activity types, or admin roles, including which tab is active, whether the dialog is open, the currently selected item, and callbacks to close or save.
+ * Specify the properties required by a dialog used to create or edit task
+ * types, activity types, or admin roles, including which tab is active, whether
+ * the dialog is open, the currently selected item, and callbacks to close or
+ * save.
  */
 export interface TypesAndRolesDialogProps {
   activeTab: number;

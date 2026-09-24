@@ -5,7 +5,9 @@ export type MetricType =
   | 'notificationsDeadLettered';
 
 /**
- * Provide and manage counters and processing time for notification metrics, with methods to increment a metric, capture processing time, and schedule periodic metric logging.
+ * Provide and manage counters and processing time for notification metrics,
+ * with methods to increment a metric, capture processing time, and schedule
+ * periodic metric logging.
  */
 export interface Metrics {
   notificationsSent: number;

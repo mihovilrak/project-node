@@ -7,7 +7,8 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
- * Provide task file management handlers and extract the task ID from route parameters.
+ * Provide task file management handlers and extract the task ID from route
+ * parameters.
  */
 export const useTaskFileWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,7 @@ export const useTaskFileWrapper = () => {
 
 /**
  * Extract and parse the project ID from the current route parameters.
+ *
  * @returns Object with projectId as a number, or 0 if not present.
  */
 export const useTimeLogCalendarWrapper = () => {

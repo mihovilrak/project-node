@@ -1,5 +1,8 @@
 {
+  "plugins": ["prettier-plugin-jsdoc"],
   "printWidth": 80,
+  "jsdocPrintWidth": 80,
+  "jsdocCommentLineStrategy": "multiline",
   "trailingComma": "all",
   "singleQuote": true,
   "semi": true,

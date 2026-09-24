@@ -15,10 +15,13 @@ export const getProfile = async (
 /**
  * Update the user profile with new email, name, or surname information.
  *
- * Returns the updated profile object on success or null if the user does not exist. Updates the updated_on timestamp to the current database time.
+ * Returns the updated profile object on success or null if the user does not
+ * exist. Updates the updated_on timestamp to the current database time.
+ *
  * @param pool Database connection pool
  * @param userId The ID of the user whose profile is being updated
- * @param profileData Object containing optional fields: name, surname, and email to update
+ * @param profileData Object containing optional fields: name, surname, and
+ *   email to update
  * @returns The updated Profile object or null if no matching user was found
  */
 export const updateProfile = async (
@@ -40,9 +43,14 @@ export const updateProfile = async (
 };
 
 /**
- * Verify that a password matches the stored credential for a user by identifier.
+ * Verify that a password matches the stored credential for a user by
+ * identifier.
  *
- * This function accepts a user identifier rather than a login name; callers needing to authenticate by login credentials should use authentication() instead. Password comparison uses cryptographic hashing via the database crypt function.
+ * This function accepts a user identifier rather than a login name; callers
+ * needing to authenticate by login credentials should use authentication()
+ * instead. Password comparison uses cryptographic hashing via the database
+ * crypt function.
+ *
  * @param pool Database connection pool.
  * @param userId The user identifier to verify against.
  * @param password The plaintext password to verify.
@@ -63,9 +71,12 @@ export const verifyPassword = async (
 };
 
 /**
- * Update the user's password with bcrypt hashing and return the updated profile.
+ * Update the user's password with bcrypt hashing and return the updated
+ * profile.
  *
- * The password is hashed using bcrypt with a cost factor of 12 before storage. The update timestamp is automatically set to the current time.
+ * The password is hashed using bcrypt with a cost factor of 12 before storage.
+ * The update timestamp is automatically set to the current time.
+ *
  * @param pool Database connection pool
  * @param userId Identifier of the user whose password to change
  * @param password New password to set
@@ -88,9 +99,12 @@ export const changePassword = async (
 };
 
 /**
- * Invalidate all sessions for a user except the current one to enforce account-wide sign-out on password change.
+ * Invalidate all sessions for a user except the current one to enforce
+ * account-wide sign-out on password change.
  *
- * When currentSid is provided, that session is preserved; when omitted or null, all sessions are deleted. Returns the count of deleted sessions.
+ * When currentSid is provided, that session is preserved; when omitted or null,
+ * all sessions are deleted. Returns the count of deleted sessions.
+ *
  * @param pool Database connection pool
  * @param userId Identifier of the user whose sessions to invalidate
  * @param currentSid Session ID of the current request to exclude from deletion
@@ -121,6 +135,7 @@ export const getRecentTasks = async (
 
 /**
  * Retrieve projects associated with the user sorted by recency.
+ *
  * @param pool Database connection pool
  * @param userId The identifier of the user
  * @returns Array of projects recently accessed or created by the user

@@ -16,7 +16,10 @@ beforeAll(async () => {
   app = appModule.default;
 });
 
-const seedNotification = async (userId: number, title = 'Test notification') => {
+const seedNotification = async (
+  userId: number,
+  title = 'Test notification',
+) => {
   const result = await testPool.query(
     `INSERT INTO notifications (user_id, type_id, title, message)
      VALUES ($1, 1, $2, 'Body') RETURNING *`,
@@ -26,7 +29,13 @@ const seedNotification = async (userId: number, title = 'Test notification') => 
 };
 
 beforeEach(async () => {
-  await cleanupTables(['notifications', 'projects', 'project_users', 'session', 'users']);
+  await cleanupTables([
+    'notifications',
+    'projects',
+    'project_users',
+    'session',
+    'users',
+  ]);
 
   user = await seedTestUser();
 

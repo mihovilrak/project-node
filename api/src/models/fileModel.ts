@@ -52,13 +52,20 @@ export const getFileById = async (
 };
 
 /**
- * Remove a file record from the database, returning the deleted row only if the ownership check passes.
+ * Remove a file record from the database, returning the deleted row only if the
+ * ownership check passes.
  *
- * When ownerId is provided, deletion is restricted to files owned by that user. Returns null if the file does not exist or if the ownership predicate does not match, allowing callers to safely unlink blobs only when deletion was confirmed.
+ * When ownerId is provided, deletion is restricted to files owned by that user.
+ * Returns null if the file does not exist or if the ownership predicate does
+ * not match, allowing callers to safely unlink blobs only when deletion was
+ * confirmed.
+ *
  * @param pool Database connection pool.
  * @param fileId The ID of the file to delete.
- * @param ownerId Optional user ID to restrict deletion to files owned by this user. If omitted, any file with the given ID is deleted.
- * @returns The deleted file record, or null if the file was not found or ownership validation failed.
+ * @param ownerId Optional user ID to restrict deletion to files owned by this
+ *   user. If omitted, any file with the given ID is deleted.
+ * @returns The deleted file record, or null if the file was not found or
+ *   ownership validation failed.
  */
 export const deleteFile = async (
   pool: Pool,
@@ -82,9 +89,12 @@ export const deleteFile = async (
 };
 
 /**
- * Check whether a user can access a file based on project membership of the file's containing task.
+ * Check whether a user can access a file based on project membership of the
+ * file's containing task.
  *
- * Access is granted only if the user is a member of the project that contains the task associated with the file. Returns false if the file does not exist.
+ * Access is granted only if the user is a member of the project that contains
+ * the task associated with the file. Returns false if the file does not exist.
+ *
  * @param pool Database connection pool
  * @param userId User identifier to check access for
  * @param fileId File identifier to verify access to

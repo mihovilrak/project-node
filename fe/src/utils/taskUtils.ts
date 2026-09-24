@@ -1,6 +1,11 @@
 /**
- * Translate a textual priority label into a semantic color token for UI components.
- * @param priority Priority label (string | undefined), matched case-insensitively. Recognizes 'very high/must' → 'error', 'high/should' → 'warning', 'normal/could' → 'info', 'low/wont' → 'success'; any other value (including undefined) returns 'default'.
+ * Translate a textual priority label into a semantic color token for UI
+ * components.
+ *
+ * @param priority Priority label (string | undefined), matched
+ *   case-insensitively. Recognizes 'very high/must' → 'error', 'high/should' →
+ *   'warning', 'normal/could' → 'info', 'low/wont' → 'success'; any other value
+ *   (including undefined) returns 'default'.
  */
 export const getPriorityColor = (
   priority: string | undefined,
@@ -21,7 +26,10 @@ export const getPriorityColor = (
 
 /**
  * Map a task status string to a UI color token.
- * @param status Task status (string, case-insensitive). Recognized values: 'done' → 'success', 'in progress' → 'info', 'cancelled' → 'error'; any other value (or undefined) → 'default'.
+ *
+ * @param status Task status (string, case-insensitive). Recognized values:
+ *   'done' → 'success', 'in progress' → 'info', 'cancelled' → 'error'; any
+ *   other value (or undefined) → 'default'.
  */
 export const getStatusColor = (
   status: string | undefined,
@@ -38,7 +46,9 @@ export const getStatusColor = (
   }
 };
 
-/** Chip props for status: use hex when provided, else MUI color name */
+/**
+ * Chip props for status: use hex when provided, else MUI color name
+ */
 export const chipPropsForStatus = (
   statusName?: string,
   statusColor?: string,
@@ -52,7 +62,9 @@ export const chipPropsForStatus = (
   return { color: getStatusColor(statusName) };
 };
 
-/** Chip props for priority: use hex when provided, else MUI color name */
+/**
+ * Chip props for priority: use hex when provided, else MUI color name
+ */
 export const chipPropsForPriority = (
   priorityName?: string,
   priorityColor?: string,
@@ -66,7 +78,9 @@ export const chipPropsForPriority = (
   return { color: getPriorityColor(priorityName || '') };
 };
 
-/** Comma-separated or single ID filter value -> list of IDs, or null when unset */
+/**
+ * Comma-separated or single ID filter value -> list of IDs, or null when unset
+ */
 export const parseIdFilter = (
   value: number | string | null | undefined,
 ): number[] | null => {
@@ -81,7 +95,9 @@ export const parseIdFilter = (
   return [Number(value)];
 };
 
-/** Same value shaped for the API query string: kept as CSV, otherwise numeric */
+/**
+ * Same value shaped for the API query string: kept as CSV, otherwise numeric
+ */
 export const idFilterParam = (
   value: number | string | null | undefined,
 ): string | number | undefined => {

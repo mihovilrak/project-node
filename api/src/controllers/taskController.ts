@@ -16,11 +16,20 @@ import { withTransaction } from '../utils/transaction';
 import { parseIdParam, toTimestamp } from '../utils/requestParsing';
 
 /**
- * Retrieve tasks for the authenticated user with support for extensive filtering, scoping by project access, and pagination.
+ * Retrieve tasks for the authenticated user with support for extensive
+ * filtering, scoping by project access, and pagination.
  *
- * Requires session authentication. Optimizes queries by routing single project_id filters to a dedicated query path. Parses multiple optional filters including task properties, date ranges, and status constraints, then applies tenant-scoped access control before returning results.
- * @param req Express request with optional query parameters for filtering (id, project_id, assignee_id, holder_id, status_id, priority_id, type_id, parent_id, created_by, date ranges, time estimates, status filters) and pagination; must contain authenticated session
- * @param res Express response object for sending task results or authentication errors
+ * Requires session authentication. Optimizes queries by routing single
+ * project_id filters to a dedicated query path. Parses multiple optional
+ * filters including task properties, date ranges, and status constraints, then
+ * applies tenant-scoped access control before returning results.
+ *
+ * @param req Express request with optional query parameters for filtering (id,
+ *   project_id, assignee_id, holder_id, status_id, priority_id, type_id,
+ *   parent_id, created_by, date ranges, time estimates, status filters) and
+ *   pagination; must contain authenticated session
+ * @param res Express response object for sending task results or authentication
+ *   errors
  * @param pool Database connection pool for executing queries
  */
 export const getTasks = async (
@@ -172,7 +181,9 @@ export const getTasks = async (
   }
 };
 
-/** Parse an ISO date/datetime query param into a `YYYY-MM-DD` string, or null. */
+/**
+ * Parse an ISO date/datetime query param into a `YYYY-MM-DD` string, or null.
+ */
 const parseDateParam = (value: unknown): string | null => {
   if (typeof value !== 'string' || value.trim() === '') return null;
   const parsed = new Date(value);
@@ -181,10 +192,15 @@ const parseDateParam = (value: unknown): string | null => {
 };
 
 /**
- * Retrieve tasks with start or due dates overlapping a specified date range for calendar view.
+ * Retrieve tasks with start or due dates overlapping a specified date range for
+ * calendar view.
  *
- * Requires valid ISO date strings for start_date and end_date query parameters, with end_date on or after start_date. Returns tasks scoped to the authenticated user's project context.
- * @param req Express request with optional query parameters start_date and end_date, and authenticated user session.
+ * Requires valid ISO date strings for start_date and end_date query parameters,
+ * with end_date on or after start_date. Returns tasks scoped to the
+ * authenticated user's project context.
+ *
+ * @param req Express request with optional query parameters start_date and
+ *   end_date, and authenticated user session.
  * @param res Express response object.
  * @param pool Database connection pool.
  */
@@ -232,7 +248,10 @@ export const getTasksByDateRange = async (
 /**
  * Retrieve a single task by its identifier.
  *
- * Returns the task object if found, otherwise responds with a 404 error. Catches and logs any errors during the database query, responding with a 500 status on failure.
+ * Returns the task object if found, otherwise responds with a 404 error.
+ * Catches and logs any errors during the database query, responding with a 500
+ * status on failure.
+ *
  * @param req Express request object containing the task id in params
  * @param res Express response object for sending the task data or error
  * @param pool Database connection pool for executing the query
@@ -258,8 +277,10 @@ export const getTaskById = async (
 
 /**
  * Retrieve all tasks assigned to a specific user by assignee ID.
+ *
  * @param req Express request object containing assignee_id as a query parameter
- * @param res Express response object used to send task results or error messages
+ * @param res Express response object used to send task results or error
+ *   messages
  * @param pool Database connection pool for executing queries
  */
 export const getTaskByAssignee = async (
@@ -308,8 +329,17 @@ export const getTaskByHolder = async (
 /**
  * Create a new task with watchers automatically notified of creation.
  *
- * Extracts task data from the request body and authorship from the authenticated session. Validates required fields (name, dates, priority, status, type, project, holder, assignee) and enforces that due dates and end dates do not precede start dates. Automatically creates a watcher list from the holder, assignee, and creator, removing duplicates. Executes task creation and watcher notification as a single transactional unit to ensure consistency. Returns 401 if the user is not authenticated, or 400 if required fields are missing or date constraints are violated.
- * @param req Request object with authenticated session and task creation payload in body
+ * Extracts task data from the request body and authorship from the
+ * authenticated session. Validates required fields (name, dates, priority,
+ * status, type, project, holder, assignee) and enforces that due dates and end
+ * dates do not precede start dates. Automatically creates a watcher list from
+ * the holder, assignee, and creator, removing duplicates. Executes task
+ * creation and watcher notification as a single transactional unit to ensure
+ * consistency. Returns 401 if the user is not authenticated, or 400 if required
+ * fields are missing or date constraints are violated.
+ *
+ * @param req Request object with authenticated session and task creation
+ *   payload in body
  * @param res Response object for sending status and JSON replies
  * @param pool Database connection pool for transactional operations
  */
@@ -455,12 +485,19 @@ export const createTask = async (
 };
 
 /**
- * Update task properties with validation of date constraints and notification of watchers.
+ * Update task properties with validation of date constraints and notification
+ * of watchers.
  *
- * Validates that due date is not before start date and end date is not before start date. Notifies all watchers of the task update. Returns the updated task or 404 if not found.
- * @param req CustomRequest with task id in params, user session, and TaskUpdateInput in body containing optional start_date, due_date, end_date and other updatable fields
+ * Validates that due date is not before start date and end date is not before
+ * start date. Notifies all watchers of the task update. Returns the updated
+ * task or 404 if not found.
+ *
+ * @param req CustomRequest with task id in params, user session, and
+ *   TaskUpdateInput in body containing optional start_date, due_date, end_date
+ *   and other updatable fields
  * @param res Response object for sending the updated task or error status
- * @param pool Database connection pool for executing the update within a transaction
+ * @param pool Database connection pool for executing the update within a
+ *   transaction
  */
 export const updateTask = async (
   req: CustomRequest,
@@ -535,8 +572,12 @@ export const updateTask = async (
 /**
  * Update a task's status and notify watchers of the change.
  *
- * Validates that statusId is a positive integer, updates the task status within a transaction, and creates notifications for all users watching the task. Returns the updated task on success or a 404 error if the update fails.
- * @param req Request object with task id in params, statusId in body, and authenticated user id in session
+ * Validates that statusId is a positive integer, updates the task status within
+ * a transaction, and creates notifications for all users watching the task.
+ * Returns the updated task on success or a 404 error if the update fails.
+ *
+ * @param req Request object with task id in params, statusId in body, and
+ *   authenticated user id in session
  * @param res Response object for sending JSON status updates and error messages
  * @param pool Database connection pool for executing transactional queries
  */
@@ -590,8 +631,12 @@ export const changeTaskStatus = async (
 /**
  * Update a task's start and due dates for Gantt chart rescheduling operations.
  *
- * Performs a partial date update while validating that the due date is not before the start date, considering existing values for any date not being changed. Triggers watcher notifications on successful update.
- * @param req CustomRequest with task id in params and start_date and due_date in body; at least one date is required
+ * Performs a partial date update while validating that the due date is not
+ * before the start date, considering existing values for any date not being
+ * changed. Triggers watcher notifications on successful update.
+ *
+ * @param req CustomRequest with task id in params and start_date and due_date
+ *   in body; at least one date is required
  * @param res Response object to send updated task or error status
  * @param pool Database connection pool for transaction execution
  */
@@ -672,6 +717,7 @@ export const updateTaskDates = async (
 
 /**
  * Remove a task by id and return its final state.
+ *
  * @param req Request object with task id in params
  * @param res Response object for sending deletion result or error
  * @param pool Database connection pool
@@ -728,8 +774,11 @@ export const getPriorities = async (
 /**
  * Retrieve active tasks assigned to the authenticated user.
  *
- * Requires user authentication via session; returns 401 if user is not authenticated or session lacks user identity.
- * @param req Express request with authenticated session containing user identifier
+ * Requires user authentication via session; returns 401 if user is not
+ * authenticated or session lacks user identity.
+ *
+ * @param req Express request with authenticated session containing user
+ *   identifier
  * @param res Express response object for sending JSON results or error messages
  * @param pool Database connection pool for executing queries
  */
@@ -753,9 +802,12 @@ export const getActiveTasks = async (
 };
 
 /**
- * Retrieve all subtasks associated with a parent task identified by request parameter.
+ * Retrieve all subtasks associated with a parent task identified by request
+ * parameter.
+ *
  * @param req HTTP request containing the parent task id in params
- * @param res HTTP response that sends subtasks as JSON with status 200, or error response with status 500
+ * @param res HTTP response that sends subtasks as JSON with status 200, or
+ *   error response with status 500
  * @param pool Database connection pool for query execution
  */
 export const getSubtasks = async (

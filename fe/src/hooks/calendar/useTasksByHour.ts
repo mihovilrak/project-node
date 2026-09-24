@@ -4,6 +4,7 @@ import { TimeLog } from '../../types/timeLog';
 
 /**
  * Organize tasks and time logs by hour of the day for calendar display.
+ *
  * @param tasks Array of task records to filter by start date hour.
  * @param timeLogs Array of time log records to filter by creation hour.
  */

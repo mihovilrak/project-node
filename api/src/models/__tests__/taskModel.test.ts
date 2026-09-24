@@ -101,7 +101,9 @@ describe('TaskModel', () => {
       });
 
       const [sql, args] = (mockPool.query as jest.Mock).mock.calls[0];
-      expect(sql).toContain('get_tasks(p_status_ids => $1, p_priority_ids => $2)');
+      expect(sql).toContain(
+        'get_tasks(p_status_ids => $1, p_priority_ids => $2)',
+      );
       expect(args).toEqual([[1, 2], [2, 3], 500, 0]);
       expect(result).toEqual(mockTasks);
     });

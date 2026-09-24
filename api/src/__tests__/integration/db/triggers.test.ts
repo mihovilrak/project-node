@@ -58,14 +58,18 @@ describe('task_notifications trigger', () => {
         assignee.id,
         task.id,
       ]);
-      const before = await client.query('select count(*)::int from notifications');
+      const before = await client.query(
+        'select count(*)::int from notifications',
+      );
 
       await client.query('update tasks set assignee_id = $1 where id = $2', [
         assignee.id,
         task.id,
       ]);
 
-      const after = await client.query('select count(*)::int from notifications');
+      const after = await client.query(
+        'select count(*)::int from notifications',
+      );
       expect(after.rows[0].count).toBe(before.rows[0].count);
     });
   });
@@ -206,7 +210,9 @@ describe('user_settings trigger', () => {
 
       // Replica mode skips the FK so the settings row can precede its user.
       await client.query('set local session_replication_role = replica');
-      await client.query('insert into user_settings (user_id) values ($1)', [id]);
+      await client.query('insert into user_settings (user_id) values ($1)', [
+        id,
+      ]);
       await client.query('set local session_replication_role = origin');
 
       await client.query(

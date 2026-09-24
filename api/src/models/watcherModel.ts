@@ -14,9 +14,12 @@ export const getTaskWatchers = async (
 };
 
 /**
- * Insert a new task watcher record and return the created watcher or null if insertion fails.
+ * Insert a new task watcher record and return the created watcher or null if
+ * insertion fails.
  *
- * Returns the inserted TaskWatcher row with task_id and user_id, or null if no row was returned from the database.
+ * Returns the inserted TaskWatcher row with task_id and user_id, or null if no
+ * row was returned from the database.
+ *
  * @param pool Database connection pool
  * @param taskId The task identifier to watch
  * @param userId The user identifier to add as watcher
@@ -40,6 +43,7 @@ export const addTaskWatcher = async (
  * Delete a user's watcher entry for a task.
  *
  * Returns the number of rows deleted, or null if the operation failed.
+ *
  * @param pool Database connection pool
  * @param taskId Identifier of the task to stop watching
  * @param userId Identifier of the user removing their watch

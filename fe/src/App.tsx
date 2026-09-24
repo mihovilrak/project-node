@@ -77,7 +77,6 @@ const TaskTimeLogsWrapper: React.FC = () => {
 };
 
 const App: React.FC = () => {
-
   return (
     <ThemeProvider>
       <CssBaseline />

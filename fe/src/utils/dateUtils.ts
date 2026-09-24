@@ -29,7 +29,9 @@ export const formatDate = (value: DateInput, fallback = '—'): string => {
   return Number.isNaN(date.getTime()) ? fallback : date.toLocaleDateString();
 };
 
-/** Timestamps (`timestamptz`) are real instants and belong in the local zone. */
+/**
+ * Timestamps (`timestamptz`) are real instants and belong in the local zone.
+ */
 export const formatDateTime = (value: DateInput, fallback = '—'): string => {
   if (value == null || value === '') return fallback;
   const date = new Date(value);
@@ -38,8 +40,8 @@ export const formatDateTime = (value: DateInput, fallback = '—'): string => {
 
 /**
  * Local-midnight Date for a 'YYYY-MM-DD' value, for callers that need a Date
- * object (date pickers and dayjs formatting). `new Date('2024-01-05')`
- * would parse as UTC midnight and format as the 4th west of Greenwich.
+ * object (date pickers and dayjs formatting). `new Date('2024-01-05')` would
+ * parse as UTC midnight and format as the 4th west of Greenwich.
  */
 export const toLocalDate = (value: DateInput): Date | null => {
   if (value == null || value === '') return null;
@@ -69,7 +71,9 @@ export const toDateOnlyString = (value: DateInput): string => {
   return `${date.getFullYear()}-${month}-${day}`;
 };
 
-/** Dayjs formatting for a calendar date, without the UTC-parse day shift. */
+/**
+ * Dayjs formatting for a calendar date, without the UTC-parse day shift.
+ */
 export const formatDatePattern = (
   value: DateInput,
   pattern: string,
