@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@pm/backend-common": "file:../packages/backend-common",
-    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "handlebars": "^4.7.8",
     "node-schedule": "^2.1.1",
@@ -30,7 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/express": "^5.0.6",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.0.9",
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^7.0.5",
@@ -39,7 +38,6 @@
     "eslint": "^9.39.2",
     "jest": "^30.0.2",
     "nodemailer-mock": "^2.0.6",
-    "nodemon": "^3.1.11",
     "prettier": "^3.9.6",
     "prettier-plugin-jsdoc": "^1.8.1",
     "ts-jest": "^29.1.2",

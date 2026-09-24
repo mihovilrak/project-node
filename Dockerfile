@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1.7
-ARG NODE_IMAGE=node:24.21.0-alpine3.23
+# Base images are pinned by digest; Dependabot bumps tag and digest together
+# (it can't follow a FROM ${ARG}, hence the named base stage).
+FROM node:24.21.0-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2 AS node-base
 
 # Build frontend
-FROM ${NODE_IMAGE} AS frontend-builder
+FROM node-base AS frontend-builder
 
 WORKDIR /app/fe
 
@@ -17,7 +19,7 @@ COPY fe/src/ ./src/
 RUN yarn run build
 
 # Build backend
-FROM ${NODE_IMAGE} AS backend-builder
+FROM node-base AS backend-builder
 
 WORKDIR /app/api
 
@@ -34,7 +36,7 @@ COPY api/src/ ./src/
 RUN yarn run ncc build src/server.ts -o dist -q
 
 # Build notification service
-FROM ${NODE_IMAGE} AS notification-builder
+FROM node-base AS notification-builder
 
 WORKDIR /app/service
 
@@ -52,7 +54,7 @@ RUN yarn run ncc build src/index.ts -o dist -q && \
     cp -r src/templates/* dist/templates/
 
 # Final image
-FROM nginx:1.31.2-alpine3.23
+FROM nginx:1.31.2-alpine3.23@sha256:54f2a904c251d5a34adf545a72d32515a15e08418dae0266e23be2e18c66fefa
 
 WORKDIR /app
 

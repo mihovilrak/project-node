@@ -40,7 +40,7 @@ export const reloadSettings = async (): Promise<boolean> => {
   if (config.app.emailEnabled && !config.email.auth.pass) {
     if (!warnedAboutCredentials) {
       logger.warn(
-        'Email is enabled in settings but EMAIL_USER/EMAIL_PASSWORD are not set',
+        'Email is enabled in settings but EMAIL_PASSWORD (or EMAIL_PASSWORD_FILE) is not set',
       );
       warnedAboutCredentials = true;
     }

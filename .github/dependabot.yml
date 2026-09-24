@@ -9,7 +9,15 @@ updates:
       actions:
         patterns: ['*']
 
+  # Dockerfile base images (node, nginx), pinned by tag and digest.
   - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+
+  # postgres in docker-compose.yml. The same pin in ci.yml's service container
+  # is not tracked by Dependabot; keep it in step by hand.
+  - package-ecosystem: docker-compose
     directory: /
     schedule:
       interval: weekly
