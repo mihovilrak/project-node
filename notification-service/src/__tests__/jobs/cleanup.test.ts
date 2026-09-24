@@ -68,7 +68,8 @@ describe('Cleanup Job', () => {
       expect(queryCall).toContain('archived_on = NOW()');
       expect(queryCall).toContain('WHERE active');
       expect(queryCall).toContain('30 days');
-      expect(queryCall).toMatch(/read_on IS NOT NULL|is_read = true/);
+      expect(queryCall).toMatch(/AND is_read\b/);
+      expect(queryCall).not.toContain('read_on');
     });
 
     it('should log number of cleaned up notifications', async () => {
