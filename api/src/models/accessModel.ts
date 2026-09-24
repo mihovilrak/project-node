@@ -37,9 +37,12 @@ export const isTaskProjectMember = async (
   return (result.rowCount ?? 0) > 0;
 };
 
-// Every project id the user may see. Embed this in a list query instead of
-// fetching the ids first and filtering in JS: post-filtering a paged result
-// silently returns short pages.
+/**
+ * Generate a SQL subquery that returns project IDs the user can access, for embedding in list queries to avoid pagination issues from post-filtering.
+ *
+ * Embed this subquery directly in list queries rather than fetching IDs first and filtering in JavaScript, since post-filtering a paged result silently returns incomplete pages.
+ * @param userIdIndex The parameter index for the user ID placeholder in the SQL query.
+ */
 export const accessibleProjectsSubquery = (userIdIndex: number): string =>
   `SELECT DISTINCT ap.id
     FROM projects ap
@@ -65,8 +68,15 @@ export const resolveProjectScope = async (
 ): Promise<string | null> =>
   (await hasPermission(pool, userId, 'Admin')) ? null : userId;
 
-// Drop rows belonging to projects the user cannot reach. Administrators keep
-// the full result set.
+/**
+ * Remove rows for projects the user cannot access, unless the user holds Admin permission.
+ *
+ * Administrators receive the complete result set unchanged. Non-administrators are filtered to only rows where the project ID matches their accessible projects.
+ * @param pool Database connection pool
+ * @param userId User identifier to check access permissions for
+ * @param rows Array of objects to filter
+ * @param projectIdKey Object key containing the project identifier
+ */
 export const filterByProjectAccess = async <T extends object>(
   pool: Pool,
   userId: string,
@@ -79,7 +89,14 @@ export const filterByProjectAccess = async <T extends object>(
   return rows.filter((row) => accessible.has(Number(row[projectIdKey])));
 };
 
-// A comment may only be edited or removed by its author
+/**
+ * Verify whether a user authored a given comment, enforcing that only the original author can edit or remove it.
+ *
+ * A comment may only be edited or removed by its author.
+ * @param pool database connection pool
+ * @param commentId identifier of the comment to check
+ * @param userId identifier of the user to verify as the author
+ */
 export const isCommentAuthor = async (
   pool: Pool,
   commentId: string,
@@ -92,7 +109,15 @@ export const isCommentAuthor = async (
   return (result.rowCount ?? 0) > 0;
 };
 
-// A time log may only be edited or removed by the user who logged it
+/**
+ * Verify that a user owns the specified time log and may edit or remove it.
+ *
+ * A time log may only be edited or removed by the user who logged it.
+ * @param pool Database connection pool.
+ * @param timeLogId Identifier of the time log to check.
+ * @param userId Identifier of the user to verify ownership.
+ * @returns A promise that resolves to true if the user owns the time log, false otherwise.
+ */
 export const isTimeLogOwner = async (
   pool: Pool,
   timeLogId: string,

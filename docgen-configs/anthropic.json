@@ -13,7 +13,7 @@
       "kind": "anthropic",
       "apiKeyEnv": "ANTHROPIC_API_KEY"
     },
-    "model": "claude-sonnet-5",
+    "model": "claude-haiku-4-5-20251001",
     "concurrency": 4,
     "maxSymbolsPerRun": 2000
   },

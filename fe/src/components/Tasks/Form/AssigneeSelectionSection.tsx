@@ -3,6 +3,10 @@ import { Grid } from '@mui/material';
 import { AssigneeSelect } from '../AssigneeSelect';
 import { AssigneeSelectionSectionProps } from '../../../types/task';
 
+/**
+ * Render side-by-side dropdown selectors for task holder and assignee from available project members.
+ * @param root0 Object containing form state, available project members, and change handler function
+ */
 export const AssigneeSelectionSection: React.FC<
   AssigneeSelectionSectionProps
 > = ({ formData, projectMembers, handleChange }) => (

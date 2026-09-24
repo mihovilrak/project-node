@@ -2,6 +2,12 @@ import { Task } from '../../types/task';
 import { toLocalDate } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
 
+/**
+ * Retrieve tasks and time logs for each day of a calendar week.
+ * @param date The reference date to determine the week boundaries.
+ * @param tasks An array of task objects to filter by week days.
+ * @param timeLogs An array of time log objects to filter by week days.
+ */
 export const useCalendarWeek = (
   date: Date,
   tasks: Task[],

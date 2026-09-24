@@ -3,6 +3,12 @@ import { toLocalDate } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarDay } from '../../types/calendar';
 
+/**
+ * Generate a calendar month view with days from adjacent months and associate tasks and time logs to each day.
+ * @param date The month and year to generate the calendar for.
+ * @param tasks Array of tasks to filter and associate with calendar days.
+ * @param timeLogs Array of time logs to filter and associate with calendar days.
+ */
 export const useCalendarDays = (
   date: Date,
   tasks: Task[],

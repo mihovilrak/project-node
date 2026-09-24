@@ -1,5 +1,8 @@
 import { Request } from 'express';
 
+/**
+ * Represents a user comment attached to a task with metadata for tracking creation, updates, and status.
+ */
 export interface Comment {
   id: number;
   task_id: number;

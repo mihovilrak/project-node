@@ -30,6 +30,9 @@ async function runWithConcurrency<T>(
 }
 
 class NotificationService {
+  /**
+   * Fetch pending notifications, deliver their emails concurrently, and mark sent items as emailed.
+   */
   async processNewNotifications(): Promise<void> {
     try {
       // SMTP settings are editable from the admin UI while the service runs.
@@ -76,9 +79,12 @@ class NotificationService {
     }
   }
 
-  // emailed_on, not read_on: whether the user has read the notification is
-  // theirs to say, and writing read_on here also hid the email from anyone
-  // who happened to open the notification in-app first.
+  /**
+   * Mark specified notifications as emailed by updating their database records.
+   *
+   * Updates emailed_on instead of read_on because whether a user has read a notification is for the user to determine, and writing read_on during email processing would hide emails for users who opened the notification in-app first.
+   * @param ids The list of notification IDs to mark as emailed.
+   */
   async markEmailed(ids: string[]): Promise<void> {
     if (ids.length === 0) return;
     try {
@@ -92,6 +98,10 @@ class NotificationService {
     }
   }
 
+  /**
+   * Send a templated email for the provided database notification and return whether sending succeeded.
+   * @param notification The DatabaseNotification row to send; used fields include id, email, login, link, title, message, type_id, type_name, and data (merged into the template context).
+   */
   async sendNotificationEmail(
     notification: DatabaseNotification,
   ): Promise<boolean> {
@@ -129,6 +139,11 @@ class NotificationService {
     }
   }
 
+  /**
+   * Maps a notification type identifier to its corresponding email template name.
+   * @param typeId The numeric identifier representing the notification type.
+   * @returns The name of the email template corresponding to the type identifier, or 'default' if unmapped.
+   */
   getEmailTemplate(typeId: number): NotificationTemplateType {
     switch (typeId) {
       case 1:

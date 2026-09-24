@@ -21,6 +21,9 @@ export interface TagUpdateInput {
   active?: boolean;
 }
 
+/**
+ * Extend tag metadata with associated task information and count.
+ */
 export interface TagWithTasks extends Tag {
   task_count: number;
   tasks: {
@@ -30,6 +33,9 @@ export interface TagWithTasks extends Tag {
   }[];
 }
 
+/**
+ * Represent the association between a task and a tag with creation metadata.
+ */
 export interface TaskTag {
   task_id: string;
   tag_id: string;

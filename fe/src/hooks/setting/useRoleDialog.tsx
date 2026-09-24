@@ -7,6 +7,10 @@ import { useAsyncResource } from '../common/useAsyncResource';
 
 const EMPTY_PERMISSIONS: Permission[] = [];
 
+/**
+ * Manage role form state including permissions with error handling and grouping.
+ * @param role The role object to initialize form data, or undefined for a new role
+ */
 export const useRoleDialog = (role: Role | undefined) => {
   const [formData, setFormData] = useState<RoleFormData>({
     name: '',

@@ -19,6 +19,9 @@ export interface EmailInfo {
   [key: string]: unknown;
 }
 
+/**
+ * Manage email transport, initialize and load templates, and send templated emails (optionally retrying failed sends) via the configured transporter.
+ */
 export interface EmailService {
   transporter: Transporter;
   templates: EmailTemplates;

@@ -14,6 +14,10 @@ import { useProjectTimeLogs } from './useProjectTimeLogs';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Fetch and manage project details, members, tasks, and time logs with dialog state controls.
+ * @param projectId string
+ */
 export const useProjectDetails = (projectId: string) => {
   const [state, setState] = useState<ProjectDetailsState>({
     project: null,

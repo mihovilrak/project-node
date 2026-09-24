@@ -10,6 +10,9 @@ import {
   getTimezones,
 } from '../../api/settings';
 
+/**
+ * Fetch and manage application system settings with real-time updates and timezone data.
+ */
 export const useSystemSettings = () => {
   const [state, setState] = useState<SystemSettingsState>({
     settings: {

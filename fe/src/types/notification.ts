@@ -1,3 +1,6 @@
+/**
+ * Represent a user's notification payload received from the backend, including identifiers, content, read/active state, timestamps, and optional display metadata.
+ */
 export interface Notification {
   id: number;
   user_id: number;

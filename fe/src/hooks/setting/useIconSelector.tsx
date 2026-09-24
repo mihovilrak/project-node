@@ -4,6 +4,10 @@ import { useAsyncResource } from '../common/useAsyncResource';
 
 const EMPTY_ICONS: string[] = [];
 
+/**
+ * Manage icon selection state with async icon loading and modal controls.
+ * @param initialValue The initial icon name to select, or undefined for no selection.
+ */
 export const useIconSelector = (initialValue: string | undefined) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string | undefined>(initialValue);

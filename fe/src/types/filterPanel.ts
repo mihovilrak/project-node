@@ -1,5 +1,8 @@
 import { User } from './user';
 
+/**
+ * Provide a flexible set of optional filter fields used to compose query parameters for listing and searching tasks, projects, users, or time logs.
+ */
 export interface FilterValues {
   search?: string;
   status_id?: number | string;
@@ -40,6 +43,9 @@ export type NumberFilterOperator =
 export type TextFilterOperator =
   'contains' | 'starts_with' | 'ends_with' | 'excludes';
 
+/**
+ * Represent the union of allowed filter operators by combining the date ('from','to','between'), dropdown ('includes','excludes','is'), number ('equals','gt','gte','lt','lte','between') and text ('contains','starts_with','ends_with','excludes') operator sets.
+ */
 export type FilterOperator =
   | DateFilterOperator
   | DropdownFilterOperator
@@ -114,6 +120,9 @@ export interface FilterPanelProps {
   options: FilterPanelOptions;
 }
 
+/**
+ * Specify available option lists and boolean flags that configure which filters the panel shows.
+ */
 export interface FilterPanelOptions {
   statuses?: FilterOption[];
   priorities?: FilterOption[];

@@ -1,0 +1,1163 @@
+{
+  "schemaVersion": 1,
+  "symbols": {
+    "src/config.ts#buildEmailConfig": {
+      "symbolHash": "a2c3b15a379fe4df4e712e8cc9189fd0bc74480a2360c00d6ae3a19b842eed4f",
+      "docHash": "ed792a6df2a7448098f62da057ce51572fbdb5268c0f327cdc2b8c5ac5008810",
+      "filePath": "src/config.ts",
+      "startLine": 98
+    },
+    "src/controllers/activityTypeController.ts#getActivityTypes": {
+      "symbolHash": "10026666c130a18ee0520dc9629a3d80adc70d954d29254cb2faa6eaa38a4d35",
+      "docHash": "7b7f844d9e32ccfe49ccf0f37fbe2dcfa61a44abdb43b32a3197af95844f6d45",
+      "filePath": "src/controllers/activityTypeController.ts",
+      "startLine": 18
+    },
+    "src/controllers/activityTypeController.ts#createActivityType": {
+      "symbolHash": "1e0b139633f02600c874d6fdf906d48eaf5303d5fdca3bd17fcba5b45429c46a",
+      "docHash": "cd96f344c95fec4b10cf2589cd00d1f1c2612b70ee1a8a6f3cb36171c9d83b4a",
+      "filePath": "src/controllers/activityTypeController.ts",
+      "startLine": 40
+    },
+    "src/controllers/activityTypeController.ts#updateActivityType": {
+      "symbolHash": "bfa248e24873432a7ec1ee1fb19bc94c2515970a4bbc07e0a851f5c113dd1f21",
+      "docHash": "3cf552b76759ee071256eaaef334cf630aed43b4017b0dae29de37619206023e",
+      "filePath": "src/controllers/activityTypeController.ts",
+      "startLine": 80
+    },
+    "src/controllers/adminController.ts#checkAdminAccess": {
+      "symbolHash": "e1e17969693e8dbe4ac1f8a5db4f7203144fd4077cd55fe65db89b305622892f",
+      "docHash": "7fa3049d3422cb11816bbdd42f9df0fc0372908f029fd3ac1a70c11c5f1210d1",
+      "filePath": "src/controllers/adminController.ts",
+      "startLine": 17
+    },
+    "src/controllers/adminController.ts#getSystemStats": {
+      "symbolHash": "61f232e943ac835bea7c0ed2da337cf335017270c5ebdf90b9992b949cae9845",
+      "docHash": "61d5ad552b159c0b5ec093a5a0285087f103e73a50d91ef3f6c53e087a7f0112",
+      "filePath": "src/controllers/adminController.ts",
+      "startLine": 50
+    },
+    "src/controllers/adminController.ts#getSystemLogs": {
+      "symbolHash": "cb196a7c9d1e612f5cb7d50a8e7008bac5a95867757a631d0efd428d63bc3193",
+      "docHash": "dae9a5acd1e1540f4b5bcd27779d97e3a67847dec97462edfd0c93dab39750bd",
+      "filePath": "src/controllers/adminController.ts",
+      "startLine": 72
+    },
+    "src/controllers/adminController.ts#getAllPermissions": {
+      "symbolHash": "96b3de8ba2bf28ad6dd15827f040a3c2e5df0db690e1d60db0012a812ad05a60",
+      "docHash": "bc10ac0b081b28a91492966d77c4ec7a545be293293ef007fc6cad2cd38adcd4",
+      "filePath": "src/controllers/adminController.ts",
+      "startLine": 95
+    },
+    "src/controllers/commentController.ts#createComment": {
+      "symbolHash": "8c291a41a095a8d8605aebf2b18ac0d7a24341330f8054ca218540c5e6c2ca51",
+      "docHash": "6e45773bab515d15f823091bd2d2f370e093d2a6b69c54b012b2f0dcb25a1fc7",
+      "filePath": "src/controllers/commentController.ts",
+      "startLine": 38
+    },
+    "src/controllers/commentController.ts#editComment": {
+      "symbolHash": "8fba7af92d0845060a2b4d248c4fa6d2606768e08309274be59bf9a32f685f8b",
+      "docHash": "10369dd6e3fd706b0e3054b04c3f66a104e703d1117136726fdf0cb1879c8f6d",
+      "filePath": "src/controllers/commentController.ts",
+      "startLine": 81
+    },
+    "src/controllers/commentController.ts#deleteComment": {
+      "symbolHash": "96ff15f72c91774000f8b69d87d69cdc1405d9ecc74e078ce4f9fecd1b5a74b5",
+      "docHash": "f8eeafea1a9962a9da85fae4c461665129645055497a2f40a986fdfebcc24871",
+      "filePath": "src/controllers/commentController.ts",
+      "startLine": 107
+    },
+    "src/controllers/fileController.ts#getTaskFiles": {
+      "symbolHash": "9b4faf26a17368425247496508c1d7256d54db6f1375889e68401eab8702216b",
+      "docHash": "99f71e28e6ef74ea458236921f5606f5bc420868fb3430d54d866901bc663724",
+      "filePath": "src/controllers/fileController.ts",
+      "startLine": 22
+    },
+    "src/controllers/fileController.ts#uploadFile": {
+      "symbolHash": "b3ff807063fee44748fb6ee53858115d8d79d8129327e33b0c97f6c0ad2980ea",
+      "docHash": "447acfbf58a0358c92ee50441f0304a7585296cec701e107a8131e98d4156ab9",
+      "filePath": "src/controllers/fileController.ts",
+      "startLine": 40
+    },
+    "src/controllers/fileController.ts#downloadFile": {
+      "symbolHash": "7bb3adf1921e8537fb4b9a570f1d808715f3edb06ecfe3a164ba976c7dae1ccb",
+      "docHash": "29967b54a1dfeecf110eae0a7e69da51690c535f2cd2ada15aee55a644a850c7",
+      "filePath": "src/controllers/fileController.ts",
+      "startLine": 86
+    },
+    "src/controllers/fileController.ts#deleteFile": {
+      "symbolHash": "f1eecbbdafe27e7bf2ec584c81af910c5a4871d6409f5cc4d537c00d6afae58d",
+      "docHash": "4e5027acd20e30833a1d5572ed7107f701d02f39eef4d6243503e750ac3b0bc9",
+      "filePath": "src/controllers/fileController.ts",
+      "startLine": 127
+    },
+    "src/controllers/loginController.ts#login": {
+      "symbolHash": "990550a0e82bf575bc8d662d0d5a7dc3dfe656382b749f5f49e315f80d690ec7",
+      "docHash": "928bbdea8819f54933e384a1b501c9259947b79ca60b6a2d6aa84e87f2da7590",
+      "filePath": "src/controllers/loginController.ts",
+      "startLine": 18
+    },
+    "src/controllers/loginController.ts#logout": {
+      "symbolHash": "4cb1274fab81ffb330652f1514cb5b6938b930499580c95a217c702ba25341d1",
+      "docHash": "e670dc8db3c70361d04f8d7dc3ab66ed8a3c26549aefae49b715e4bbfa9a931b",
+      "filePath": "src/controllers/loginController.ts",
+      "startLine": 106
+    },
+    "src/controllers/notificationController.ts#getUserNotifications": {
+      "symbolHash": "235ee8fe032c74a86edbc27eccefba4bc16b8461f536ffbcfe30c8178a11709c",
+      "docHash": "6ec576780d7247978c7fa1a3cc35c98a397c9b8a7b25c5ce21ce13809132fd00",
+      "filePath": "src/controllers/notificationController.ts",
+      "startLine": 16
+    },
+    "src/controllers/notificationController.ts#markAsRead": {
+      "symbolHash": "a283bf8949114c0efc91d7001e2391a6d440ae9145bd3443692fb1b7080f6282",
+      "docHash": "1f731b287e51de632a14cda1c372acd9ae8fe45468700baef569374d7a1c57cd",
+      "filePath": "src/controllers/notificationController.ts",
+      "startLine": 46
+    },
+    "src/controllers/notificationController.ts#deleteNotification": {
+      "symbolHash": "6a172e9e229acb05248532ed9cd447cbe5fef6310bec7bf10079da15f3fd9204",
+      "docHash": "390fecb6624c521d1c68fde06c083c9e8915a01e17466be838c585bdb561113b",
+      "filePath": "src/controllers/notificationController.ts",
+      "startLine": 82
+    },
+    "src/controllers/profileController.ts#getProfile": {
+      "symbolHash": "d3ef555955b15970adc60e8b49c7f32b41af0c011d7cf15e272abb710e8e1589",
+      "docHash": "cb8252af0a7057b1a0f9358310c4693fdd44cb81838a02822bfe55e7e356bc9a",
+      "filePath": "src/controllers/profileController.ts",
+      "startLine": 17
+    },
+    "src/controllers/profileController.ts#updateProfile": {
+      "symbolHash": "b5798e5c4dcb8a4fd25220520b0e2693d58f70a0fdf48ffd60ad94caa4a6fd74",
+      "docHash": "3253cb1f64c06fa704db65f3bfda6b60b63cb196f13d45f98850d2f8a4a24783",
+      "filePath": "src/controllers/profileController.ts",
+      "startLine": 49
+    },
+    "src/controllers/profileController.ts#changePassword": {
+      "symbolHash": "d055b4412023a3954ad1026e1000a52f3bac4ddd51b481dbaec2a8c677b0279f",
+      "docHash": "8654f72668828825ce05c9a77291709443ac337602bba630026ad8451f9050d6",
+      "filePath": "src/controllers/profileController.ts",
+      "startLine": 82
+    },
+    "src/controllers/profileController.ts#getRecentTasks": {
+      "symbolHash": "cdf4e6332efa8ef120a389f5fd3642fcad01707c3734dba037c1cc558d54e5ff",
+      "docHash": "baaa597d70e57621dac96326afc1fd28188b2a38554c2ca949fb6da25d80eb43",
+      "filePath": "src/controllers/profileController.ts",
+      "startLine": 168
+    },
+    "src/controllers/profileController.ts#getRecentProjects": {
+      "symbolHash": "0d1485e71b6d914657a8600b27c6c49c68d7f52dc3c23d697f791de10190e17c",
+      "docHash": "be11f06570494a6f4ed2a86ef0481c89cbfe1f9eb26dd4287c5a84fce9b78080",
+      "filePath": "src/controllers/profileController.ts",
+      "startLine": 200
+    },
+    "src/controllers/projectController.ts#getProjects": {
+      "symbolHash": "d758ef477cc00b56424dd6134e5b1e74eed1663d91f81367435c6fd799a20dc7",
+      "docHash": "58bd1db92b61df43cea3b815bd77b1c24e2a2e457443894bf1023c82b01788c3",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 27
+    },
+    "src/controllers/projectController.ts#getProjectById": {
+      "symbolHash": "c3a169985f1daca8c3cd35b32af01035f714509670db2a3d9aa155b4c01d5e5e",
+      "docHash": "58cbc85693ab5dba8cffb92957cb98dda5e9de9bf9ab057419cb0a2adbf4db83",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 65
+    },
+    "src/controllers/projectController.ts#getProjectDetails": {
+      "symbolHash": "6670ce0fe9b37686c91afd27d6984c2a201ba7dab7435b4d8ff353cdaa15029a",
+      "docHash": "4f3876241b5583bc537cfe900ae85223f34884afe808a20bdbc8c11d63bb411e",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 90
+    },
+    "src/controllers/projectController.ts#createProject": {
+      "symbolHash": "2366b488c4b82c0172e244314892b92c7cd393e534d1322494c4a9349be5db0c",
+      "docHash": "e0be9cb7401512fbdb94e69e20ce490a203f920c3f84944f05ffc2c4c20b8f9f",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 120
+    },
+    "src/controllers/projectController.ts#changeProjectStatus": {
+      "symbolHash": "c1de1e13810767ccf383579a342de398fab4cd8732f4f277000ba28b28454351",
+      "docHash": "585acf96f66f48aa73cb959cdde33dc9aa578355987825dc33fab703c590769b",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 195
+    },
+    "src/controllers/projectController.ts#updateProject": {
+      "symbolHash": "46d399a5de823606e619c933e1a0e39c680cb4f19953eb6667a524ebd627f0ec",
+      "docHash": "ac8c180ab3591254a1e32e69a7610c548b5997d1faa2c2bcf551f07f742ab363",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 227
+    },
+    "src/controllers/projectController.ts#deleteProject": {
+      "symbolHash": "3a677db47f0db212be6223f29d10006505eb0ae3a82668fa0599e207bd5ae949",
+      "docHash": "911c7a77571a8c1a99bbe74d93d29bf4c1590b324723e88c0090fad972821fc2",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 258
+    },
+    "src/controllers/projectController.ts#addProjectMember": {
+      "symbolHash": "81d271e379f4c43919ad39beb1896dac46c11d079f52ea76efe52a3217d2ea8d",
+      "docHash": "f0aa01858de08b4ada50aa7921e656571d2f523b7891d430d6c4758daab6d9ec",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 305
+    },
+    "src/controllers/projectController.ts#deleteProjectMember": {
+      "symbolHash": "fa8a69a558dfe627039228bd61d5dd6feca646d2b2c6fdb220b03593bb2e0c9f",
+      "docHash": "7e09cc5a29e64cdebea400e69b138b09e7f471dd79b7a1df0746f860def4953b",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 345
+    },
+    "src/controllers/projectController.ts#getSubprojects": {
+      "symbolHash": "d131064daace71b5322b983710240dd3931d59612ef92cef646f7d715f38273e",
+      "docHash": "3bb2fe2c8754454b4ef2cf8199cc596739885bde0725ba30fd2112e51fa0dc3c",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 371
+    },
+    "src/controllers/projectController.ts#getProjectTasks": {
+      "symbolHash": "7d7b95ec69dd10e243640137f4ec220e2b5d09bf52e35ed11ea541fb02b58e96",
+      "docHash": "5e819cb91177bbab684cb965c563b99a1bd34186120498171d0ef9abf9cdef38",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 398
+    },
+    "src/controllers/projectController.ts#getProjectStatuses": {
+      "symbolHash": "4ff33726ad14a7d44f6b7f79cb480f08bfa6b8ab7ab051b54edf8838749e5bf5",
+      "docHash": "30b7b04d17ad77dfe79bf9d9d61c819f5d94fc2e943cfcc9be8560b417389d39",
+      "filePath": "src/controllers/projectController.ts",
+      "startLine": 431
+    },
+    "src/controllers/roleController.ts#createRole": {
+      "symbolHash": "568b79e7655bc1ec073a09166ed7bd5552795ee2d1aa90d6a1bb34fbc5ccebfb",
+      "docHash": "8b9a892d53e7fd17334cbe779ce4399c7fedfeec73bb0f163fb4cf3a69eed1f2",
+      "filePath": "src/controllers/roleController.ts",
+      "startLine": 28
+    },
+    "src/controllers/roleController.ts#updateRole": {
+      "symbolHash": "5f9a8013838f1135137051e8f53c6977a18642af060f59efb9934208eed01f45",
+      "docHash": "31698d9f8660778d4250e897f73107ef3afe06a32a9ed2d43752d8a510805304",
+      "filePath": "src/controllers/roleController.ts",
+      "startLine": 65
+    },
+    "src/controllers/roleController.ts#deleteRole": {
+      "symbolHash": "69ca37082c7bdc7abdc56981c46938ca8a22e4dec13c7b85d3ecd0de53f801a1",
+      "docHash": "dc3078ab2065a4449450b2702e817783183ddb3ae2b236144a6bf934e564045a",
+      "filePath": "src/controllers/roleController.ts",
+      "startLine": 109
+    },
+    "src/controllers/settingsController.ts#getTimezones": {
+      "symbolHash": "6d0da67e9d72709d58eb9d218d43e60c897adb3868c57e1e7c3bbfe65c669f10",
+      "docHash": "648c78187dd8fe654dc77f19782cc2a3439531845c81b34fee13f862679ac7fd",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 33
+    },
+    "src/controllers/settingsController.ts#getAppTheme": {
+      "symbolHash": "8a692c176494771a9ef1393647551a2c80103ae84b9eed3ba7d141fa53a80dd0",
+      "docHash": "0e468d6d55085752ee4b1c06a13ac5aaeac8969fd4c4bc763e7bb3091f6406b0",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 55
+    },
+    "src/controllers/settingsController.ts#updateSystemSettings": {
+      "symbolHash": "ceb87388b40f2e0562ced38a149907ba3b6072eb26b9984e7d7cd49b5dda97b5",
+      "docHash": "37b306914b103a7536d1ec22e22baead268c254fb58607775f462561ee13d8d4",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 132
+    },
+    "src/controllers/settingsController.ts#getUserSettings": {
+      "symbolHash": "5a6e837b88e1a3d734eb5cbbdc2c754e2b7eb479b63ed76a1a0c0f014ff0d9d1",
+      "docHash": "6b7b2b5fed81592acf27f5eb21c682966d815081a4bba4ca3d7e0415eca6e98d",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 184
+    },
+    "src/controllers/settingsController.ts#updateUserSettings": {
+      "symbolHash": "ad36c7506d4db87d17fcf56de00db3a6274ad4b0eb3b8a65bac6c11e38970d71",
+      "docHash": "01593d8b3f621cf7549ced67e65e803545a6d79e4a67f8c8c443b88b40560a4b",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 210
+    },
+    "src/controllers/settingsController.ts#testSmtpConnection": {
+      "symbolHash": "15827ec65641009d949dc78951d67228bf803e71e96be58c53f17fb50a17215c",
+      "docHash": "b2872f8a28a354c823e848bf48acb669810f68f1798fd8f09549441e231ef321",
+      "filePath": "src/controllers/settingsController.ts",
+      "startLine": 240
+    },
+    "src/controllers/tagController.ts#createTag": {
+      "symbolHash": "7edb55ae7d896b63a0dbc3c3f048abcaa8272b9961a2844aac0d19afdf8ff76b",
+      "docHash": "e7d813a0d1077855463f76adba083eb1bde4e39fa81bbd078118e03ede698ceb",
+      "filePath": "src/controllers/tagController.ts",
+      "startLine": 31
+    },
+    "src/controllers/tagController.ts#addTaskTags": {
+      "symbolHash": "a58e68509c973727cb3dc31aeea9ef85364cfa690d5ccedb0d75ec12dbedab32",
+      "docHash": "ce76eb6c5bfa5bad7f4358053e58e4b53f0f5e2c348637c5254c832d4f6bc3de",
+      "filePath": "src/controllers/tagController.ts",
+      "startLine": 60
+    },
+    "src/controllers/tagController.ts#getTaskTags": {
+      "symbolHash": "a57b5ef2bdf86c7d018bdf6d73a043d4def20fdfd60d9b215dda086d65bf9bc8",
+      "docHash": "84d51fc9f20810f19068011b2537ee4c281d227ac6f9ace2abf0a9fb4a021db8",
+      "filePath": "src/controllers/tagController.ts",
+      "startLine": 104
+    },
+    "src/controllers/tagController.ts#updateTag": {
+      "symbolHash": "515a5ad0bd399cebe0308c9bde5666f2dd22b83a6cea3d214426a8b73e20a3ff",
+      "docHash": "f445cc91a075465bdc366d679eba07bc0be13e03051d9694a4ec840b17660a86",
+      "filePath": "src/controllers/tagController.ts",
+      "startLine": 125
+    },
+    "src/controllers/tagController.ts#deleteTag": {
+      "symbolHash": "5ecf1dda83b6440e4bf7a246ea486ce970d49402f48cf5a9b8bacdf02487f436",
+      "docHash": "cca1ef43cdfc527a5992b7cbbec56a2849b9cbf83ec343598febcc4dadb408e7",
+      "filePath": "src/controllers/tagController.ts",
+      "startLine": 147
+    },
+    "src/controllers/taskController.ts#getTasks": {
+      "symbolHash": "fc6b4f457dd54f3129cb480be7ce73167fb7949ea7f015d4ff17aab24d7fcade",
+      "docHash": "54dc1f1b7a20e3566b30c38521d1eb6060be1b59ef7711f5a4ff82e221ae6836",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 26
+    },
+    "src/controllers/taskController.ts#getTasksByDateRange": {
+      "symbolHash": "c2b1fb06c7b8bc36d33d235ff5f6732454f8a667d56f0c4bc21ebc421f9826bc",
+      "docHash": "a904e5e43ddf9a48c5207c42056583f55ed957e8aebd1eee95f0c20fa8f92746",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 191
+    },
+    "src/controllers/taskController.ts#getTaskById": {
+      "symbolHash": "ba5423173ded9abd8737e897376c8babd5ac139a73a8f20df401774dab8a481a",
+      "docHash": "c1dec083748e6938cb4d679d8fcb39222017ecadd713ac3a118cb3e279b3d66f",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 240
+    },
+    "src/controllers/taskController.ts#getTaskByAssignee": {
+      "symbolHash": "98f25a6b9bf8985692ba22107ab39b5c8c2ab877a83518f333609801acbe687a",
+      "docHash": "601177f5164677ae1e4cda8e9f0d3bec3465930b32a2baaa244aa233a55c17ff",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 265
+    },
+    "src/controllers/taskController.ts#createTask": {
+      "symbolHash": "9386a0c5aa46640e5001147ea6a809cbc80d23357d06d2f6c27b2f7d71690056",
+      "docHash": "92d6e27bcb0fb83d2873eb4d4866e6c0dd2b39c92de127551d72c1a04e71048e",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 316
+    },
+    "src/controllers/taskController.ts#updateTask": {
+      "symbolHash": "c3cda2cd227e0612442add1eb46576e47f0df9d23f7a33a50077d70775990c56",
+      "docHash": "d781f2fe16fa84cec7c162384bcdf09bdcd2d5aab0517a557df11bf1c0f0dc3f",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 465
+    },
+    "src/controllers/taskController.ts#changeTaskStatus": {
+      "symbolHash": "4861b2f1c993c5a4b37a2eebe665e19f64973d69ad3ae5e70a29ff860ebb2879",
+      "docHash": "0e277b33c1ffc1473bddff8add1836df7fb624b61701d23662bbe6fa8c71c12a",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 543
+    },
+    "src/controllers/taskController.ts#updateTaskDates": {
+      "symbolHash": "6962a97d766418849272bb2e04cbc8206720268f362abf488f952409d6a82936",
+      "docHash": "4459e4e6d1c909b2610d9d333a943e447a30d7578a90c9b00efdcaf1955b86b1",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 598
+    },
+    "src/controllers/taskController.ts#deleteTask": {
+      "symbolHash": "c7f27496b04a11974d48500690636c223654178d4cbec1541fd72befdd173386",
+      "docHash": "e091390344a8a7f12665414a0436c0d2678a601f3dc70b39a56e10ba2ca20f18",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 679
+    },
+    "src/controllers/taskController.ts#getActiveTasks": {
+      "symbolHash": "9460d1153d0931990d7adda68d37ac2757a2d48754a01b6e03760157466cf771",
+      "docHash": "7e6dd350621385d0e054ec8549166389ae33de185d762d6338381759f093b83c",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 736
+    },
+    "src/controllers/taskController.ts#getSubtasks": {
+      "symbolHash": "66006696406c107196c3bb0ddbfc0e166b9dda535170aea8a13425804fefde7a",
+      "docHash": "b17078312a18a843004fdf0253c84dd8e7b2733c14b99f23655a03aa615d913d",
+      "filePath": "src/controllers/taskController.ts",
+      "startLine": 761
+    },
+    "src/controllers/taskTypeController.ts#getTaskTypes": {
+      "symbolHash": "59e4604f0f962f37a7d54e9b67f3e42f562e836daa389bdae8239fff7d41fef5",
+      "docHash": "1a2b6dfbc2dcfc36e8cbe49fe7f9c77652a7a919658f913efa67a888f9810241",
+      "filePath": "src/controllers/taskTypeController.ts",
+      "startLine": 16
+    },
+    "src/controllers/taskTypeController.ts#getTaskTypeById": {
+      "symbolHash": "1945dcd013ffae109e56c1135de877693e4f648397843bc982fd98e266d38bdf",
+      "docHash": "0fb16de895e06f5179b1c387ecf902a0c0a851846211d22af08572ce7d224db6",
+      "filePath": "src/controllers/taskTypeController.ts",
+      "startLine": 38
+    },
+    "src/controllers/taskTypeController.ts#createTaskType": {
+      "symbolHash": "e8bc7d530324a784e586ca9abb4ec88b2cfa01219df2868729da44a28dec90ea",
+      "docHash": "8ba90de9c589eb37c993bac13f3eec4390b0b1caa0ce2497267399d72a9e9aeb",
+      "filePath": "src/controllers/taskTypeController.ts",
+      "startLine": 66
+    },
+    "src/controllers/taskTypeController.ts#updateTaskType": {
+      "symbolHash": "2cee9e46b4fee9a7e5b25d0142842c0bd40ab81d61e301853e59be7e1e847f2a",
+      "docHash": "5b8a1138697a6eb86380c82c1e6d1e6520f14396dffcc99932a70ecd7c1148cf",
+      "filePath": "src/controllers/taskTypeController.ts",
+      "startLine": 117
+    },
+    "src/controllers/taskTypeController.ts#deleteTaskType": {
+      "symbolHash": "a58b165b224b27da2c581f8d4516639b42b07eccdca6b2259fa5a50583993159",
+      "docHash": "e329305c890f944464b02e67b26dacae3ad05deb0448fb99e55710b16f19f2d0",
+      "filePath": "src/controllers/taskTypeController.ts",
+      "startLine": 164
+    },
+    "src/controllers/timeLogController.ts#getAllTimeLogs": {
+      "symbolHash": "341908e78588a5d56ea1a854bd794f5aa95ce8911b01933e43df1f57f22ea083",
+      "docHash": "bf22da8ea6e8f292d008387b42452a27b7d5a6b127bf0ee9a27320650f12a75d",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 19
+    },
+    "src/controllers/timeLogController.ts#getTaskTimeLogs": {
+      "symbolHash": "c8275608e4bd552e4ae4b23397220735f2b1419fc54c497ef28b1056884b9bf2",
+      "docHash": "2b2cce823d062754f96572f4d3018b13f14d9eac31e7f794093e739bb14998e2",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 42
+    },
+    "src/controllers/timeLogController.ts#getProjectTimeLogs": {
+      "symbolHash": "4e7b5f318824f10b6a88e53777f14f4667b84dd019794780396352f0bcd7fd37",
+      "docHash": "acaabde42be058d640960affcbfff45c6dc2f85767491e18ace952022b5cac7e",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 83
+    },
+    "src/controllers/timeLogController.ts#getProjectSpentTime": {
+      "symbolHash": "ea79de9d549ce0f80bf5ba220afc57ea53e41a034056ad62cc03e23f8dc3642f",
+      "docHash": "117c71333c28ea83ffc90e72443a4e33ecc87770812532ebe8175bfc9c49f775",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 109
+    },
+    "src/controllers/timeLogController.ts#createTimeLog": {
+      "symbolHash": "d3b660b13eaedbdb313a1aeea6346eb50e15d99fcde39f45870e5314f7c542d0",
+      "docHash": "45da863c21889ac602eed700c21310a16a7d7ff6b102491ce7f88d9110929d91",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 132
+    },
+    "src/controllers/timeLogController.ts#updateTimeLog": {
+      "symbolHash": "13edb60edd62870d538ba9e277091da2ed310a024adc30fbc69e0af3892e7492",
+      "docHash": "2e08b2c13d4aa6dff567bb0e106cc818c215696177282e9c3b838bfd2fabf705",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 172
+    },
+    "src/controllers/timeLogController.ts#deleteTimeLog": {
+      "symbolHash": "c27f3653f8b08424d150f5bea69f289e41a351b0182cf27bf5c3838714135e97",
+      "docHash": "6a02a9a988559988c619f031a4acadbb30432b13c796f56709a78d9e56058008",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 212
+    },
+    "src/controllers/timeLogController.ts#getUserTimeLogs": {
+      "symbolHash": "e00f00bcfbf5ddcd22f384324250c87481b6ed0d4137457e9af3f42a55f27210",
+      "docHash": "9f0a53d422466b833e56f1b080b380586e29773b13bcc66e1023a50b943ae99a",
+      "filePath": "src/controllers/timeLogController.ts",
+      "startLine": 235
+    },
+    "src/controllers/userController.ts#getUsers": {
+      "symbolHash": "e66c75eaa14eb7a455efb5712009832225b14ccc326e933184a9c477e8a1b0b1",
+      "docHash": "22679ec9faca074d0fd83af4ffdcb7861a09285d00d54d9ed65b462f9413d7bf",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 17
+    },
+    "src/controllers/userController.ts#getUserById": {
+      "symbolHash": "a99b41162dc93aaf1738f797f65cb3ab29f03611e2435ef93f1fc34e03da7771",
+      "docHash": "29264d5cf7b7206a5743e265ec71d1cd5dff26cef801fcc3bf191d037e7500b2",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 50
+    },
+    "src/controllers/userController.ts#createUser": {
+      "symbolHash": "5a7ac266eab798555cb9bf8312b6ab10c420b91669de24dfa31557f77cdc0973",
+      "docHash": "66ebf5af929e47ecc7111c0ef861942f711b5e6eba9245a571c55627658addc9",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 79
+    },
+    "src/controllers/userController.ts#updateUser": {
+      "symbolHash": "ac5aaee9d97596cfbcb4582d84a2cb4229c047c622a24e3ccfc47c8a4ad9b9d5",
+      "docHash": "fb486f2a2e6e42e0e4273ebaa1d4a7e05d9be13a24dc8cdcd073295148a6eb84",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 162
+    },
+    "src/controllers/userController.ts#changeUserStatus": {
+      "symbolHash": "4dc3dfb867e9ed18e951ddb85c01316abe6a389ddc500e2533e0d726323054cc",
+      "docHash": "d6740911f6a7afa7c101a7ad33c6b79b9e6d9d6a72e7858d6b46d680df9ec799",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 207
+    },
+    "src/controllers/userController.ts#deleteUser": {
+      "symbolHash": "3f04f7c25e153f4ab2e444fc7f6543083fc8daef1a04f22c63a70382e7746c80",
+      "docHash": "42218446998a5eeec6339db5ca5dfa9159b9d31ea7aacce774e007775decbb05",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 232
+    },
+    "src/controllers/userController.ts#getUserPermissions": {
+      "symbolHash": "50500f52097061069ceec456b2cdf1fa11c776d1f2235491bdc0c61f0e688c9d",
+      "docHash": "f137d0b618bb72b4a9897357e0f976d8ce90a63f458623ede01469e906dc33b5",
+      "filePath": "src/controllers/userController.ts",
+      "startLine": 273
+    },
+    "src/controllers/watcherController.ts#getTaskWatchers": {
+      "symbolHash": "9c0a81a011b5b31cd93c339ccc23222e6a3548ba9341a822890cf517b8577d33",
+      "docHash": "fa7846e5b5b3da10d342bcbd28202e70f0c9cd94dafa0060f17fbef4c9fc22f3",
+      "filePath": "src/controllers/watcherController.ts",
+      "startLine": 16
+    },
+    "src/controllers/watcherController.ts#addTaskWatcher": {
+      "symbolHash": "274128c4664946162b07110a3a12a086ef7ceac4e12aa72e42228d3f329d084c",
+      "docHash": "9be73b102d600270281cbdc60fbcecf362216c6b52a304200a75cc82cc494d31",
+      "filePath": "src/controllers/watcherController.ts",
+      "startLine": 39
+    },
+    "src/controllers/watcherController.ts#removeTaskWatcher": {
+      "symbolHash": "6dadbbd8056e19957f4e2a5bbfa428aaacde87b84a5186b95b91e97ccc7a23df",
+      "docHash": "5d5d67e72612020ca827d0b5bd66e81f5109a40520ad33e390e93d203d19402a",
+      "filePath": "src/controllers/watcherController.ts",
+      "startLine": 76
+    },
+    "src/db.ts#ensureConnection": {
+      "symbolHash": "30712b7c9e797acd42e45488caf92e8d829dd21d1bd7aa873d2333cf78875dab",
+      "docHash": "040c0c5bf752a8640452801665f6c94816be9b4e664a9e6eefb74f5499d590e6",
+      "filePath": "src/db.ts",
+      "startLine": 18
+    },
+    "src/mappers/projectFilters.ts#mapProjectQueryFilters": {
+      "symbolHash": "b11225d6605215decce0441c4335cbc288a5ab057091f180fa0fad9d8bc1b6fe",
+      "docHash": "335b15af7406a2eef8c602343314246860daf95c5cd4ffba6eab333c9940de80",
+      "filePath": "src/mappers/projectFilters.ts",
+      "startLine": 16
+    },
+    "src/models/accessModel.ts#accessibleProjectsSubquery": {
+      "symbolHash": "12e1be94e10e05e29a662c4f51c3a29def75d390ea8113d6ce0e3e4bfcc02237",
+      "docHash": "af2da6180e473b1d0ba150815ec78fcf9b88e7002375e50fcb04dfab6bf4840f",
+      "filePath": "src/models/accessModel.ts",
+      "startLine": 46
+    },
+    "src/models/accessModel.ts#filterByProjectAccess": {
+      "symbolHash": "154c7ac480d5061df8fc2c40f6454993e8cc8737057e668d31a34d1b1f95345d",
+      "docHash": "3bda03aa32db6d62cbb7fadc699c12f454e8aeeb67395ad592c2063696b0fb2d",
+      "filePath": "src/models/accessModel.ts",
+      "startLine": 80
+    },
+    "src/models/accessModel.ts#isCommentAuthor": {
+      "symbolHash": "31acd8d4d1834438a3d926b466f24db340b98e9db7c6f44bd142e02712291a03",
+      "docHash": "112903dd241b710b47b083df53e8f1983b0b95432b5b5194589ff02b813d5500",
+      "filePath": "src/models/accessModel.ts",
+      "startLine": 100
+    },
+    "src/models/accessModel.ts#isTimeLogOwner": {
+      "symbolHash": "8e549feb3a781570dce8bbec1a311d24df33dfc5a89924f6339b39e6281440a8",
+      "docHash": "59cc776a52a3eb9d5d9de33c5cf8dfc6a56cd7e0e139337940f8695d4c798341",
+      "filePath": "src/models/accessModel.ts",
+      "startLine": 121
+    },
+    "src/models/activityTypeModel.ts#getActivityTypes": {
+      "symbolHash": "c06c20c701e21460191705bcc824cfa95a4ff00119ccb6ca62442d44855dd442",
+      "docHash": "2a78bdccd8152054c0d91dd08648b934e843cd35dc31f6198df4233866dee092",
+      "filePath": "src/models/activityTypeModel.ts",
+      "startLine": 19
+    },
+    "src/models/activityTypeModel.ts#createActivityType": {
+      "symbolHash": "342e4a4655b33876133b683f9dcad236dc6d0386ba9c77604786fc78a22c791a",
+      "docHash": "10f0ea2d7a5f990edb9d8178b083d4a31269b4c681e3274c96ea9ef37ef734f0",
+      "filePath": "src/models/activityTypeModel.ts",
+      "startLine": 37
+    },
+    "src/models/activityTypeModel.ts#updateActivityType": {
+      "symbolHash": "fbebd07461f7841c4343805e724eaf1cc0fc2986f877d6e55ea0ee3531f9bff8",
+      "docHash": "85ed1ca87873e72782f2867b8bb01fca635fcdae08f1abb745edae494b5ffb5a",
+      "filePath": "src/models/activityTypeModel.ts",
+      "startLine": 62
+    },
+    "src/models/activityTypeModel.ts#deleteActivityType": {
+      "symbolHash": "14817c3fb4a0461b40e65da08f79949a80ef8e339247a7e20b31316e704c2f96",
+      "docHash": "48d3d920dd968df26527f81d011f7c9fa5716a2932ddcc4d12751afa521e1d24",
+      "filePath": "src/models/activityTypeModel.ts",
+      "startLine": 97
+    },
+    "src/models/adminModel.ts#getSystemStats": {
+      "symbolHash": "260deead5e9977b06af959d21ee2ff38e31a800b4ebed20f74d037a8cc6a137b",
+      "docHash": "65759d4de88e06ebb5fdafefbca79628adb3f913ef1ce650610e4fbe6a95b5af",
+      "filePath": "src/models/adminModel.ts",
+      "startLine": 18
+    },
+    "src/models/adminModel.ts#getSystemLogs": {
+      "symbolHash": "06d29ae733758cb0155f7060cd7c5c55e15cfdcd1b7dee965250c71f1c395297",
+      "docHash": "7d0e1e1d8f199256498e36b6ef80b7fa0a0cfacb2eb6d5cd4261b44ee903589a",
+      "filePath": "src/models/adminModel.ts",
+      "startLine": 32
+    },
+    "src/models/adminModel.ts#getAllPermissions": {
+      "symbolHash": "2947bfef4d3397c148199c0958a0ecf52773e8781cf2c187c5c86e068166a10e",
+      "docHash": "3b87fc8ceb70d539ce7e4f257861e2294ae5c2397b74803a600fa65ec9e25cd3",
+      "filePath": "src/models/adminModel.ts",
+      "startLine": 68
+    },
+    "src/models/commentModel.ts#commentWithUser": {
+      "symbolHash": "9d34cb0f8ffefb1a4c12a02a02a819dafc5bb0f7ac1fb2ad9f8256e4366619ba",
+      "docHash": "a62172a4ead788a09455b9a187f4f774c22bb240c02ab983caff9d228be46dca",
+      "filePath": "src/models/commentModel.ts",
+      "startLine": 39
+    },
+    "src/models/commentModel.ts#editComment": {
+      "symbolHash": "f9e8deb0754d6acd91098f70d2e1ba9b401ba4b98821897192201f425e1a68bb",
+      "docHash": "5aa167d1047731b6e88db9b5da4f5ae898d2d51d3ee896fdc5811243b6383a1b",
+      "filePath": "src/models/commentModel.ts",
+      "startLine": 58
+    },
+    "src/models/commentModel.ts#deleteComment": {
+      "symbolHash": "deaa5347362319d237aba1b6d09918b10eb90ea2ee93d23e8427f280d8eda65c",
+      "docHash": "8ae123e846156aaa3cc0f5cf298664ba4134a1948aec45ab1d80a5235ba1b71b",
+      "filePath": "src/models/commentModel.ts",
+      "startLine": 92
+    },
+    "src/models/fileModel.ts#deleteFile": {
+      "symbolHash": "7718458ed172ad6a7f76a6caa8a03f1627f0ed3e1d54f10deb03508c85ce8de6",
+      "docHash": "83ec1e097b02b62a993db2e4e37d861ea3780ccaf8950b8261f473fe794fc40b",
+      "filePath": "src/models/fileModel.ts",
+      "startLine": 63
+    },
+    "src/models/fileModel.ts#canUserAccessFile": {
+      "symbolHash": "6fa90aed497043e40bec018bf4c5d58e2e130a79d4e014ff53c9da0ee59388bb",
+      "docHash": "558002767d2bd888c84007af677974a68dfed8cf84c139eee309cd160189eebc",
+      "filePath": "src/models/fileModel.ts",
+      "startLine": 93
+    },
+    "src/models/loginModel.ts#login": {
+      "symbolHash": "544fb9f87d757b984c97beb2a07754adcad1a8e5e706a0a028049ec21fbe5cb8",
+      "docHash": "04da4dbb67edd5bbde3b077b012e1d0ecf29d3a26c9e5dddb951374c20c74db6",
+      "filePath": "src/models/loginModel.ts",
+      "startLine": 13
+    },
+    "src/models/loginModel.ts#app_logins": {
+      "symbolHash": "d844a933a9865a1e5bdb170736d39540da087e081ba76ef8d28b2b20d9ec97bc",
+      "docHash": "96113302236cc2424f250857e760a182204232ee803f3c63ec6a32e44f5f3a31",
+      "filePath": "src/models/loginModel.ts",
+      "startLine": 32
+    },
+    "src/models/notificationModel.ts#getNotificationsByUserId": {
+      "symbolHash": "b988b774cffd5c985ca49fb68f9a863ec7f7f32f38c9739ff569446b902b9783",
+      "docHash": "5d5be0ebc5fa208f71359378dee36ebe2c7b33d892897388fbf3ebd52e1047ba",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 23
+    },
+    "src/models/notificationModel.ts#markNotificationsAsRead": {
+      "symbolHash": "1e96302766639f8ff38f99cb49f16b19b3596ff524683856350c1274b97eb469",
+      "docHash": "d44a5641a601843d36ec2bd1f1fb368c20d56a4285f9a219dd6f46362413fa20",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 49
+    },
+    "src/models/notificationModel.ts#markNotificationAsRead": {
+      "symbolHash": "b17fd94f940e11518121c9b7356549bb45fdfe2b06f8549c0680bbb4cd4c720f",
+      "docHash": "27693c0f2e2826d45c00f14f7cc5a78a2112ff4d8f3b399845ef3e29aa060303",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 72
+    },
+    "src/models/notificationModel.ts#deleteNotification": {
+      "symbolHash": "efb42b17d37e5723af0856c4eca3cc0ede6cc7afc4bfd45148d4054339725e5c",
+      "docHash": "3b433f80e89e3893dbbc9a91499f76c065924a5d8d374deca92e3118b3587c6d",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 99
+    },
+    "src/models/notificationModel.ts#createWatcherNotifications": {
+      "symbolHash": "ce65bfaf081080291a76143c0e392ec5a06d3edffe76d5aae4decbd928ba386d",
+      "docHash": "39bc24dcd63e45fddd9ae7d18ec38aca948e41ee63bfcd84cb08f5be663d02a2",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 122
+    },
+    "src/models/notificationModel.ts#createProjectMemberNotifications": {
+      "symbolHash": "c0425024b273c8443037289a86298a78727de5743571e328bdc8ed56967eb9ce",
+      "docHash": "63d13e4edbf45f422b9dc5593e11ddf1929e14e69f37234891b02907bc1d5eba",
+      "filePath": "src/models/notificationModel.ts",
+      "startLine": 142
+    },
+    "src/models/permissionModel.ts#invalidatePermissionCache": {
+      "symbolHash": "a703e7e0b9d0759bc2d78bb9c131515bc0fa52c95c99394223832c55542b0cd2",
+      "docHash": "e59a601954b6d3b0b3a4f55f20bc9b9a651e168185a60931ad3d987d37eaed02",
+      "filePath": "src/models/permissionModel.ts",
+      "startLine": 27
+    },
+    "src/models/permissionModel.ts#hasPermission": {
+      "symbolHash": "b4e70a3b186ae9fa69eb146e76a59ea552aa66805fc8e27e81b905977d71f493",
+      "docHash": "7f7affbf14c5b205ed1b7b14a20d51d013e7a646e73061d67b8655a6962aa2ff",
+      "filePath": "src/models/permissionModel.ts",
+      "startLine": 64
+    },
+    "src/models/profileModel.ts#updateProfile": {
+      "symbolHash": "341415cb6fde4580c9ead2e2bb1dc7ab6b42da366397e3e52c450189f9771a59",
+      "docHash": "6391fb63e75d0c60b0dad1b6204ad4483b5933c77f5082a3945cf1fdfd1b02a5",
+      "filePath": "src/models/profileModel.ts",
+      "startLine": 24
+    },
+    "src/models/profileModel.ts#verifyPassword": {
+      "symbolHash": "83c1b9dd647167f1789e294dba7fd78403fd2a4d6a76135ca821bf2ae6b6697d",
+      "docHash": "2986c9123501efe91562fb452f07587affeb14ff643d21d283a57d2657b20c97",
+      "filePath": "src/models/profileModel.ts",
+      "startLine": 50
+    },
+    "src/models/profileModel.ts#changePassword": {
+      "symbolHash": "73f4f5c627dfbe83c0cfc9f876f1614f2530f96e8319c8c52aafa1964906e9ce",
+      "docHash": "adc648528201f3685acceddcd0f1d8403d451e47229f6fd039274da717f56bf2",
+      "filePath": "src/models/profileModel.ts",
+      "startLine": 74
+    },
+    "src/models/profileModel.ts#deleteOtherSessions": {
+      "symbolHash": "da57c7a08e093058ce19ad82f17e21bf6fc1b2e8eb938db9f321b9dc320de1d9",
+      "docHash": "476719ba9d36f02fa8c040bfa7b88d7583200cc707c98ccc5dbb5777083a53fc",
+      "filePath": "src/models/profileModel.ts",
+      "startLine": 99
+    },
+    "src/models/profileModel.ts#getRecentProjects": {
+      "symbolHash": "dfbbffaa89e1f8df2b25831fcdfe09e2d615aae8ad3ac3e6616f76be3ddacdc4",
+      "docHash": "17d5a4e76588ca7e4264d0b921fd9be3948140fb0bc5c8a63b8e707e43030e22",
+      "filePath": "src/models/profileModel.ts",
+      "startLine": 128
+    },
+    "src/models/projectModel.ts#getProjects": {
+      "symbolHash": "ac1444f820178ea6d75b2c403af75410fcc30f45459eab3b452a80fc5fbebad4",
+      "docHash": "bee2626206fae1351f25fee6f8b5df56e56343a119ef8aa77716e9894c732061",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 29
+    },
+    "src/models/projectModel.ts#getProjectDetails": {
+      "symbolHash": "bc195ace20748f6d1582c9db0837867803128eb821827e796a63a89c1ce4b811",
+      "docHash": "281f94f4b3a57e6fec77e48ea197d059c97a870a99cce7d0c3ab1f1d7707b89d",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 95
+    },
+    "src/models/projectModel.ts#changeProjectStatus": {
+      "symbolHash": "eed2f1415ffee6e2b7235afe0e3eb16c84545cca5a510b1a9b11d32dce1bfb7b",
+      "docHash": "95fdad4f73360efdb59f35006d2f7c068d170b13b7a2c03bcdab32f12ce4d4c2",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 134
+    },
+    "src/models/projectModel.ts#updateProject": {
+      "symbolHash": "9173a89be69caff2e063eec4b911e52c0364ee49f29cf2bb83639a70bfbcad4a",
+      "docHash": "d6e50759fb9c11735cd2592efe4fa90a33b611b2259ebb43a18d4c07b96489b7",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 164
+    },
+    "src/models/projectModel.ts#getProjectMembers": {
+      "symbolHash": "f508b0c71a05cea347a4c1396bdb5cb70a9469bd58604bf72f3427cafd944dc1",
+      "docHash": "0ebb9601c02e7499fe65e90ac0b868836b8b0de532998aa8ef5fb5856f274ab2",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 207
+    },
+    "src/models/projectModel.ts#getSubprojects": {
+      "symbolHash": "d8bbdc16c44055b1ff30f7baefe9a3b81a64ebeeb9bec18198a963af00a9a9aa",
+      "docHash": "042f46d3439c40c97ada1f08bfeb76ab420f9ee4e4a30430b5454e8283dca651",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 229
+    },
+    "src/models/projectModel.ts#deleteProjectMember": {
+      "symbolHash": "b7c91bd73f5b70e82879ce84d58775b56560af626d00ecbd540d79278a617788",
+      "docHash": "07c86cc9781b343220f01f474636e9971aff69aca4fbbde736fd70c56e9766da",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 269
+    },
+    "src/models/projectModel.ts#getProjectTasks": {
+      "symbolHash": "44801779926f9695a8cf425ab45d1fa501a7d9efadcdf8c6b3b63a0c00fbbbba",
+      "docHash": "32a121e287905536abbaa9650f2124ce73ca553e1a926407ffa332c95789bbc4",
+      "filePath": "src/models/projectModel.ts",
+      "startLine": 299
+    },
+    "src/models/roleModel.ts#createRole": {
+      "symbolHash": "1886723b3e77a8dbb2ec4d7fe7bc884914cd861640d6093533d95d602b86c64a",
+      "docHash": "56428b896047c502bfd41c5debfc2e197a5c17430b2c9e96122dd45061cc6af9",
+      "filePath": "src/models/roleModel.ts",
+      "startLine": 20
+    },
+    "src/models/roleModel.ts#updateRole": {
+      "symbolHash": "9b5d957933ecd5625161570d9829cabda675f1be64f2071beba19138d682a2ce",
+      "docHash": "8c92c60c3e93d9c906721e17e27d786cbfffe8bc54335ca8c6864c8b076c0c2e",
+      "filePath": "src/models/roleModel.ts",
+      "startLine": 43
+    },
+    "src/models/roleModel.ts#deleteRole": {
+      "symbolHash": "88e404ed69342bf9cdb6b5cc26e1a3fa450434308d4e5762a6b30c3e262c51c4",
+      "docHash": "b03c47739450c3b1424a7ff873b22bcbecfe983c68c36cfdc59d38f45a38d330",
+      "filePath": "src/models/roleModel.ts",
+      "startLine": 70
+    },
+    "src/models/settingsModel.ts#getSystemSettings": {
+      "symbolHash": "957f673ffed90d12469b866a8286ccc7390616aa9a7cc9bf3bda9a5d870e2dfb",
+      "docHash": "f2a36d84e0ac3f2e5ae01ef5159ae9c97b2cff20814ac5e69d5d7496d05d4688",
+      "filePath": "src/models/settingsModel.ts",
+      "startLine": 44
+    },
+    "src/models/settingsModel.ts#updateSystemSettings": {
+      "symbolHash": "3c43da14d054ae7a7e317ac66e7bd3b1a16470490f1ab65f36cbd8114047c95e",
+      "docHash": "77330db8716f5e69a36064ea1d4fa958655d748d1ad27c3ce4376e1a324c2a2f",
+      "filePath": "src/models/settingsModel.ts",
+      "startLine": 59
+    },
+    "src/models/settingsModel.ts#updateUserSettings": {
+      "symbolHash": "43d6df69b2a2d2efd95f15deec0f4723f73af4402bfa7788e99e9b6ad4064634",
+      "docHash": "22059daffdaa368298e8dccbdff477b634bf3786d518db783d20d44ed6fa639e",
+      "filePath": "src/models/settingsModel.ts",
+      "startLine": 124
+    },
+    "src/models/settingsModel.ts#getTimezones": {
+      "symbolHash": "d78622b09298314cad25316b01a45816f978f78672c3712d2a9b4bc786736224",
+      "docHash": "3eec1e53e14fe3a77b1fd3da31b6b82e997e2c1148aa4c19406f2e2010c567a9",
+      "filePath": "src/models/settingsModel.ts",
+      "startLine": 197
+    },
+    "src/models/tagModel.ts#getTags": {
+      "symbolHash": "4269718471d2fbd139aec9db504777cda1666bea80498e4d858ef0ead1b44eb0",
+      "docHash": "9521c313070c80bafb81a1abf77892d56f72180b2941948b01408e9e83084cff",
+      "filePath": "src/models/tagModel.ts",
+      "startLine": 11
+    },
+    "src/models/tagModel.ts#createTag": {
+      "symbolHash": "a2db5bf0368181843c0d3b6501f3e635c8f8263423a38a2d61982bd32a101990",
+      "docHash": "319bf0597b276859d97a1d56956d667891eaf88c4e0983fd4183824344b95f21",
+      "filePath": "src/models/tagModel.ts",
+      "startLine": 30
+    },
+    "src/models/tagModel.ts#getTaskTags": {
+      "symbolHash": "0eaa9981a0e5d20b4095cd9df8606d84d9b4d94b53c0d5cee5cc8e11316db881",
+      "docHash": "1ef78bf9e4e18e16895dcd0088bab897f25133d57e7c7430e0ea17f4ab093ae2",
+      "filePath": "src/models/tagModel.ts",
+      "startLine": 75
+    },
+    "src/models/tagModel.ts#updateTag": {
+      "symbolHash": "72345c0e84ac39da362e1c898f25e2c2cdf168a19a2b076ee884a8b49deb9a5e",
+      "docHash": "2da345990c0d9b2c7d81ff673388981b3ef7eb86c93df9d7d1b0cf911120ae61",
+      "filePath": "src/models/tagModel.ts",
+      "startLine": 101
+    },
+    "src/models/tagModel.ts#deleteTag": {
+      "symbolHash": "c4b4c9789feef0998c5b16d4a6de2b509b02dc1dbd55ad6a602b5664bf384128",
+      "docHash": "cac1010286b3ef04cab8900742b94fd5c0e54fe5bcee2c6f3f71e02c8b238cf8",
+      "filePath": "src/models/tagModel.ts",
+      "startLine": 157
+    },
+    "src/models/taskModel.ts#getTasks": {
+      "symbolHash": "048605db0ca692080728dee2c8e07af5282653fbf7ed5239710971fc5032292d",
+      "docHash": "804a6ab542007d29ce29bd2cd6804c83d1524dc0aa2ab23c0faf199a6531c5f1",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 49
+    },
+    "src/models/taskModel.ts#createTask": {
+      "symbolHash": "a5bc85bbd60599ba01a31a2d7f9aefc297af1dad94030537e00bb59b3ad655cf",
+      "docHash": "5881980d548d3660497df0975f9099afb27308d2ef139df76bf0e21f5b0d181d",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 189
+    },
+    "src/models/taskModel.ts#changeTaskStatus": {
+      "symbolHash": "7745a65b3b3ec9607d6da15f3c0c4d05dea5fb4dfd137d9341f1427bd1d6b949",
+      "docHash": "349246e2f60a449ef8c11261390da82fd56c3be4cb83c0475aea3f53cdd5ce5e",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 290
+    },
+    "src/models/taskModel.ts#deleteTask": {
+      "symbolHash": "acb41642535ccb57ff81df4f8827f657846f29f2a611cd2a5822b0d5f6a870aa",
+      "docHash": "fb092f3101ee91b839c92db28020bc3a8676515e9d961a3d3a54f86badf28bfe",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 313
+    },
+    "src/models/taskModel.ts#getTasksByProject": {
+      "symbolHash": "666e724d4a24fd1a4fd452e67e15ed01f6d029eb56e9b1ae2b9eadb55fd5f3db",
+      "docHash": "1ef7799171c35ef29a66acc8d17312f828704a3d42407b5bf141766124df0830",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 367
+    },
+    "src/models/taskModel.ts#getTasksByDateRange": {
+      "symbolHash": "8c9abf296ec54aeab1c69919dae568bc44054d8fa1a8020f0b416c8ad35b85a9",
+      "docHash": "e6677013db51361e85c5525e8a4b2aa3f99d992f143859771b11d2eb1d5b48d3",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 396
+    },
+    "src/models/taskModel.ts#getSubtasks": {
+      "symbolHash": "d20aac998b7471a746686bdaa550d3d48b5c66bd0962bec68ee8eca3a52a1df7",
+      "docHash": "a9d8e67b80265c41bf4adb2e34526df2a64c0d875dfc9d77e84855325b914f29",
+      "filePath": "src/models/taskModel.ts",
+      "startLine": 424
+    },
+    "src/models/taskTypeModel.ts#getTaskTypes": {
+      "symbolHash": "7c335e542d5a341f4367bcbe9a24783de31beae13c46e7b42634a819fabb2ecb",
+      "docHash": "eba2c96b1f13a00a0976f57e9a4d4e43693183e3a8111a50fcfcc18d978ccb70",
+      "filePath": "src/models/taskTypeModel.ts",
+      "startLine": 11
+    },
+    "src/models/taskTypeModel.ts#createTaskType": {
+      "symbolHash": "e327124e441b4ce4c0e2dcb7a597411f02c43f887b68768ecaf9ad33b518c4ba",
+      "docHash": "ee5adfc810a07e9d861463594a4e945d88dcd0ff95a8df1c0cfc93663ce073f6",
+      "filePath": "src/models/taskTypeModel.ts",
+      "startLine": 45
+    },
+    "src/models/taskTypeModel.ts#updateTaskType": {
+      "symbolHash": "ceb4d37ad9f20e0b88c8a147dfe5825259b7a29326b08fb60ce4563dba112fb1",
+      "docHash": "5959ecbfc29305931698bd0eed675e5a02a4755fd9134b41828fd694b031289d",
+      "filePath": "src/models/taskTypeModel.ts",
+      "startLine": 76
+    },
+    "src/models/taskTypeModel.ts#deleteTaskType": {
+      "symbolHash": "708709a2064e75653a78cdfa9dc74383ca700c97bae137cc5f5a5ffa0897009b",
+      "docHash": "e97e33ae772420fe10720348a2fd49d639961961f9bbb7f0b5f0bf0b026cbe14",
+      "filePath": "src/models/taskTypeModel.ts",
+      "startLine": 102
+    },
+    "src/models/timeLogModel.ts#getAllTimeLogs": {
+      "symbolHash": "e33a78dc3c5cc9264fbf1ee745084e68a8f79b7235eff83e712679ea38cd0eaf",
+      "docHash": "047d0d0eebef7f98c71fd7790479f12ac5571b0687e606856f62ead0cd49cfd0",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 54
+    },
+    "src/models/timeLogModel.ts#createTimeLog": {
+      "symbolHash": "2c76592f5f935019d449560d382be4ab585148602aa67bcf23a8e1dbb2108076",
+      "docHash": "29d4a489130e97d806669a53d7d21b5cb0769827fc395178ccfc7eead4a53a07",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 78
+    },
+    "src/models/timeLogModel.ts#updateTimeLog": {
+      "symbolHash": "c3743b78990436f02b64e167977ed6e50aa63ca0e4ad0c72ee0e835265ba6918",
+      "docHash": "b9bb3588a42f260c64af1ba5b2978211723f4823301d7490597701fa9f62f2b1",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 104
+    },
+    "src/models/timeLogModel.ts#getUserTimeLogs": {
+      "symbolHash": "6e3fcfea952b004d856b66ba7f1b4b869ea11127beaf43d509d4357634340699",
+      "docHash": "9250611fdfea77f479c61df304a6566041820b0978f4a4318e96cc402ba94248",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 147
+    },
+    "src/models/timeLogModel.ts#getProjectSpentTime": {
+      "symbolHash": "eff90a19df51efcd92ea2ab0d53a506650589a50e59f85ef1435fe7f40c2872b",
+      "docHash": "bd736917224b655eaf0aa568484e27a633df68a2404b74e354336295a645d4be",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 182
+    },
+    "src/models/timeLogModel.ts#getTaskTimeLogs": {
+      "symbolHash": "98edc9347b7bf4a88fe916de00b7069fe21fd782d096bb36c1fcbb732b74213a",
+      "docHash": "96fcbd625e208c5f7b0cb25764c3bb8ec54a263f2eadcb98e8857113d27a0730",
+      "filePath": "src/models/timeLogModel.ts",
+      "startLine": 202
+    },
+    "src/models/userModel.ts#getUserStatuses": {
+      "symbolHash": "14ff8d5b7de1ad97817ea403ba229968f15c16ae57eea6459895be6001ddceb2",
+      "docHash": "6069f80cd2c2342b33cc927c0c60cc02ff3e31ca8ab37cb2083c794b37a1a8ef",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 17
+    },
+    "src/models/userModel.ts#getUsers": {
+      "symbolHash": "a7c61d99a73d1cc2110cd730f85bee735098180cfa5d9829b594fa30dfc8bb94",
+      "docHash": "75291ff0b5a7b3d639d5fc55c4d6b11a5d3dc2e9b7af9e84bb6a8fa8a54f76c6",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 33
+    },
+    "src/models/userModel.ts#createUser": {
+      "symbolHash": "6b96e2229bbe2403d9444fb58711ae18f0909fd9fd9b2c20f1c3b2f2f04471dc",
+      "docHash": "241006dc0167eaf25b78f46532917580b9a8a5b239e4d9e8b79b2d10ec01b626",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 82
+    },
+    "src/models/userModel.ts#updateUser": {
+      "symbolHash": "63d22fc126a893fa4cb357c85ee153cee03e73c89a2576f3381d2e2dad56b884",
+      "docHash": "75f5e529543a3bc0d1cf252d28640f12d01d37fa398df0c2190bfbebf353f1c3",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 109
+    },
+    "src/models/userModel.ts#changeUserStatus": {
+      "symbolHash": "ff6c643296bfcf1e927dae87c06e95d1c07461a7dfd33bb140b1d684552c8c18",
+      "docHash": "6196b901898c5ad823c1287ada133ea94553a652bbfe57f777d1dd4dc08a95b3",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 162
+    },
+    "src/models/userModel.ts#deleteUser": {
+      "symbolHash": "fb56c8975514fb2193dc7d51bdddfec00b1e58301c730826d7e4f27b33f2c914",
+      "docHash": "8af46bb892ba3e1bd95562a26814a963b966d787ed4f98bc29ed1156bf820e4d",
+      "filePath": "src/models/userModel.ts",
+      "startLine": 185
+    },
+    "src/models/watcherModel.ts#addTaskWatcher": {
+      "symbolHash": "a77f56912338034e9a47219a5308c5f4e153726827e3b9467a85514b68b90389",
+      "docHash": "d6ff35a8de5ffcf7a1954790d46ca7719798bed50d4b8f9b220f3f69eaa7417e",
+      "filePath": "src/models/watcherModel.ts",
+      "startLine": 25
+    },
+    "src/models/watcherModel.ts#removeTaskWatcher": {
+      "symbolHash": "9e069337c9a255d7f5af2c9f2c56c01fbe382c28597c21e0638f914eaf568e79",
+      "docHash": "dbc31b14703b1bcff4603f0c712150ca34ad74ffcb94a46577fb16f91e28bacc",
+      "filePath": "src/models/watcherModel.ts",
+      "startLine": 48
+    },
+    "src/types/admin.ts#Admin": {
+      "symbolHash": "c616feb03029030c3bab7633c78d74390dedba861ec981707854432d6d8e32b6",
+      "docHash": "736cfbef3aca4b29a1aa7d723fd739147ba80b87576bc5e3fa6f5054ea977adb",
+      "filePath": "src/types/admin.ts",
+      "startLine": 4
+    },
+    "src/types/admin.ts#SystemLogQuery": {
+      "symbolHash": "52265596afe38d767013e16d8f422ac663c3a43bea75a6b3d8d46f4b8cf15336",
+      "docHash": "53997f9dbdc2353e5ddd37fb9d7f9abbb50668710185884e91757e804028af6e",
+      "filePath": "src/types/admin.ts",
+      "startLine": 52
+    },
+    "src/types/comment.ts#Comment": {
+      "symbolHash": "3a3d599ca91dc092ed28063382f7bffa2008fa65429a422f20619f6a499c99e0",
+      "docHash": "0f64e10be01f810193cf501ba6bdfcacc0c49beb2081d4bb1d1c91e5096faf8c",
+      "filePath": "src/types/comment.ts",
+      "startLine": 6
+    },
+    "src/types/express.ts#ProjectRequest": {
+      "symbolHash": "85e115d193b60770fea1fc534517432c6125e6a0c7cfad8588bd82ec69e0795e",
+      "docHash": "f10de330a94b7aad246dd24e18f9e0a335eec9402788c46baa2cc05cfc80a289",
+      "filePath": "src/types/express.ts",
+      "startLine": 21
+    },
+    "src/types/notification.ts#NotificationWithDetails": {
+      "symbolHash": "2ebc1cd261913718eecf6cba2f4dc01d6c43a1163f554ff943842439964a5ebd",
+      "docHash": "3c69d0772789664316ef2a2746bbefdb6828694f74dada38555581bf3bea6f77",
+      "filePath": "src/types/notification.ts",
+      "startLine": 19
+    },
+    "src/types/notification.ts#NotificationType": {
+      "symbolHash": "bcbc91eeb5c1dcf7299474647b9d28efafd93674ca2f1a03ff51f1290d08834a",
+      "docHash": "9123f16e04e92be8c81293228e932eb7c0c72d164c782eed5503b67468f8689e",
+      "filePath": "src/types/notification.ts",
+      "startLine": 30
+    },
+    "src/types/profile.ts#ProfileUpdateInput": {
+      "symbolHash": "a10e482b52417679a5c762dd4c07ed0e377f404fe1157e3b7065f3a2367db321",
+      "docHash": "3f10096a46333826aabd1ed161df80d33961eb24cd975c21a412e932d77b2d00",
+      "filePath": "src/types/profile.ts",
+      "startLine": 21
+    },
+    "src/types/profile.ts#ProfileStats": {
+      "symbolHash": "cccac34e7e1771959dd06b77bef75390f7d2b3c872860d869842fa9a7d1ac979",
+      "docHash": "587f081c2a62385abdd9acf1e146163b458e9acf88003a5302b21e8f7582b4c3",
+      "filePath": "src/types/profile.ts",
+      "startLine": 39
+    },
+    "src/types/project.ts#ProjectMember": {
+      "symbolHash": "3d5b85769e07efb8c5b0d8ad285fa75ac400b7a737ac96352e9f5160a8495fd7",
+      "docHash": "d458ab5d94a5c99a496d6035a531af68b234f43a9c87b3a894f76739232b4a56",
+      "filePath": "src/types/project.ts",
+      "startLine": 27
+    },
+    "src/types/project.ts#ProjectDetails": {
+      "symbolHash": "96f332a32b0be8c4d24f851ae63ecbdf1d2d090af4de27ca716c2300672bbebe",
+      "docHash": "1793ea4d6a55900632410b0564ec626412952cce549bf24500b96e0bbb12bceb",
+      "filePath": "src/types/project.ts",
+      "startLine": 40
+    },
+    "src/types/project.ts#ProjectFilters": {
+      "symbolHash": "034621e00768fd37e4ebc2f9e7939e5fdec681de2f579a168ce6a67360218f3d",
+      "docHash": "2b109c0cb7806344314ed04170768872c2cd758b2d6553fe1badf09f40b112e6",
+      "filePath": "src/types/project.ts",
+      "startLine": 80
+    },
+    "src/types/settings.ts#Settings": {
+      "symbolHash": "a301b226436a4ffc6f9e98a1f782313f25f997b2ce504b4f507b6391749c3047",
+      "docHash": "23b468a5553e4412cf7baee4ad7c1b203d67872a87b8cc2bb9bc855b0bcd7b78",
+      "filePath": "src/types/settings.ts",
+      "startLine": 6
+    },
+    "src/types/settings.ts#UserSettingsUpdateInput": {
+      "symbolHash": "5a53b79c34db385fc9601951602986ee3875a4e8dd04ed00a1ad0fc6c0a8f763",
+      "docHash": "81298f44481e4de92efbde563bed77af4f3c3b52368ed7867950c23d92e60814",
+      "filePath": "src/types/settings.ts",
+      "startLine": 43
+    },
+    "src/types/settings.ts#UserSettings": {
+      "symbolHash": "67d69cb64b5d47144453e22a71afc629d5ef82ff3c33848def2c2cf7d6ea0550",
+      "docHash": "654466e8fe49cbf6e68ef956cf27cc76739bdbd75ba1c2534d72c472db9f44f0",
+      "filePath": "src/types/settings.ts",
+      "startLine": 55
+    },
+    "src/types/tag.ts#TagWithTasks": {
+      "symbolHash": "bf9d8ca6a9a93eb57dca249a869d2b06ccc1ac3a69bb68ec666c7521e6b58dd3",
+      "docHash": "2fcc106a1222448e7adf4b49e0787abfa3174eb7cbce96a509d89da2bc9a95b7",
+      "filePath": "src/types/tag.ts",
+      "startLine": 27
+    },
+    "src/types/tag.ts#TaskTag": {
+      "symbolHash": "a453e0440971bd38de1be147e0f9a940276e4192fbd30a2b7d911f922ebd2e5e",
+      "docHash": "d8549a91350348dca8bb90390acae1d42f0fdc6dfeb0c5be78480fb4db6b29eb",
+      "filePath": "src/types/tag.ts",
+      "startLine": 39
+    },
+    "src/types/task.ts#TaskDetails": {
+      "symbolHash": "80660bd65f2c4fa210d1fc51527247ee02e9269bc4d7a4a31c62162f8c1be28b",
+      "docHash": "bb97291e9867c8fd4a499070621dda30cd943bb9250778d2bdabc0aaf6dcb7bf",
+      "filePath": "src/types/task.ts",
+      "startLine": 38
+    },
+    "src/types/taskType.ts#TaskTypeWithStats": {
+      "symbolHash": "920a4b9b3b3c51131b01fff5e1760fcbb9f57589705665dd1ae4eeb66d978169",
+      "docHash": "81216a3e7888b0479ac1544c93e682adf57bf6c8228192b32e548a3ef840cafc",
+      "filePath": "src/types/taskType.ts",
+      "startLine": 31
+    },
+    "src/types/user.ts#UserDetails": {
+      "symbolHash": "4c5d1f655872ee4a59fc010b74a91d6965e040dd7e95aa9f0b65532a613ca84c",
+      "docHash": "62c7eee6525b960888ff54b70c1ba70152adbc03b4f79e3269b6c23447bd5e53",
+      "filePath": "src/types/user.ts",
+      "startLine": 16
+    },
+    "src/types/user.ts#UserQueryFilters": {
+      "symbolHash": "706ee30cdce03b578449fffcc90642fe5db9289daefb2044eb39b996e7420338",
+      "docHash": "a6de777cad830fa71a59bbd114e3e171502ab358f2129dc1ab5eb00390d0ec1a",
+      "filePath": "src/types/user.ts",
+      "startLine": 45
+    },
+    "src/types/user.ts#UserStatus": {
+      "symbolHash": "8736a5763df414a887829f3abd88444067310fb1e0fb2cdc25b00c766d52f014",
+      "docHash": "bff043a5848efe7e59177bff2d1d397eb6725c8eaafadf560e5676be2e4ea1e4",
+      "filePath": "src/types/user.ts",
+      "startLine": 55
+    },
+    "src/types/user.ts#UserPermission": {
+      "symbolHash": "7682fc73bfd4953df42a6c7f8057b4ca4a30260fb16ff73dfe45b0c1d1e1138b",
+      "docHash": "8cd9ef50e8afacde1df9cf27e1e6828221ad356b2574d863ffa6791b3bcc7a26",
+      "filePath": "src/types/user.ts",
+      "startLine": 69
+    },
+    "src/types/user.ts#UserSession": {
+      "symbolHash": "64e60ba8e9ec580ae51663f8cf91b8a9abe9c28ae1dcc95ce10096e02128facb",
+      "docHash": "b5cdfb512ccc009110e13d016deb241714816f278b9deba78f7b72c8727d96c8",
+      "filePath": "src/types/user.ts",
+      "startLine": 78
+    },
+    "src/utils/pagination.ts#parsePagination": {
+      "symbolHash": "a9379863b71a3861b1edb9d79d36208d67a8aef4c0bdb54abf619a9efd651b86",
+      "docHash": "c9d08f6087bc4a7794ad2970185a837e6a9ccb2e6885f6a20fab9ab0ea7bdbf0",
+      "filePath": "src/utils/pagination.ts",
+      "startLine": 25
+    },
+    "src/utils/pagination.ts#defaultPagination": {
+      "symbolHash": "3d7bccd69c1e77f9ad7c4d8895b8a38912a69854b94f5d84a50cfab9ff3d1d63",
+      "docHash": "235715adacacd11071a8dd8c6037334d3d2b8c3a7696bc9276b7d2e91994c1e6",
+      "filePath": "src/utils/pagination.ts",
+      "startLine": 49
+    },
+    "src/utils/passwordPolicy.ts#validatePassword": {
+      "symbolHash": "4e6cb0c087f410c83190cf23a586f36f2b4f4ffe69cb613af0f3943ba80d84fd",
+      "docHash": "729465fef8afa25329cbd72332e5523a7c04702fd1332f75ae68fa5ebbd316ee",
+      "filePath": "src/utils/passwordPolicy.ts",
+      "startLine": 10
+    },
+    "src/utils/sqlUpdate.ts#buildUpdateAssignments": {
+      "symbolHash": "23d14f9b626d6f6f9d2b1cd6c6bb988e663ecf2d3b7caec9fb7c2e36547d75f6",
+      "docHash": "61b263ea7f7d560e224d32fa2001f2fbb85865dcf5525d2d37f25c5dd3a4a0fe",
+      "filePath": "src/utils/sqlUpdate.ts",
+      "startLine": 17
+    },
+    "src/utils/transaction.ts#withTransaction": {
+      "symbolHash": "0c6d2488b9396960cde04baaf7a4b2eb2340db0ad5928a11aee9cadb3292cece",
+      "docHash": "ec6d03c80261eb9b55ae1e7b754ad21759f8aef728d80dc63252b564cd61f4b1",
+      "filePath": "src/utils/transaction.ts",
+      "startLine": 15
+    },
+    "src/utils/uploadFilter.ts#uploadFileFilter": {
+      "symbolHash": "2cf1fd143e16b771dd5c292e04cac8922c6fed7c62f611b878e0218a7825f404",
+      "docHash": "c8e932d7bbd250b8488ff1c75d0d1f7d22511184672b96730e85fb4af6fb0962",
+      "filePath": "src/utils/uploadFilter.ts",
+      "startLine": 42
+    },
+    "src/utils/withPool.ts#withPool": {
+      "symbolHash": "f346a4714372244061f4c2c919c409d594a345db6bf96acef4b9bbf0db38e8a3",
+      "docHash": "8307a140751f470330abd0966698eb51f047d4edf9c2af150e9cc51149697b53",
+      "filePath": "src/utils/withPool.ts",
+      "startLine": 15
+    }
+  }
+}

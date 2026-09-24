@@ -32,6 +32,9 @@ export interface Task {
   estimated_time?: number | null;
 }
 
+/**
+ * Represent a task with all associated entity names fully populated.
+ */
 export interface TaskDetails extends Task {
   project_name: string;
   holder_name: string;
