@@ -41,6 +41,7 @@ const renderFileList = (props = {}) => {
 describe('FileList', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (downloadFile as jest.Mock).mockResolvedValue(undefined);
   });
 
   it('displays "No files uploaded yet" when files array is empty', () => {
@@ -100,5 +101,12 @@ describe('FileList', () => {
     ];
     renderFileList({ files: filesWithSpecialChars });
     expect(screen.getByText('test file with spaces.pdf')).toBeInTheDocument();
+  });
+
+  it('renders names that fail to decode instead of crashing', () => {
+    renderFileList({
+      files: [{ ...mockFiles[0], original_name: '100%.txt' }],
+    });
+    expect(screen.getByText('100%.txt')).toBeInTheDocument();
   });
 });
