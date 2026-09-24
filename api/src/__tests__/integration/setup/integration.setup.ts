@@ -40,6 +40,8 @@ beforeAll(async () => {
   // Test connection
   try {
     await testPool.query('SELECT 1');
+    // Login rate limits live in the database, so reset them per test file.
+    await testPool.query('TRUNCATE login_attempts');
     logger.info('Integration test database connected');
   } catch (error) {
     logger.error({ err: error }, 'Failed to connect to test database');

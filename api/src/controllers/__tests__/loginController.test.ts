@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as loginController from '../loginController';
+import * as loginAttemptModel from '../../models/loginAttemptModel';
 import * as loginModel from '../../models/loginModel';
 import * as permissionModel from '../../models/permissionModel';
 import { Session } from 'express-session';
 
 // Mock the models
 jest.mock('../../models/loginModel');
+jest.mock('../../models/loginAttemptModel');
 jest.mock('../../models/permissionModel');
 
 describe('LoginController', () => {
@@ -61,9 +63,11 @@ describe('LoginController', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       clearCookie: jest.fn(),
+      set: jest.fn().mockReturnThis(),
     };
     mockPool = {};
     jest.clearAllMocks();
+    (loginAttemptModel.getAccountLock as jest.Mock).mockResolvedValue(null);
   });
 
   describe('login', () => {
@@ -98,6 +102,10 @@ describe('LoginController', () => {
         'password123',
       );
       expect(loginModel.app_logins).toHaveBeenCalledWith(mockPool, '1');
+      expect(loginAttemptModel.clearFailedLogins).toHaveBeenCalledWith(
+        mockPool,
+        'testuser',
+      );
       expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(
         mockPool,
         '1',
@@ -164,6 +172,25 @@ describe('LoginController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         error: 'Invalid username or password',
       });
+      expect(loginAttemptModel.recordFailedLogin).toHaveBeenCalledWith(
+        mockPool,
+        'testuser',
+      );
+    });
+
+    it('should return 429 while the account is locked', async () => {
+      mockReq.body = { login: 'testuser', password: 'password123' };
+      (loginAttemptModel.getAccountLock as jest.Mock).mockResolvedValue(30);
+
+      await loginController.login(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.set).toHaveBeenCalledWith('Retry-After', '30');
+      expect(mockRes.status).toHaveBeenCalledWith(429);
+      expect(loginModel.login).not.toHaveBeenCalled();
     });
 
     it('should pass error to next on internal server error', async () => {
