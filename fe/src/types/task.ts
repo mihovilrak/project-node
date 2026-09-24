@@ -2,7 +2,7 @@ import { SelectChangeEvent } from '@mui/material';
 import { Tag } from './tag';
 import { TimeLog, TimeLogCreate } from './timeLog';
 import { Comment } from './comment';
-import { TaskFile } from './file';
+import { TaskWatcher } from './watcher';
 import { ProjectMember } from './project';
 
 /**
@@ -247,11 +247,8 @@ export interface TaskDetailsContentProps {
 export interface TaskDetailsSidebarProps {
   id: string;
   projectId: number;
-  files: TaskFile[];
-  watchers: any[];
+  watchers: TaskWatcher[];
   watcherDialogOpen: boolean;
-  onFileUploaded: (file: TaskFile) => void;
-  onFileDeleted: (fileId: number) => Promise<void>;
   onAddWatcher: (userId: number) => void;
   onRemoveWatcher: (userId: number) => void;
   onWatcherDialogClose: () => void;

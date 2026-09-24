@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Grid, Typography, Alert } from '@mui/material';
 import TaskDetailsHeader from './TaskDetailsHeader';
 import TaskDetailsContent from './TaskDetailsContent';
 import TaskDetailsSidebar from './TaskDetailsSidebar';
-import { TaskFile } from '../../types/file';
 import { useTaskCore } from '../../hooks/task/useTaskCore';
 import { useTaskTimeLogs } from '../../hooks/task/useTaskTimeLogs';
 import { useTaskWatchers } from '../../hooks/task/useTaskWatchers';
 import { useTaskComments } from '../../hooks/task/useTaskComments';
-import { useTaskFiles } from '../../hooks/task/useTaskFiles';
 import { useTaskDetailsHandlers } from '../../hooks/task/useTaskDetailsHandlers';
-import { TimeLog } from '../../types/timeLog';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { useAuth } from '../../context/AuthContext';
@@ -20,7 +17,6 @@ const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
-  const [actionError, setActionError] = useState<string | null>(null);
 
   const {
     task,
@@ -28,26 +24,18 @@ const TaskDetails: React.FC = () => {
     statuses,
     loading,
     error,
+    actionError,
+    setActionError,
     handleStatusChange: handleStatusChangeCore,
     handleDelete,
     setSubtasks,
   } = useTaskCore(id!);
 
-  const { timeLogs, handleTimeLogSubmit, deleteTimeLog, fetchTimeLogs } =
-    useTaskTimeLogs(id!);
-
-  useEffect(() => {
-    if (id) {
-      fetchTimeLogs();
-    }
-  }, [id, fetchTimeLogs]);
+  const { timeLogs, handleTimeLogSubmit, deleteTimeLog } = useTaskTimeLogs(id!);
 
   const { watchers, handleAddWatcher, handleRemoveWatcher } = useTaskWatchers(
     id!,
   );
-
-  const { files, handleFileUpload, handleFileDelete, refreshFiles } =
-    useTaskFiles(id!);
 
   const {
     comments,
@@ -67,10 +55,8 @@ const TaskDetails: React.FC = () => {
     },
     handleStatusMenuClick,
     handleStatusMenuClose,
-    handleStatusChange: handleStatusChangeWrapper,
-    handleSaveComment,
     handleEditStart,
-    handleTimeLogSubmit: handleTimeLogSubmitWrapper,
+    handleTimeLogCreate,
     handleTimeLogEdit,
     handleTimeLogDialogClose,
     handleAddSubtaskClick,
@@ -79,20 +65,6 @@ const TaskDetails: React.FC = () => {
     handleWatcherDialogOpen,
     handleWatcherDialogClose,
   } = useTaskDetailsHandlers();
-
-  const [state, setState] = useState<{
-    statusMenuAnchor: null;
-    editingComment: null;
-    timeLogDialogOpen: boolean;
-    selectedTimeLog: TimeLog | null;
-    watcherDialogOpen: boolean;
-  }>({
-    statusMenuAnchor: null,
-    editingComment: null,
-    timeLogDialogOpen: false,
-    selectedTimeLog: null,
-    watcherDialogOpen: false,
-  });
 
   const handleStatusChange = async (statusId: number) => {
     await handleStatusChangeCore(statusId);
@@ -140,7 +112,7 @@ const TaskDetails: React.FC = () => {
 
       <TaskDetailsHeader
         task={task}
-        statuses={statuses || []}
+        statuses={statuses}
         statusMenuAnchor={statusMenuAnchor}
         onStatusMenuClick={handleStatusMenuClick}
         onStatusMenuClose={handleStatusMenuClose}
@@ -154,14 +126,8 @@ const TaskDetails: React.FC = () => {
             setActionError(getApiErrorMessage(error, 'Failed to delete task'));
           }
         }}
-        onTimeLogClick={() =>
-          setState((prev) => ({
-            ...prev,
-            timeLogDialogOpen: true,
-            selectedTimeLog: null,
-          }))
-        }
-        onAddSubtaskClick={() => task && handleAddSubtaskClick(task, navigate)}
+        onTimeLogClick={handleTimeLogCreate}
+        onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
         canEdit={hasPermission('Edit tasks')}
         canDelete={hasPermission('Delete tasks')}
       />
@@ -172,8 +138,8 @@ const TaskDetails: React.FC = () => {
         subtasks={subtasks}
         timeLogs={timeLogs}
         comments={comments}
-        timeLogDialogOpen={state.timeLogDialogOpen}
-        selectedTimeLog={state.selectedTimeLog}
+        timeLogDialogOpen={timeLogDialogOpen}
+        selectedTimeLog={selectedTimeLog}
         editingComment={editingComment}
         onSubtaskDeleted={(subtaskId) =>
           subtaskId && handleSubtaskDelete(subtasks, subtaskId, setSubtasks)
@@ -187,17 +153,10 @@ const TaskDetails: React.FC = () => {
           if (!data) return;
           try {
             setActionError(null);
-            // Pass the timeLogId if we're editing
-            const timeLogId = state.selectedTimeLog?.id;
-            await handleTimeLogSubmit(data, timeLogId);
-            setState({
-              ...state,
-              timeLogDialogOpen: false,
-              selectedTimeLog: null,
-            });
+            await handleTimeLogSubmit(data, selectedTimeLog?.id);
+            handleTimeLogDialogClose();
           } catch (error: unknown) {
             logger.error('Failed to submit time log:', error);
-            // Keep dialog open on error
             setActionError(
               getApiErrorMessage(error, 'Failed to save the time log'),
             );
@@ -215,58 +174,27 @@ const TaskDetails: React.FC = () => {
             );
           }
         }}
-        onTimeLogEdit={(timeLog) => {
-          if (timeLog) {
-            setState({
-              ...state,
-              timeLogDialogOpen: true,
-              selectedTimeLog: timeLog,
-            });
-          }
-        }}
-        onTimeLogDialogClose={() =>
-          setState({
-            ...state,
-            timeLogDialogOpen: false,
-            selectedTimeLog: null,
-          })
-        }
+        onTimeLogEdit={(timeLog) => timeLog && handleTimeLogEdit(timeLog)}
+        onTimeLogDialogClose={handleTimeLogDialogClose}
         onCommentSubmit={async (content) => {
-          // This should not be called anymore since useCommentForm handles creation
-          // But keeping it for backward compatibility
-          if (content) {
-            const comment = await handleCommentSubmit(content);
-            return;
-          }
+          if (content) await handleCommentSubmit(content);
         }}
         onCommentRefresh={fetchComments}
         onCommentUpdate={async (commentId, text) => {
-          const comment = await handleCommentUpdate(commentId, text);
-          return;
+          await handleCommentUpdate(commentId, text);
         }}
         onCommentDelete={handleCommentDelete}
-        onEditStart={(commentId) => handleEditStart(commentId)}
+        onEditStart={handleEditStart}
         onEditEnd={() => handleEditStart(null)}
         onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
-        onTimeLogClick={() =>
-          setState((prev) => ({
-            ...prev,
-            timeLogDialogOpen: true,
-            selectedTimeLog: null,
-          }))
-        }
+        onTimeLogClick={handleTimeLogCreate}
       />
 
       <TaskDetailsSidebar
         id={id!}
-        projectId={task?.project_id ?? null}
-        files={files || []}
+        projectId={task.project_id}
         watchers={watchers || []}
         watcherDialogOpen={watcherDialogOpen}
-        onFileUploaded={async () => {
-          await refreshFiles();
-        }}
-        onFileDeleted={handleFileDelete}
         onAddWatcher={handleAddWatcher}
         onRemoveWatcher={handleRemoveWatcher}
         onWatcherDialogClose={handleWatcherDialogClose}

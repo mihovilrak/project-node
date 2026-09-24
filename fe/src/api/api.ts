@@ -35,7 +35,9 @@ export const handleApiError = (error: AxiosError): Promise<never> => {
     window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
     const next = `${window.location.pathname}${window.location.search}`;
     const target =
-      next && next !== '/' ? `/login?next=${encodeURIComponent(next)}` : '/login';
+      next && next !== '/'
+        ? `/login?next=${encodeURIComponent(next)}`
+        : '/login';
     window.history.replaceState(null, '', target);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }

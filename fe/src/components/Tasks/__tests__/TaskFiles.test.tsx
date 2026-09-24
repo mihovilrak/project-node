@@ -77,12 +77,14 @@ const mockFiles: TaskFile[] = [
 ];
 
 const mockRefreshFiles = jest.fn();
+const mockHandleFileDelete = jest.fn().mockResolvedValue(undefined);
 
 describe('TaskFiles', () => {
   beforeEach(() => {
     (useTaskFiles as jest.Mock).mockReturnValue({
       files: mockFiles,
       refreshFiles: mockRefreshFiles,
+      handleFileDelete: mockHandleFileDelete,
     });
   });
 
@@ -142,7 +144,8 @@ describe('TaskFiles', () => {
     fireEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(mockRefreshFiles).toHaveBeenCalled();
+      expect(mockHandleFileDelete).toHaveBeenCalledTimes(1);
+      expect(mockHandleFileDelete).toHaveBeenCalledWith(mockFiles[0].id);
       expect(onFileDeleted).toHaveBeenCalledWith(mockFiles[0].id);
     });
   });
@@ -151,6 +154,7 @@ describe('TaskFiles', () => {
     (useTaskFiles as jest.Mock).mockReturnValue({
       files: [],
       refreshFiles: mockRefreshFiles,
+      handleFileDelete: mockHandleFileDelete,
     });
 
     render(

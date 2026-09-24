@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Task, TaskStatus, TaskDetailsState } from '../../types/task';
+import { Task, TaskDetailsState } from '../../types/task';
 import { Comment } from '../../types/comment';
-import { TimeLog, TimeLogCreate } from '../../types/timeLog';
-import logger from '../../utils/logger';
+import { TimeLog } from '../../types/timeLog';
 
 /**
  * Provide handlers and state management for task details UI interactions
@@ -26,45 +25,16 @@ export const useTaskDetailsHandlers = () => {
     setState((prev) => ({ ...prev, statusMenuAnchor: null }));
   };
 
-  const handleStatusChange = (
-    statusId: number,
-    statuses: TaskStatus[],
-    onStatusChange: (statusId: number) => Promise<void>,
-  ) => {
-    onStatusChange(statusId);
-    handleStatusMenuClose();
-  };
-
-  // Comment Handlers
-  const handleSaveComment = async (
-    commentId: number,
-    newText: string,
-    onCommentUpdate: (commentId: number, text: string) => Promise<void>,
-  ) => {
-    await onCommentUpdate(commentId, newText);
-    setState((prev) => ({ ...prev, editingComment: null }));
-  };
-
   const handleEditStart = (comment: Comment | null) => {
     setState((prev) => ({ ...prev, editingComment: comment }));
   };
 
-  // Time Log Handlers
-  const handleTimeLogSubmit = async (
-    timeLogData: TimeLogCreate,
-    onSubmit: (data: TimeLogCreate) => Promise<void>,
-  ) => {
-    try {
-      await onSubmit(timeLogData);
-      setState((prev) => ({
-        ...prev,
-        timeLogDialogOpen: false,
-        selectedTimeLog: null,
-      }));
-    } catch (error) {
-      logger.error('Error handling time log:', error);
-      setState((prev) => ({ ...prev, timeLogDialogOpen: true }));
-    }
+  const handleTimeLogCreate = () => {
+    setState((prev) => ({
+      ...prev,
+      selectedTimeLog: null,
+      timeLogDialogOpen: true,
+    }));
   };
 
   const handleTimeLogEdit = (timeLog: TimeLog) => {
@@ -127,10 +97,8 @@ export const useTaskDetailsHandlers = () => {
     state,
     handleStatusMenuClick,
     handleStatusMenuClose,
-    handleStatusChange,
-    handleSaveComment,
     handleEditStart,
-    handleTimeLogSubmit,
+    handleTimeLogCreate,
     handleTimeLogEdit,
     handleTimeLogDialogClose,
     handleAddSubtaskClick,

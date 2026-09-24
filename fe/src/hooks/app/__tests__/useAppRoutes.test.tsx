@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import {
   useTaskFileWrapper,
   useTimeLogCalendarWrapper,
@@ -7,7 +7,6 @@ import {
 import { getTaskById } from '../../../api/tasks';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Task } from '../../../types/task';
-import { TaskFile } from '../../../types/file';
 import logger from '../../../utils/logger';
 
 // Mock the tasks API
@@ -27,48 +26,10 @@ describe('useTaskFileWrapper', () => {
     </MemoryRouter>
   );
 
-  it('should return correct taskId and handlers', () => {
+  it('should return the taskId from the route', () => {
     const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
 
     expect(result.current.taskId).toBe(1);
-    expect(typeof result.current.handleFileUploaded).toBe('function');
-    expect(typeof result.current.handleFileDeleted).toBe('function');
-  });
-
-  it('should handle file upload correctly', () => {
-    const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
-
-    act(() => {
-      result.current.handleFileUploaded({
-        id: 1,
-        task_id: 1,
-        user_id: 1,
-        name: 'test.txt',
-        original_name: 'test.txt',
-        mime_type: 'text/plain',
-        size: 1000,
-      } as TaskFile);
-    });
-
-    expect(logger.info).toHaveBeenCalledWith('File uploaded:', {
-      id: 1,
-      task_id: 1,
-      user_id: 1,
-      name: 'test.txt',
-      original_name: 'test.txt',
-      mime_type: 'text/plain',
-      size: 1000,
-    });
-  });
-
-  it('should handle file deletion correctly', () => {
-    const { result } = renderHook(() => useTaskFileWrapper(), { wrapper });
-
-    act(() => {
-      result.current.handleFileDeleted(1);
-    });
-
-    expect(logger.info).toHaveBeenCalledWith('File deleted:', 1);
   });
 });
 

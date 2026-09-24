@@ -2,8 +2,8 @@ import { api } from './api';
 import { AppSettings, TimezoneOption } from '../types/setting';
 
 /**
- * Fetch the home page welcome message. Available to any authenticated user
- * (the full app settings are admin-only).
+ * Fetch the home page welcome message. Available to any authenticated user (the
+ * full app settings are admin-only).
  *
  * @param signal Optional AbortSignal to cancel the HTTP request.
  */

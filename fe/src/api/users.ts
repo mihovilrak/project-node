@@ -35,8 +35,8 @@ export const getUserStatuses = async (
  * is included. The optional AbortSignal is forwarded to the underlying request.
  * Empty or undefined whereParams are omitted from the request.
  *
- * @param whereParams Optional filter object (Record<string, unknown>) that will be
- *   JSON-stringified and sent as the query parameter 'whereParams' when
+ * @param whereParams Optional filter object (Record<string, unknown>) that will
+ *   be JSON-stringified and sent as the query parameter 'whereParams' when
  *   non-empty.
  * @param options Optional options object; set { all: true } to include inactive
  *   and deleted users (sends query param 'all=1').
