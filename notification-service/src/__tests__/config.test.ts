@@ -71,8 +71,9 @@ describe('config', () => {
       const { applySettings } = await loadConfig();
       applySettings(row());
 
-      expect(applySettings(row({ app_base_url: 'https://other.example.com' })))
-        .toBe(false);
+      expect(
+        applySettings(row({ app_base_url: 'https://other.example.com' })),
+      ).toBe(false);
     });
 
     it('should fall back to defaults when there is no row', async () => {

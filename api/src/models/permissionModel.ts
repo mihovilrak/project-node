@@ -20,9 +20,12 @@ const getPermissionCache = (pool: Pool): Map<string, PermissionCacheEntry> => {
 };
 
 /**
- * Clear cached permissions for a specific user or all users in a connection pool.
+ * Clear cached permissions for a specific user or all users in a connection
+ * pool.
+ *
  * @param pool Database connection pool managing the cache.
- * @param userId User identifier to invalidate; if omitted, clears all cached permissions for the pool.
+ * @param userId User identifier to invalidate; if omitted, clears all cached
+ *   permissions for the pool.
  */
 export const invalidatePermissionCache = (
   pool: Pool,
@@ -54,9 +57,13 @@ export const getUserPermissions = async (
 };
 
 /**
- * Determine whether a user holds a specific permission, using cached results when available.
+ * Determine whether a user holds a specific permission, using cached results
+ * when available.
  *
- * Results are cached with a configurable TTL to reduce database queries. The cache is automatically pruned when it reaches capacity by removing the oldest entry. Expired cache entries are deleted on access.
+ * Results are cached with a configurable TTL to reduce database queries. The
+ * cache is automatically pruned when it reaches capacity by removing the oldest
+ * entry. Expired cache entries are deleted on access.
+ *
  * @param pool Database connection pool
  * @param userId Identifier of the user to check
  * @param requiredPermission The permission to verify

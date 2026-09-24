@@ -1,4 +1,8 @@
-import { parsePositiveInteger, parseIdParam, toTimestamp } from '../requestParsing';
+import {
+  parsePositiveInteger,
+  parseIdParam,
+  toTimestamp,
+} from '../requestParsing';
 
 describe('parsePositiveInteger', () => {
   it('accepts positive integer strings and numbers', () => {

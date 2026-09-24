@@ -34,7 +34,8 @@ beforeAll(async () => {
     database: process.env.TEST_DB_NAME || 'pm_test',
     user:
       process.env.TEST_DB_ADMIN_USER || process.env.TEST_DB_USER || 'pm_user',
-    password: process.env.TEST_DB_ADMIN_PASSWORD || process.env.TEST_DB_PASSWORD,
+    password:
+      process.env.TEST_DB_ADMIN_PASSWORD || process.env.TEST_DB_PASSWORD,
   });
 
   // Test connection

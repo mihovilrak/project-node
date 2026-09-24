@@ -26,7 +26,8 @@ export interface TaskTypeUpdateInput {
 }
 
 /**
- * Extend task type with statistics about total, completed, and in-progress task counts.
+ * Extend task type with statistics about total, completed, and in-progress task
+ * counts.
  */
 export interface TaskTypeWithStats extends TaskType {
   task_count: number;

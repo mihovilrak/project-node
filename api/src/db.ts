@@ -13,7 +13,8 @@ export const pool: Pool = createPool(config.database, logger, {
 });
 
 /**
- * Verify database connectivity and terminate the process if the connection fails.
+ * Verify database connectivity and terminate the process if the connection
+ * fails.
  */
 export async function ensureConnection(): Promise<void> {
   try {

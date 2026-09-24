@@ -4,7 +4,9 @@ import { TaskType } from '../types/taskType';
 /**
  * Retrieve all active task types ordered by name.
  *
- * Only returns task types with active status true, sorted alphabetically by name.
+ * Only returns task types with active status true, sorted alphabetically by
+ * name.
+ *
  * @param pool Database connection pool for executing the query
  * @returns Promise resolving to an array of active TaskType objects
  */
@@ -33,7 +35,10 @@ export const getTaskTypeById = async (
 /**
  * Insert a new task type into the database.
  *
- * The function persists a task type record with the provided attributes and returns the complete created record including its assigned identifier and timestamps.
+ * The function persists a task type record with the provided attributes and
+ * returns the complete created record including its assigned identifier and
+ * timestamps.
+ *
  * @param pool Database connection pool.
  * @param name The task type name.
  * @param description Optional descriptive text for the task type.
@@ -63,7 +68,10 @@ export const createTaskType = async (
 /**
  * Modify a task type by ID with selectively updatable fields.
  *
- * Passes null for any field to leave it unchanged. Returns the updated task type or null if no matching task type exists. The updated_on timestamp is automatically set to the current time.
+ * Passes null for any field to leave it unchanged. Returns the updated task
+ * type or null if no matching task type exists. The updated_on timestamp is
+ * automatically set to the current time.
+ *
  * @param pool Database connection pool
  * @param id Task type identifier
  * @param name New task type name, or null to keep existing
@@ -93,9 +101,13 @@ export const updateTaskType = async (
 };
 
 /**
- * Deactivate a task type by marking it inactive instead of removing it from the database.
+ * Deactivate a task type by marking it inactive instead of removing it from the
+ * database.
  *
- * The function performs a soft delete by setting the active flag to false and updating the timestamp, then returns the modified task type record or null if not found.
+ * The function performs a soft delete by setting the active flag to false and
+ * updating the timestamp, then returns the modified task type record or null if
+ * not found.
+ *
  * @param pool Database connection pool
  * @param id Task type identifier
  */

@@ -14,7 +14,9 @@ import { UPLOADS_DIR } from '../utils/uploadsDir';
 /**
  * Retrieve all files associated with a task.
  *
- * Extracts the task ID from the request and queries the database for matching files, returning them as a JSON array with a 200 status code.
+ * Extracts the task ID from the request and queries the database for matching
+ * files, returning them as a JSON array with a 200 status code.
+ *
  * @param req Request object containing an optional taskId property
  * @param res Response object used to send the file list back to the client
  * @param pool Database connection pool for executing the file retrieval query
@@ -30,10 +32,16 @@ export const getTaskFiles = async (
 };
 
 /**
- * Handle file upload for a task, validating authentication and storing file metadata.
+ * Handle file upload for a task, validating authentication and storing file
+ * metadata.
  *
- * Requires an authenticated user session and valid task ID. Returns 401 if user is not authenticated, 400 if no file is provided or task ID is invalid. On success, creates a file record in the database and returns 201 with file metadata.
- * @param req FileUploadRequest containing the uploaded file, task ID, and user session
+ * Requires an authenticated user session and valid task ID. Returns 401 if user
+ * is not authenticated, 400 if no file is provided or task ID is invalid. On
+ * success, creates a file record in the database and returns 201 with file
+ * metadata.
+ *
+ * @param req FileUploadRequest containing the uploaded file, task ID, and user
+ *   session
  * @param res Response object for sending HTTP responses
  * @param pool Database connection pool for file metadata storage
  */
@@ -76,12 +84,18 @@ export const uploadFile = async (
 };
 
 /**
- * Retrieve and stream a file to the user after validating authentication and access permissions.
+ * Retrieve and stream a file to the user after validating authentication and
+ * access permissions.
  *
- * Verifies user authentication, file existence, user access rights, and path safety before downloading. Rejects unauthenticated requests (401), missing files (404), unauthorized access (403), and invalid file paths (403).
- * @param req Express request containing fileId in params and authenticated user session
+ * Verifies user authentication, file existence, user access rights, and path
+ * safety before downloading. Rejects unauthenticated requests (401), missing
+ * files (404), unauthorized access (403), and invalid file paths (403).
+ *
+ * @param req Express request containing fileId in params and authenticated user
+ *   session
  * @param res Express response object for streaming the file download
- * @param pool Database connection pool for querying file metadata and access permissions
+ * @param pool Database connection pool for querying file metadata and access
+ *   permissions
  */
 export const downloadFile = async (
   req: Request,
@@ -117,10 +131,17 @@ export const downloadFile = async (
 };
 
 /**
- * Remove a file from storage after verifying user authentication, access rights, and ownership or admin status.
+ * Remove a file from storage after verifying user authentication, access
+ * rights, and ownership or admin status.
  *
- * Only the file uploader may delete their own attachments unless the user holds Admin permission, in which case any file may be deleted. The file record is removed from the database, and the stored file is deleted from disk if the path is safe. Failures to delete the file from disk are logged but do not prevent the operation from completing.
- * @param req Express request with fileId parameter and authenticated user session
+ * Only the file uploader may delete their own attachments unless the user holds
+ * Admin permission, in which case any file may be deleted. The file record is
+ * removed from the database, and the stored file is deleted from disk if the
+ * path is safe. Failures to delete the file from disk are logged but do not
+ * prevent the operation from completing.
+ *
+ * @param req Express request with fileId parameter and authenticated user
+ *   session
  * @param res Express response object
  * @param pool Database connection pool
  */

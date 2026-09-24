@@ -5,9 +5,13 @@ import { AxiosProgressEvent } from 'axios';
 import { validateUploadFile } from '../../constants/uploads';
 
 /**
- * Manage file uploads with progress tracking and validation for a specific task.
- * @param taskId Numeric identifier of the task to associate with the uploaded file.
- * @param onFileUploaded Callback invoked with the uploaded TaskFile object upon successful completion.
+ * Manage file uploads with progress tracking and validation for a specific
+ * task.
+ *
+ * @param taskId Numeric identifier of the task to associate with the uploaded
+ *   file.
+ * @param onFileUploaded Callback invoked with the uploaded TaskFile object upon
+ *   successful completion.
  */
 export const useFileUpload = (
   taskId: number,

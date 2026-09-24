@@ -1,6 +1,7 @@
 /**
- * Comprehensive list of Material-UI icons available for task types and activity types.
- * These icon names correspond to Material-UI icon components from @mui/icons-material.
+ * Comprehensive list of Material-UI icons available for task types and activity
+ * types. These icon names correspond to Material-UI icon components from
+ * @mui/icons-material.
  */
 export const AVAILABLE_ICONS: string[] = [
   // Task and work related

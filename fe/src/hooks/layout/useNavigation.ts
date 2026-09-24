@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
- * Manage navigation state and synchronize the active tab with the current route.
+ * Manage navigation state and synchronize the active tab with the current
+ * route.
  */
 export const useNavigation = () => {
   const navigate = useNavigate();

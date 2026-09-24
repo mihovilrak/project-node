@@ -11,6 +11,7 @@ import logger from '../utils/logger';
 
 /**
  * Fetch all active activity types and return them in a 200 response.
+ *
  * @param req Express request object
  * @param res Express response object for sending the activity types or error
  * @param pool Database connection pool
@@ -30,11 +31,18 @@ export const getActivityTypes = async (
 };
 
 /**
- * Create a new activity type with a validated color and optional description and icon.
+ * Create a new activity type with a validated color and optional description
+ * and icon.
  *
- * Requires authenticated user session. Validates that the color matches hexadecimal format (#RRGGBB). Description and icon are optional. Returns the created activity type record with 201 status on success.
- * @param req Request object containing session user ID and ActivityTypeCreateInput body with name, description, color, and icon fields.
- * @param res Response object for sending the created activity type or error status.
+ * Requires authenticated user session. Validates that the color matches
+ * hexadecimal format (#RRGGBB). Description and icon are optional. Returns the
+ * created activity type record with 201 status on success.
+ *
+ * @param req Request object containing session user ID and
+ *   ActivityTypeCreateInput body with name, description, color, and icon
+ *   fields.
+ * @param res Response object for sending the created activity type or error
+ *   status.
  * @param pool Database connection pool for executing the create operation.
  */
 export const createActivityType = async (
@@ -70,10 +78,16 @@ export const createActivityType = async (
 };
 
 /**
- * Modify an activity type by applying partial field updates to an existing record.
+ * Modify an activity type by applying partial field updates to an existing
+ * record.
  *
- * Accepts optional name, description, color, and icon fields. Color must be a valid hex code in #RRGGBB format if provided. Only supplied fields are updated to prevent unintended clearing of omitted properties. Returns 404 if the activity type does not exist.
- * @param req Request with activity type id as route parameter and update fields in body
+ * Accepts optional name, description, color, and icon fields. Color must be a
+ * valid hex code in #RRGGBB format if provided. Only supplied fields are
+ * updated to prevent unintended clearing of omitted properties. Returns 404 if
+ * the activity type does not exist.
+ *
+ * @param req Request with activity type id as route parameter and update fields
+ *   in body
  * @param res Response to send the updated activity type or error status
  * @param pool Database connection pool
  */

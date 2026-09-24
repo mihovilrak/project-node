@@ -26,8 +26,8 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
 });
 
 /**
- * Sanitize HTML string for safe rendering (e.g. welcome_message).
- * Allows basic formatting tags; strips scripts and dangerous attributes.
+ * Sanitize HTML string for safe rendering (e.g. welcome_message). Allows basic
+ * formatting tags; strips scripts and dangerous attributes.
  */
 export function sanitizeHtml(html: string): string {
   if (typeof html !== 'string') return '';

@@ -1,7 +1,8 @@
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 /**
- * Configure application-wide settings including email, theming, and logging behavior.
+ * Configure application-wide settings including email, theming, and logging
+ * behavior.
  */
 export interface Settings {
   id: number;
@@ -38,7 +39,8 @@ export interface SettingsUpdateInput {
 }
 
 /**
- * Define user-specific settings that can be updated independently of system-wide configuration.
+ * Define user-specific settings that can be updated independently of
+ * system-wide configuration.
  */
 export interface UserSettingsUpdateInput {
   theme?: 'light' | 'dark' | 'system';
@@ -50,7 +52,8 @@ export interface UserSettingsUpdateInput {
 }
 
 /**
- * Extend application settings with user-specific identity and contact information.
+ * Extend application settings with user-specific identity and contact
+ * information.
  */
 export interface UserSettings extends Settings {
   user_name: string;

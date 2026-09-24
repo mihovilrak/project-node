@@ -47,9 +47,12 @@ const filterValues = (
 /**
  * Retrieve all time logs with optional pagination support.
  *
- * Returns time logs ordered by log date and id in descending order. Uses default pagination if not specified.
+ * Returns time logs ordered by log date and id in descending order. Uses
+ * default pagination if not specified.
+ *
  * @param pool Database connection pool
- * @param pagination Pagination object controlling limit and offset; defaults to defaultPagination() if omitted
+ * @param pagination Pagination object controlling limit and offset; defaults to
+ *   defaultPagination() if omitted
  */
 export const getAllTimeLogs = async (
   pool: Pool,
@@ -68,11 +71,15 @@ export const getAllTimeLogs = async (
 /**
  * Record time spent on a task by a user.
  *
- * Inserts a new time log entry into the database with the provided log date, spent time duration, description, and activity type. Returns the complete created time log record including its generated id and timestamps.
+ * Inserts a new time log entry into the database with the provided log date,
+ * spent time duration, description, and activity type. Returns the complete
+ * created time log record including its generated id and timestamps.
+ *
  * @param pool Database connection pool.
  * @param taskId Identifier of the task being logged.
  * @param userId Identifier of the user logging the time.
- * @param timeLogData Time log entry data including log date, spent time in hours or minutes, description, and activity type.
+ * @param timeLogData Time log entry data including log date, spent time in
+ *   hours or minutes, description, and activity type.
  * @returns The created time log record with all fields populated.
  */
 export const createTimeLog = async (
@@ -93,12 +100,17 @@ export const createTimeLog = async (
 };
 
 /**
- * Modify an existing time log entry with specified fields and return the updated record.
+ * Modify an existing time log entry with specified fields and return the
+ * updated record.
  *
- * Returns null if the time log is not found. Updates only allowed fields: log_date, spent_time, description, and activity_type_id. The updated_on timestamp is automatically set to the current time.
+ * Returns null if the time log is not found. Updates only allowed fields:
+ * log_date, spent_time, description, and activity_type_id. The updated_on
+ * timestamp is automatically set to the current time.
+ *
  * @param pool Database connection pool
  * @param timeLogId Unique identifier of the time log to update
- * @param timeLogData Object containing fields to update; only allowed fields are applied
+ * @param timeLogData Object containing fields to update; only allowed fields
+ *   are applied
  * @returns Updated TimeLog record or null if not found
  */
 export const updateTimeLog = async (
@@ -136,13 +148,20 @@ export const deleteTimeLog = async (
 };
 
 /**
- * Retrieve all time log entries for a specific user, optionally filtered by date range and activity type.
+ * Retrieve all time log entries for a specific user, optionally filtered by
+ * date range and activity type.
  *
- * Executes a database query to fetch time logs belonging to the specified user. Filter parameters allow narrowing results by start date, end date, and activity type ID. Returns all matching time log records in the order provided by the database.
+ * Executes a database query to fetch time logs belonging to the specified user.
+ * Filter parameters allow narrowing results by start date, end date, and
+ * activity type ID. Returns all matching time log records in the order provided
+ * by the database.
+ *
  * @param pool Database connection pool for executing queries
  * @param userId The ID of the user whose time logs should be retrieved
- * @param params Query filters including optional startDate, endDate, and activity_type_id to narrow results
- * @returns Promise resolving to an array of TimeLog objects matching the specified user and filter criteria
+ * @param params Query filters including optional startDate, endDate, and
+ *   activity_type_id to narrow results
+ * @returns Promise resolving to an array of TimeLog objects matching the
+ *   specified user and filter criteria
  */
 export const getUserTimeLogs = async (
   pool: Pool,
@@ -175,8 +194,9 @@ export const getProjectTimeLogs = async (
 
 /**
  * Retrieve the total time spent on all tasks within a project.
- * @param pool database connection pool
- * @param projectId identifier of the project
+ *
+ * @param pool Database connection pool
+ * @param projectId Identifier of the project
  * @returns SpentTime object containing the aggregated spent time in hours
  */
 export const getProjectSpentTime = async (
@@ -191,12 +211,17 @@ export const getProjectSpentTime = async (
 };
 
 /**
- * Retrieve all time logs recorded against a specific task, optionally filtered by date range or activity type.
+ * Retrieve all time logs recorded against a specific task, optionally filtered
+ * by date range or activity type.
  *
- * Queries the database for time log entries associated with the given task ID. Supports filtering by start date, end date, and activity type ID. Returns an empty array if no matching time logs exist.
+ * Queries the database for time log entries associated with the given task ID.
+ * Supports filtering by start date, end date, and activity type ID. Returns an
+ * empty array if no matching time logs exist.
+ *
  * @param pool Database connection pool
  * @param taskId Identifier of the task to retrieve time logs for
- * @param params Optional filters to narrow results by date range or activity type
+ * @param params Optional filters to narrow results by date range or activity
+ *   type
  * @returns Array of time log entries for the task
  */
 export const getTaskTimeLogs = async (

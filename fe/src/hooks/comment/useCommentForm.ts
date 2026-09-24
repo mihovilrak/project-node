@@ -5,8 +5,11 @@ import logger from '../../utils/logger';
 
 /**
  * Manage form state and submission logic for adding comments to a task.
- * @param taskId The numeric identifier of the task to which the comment will be added.
- * @param onCommentAdded Callback invoked with the new comment object after successful submission.
+ *
+ * @param taskId The numeric identifier of the task to which the comment will be
+ *   added.
+ * @param onCommentAdded Callback invoked with the new comment object after
+ *   successful submission.
  */
 export const useCommentForm = (
   taskId: number,

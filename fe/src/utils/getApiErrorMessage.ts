@@ -1,6 +1,6 @@
 /**
- * Extracts a user-facing error message from an unknown error (e.g. Axios error).
- * Uses type guards; does not use `any`.
+ * Extracts a user-facing error message from an unknown error (e.g. Axios
+ * error). Uses type guards; does not use `any`.
  */
 export function getApiErrorMessage(error: unknown, fallback?: string): string {
   const defaultFallback = 'An error occurred';

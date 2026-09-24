@@ -5,8 +5,11 @@ import { Task } from '../../types/task';
 import { toLocalDate } from '../../utils/dateUtils';
 
 /**
- * Format tasks for Gantt chart display and provide styling utilities for appointments based on status and priority.
- * @param initialTasks Array of task objects to transform into Gantt chart-compatible format
+ * Format tasks for Gantt chart display and provide styling utilities for
+ * appointments based on status and priority.
+ *
+ * @param initialTasks Array of task objects to transform into Gantt
+ *   chart-compatible format
  */
 export const useProjectGantt = (initialTasks: Task[]) => {
   const [error, setErrorState] = useState<string | null>(null);

@@ -109,9 +109,10 @@ describe('POST /api/files', () => {
     expect(response.body.original_name).toBe('note.txt');
     expect(response.body.task_id).toBe(taskId);
 
-    const stored = await testPool.query('SELECT * FROM files WHERE task_id = $1', [
-      taskId,
-    ]);
+    const stored = await testPool.query(
+      'SELECT * FROM files WHERE task_id = $1',
+      [taskId],
+    );
     expect(stored.rows).toHaveLength(1);
   });
 
@@ -123,9 +124,10 @@ describe('POST /api/files', () => {
 
     expect(response.status).toBe(400);
 
-    const stored = await testPool.query('SELECT * FROM files WHERE task_id = $1', [
-      taskId,
-    ]);
+    const stored = await testPool.query(
+      'SELECT * FROM files WHERE task_id = $1',
+      [taskId],
+    );
     expect(stored.rows).toHaveLength(0);
   });
 

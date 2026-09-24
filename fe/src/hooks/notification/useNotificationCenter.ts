@@ -13,9 +13,13 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 const EMPTY_NOTIFICATIONS: Notification[] = [];
 
 /**
- * Manage notification fetching, polling, and user interactions with automatic refresh at configurable intervals.
- * @param userId Numeric identifier of the user; notifications load only when defined.
- * @param pollIntervalMs Milliseconds between automatic notification refresh cycles; defaults to 60000 and disabled when zero or negative.
+ * Manage notification fetching, polling, and user interactions with automatic
+ * refresh at configurable intervals.
+ *
+ * @param userId Numeric identifier of the user; notifications load only when
+ *   defined.
+ * @param pollIntervalMs Milliseconds between automatic notification refresh
+ *   cycles; defaults to 60000 and disabled when zero or negative.
  */
 export const useNotificationCenter = (
   userId: number | undefined,

@@ -20,7 +20,9 @@ const EMPTY_SELECT_DATA: ProjectSelectData = {
 };
 
 /**
- * Load and return projects, members, and tasks for a given project, filtering out the specified task.
+ * Load and return projects, members, and tasks for a given project, filtering
+ * out the specified task.
+ *
  * @param projectId The project identifier to load members and tasks for.
  * @param taskId The task identifier to exclude from the returned project tasks.
  */

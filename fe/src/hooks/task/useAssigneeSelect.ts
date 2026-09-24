@@ -6,6 +6,7 @@ const EMPTY_MEMBERS: ProjectMember[] = [];
 
 /**
  * Fetch and manage project members for assignee selection.
+ *
  * @param projectId Project identifier to load members for.
  * @returns Object containing projectMembers array and error state.
  */

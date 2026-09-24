@@ -81,10 +81,10 @@ describe('TimeLogController', () => {
         mockPool as Pool,
       );
 
-      expect(timeLogModel.getAllTimeLogs).toHaveBeenCalledWith(
-        mockPool,
-        { limit: 500, offset: 0 },
-      );
+      expect(timeLogModel.getAllTimeLogs).toHaveBeenCalledWith(mockPool, {
+        limit: 500,
+        offset: 0,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTimeLogs);
     });

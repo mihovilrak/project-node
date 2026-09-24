@@ -35,9 +35,12 @@ export const ALLOWED_UPLOAD_TYPES: Record<string, string[]> = {
 
 /**
  * Validate file uploads against a whitelist of allowed MIME types by extension.
+ *
  * @param req The Express request object.
- * @param file The uploaded file object containing originalname and mimetype properties.
- * @param cb Callback function invoked with an error if validation fails or null and true if validation succeeds.
+ * @param file The uploaded file object containing originalname and mimetype
+ *   properties.
+ * @param cb Callback function invoked with an error if validation fails or null
+ *   and true if validation succeeds.
  */
 export const uploadFileFilter: multer.Options['fileFilter'] = (
   req,

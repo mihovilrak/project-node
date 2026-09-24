@@ -8,9 +8,14 @@ import { parsePositiveInteger } from '../utils/requestParsing';
 /**
  * Retrieve all watchers assigned to a task.
  *
- * Extracts the task ID from request parameters, queries the watcher model for associated watchers, and responds with a 200 status and watcher list on success. Returns a 500 error response if an internal error occurs during retrieval.
+ * Extracts the task ID from request parameters, queries the watcher model for
+ * associated watchers, and responds with a 200 status and watcher list on
+ * success. Returns a 500 error response if an internal error occurs during
+ * retrieval.
+ *
  * @param req Express request object containing the task ID in params.
- * @param res Express response object for sending watcher data or error responses.
+ * @param res Express response object for sending watcher data or error
+ *   responses.
  * @param pool Database connection pool for executing watcher queries.
  */
 export const getTaskWatchers = async (
@@ -29,11 +34,17 @@ export const getTaskWatchers = async (
 };
 
 /**
- * Add a user as a watcher to a task, allowing them to receive its notifications.
+ * Add a user as a watcher to a task, allowing them to receive its
+ * notifications.
  *
- * The user must be a member of the task's project to become a watcher. A numeric userId is required in the request body and the task id in the URL parameters.
- * @param req Express request containing the task id in params and userId in the request body
- * @param res Express response to send the created watcher record with 201 status, or an error response
+ * The user must be a member of the task's project to become a watcher. A
+ * numeric userId is required in the request body and the task id in the URL
+ * parameters.
+ *
+ * @param req Express request containing the task id in params and userId in the
+ *   request body
+ * @param res Express response to send the created watcher record with 201
+ *   status, or an error response
  * @param pool Database connection pool for queries
  */
 export const addTaskWatcher = async (
@@ -68,8 +79,12 @@ export const addTaskWatcher = async (
 /**
  * Remove a user's watcher subscription from a task.
  *
- * Accepts task id and userId from request parameters. Returns 204 on successful deletion, 400 if userId is not a positive integer, 404 if the watcher entry does not exist, or 500 on server error.
- * @param req Express request object containing task id and numeric userId in params
+ * Accepts task id and userId from request parameters. Returns 204 on successful
+ * deletion, 400 if userId is not a positive integer, 404 if the watcher entry
+ * does not exist, or 500 on server error.
+ *
+ * @param req Express request object containing task id and numeric userId in
+ *   params
  * @param res Express response object for sending status and JSON replies
  * @param pool Database connection pool for executing the delete operation
  */

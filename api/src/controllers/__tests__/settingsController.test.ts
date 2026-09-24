@@ -349,8 +349,7 @@ describe('SettingsController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message:
-          'Email sending is disabled. Enable it in System Settings.',
+        message: 'Email sending is disabled. Enable it in System Settings.',
       });
     });
 

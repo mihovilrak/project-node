@@ -8,7 +8,8 @@ const EMPTY_FILES: TaskFile[] = [];
 
 /**
  * Manage task file uploads, deletions, and retrieval with automatic refetching.
- * @param taskId string
+ *
+ * @param taskId String
  */
 export const useTaskFiles = (taskId: string) => {
   const {

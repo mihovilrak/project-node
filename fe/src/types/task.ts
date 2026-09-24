@@ -6,7 +6,9 @@ import { TaskFile } from './file';
 import { ProjectMember } from './project';
 
 /**
- * Model a task including its identifiers, project and parent relationships, assignee/holder details, type/priority/status metadata, scheduling (start/due/end), time tracking, progress, and creator information.
+ * Model a task including its identifiers, project and parent relationships,
+ * assignee/holder details, type/priority/status metadata, scheduling
+ * (start/due/end), time tracking, progress, and creator information.
  */
 export interface Task {
   id: number;
@@ -42,7 +44,8 @@ export interface Task {
 }
 
 /**
- * Hold the UI state for a task view, including the current task (or null), its subtasks, available statuses, and loading/error flags.
+ * Hold the UI state for a task view, including the current task (or null), its
+ * subtasks, available statuses, and loading/error flags.
  */
 export interface TaskCoreState {
   task: Task | null;
@@ -53,7 +56,8 @@ export interface TaskCoreState {
 }
 
 /**
- * Provide optional filtering criteria to narrow which tasks are returned when querying or listing tasks.
+ * Provide optional filtering criteria to narrow which tasks are returned when
+ * querying or listing tasks.
  */
 export interface TaskFilters {
   id?: number;
@@ -96,7 +100,9 @@ export interface TaskType {
 }
 
 /**
- * Represent a task's status including its identifier, display properties (name and color), optional description, active flag, and creation/update timestamps.
+ * Represent a task's status including its identifier, display properties (name
+ * and color), optional description, active flag, and creation/update
+ * timestamps.
  */
 export interface TaskStatus {
   id: number;
@@ -109,7 +115,8 @@ export interface TaskStatus {
 }
 
 /**
- * Represent a task priority with its id, display name, color, optional description, active flag, and created/updated timestamps.
+ * Represent a task priority with its id, display name, color, optional
+ * description, active flag, and created/updated timestamps.
  */
 export interface TaskPriority {
   id: number;
@@ -122,7 +129,8 @@ export interface TaskPriority {
 }
 
 /**
- * Provide properties to configure a task creation/edit form component and handle its lifecycle events.
+ * Provide properties to configure a task creation/edit form component and
+ * handle its lifecycle events.
  */
 export interface TaskFormProps {
   taskId?: string;
@@ -172,7 +180,9 @@ export interface TaskTimeLogsProps {
 }
 
 /**
- * Provide the properties required by a task header component: the task and its statuses, edit/delete permissions, the status menu anchor, and callbacks for status changes, deletion, time logging, and adding subtasks.
+ * Provide the properties required by a task header component: the task and its
+ * statuses, edit/delete permissions, the status menu anchor, and callbacks for
+ * status changes, deletion, time logging, and adding subtasks.
  */
 export interface TaskHeaderProps {
   task: Task | null;
@@ -189,7 +199,9 @@ export interface TaskHeaderProps {
 }
 
 /**
- * Provide the prop types required by a task details header component, including the task data, available statuses, an optional DOM anchor for the status menu, and handlers for menu interactions, status changes, and deletion.
+ * Provide the prop types required by a task details header component, including
+ * the task data, available statuses, an optional DOM anchor for the status
+ * menu, and handlers for menu interactions, status changes, and deletion.
  */
 export interface TaskDetailsHeaderProps extends TaskHeaderProps {
   task: Task;
@@ -202,7 +214,10 @@ export interface TaskDetailsHeaderProps extends TaskHeaderProps {
 }
 
 /**
- * Provide the props needed to render and manage a task details view, including the task and related lists (subtasks, time logs, comments), UI state (time log dialog, selected/editing items) and callback handlers for CRUD actions and UI events.
+ * Provide the props needed to render and manage a task details view, including
+ * the task and related lists (subtasks, time logs, comments), UI state (time
+ * log dialog, selected/editing items) and callback handlers for CRUD actions
+ * and UI events.
  */
 export interface TaskDetailsContentProps {
   id: string;
@@ -244,7 +259,9 @@ export interface TaskDetailsSidebarProps {
 }
 
 /**
- * Represent the UI state for a task details view, including the status menu anchor, the comment being edited, time log dialog visibility and selection, and watcher dialog visibility.
+ * Represent the UI state for a task details view, including the status menu
+ * anchor, the comment being edited, time log dialog visibility and selection,
+ * and watcher dialog visibility.
  */
 export interface TaskDetailsState {
   statusMenuAnchor: HTMLElement | null;
@@ -261,7 +278,8 @@ export interface AssigneeSelectionSectionProps {
 }
 
 /**
- * Represent a minimal change event object whose target specifies a field name and its new value.
+ * Represent a minimal change event object whose target specifies a field name
+ * and its new value.
  */
 export type SimpleChangeEvent = {
   target: {
@@ -273,7 +291,8 @@ export type SimpleChangeEvent = {
 type FormChangeHandler = (e: SimpleChangeEvent) => void;
 
 /**
- * Provide properties for the task form's date-picker section: the form state, a change handler, and optional start/due date validation errors.
+ * Provide properties for the task form's date-picker section: the form state, a
+ * change handler, and optional start/due date validation errors.
  */
 export interface DatePickerSectionProps {
   formData: TaskFormState;
@@ -282,7 +301,9 @@ export interface DatePickerSectionProps {
 }
 
 /**
- * Provide properties for a parent-task selector component: current task form data, the list of project tasks, an input change handler, and an optional parent ID from the URL.
+ * Provide properties for a parent-task selector component: current task form
+ * data, the list of project tasks, an input change handler, and an optional
+ * parent ID from the URL.
  */
 export interface ParentTaskSelectProps {
   formData: TaskFormState;

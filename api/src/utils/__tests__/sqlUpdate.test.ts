@@ -20,7 +20,10 @@ describe('buildUpdateAssignments', () => {
   });
 
   it('builds a numbered SET clause for the provided keys only', () => {
-    const result = buildUpdateAssignments({ color: '#ffffff', name: 'a' }, allowed);
+    const result = buildUpdateAssignments(
+      { color: '#ffffff', name: 'a' },
+      allowed,
+    );
 
     expect(result).toEqual({
       columns: ['name', 'color'],
@@ -66,11 +69,17 @@ describe('buildUpdateAssignments', () => {
     >;
     payload.color = '#000000';
 
-    expect(buildUpdateAssignments(payload, allowed)?.columns).toEqual(['color']);
+    expect(buildUpdateAssignments(payload, allowed)?.columns).toEqual([
+      'color',
+    ]);
   });
 
   it('offsets placeholders when startIndex is given', () => {
-    const result = buildUpdateAssignments({ name: 'n', color: 'c' }, allowed, 3);
+    const result = buildUpdateAssignments(
+      { name: 'n', color: 'c' },
+      allowed,
+      3,
+    );
 
     expect(result?.setClause).toBe('name = $3, color = $4');
     expect(result?.nextIndex).toBe(5);

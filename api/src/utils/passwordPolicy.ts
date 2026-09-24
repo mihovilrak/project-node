@@ -2,10 +2,14 @@ export const MIN_PASSWORD_LENGTH = 12;
 export const MAX_PASSWORD_LENGTH = 1024;
 
 /**
- * Validate that a password meets security requirements and return an error message if it fails validation.
+ * Validate that a password meets security requirements and return an error
+ * message if it fails validation.
  *
- * The password must be a non-empty string between configured minimum and maximum lengths, and must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.
- * @param password string
+ * The password must be a non-empty string between configured minimum and
+ * maximum lengths, and must contain at least one lowercase letter, one
+ * uppercase letter, one digit, and one special character.
+ *
+ * @param password String
  */
 export const validatePassword = (password: unknown): string | null => {
   if (typeof password !== 'string' || password.length === 0) {

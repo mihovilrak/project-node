@@ -25,7 +25,8 @@ const getRange = (selectedDate: Date, view: CalendarView) => {
 };
 
 /**
- * Manage calendar view state, selected date, and fetch tasks for the visible date range.
+ * Manage calendar view state, selected date, and fetch tasks for the visible
+ * date range.
  */
 export const useCalendar = () => {
   const [view, setView] = useState<CalendarView>('month');

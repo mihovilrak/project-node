@@ -16,7 +16,8 @@ export interface CommentFormProps {
 }
 
 /**
- * Provide properties for rendering a task's comment list and handling comment updates and deletions while optionally identifying the current user.
+ * Provide properties for rendering a task's comment list and handling comment
+ * updates and deletions while optionally identifying the current user.
  */
 export interface CommentListProps {
   comments: Comment[];

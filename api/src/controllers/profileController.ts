@@ -9,7 +9,10 @@ import { validatePassword } from '../utils/passwordPolicy';
 /**
  * Retrieve the authenticated user's profile information.
  *
- * Extracts the user ID from the session and fetches the corresponding profile data. Returns a 401 error if the user is not authenticated, or a 500 error if an internal server error occurs.
+ * Extracts the user ID from the session and fetches the corresponding profile
+ * data. Returns a 401 error if the user is not authenticated, or a 500 error if
+ * an internal server error occurs.
+ *
  * @param req The HTTP request object containing the user's session data.
  * @param res The HTTP response object used to send the profile data or error.
  * @param pool The database connection pool used to query profile information.
@@ -39,10 +42,14 @@ export const getProfile = async (
 };
 
 /**
- * Update the authenticated user's profile with new email, name, or surname information.
+ * Update the authenticated user's profile with new email, name, or surname
+ * information.
  *
- * Requires an active user session; returns a 401 error if the user is not authenticated. Sends a 500 error on internal server failures.
- * @param req Express request object containing session user data and profile update payload
+ * Requires an active user session; returns a 401 error if the user is not
+ * authenticated. Sends a 500 error on internal server failures.
+ *
+ * @param req Express request object containing session user data and profile
+ *   update payload
  * @param res Express response object for sending HTTP responses
  * @param pool Database connection pool for executing profile update queries
  */
@@ -72,10 +79,15 @@ export const updateProfile = async (
 };
 
 /**
- * Update the authenticated user's password after validating the current password and policy requirements.
+ * Update the authenticated user's password after validating the current
+ * password and policy requirements.
  *
- * Verifies the current password, validates the new password against security policy, ensures the new password differs from the current one, and invalidates all other active sessions for the user upon successful update.
- * @param req Express request with authenticated user session and password update payload
+ * Verifies the current password, validates the new password against security
+ * policy, ensures the new password differs from the current one, and
+ * invalidates all other active sessions for the user upon successful update.
+ *
+ * @param req Express request with authenticated user session and password
+ *   update payload
  * @param res Express response object for sending success or error status
  * @param pool Database connection pool for credential and session operations
  */
@@ -160,8 +172,11 @@ export const changePassword = async (
 /**
  * Retrieve the authenticated user's recent tasks from the database.
  *
- * Requires an authenticated session and returns a 401 error if the user is not logged in. Returns a 500 error on database or server errors.
- * @param req Express request object with session data containing the authenticated user's ID
+ * Requires an authenticated session and returns a 401 error if the user is not
+ * logged in. Returns a 500 error on database or server errors.
+ *
+ * @param req Express request object with session data containing the
+ *   authenticated user's ID
  * @param res Express response object for sending JSON data and status codes
  * @param pool Database connection pool for querying recent tasks
  */
@@ -192,8 +207,12 @@ export const getRecentTasks = async (
 /**
  * Retrieve projects associated with the authenticated user sorted by recency.
  *
- * Requires an authenticated session. Returns a 401 error if the user is not authenticated, a 200 response with the projects list on success, or a 500 error if an internal server error occurs.
- * @param req Express request object with optional session containing user information
+ * Requires an authenticated session. Returns a 401 error if the user is not
+ * authenticated, a 200 response with the projects list on success, or a 500
+ * error if an internal server error occurs.
+ *
+ * @param req Express request object with optional session containing user
+ *   information
  * @param res Express response object for sending the HTTP response
  * @param pool Database connection pool for querying project data
  */

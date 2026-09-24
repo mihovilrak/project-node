@@ -6,7 +6,9 @@ import { DatePickerSectionProps } from '../../../types/task';
 
 /**
  * Render start and due date picker fields with validation error display.
- * @param root0 Object containing form data, change handler, and optional validation errors for date fields
+ *
+ * @param root0 Object containing form data, change handler, and optional
+ *   validation errors for date fields
  */
 export const DatePickerSection: React.FC<DatePickerSectionProps> = ({
   formData,

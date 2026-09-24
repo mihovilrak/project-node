@@ -11,7 +11,8 @@ export interface User {
 }
 
 /**
- * Extend user information with resolved status and role names along with the most recent login timestamp.
+ * Extend user information with resolved status and role names along with the
+ * most recent login timestamp.
  */
 export interface UserDetails extends User {
   status: string;
@@ -50,7 +51,8 @@ export interface UserQueryFilters {
 }
 
 /**
- * Represent a user status with an identifier, display name, and optional color for UI rendering.
+ * Represent a user status with an identifier, display name, and optional color
+ * for UI rendering.
  */
 export interface UserStatus {
   id: number;

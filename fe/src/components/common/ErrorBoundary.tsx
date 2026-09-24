@@ -24,9 +24,13 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   /**
-   * Log caught errors and their stack traces to the console in non-test environments.
-   * @param error The error object thrown during rendering in the component tree.
-   * @param errorInfo Additional information about the error including the component stack trace.
+   * Log caught errors and their stack traces to the console in non-test
+   * environments.
+   *
+   * @param error The error object thrown during rendering in the component
+   *   tree.
+   * @param errorInfo Additional information about the error including the
+   *   component stack trace.
    */
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     if (process.env.NODE_ENV !== 'test') {
@@ -35,7 +39,8 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   /**
-   * Display an error message with recovery options when an error is caught, otherwise render child components.
+   * Display an error message with recovery options when an error is caught,
+   * otherwise render child components.
    */
   render(): ReactNode {
     if (this.state.hasError) {

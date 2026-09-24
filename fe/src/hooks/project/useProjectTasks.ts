@@ -7,7 +7,9 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
- * Manage project tasks state and operations including loading, creation, and error handling.
+ * Manage project tasks state and operations including loading, creation, and
+ * error handling.
+ *
  * @param projectId The project identifier to load tasks for
  */
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {

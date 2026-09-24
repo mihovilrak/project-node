@@ -67,7 +67,9 @@ describe('accessModel', () => {
     it('propagates query errors', async () => {
       mockPool.query.mockRejectedValueOnce(new Error('db down'));
 
-      await expect(isProjectMember(pool(), '3', '7')).rejects.toThrow('db down');
+      await expect(isProjectMember(pool(), '3', '7')).rejects.toThrow(
+        'db down',
+      );
     });
   });
 

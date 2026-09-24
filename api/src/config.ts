@@ -90,10 +90,15 @@ validateConfig();
 const DEFAULT_EMAIL_PORT = 587;
 
 /**
- * Construct an email configuration object, reading SMTP host, port, and sender from settings while retrieving credentials from environment variables.
+ * Construct an email configuration object, reading SMTP host, port, and sender
+ * from settings while retrieving credentials from environment variables.
  *
- * SMTP connection details (host, port, sender email) are sourced from app_settings to allow admin UI changes without restart; only user credentials remain in environment as secrets for security.
- * @param settings System settings object or null; missing values fall back to defaults.
+ * SMTP connection details (host, port, sender email) are sourced from
+ * app_settings to allow admin UI changes without restart; only user credentials
+ * remain in environment as secrets for security.
+ *
+ * @param settings System settings object or null; missing values fall back to
+ *   defaults.
  */
 export const buildEmailConfig = (settings: Settings | null): EmailConfig => ({
   enabled: settings?.email_enabled ?? false,

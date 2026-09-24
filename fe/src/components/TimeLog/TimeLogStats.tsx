@@ -19,9 +19,7 @@ const TimeLogStats: React.FC<TimeLogStatsProps> = ({ timeLogs }) => {
         }}
       >
         <Typography variant="subtitle1">Total Time Spent:</Typography>
-        <Typography variant="h6">
-          {formatHoursDuration(totalHours)}
-        </Typography>
+        <Typography variant="h6">{formatHoursDuration(totalHours)}</Typography>
       </Box>
     </Paper>
   );

@@ -24,9 +24,9 @@ import { User } from '../../../types/user';
 const fields = <T>(...keys: (keyof T & string)[]) => keys;
 
 const columnsOf = async (call: string, params: unknown[] = []) =>
-  (
-    await testPool.query(`select * from ${call} limit 0`, params)
-  ).fields.map((field) => field.name);
+  (await testPool.query(`select * from ${call} limit 0`, params)).fields.map(
+    (field) => field.name,
+  );
 
 let owner: any;
 let admin: any;
@@ -357,7 +357,9 @@ describe('db/init functions', () => {
   it('each exist with exactly one overload', async () => {
     const initDir = path.join(__dirname, '../../../../../db/init');
     const names = new Set<string>();
-    for (const file of fs.readdirSync(initDir).filter((f) => f.endsWith('.sql'))) {
+    for (const file of fs
+      .readdirSync(initDir)
+      .filter((f) => f.endsWith('.sql'))) {
       const sql = fs.readFileSync(path.join(initDir, file), 'utf8');
       for (const match of sql.matchAll(
         /create\s+or\s+replace\s+function\s+(?:public\.)?"?(\w+)"?/gi,

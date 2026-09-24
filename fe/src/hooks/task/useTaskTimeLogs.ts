@@ -14,6 +14,7 @@ const EMPTY_TIME_LOGS: TimeLog[] = [];
 
 /**
  * Fetch, create, update, and delete time logs for a task.
+ *
  * @param taskId The task identifier to load and manage time logs for.
  */
 export const useTaskTimeLogs = (taskId: string) => {

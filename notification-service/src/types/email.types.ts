@@ -20,7 +20,8 @@ export interface EmailInfo {
 }
 
 /**
- * Manage email transport, initialize and load templates, and send templated emails (optionally retrying failed sends) via the configured transporter.
+ * Manage email transport, initialize and load templates, and send templated
+ * emails (optionally retrying failed sends) via the configured transporter.
  */
 export interface EmailService {
   transporter: Transporter;

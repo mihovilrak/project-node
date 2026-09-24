@@ -61,9 +61,7 @@ describe('Calendar Integration Workflow', () => {
 
     it('should handle empty task data', async () => {
       // Override handler to return empty array
-      server.use(
-        http.get('/api/tasks/calendar', () => HttpResponse.json([])),
-      );
+      server.use(http.get('/api/tasks/calendar', () => HttpResponse.json([])));
 
       renderCalendar();
 
@@ -83,7 +81,10 @@ describe('Calendar Integration Workflow', () => {
       // Override handler to return error
       server.use(
         http.get('/api/tasks/calendar', () =>
-          HttpResponse.json({ error: 'Internal server error' }, { status: 500 }),
+          HttpResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+          ),
         ),
       );
 
@@ -287,9 +288,7 @@ describe('Calendar Integration Workflow', () => {
 
     it('should handle network errors gracefully', async () => {
       // Override handler to simulate network error
-      server.use(
-        http.get('/api/tasks/calendar', () => HttpResponse.error()),
-      );
+      server.use(http.get('/api/tasks/calendar', () => HttpResponse.error()));
 
       renderCalendar();
 

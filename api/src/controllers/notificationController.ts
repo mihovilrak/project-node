@@ -8,7 +8,10 @@ import { parsePagination } from '../utils/pagination';
 /**
  * Retrieve paginated notifications for the authenticated user.
  *
- * Requires active session authentication. Returns notifications excluding soft-deleted entries with type metadata. Applies pagination constraints to query parameters.
+ * Requires active session authentication. Returns notifications excluding
+ * soft-deleted entries with type metadata. Applies pagination constraints to
+ * query parameters.
+ *
  * @param req Express request with user session data
  * @param res Express response object
  * @param pool Database connection pool
@@ -36,12 +39,19 @@ export const getUserNotifications = async (
 };
 
 /**
- * Mark the current user's notifications as read, either a specific notification by ID or all unread notifications.
+ * Mark the current user's notifications as read, either a specific notification
+ * by ID or all unread notifications.
  *
- * Requires authentication; returns HTTP 401 if user session is absent. Marks a single notification as read when notification_id is provided in the request body, or marks all unread active notifications as read when notification_id is omitted. Returns the updated notifications with HTTP 200 on success, or HTTP 500 on server error.
- * @param req HTTP request with authenticated user session and optional notification_id in body
+ * Requires authentication; returns HTTP 401 if user session is absent. Marks a
+ * single notification as read when notification_id is provided in the request
+ * body, or marks all unread active notifications as read when notification_id
+ * is omitted. Returns the updated notifications with HTTP 200 on success, or
+ * HTTP 500 on server error.
+ *
+ * @param req HTTP request with authenticated user session and optional
+ *   notification_id in body
  * @param res HTTP response object
- * @param pool database connection pool
+ * @param pool Database connection pool
  */
 export const markAsRead = async (
   req: CustomRequest,
@@ -74,8 +84,11 @@ export const markAsRead = async (
 /**
  * Remove a notification resource owned by the authenticated user.
  *
- * Requires valid user session authentication. Returns 404 if the notification does not exist or belongs to another user. Returns 500 on unexpected errors.
- * @param req Express request with notification id in params and authenticated user session
+ * Requires valid user session authentication. Returns 404 if the notification
+ * does not exist or belongs to another user. Returns 500 on unexpected errors.
+ *
+ * @param req Express request with notification id in params and authenticated
+ *   user session
  * @param res Express response for sending status and JSON payload
  * @param pool Database connection pool
  */

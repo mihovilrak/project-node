@@ -10,7 +10,9 @@ import { invalidatePermissionCache } from './permissionModel';
 /**
  * Retrieve all available user statuses ordered by identifier.
  *
- * Returns user statuses including their identifiers, display names, and optional color values from the database.
+ * Returns user statuses including their identifiers, display names, and
+ * optional color values from the database.
+ *
  * @param pool Database connection pool used to execute the query.
  * @returns Promise resolving to an array of UserStatus objects.
  */
@@ -24,11 +26,17 @@ export const getUserStatuses = async (pool: Pool): Promise<UserStatus[]> => {
 const ALLOWED_USER_WHERE_KEYS = ['status_id', 'role_id'] as const;
 
 /**
- * Retrieve users from the database with optional filtering by status, role, and deletion state.
+ * Retrieve users from the database with optional filtering by status, role, and
+ * deletion state.
  *
- * Accepts optional filter parameters to constrain results by status_id and role_id. The includeDeleted flag controls whether soft-deleted users are included in the result set. Only whitelisted filter keys are processed for security.
+ * Accepts optional filter parameters to constrain results by status_id and
+ * role_id. The includeDeleted flag controls whether soft-deleted users are
+ * included in the result set. Only whitelisted filter keys are processed for
+ * security.
+ *
  * @param pool Database connection pool
- * @param filters Query filter options including status_id, role_id, and includeDeleted flag
+ * @param filters Query filter options including status_id, role_id, and
+ *   includeDeleted flag
  */
 export const getUsers = async (
   pool: Pool,
@@ -70,7 +78,10 @@ export const getUserById = async (
 /**
  * Insert a new user record with encrypted password and return the created user.
  *
- * The password is encrypted using bcrypt with a cost factor of 12 before storage. Returns a User object with all fields including system-generated id, timestamps, and status_id.
+ * The password is encrypted using bcrypt with a cost factor of 12 before
+ * storage. Returns a User object with all fields including system-generated id,
+ * timestamps, and status_id.
+ *
  * @param pool Database connection pool.
  * @param login Unique login identifier for the user.
  * @param name User's first name.
@@ -101,9 +112,14 @@ export const createUser = async (
 /**
  * Modify specified user fields and return the updated user record.
  *
- * Passwords are hashed with bcrypt before storage. Updates to role_id or status_id clear the user's permission cache. Returns null if the user does not exist; returns the current user record if no valid updateable fields are provided.
+ * Passwords are hashed with bcrypt before storage. Updates to role_id or
+ * status_id clear the user's permission cache. Returns null if the user does
+ * not exist; returns the current user record if no valid updateable fields are
+ * provided.
+ *
  * @param pool Database connection pool.
- * @param updates Object containing user fields to update: login, name, surname, email, password, role_id, or status_id.
+ * @param updates Object containing user fields to update: login, name, surname,
+ *   email, password, role_id, or status_id.
  * @param id User ID to update.
  */
 export const updateUser = async (
@@ -154,7 +170,10 @@ export const updateUser = async (
 /**
  * Update a user's status and invalidate their cached permissions.
  *
- * Sets the user's status_id and updates the updated_on timestamp. Clears the permission cache for the affected user. Returns the updated user object or null if the user does not exist.
+ * Sets the user's status_id and updates the updated_on timestamp. Clears the
+ * permission cache for the affected user. Returns the updated user object or
+ * null if the user does not exist.
+ *
  * @param pool Database connection pool
  * @param id User identifier
  * @param status Numeric status identifier to assign
@@ -178,7 +197,9 @@ export const changeUserStatus = async (
 /**
  * Mark a user as deleted and invalidate their cached permissions.
  *
- * Soft-deletes a user by setting their status to 'deleted' and updating the timestamp. Returns the deleted user record or null if not found.
+ * Soft-deletes a user by setting their status to 'deleted' and updating the
+ * timestamp. Returns the deleted user record or null if not found.
+ *
  * @param pool Database connection pool
  * @param id User identifier
  */

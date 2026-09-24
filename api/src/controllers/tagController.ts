@@ -21,10 +21,14 @@ export const getTags = async (
 };
 
 /**
- * Create a new tag with the specified name, color, and icon for the authenticated user.
+ * Create a new tag with the specified name, color, and icon for the
+ * authenticated user.
  *
- * Requires an authenticated user session. Accepts name, color, and icon in the request body and persists the tag to the database.
- * @param req Request object containing user session data and tag creation input (name, color, icon)
+ * Requires an authenticated user session. Accepts name, color, and icon in the
+ * request body and persists the tag to the database.
+ *
+ * @param req Request object containing user session data and tag creation input
+ *   (name, color, icon)
  * @param res Response object for sending the created tag or error message
  * @param pool Database connection pool
  */
@@ -52,10 +56,15 @@ export const createTag = async (
 /**
  * Associate one or more tags with a task.
  *
- * Requires an authenticated user session. Accepts a task ID from URL parameters and an array of tag IDs in the request body, then persists the associations to the database.
- * @param req CustomRequest containing taskId in params, tagIds array in body, and authenticated user session
+ * Requires an authenticated user session. Accepts a task ID from URL parameters
+ * and an array of tag IDs in the request body, then persists the associations
+ * to the database.
+ *
+ * @param req CustomRequest containing taskId in params, tagIds array in body,
+ *   and authenticated user session
  * @param res Response object for sending the result or error status
- * @param pool Database connection pool for executing the tag association operation
+ * @param pool Database connection pool for executing the tag association
+ *   operation
  */
 export const addTaskTags = async (
   req: CustomRequest,
@@ -97,8 +106,11 @@ export const removeTaskTag = async (
 
 /**
  * Retrieve all tags associated with a task and return them to the client.
- * @param req Express request object containing the task ID in params; must be a CustomRequest with session data.
- * @param res Express response object used to send the tags array with 200 status or error with 500 status.
+ *
+ * @param req Express request object containing the task ID in params; must be a
+ *   CustomRequest with session data.
+ * @param res Express response object used to send the tags array with 200
+ *   status or error with 500 status.
  * @param pool Database connection pool used to query task tags.
  */
 export const getTaskTags = async (
@@ -118,7 +130,9 @@ export const getTaskTags = async (
 
 /**
  * Modify an existing tag's name, color, or icon.
- * @param req Express request containing tag id in params and TagUpdateInput in body
+ *
+ * @param req Express request containing tag id in params and TagUpdateInput in
+ *   body
  * @param res Express response object
  * @param pool Database connection pool
  */
@@ -140,6 +154,7 @@ export const updateTag = async (
 
 /**
  * Remove a tag by marking it as inactive.
+ *
  * @param req Express request object containing the tag ID in params
  * @param res Express response object for sending the deletion result
  * @param pool Database connection pool
