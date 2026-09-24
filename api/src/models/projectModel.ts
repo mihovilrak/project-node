@@ -149,7 +149,6 @@ export const ALLOWED_PROJECT_UPDATE_KEYS = [
   'start_date',
   'due_date',
   'parent_id',
-  'status_id',
 ] as const;
 
 /**

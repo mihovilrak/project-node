@@ -37,7 +37,7 @@ describe('ProjectModel', () => {
       expect(query).toContain('project_details(p.id)');
       expect(query).toContain('status_name');
       expect(query).toContain('created_by_name');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([50, 0]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -51,7 +51,9 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1, 500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
+        1, 50, 0,
+      ]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -68,7 +70,9 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([1, 500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
+        1, 50, 0,
+      ]);
       expect(result).toEqual(mockProjects);
     });
   });
@@ -81,7 +85,7 @@ describe('ProjectModel', () => {
 
       const [sql, params] = (mockPool.query as jest.Mock).mock.calls[0];
       expect(sql).toContain('p.id IN (');
-      expect(params).toEqual(['7', 500, 0]);
+      expect(params).toEqual(['7', 50, 0]);
     });
 
     it('leaves the listing unscoped when no user is given', async () => {
@@ -293,7 +297,7 @@ describe('ProjectModel', () => {
       expect(query).not.toContain('evil_key');
       // Only status mapped to status_id; project_id, assignee_id, priority_id
       const values = (mockPool.query as jest.Mock).mock.calls[0][1];
-      expect(values).toEqual(['1', null, [1], null, 500, 0]);
+      expect(values).toEqual(['1', null, [1], null, 50, 0]);
     });
   });
 

@@ -44,6 +44,7 @@ export default (pool: Pool): Router => {
   );
   router.post(
     '/tasks/:taskId/logs',
+    checkPermission(pool, 'Log time'),
     taskAccess,
     withPool(pool, timeLogController.createTimeLog),
   );

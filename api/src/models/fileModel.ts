@@ -1,6 +1,5 @@
 import { Pool } from 'pg';
 import { File, FileWithUser } from '../types/file';
-import { isTaskProjectMember } from './accessModel';
 
 // Get all files for a task
 export const getTaskFiles = async (
@@ -79,24 +78,4 @@ export const deleteFile = async (
         [fileId],
       );
   return result.rows[0] || null;
-};
-
-/**
- * Check whether a user can access a file based on project membership of the file's containing task.
- *
- * Access is granted only if the user is a member of the project that contains the task associated with the file. Returns false if the file does not exist.
- * @param pool Database connection pool
- * @param userId User identifier to check access for
- * @param fileId File identifier to verify access to
- * @returns Boolean indicating whether the user has access to the file
- */
-export const canUserAccessFile = async (
-  pool: Pool,
-  userId: string,
-  fileId: string,
-): Promise<boolean> => {
-  const file = await getFileById(pool, fileId);
-  if (!file) return false;
-
-  return isTaskProjectMember(pool, String(file.task_id), userId);
 };

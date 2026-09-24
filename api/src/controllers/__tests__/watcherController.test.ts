@@ -3,9 +3,11 @@ import { Pool } from 'pg';
 import * as watcherController from '../watcherController';
 import * as watcherModel from '../../models/watcherModel';
 import { isTaskProjectMember } from '../../models/accessModel';
+import { hasPermission } from '../../models/permissionModel';
 
 jest.mock('../../models/watcherModel');
 jest.mock('../../models/accessModel');
+jest.mock('../../models/permissionModel');
 
 describe('WatcherController', () => {
   let mockReq: any;
@@ -13,7 +15,12 @@ describe('WatcherController', () => {
   let mockPool: Partial<Pool>;
 
   beforeEach(() => {
-    mockReq = { params: {}, query: {}, body: {} };
+    mockReq = {
+      params: {},
+      query: {},
+      body: {},
+      session: { user: { id: '1' } },
+    };
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -22,6 +29,7 @@ describe('WatcherController', () => {
     mockPool = {};
     jest.clearAllMocks();
     (isTaskProjectMember as jest.Mock).mockResolvedValue(true);
+    (hasPermission as jest.Mock).mockResolvedValue(true);
   });
 
   describe('getTaskWatchers', () => {
@@ -45,12 +53,13 @@ describe('WatcherController', () => {
       (watcherModel.getTaskWatchers as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await watcherController.getTaskWatchers(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        watcherController.getTaskWatchers(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -99,18 +108,42 @@ describe('WatcherController', () => {
       expect(watcherModel.addTaskWatcher).not.toHaveBeenCalled();
     });
 
+    it('should let a user without Edit tasks add only themselves', async () => {
+      (hasPermission as jest.Mock).mockResolvedValue(false);
+      (watcherModel.addTaskWatcher as jest.Mock).mockResolvedValue({});
+      mockReq.params = { id: '1' };
+
+      mockReq.body = { userId: '2' };
+      await watcherController.addTaskWatcher(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(watcherModel.addTaskWatcher).not.toHaveBeenCalled();
+
+      mockReq.body = { userId: '1' };
+      await watcherController.addTaskWatcher(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+    });
+
     it('should handle errors', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
       (watcherModel.addTaskWatcher as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await watcherController.addTaskWatcher(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        watcherController.addTaskWatcher(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -149,12 +182,13 @@ describe('WatcherController', () => {
       (watcherModel.removeTaskWatcher as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await watcherController.removeTaskWatcher(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        watcherController.removeTaskWatcher(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
 
     it('should reject a non-numeric userId parameter', async () => {

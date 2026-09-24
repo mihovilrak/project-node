@@ -17,7 +17,8 @@ export default (
 
   return session({
     store: new pgSession({
-      pool: pool as any, // connect-pg-simple uses a different @types/pg; Pool types are incompatible
+      // connect-pg-simple is typed against its own copy of @types/pg
+      pool: pool as unknown as pgConnect.PGStoreOptions['pool'],
       tableName: 'session',
       createTableIfMissing: false, // Table is created by DB init scripts
       errorLog: (error: Error) => {

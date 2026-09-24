@@ -57,7 +57,7 @@ describe('NotificationModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('user_notifications($1)'),
-        ['1', 500, 0],
+        ['1', 50, 0],
       );
       expect(result).toEqual(mockNotifications);
     });
