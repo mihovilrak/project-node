@@ -161,6 +161,22 @@ describe('ProjectModel', () => {
     });
   });
 
+  describe('wouldCreateCycle', () => {
+    it('should walk the ancestors of the proposed parent', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ cycle: true }]),
+      );
+
+      const result = await projectModel.wouldCreateCycle(mockPool, '1', 2);
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('WITH RECURSIVE ancestors'),
+        ['1', 2],
+      );
+      expect(result).toBe(true);
+    });
+  });
+
   describe('changeProjectStatus', () => {
     it('should change project status', async () => {
       const mockMessage = { message: 'Project status changed to inactive.' };

@@ -20,16 +20,12 @@ export function parseIdParam(
 ): number | number[] | null {
   if (value === undefined || value === null) return null;
   const str = Array.isArray(value) ? value.join(',') : String(value).trim();
-  if (str === '') return null;
-  if (str.includes(',')) {
-    const arr = str
-      .split(',')
-      .map((s) => Number(s.trim()))
-      .filter((n) => !Number.isNaN(n));
-    return arr.length > 0 ? arr : null;
-  }
-  const num = Number(str);
-  return Number.isNaN(num) ? null : num;
+  const ids = str
+    .split(',')
+    .map((part) => parsePositiveInteger(part.trim()))
+    .filter((id): id is number => id !== null);
+  if (ids.length === 0) return null;
+  return str.includes(',') ? ids : ids[0];
 }
 
 /** Convert date from request (Date or ISO string) to timestamp; null/undefined → NaN. */
