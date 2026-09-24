@@ -44,6 +44,22 @@ describe('SettingsModel', () => {
     });
   });
 
+  describe('getWelcomeMessage', () => {
+    it('returns the stored message', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ welcome_message: 'Hello' }]),
+      );
+      await expect(settingsModel.getWelcomeMessage(mockPool)).resolves.toBe(
+        'Hello',
+      );
+    });
+
+    it('returns an empty string without a settings row', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+      await expect(settingsModel.getWelcomeMessage(mockPool)).resolves.toBe('');
+    });
+  });
+
   describe('updateSystemSettings', () => {
     it('should update system settings', async () => {
       const mockSettings = { id: 1, app_name: 'Updated App' };

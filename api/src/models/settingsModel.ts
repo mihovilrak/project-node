@@ -48,6 +48,13 @@ export const getSystemSettings = async (
   return result.rows[0] || null;
 };
 
+export const getWelcomeMessage = async (pool: Pool): Promise<string> => {
+  const result = await pool.query(
+    `SELECT welcome_message FROM app_settings WHERE id = 1`,
+  );
+  return result.rows[0]?.welcome_message ?? '';
+};
+
 /**
  * Persist application settings to the database, updating only the provided fields while preserving existing values.
  *
@@ -65,7 +72,7 @@ export const updateSystemSettings = async (
   const result = await pool.query(
     `UPDATE app_settings
      SET (app_name, company_name, sender_email, time_zone, theme, welcome_message,
-          app_base_url, log_level, email_enabled, email_host, email_port, email_secure, updated_on)
+          app_base_url, log_level, email_enabled, email_host, email_port, email_secure)
         = (
           COALESCE($1, app_name),
           COALESCE($2, company_name),
@@ -78,8 +85,7 @@ export const updateSystemSettings = async (
           COALESCE($9, email_enabled),
           COALESCE($10, email_host),
           COALESCE($11, email_port),
-          COALESCE($12, email_secure),
-          CURRENT_TIMESTAMP
+          COALESCE($12, email_secure)
         )
      WHERE id = 1
      RETURNING *`,
@@ -141,13 +147,12 @@ export const updateUserSettings = async (
        COALESCE($5, true)
      )
      ON CONFLICT (user_id) DO UPDATE
-     SET (theme, language, notifications_enabled, email_notifications_enabled, updated_on)
+     SET (theme, language, notifications_enabled, email_notifications_enabled)
         = (
           COALESCE($2, user_settings.theme),
           COALESCE($3, user_settings.language),
           COALESCE($4, user_settings.notifications_enabled),
-          COALESCE($5, user_settings.email_notifications_enabled),
-          CURRENT_TIMESTAMP
+          COALESCE($5, user_settings.email_notifications_enabled)
         )
      RETURNING *`,
     [
