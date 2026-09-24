@@ -25,7 +25,9 @@ export interface User {
   last_login?: string | null;
 }
 
-/** Active user as returned by GET /users/options for pickers. */
+/**
+ * Active user as returned by GET /users/options for pickers.
+ */
 export interface UserOption {
   id: number;
   login: string;

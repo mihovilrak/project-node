@@ -1,36 +1,47 @@
-import React, { useCallback } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import React, { useCallback, useState } from 'react';
+import { Alert, Box, Typography, Paper } from '@mui/material';
 import FileUpload from '../Files/FileUpload';
 import FileList from '../Files/FileList';
 import { TaskFilesProps, TaskFile } from '../../types/file';
 import { useTaskFiles } from '../../hooks/task/useTaskFiles';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const TaskFiles: React.FC<TaskFilesProps> = ({
   taskId,
   onFileUploaded,
   onFileDeleted,
 }) => {
-  const { files, refreshFiles } = useTaskFiles(String(taskId));
+  const {
+    files,
+    error: loadError,
+    handleFileDelete,
+    refreshFiles,
+  } = useTaskFiles(String(taskId));
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const handleFileUploaded = useCallback(
     async (file: TaskFile) => {
+      setActionError(null);
       await refreshFiles();
-      if (onFileUploaded) {
-        onFileUploaded(file);
-      }
+      onFileUploaded?.(file);
     },
     [refreshFiles, onFileUploaded],
   );
 
   const handleFileDeleted = useCallback(
     async (fileId: number) => {
-      await refreshFiles();
-      if (onFileDeleted) {
-        onFileDeleted(fileId);
+      setActionError(null);
+      try {
+        await handleFileDelete(fileId);
+        onFileDeleted?.(fileId);
+      } catch (err: unknown) {
+        setActionError(getApiErrorMessage(err, 'Failed to delete file'));
       }
     },
-    [refreshFiles, onFileDeleted],
+    [handleFileDelete, onFileDeleted],
   );
+
+  const error = actionError ?? loadError;
 
   return (
     <Paper sx={{ mt: 3, p: 3 }}>
@@ -48,6 +59,16 @@ const TaskFiles: React.FC<TaskFilesProps> = ({
 
         <FileUpload taskId={taskId} onFileUploaded={handleFileUploaded} />
       </Box>
+
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={actionError ? () => setActionError(null) : undefined}
+        >
+          {error}
+        </Alert>
+      )}
 
       <FileList
         files={files}

@@ -11,7 +11,9 @@ export const isSafeRelativePath = (
   !value.includes('\\') &&
   !Array.from(value).some((ch) => ch.charCodeAt(0) < 32);
 
-/** Returns `value` when it is a safe in-app path, otherwise `fallback`. */
+/**
+ * Returns `value` when it is a safe in-app path, otherwise `fallback`.
+ */
 export const getSafeNextPath = (
   value: string | null | undefined,
   fallback = '/',

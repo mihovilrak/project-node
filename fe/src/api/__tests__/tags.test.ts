@@ -1,9 +1,6 @@
 import { api } from '../api';
 import { Tag } from '../../types/tag';
-import {
-  getTags,
-  getTaskTags,
-} from '../tags';
+import { getTags, getTaskTags } from '../tags';
 
 // Mock the api module
 jest.mock('../api');

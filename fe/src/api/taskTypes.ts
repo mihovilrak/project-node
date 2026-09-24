@@ -76,4 +76,3 @@ export const updateTaskType = async (
 export const deleteTaskType = async (id: number): Promise<void> => {
   await api.delete<void>(`/admin/task-types/${id}`);
 };
-

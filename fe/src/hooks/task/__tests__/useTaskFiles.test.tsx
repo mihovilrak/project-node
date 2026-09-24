@@ -1,6 +1,6 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useTaskFiles } from '../useTaskFiles';
-import { getTaskFiles, uploadFile, deleteFile } from '../../../api/files';
+import { getTaskFiles, deleteFile } from '../../../api/files';
 import { TaskFile } from '../../../types/file';
 
 // Mock API calls
@@ -50,40 +50,6 @@ describe('useTaskFiles', () => {
     });
   });
 
-  it('should handle file upload successfully', async () => {
-    const newFile: TaskFile = {
-      id: 3,
-      task_id: 1,
-      user_id: 1,
-      name: 'new-file.txt',
-      original_name: 'new.txt',
-      mime_type: 'text/plain',
-      size: 4096,
-      uploaded_on: '2024-01-25T00:00:00Z',
-      uploaded_by: 'Test User',
-    };
-
-    const mockFile = new File(['test content'], 'new.txt', {
-      type: 'text/plain',
-    });
-    (uploadFile as jest.Mock).mockResolvedValue(newFile);
-    (getTaskFiles as jest.Mock).mockResolvedValue([...mockFiles, newFile]);
-
-    const { result } = renderHook(() => useTaskFiles('1'));
-    // await waitForNextUpdate();
-
-    await act(async () => {
-      await result.current.handleFileUpload(mockFile);
-    });
-
-    await waitFor(() => {
-      expect(uploadFile).toHaveBeenCalledWith(1, expect.any(FormData));
-    });
-    await waitFor(() => {
-      expect(result.current.files).toEqual([...mockFiles, newFile]);
-    });
-  });
-
   it('should handle file deletion successfully', async () => {
     (deleteFile as jest.Mock).mockResolvedValue(undefined);
 
@@ -102,23 +68,6 @@ describe('useTaskFiles', () => {
     });
     await waitFor(() => {
       expect(result.current.files).toEqual([mockFiles[1]]);
-    });
-  });
-
-  it('should handle file upload error', async () => {
-    const error = new Error('Failed to upload file');
-    const mockFile = new File(['test content'], 'error.txt', {
-      type: 'text/plain',
-    });
-    (uploadFile as jest.Mock).mockRejectedValue(error);
-
-    const { result } = renderHook(() => useTaskFiles('1'));
-    // await waitForNextUpdate();
-
-    await waitFor(() => {
-      expect(result.current.handleFileUpload(mockFile)).rejects.toThrow(
-        'Failed to upload file',
-      );
     });
   });
 

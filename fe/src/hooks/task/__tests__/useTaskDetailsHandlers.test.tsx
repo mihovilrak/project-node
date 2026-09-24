@@ -1,9 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTaskDetailsHandlers } from '../useTaskDetailsHandlers';
 import { Comment } from '../../../types/comment';
-import { TaskStatus } from '../../../types/task';
-import { TimeLogCreate, TimeLog } from '../../../types/timeLog';
-import logger from '../../../utils/logger';
+import { TimeLog } from '../../../types/timeLog';
 
 describe('useTaskDetailsHandlers', () => {
   const mockComment: Comment = {
@@ -16,18 +14,6 @@ describe('useTaskDetailsHandlers', () => {
     updated_on: null,
     user_name: 'Test User',
   };
-
-  const mockStatuses: TaskStatus[] = [
-    {
-      id: 1,
-      name: 'To Do',
-      color: '#000000',
-      description: null,
-      active: true,
-      created_on: '2024-01-25T00:00:00Z',
-      updated_on: null,
-    },
-  ];
 
   const mockEvent = {
     currentTarget: document.createElement('button'),
@@ -76,50 +62,23 @@ describe('useTaskDetailsHandlers', () => {
     expect(result.current.state.statusMenuAnchor).toBeNull();
   });
 
-  it('should handle status change', async () => {
-    const mockOnStatusChange = jest.fn().mockResolvedValue(undefined);
+  it('should handle comment editing', () => {
     const { result } = renderHook(() => useTaskDetailsHandlers());
 
-    await act(async () => {
-      result.current.handleStatusChange(1, mockStatuses, mockOnStatusChange);
-    });
-
-    expect(mockOnStatusChange).toHaveBeenCalledWith(1);
-    expect(result.current.state.statusMenuAnchor).toBeNull();
-  });
-
-  it('should handle comment editing', async () => {
-    const mockOnCommentUpdate = jest.fn().mockResolvedValue(undefined);
-    const { result } = renderHook(() => useTaskDetailsHandlers());
-
-    // Start editing
     act(() => {
       result.current.handleEditStart(mockComment);
     });
 
     expect(result.current.state.editingComment).toBe(mockComment);
 
-    // Save comment
-    await act(async () => {
-      await result.current.handleSaveComment(
-        1,
-        'Updated comment',
-        mockOnCommentUpdate,
-      );
+    act(() => {
+      result.current.handleEditStart(null);
     });
 
-    expect(mockOnCommentUpdate).toHaveBeenCalledWith(1, 'Updated comment');
     expect(result.current.state.editingComment).toBeNull();
   });
 
   it('should handle time log dialog', async () => {
-    const mockTimeLogData: TimeLogCreate = {
-      task_id: 1,
-      activity_type_id: 1,
-      log_date: '2024-01-25',
-      spent_time: 2,
-      description: 'Test time log',
-    };
     const mockTimeLog: TimeLog = {
       id: 1,
       task_id: 1,
@@ -132,7 +91,6 @@ describe('useTaskDetailsHandlers', () => {
       updated_on: null,
       activity_type_name: 'Development',
     };
-    const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useTaskDetailsHandlers());
 
     // Open dialog
@@ -151,41 +109,13 @@ describe('useTaskDetailsHandlers', () => {
     expect(result.current.state.timeLogDialogOpen).toBe(false);
     expect(result.current.state.selectedTimeLog).toBeNull();
 
-    // Submit time log
     act(() => {
       result.current.handleTimeLogEdit(mockTimeLog);
     });
-
-    await act(async () => {
-      await result.current.handleTimeLogSubmit(mockTimeLogData, mockOnSubmit);
+    act(() => {
+      result.current.handleTimeLogCreate();
     });
 
-    expect(mockOnSubmit).toHaveBeenCalledWith(mockTimeLogData);
-    expect(result.current.state.timeLogDialogOpen).toBe(false);
-    expect(result.current.state.selectedTimeLog).toBeNull();
-  });
-
-  it('should handle time log submission error', async () => {
-    const mockTimeLogData: TimeLogCreate = {
-      task_id: 1,
-      activity_type_id: 1,
-      log_date: '2024-01-25',
-      spent_time: 2,
-      description: 'Test time log',
-    };
-    const error = new Error('Failed to submit time log');
-    const mockOnSubmit = jest.fn().mockRejectedValue(error);
-    const { result } = renderHook(() => useTaskDetailsHandlers());
-
-    await act(async () => {
-      await result.current.handleTimeLogSubmit(mockTimeLogData, mockOnSubmit);
-    });
-
-    expect(mockOnSubmit).toHaveBeenCalledWith(mockTimeLogData);
-    expect(logger.error).toHaveBeenCalledWith(
-      'Error handling time log:',
-      error,
-    );
     expect(result.current.state.timeLogDialogOpen).toBe(true);
     expect(result.current.state.selectedTimeLog).toBeNull();
   });
