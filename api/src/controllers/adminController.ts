@@ -1,50 +1,34 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as adminModel from '../models/adminModel';
+import { hasPermission } from '../models/permissionModel';
 import { CustomRequest } from '../types/express';
-import { SystemLogQuery } from '../types/admin';
-import logger from '../utils/logger';
+import { parsePagination } from '../utils/pagination';
+import { parsePositiveInteger } from '../utils/requestParsing';
+import { sessionUserId } from '../utils/sessionUser';
 
 /**
- * Verify that the authenticated user has administrator privileges.
- *
- * Returns 401 if user is not authenticated via session, 403 if user lacks admin rights, and 200 with isAdmin flag if authorized. Logs errors and returns 500 on failure.
+ * Report whether the signed-in user holds the Admin permission.
  * @param req Express request with session data containing user information
- * @param res Express response object for sending HTTP responses
+ * @param res 200 with `{ isAdmin: true }`, or 403
  * @param pool Database connection pool for queries
- * @returns Response object with status code and JSON body indicating authentication status or error
  */
 export const checkAdminAccess = async (
   req: CustomRequest,
   res: Response,
   pool: Pool,
 ): Promise<Response> => {
-  try {
-    const userId = req.session?.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    const isAdmin = await adminModel.isUserAdmin(pool, userId);
-
-    if (!isAdmin) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-
-    return res.status(200).json({ isAdmin: true });
-  } catch (error) {
-    logger.error({ err: error });
-    return res.status(500).json({ error: 'Internal server error' });
+  const isAdmin = await hasPermission(pool, sessionUserId(req), 'Admin');
+  if (!isAdmin) {
+    return res.status(403).json({ error: 'Access denied' });
   }
+  return res.status(200).json({ isAdmin: true });
 };
 
 /**
- * Retrieve and return aggregated system statistics including user counts, projects, tasks, and logged time.
- *
- * Responds with status 200 and JSON-formatted statistics on success, or status 500 with an error message if fetching statistics fails.
+ * Retrieve aggregated system statistics including user counts, projects, tasks, and logged time.
  * @param req Express request object
- * @param res Express response object for sending the statistics or error response
+ * @param res Express response object for sending the statistics
  * @param pool Database connection pool
  */
 export const getSystemStats = async (
@@ -52,44 +36,48 @@ export const getSystemStats = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const stats = await adminModel.getSystemStats(pool);
-    res.status(200).json(stats);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching system stats');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const stats = await adminModel.getSystemStats(pool);
+  res.status(200).json(stats);
 };
 
 /**
- * Retrieve system activity logs with optional filtering by date range and activity type.
+ * Retrieve a page of time logs across all users, filtered by date range and activity type.
  *
- * Accepts query parameters for startDate, endDate, and type to filter logs. Returns logs as JSON on success or a 500 error response if log retrieval fails.
- * @param req Request object with SystemLogQuery containing optional startDate, endDate, and type query parameters
- * @param res Response object to send the logs array or error message
+ * Query parameters: `startDate`, `endDate`, `type` (activity type id), `limit` and `offset`.
+ * @param req Request with the filter and pagination query parameters
+ * @param res Response with the log rows, or 400 for a bad activity type id
  * @param pool Database connection pool for data access
  */
-export const getSystemLogs = async (
-  req: Request<{}, {}, {}, SystemLogQuery>,
+export const getTimeLogReport = async (
+  req: Request,
   res: Response,
   pool: Pool,
-): Promise<void> => {
-  try {
-    const { startDate, endDate, type } = req.query;
-    const logs = await adminModel.getSystemLogs(pool, startDate, endDate, type);
-    res.status(200).json(logs);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching system logs');
-    res.status(500).json({ error: 'Internal server error' });
+): Promise<Response | void> => {
+  const { startDate, endDate, type } = req.query;
+  let typeId: number | undefined;
+  if (type !== undefined && type !== '') {
+    const parsed = parsePositiveInteger(type);
+    if (parsed === null) {
+      return res.status(400).json({ error: 'Invalid activity type id' });
+    }
+    typeId = parsed;
   }
+  const logs = await adminModel.getTimeLogReport(
+    pool,
+    {
+      startDate: typeof startDate === 'string' ? startDate : undefined,
+      endDate: typeof endDate === 'string' ? endDate : undefined,
+      type: typeId,
+    },
+    parsePagination(req.query),
+  );
+  res.status(200).json(logs);
 };
 
 /**
- * Retrieve all system permissions and return them as JSON.
- *
- * Responds with a 200 status and the permissions array on success, or a 500 status with an error message if the fetch fails.
+ * Retrieve all system permissions.
  * @param req Express request object
- * @param res Express response object for sending the permissions or error
+ * @param res Express response object for sending the permissions
  * @param pool Database connection pool for querying permissions
  */
 export const getAllPermissions = async (
@@ -97,11 +85,6 @@ export const getAllPermissions = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const permissions = await adminModel.getAllPermissions(pool);
-    res.status(200).json(permissions);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching permissions');
-    res.status(500).json({ error: 'Failed to fetch permissions' });
-  }
+  const permissions = await adminModel.getAllPermissions(pool);
+  res.status(200).json(permissions);
 };

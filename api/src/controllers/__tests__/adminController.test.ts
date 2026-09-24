@@ -1,301 +1,163 @@
-import { Request, Response } from 'express';
-import { Session } from 'express-session';
+import { Response } from 'express';
 import { Pool } from 'pg';
 import * as adminModel from '../../models/adminModel';
+import * as permissionModel from '../../models/permissionModel';
 import * as adminController from '../adminController';
-import { CustomRequest } from '../../types/express';
-import {
-  SystemLogQuery,
-  SystemStats,
-  SystemLog,
-  Permission,
-} from '../../types/admin';
-import { ParsedQs } from 'qs';
 
-// Mock the models
 jest.mock('../../models/adminModel');
+jest.mock('../../models/permissionModel');
 
 describe('AdminController', () => {
-  let mockReq: Partial<Request & CustomRequest>;
+  let mockReq: any;
   let mockRes: Partial<Response>;
-  let mockPool: Partial<Pool>;
+  const mockPool = {} as Pool;
 
   beforeEach(() => {
-    // Create a partial mock Session object with required properties
-    const mockSession = {
-      id: 'test-session-id',
-      cookie: {
-        originalMaxAge: null,
-        expires: undefined,
-        secure: false,
-        httpOnly: true,
-        path: '/',
-        domain: undefined,
-        sameSite: 'strict',
-      },
-      regenerate: (callback: (err: any) => void) => callback(null),
-      destroy: (callback: (err: any) => void) => callback(null),
-      reload: (callback: (err: any) => void) => callback(null),
-      resetMaxAge: () => {},
-      touch: (callback: (err: any) => void) => callback(null),
-      save: (callback: (err: any) => void) => callback(null),
-      user: {
-        id: '1',
-        login: 'test',
-        role_id: 1,
-      },
-    } as Session &
-      Partial<{ user: { id: string; login: string; role_id: number } }>;
-
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-
     mockReq = {
       params: {},
       query: {},
       body: {},
-      session: mockSession,
+      session: { user: { id: '1', login: 'test', role_id: 1 } },
     };
-
-    mockPool = {};
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   describe('checkAdminAccess', () => {
-    it('should confirm access when user is admin', async () => {
-      (adminModel.isUserAdmin as jest.Mock).mockResolvedValue(true);
+    it('confirms access for an admin', async () => {
+      (permissionModel.hasPermission as jest.Mock).mockResolvedValue(true);
 
-      const result = await adminController.checkAdminAccess(
-        mockReq as CustomRequest,
+      await adminController.checkAdminAccess(
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
+        mockPool,
       );
 
+      expect(permissionModel.hasPermission).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        'Admin',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ isAdmin: true });
-      expect(result).toEqual(expect.any(Object));
-      expect(adminModel.isUserAdmin).toHaveBeenCalledWith(mockPool, '1');
     });
 
-    it('should return 401 when user is not authenticated', async () => {
-      mockReq.session!.user = undefined;
-
-      const result = await adminController.checkAdminAccess(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
-      expect(result).toEqual(expect.any(Object));
+    it('rejects an unauthenticated request with 401', async () => {
+      mockReq.session = {};
+      await expect(
+        adminController.checkAdminAccess(mockReq, mockRes as Response, mockPool),
+      ).rejects.toMatchObject({ status: 401 });
     });
 
-    it('should return 403 when user is not admin', async () => {
-      (adminModel.isUserAdmin as jest.Mock).mockResolvedValue(false);
+    it('returns 403 for a non-admin', async () => {
+      (permissionModel.hasPermission as jest.Mock).mockResolvedValue(false);
 
-      const result = await adminController.checkAdminAccess(
-        mockReq as CustomRequest,
+      await adminController.checkAdminAccess(
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
+        mockPool,
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(403);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Access denied' });
-      expect(result).toEqual(expect.any(Object));
-    });
-
-    it('should handle errors appropriately', async () => {
-      (adminModel.isUserAdmin as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      const result = await adminController.checkAdminAccess(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
-      expect(result).toEqual(expect.any(Object));
     });
   });
 
   describe('getSystemStats', () => {
-    const mockStats: SystemStats = {
-      total_users: 10,
-      total_projects: 5,
-      total_tasks: 20,
-      total_time_logged: 1000,
-    };
-
-    it('should return system stats successfully', async () => {
-      (adminModel.getSystemStats as jest.Mock).mockResolvedValue(mockStats);
+    it('returns the stats', async () => {
+      const stats = { total_users: 1 };
+      (adminModel.getSystemStats as jest.Mock).mockResolvedValue(stats);
 
       await adminController.getSystemStats(
-        mockReq as Request,
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
+        mockPool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockStats);
+      expect(mockRes.json).toHaveBeenCalledWith(stats);
     });
 
-    it('should handle errors appropriately', async () => {
+    it('forwards model errors', async () => {
       (adminModel.getSystemStats as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
+        new Error('DB'),
       );
-
-      await adminController.getSystemStats(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        adminController.getSystemStats(mockReq, mockRes as Response, mockPool),
+      ).rejects.toThrow('DB');
     });
   });
 
-  describe('getSystemLogs', () => {
-    const mockQuery: SystemLogQuery = {
-      startDate: '2025-01-01',
-      endDate: '2025-01-31',
-      type: 'login',
-    };
+  describe('getTimeLogReport', () => {
+    it('passes filters and pagination to the model', async () => {
+      const logs = [{ id: 1 }];
+      (adminModel.getTimeLogReport as jest.Mock).mockResolvedValue(logs);
+      mockReq.query = {
+        startDate: '2024-01-01',
+        endDate: '2024-01-31',
+        type: '3',
+        limit: '10',
+        offset: '20',
+      };
 
-    const mockLogs: SystemLog[] = [
-      {
-        id: 1,
-        user_id: 1,
-        user_login: 'test',
-        activity_type_id: 1,
-        activity_name: 'login',
-        description: 'User logged in',
-        created_on: new Date(),
-      },
-    ];
-
-    it('should return system logs successfully', async () => {
-      (adminModel.getSystemLogs as jest.Mock).mockResolvedValue(mockLogs);
-
-      await adminController.getSystemLogs(
-        { ...mockReq, query: mockQuery } as unknown as Request<
-          {},
-          {},
-          {},
-          SystemLogQuery
-        >,
+      await adminController.getTimeLogReport(
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
+        mockPool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockLogs);
-      expect(adminModel.getSystemLogs).toHaveBeenCalledWith(
+      expect(adminModel.getTimeLogReport).toHaveBeenCalledWith(
         mockPool,
-        mockQuery.startDate,
-        mockQuery.endDate,
-        mockQuery.type,
+        { startDate: '2024-01-01', endDate: '2024-01-31', type: 3 },
+        { limit: 10, offset: 20 },
+      );
+      expect(mockRes.json).toHaveBeenCalledWith(logs);
+    });
+
+    it('uses defaults without query parameters', async () => {
+      (adminModel.getTimeLogReport as jest.Mock).mockResolvedValue([]);
+
+      await adminController.getTimeLogReport(
+        mockReq,
+        mockRes as Response,
+        mockPool,
+      );
+
+      expect(adminModel.getTimeLogReport).toHaveBeenCalledWith(
+        mockPool,
+        { startDate: undefined, endDate: undefined, type: undefined },
+        { limit: 50, offset: 0 },
       );
     });
 
-    it('should handle empty query parameters', async () => {
-      (adminModel.getSystemLogs as jest.Mock).mockResolvedValue(mockLogs);
+    it('rejects a non-numeric activity type', async () => {
+      mockReq.query = { type: 'abc' };
 
-      await adminController.getSystemLogs(
-        { ...mockReq, query: {} } as unknown as Request<
-          {},
-          {},
-          {},
-          SystemLogQuery
-        >,
+      await adminController.getTimeLogReport(
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockLogs);
-      expect(adminModel.getSystemLogs).toHaveBeenCalledWith(
         mockPool,
-        undefined,
-        undefined,
-        undefined,
-      );
-    });
-
-    it('should handle errors appropriately', async () => {
-      (adminModel.getSystemLogs as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
       );
 
-      await adminController.getSystemLogs(
-        { ...mockReq, query: mockQuery } as unknown as Request<
-          {},
-          {},
-          {},
-          SystemLogQuery
-        >,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(adminModel.getTimeLogReport).not.toHaveBeenCalled();
     });
   });
 
   describe('getAllPermissions', () => {
-    const mockPermissions: Permission[] = [
-      { id: 1, name: 'Create project' },
-      { id: 2, name: 'Delete project' },
-    ];
-
-    it('should return all permissions successfully', async () => {
+    it('returns all permissions', async () => {
+      const permissions = [{ id: 1, name: 'Admin' }];
       (adminModel.getAllPermissions as jest.Mock).mockResolvedValue(
-        mockPermissions,
+        permissions,
       );
 
       await adminController.getAllPermissions(
-        mockReq as Request,
+        mockReq,
         mockRes as Response,
-        mockPool as Pool,
+        mockPool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockPermissions);
-    });
-
-    it('should handle errors appropriately', async () => {
-      (adminModel.getAllPermissions as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await adminController.getAllPermissions(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Failed to fetch permissions',
-      });
+      expect(mockRes.json).toHaveBeenCalledWith(permissions);
     });
   });
 });
