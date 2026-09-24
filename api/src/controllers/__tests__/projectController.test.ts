@@ -11,7 +11,9 @@ import { ProjectRequest } from '../../types/express';
 jest.mock('../../models/projectModel');
 jest.mock('../../models/notificationModel');
 jest.mock('../../models/accessModel', () => ({
-  resolveProjectScope: jest.fn(async (_pool: unknown, userId: string) => userId),
+  resolveProjectScope: jest.fn(
+    async (_pool: unknown, userId: string) => userId,
+  ),
 }));
 
 describe('ProjectController', () => {
@@ -97,7 +99,7 @@ describe('ProjectController', () => {
       expect(projectModel.getProjects).toHaveBeenCalledWith(
         mockPool,
         { statusId: 1 },
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -121,7 +123,7 @@ describe('ProjectController', () => {
       expect(projectModel.getProjects).toHaveBeenCalledWith(
         mockPool,
         { statusId: 2, createdBy: 4, dueDateFrom: '2026-01-01' },
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
     });
@@ -150,7 +152,9 @@ describe('ProjectController', () => {
     });
 
     it('leaves the query unscoped for an administrator', async () => {
-      (accessModel.resolveProjectScope as jest.Mock).mockResolvedValueOnce(null);
+      (accessModel.resolveProjectScope as jest.Mock).mockResolvedValueOnce(
+        null,
+      );
       (projectModel.getProjects as jest.Mock).mockResolvedValue([]);
 
       await projectController.getProjects(
@@ -610,7 +614,7 @@ describe('ProjectController', () => {
       expect(projectModel.getProjectMembers).toHaveBeenCalledWith(
         mockPool,
         '1',
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockMembers);
@@ -802,11 +806,10 @@ describe('ProjectController', () => {
         mockPool as Pool,
       );
 
-      expect(projectModel.getSubprojects).toHaveBeenCalledWith(
-        mockPool,
-        '1',
-        { limit: 500, offset: 0 },
-      );
+      expect(projectModel.getSubprojects).toHaveBeenCalledWith(mockPool, '1', {
+        limit: 50,
+        offset: 0,
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockSubprojects);
     });
@@ -849,7 +852,7 @@ describe('ProjectController', () => {
         mockPool,
         '1',
         {},
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
@@ -871,7 +874,7 @@ describe('ProjectController', () => {
         mockPool,
         '1',
         { status: 'active', priority: 'high', assignee: '2' },
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });

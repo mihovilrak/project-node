@@ -22,7 +22,7 @@ describe('TimeLogModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_time_logs'),
-        [500, 0],
+        [null, null, null, null, null, null, 50, 0],
       );
       expect(result).toEqual(mockTimeLogs);
     });
@@ -125,7 +125,9 @@ describe('TimeLogModel', () => {
         rowCount: 1,
       } as QueryResult);
 
-      await timeLogModel.deleteTimeLog(mockPool, '1');
+      await expect(timeLogModel.deleteTimeLog(mockPool, '1')).resolves.toBe(
+        true,
+      );
 
       expect(mockPool.query).toHaveBeenCalledWith(
         'DELETE FROM time_logs WHERE id = $1',

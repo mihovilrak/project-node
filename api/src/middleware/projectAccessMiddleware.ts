@@ -7,6 +7,7 @@ import {
   isTaskProjectMember,
   isCommentAuthor,
   isTimeLogOwner,
+  isFileProjectMember,
 } from '../models/accessModel';
 
 type IdResolver = (req: CustomRequest) => string | undefined;
@@ -85,6 +86,11 @@ export const requireTaskAccessBy = (
   pool: Pool,
   resolveId: IdResolver,
 ): RequestHandler => guard(pool, resolveId, isTaskProjectMember);
+
+// Require membership of the project owning the file named by `key`. A missing
+// file yields 403, not 404, so ids cannot be probed.
+export const requireFileAccess = (pool: Pool, key = 'fileId'): RequestHandler =>
+  guard(pool, fromKey(key), isFileProjectMember);
 
 // Ownership guards. Membership lets a user read project data; changing a row
 // somebody else authored additionally requires being that author.

@@ -11,6 +11,13 @@ declare module 'express-session' {
   }
 }
 
+// Set by the task and file routers from the route param or ?taskId=.
+declare module 'express-serve-static-core' {
+  interface Request {
+    taskId?: string;
+  }
+}
+
 export interface CustomRequest extends Request {
   session: Session & Partial<SessionData>;
 }

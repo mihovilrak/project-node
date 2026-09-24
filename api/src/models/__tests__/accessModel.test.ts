@@ -2,10 +2,9 @@ import { Pool } from 'pg';
 import {
   isProjectMember,
   isTaskProjectMember,
-  getAccessibleProjectIds,
   accessibleProjectsSubquery,
   resolveProjectScope,
-  filterByProjectAccess,
+  isFileProjectMember,
   isCommentAuthor,
   isTimeLogOwner,
 } from '../accessModel';
@@ -67,7 +66,9 @@ describe('accessModel', () => {
     it('propagates query errors', async () => {
       mockPool.query.mockRejectedValueOnce(new Error('db down'));
 
-      await expect(isProjectMember(pool(), '3', '7')).rejects.toThrow('db down');
+      await expect(isProjectMember(pool(), '3', '7')).rejects.toThrow(
+        'db down',
+      );
     });
   });
 
@@ -96,25 +97,6 @@ describe('accessModel', () => {
     });
   });
 
-  describe('getAccessibleProjectIds', () => {
-    it('maps rows to numeric ids', async () => {
-      mockPool.query.mockResolvedValueOnce(
-        queryResult([{ id: 1 }, { id: '2' }]),
-      );
-
-      await expect(getAccessibleProjectIds(pool(), '7')).resolves.toEqual([
-        1, 2,
-      ]);
-      expect(mockPool.query).toHaveBeenCalledWith(expect.any(String), ['7']);
-    });
-
-    it('returns an empty array when the user reaches nothing', async () => {
-      mockPool.query.mockResolvedValueOnce(queryResult([]));
-
-      await expect(getAccessibleProjectIds(pool(), '7')).resolves.toEqual([]);
-    });
-  });
-
   describe('accessibleProjectsSubquery', () => {
     it('numbers the user placeholder from the given index', () => {
       const sql = accessibleProjectsSubquery(4);
@@ -139,56 +121,21 @@ describe('accessModel', () => {
     });
   });
 
-  describe('filterByProjectAccess', () => {
-    it('short-circuits on an empty result set without touching the db', async () => {
-      const rows: { project_id: number }[] = [];
+  describe('isFileProjectMember', () => {
+    it('returns true when the user can reach the file project', async () => {
+      mockPool.query.mockResolvedValueOnce(queryResult([{ '?column?': 1 }]));
 
-      await expect(
-        filterByProjectAccess(pool(), '7', rows, 'project_id'),
-      ).resolves.toBe(rows);
-      expect(permissionModel.hasPermission).not.toHaveBeenCalled();
-      expect(mockPool.query).not.toHaveBeenCalled();
+      await expect(isFileProjectMember(pool(), '3', '7')).resolves.toBe(true);
+      expect(mockPool.query).toHaveBeenCalledWith(expect.any(String), [
+        '3',
+        '7',
+      ]);
     });
 
-    it('returns every row for an Admin', async () => {
-      const rows = [{ project_id: 1 }, { project_id: 99 }];
-      (permissionModel.hasPermission as jest.Mock).mockResolvedValueOnce(true);
+    it('returns false for a missing file or a non-member', async () => {
+      mockPool.query.mockResolvedValueOnce(queryResult([], 0));
 
-      await expect(
-        filterByProjectAccess(pool(), '7', rows, 'project_id'),
-      ).resolves.toBe(rows);
-      expect(mockPool.query).not.toHaveBeenCalled();
-    });
-
-    it('drops rows outside the accessible projects', async () => {
-      (permissionModel.hasPermission as jest.Mock).mockResolvedValueOnce(false);
-      mockPool.query.mockResolvedValueOnce(queryResult([{ id: 1 }, { id: 2 }]));
-
-      const rows = [{ project_id: 1 }, { project_id: 99 }, { project_id: 2 }];
-
-      await expect(
-        filterByProjectAccess(pool(), '7', rows, 'project_id'),
-      ).resolves.toEqual([{ project_id: 1 }, { project_id: 2 }]);
-    });
-
-    it('matches project ids that arrive as strings', async () => {
-      (permissionModel.hasPermission as jest.Mock).mockResolvedValueOnce(false);
-      mockPool.query.mockResolvedValueOnce(queryResult([{ id: 5 }]));
-
-      const rows = [{ project_id: '5' }, { project_id: '6' }];
-
-      await expect(
-        filterByProjectAccess(pool(), '7', rows, 'project_id'),
-      ).resolves.toEqual([{ project_id: '5' }]);
-    });
-
-    it('returns nothing when the user has no accessible projects', async () => {
-      (permissionModel.hasPermission as jest.Mock).mockResolvedValueOnce(false);
-      mockPool.query.mockResolvedValueOnce(queryResult([]));
-
-      await expect(
-        filterByProjectAccess(pool(), '7', [{ project_id: 1 }], 'project_id'),
-      ).resolves.toEqual([]);
+      await expect(isFileProjectMember(pool(), '3', '7')).resolves.toBe(false);
     });
   });
 

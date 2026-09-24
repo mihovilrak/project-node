@@ -39,7 +39,7 @@ export default (pool: Pool): Router => {
     '/:id/comments',
     taskAccess,
     ((req, res, next) => {
-      (req as any).taskId = req.params.id;
+      req.taskId = req.params.id as string;
       next();
     }) as RequestHandler,
     commentRouter(pool),
@@ -49,7 +49,7 @@ export default (pool: Pool): Router => {
     '/:id/files',
     taskAccess,
     ((req, res, next) => {
-      (req as any).taskId = req.params.id;
+      req.taskId = req.params.id as string;
       next();
     }) as RequestHandler,
     fileRouter(pool),
@@ -61,8 +61,18 @@ export default (pool: Pool): Router => {
     withPool(pool, taskController.getSubtasks),
   );
   router.get('/:id/tags', taskAccess, withPool(pool, getTaskTags));
-  router.post('/:id/tags', taskAccess, withPool(pool, addTaskTags));
-  router.delete('/:id/tags/:tagId', taskAccess, withPool(pool, removeTaskTag));
+  router.post(
+    '/:id/tags',
+    checkPermission(pool, 'Edit tasks'),
+    taskAccess,
+    withPool(pool, addTaskTags),
+  );
+  router.delete(
+    '/:id/tags/:tagId',
+    checkPermission(pool, 'Edit tasks'),
+    taskAccess,
+    withPool(pool, removeTaskTag),
+  );
   router.get(
     '/:id/watchers',
     taskAccess,
@@ -86,6 +96,7 @@ export default (pool: Pool): Router => {
   );
   router.patch(
     '/:id/change-status',
+    checkPermission(pool, 'Edit tasks'),
     taskAccess,
     withPool(pool, taskController.changeTaskStatus),
   );

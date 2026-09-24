@@ -119,12 +119,17 @@ returns table (
         )
         else true
     end
+    -- Deleted tasks only appear when asked for by id or by status.
+    and (t.status_id <> task_status_id('deleted')
+         or p_id is not null
+         or p_inactive_statuses_only
+         or task_status_id('deleted') = any(p_status_ids))
     and (p_due_date_from is null or t.due_date >= p_due_date_from)
     and (p_due_date_to is null or t.due_date <= p_due_date_to)
     and (p_start_date_from is null or t.start_date >= p_start_date_from)
     and (p_start_date_to is null or t.start_date <= p_start_date_to)
-    and (p_created_from is null or t.created_on::date >= p_created_from)
-    and (p_created_to is null or t.created_on::date <= p_created_to)
+    and (p_created_from is null or t.created_on >= p_created_from)
+    and (p_created_to is null or t.created_on < p_created_to + 1)
     and (p_estimated_time_min is null or t.estimated_time >= p_estimated_time_min)
     and (p_estimated_time_max is null or t.estimated_time <= p_estimated_time_max);
 $function$ language sql stable;
