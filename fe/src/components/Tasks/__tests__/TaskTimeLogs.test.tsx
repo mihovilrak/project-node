@@ -2,7 +2,12 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import TaskTimeLogs from '../TaskTimeLogs';
-import { getTaskTimeLogs, deleteTimeLog } from '../../../api/timeLogs';
+import {
+  getTaskTimeLogs,
+  deleteTimeLog,
+  createTimeLog,
+  updateTimeLog,
+} from '../../../api/timeLogs';
 import { TimeLog } from '../../../types/timeLog';
 import { Task } from '../../../types/task';
 
@@ -228,8 +233,47 @@ describe('TaskTimeLogs', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Simulate dialog submit
     fireEvent.click(screen.getByTestId('mock-submit-dialog'));
-    expect(getTaskTimeLogs).toHaveBeenCalledTimes(2); // Initial + after submission
+
+    await waitFor(() => expect(getTaskTimeLogs).toHaveBeenCalledTimes(2));
+    expect(createTimeLog).toHaveBeenCalledTimes(1);
+    expect(createTimeLog).toHaveBeenCalledWith(1, {
+      task_id: 1,
+      activity_type_id: 1,
+      log_date: '2023-01-01',
+      spent_time: 2,
+    });
+    expect(updateTimeLog).not.toHaveBeenCalled();
+  });
+
+  it('updates the selected time log on submit after edit', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('mock-edit'));
+    fireEvent.click(screen.getByTestId('mock-submit-dialog'));
+
+    await waitFor(() => expect(updateTimeLog).toHaveBeenCalledTimes(1));
+    expect(updateTimeLog).toHaveBeenCalledWith(1, expect.any(Object));
+    expect(createTimeLog).not.toHaveBeenCalled();
+  });
+
+  it('shows delete errors without hiding the list', async () => {
+    (deleteTimeLog as jest.Mock).mockRejectedValueOnce(
+      new Error('Delete failed'),
+    );
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('mock-delete'));
+
+    expect(await screen.findByText('Delete failed')).toBeInTheDocument();
+    expect(screen.getByTestId('time-log-list')).toBeInTheDocument();
   });
 });

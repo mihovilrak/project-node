@@ -36,19 +36,12 @@ export const useTimeLogDialog = ({
 
   const { timeError, validateAndFormatTime } = useTimeLogValidation();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const {
-    projects,
-    tasks,
-    users,
-    activityTypes,
-    isLoading,
-    loadError,
-    handleProjectSelect: handleProjectDataFetch,
-  } = useTimeLogData({
-    open,
-    projectId: projectId ?? selectedProjectId,
-    hasAdminPermission,
-  });
+  const { projects, tasks, users, activityTypes, isLoading, loadError } =
+    useTimeLogData({
+      open,
+      projectId: selectedProjectId ?? projectId,
+      hasAdminPermission,
+    });
 
   // Reset initialization flag and submit error when dialog closes
   useEffect(() => {
@@ -91,9 +84,6 @@ export const useTimeLogDialog = ({
   const handleProjectChange = (id: number | null) => {
     setSelectedProjectId(id || undefined);
     setSelectedTaskId(undefined);
-    if (id) {
-      handleProjectDataFetch(id);
-    }
   };
 
   const handleTaskChange = (id: number | null, taskList: Task[]) => {

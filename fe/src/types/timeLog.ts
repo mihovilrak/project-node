@@ -1,7 +1,7 @@
 import { Dayjs } from 'dayjs';
 import { Project } from './project';
 import { Task } from './task';
-import { User } from './user';
+import { User, UserOption } from './user';
 import { ActivityType } from './setting';
 
 export type { ActivityType } from './setting';
@@ -53,7 +53,7 @@ export interface TimeLogFormProps {
   projects: Project[];
   tasks: Task[];
   activityTypes: ActivityType[];
-  users: User[];
+  users: UserOption[];
   selectedProjectId: number | null;
   selectedTaskId: number | null;
   selectedUserId: number;

@@ -52,8 +52,7 @@ describe('ProjectEditDialog', () => {
   });
 
   it('calls API when save button is clicked', async () => {
-    const updatedProject = { ...mockProject, name: 'Updated Project' };
-    (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
+    (updateProject as jest.Mock).mockResolvedValueOnce(undefined);
 
     render(<ProjectEditDialog {...defaultProps} />);
 
@@ -61,11 +60,18 @@ describe('ProjectEditDialog', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
+      expect(updateProject).toHaveBeenCalledTimes(1);
       expect(updateProject).toHaveBeenCalledWith(
         mockProject.id,
         expect.any(Object),
       );
-      expect(defaultProps.onSaved).toHaveBeenCalledWith(updatedProject);
+      expect(defaultProps.onSaved).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockProject.id,
+          name: mockProject.name,
+          status_name: 'Active',
+        }),
+      );
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });

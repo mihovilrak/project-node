@@ -1,13 +1,13 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useTimeLogData } from '../useTimeLogData';
 import { getProjects } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
-import { getUsers } from '../../../api/users';
+import { getUserOptions } from '../../../api/users';
 import { getActivityTypes } from '../../../api/activityTypes';
 import logger from '../../../utils/logger';
 import { Project } from '../../../types/project';
 import { Task } from '../../../types/task';
-import { User } from '../../../types/user';
+import { UserOption } from '../../../types/user';
 import { ActivityType } from '../../../types/timeLog';
 
 // Mock the API calls
@@ -102,33 +102,9 @@ const mockTasks: Task[] = [
   },
 ];
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    name: 'User 1',
-    login: 'user1',
-    surname: 'Test',
-    email: 'user1@test.com',
-    role_id: 1,
-    role_name: 'User',
-    status_id: 1,
-    status_name: 'Active',
-    created_on: '2025-02-01',
-    updated_on: null,
-  },
-  {
-    id: 2,
-    name: 'User 2',
-    login: 'user2',
-    surname: 'Test',
-    email: 'user2@test.com',
-    role_id: 1,
-    role_name: 'User',
-    status_id: 1,
-    status_name: 'Active',
-    created_on: '2025-02-01',
-    updated_on: null,
-  },
+const mockUsers: UserOption[] = [
+  { id: 1, login: 'user1', name: 'User 1', surname: 'Test' },
+  { id: 2, login: 'user2', name: 'User 2', surname: 'Test' },
 ];
 
 const mockActivityTypes: ActivityType[] = [
@@ -159,7 +135,7 @@ describe('useTimeLogData', () => {
     jest.clearAllMocks();
     (getProjects as jest.Mock).mockResolvedValue(mockProjects);
     (getProjectTasks as jest.Mock).mockResolvedValue(mockTasks);
-    (getUsers as jest.Mock).mockResolvedValue(mockUsers);
+    (getUserOptions as jest.Mock).mockResolvedValue(mockUsers);
     (getActivityTypes as jest.Mock).mockResolvedValue(mockActivityTypes);
   });
 
@@ -192,7 +168,7 @@ describe('useTimeLogData', () => {
     expect(result.current.isLoading).toBe(false);
     expect(getActivityTypes).not.toHaveBeenCalled();
     expect(getProjects).not.toHaveBeenCalled();
-    expect(getUsers).not.toHaveBeenCalled();
+    expect(getUserOptions).not.toHaveBeenCalled();
     expect(getProjectTasks).not.toHaveBeenCalled();
   });
 
@@ -209,7 +185,11 @@ describe('useTimeLogData', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getProjects).toHaveBeenCalled();
-    expect(getProjectTasks).toHaveBeenCalledWith(1);
+    expect(getProjectTasks).toHaveBeenCalledWith(
+      1,
+      {},
+      expect.any(AbortSignal),
+    );
     expect(result.current.projects).toEqual(mockProjects);
     expect(result.current.tasks).toEqual(mockTasks);
     expect(result.current.isLoading).toBe(false);
@@ -227,48 +207,46 @@ describe('useTimeLogData', () => {
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(getUsers).toHaveBeenCalled();
+    expect(getUserOptions).toHaveBeenCalled();
     expect(result.current.users).toEqual(mockUsers);
   });
 
-  it('should handle project selection', async () => {
-    const { result } = renderHook(() =>
-      useTimeLogData({
-        open: true,
-        projectId: undefined,
-        hasAdminPermission: false,
-      }),
+  it('loads tasks when the project changes', async () => {
+    const { result, rerender } = renderHook(
+      ({ projectId }: { projectId?: number }) =>
+        useTimeLogData({ open: true, projectId, hasAdminPermission: false }),
+      { initialProps: { projectId: undefined as number | undefined } },
     );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(getProjectTasks).not.toHaveBeenCalled();
 
-    act(() => {
-      result.current.handleProjectSelect(1);
-    });
-
-    expect(result.current.isLoading).toBe(true);
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(getProjectTasks).toHaveBeenCalledWith(1);
-    expect(result.current.tasks).toEqual(mockTasks);
+    rerender({ projectId: 1 });
+    await waitFor(() => expect(result.current.tasks).toEqual(mockTasks));
+    expect(getProjectTasks).toHaveBeenCalledTimes(1);
+    expect(getProjects).toHaveBeenCalledTimes(1);
+    expect(getActivityTypes).toHaveBeenCalledTimes(1);
   });
 
-  it('should clear tasks when project is deselected', async () => {
+  it('clears tasks when the project is deselected', async () => {
+    const { result, rerender } = renderHook(
+      ({ projectId }: { projectId?: number }) =>
+        useTimeLogData({ open: true, projectId, hasAdminPermission: false }),
+      { initialProps: { projectId: 1 as number | undefined } },
+    );
+
+    await waitFor(() => expect(result.current.tasks).toEqual(mockTasks));
+    rerender({ projectId: undefined });
+    expect(result.current.tasks).toEqual([]);
+  });
+
+  it('does not load user options without admin permission', async () => {
     const { result } = renderHook(() =>
-      useTimeLogData({
-        open: true,
-        projectId: 1,
-        hasAdminPermission: false,
-      }),
+      useTimeLogData({ open: true, projectId: 1, hasAdminPermission: false }),
     );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    act(() => {
-      result.current.handleProjectSelect(null);
-    });
-
-    expect(result.current.tasks).toEqual([]);
+    expect(getUserOptions).not.toHaveBeenCalled();
   });
 
   it('should handle API errors gracefully', async () => {
@@ -285,6 +263,6 @@ describe('useTimeLogData', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(logger.error).toHaveBeenCalled();
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.loadError).toBe('API Error');
   });
 });

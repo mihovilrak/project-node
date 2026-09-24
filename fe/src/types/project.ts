@@ -111,12 +111,9 @@ export interface SubprojectFormData {
 }
 
 export interface ProjectMembersListProps {
-  projectId: number;
   members: ProjectMember[];
   canManageMembers: boolean;
   onMemberRemove: (userId: number) => void;
-  onMemberUpdate?: (memberId: number, role: string) => Promise<void>;
-  onMembersChange?: () => void;
 }
 
 export interface EditMembersDialogProps {
@@ -124,7 +121,7 @@ export interface EditMembersDialogProps {
   onClose: () => void;
   projectId: number;
   currentMembers: ProjectMember[];
-  onSave: (selectedUsers: number[]) => void;
+  onSave: (selectedUsers: number[]) => Promise<void>;
 }
 
 export interface ProjectOverviewProps {
@@ -141,16 +138,6 @@ export interface ProjectTaskListProps {
   tasks: Task[];
   onCreateTask?: () => void;
   onTimeLogCreate?: (taskId: number) => void;
-}
-
-/**
- * Use these props to render a tab panel that displays its children only when
- * its index matches the current active value.
- */
-export interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
 }
 
 export interface ProjectEditFormData extends Partial<Project> {
@@ -175,24 +162,6 @@ export interface ProjectStatus {
   id: number;
   name: string;
   color?: string;
-}
-
-/**
- * Describe the runtime state used by a project details view, including loaded
- * project data, lists, dialogs and loading/error flags.
- */
-export interface ProjectDetailsState {
-  project: Project | null;
-  projectDetails: Project | null;
-  members: ProjectMember[];
-  tasks: Task[];
-  loading: boolean;
-  error: string | null;
-  editDialogOpen: boolean;
-  deleteDialogOpen: boolean;
-  createTaskDialogOpen: boolean;
-  membersDialogOpen: boolean;
-  timeLogs: TimeLog[];
 }
 
 export type AppointmentComponentProps = {
@@ -249,57 +218,48 @@ export interface ProjectTabPanelsProps {
   members: ProjectMember[];
   timeLogs: TimeLog[];
   canManageMembers: boolean;
-  projectId: string;
   onCreateTask: () => void;
   onManageMembers: () => void;
-  onTimeLogCreate: (taskId: number) => void;
+  onTimeLogCreate: (taskId?: number) => void;
   onTimeLogEdit: (timeLog: TimeLog) => void;
   onTimeLogDelete: (timeLogId: number) => void;
   onMemberRemove: (userId: number) => void;
 }
 
 /**
- * Expose state and async handlers for loading, updating, and removing project
- * members, plus control of the members management dialog.
+ * Expose project members plus handlers to remove members, sync the member list
+ * and control the members management dialog.
  */
 export interface ProjectMembersHook {
   members: ProjectMember[];
-  setMembers: React.Dispatch<React.SetStateAction<ProjectMember[]>>;
+  membersError: string | null;
   manageMembersOpen: boolean;
   setManageMembersOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleMemberUpdate: (memberId: number, role: string) => Promise<void>;
   handleMemberRemove: (memberId: number) => Promise<void>;
   handleMembersUpdate: (selectedUsers: number[]) => Promise<void>;
   loadMembers: () => Promise<void>;
 }
 
-/**
- * Manage a project's task list state and actions, including loading tasks,
- * creating tasks, and controlling the task form visibility.
- */
 export interface ProjectTasksHook {
   tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   tasksError: string | null;
-  taskFormOpen: boolean;
-  setTaskFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  handleTaskCreate: (task: Task) => Promise<void>;
   loadTasks: () => Promise<void>;
 }
 
 /**
- * Expose state and handlers to load, create, edit, delete, and select project
- * time logs, and to control the time-log dialog visibility.
+ * Expose project time logs, handlers to save and delete them and the state of
+ * the time-log dialog.
  */
 export interface ProjectTimeLogsHook {
   timeLogs: TimeLog[];
-  setTimeLogs: React.Dispatch<React.SetStateAction<TimeLog[]>>;
+  timeLogsError: string | null;
   timeLogDialogOpen: boolean;
-  setTimeLogDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedTimeLog: TimeLog | null;
-  setSelectedTimeLog: React.Dispatch<React.SetStateAction<TimeLog | null>>;
+  timeLogTaskId: number | undefined;
+  openTimeLogDialog: (taskId?: number) => void;
+  closeTimeLogDialog: () => void;
   handleTimeLogSubmit: (timeLogData: TimeLogCreate) => Promise<void>;
-  handleTimeLogEdit: (timeLog: TimeLog) => Promise<void>;
+  handleTimeLogEdit: (timeLog: TimeLog) => void;
   handleTimeLogDelete: (timeLogId: number) => Promise<void>;
   loadTimeLogs: () => Promise<void>;
 }

@@ -40,26 +40,6 @@ export const getProjects = async (
 };
 
 /**
- * Retrieve the project with the given id from the server.
- *
- * Performs a GET /projects/:id request and returns the primary Project record.
- * The optional AbortSignal can be used to cancel the in-flight request. For
- * expanded or additional project data, use getProjectDetails alongside this
- * call.
- *
- * @param id Number - the numeric id of the project to fetch (required)
- * @param signal AbortSignal | undefined - optional signal to cancel the HTTP
- *   request
- */
-export const getProjectById = async (
-  id: number,
-  signal?: AbortSignal,
-): Promise<Project> => {
-  const response = await api.get<Project>(`/projects/${id}`, { signal });
-  return response.data;
-};
-
-/**
  * Fetch detailed information for a project by id, returning null if the project
  * is not found.
  *
@@ -114,41 +94,14 @@ export const createProject = async (
 };
 
 /**
- * Update a project's workflow state by sending the new status identifier to the
- * server.
- *
- * Sends a PATCH request to /projects/{id}/status with a JSON body { status_id:
- * statusId } and returns the backend response message. This operation mutates
- * the project record on the server and will fail if the project or status id
- * does not exist or if the caller lacks permission to change the project's
- * status.
- *
- * @param id Numeric project identifier (project id).
- * @param statusId Numeric identifier of the new project status; sent as
- *   status_id in the request body.
- * @returns Promise resolving to an object with a `message` string confirming
- *   the status change.
+ * Save project changes. The server does not return the updated record, so
+ * callers merge `updates` into their local state.
  */
-export const changeProjectStatus = async (
-  id: number,
-  statusId: number,
-): Promise<{ message: string }> => {
-  const response = await api.patch<{ message: string }>(
-    `/projects/${id}/status`,
-    {
-      status_id: statusId,
-    },
-  );
-  return response.data;
-};
-
-// Update project
 export const updateProject = async (
   id: number,
   updates: Partial<Project>,
-): Promise<Project> => {
-  const response = await api.put<Project>(`/projects/${id}`, updates);
-  return response.data;
+): Promise<void> => {
+  await api.put(`/projects/${id}`, updates);
 };
 
 /**
@@ -231,32 +184,6 @@ export const removeProjectMember = async (
   await api.delete<void>(`/projects/${projectId}/members`, {
     data: { userId },
   });
-};
-
-/**
- * Change the role assigned to a user on a specific project.
- *
- * Performs a PUT request to /projects/{projectId}/members/{userId} with the new
- * role and returns the updated ProjectMember record. This call updates
- * server-side membership data; callers should use the returned ProjectMember or
- * refresh local state. No client-side validation of the role is performed.
- *
- * @param projectId Numeric ID of the project containing the member.
- * @param userId Numeric ID of the user whose project role will be updated.
- * @param role New role string to assign to the project member.
- * @returns Promise<ProjectMember> — resolves to the updated ProjectMember
- *   object.
- */
-export const updateProjectMember = async (
-  projectId: number,
-  userId: number,
-  role: string,
-): Promise<ProjectMember> => {
-  const response = await api.put<ProjectMember>(
-    `/projects/${projectId}/members/${userId}`,
-    { role },
-  );
-  return response.data;
 };
 
 /**

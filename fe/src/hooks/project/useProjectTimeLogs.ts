@@ -1,104 +1,62 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import { ProjectTimeLogsHook } from '../../types/project';
-import {
-  getTaskTimeLogs,
-  createTimeLog,
-  updateTimeLog,
-  deleteTimeLog,
-} from '../../api/timeLogs';
-import { getProjectTasks } from '../../api/tasks';
-import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { getProjectTimeLogs } from '../../api/timeLogs';
+import { useTimeLogCrud } from '../timeLog/useTimeLogCrud';
 
 /**
- * Fetch and manage time logs for all tasks in a project with create, update,
- * and delete operations.
+ * Load a project's time logs in one request and manage the time-log dialog.
  *
  * @param projectId The project identifier to load time logs for
  */
 export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
-  const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
+  const { timeLogs, error, refetch, saveTimeLog, deleteTimeLog } =
+    useTimeLogCrud(
+      (signal) => getProjectTimeLogs(Number(projectId), undefined, signal),
+      [projectId],
+      Boolean(projectId),
+    );
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
+  const [timeLogTaskId, setTimeLogTaskId] = useState<number | undefined>();
 
-  const loadTimeLogs = async () => {
-    if (!projectId) return;
-    try {
-      const tasks = await getProjectTasks(Number(projectId));
-      let allLogs: TimeLog[] = [];
-      if (tasks && Array.isArray(tasks)) {
-        const taskLogGroups = await Promise.all(
-          tasks
-            .filter((task) => task?.id)
-            .map(async (task) => {
-              try {
-                const taskLogs = await getTaskTimeLogs(task.id);
-                return taskLogs && Array.isArray(taskLogs) ? taskLogs : [];
-              } catch (taskError) {
-                logger.error(
-                  `Failed to load time logs for task ${task.id}:`,
-                  taskError,
-                );
-                return [];
-              }
-            }),
-        );
-        allLogs = taskLogGroups.flat();
-      }
-      setTimeLogs(allLogs);
-    } catch (error: unknown) {
-      logger.error('Failed to load time logs:', error);
-      setTimeLogs([]);
-      throw new Error(getApiErrorMessage(error, 'Failed to load time logs'));
-    }
-  };
-
-  const handleTimeLogSubmit = async (timeLogData: TimeLogCreate) => {
-    try {
-      // Check if we're editing an existing time log
-      if (selectedTimeLog && selectedTimeLog.id) {
-        await updateTimeLog(selectedTimeLog.id, timeLogData);
-      } else {
-        if (!timeLogData.task_id) {
-          throw new Error('Task ID is required');
-        }
-        await createTimeLog(timeLogData.task_id, timeLogData);
-      }
-      await loadTimeLogs();
-      setTimeLogDialogOpen(false);
-      setSelectedTimeLog(null);
-    } catch (error: unknown) {
-      logger.error('Failed to submit time log:', error);
-      throw new Error(getApiErrorMessage(error, 'Failed to submit time log'));
-    }
-  };
-
-  const handleTimeLogEdit = async (timeLog: TimeLog) => {
-    setSelectedTimeLog(timeLog);
+  const openTimeLogDialog = useCallback((taskId?: number) => {
+    setSelectedTimeLog(null);
+    setTimeLogTaskId(taskId || undefined);
     setTimeLogDialogOpen(true);
-  };
+  }, []);
 
-  const handleTimeLogDelete = async (timeLogId: number) => {
-    try {
-      await deleteTimeLog(timeLogId);
-      await loadTimeLogs();
-    } catch (error: unknown) {
-      logger.error('Failed to delete time log:', error);
-      throw new Error(getApiErrorMessage(error, 'Failed to delete time log'));
-    }
-  };
+  const closeTimeLogDialog = useCallback(() => {
+    setTimeLogDialogOpen(false);
+    setSelectedTimeLog(null);
+    setTimeLogTaskId(undefined);
+  }, []);
+
+  const handleTimeLogEdit = useCallback((timeLog: TimeLog) => {
+    setSelectedTimeLog(timeLog);
+    setTimeLogTaskId(timeLog.task_id);
+    setTimeLogDialogOpen(true);
+  }, []);
+
+  // The dialog closes itself on success and shows the error otherwise.
+  const handleTimeLogSubmit = useCallback(
+    async (timeLogData: TimeLogCreate) => {
+      await saveTimeLog(timeLogData, selectedTimeLog?.id);
+    },
+    [saveTimeLog, selectedTimeLog?.id],
+  );
 
   return {
     timeLogs,
-    setTimeLogs,
+    timeLogsError: error,
     timeLogDialogOpen,
-    setTimeLogDialogOpen,
     selectedTimeLog,
-    setSelectedTimeLog,
+    timeLogTaskId,
+    openTimeLogDialog,
+    closeTimeLogDialog,
     handleTimeLogSubmit,
     handleTimeLogEdit,
-    handleTimeLogDelete,
-    loadTimeLogs,
+    handleTimeLogDelete: deleteTimeLog,
+    loadTimeLogs: refetch,
   };
 };

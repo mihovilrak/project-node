@@ -49,7 +49,6 @@ const mockProps = {
   members: [],
   timeLogs: [],
   canManageMembers: true,
-  projectId: '1',
   onCreateTask: jest.fn(),
   onManageMembers: jest.fn(),
   onTimeLogCreate: jest.fn(),
@@ -111,10 +110,21 @@ describe('ProjectTabPanels', () => {
     expect(mockProps.onManageMembers).toHaveBeenCalled();
   });
 
+  it('hides manage members button without permission', () => {
+    renderWithRouter(
+      <ProjectTabPanels
+        {...mockProps}
+        activeTab={2}
+        canManageMembers={false}
+      />,
+    );
+    expect(screen.queryByText('Manage Members')).not.toBeInTheDocument();
+  });
+
   it('calls onTimeLogCreate when log time button is clicked', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={3} />);
     fireEvent.click(screen.getByText('Log Time'));
-    expect(mockProps.onTimeLogCreate).toHaveBeenCalledWith(0);
+    expect(mockProps.onTimeLogCreate).toHaveBeenCalledWith();
   });
 
   it('hides tabs content when activeTab does not match', () => {
