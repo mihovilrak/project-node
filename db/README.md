@@ -22,7 +22,11 @@ Status values used across the app:
 
 Because edited files are re-applied against existing databases, a changed function signature needs a `drop function if exists` for the old one, and a changed table needs `alter table` statements (not only the `create table if not exists`).
 
-Credentials go through a temporary `.pgpass` ([pgpass.sh](pgpass.sh)), never `PGPASSWORD`.
+### Credentials
+
+- `POSTGRES_PASSWORD`, `APP_DB_PASSWORD` and `ADMIN_PASSWORD` can each be given directly or as a `*_FILE` path (Compose uses the files in `/run/secrets`; see [Secrets](../README.md#-secrets)). `file_env` in [pgpass.sh](pgpass.sh) resolves them and fails if both forms are set.
+- The superuser password goes through a temporary `.pgpass`, never `PGPASSWORD`.
+- The app role and admin passwords reach `psql` through the environment (`\getenv`), not the command line, and the statements that use them run with `log_statement = 'none'` and `log_min_error_statement = 'panic'` so they never land in the server log.
 
 ## Roles and privileges
 
@@ -58,6 +62,7 @@ The `backup` compose service ([backup-scheduler.sh](backup-scheduler.sh)) runs [
 
 - Dumps go to `./db/backup/db_dump_<timestamp>.dump` on the host, in `pg_dump` custom format (already compressed, restorable selectively and in parallel). A dump is written to a `.partial` file and only renamed after `pg_restore --list` reads it back; dumps older than `BACKUP_RETENTION_DAYS` (default 30) are deleted.
 - The service runs as the `nginx` user (uid 101) from the app image. On Linux, the host directory must be writable by it: `mkdir -p db/backup && sudo chown 101:101 db/backup`.
+- It connects as `POSTGRES_USER` with the password from the `postgres_password` secret.
 - Run a backup now: `docker compose exec backup sh /app/db/backup.sh`.
 - Restore: `docker compose exec -T db pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists < db/backup/<file>.dump`. Add `-j 4` to restore in parallel, or `-t <table>` for a single table.
 - List a dump's contents without restoring: `pg_restore --list db/backup/<file>.dump`.
