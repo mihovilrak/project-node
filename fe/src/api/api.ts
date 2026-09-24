@@ -7,6 +7,8 @@ export { AUTH_UNAUTHORIZED_EVENT } from '../constants/auth';
 export const api: AxiosInstance = axios.create({
   baseURL: '/api',
   withCredentials: true,
+  // The backend rejects state-changing requests without this header (CSRF).
+  headers: { 'X-Requested-With': 'XMLHttpRequest' },
 });
 
 /**
@@ -31,7 +33,10 @@ export const handleApiError = (error: AxiosError): Promise<never> => {
     typeof window !== 'undefined' && window.location.pathname === '/login';
   if (status === 401 && !isLoginRequest && !alreadyOnLogin) {
     window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
-    window.history.replaceState(null, '', '/login');
+    const next = `${window.location.pathname}${window.location.search}`;
+    const target =
+      next && next !== '/' ? `/login?next=${encodeURIComponent(next)}` : '/login';
+    window.history.replaceState(null, '', target);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
   return Promise.reject(error);

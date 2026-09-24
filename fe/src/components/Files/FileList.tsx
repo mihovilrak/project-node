@@ -14,16 +14,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { FileListProps } from '../../types/file';
-import { useFileList } from '../../hooks/file/useFileList';
 import { downloadFile } from '../../api/files';
 import { Link as RouterLink } from 'react-router-dom';
+import { formatFileSize, safeDecodeFileName } from '../../utils/fileUtils';
+import logger from '../../utils/logger';
 
 const FileList: React.FC<FileListProps> = ({
   files,
   taskId,
   onFileDeleted,
 }) => {
-  const { formatFileSize } = useFileList(onFileDeleted);
+  const handleDownload = (fileId: number) => {
+    downloadFile(taskId, fileId).catch((error: unknown) =>
+      logger.error('Failed to download file', error),
+    );
+  };
 
   if (files.length === 0) {
     return (
@@ -54,7 +59,7 @@ const FileList: React.FC<FileListProps> = ({
               primary={
                 <Typography variant="body1" component="div">
                   {file?.original_name
-                    ? decodeURIComponent(escape(file.original_name))
+                    ? safeDecodeFileName(file.original_name)
                     : 'Unknown file'}
                 </Typography>
               }
@@ -95,9 +100,7 @@ const FileList: React.FC<FileListProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="download"
-                  onClick={() =>
-                    file?.id && taskId && downloadFile(taskId, file.id)
-                  }
+                  onClick={() => file?.id && taskId && handleDownload(file.id)}
                   sx={{ mr: 1 }}
                   disabled={!file?.id || !taskId}
                 >

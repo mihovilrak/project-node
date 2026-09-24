@@ -1,6 +1,7 @@
 import { api } from './api';
 import { TaskFile, FileUploadOptions } from '../types/file';
 import { AxiosProgressEvent } from 'axios';
+import { getFileNameFromContentDisposition } from '../utils/fileUtils';
 
 /**
  * Fetch the files attached to a specific task from the server.
@@ -97,12 +98,9 @@ export const downloadFile = async (
   const link = document.createElement('a');
   link.href = url;
 
-  const contentDisposition = response.headers['content-disposition'];
-  const filename = contentDisposition
-    ? decodeURIComponent(
-        contentDisposition.split('filename=')[1].replace(/['"]/g, ''),
-      )
-    : 'download';
+  const filename = getFileNameFromContentDisposition(
+    response.headers['content-disposition'],
+  );
 
   link.setAttribute('download', filename);
   document.body.appendChild(link);
