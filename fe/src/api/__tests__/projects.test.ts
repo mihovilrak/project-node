@@ -14,7 +14,6 @@ import {
   removeProjectMember,
   updateProjectMember,
   getSubprojects,
-  getProjectSpentTime,
 } from '../projects';
 
 // Mock the api module
@@ -175,26 +174,6 @@ describe('Projects API', () => {
       mockedApi.delete.mockRejectedValueOnce(error);
 
       await expect(deleteProject(1)).rejects.toThrow(error);
-    });
-  });
-
-  describe('getProjectSpentTime', () => {
-    it('should return zero for new project', async () => {
-      mockedApi.get.mockResolvedValueOnce({ data: 0 });
-
-      const result = await getProjectSpentTime(1);
-
-      expect(mockedApi.get).toHaveBeenCalledWith('/projects/1/spent-time');
-      expect(result).toBe(0);
-    });
-
-    it('should handle invalid project id', async () => {
-      const error = new Error('Invalid project ID');
-      mockedApi.get.mockRejectedValueOnce(error);
-
-      await expect(getProjectSpentTime(-1)).rejects.toThrow(
-        'Invalid project ID',
-      );
     });
   });
 

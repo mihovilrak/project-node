@@ -284,18 +284,6 @@ export const getSubprojects = async (
 };
 
 /**
- * Retrieve the total time recorded for a project from the API.
- *
- * @param projectId Numeric ID of the project to fetch spent time for
- */
-export const getProjectSpentTime = async (
-  projectId: number,
-): Promise<number> => {
-  const response = await api.get<number>(`/projects/${projectId}/spent-time`);
-  return response.data;
-};
-
-/**
  * Fetch the list of available project statuses from the API.
  *
  * Performs an HTTP GET to '/projects/statuses' and resolves with an array of

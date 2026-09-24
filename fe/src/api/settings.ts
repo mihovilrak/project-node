@@ -1,48 +1,20 @@
 import { api } from './api';
-import { UserSettings, AppSettings, TimezoneOption } from '../types/setting';
+import { AppSettings, TimezoneOption } from '../types/setting';
 
 /**
- * Fetch the current user's settings from the server, accepting an optional
- * AbortSignal to cancel the request.
+ * Fetch the home page welcome message. Available to any authenticated user
+ * (the full app settings are admin-only).
  *
- * Performs a GET request to '/settings/user_settings' and returns the
- * server-provided UserSettings object. Several fields (timezone, language,
- * date_format, time_format, updated_on) may be null; notification_preferences
- * is an object of boolean flags. This function only reads settings and does not
- * modify server state.
- *
- * @param signal Optional AbortSignal used to cancel the in-flight network
- *   request; if already aborted the request may be terminated immediately.
+ * @param signal Optional AbortSignal to cancel the HTTP request.
  */
-export const getUserSettings = async (
+export const getWelcomeMessage = async (
   signal?: AbortSignal,
-): Promise<UserSettings> => {
-  const response = await api.get<UserSettings>('/settings/user_settings', {
-    signal,
-  });
+): Promise<{ welcome_message: string | null }> => {
+  const response = await api.get<{ welcome_message: string | null }>(
+    '/settings/welcome',
+    { signal },
+  );
   return response.data;
-};
-
-/**
- * Send a complete UserSettings object to the backend to replace the stored
- * settings for that user.
- *
- * Performs an HTTP PUT to /settings/user_settings with the provided
- * UserSettings payload; the call is asynchronous and resolves when the server
- * acknowledges the update. The settings object must include the user_id and may
- * contain nullable fields (timezone, language, date_format, time_format) and a
- * nested notification_preferences object. This function does not return a value
- * and will reject on network or server errors.
- *
- * @param settings The full UserSettings object to persist for the user.
- *   Required fields include user_id (number) and the notification_preferences
- *   object; other fields (timezone, language, date_format, time_format,
- *   created_on, updated_on) may be null as allowed by the type.
- */
-export const updateUserSettings = async (
-  settings: UserSettings,
-): Promise<void> => {
-  await api.put<void>('/settings/user_settings', settings);
 };
 
 // Get System Settings
