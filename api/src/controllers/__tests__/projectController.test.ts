@@ -4,6 +4,7 @@ import * as projectController from '../projectController';
 import * as projectModel from '../../models/projectModel';
 import * as notificationModel from '../../models/notificationModel';
 import * as accessModel from '../../models/accessModel';
+import { hasPermission } from '../../models/permissionModel';
 import { Session } from 'express-session';
 import { ProjectRequest } from '../../types/express';
 
@@ -14,7 +15,9 @@ jest.mock('../../models/accessModel', () => ({
   resolveProjectScope: jest.fn(
     async (_pool: unknown, userId: string) => userId,
   ),
+  isProjectMember: jest.fn(),
 }));
+jest.mock('../../models/permissionModel');
 
 describe('ProjectController', () => {
   let mockReq: any;
@@ -175,14 +178,14 @@ describe('ProjectController', () => {
       mockReq.session = {};
       (projectModel.getProjects as jest.Mock).mockResolvedValue([]);
 
-      await projectController.getProjects(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
+      await expect(
+        projectController.getProjects(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toMatchObject({ status: 401 });
       expect(projectModel.getProjects).not.toHaveBeenCalled();
-      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
 
     it('should return empty array when no projects found', async () => {
@@ -203,16 +206,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjects(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjects(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -253,16 +253,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjectById(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjectById(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -313,16 +310,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjectDetails(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjectDetails(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -356,16 +350,70 @@ describe('ProjectController', () => {
       mockReq.session!.user = undefined;
       mockReq.body = { name: 'New Project' };
 
+      await expect(
+        projectController.createProject(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toMatchObject({ status: 401 });
+    });
+
+    it('should reject a non-numeric parent_id', async () => {
+      mockReq.body = { name: 'Child', parent_id: 'abc' };
+
       await projectController.createProject(
         mockReq as any,
         mockRes as Response,
         mockPool as Pool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(projectModel.createProject).not.toHaveBeenCalled();
+    });
+
+    it('should reject a parent the user cannot access', async () => {
+      mockReq.body = { name: 'Child', parent_id: 7 };
+      (hasPermission as jest.Mock).mockResolvedValue(false);
+      (accessModel.isProjectMember as jest.Mock).mockResolvedValue(false);
+
+      await projectController.createProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(accessModel.isProjectMember).toHaveBeenCalledWith(
+        mockPool,
+        '7',
+        '1',
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(projectModel.createProject).not.toHaveBeenCalled();
+    });
+
+    it('should create under an accessible parent', async () => {
+      mockReq.body = { name: 'Child', parent_id: '7' };
+      (hasPermission as jest.Mock).mockResolvedValue(false);
+      (accessModel.isProjectMember as jest.Mock).mockResolvedValue(true);
+      (projectModel.createProject as jest.Mock).mockResolvedValue({ id: 8 });
+
+      await projectController.createProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(projectModel.createProject).toHaveBeenCalledWith(
+        mockPool,
+        'Child',
+        '',
+        null,
+        null,
+        '1',
+        7,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(201);
     });
 
     it('should return 400 when required fields are missing', async () => {
@@ -397,16 +445,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.createProject(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.createProject(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -470,16 +515,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.changeProjectStatus(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.changeProjectStatus(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -511,7 +553,7 @@ describe('ProjectController', () => {
     it('should return 404 when project not found', async () => {
       mockReq.params = { id: '999' };
       mockReq.body = { name: 'Updated Name' };
-      (projectModel.updateProject as jest.Mock).mockResolvedValue(null);
+      (projectModel.updateProject as jest.Mock).mockResolvedValue(0);
 
       await projectController.updateProject(
         mockReq as any,
@@ -523,12 +565,10 @@ describe('ProjectController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'Project not found' });
     });
 
-    it('should handle errors', async () => {
+    it('should return 400 when no updatable field is given', async () => {
       mockReq.params = { id: '1' };
-      mockReq.body = { name: 'Updated Name' };
-      (projectModel.updateProject as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
+      mockReq.body = { status_id: 2 };
+      (projectModel.updateProject as jest.Mock).mockResolvedValue(null);
 
       await projectController.updateProject(
         mockReq as any,
@@ -536,10 +576,79 @@ describe('ProjectController', () => {
         mockPool as Pool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should clear the parent when parent_id is null', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { parent_id: null };
+      (projectModel.updateProject as jest.Mock).mockResolvedValue(1);
+
+      await projectController.updateProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(projectModel.updateProject).toHaveBeenCalledWith(
+        mockPool,
+        { parent_id: null },
+        '1',
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should reject a parent that would create a cycle', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { parent_id: 2 };
+      (hasPermission as jest.Mock).mockResolvedValue(true);
+      (projectModel.wouldCreateCycle as jest.Mock).mockResolvedValue(true);
+
+      await projectController.updateProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(projectModel.wouldCreateCycle).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        2,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(projectModel.updateProject).not.toHaveBeenCalled();
+    });
+
+    it('should reject a parent the user cannot access', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { parent_id: 2 };
+      (hasPermission as jest.Mock).mockResolvedValue(false);
+      (accessModel.isProjectMember as jest.Mock).mockResolvedValue(false);
+
+      await projectController.updateProject(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(projectModel.updateProject).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { name: 'Updated Name' };
+      (projectModel.updateProject as jest.Mock).mockRejectedValue(
+        new Error('Database error'),
+      );
+
+      await expect(
+        projectController.updateProject(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -581,16 +690,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.deleteProject(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.deleteProject(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -626,16 +732,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjectMembers(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjectMembers(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -671,10 +774,10 @@ describe('ProjectController', () => {
       expect(mockRes.json).toHaveBeenCalledWith(mockResult);
     });
 
-    it('should return 404 when project or user not found', async () => {
-      mockReq.params = { id: '999' };
-      mockReq.body = { userId: '2' };
-      (projectModel.addProjectMember as jest.Mock).mockResolvedValue(null);
+    it('should notify on behalf of the acting user', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { userId: 2 };
+      (projectModel.addProjectMember as jest.Mock).mockResolvedValue({});
 
       await projectController.addProjectMember(
         mockReq as any,
@@ -682,10 +785,26 @@ describe('ProjectController', () => {
         mockPool as Pool,
       );
 
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Project or user not found',
-      });
+      expect(
+        notificationModel.createProjectMemberNotifications,
+      ).toHaveBeenCalledWith(
+        mockClient,
+        expect.objectContaining({ project_id: 1, action_user_id: 1 }),
+      );
+    });
+
+    it('should reject a non-numeric userId', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { userId: 'abc' };
+
+      await projectController.addProjectMember(
+        mockReq as any,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(projectModel.addProjectMember).not.toHaveBeenCalled();
     });
 
     it('should roll back when the notification write fails', async () => {
@@ -699,14 +818,14 @@ describe('ProjectController', () => {
         notificationModel.createProjectMemberNotifications as jest.Mock
       ).mockRejectedValue(new Error('Database error'));
 
-      await projectController.addProjectMember(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
+      await expect(
+        projectController.addProjectMember(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow('Database error');
       expect(mockClient.query).toHaveBeenCalledWith('ROLLBACK');
-      expect(mockRes.status).toHaveBeenCalledWith(500);
     });
 
     it('should handle errors', async () => {
@@ -716,16 +835,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.addProjectMember(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.addProjectMember(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -777,16 +893,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.deleteProjectMember(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.deleteProjectMember(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -820,16 +933,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getSubprojects(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getSubprojects(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -885,16 +995,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjectTasks(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjectTasks(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -924,16 +1031,13 @@ describe('ProjectController', () => {
         new Error('Database error'),
       );
 
-      await projectController.getProjectStatuses(
-        mockReq as any,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        projectController.getProjectStatuses(
+          mockReq as any,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 });

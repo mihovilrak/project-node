@@ -111,7 +111,7 @@ export const createProject = async (
   start_date: Date | null,
   due_date: Date | null,
   created_by: string,
-  parent_id?: string,
+  parent_id: number | null = null,
 ): Promise<Project> => {
   const result: QueryResult<Project> = await pool.query(
     `INSERT INTO projects
@@ -141,6 +141,28 @@ export const changeProjectStatus = async (
     [id, statusId],
   );
   return result.rows[0] || null;
+};
+
+// True when making parentId the parent of projectId would close a loop, i.e.
+// projectId is parentId itself or one of its ancestors.
+export const wouldCreateCycle = async (
+  pool: Queryable,
+  projectId: string,
+  parentId: number,
+): Promise<boolean> => {
+  const result = await pool.query(
+    `WITH RECURSIVE ancestors(id) AS (
+      SELECT $2::int
+      UNION
+      SELECT p.parent_id
+      FROM projects p
+      JOIN ancestors a ON p.id = a.id
+      WHERE p.parent_id IS NOT NULL
+    )
+    SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $1::int) AS cycle`,
+    [projectId, parentId],
+  );
+  return Boolean(result.rows[0]?.cycle);
 };
 
 export const ALLOWED_PROJECT_UPDATE_KEYS = [
