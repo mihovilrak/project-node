@@ -1,25 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  getNotifications,
-  markAsRead,
-  deleteNotification,
-} from '../../api/notifications';
 import { Notification } from '../../types/notification';
-import { useAsyncResource } from '../common/useAsyncResource';
+import { useNotificationsData } from './useNotificationsData';
+import { useNotificationsContext } from '../../context/NotificationsContext';
+import { isSafeRelativePath } from '../../utils/urlSafety';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
-
-const EMPTY_NOTIFICATIONS: Notification[] = [];
 
 /**
- * Manage notification fetching, polling, and user interactions with automatic
- * refresh at configurable intervals.
+ * Notification UI state (menu anchor, click/delete/mark-all handlers) on top of
+ * the shared notifications poller. Falls back to a local poller when rendered
+ * outside `NotificationsProvider`.
  *
  * @param userId Numeric identifier of the user; notifications load only when
  *   defined.
  * @param pollIntervalMs Milliseconds between automatic notification refresh
- *   cycles; defaults to 60000 and disabled when zero or negative.
+ *   cycles for the local fallback; disabled when zero or negative.
  */
 export const useNotificationCenter = (
   userId: number | undefined,
@@ -27,65 +22,44 @@ export const useNotificationCenter = (
 ) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const navigate = useNavigate();
-
-  const {
-    data: notifications,
-    loading,
-    error,
-    setError,
-    refetch: fetchNotifications,
-  } = useAsyncResource<Notification[]>(
-    async (signal) => (await getNotifications(signal)) || [],
-    [userId],
-    {
-      initialData: EMPTY_NOTIFICATIONS,
-      enabled: Boolean(userId),
-      errorMessage: 'Failed to load notifications',
-    },
+  const shared = useNotificationsContext();
+  const local = useNotificationsData(
+    shared ? undefined : userId,
+    pollIntervalMs,
   );
-
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n?.is_read).length,
-    [notifications],
-  );
-
-  useEffect(() => {
-    if (!userId || pollIntervalMs <= 0) return;
-    const interval = setInterval(fetchNotifications, pollIntervalMs);
-    return () => clearInterval(interval);
-  }, [userId, pollIntervalMs, fetchNotifications]);
+  const data = shared ?? local;
+  const { fetchNotifications, markNotificationRead } = data;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (): void => {
+  const handleClose = useCallback((): void => {
     setAnchorEl(null);
-  };
+  }, []);
+
+  const openLink = useCallback(
+    (link?: string | null) => {
+      if (!link) return;
+      if (isSafeRelativePath(link)) navigate(link);
+      else logger.warn('Ignored unsafe notification link:', link);
+    },
+    [navigate],
+  );
 
   const handleNotificationClick = async (
     notification: Notification,
   ): Promise<void> => {
+    if (!userId || !notification) return;
     try {
-      if (!userId) return;
-      if (!notification) return;
-
       if (!notification.is_read) {
-        await markAsRead(notification.id);
-        await fetchNotifications();
-      }
-      handleClose();
-      if (notification?.link) {
-        navigate(notification.link);
+        await markNotificationRead(notification.id);
       }
     } catch (error: unknown) {
       logger.error('Failed to handle notification click:', error);
-      // Don't prevent navigation if marking as read fails
-      handleClose();
-      if (notification?.link) {
-        navigate(notification.link);
-      }
     }
+    handleClose();
+    openLink(notification.link);
   };
 
   const handleDeleteNotification = async (
@@ -93,34 +67,22 @@ export const useNotificationCenter = (
     event: React.MouseEvent,
   ): Promise<void> => {
     event.stopPropagation();
-    try {
-      if (!id) return;
-      await deleteNotification(id);
-      await fetchNotifications();
-    } catch (err: unknown) {
-      logger.error('Failed to delete notification:', err);
-      setError(getApiErrorMessage(err, 'Failed to delete notification'));
-    }
+    if (!id) return;
+    await data.removeNotification(id);
   };
 
   const handleMarkAllAsRead = async (): Promise<void> => {
     if (!userId) return;
-    try {
-      await markAsRead();
-      await fetchNotifications();
-    } catch (err: unknown) {
-      logger.error('Failed to mark all notifications as read:', err);
-      setError(getApiErrorMessage(err, 'Failed to mark notifications as read'));
-    }
+    await data.markAllRead();
   };
 
   return {
     anchorEl,
-    notifications,
-    loading,
-    error,
-    clearError: () => setError(null),
-    unreadCount,
+    notifications: data.notifications,
+    loading: data.loading,
+    error: data.error,
+    clearError: data.clearError,
+    unreadCount: data.unreadCount,
     fetchNotifications,
     handleClick,
     handleClose,
