@@ -1,13 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Project, ProjectDetailsState } from '../../types/project';
-import {
-  getProjectById,
-  getProjectDetails,
-  updateProject,
-  deleteProject,
-} from '../../api/projects';
+import { Project } from '../../types/project';
+import { getProjectDetails, deleteProject } from '../../api/projects';
+import { useAsyncResource } from '../common/useAsyncResource';
 import { useProjectMembers } from './useProjectMembers';
 import { useProjectTasks } from './useProjectTasks';
 import { useProjectTimeLogs } from './useProjectTimeLogs';
@@ -21,121 +17,80 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
  * @param projectId String
  */
 export const useProjectDetails = (projectId: string) => {
-  const [state, setState] = useState<ProjectDetailsState>({
-    project: null,
-    projectDetails: null,
-    members: [],
-    tasks: [],
-    loading: true,
-    error: null,
-    editDialogOpen: false,
-    deleteDialogOpen: false,
-    createTaskDialogOpen: false,
-    membersDialogOpen: false,
-    timeLogs: [],
-  });
-
   const navigate = useNavigate();
   const { currentUser, hasPermission } = useAuth();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const {
+    data: project,
+    setData: setProject,
+    loading,
+    error,
+  } = useAsyncResource<Project | null>(
+    async (signal) => {
+      const details = await getProjectDetails(Number(projectId), signal);
+      if (!details) throw new Error('Project not found');
+      return { ...details, spent_time: details.spent_time ?? 0 };
+    },
+    [projectId],
+    {
+      initialData: null,
+      enabled: Boolean(projectId),
+      errorMessage: 'Failed to load project details',
+    },
+  );
+
   const memberHooks = useProjectMembers(projectId);
   const taskHooks = useProjectTasks(projectId);
   const timeLogHooks = useProjectTimeLogs(projectId);
+  const { handleMemberRemove } = memberHooks;
+  const { handleTimeLogDelete } = timeLogHooks;
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchProjectData = async () => {
-      try {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
-
-        const [projectData, projectDetails] = await Promise.all([
-          getProjectById(Number(projectId), controller.signal),
-          getProjectDetails(Number(projectId), controller.signal),
-        ]);
-
-        // Check if project was found
-        if (!projectData) {
-          setState((prev) => ({
-            ...prev,
-            error: 'Project not found',
-            loading: false,
-          }));
-          return;
-        }
-
-        // Ensure projectDetails has spent_time as a number (handle null/undefined)
-        const safeProjectDetails = projectDetails
-          ? {
-              ...projectDetails,
-              spent_time: projectDetails.spent_time ?? 0,
-            }
-          : null;
-
-        setState((prev) => ({
-          ...prev,
-          project: projectData,
-          projectDetails: safeProjectDetails,
-          loading: false,
-          error: null,
-        }));
-
-        // Load data from other hooks
-        try {
-          await Promise.all([
-            memberHooks.loadMembers(),
-            taskHooks.loadTasks(),
-            timeLogHooks.loadTimeLogs(),
-          ]);
-        } catch (hookError) {
-          // Log hook errors but don't fail the whole page
-          logger.error('Error loading project sub-data:', hookError);
-        }
-      } catch (error: unknown) {
-        if (controller.signal.aborted) return;
-        logger.error('Error fetching project data:', error);
-        setState((prev) => ({
-          ...prev,
-          error: getApiErrorMessage(error, 'Failed to load project details'),
-          loading: false,
-        }));
-      }
-    };
-
-    if (projectId) {
-      fetchProjectData();
-    }
-    return () => controller.abort();
-  }, [projectId]);
-
+  // ProjectEditDialog already saved the changes; only merge them locally.
   const handleProjectUpdate = useCallback(
-    async (updatedProject: Project) => {
-      try {
-        await updateProject(Number(projectId), updatedProject);
-        setState((prev) => ({
-          ...prev,
-          project: { ...prev.project!, ...updatedProject },
-          editDialogOpen: false,
-        }));
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error: 'Failed to update project',
-        }));
-      }
+    (updatedProject: Project) => {
+      setProject((prev) => (prev ? { ...prev, ...updatedProject } : prev));
+      setEditDialogOpen(false);
     },
-    [projectId],
+    [setProject],
   );
 
   const handleProjectDelete = useCallback(async () => {
     try {
+      setActionError(null);
       await deleteProject(Number(projectId));
       navigate('/projects');
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        error: 'Failed to delete project',
-      }));
+    } catch (err: unknown) {
+      logger.error('Failed to delete project:', err);
+      setActionError(getApiErrorMessage(err, 'Failed to delete project'));
     }
   }, [projectId, navigate]);
+
+  const removeMember = useCallback(
+    async (userId: number) => {
+      try {
+        setActionError(null);
+        await handleMemberRemove(userId);
+      } catch (err: unknown) {
+        setActionError(getApiErrorMessage(err, 'Failed to remove member'));
+      }
+    },
+    [handleMemberRemove],
+  );
+
+  const deleteTimeLog = useCallback(
+    async (timeLogId: number) => {
+      try {
+        setActionError(null);
+        await handleTimeLogDelete(timeLogId);
+      } catch (err: unknown) {
+        setActionError(getApiErrorMessage(err, 'Failed to delete time log'));
+      }
+    },
+    [handleTimeLogDelete],
+  );
 
   const isProjectMember = useMemo(
     () =>
@@ -143,27 +98,29 @@ export const useProjectDetails = (projectId: string) => {
     [memberHooks.members, currentUser?.id],
   );
 
-  const canEdit = useMemo(
-    () => hasPermission('Edit projects'),
-    [hasPermission],
-  );
-  const canDelete = useMemo(
-    () => hasPermission('Delete projects'),
-    [hasPermission],
-  );
-  const canManageMembers = useMemo(
-    () => hasPermission('Manage project members'),
-    [hasPermission],
-  );
+  const canEdit = hasPermission('Edit projects');
+  const canDelete = hasPermission('Delete projects');
+  // The members endpoints are guarded by 'Edit projects' on the backend.
+  const canManageMembers = canEdit;
 
   return {
-    ...state,
     ...memberHooks,
     ...taskHooks,
     ...timeLogHooks,
-    setState,
+    project,
+    projectDetails: project,
+    loading,
+    error,
+    actionError,
+    setActionError,
+    editDialogOpen,
+    setEditDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     handleProjectUpdate,
     handleProjectDelete,
+    handleMemberRemove: removeMember,
+    handleTimeLogDelete: deleteTimeLog,
     isProjectMember,
     canEdit,
     canDelete,

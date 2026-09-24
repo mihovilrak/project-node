@@ -34,28 +34,16 @@ import {
 } from '@mui/icons-material';
 import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
 import { sanitizeHtml } from '../../utils/sanitize';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import { testSmtpConnection, SmtpTestResult } from '../../api/settings';
 import { LogLevel } from '../../types/setting';
+import TabPanel from '../common/TabPanel';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+const LOG_LEVEL_OPTIONS: LogLevel[] = ['error', 'warn', 'info', 'debug'];
 
-const TabPanel = (props: TabPanelProps) => {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-};
-
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
     return null;
   }
@@ -153,7 +141,6 @@ const SystemSettings: React.FC = () => {
   const [smtpTestLoading, setSmtpTestLoading] = React.useState(false);
   const [smtpTestResult, setSmtpTestResult] =
     React.useState<SmtpTestResult | null>(null);
-  const LOG_LEVEL_OPTIONS: LogLevel[] = ['error', 'warn', 'info', 'debug'];
 
   const handleSmtpTest = async () => {
     if (!smtpTestEmail) {

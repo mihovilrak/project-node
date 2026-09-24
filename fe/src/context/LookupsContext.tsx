@@ -126,6 +126,7 @@ export const useLookup = <K extends LookupKey>(
   useEffect(() => {
     if (!enabled) return;
     let active = true;
+    setState((prev) => (prev.loading ? prev : { ...prev, loading: true }));
     store.get(key).then(
       (data) => {
         if (active) setState({ data, loading: false, error: null });

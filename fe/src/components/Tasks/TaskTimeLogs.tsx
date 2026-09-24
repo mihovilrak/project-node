@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
@@ -9,51 +9,25 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
-import { getTaskTimeLogs, deleteTimeLog } from '../../api/timeLogs';
+import { getTaskTimeLogs } from '../../api/timeLogs';
 import TimeLogDialog from '../TimeLog/TimeLogDialog';
 import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
 import { TaskTimeLogsProps } from '../../types/task';
-import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { useTimeLogCrud } from '../../hooks/timeLog/useTimeLogCrud';
 
 const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   const { id } = useParams<{ id: string }>();
-  const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const taskId = id ? Number(id) : undefined;
+  const { timeLogs, loading, error, saveTimeLog, deleteTimeLog } =
+    useTimeLogCrud(
+      (signal) => getTaskTimeLogs(Number(id), signal),
+      [id],
+      Boolean(id),
+    );
+  const [actionError, setActionError] = useState<string | null>(null);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState<boolean>(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      fetchTimeLogs();
-    }
-  }, [id]);
-
-  const fetchTimeLogs = async (): Promise<void> => {
-    if (!id) {
-      setError('Task ID is required');
-      setLoading(false);
-      return;
-    }
-    try {
-      setLoading(true);
-      setError(null);
-      const logs = await getTaskTimeLogs(parseInt(id));
-      setTimeLogs(logs || []);
-    } catch (error: unknown) {
-      logger.error('Failed to fetch time logs:', error);
-      setError(getApiErrorMessage(error, 'Failed to load time logs'));
-      setTimeLogs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTimeLogCreated = (): void => {
-    fetchTimeLogs();
-  };
 
   const handleTimeLogEdit = (timeLog: TimeLog): void => {
     setSelectedTimeLog(timeLog);
@@ -62,29 +36,38 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
 
   const handleTimeLogDelete = async (timeLogId: number): Promise<void> => {
     if (!timeLogId) return;
+    setActionError(null);
     try {
       await deleteTimeLog(timeLogId);
-      fetchTimeLogs();
-    } catch (error: unknown) {
-      logger.error('Failed to delete time log:', error);
-      setError(getApiErrorMessage(error, 'Failed to delete time log'));
+    } catch (err: unknown) {
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to delete time log',
+      );
     }
   };
 
+  // Errors propagate so TimeLogDialog can show them and stay open.
   const handleTimeLogSubmit = async (
     timeLogData: TimeLogCreate,
   ): Promise<void> => {
-    try {
-      // Handle time log submission logic here
-      await fetchTimeLogs(); // Refresh the list after submission
-      setTimeLogDialogOpen(false);
-      setSelectedTimeLog(null);
-    } catch (error) {
-      logger.error('Failed to submit time log:', error);
-    }
+    await saveTimeLog(timeLogData, selectedTimeLog?.id);
   };
 
-  if (loading) {
+  const handleDialogClose = (): void => {
+    setTimeLogDialogOpen(false);
+    setSelectedTimeLog(null);
+  };
+
+  if (!id) {
+    return (
+      <Alert severity="error" sx={{ m: 2 }}>
+        Task ID is required
+      </Alert>
+    );
+  }
+
+  // Keep the list mounted while refetching after a mutation.
+  if (loading && !timeLogs.length) {
     return (
       <Box display="flex" justifyContent="center" p={3}>
         <CircularProgress />
@@ -120,6 +103,16 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
           </Button>
         </Box>
 
+        {actionError && (
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            onClose={() => setActionError(null)}
+          >
+            {actionError}
+          </Alert>
+        )}
+
         <TimeLogStats timeLogs={timeLogs} />
         <TimeLogList
           timeLogs={timeLogs}
@@ -129,11 +122,8 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
 
         <TimeLogDialog
           open={timeLogDialogOpen}
-          onClose={() => {
-            setTimeLogDialogOpen(false);
-            setSelectedTimeLog(null);
-          }}
-          taskId={id ? parseInt(id) : undefined}
+          onClose={handleDialogClose}
+          taskId={taskId}
           projectId={task?.project_id || undefined}
           timeLog={selectedTimeLog}
           onSubmit={handleTimeLogSubmit}

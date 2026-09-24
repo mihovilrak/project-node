@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import { ProjectEditFormData, Project } from '../../types/project';
-import { getProjectStatuses } from '../../api/projects';
-import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { useLookup } from '../../context/LookupsContext';
 import { ProjectStatusId } from '../../constants/statusIds';
 
 /**
@@ -21,23 +19,7 @@ export const useProjectEdit = (project: Project | null) => {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [statuses, setStatuses] = useState<Array<{ id: number; name: string }>>(
-    [],
-  );
-
-  useEffect(() => {
-    const fetchStatuses = async () => {
-      try {
-        const statusList = await getProjectStatuses();
-        setStatuses(statusList || []);
-      } catch (err: unknown) {
-        logger.error('Failed to fetch project statuses:', err);
-        setStatuses([]);
-        setError(getApiErrorMessage(err, 'Failed to load project statuses'));
-      }
-    };
-    fetchStatuses();
-  }, []);
+  const { data: statuses, error: statusesError } = useLookup('projectStatuses');
 
   useEffect(() => {
     if (project) {
@@ -84,7 +66,7 @@ export const useProjectEdit = (project: Project | null) => {
 
   return {
     formData,
-    error,
+    error: error ?? statusesError,
     loading,
     statuses,
     setError,

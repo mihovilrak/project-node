@@ -2,17 +2,14 @@ import { api } from '../api';
 import { Project, ProjectMember, ProjectStatus } from '../../types/project';
 import {
   getProjects,
-  getProjectById,
   createProject,
   updateProject,
   deleteProject,
   getProjectMembers,
   getProjectStatuses,
   getProjectDetails,
-  changeProjectStatus,
   addProjectMember,
   removeProjectMember,
-  updateProjectMember,
   getSubprojects,
 } from '../projects';
 
@@ -97,26 +94,6 @@ describe('Projects API', () => {
     });
   });
 
-  describe('getProjectById', () => {
-    it('should fetch project by id successfully', async () => {
-      mockedApi.get.mockResolvedValueOnce({ data: mockProject });
-
-      const result = await getProjectById(1);
-
-      expect(mockedApi.get).toHaveBeenCalledWith('/projects/1', {
-        signal: undefined,
-      });
-      expect(result).toEqual(mockProject);
-    });
-
-    it('should throw error when fetch fails', async () => {
-      const error = new Error('Network error');
-      mockedApi.get.mockRejectedValueOnce(error);
-
-      await expect(getProjectById(1)).rejects.toThrow(error);
-    });
-  });
-
   describe('createProject', () => {
     const newProject = { name: 'New Project', description: 'New Description' };
 
@@ -140,13 +117,11 @@ describe('Projects API', () => {
   describe('updateProject', () => {
     it('should update project with partial data', async () => {
       const partialUpdate: Partial<Project> = { name: 'Updated Name' };
-      const updatedProject = { ...mockProject, ...partialUpdate };
-      mockedApi.put.mockResolvedValueOnce({ data: updatedProject });
+      mockedApi.put.mockResolvedValueOnce({ data: 1 });
 
-      const result = await updateProject(1, partialUpdate);
+      await expect(updateProject(1, partialUpdate)).resolves.toBeUndefined();
 
       expect(mockedApi.put).toHaveBeenCalledWith('/projects/1', partialUpdate);
-      expect(result).toEqual(updatedProject);
     });
 
     it('should validate required fields', async () => {
@@ -174,32 +149,6 @@ describe('Projects API', () => {
       mockedApi.delete.mockRejectedValueOnce(error);
 
       await expect(deleteProject(1)).rejects.toThrow(error);
-    });
-  });
-
-  describe('changeProjectStatus', () => {
-    it('should handle invalid status transition', async () => {
-      const error = new Error('Invalid status transition');
-      mockedApi.patch.mockRejectedValueOnce(error);
-
-      await expect(changeProjectStatus(1, 2)).rejects.toThrow(
-        'Invalid status transition',
-      );
-    });
-
-    it('should send the numeric status id', async () => {
-      mockedApi.patch.mockResolvedValueOnce({
-        data: { message: 'Project status changed to inactive.' },
-      });
-
-      const result = await changeProjectStatus(1, 2);
-
-      expect(mockedApi.patch).toHaveBeenCalledWith('/projects/1/status', {
-        status_id: 2,
-      });
-      expect(result).toEqual({
-        message: 'Project status changed to inactive.',
-      });
     });
   });
 
@@ -261,26 +210,6 @@ describe('Projects API', () => {
       mockedApi.delete.mockRejectedValueOnce(error);
 
       await expect(removeProjectMember(1, 1)).rejects.toThrow(error);
-    });
-  });
-
-  describe('updateProjectMember', () => {
-    it('should update member successfully', async () => {
-      mockedApi.put.mockResolvedValueOnce({ data: mockProjectMember });
-
-      const result = await updateProjectMember(1, 1, 'Manager');
-
-      expect(mockedApi.put).toHaveBeenLastCalledWith('/projects/1/members/1', {
-        role: 'Manager',
-      });
-      expect(result).toEqual(mockProjectMember);
-    });
-
-    it('should throw error when updating member fails', async () => {
-      const error = new Error('Update member failed');
-      mockedApi.put.mockRejectedValueOnce(error);
-
-      await expect(updateProjectMember(1, 1, 'Manager')).rejects.toThrow(error);
     });
   });
 

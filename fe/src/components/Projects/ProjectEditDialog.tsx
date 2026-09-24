@@ -46,8 +46,15 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
         return;
       }
 
-      const updatedProject = await updateProject(project.id, formData);
-      onSaved(updatedProject);
+      await updateProject(project.id, formData);
+      onSaved({
+        ...project,
+        ...formData,
+        name: formData.name ?? project.name,
+        status_name:
+          statuses.find((status) => status.id === formData.status_id)?.name ??
+          project.status_name,
+      });
       onClose();
     } catch (err: unknown) {
       logger.error('Error updating project:', err);

@@ -1,7 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useProjectDetails } from '../useProjectDetails';
 import {
-  getProjectById,
   getProjectDetails,
   updateProject,
   deleteProject,
@@ -9,6 +8,8 @@ import {
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../../types/project';
+
+const mockHandleMemberRemove = jest.fn();
 
 // Mock dependencies
 jest.mock('../../../api/projects');
@@ -20,8 +21,7 @@ jest.mock('../useProjectMembers', () => ({
   useProjectMembers: () => ({
     members: [],
     loadMembers: jest.fn(),
-    handleMemberUpdate: jest.fn(),
-    handleMemberRemove: jest.fn(),
+    handleMemberRemove: mockHandleMemberRemove,
   }),
 }));
 jest.mock('../useProjectTasks', () => ({
@@ -67,7 +67,6 @@ describe('useProjectDetails', () => {
       currentUser: { id: 1 },
       hasPermission: () => true,
     });
-    (getProjectById as jest.Mock).mockResolvedValue(mockProject);
     (getProjectDetails as jest.Mock).mockResolvedValue(mockProject);
   });
 
@@ -81,16 +80,15 @@ describe('useProjectDetails', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(getProjectById).toHaveBeenCalledWith(1, expect.any(AbortSignal));
+    expect(getProjectDetails).toHaveBeenCalledTimes(1);
     expect(getProjectDetails).toHaveBeenCalledWith(1, expect.any(AbortSignal));
     expect(result.current.project).toEqual(mockProject);
     expect(result.current.projectDetails).toEqual(mockProject);
     expect(result.current.loading).toBe(false);
   });
 
-  it('should handle project update', async () => {
+  it('merges saved changes locally without a second PUT', async () => {
     const updatedProject = { ...mockProject, name: 'Updated Project' };
-    (updateProject as jest.Mock).mockResolvedValue(updatedProject);
 
     const { result } = renderHook(() => useProjectDetails('1'));
 
@@ -98,12 +96,16 @@ describe('useProjectDetails', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    await act(async () => {
-      await result.current.handleProjectUpdate(updatedProject);
+    act(() => {
+      result.current.setEditDialogOpen(true);
+    });
+    act(() => {
+      result.current.handleProjectUpdate(updatedProject);
     });
 
-    expect(updateProject).toHaveBeenCalledWith(1, updatedProject);
+    expect(updateProject).not.toHaveBeenCalled();
     expect(result.current.project).toEqual(updatedProject);
+    expect(result.current.editDialogOpen).toBe(false);
   });
 
   it('should handle project deletion', async () => {
@@ -125,7 +127,7 @@ describe('useProjectDetails', () => {
 
   it('should handle error during project fetch', async () => {
     const error = new Error('Failed to fetch project');
-    (getProjectById as jest.Mock).mockRejectedValue(error);
+    (getProjectDetails as jest.Mock).mockRejectedValue(error);
 
     const { result } = renderHook(() => useProjectDetails('1'));
 
@@ -144,38 +146,72 @@ describe('useProjectDetails', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    // Toggle edit dialog
     act(() => {
-      result.current.setState((prev) => ({
-        ...prev,
-        editDialogOpen: true,
-      }));
+      result.current.setEditDialogOpen(true);
     });
     expect(result.current.editDialogOpen).toBe(true);
 
     act(() => {
-      result.current.setState((prev) => ({
-        ...prev,
-        editDialogOpen: false,
-      }));
+      result.current.setEditDialogOpen(false);
     });
     expect(result.current.editDialogOpen).toBe(false);
 
-    // Toggle delete dialog
     act(() => {
-      result.current.setState((prev) => ({
-        ...prev,
-        deleteDialogOpen: true,
-      }));
+      result.current.setDeleteDialogOpen(true);
     });
     expect(result.current.deleteDialogOpen).toBe(true);
 
     act(() => {
-      result.current.setState((prev) => ({
-        ...prev,
-        deleteDialogOpen: false,
-      }));
+      result.current.setDeleteDialogOpen(false);
     });
     expect(result.current.deleteDialogOpen).toBe(false);
+  });
+
+  it('reports "Project not found" when details are missing', async () => {
+    (getProjectDetails as jest.Mock).mockResolvedValue(null);
+
+    const { result } = renderHook(() => useProjectDetails('1'));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(result.current.error).toBe('Project not found');
+  });
+
+  it('keeps the page and sets actionError when delete fails', async () => {
+    (deleteProject as jest.Mock).mockRejectedValue({
+      response: { status: 403 },
+    });
+
+    const { result } = renderHook(() => useProjectDetails('1'));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await act(async () => {
+      await result.current.handleProjectDelete();
+    });
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(result.current.actionError).toBeTruthy();
+    expect(result.current.project).toEqual(mockProject);
+  });
+
+  it('sets actionError when removing a member fails', async () => {
+    mockHandleMemberRemove.mockRejectedValue(new Error('Remove failed'));
+
+    const { result } = renderHook(() => useProjectDetails('1'));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    await act(async () => {
+      await result.current.handleMemberRemove(2);
+    });
+
+    expect(result.current.actionError).toBe('Remove failed');
   });
 });

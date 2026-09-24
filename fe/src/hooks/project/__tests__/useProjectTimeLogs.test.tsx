@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useProjectTimeLogs } from '../useProjectTimeLogs';
 import {
   getProjectTimeLogs,
@@ -7,14 +7,13 @@ import {
   updateTimeLog,
   deleteTimeLog,
 } from '../../../api/timeLogs';
+import { getProjectTasks } from '../../../api/tasks';
 import { TimeLog, TimeLogCreate } from '../../../types/timeLog';
 import logger from '../../../utils/logger';
 
-// Mock dependencies
 jest.mock('../../../api/timeLogs');
 jest.mock('../../../api/tasks');
-
-import { getProjectTasks, getSubtasks } from '../../../api/tasks';
+jest.mock('../../../utils/logger');
 
 describe('useProjectTimeLogs', () => {
   const mockTimeLogs: TimeLog[] = [
@@ -51,211 +50,141 @@ describe('useProjectTimeLogs', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    // Mock getProjectTasks to return tasks with IDs 1 and 2 (matching mockTimeLogs)
-    (getProjectTasks as jest.Mock).mockResolvedValue([
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' },
-    ]);
-    // Mock getTaskTimeLogs to return logs for each task
-    (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
-      return Promise.resolve(
-        mockTimeLogs.filter((log) => log.task_id === taskId),
-      );
-    });
-    // Keep the original mock for getProjectTimeLogs if needed elsewhere
+    jest.resetAllMocks();
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
-    // Mock getSubtasks to return an empty array by default
-    (getSubtasks as jest.Mock).mockResolvedValue([]);
   });
 
-  it('should fetch project time logs on mount', async () => {
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
-
-    await act(async () => {
-      await result.current.loadTimeLogs();
-    });
-
-    expect(getProjectTasks).toHaveBeenCalledWith(1);
-    expect(getTaskTimeLogs).toHaveBeenCalledTimes(2);
-    expect(getTaskTimeLogs).toHaveBeenCalledWith(1);
-    expect(getTaskTimeLogs).toHaveBeenCalledWith(2);
-    expect(result.current.timeLogs).toEqual(
-      expect.arrayContaining(mockTimeLogs),
+  const renderLoaded = async () => {
+    const hook = renderHook(() => useProjectTimeLogs('1'));
+    await waitFor(() =>
+      expect(hook.result.current.timeLogs).toEqual(mockTimeLogs),
     );
-    expect(mockTimeLogs).toEqual(
-      expect.arrayContaining(result.current.timeLogs),
+    return hook;
+  };
+
+  it('loads all project time logs with a single request', async () => {
+    await renderLoaded();
+
+    expect(getProjectTimeLogs).toHaveBeenCalledTimes(1);
+    expect(getProjectTimeLogs).toHaveBeenCalledWith(
+      1,
+      undefined,
+      expect.any(AbortSignal),
     );
-    expect(result.current.timeLogs).toHaveLength(mockTimeLogs.length);
+    expect(getTaskTimeLogs).not.toHaveBeenCalled();
+    expect(getProjectTasks).not.toHaveBeenCalled();
   });
 
-  it('loads task time logs in parallel', async () => {
-    let activeRequests = 0;
-    let maxActiveRequests = 0;
-    (getTaskTimeLogs as jest.Mock).mockImplementation(
-      async (taskId: number) => {
-        activeRequests += 1;
-        maxActiveRequests = Math.max(maxActiveRequests, activeRequests);
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        activeRequests -= 1;
-        return mockTimeLogs.filter((log) => log.task_id === taskId);
-      },
-    );
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
-
-    await act(async () => {
-      await result.current.loadTimeLogs();
-    });
-
-    expect(maxActiveRequests).toBe(2);
-    expect(result.current.timeLogs).toEqual(mockTimeLogs);
+  it('does not load without a project id', () => {
+    renderHook(() => useProjectTimeLogs(''));
+    expect(getProjectTimeLogs).not.toHaveBeenCalled();
   });
 
-  it('should handle time log creation', async () => {
-    // Mock getProjectTasks to include the new task
-    (getProjectTasks as jest.Mock).mockResolvedValue([
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' },
-      { id: 3, name: 'Task 3' },
-    ]);
+  it('exposes the load error', async () => {
+    (getProjectTimeLogs as jest.Mock).mockRejectedValue(new Error('boom'));
     const { result } = renderHook(() => useProjectTimeLogs('1'));
-    const newTimeLog = {
-      ...mockTimeLogCreate,
-      id: 3,
-      user_id: 1,
-      created_on: '2024-01-03',
-      task_name: 'Task 3',
-    };
-    (createTimeLog as jest.Mock).mockResolvedValue(newTimeLog);
-    (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
-      if (taskId === 3) return Promise.resolve([newTimeLog]);
-      return Promise.resolve(
-        mockTimeLogs.filter((log) => log.task_id === taskId),
-      );
-    });
+
+    await waitFor(() => expect(result.current.timeLogsError).toBe('boom'));
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to load time logs',
+      expect.any(Error),
+    );
+  });
+
+  it('creates a time log once and refetches', async () => {
+    (createTimeLog as jest.Mock).mockResolvedValue({ id: 3 });
+    const { result } = await renderLoaded();
 
     await act(async () => {
       await result.current.handleTimeLogSubmit(mockTimeLogCreate);
     });
 
-    expect(createTimeLog).toHaveBeenCalledWith(
-      mockTimeLogCreate.task_id,
-      mockTimeLogCreate,
-    );
-    expect(result.current.timeLogs).toEqual([...mockTimeLogs, newTimeLog]);
+    expect(createTimeLog).toHaveBeenCalledTimes(1);
+    expect(createTimeLog).toHaveBeenCalledWith(3, mockTimeLogCreate);
+    expect(updateTimeLog).not.toHaveBeenCalled();
+    expect(getProjectTimeLogs).toHaveBeenCalledTimes(2);
   });
 
-  it('should handle time log update', async () => {
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
+  it('updates the selected time log', async () => {
+    (updateTimeLog as jest.Mock).mockResolvedValue(mockTimeLogs[0]);
+    const { result } = await renderLoaded();
 
-    // Set selected time log for editing
     act(() => {
-      result.current.setSelectedTimeLog(mockTimeLogs[0]);
+      result.current.handleTimeLogEdit(mockTimeLogs[0]);
     });
-
-    const updatedTimeLog = {
-      ...mockTimeLogs[0],
-      spent_time: 8,
-      description: 'Updated description',
-    };
-
-    (updateTimeLog as jest.Mock).mockResolvedValue(updatedTimeLog);
-    (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
-      if (taskId === 1) return Promise.resolve([updatedTimeLog]);
-      return Promise.resolve(
-        mockTimeLogs.filter((log) => log.task_id === taskId),
-      );
-    });
+    expect(result.current.timeLogDialogOpen).toBe(true);
+    expect(result.current.selectedTimeLog).toEqual(mockTimeLogs[0]);
+    expect(result.current.timeLogTaskId).toBe(1);
 
     await act(async () => {
-      await result.current.handleTimeLogSubmit({
-        task_id: 1,
-        log_date: '2024-01-01',
-        spent_time: 8,
-        activity_type_id: 1,
-        description: 'Updated description',
-      });
+      await result.current.handleTimeLogSubmit(mockTimeLogCreate);
     });
 
-    expect(updateTimeLog).toHaveBeenCalledWith(
-      mockTimeLogs[0].id,
-      expect.objectContaining({
-        spent_time: 8,
-        description: 'Updated description',
-      }),
-    );
+    expect(updateTimeLog).toHaveBeenCalledTimes(1);
+    expect(updateTimeLog).toHaveBeenCalledWith(1, mockTimeLogCreate);
     expect(createTimeLog).not.toHaveBeenCalled();
   });
 
-  it('should handle time log deletion', async () => {
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
-    (deleteTimeLog as jest.Mock).mockResolvedValue(undefined);
-    // Remove the deleted log from mockTimeLogs for this test
-    (getTaskTimeLogs as jest.Mock).mockImplementation((taskId: number) => {
-      if (taskId === 2) return Promise.resolve([mockTimeLogs[1]]);
-      return Promise.resolve([]);
+  it('rejects with the API message when saving fails', async () => {
+    (createTimeLog as jest.Mock).mockRejectedValue({
+      response: { data: { error: 'Invalid time' } },
     });
+    const { result } = await renderLoaded();
+
+    await expect(
+      result.current.handleTimeLogSubmit(mockTimeLogCreate),
+    ).rejects.toThrow('Invalid time');
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to save time log:',
+      expect.anything(),
+    );
+    expect(getProjectTimeLogs).toHaveBeenCalledTimes(1);
+  });
+
+  it('deletes a time log once and refetches', async () => {
+    (deleteTimeLog as jest.Mock).mockResolvedValue(undefined);
+    const { result } = await renderLoaded();
+    (getProjectTimeLogs as jest.Mock).mockResolvedValue([mockTimeLogs[1]]);
 
     await act(async () => {
       await result.current.handleTimeLogDelete(1);
     });
 
+    expect(deleteTimeLog).toHaveBeenCalledTimes(1);
     expect(deleteTimeLog).toHaveBeenCalledWith(1);
     expect(result.current.timeLogs).toEqual([mockTimeLogs[1]]);
   });
 
-  it('should handle error during time log operations', async () => {
-    // Ensure the mock is resolved for initialization
-    (createTimeLog as jest.Mock).mockResolvedValue(undefined);
+  it('rejects when deleting fails', async () => {
+    (deleteTimeLog as jest.Mock).mockRejectedValue(new Error('Delete failed'));
+    const { result } = await renderLoaded();
 
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
-
-    // Only the next call should reject
-    (createTimeLog as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject(new Error('Failed to create time log')),
+    await expect(result.current.handleTimeLogDelete(1)).rejects.toThrow(
+      'Delete failed',
     );
-
-    await act(async () => {
-      try {
-        await result.current.handleTimeLogSubmit(mockTimeLogCreate);
-      } catch (error) {
-        // Error is expected to be thrown after logging
-        expect(error).toBeInstanceOf(Error);
-      }
-    });
     expect(logger.error).toHaveBeenCalledWith(
-      'Failed to submit time log:',
+      'Failed to delete time log:',
       expect.any(Error),
     );
-    // Restore the resolved mock for other tests
-    (createTimeLog as jest.Mock).mockResolvedValue(undefined);
   });
 
-  it('should manage time log dialog state', () => {
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
+  it('opens the dialog for a task and resets it on close', async () => {
+    const { result } = await renderLoaded();
 
     act(() => {
-      result.current.setTimeLogDialogOpen(true);
+      result.current.handleTimeLogEdit(mockTimeLogs[1]);
+    });
+    act(() => {
+      result.current.openTimeLogDialog(2);
     });
     expect(result.current.timeLogDialogOpen).toBe(true);
+    expect(result.current.selectedTimeLog).toBeNull();
+    expect(result.current.timeLogTaskId).toBe(2);
 
     act(() => {
-      result.current.setTimeLogDialogOpen(false);
+      result.current.closeTimeLogDialog();
     });
     expect(result.current.timeLogDialogOpen).toBe(false);
-  });
-
-  it('should manage selected time log', () => {
-    const { result } = renderHook(() => useProjectTimeLogs('1'));
-
-    act(() => {
-      result.current.setSelectedTimeLog(mockTimeLogs[0]);
-    });
-    expect(result.current.selectedTimeLog).toEqual(mockTimeLogs[0]);
-
-    act(() => {
-      result.current.setSelectedTimeLog(null);
-    });
-    expect(result.current.selectedTimeLog).toBeNull();
+    expect(result.current.timeLogTaskId).toBeUndefined();
   });
 });
