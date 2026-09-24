@@ -6,7 +6,6 @@ import {
   TaskFilters,
   TaskFormState,
 } from '../types/task';
-import { Tag } from '../types/tag';
 import { ApiResponse } from '../types/api';
 
 const serializeTaskFilters = (filters: TaskFilters): string => {
@@ -300,17 +299,6 @@ export const getPriorities = async (
 ): Promise<TaskPriority[]> => {
   const response = await api.get<TaskPriority[]>('/tasks/priorities', {
     signal,
-  });
-  return response.data;
-};
-
-// Update task tags
-export const updateTaskTags = async (
-  taskId: number,
-  tags: Tag[],
-): Promise<ApiResponse<void>> => {
-  const response = await api.put<ApiResponse<void>>(`/tasks/${taskId}/tags`, {
-    tags,
   });
   return response.data;
 };

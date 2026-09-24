@@ -7,7 +7,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
-  changeUserStatus,
+  getUserOptions,
 } from '../users';
 
 jest.mock('../api');
@@ -71,7 +71,9 @@ describe('Users API', () => {
     it('should fetch user by id', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: mockUser });
       const result = await getUserById(1);
-      expect(mockedApi.get).toHaveBeenCalledWith('/users/1');
+      expect(mockedApi.get).toHaveBeenCalledWith('/users/1', {
+        signal: undefined,
+      });
       expect(result).toEqual(mockUser);
     });
 
@@ -126,18 +128,15 @@ describe('Users API', () => {
     });
   });
 
-  describe('changeUserStatus', () => {
-    it('should change user status', async () => {
-      mockedApi.patch.mockResolvedValueOnce({ data: mockUser });
-      const result = await changeUserStatus(1);
-      expect(mockedApi.patch).toHaveBeenCalledWith('/users/1/status');
-      expect(result).toEqual(mockUser);
-    });
-
-    it('should handle error when changing user status', async () => {
-      const error = new Error('Failed to change user status');
-      mockedApi.patch.mockRejectedValueOnce(error);
-      await expect(changeUserStatus(1)).rejects.toThrow(error);
+  describe('getUserOptions', () => {
+    it('should fetch picker options from /users/options', async () => {
+      const options = [{ id: 1, login: 'a', name: 'A', surname: 'B' }];
+      mockedApi.get.mockResolvedValueOnce({ data: options });
+      const result = await getUserOptions();
+      expect(mockedApi.get).toHaveBeenCalledWith('/users/options', {
+        signal: undefined,
+      });
+      expect(result).toEqual(options);
     });
   });
 });

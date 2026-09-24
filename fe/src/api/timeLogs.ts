@@ -2,14 +2,6 @@ import { api } from './api';
 import { TimeLog, TimeLogCreate, TimeSpent } from '../types/timeLog';
 
 /**
- * Retrieve all time logs; requires administrative privileges.
- */
-export const getAllTimeLogs = async (): Promise<TimeLog[]> => {
-  const response = await api.get<TimeLog[]>('/time-logs');
-  return response.data;
-};
-
-/**
  * Fetch time log entries for a specific task from the backend API.
  *
  * Performs an HTTP GET to /time-logs/tasks/{taskId}/logs and returns the
@@ -32,22 +24,6 @@ export const getTaskTimeLogs = async (
 };
 
 /**
- * Fetch the total time recorded for a task from the API.
- *
- * Resolves to an object of shape { spent_time: number } where spent_time is the
- * total time recorded for the task (in seconds). Performs an HTTP GET to
- * /time-logs/tasks/{taskId}/spent-time.
- *
- * @param taskId Numeric ID of the task to retrieve spent time for.
- */
-export const getTaskSpentTime = async (taskId: number): Promise<TimeSpent> => {
-  const response = await api.get<TimeSpent>(
-    `/time-logs/tasks/${taskId}/spent-time`,
-  );
-  return response.data;
-};
-
-/**
  * Fetch the time logs for a specific project from the API.
  *
  * Performs an HTTP GET to /time-logs/projects/{projectId}/logs and returns the
@@ -65,7 +41,7 @@ export const getTaskSpentTime = async (taskId: number): Promise<TimeSpent> => {
  */
 export const getProjectTimeLogs = async (
   projectId: number,
-  params?: Record<string, any>,
+  params?: Record<string, unknown>,
   signal?: AbortSignal,
 ): Promise<TimeLog[]> => {
   const response = await api.get<TimeLog[]>(
@@ -119,28 +95,6 @@ export const createTimeLog = async (
     spent_time: timeLog.spent_time,
     description: timeLog.description ?? '',
     activity_type_id: timeLog.activity_type_id,
-  });
-  return response.data;
-};
-
-/**
- * Retrieve the authenticated user's time logs from the API.
- *
- * Performs an HTTP GET to '/time-logs/user/logs', passing the optional params
- * as query parameters and accepting an AbortSignal to cancel the request.
- * Resolves with an array of TimeLog objects representing the user's time logs.
- *
- * @param params Optional record of query parameters to filter or paginate the
- *   user's time logs; these are sent as the request's query string.
- * @param signal Optional AbortSignal used to cancel the in-flight HTTP request.
- */
-export const getUserTimeLogs = async (
-  params?: Record<string, any>,
-  signal?: AbortSignal,
-): Promise<TimeLog[]> => {
-  const response = await api.get<TimeLog[]>('/time-logs/user/logs', {
-    params,
-    signal,
   });
   return response.data;
 };

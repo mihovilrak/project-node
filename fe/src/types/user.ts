@@ -25,6 +25,14 @@ export interface User {
   last_login?: string | null;
 }
 
+/** Active user as returned by GET /users/options for pickers. */
+export interface UserOption {
+  id: number;
+  login: string;
+  name: string;
+  surname: string;
+}
+
 export interface UserDetails extends User {
   status: string;
   role: string;

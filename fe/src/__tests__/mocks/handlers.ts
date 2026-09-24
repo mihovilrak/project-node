@@ -110,6 +110,17 @@ export const handlers = [
   // Users endpoints
   http.get('/api/users', () => HttpResponse.json([defaultUser])),
 
+  http.get('/api/users/options', () =>
+    HttpResponse.json([
+      {
+        id: defaultUser.id,
+        login: defaultUser.login,
+        name: defaultUser.name,
+        surname: defaultUser.surname,
+      },
+    ]),
+  ),
+
   http.get('/api/users/:id', ({ params }) =>
     HttpResponse.json({ ...defaultUser, id: Number(params.id) }),
   ),
@@ -467,15 +478,9 @@ export const handlers = [
   http.delete('/api/roles/:id', () => HttpResponse.json({})),
 
   // Settings endpoints
-  http.get('/api/settings/user_settings', () =>
-    HttpResponse.json({
-      theme: 'light',
-      language: 'en',
-      notifications: true,
-    }),
+  http.get('/api/settings/welcome', () =>
+    HttpResponse.json({ welcome_message: 'Welcome to Project Manager' }),
   ),
-
-  http.put('/api/settings/user_settings', () => HttpResponse.json({})),
 
   http.get('/api/settings/app_settings', () =>
     HttpResponse.json({

@@ -1,5 +1,11 @@
 import { api } from './api';
-import { User, UserCreate, UserUpdate, UserStatus } from '../types/user';
+import {
+  User,
+  UserCreate,
+  UserUpdate,
+  UserStatus,
+  UserOption,
+} from '../types/user';
 
 /**
  * Fetch the list of available user statuses from the server.
@@ -29,7 +35,7 @@ export const getUserStatuses = async (
  * is included. The optional AbortSignal is forwarded to the underlying request.
  * Empty or undefined whereParams are omitted from the request.
  *
- * @param whereParams Optional filter object (Record<string, any>) that will be
+ * @param whereParams Optional filter object (Record<string, unknown>) that will be
  *   JSON-stringified and sent as the query parameter 'whereParams' when
  *   non-empty.
  * @param options Optional options object; set { all: true } to include inactive
@@ -37,11 +43,11 @@ export const getUserStatuses = async (
  * @param signal Optional AbortSignal to cancel the HTTP request.
  */
 export const getUsers = async (
-  whereParams?: Record<string, any>,
+  whereParams?: Record<string, unknown>,
   options?: { all?: boolean },
   signal?: AbortSignal,
 ): Promise<User[]> => {
-  const params: Record<string, any> = {};
+  const params: Record<string, unknown> = {};
 
   if (whereParams && Object.keys(whereParams).length > 0) {
     params.whereParams = JSON.stringify(whereParams);
@@ -65,8 +71,11 @@ export const getUsers = async (
  * @param id Numeric user id to fetch; interpolated into the request path
  *   (/users/{id}).
  */
-export const getUserById = async (id: number): Promise<User> => {
-  const response = await api.get<User>(`/users/${id}`);
+export const getUserById = async (
+  id: number,
+  signal?: AbortSignal,
+): Promise<User> => {
+  const response = await api.get<User>(`/users/${id}`, { signal });
   return response.data;
 };
 
@@ -125,17 +134,14 @@ export const deleteUser = async (id: number): Promise<void> => {
 };
 
 /**
- * Change user status by sending a PATCH request to /users/{id}/status and
- * return the updated User.
+ * Fetch the active users as lightweight picker options. Available to any
+ * authenticated user (unlike getUsers, which is admin-only).
  *
- * Sends a PATCH request without a request body to the /users/{id}/status
- * endpoint; the server is expected to update the user's status and respond with
- * the updated User object. The function returns that User wrapped in a Promise
- * and will reject on network or server errors.
- *
- * @param id Numeric ID of the user whose status should be changed.
+ * @param signal Optional AbortSignal to cancel the HTTP request.
  */
-export const changeUserStatus = async (id: number): Promise<User> => {
-  const response = await api.patch<User>(`/users/${id}/status`);
+export const getUserOptions = async (
+  signal?: AbortSignal,
+): Promise<UserOption[]> => {
+  const response = await api.get<UserOption[]>('/users/options', { signal });
   return response.data;
 };

@@ -6,7 +6,6 @@ import {
   TaskFormState,
   TaskPriority,
 } from '../../types/task';
-import { Tag } from '../../types/tag';
 import {
   getTasks,
   getTaskById,
@@ -21,7 +20,6 @@ import {
   changeTaskStatus,
   getTaskStatuses,
   getPriorities,
-  updateTaskTags,
 } from '../tasks';
 
 jest.mock('../api');
@@ -220,28 +218,6 @@ describe('Tasks API', () => {
         signal: undefined,
       });
       expect(result).toEqual(mockStatuses);
-    });
-  });
-
-  describe('updateTaskTags', () => {
-    it('should update task tags', async () => {
-      const tags: Tag[] = [
-        {
-          id: 1,
-          name: 'Frontend',
-          color: '#e91e63',
-          description: 'Frontend related tasks',
-          created_by: 1,
-          active: true,
-          created_on: '2024-01-01',
-        },
-      ];
-      mockedApi.put.mockResolvedValueOnce({ data: undefined });
-
-      const result = await updateTaskTags(1, tags);
-
-      expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/tags', { tags });
-      expect(result).toEqual(undefined);
     });
   });
 
