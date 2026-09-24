@@ -3,7 +3,12 @@ import dotenv from 'dotenv';
 import { Config, EmailConfig } from './types/config';
 import { Settings } from './types/settings';
 import logger from './utils/logger';
-import { readDatabaseConfig } from '@pm/backend-common';
+import {
+  buildEmailConfig as buildSmtpConfig,
+  readDatabaseConfig,
+  readSecret,
+  validateDatabaseConfig,
+} from '@pm/backend-common';
 
 // When running integration tests under Jest, load .env.test first so the app uses the test DB
 if (process.env.JEST_WORKER_ID !== undefined) {
@@ -30,16 +35,20 @@ const database = readDatabaseConfig(process.env, {
   ...testDefaults,
 });
 
+const nodeEnv = process.env.NODE_ENV || 'development';
+
 const config: Config = {
   port: parseInt(process.env.PORT || '5000', 10),
   database,
-  sessionSecret: process.env.SESSION_SECRET || 'default_secret',
+  sessionSecret:
+    readSecret(process.env, 'SESSION_SECRET') ||
+    (nodeEnv === 'test' ? 'default_secret' : ''),
   feUrl: process.env.FE_URL || 'http://localhost:3000',
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv,
 };
 
 function validateConfig(): void {
-  const { nodeEnv, sessionSecret, database: db, port, feUrl } = config;
+  const { sessionSecret, database: db, port, feUrl } = config;
 
   if (!Number.isFinite(port) || port <= 0) {
     logger.error(
@@ -48,24 +57,24 @@ function validateConfig(): void {
     process.exit(1);
   }
 
-  const missingDb = (['host', 'user', 'password', 'database'] as const).filter(
-    (key) => !db[key],
-  );
-  if (missingDb.length > 0) {
+  try {
+    validateDatabaseConfig(db);
+  } catch (err) {
     logger.error(
-      `Config validation failed: missing database settings (${missingDb.join(', ')}). Set POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB (or TEST_DB_* for tests).`,
+      `Config validation failed: ${(err as Error).message}. Set POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD (or POSTGRES_PASSWORD_FILE), POSTGRES_DB (or TEST_DB_* for tests).`,
     );
     process.exit(1);
   }
-  if (!Number.isFinite(db.port) || db.port <= 0) {
+
+  if (!sessionSecret) {
     logger.error(
-      'Config validation failed: POSTGRES_PORT must be a valid port.',
+      'Config validation failed: SESSION_SECRET (or SESSION_SECRET_FILE) must be set.',
     );
     process.exit(1);
   }
 
   if (nodeEnv === 'production') {
-    if (!process.env.SESSION_SECRET || sessionSecret === 'default_secret') {
+    if (sessionSecret === 'default_secret') {
       logger.error(
         'Config validation failed: SESSION_SECRET must be set to a non-default value in production.',
       );
@@ -87,27 +96,25 @@ function validateConfig(): void {
 
 validateConfig();
 
-const DEFAULT_EMAIL_PORT = 587;
-
 /**
  * Construct an email configuration object, reading SMTP host, port, and sender
  * from settings while retrieving credentials from environment variables.
  *
  * SMTP connection details (host, port, sender email) are sourced from
  * app_settings to allow admin UI changes without restart; only user credentials
- * remain in environment as secrets for security.
+ * remain in environment (EMAIL_PASSWORD or EMAIL_PASSWORD_FILE) as secrets.
  *
  * @param settings System settings object or null; missing values fall back to
  *   defaults.
  */
-export const buildEmailConfig = (settings: Settings | null): EmailConfig => ({
-  enabled: settings?.email_enabled ?? false,
-  host: settings?.email_host || 'smtp.gmail.com',
-  port: settings?.email_port || DEFAULT_EMAIL_PORT,
-  secure: settings?.email_secure ?? false,
-  user: process.env.EMAIL_USER,
-  password: process.env.EMAIL_PASSWORD,
-  from: settings?.sender_email || 'no-reply@example.com',
-});
+export const buildEmailConfig = (settings: Settings | null): EmailConfig => {
+  const { auth, ...smtp } = buildSmtpConfig(settings);
+  return {
+    enabled: settings?.email_enabled ?? false,
+    ...smtp,
+    user: auth.user,
+    password: auth.pass,
+  };
+};
 
 export default config;
