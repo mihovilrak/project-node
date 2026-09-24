@@ -153,24 +153,20 @@ class EmailService implements IEmailService {
       return;
     }
 
-    try {
-      const template = await this.loadTemplate(templateName);
-      const html = template(data);
+    // Failures are thrown, not logged: the caller logs the final outcome once.
+    const template = await this.loadTemplate(templateName);
+    const html = template(data);
 
-      const mailOptions: MailOptions = {
-        from: config.email.from,
-        to,
-        subject,
-        html,
-      };
+    const mailOptions: MailOptions = {
+      from: config.email.from,
+      to,
+      subject,
+      html,
+    };
 
-      const info = await this.transporter.sendMail(mailOptions);
-      logger.info({ messageId: info.messageId }, 'Email sent');
-      return info;
-    } catch (error) {
-      logger.error({ err: error }, 'Failed to send email');
-      throw error;
-    }
+    const info = await this.transporter.sendMail(mailOptions);
+    logger.info({ messageId: info.messageId }, 'Email sent');
+    return info;
   }
 
   /**
@@ -197,8 +193,11 @@ class EmailService implements IEmailService {
       try {
         return await this.sendEmail(to, subject, templateName, data);
       } catch (error) {
-        logger.warn({ err: error, attempt }, 'Email attempt failed');
         if (attempt === retries) throw error;
+        logger.warn(
+          { err: error, attempt, retries },
+          'Email attempt failed; retrying',
+        );
         await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
       }
     }

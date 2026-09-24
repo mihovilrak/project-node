@@ -9,7 +9,7 @@ import { logger } from '../utils/logger';
  *
  * Runs a database UPDATE that sets active = false and archived_on = NOW() for
  * notifications where active is true, created_on is more than 30 days ago, and
- * the notification has been read (read_on IS NOT NULL or is_read = true). Logs
+ * the notification has been read (is_read; the API sets read_on with it). Logs
  * the number of rows affected on success and logs an error on failure. The
  * archived_on timestamp is intentionally used to mark "aged out" notifications
  * so they can be distinguished from notifications where active = false was set
@@ -23,7 +23,7 @@ export const cleanupOldNotifications = async (): Promise<void> => {
            archived_on = NOW()
        WHERE active
        AND created_on < NOW() - INTERVAL '30 days'
-       AND (read_on IS NOT NULL OR is_read = true)`,
+       AND is_read`,
     );
     logger.info({ rowCount: result.rowCount }, 'Cleaned up old notifications');
   } catch (error) {
