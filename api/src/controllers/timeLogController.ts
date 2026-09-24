@@ -10,7 +10,12 @@ import {
 import logger from '../utils/logger';
 import { parsePagination } from '../utils/pagination';
 
-// Get all time logs
+/**
+ * Retrieve all time logs with optional pagination support.
+ * @param req Express request object containing optional pagination query parameters
+ * @param res Express response object for sending the paginated time logs or error
+ * @param pool Database connection pool for executing queries
+ */
 export const getAllTimeLogs = async (
   req: Request,
   res: Response,
@@ -28,7 +33,12 @@ export const getAllTimeLogs = async (
   }
 };
 
-// Get task time logs
+/**
+ * Retrieve all time logs recorded against a specific task, optionally filtered by date range or activity type.
+ * @param req Express request object containing taskId in route parameters and optional TimeLogQueryFilters in query string
+ * @param res Express response object for sending HTTP responses
+ * @param pool Database connection pool for executing queries
+ */
 export const getTaskTimeLogs = async (
   req: Request,
   res: Response,
@@ -64,7 +74,12 @@ export const getTaskSpentTime = async (
   }
 };
 
-// Get project time logs
+/**
+ * Retrieve all time logs associated with a specific project.
+ * @param req HTTP request containing the project ID in params and optional query filters
+ * @param res HTTP response object for sending the time logs or error
+ * @param pool Database connection pool for executing queries
+ */
 export const getProjectTimeLogs = async (
   req: Request,
   res: Response,
@@ -85,7 +100,12 @@ export const getProjectTimeLogs = async (
   }
 };
 
-// Get project spent time
+/**
+ * Retrieve and return the total time spent on all tasks within a project.
+ * @param req Request object containing projectId in params
+ * @param res Response object for sending JSON result
+ * @param pool Database connection pool
+ */
 export const getProjectSpentTime = async (
   req: Request,
   res: Response,
@@ -101,7 +121,14 @@ export const getProjectSpentTime = async (
   }
 };
 
-// Create time log
+/**
+ * Record time spent on a task for the authenticated user.
+ *
+ * Requires user authentication via session. Expects taskId in URL parameters and spent_time and activity_type_id as mandatory fields in the request body. Accepts optional log_date and description.
+ * @param req CustomRequest with session user context and task ID in params, time log details in body
+ * @param res Response object for sending status and JSON payload
+ * @param pool Database connection pool
+ */
 export const createTimeLog = async (
   req: CustomRequest,
   res: Response,
@@ -134,7 +161,14 @@ export const createTimeLog = async (
   }
 };
 
-// Update time log
+/**
+ * Modify an existing time log with partial updates and return the updated record or 404 if not found.
+ *
+ * Accepts only the fields log_date, spent_time, description, and activity_type_id; undefined fields are omitted to preserve existing values. Returns 404 if the time log does not exist, 200 with the updated record on success, or 500 on server error.
+ * @param req Express request containing timeLogId in params and update fields in body
+ * @param res Express response for sending the result or error
+ * @param pool Database connection pool
+ */
 export const updateTimeLog = async (
   req: Request,
   res: Response,
@@ -169,7 +203,12 @@ export const updateTimeLog = async (
   }
 };
 
-// Delete time log
+/**
+ * Remove a time log record by its identifier.
+ * @param req HTTP request containing the timeLogId parameter
+ * @param res HTTP response object
+ * @param pool Database connection pool
+ */
 export const deleteTimeLog = async (
   req: Request,
   res: Response,
@@ -185,7 +224,14 @@ export const deleteTimeLog = async (
   }
 };
 
-// Get user time logs
+/**
+ * Retrieve all time log entries for the authenticated user with optional filtering.
+ *
+ * Requires user authentication via session. Accepts query parameters for filtering by date range and activity type. Returns 401 if user is not authenticated, 200 on success with time log data, or 500 on server error.
+ * @param req CustomRequest with session containing authenticated user id and query parameters for filtering
+ * @param res Response object for sending the time logs or error status
+ * @param pool Database connection pool for executing queries
+ */
 export const getUserTimeLogs = async (
   req: CustomRequest,
   res: Response,

@@ -98,6 +98,10 @@ const IconSelector = ({ value, onChange }: IconSelectorProps) => {
   );
 };
 
+/**
+ * Render a form for editing activity type properties including name, color, icon, description, and active status.
+ * @param root0 Object containing formData with activity type fields and onChange callback to handle field updates
+ */
 export const ActivityTypeForm: React.FC<ActivityTypeFormProps> = ({
   formData,
   onChange,

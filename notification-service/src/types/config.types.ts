@@ -11,6 +11,9 @@ export interface EmailAuth {
   pass: string | undefined;
 }
 
+/**
+ * Configure the SMTP/email transport (host, port, TLS usage), authentication credentials, and default sender address used for application emails.
+ */
 export interface EmailConfig {
   host: string;
   port: number;
@@ -32,7 +35,9 @@ export interface Config {
   app: AppConfig;
 }
 
-// The runtime-editable half of app_settings, shared with the API.
+/**
+ * Represent the runtime-editable half of app_settings shared with the API, containing the database row fields sender_email, app_base_url, email_enabled, email_host, email_port, and email_secure.
+ */
 export interface AppSettingsRow {
   sender_email: string;
   app_base_url: string;

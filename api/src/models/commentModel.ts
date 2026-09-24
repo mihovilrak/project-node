@@ -29,7 +29,13 @@ export const createComment = async (
   return result.rows[0];
 };
 
-// Fetch the created comment with user details
+/**
+ * Retrieve a comment by ID along with its associated user information.
+ *
+ * Returns null if no comment exists for the given ID.
+ * @param pool Database connection pool
+ * @param id Comment identifier
+ */
 export const commentWithUser = async (
   pool: Pool,
   id: string,
@@ -40,7 +46,15 @@ export const commentWithUser = async (
   return result.rows[0] || null;
 };
 
-// Edit a comment
+/**
+ * Update a comment's text and return it with user details, or null if not found.
+ *
+ * Returns null if the comment ID is stale, deleted, or inactive, rather than attempting a follow-up read that might retrieve a deleted row.
+ * @param pool Database connection pool
+ * @param id Comment ID to update
+ * @param comment New comment text
+ * @returns The updated comment with user details, or null if the comment does not exist or is inactive
+ */
 export const editComment = async (
   pool: Pool,
   id: string,
@@ -68,7 +82,13 @@ export const editComment = async (
   return result.rows[0] || null;
 };
 
-// Delete a comment
+/**
+ * Mark a comment as inactive and return its data, or null if not found.
+ *
+ * Performs a soft delete by setting the active flag to false and updating the timestamp. Only operates on comments that are currently active.
+ * @param pool Database connection pool
+ * @param id Comment identifier
+ */
 export const deleteComment = async (
   pool: Pool,
   id: string,

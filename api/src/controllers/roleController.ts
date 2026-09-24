@@ -19,6 +19,12 @@ export const getRoles = async (
   }
 };
 
+/**
+ * Insert a new role record from request data into the database and return the created role ID.
+ * @param req Express request object containing role data in the body with required name field.
+ * @param res Express response object used to send status and JSON responses.
+ * @param pool Database connection pool for executing queries.
+ */
 export const createRole = async (
   req: Request,
   res: Response,
@@ -50,6 +56,12 @@ export const createRole = async (
   }
 };
 
+/**
+ * Modify an existing role with validation of required fields and conflict detection.
+ * @param req Express request containing the role ID in params and updated role data in the body
+ * @param res Express response object for sending the result or error
+ * @param pool Database connection pool for executing the update operation
+ */
 export const updateRole = async (
   req: Request,
   res: Response,
@@ -88,6 +100,12 @@ export const updateRole = async (
   }
 };
 
+/**
+ * Delete a role by identifier, preventing deletion if the role is assigned to users.
+ * @param req Express request object containing the role identifier in params
+ * @param res Express response object for sending JSON responses
+ * @param pool Database connection pool for executing queries
+ */
 export const deleteRole = async (
   req: Request,
   res: Response,

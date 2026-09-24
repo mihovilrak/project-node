@@ -10,13 +10,25 @@ export const isUserAdmin = async (
   return result.rows[0].is_admin;
 };
 
-// Get system statistics
+/**
+ * Retrieve aggregated system statistics including user counts, projects, tasks, and logged time.
+ * @param pool Database connection pool used to execute the query.
+ * @returns Promise resolving to an object containing total_users, total_projects, total_tasks, and total_time_logged.
+ */
 export const getSystemStats = async (pool: Pool): Promise<SystemStats> => {
   const result = await pool.query('SELECT * FROM get_system_stats()');
   return result.rows[0];
 };
 
-// Get system logs
+/**
+ * Retrieve system activity logs with optional filtering by date range and activity type.
+ *
+ * Queries time_logs joined with user and activity type information, ordered by creation date descending. Date parameters default to negative infinity and current time respectively when omitted. Activity type filtering is applied only when the type parameter is provided.
+ * @param pool Database connection pool
+ * @param startDate ISO timestamp string for log start boundary, or undefined for earliest logs
+ * @param endDate ISO timestamp string for log end boundary, or undefined for current time
+ * @param type Activity type identifier to filter logs, or undefined to include all types
+ */
 export const getSystemLogs = async (
   pool: Pool,
   startDate?: string,
@@ -49,7 +61,10 @@ export const getSystemLogs = async (
   return result.rows;
 };
 
-// Get all permissions
+/**
+ * Retrieve all system permissions ordered by name.
+ * @param pool Database connection pool
+ */
 export const getAllPermissions = async (pool: Pool): Promise<Permission[]> => {
   const result = await pool.query(
     `SELECT id,

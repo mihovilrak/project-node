@@ -11,6 +11,10 @@ import { getProjectTasks } from '../../api/tasks';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Fetch and manage time logs for all tasks in a project with create, update, and delete operations.
+ * @param projectId the project identifier to load time logs for
+ */
 export const useProjectTimeLogs = (projectId: string): ProjectTimeLogsHook => {
   const [timeLogs, setTimeLogs] = useState<TimeLog[]>([]);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState(false);

@@ -1,3 +1,7 @@
+/**
+ * Translate a textual priority label into a semantic color token for UI components.
+ * @param priority Priority label (string | undefined), matched case-insensitively. Recognizes 'very high/must' → 'error', 'high/should' → 'warning', 'normal/could' → 'info', 'low/wont' → 'success'; any other value (including undefined) returns 'default'.
+ */
 export const getPriorityColor = (
   priority: string | undefined,
 ): 'error' | 'warning' | 'info' | 'success' | 'default' => {
@@ -15,6 +19,10 @@ export const getPriorityColor = (
   }
 };
 
+/**
+ * Map a task status string to a UI color token.
+ * @param status Task status (string, case-insensitive). Recognized values: 'done' → 'success', 'in progress' → 'info', 'cancelled' → 'error'; any other value (or undefined) → 'default'.
+ */
 export const getStatusColor = (
   status: string | undefined,
 ): 'error' | 'warning' | 'info' | 'success' | 'default' => {

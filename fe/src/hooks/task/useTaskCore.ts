@@ -11,6 +11,10 @@ import {
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Fetch and manage task data including subtasks, statuses, and mutations.
+ * @param taskId The numeric task identifier as a string.
+ */
 export const useTaskCore = (taskId: string) => {
   const [state, setState] = useState<TaskCoreState>({
     task: null,

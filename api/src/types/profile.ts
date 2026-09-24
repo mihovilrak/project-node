@@ -15,6 +15,9 @@ export interface Profile {
   total_hours?: number;
 }
 
+/**
+ * Specify optional profile fields to update for an existing user account.
+ */
 export interface ProfileUpdateInput {
   name?: string;
   surname?: string;
@@ -30,6 +33,9 @@ export interface PasswordUpdateInput {
   new_password: string;
 }
 
+/**
+ * Capture aggregate task completion and time tracking metrics for a user profile.
+ */
 export interface ProfileStats {
   total_tasks: number;
   total_time_logged: number;

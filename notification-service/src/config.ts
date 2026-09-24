@@ -30,8 +30,12 @@ export const config: Config = {
   },
 };
 
-// Returns true when the SMTP connection parameters changed and the transporter
-// has to be rebuilt.
+/**
+ * Apply the given application settings to the global config, normalizing the base URL and email-enabled flag, and return true when the SMTP/email connection parameters changed such that the mail transporter must be rebuilt.
+ *
+ * Side effects: updates config.email to the value produced by buildEmailConfig(settings), sets config.app.emailEnabled from settings?.email_enabled (default false), and normalizes config.appBaseUrl from settings?.app_base_url or DEFAULT_BASE_URL by stripping trailing slashes. Change detection is performed by comparing JSON.stringify(next) to the previous JSON.stringify(config.email); the function returns true iff those serialized values differ. If settings is null, buildEmailConfig and the defaults are used. Note: using JSON.stringify for equality means differences in serialization (field order, presence of undefined) affect change detection.
+ * @param settings AppSettingsRow | null — the settings row to apply (may be null). The function reads email_host, email_port, email_secure, sender_email, email_enabled, and app_base_url (via buildEmailConfig and direct assignment) to update the global configuration.
+ */
 export const applySettings = (settings: AppSettingsRow | null): boolean => {
   const next = buildEmailConfig(settings);
   const changed = JSON.stringify(next) !== JSON.stringify(config.email);
@@ -44,6 +48,9 @@ export const applySettings = (settings: AppSettingsRow | null): boolean => {
   return changed;
 };
 
+/**
+ * Verify that required PostgreSQL environment variables are set and throw an Error listing any that are missing.
+ */
 export function validateConfig(): void {
   const missing: string[] = [];
   if (!process.env.POSTGRES_HOST) missing.push('POSTGRES_HOST');

@@ -17,7 +17,15 @@ import {
   paginationClause,
 } from '../utils/pagination';
 
-// Get all projects (with status_name, created_by_name, estimated_time, spent_time, progress from project_details)
+/**
+ * Fetch projects with enriched details including status name, creator name, time estimates, and progress, scoped to user accessibility.
+ *
+ * Results include status_name, created_by_name, estimated_time, spent_time, and progress from the project_details lateral join. When scopeUserId is provided, results are filtered by projects the user can access, preventing pagination issues from post-filtering. Results are ordered by project ID and respect the provided pagination limits.
+ * @param pool Database connection pool
+ * @param filters Optional project filters by status, creator, parent, or date ranges
+ * @param pagination Pagination parameters with limit and offset
+ * @param scopeUserId Optional user ID to scope results to accessible projects; when null or undefined, no access filtering is applied
+ */
 export const getProjects = async (
   pool: Pool,
   filters: ProjectFilters = {},
@@ -76,7 +84,14 @@ export const getProjectById = async (
   return result.rows[0] || null;
 };
 
-// Get project details
+/**
+ * Retrieve comprehensive details for a project including members, task counts, and metadata.
+ *
+ * Returns null when the project does not exist or the query yields no results.
+ * @param pool Database connection pool
+ * @param id Project identifier
+ * @returns Project details object with members and task statistics, or null if not found
+ */
 export const getProjectDetails = async (
   pool: Pool,
   id: string,
@@ -108,8 +123,14 @@ export const createProject = async (
   return result.rows[0];
 };
 
-// Change a project status. The function returns a message row, or no row at all
-// when the project does not exist.
+/**
+ * Update a project to the specified status, returning a confirmation message or null if the project does not exist.
+ *
+ * Returns null when the project cannot be found or updated.
+ * @param pool Database connection pool
+ * @param id Project identifier
+ * @param statusId Target status identifier
+ */
 export const changeProjectStatus = async (
   pool: Pool,
   id: string,
@@ -131,7 +152,15 @@ export const ALLOWED_PROJECT_UPDATE_KEYS = [
   'status_id',
 ] as const;
 
-// Update a project
+/**
+ * Update specified project fields and return the count of affected rows.
+ *
+ * Only fields in ALLOWED_PROJECT_UPDATE_KEYS are applied; returns null if no updates are provided after filtering.
+ * @param pool Database connection pool
+ * @param updates Partial project data with fields to update
+ * @param id Project identifier
+ * @returns Number of rows updated or null if no valid updates were filtered
+ */
 export const updateProject = async (
   pool: Pool,
   updates: Partial<Project>,
@@ -166,7 +195,15 @@ export const deleteProject = async (
   return result.rows[0] || null;
 };
 
-// Get project members
+/**
+ * Retrieve the members assigned to a project with optional pagination.
+ *
+ * Results are ordered by user identifier. Pagination defaults to standard limit and zero offset when not specified.
+ * @param pool Database connection pool for executing queries.
+ * @param projectId The unique identifier of the project.
+ * @param pagination Pagination settings for limiting and offsetting result rows.
+ * @returns An array of project members with associated user details.
+ */
 export const getProjectMembers = async (
   pool: Pool,
   projectId: string,
@@ -182,7 +219,13 @@ export const getProjectMembers = async (
   return result.rows;
 };
 
-// Get subprojects
+/**
+ * Retrieve child projects for a given parent project.
+ * @param pool Database connection pool
+ * @param parentId Unique identifier of the parent project
+ * @param pagination Limit and offset for result set pagination
+ * @returns Array of child projects sorted by identifier
+ */
 export const getSubprojects = async (
   pool: Pool,
   parentId: string,
@@ -214,7 +257,15 @@ export const addProjectMember = async (
   return result.rows[0] || null;
 };
 
-// Delete project member
+/**
+ * Remove a user from a project's membership.
+ *
+ * Returns the number of rows deleted, or null if no matching membership record exists.
+ * @param pool Database connection pool
+ * @param projectId The project identifier
+ * @param userId The user identifier to remove
+ * @returns Number of affected rows, or null if no member was found
+ */
 export const deleteProjectMember = async (
   pool: Pool,
   projectId: string,
@@ -235,7 +286,16 @@ const ALLOWED_PROJECT_TASK_FILTER_KEYS = [
   'assignee',
 ] as const;
 
-// Get project tasks
+/**
+ * Retrieve tasks for a project with optional filtering and pagination.
+ *
+ * Returns an empty array if the project ID is empty or null. Filters for status, priority, and assignee are coerced to numeric identifiers; invalid values are treated as null. Results are ordered by creation date and ID in descending order.
+ * @param pool Database connection pool for query execution.
+ * @param id Project ID to retrieve tasks for.
+ * @param filters Optional filters by status, priority, or assignee identifier.
+ * @param pagination Optional pagination settings; defaults to standard limit and zero offset.
+ * @returns Array of tasks matching the project and filter criteria.
+ */
 export const getProjectTasks = async (
   pool: Pool,
   id: string,

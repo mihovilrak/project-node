@@ -23,9 +23,11 @@ class EmailService implements IEmailService {
     this.templateDir = EmailService.resolveTemplateDir();
   }
 
-  // The Docker image sets TEMPLATES_PATH. Without it, __dirname is dist/services/
-  // when running the compiled output but /app/service after the ncc bundle
-  // flattens everything into one file, so both layouts have to be checked.
+  /**
+   * Return the filesystem path to the templates directory, preferring the TEMPLATES_PATH environment variable and otherwise checking both __dirname/templates and __dirname/../templates so it works whether the app runs as compiled output (where __dirname is dist/services/) or as an ncc bundle (flattened to /app/service).
+   *
+   * If process.env.TEMPLATES_PATH is set, that value is returned immediately (the Docker image typically sets this). Otherwise the method builds two candidate paths: path.join(__dirname, 'templates') and path.join(__dirname, '..', 'templates'). It returns the first candidate that exists (checked with existsSync); if neither exists it falls back to the first candidate. There are no side effects; callers should be prepared to receive a path that may not exist if no candidate was found.
+   */
   private static resolveTemplateDir(): string {
     if (process.env.TEMPLATES_PATH) {
       return process.env.TEMPLATES_PATH;
@@ -37,6 +39,9 @@ class EmailService implements IEmailService {
     return candidates.find((dir) => existsSync(dir)) ?? candidates[0];
   }
 
+  /**
+   * Create and configure a nodemailer transporter from config.email, enforcing STARTTLS protection (requireTLS when not using secure), minimum TLS v1.2, authentication, and connection pooling (maxConnections 5, maxMessages 100).
+   */
   private static createTransport(): nodemailer.Transporter {
     const { secure, port } = config.email;
     return nodemailer.createTransport({
@@ -54,14 +59,20 @@ class EmailService implements IEmailService {
     });
   }
 
-  // Called when the admin UI changes SMTP settings; the old pool is closed so
-  // its keep-alive connections do not outlive the credentials they used.
+  /**
+   * Replace the current SMTP transporter with a newly created one and close the previous transport's connection pool so keep-alive connections do not outlive the credentials they used.
+   *
+   * Creates a new transporter using EmailService.createTransport(), assigns it to this.transporter, then calls close() on the previous transporter. Intended to be invoked when SMTP settings change at runtime (for example via the admin UI); it ensures subsequent sends use the updated SMTP configuration and that any pooled/keep-alive connections opened with the old credentials are terminated.
+   */
   refreshTransport(): void {
     const previous = this.transporter;
     this.transporter = EmailService.createTransport();
     previous.close();
   }
 
+  /**
+   * Preload and compile every .hbs template in the service's template directory, caching each via loadTemplate.
+   */
   async initializeTemplates(): Promise<void> {
     try {
       const files = await fs.readdir(this.templateDir);
@@ -81,6 +92,10 @@ class EmailService implements IEmailService {
     }
   }
 
+  /**
+   * Load a Handlebars template file by name, compile it into a TemplateDelegate, and cache the result for reuse.
+   * @param name Base filename of the template (without the .hbs extension) to load and compile.
+   */
   async loadTemplate(name: string): Promise<TemplateDelegate> {
     if (this.templates[name]) {
       return this.templates[name];
@@ -92,6 +107,13 @@ class EmailService implements IEmailService {
     return this.templates[name];
   }
 
+  /**
+   * Send an HTML email rendered from a named Handlebars template to the specified recipient when email sending is enabled.
+   * @param to Recipient email address (string).
+   * @param subject Email subject line (string).
+   * @param templateName Name of the Handlebars template to load and render (string).
+   * @param data Template data object passed to the Handlebars template to produce the email HTML.
+   */
   async sendEmail(
     to: string,
     subject: string,
@@ -123,6 +145,14 @@ class EmailService implements IEmailService {
     }
   }
 
+  /**
+   * Attempt to send the templated HTML email, retrying on failure with increasing delays between attempts.
+   * @param to Recipient email address.
+   * @param subject Email subject line.
+   * @param templateName Name of the Handlebars template to render for the email body.
+   * @param data Template data object used to render the template.
+   * @param retries Maximum number of send attempts (default 3); on failure waits 1s × attempt before retrying and rethrows the last error if all attempts fail.
+   */
   async sendEmailWithRetry(
     to: string,
     subject: string,

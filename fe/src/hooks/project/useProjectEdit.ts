@@ -6,6 +6,10 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { ProjectStatusId } from '../../constants/statusIds';
 
+/**
+ * Manage form state and event handlers for editing project details.
+ * @param project The project to edit, or null for a new project.
+ */
 export const useProjectEdit = (project: Project | null) => {
   const [formData, setFormData] = useState<ProjectEditFormData>({
     name: '',

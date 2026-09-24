@@ -58,7 +58,9 @@ function validateConfig(): void {
     process.exit(1);
   }
   if (!Number.isFinite(db.port) || db.port <= 0) {
-    logger.error('Config validation failed: POSTGRES_PORT must be a valid port.');
+    logger.error(
+      'Config validation failed: POSTGRES_PORT must be a valid port.',
+    );
     process.exit(1);
   }
 
@@ -87,8 +89,12 @@ validateConfig();
 
 const DEFAULT_EMAIL_PORT = 587;
 
-// SMTP host/port/sender live in app_settings so the admin UI can change them
-// without a restart; only the credentials stay in the environment as secrets.
+/**
+ * Construct an email configuration object, reading SMTP host, port, and sender from settings while retrieving credentials from environment variables.
+ *
+ * SMTP connection details (host, port, sender email) are sourced from app_settings to allow admin UI changes without restart; only user credentials remain in environment as secrets for security.
+ * @param settings System settings object or null; missing values fall back to defaults.
+ */
 export const buildEmailConfig = (settings: Settings | null): EmailConfig => ({
   enabled: settings?.email_enabled ?? false,
   host: settings?.email_host || 'smtp.gmail.com',

@@ -15,6 +15,9 @@ export interface CustomRequest extends Request {
   session: Session & Partial<SessionData>;
 }
 
+/**
+ * Extend Express Request with session data containing user and authentication context.
+ */
 export type ProjectRequest = Request & {
   session: Session & Partial<SessionData>;
 };

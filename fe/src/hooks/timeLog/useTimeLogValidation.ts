@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+/**
+ * Validate and format time entries as decimal hours with error messaging.
+ */
 export const useTimeLogValidation = () => {
   const [timeError, setTimeError] = useState<string>('');
 

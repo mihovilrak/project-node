@@ -16,6 +16,12 @@ const toInteger = (value: unknown): number | null => {
   return Number.isInteger(num) ? num : null;
 };
 
+/**
+ * Extract and validate limit and offset values from a query object, applying defaults and constraints.
+ * @param query An object containing limit and offset properties to parse, or null/undefined to use defaults.
+ * @param defaultLimit The maximum limit to apply when the query does not specify one.
+ * @returns A Pagination object with validated limit and offset values.
+ */
 export const parsePagination = (
   query: unknown,
   defaultLimit: number = DEFAULT_PAGE_SIZE,
@@ -36,6 +42,10 @@ export const parsePagination = (
   };
 };
 
+/**
+ * Create a pagination object with default limit and zero offset.
+ * @returns Pagination
+ */
 export const defaultPagination = (): Pagination => ({
   limit: DEFAULT_PAGE_SIZE,
   offset: 0,

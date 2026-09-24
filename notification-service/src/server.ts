@@ -24,6 +24,9 @@ const probeSmtp = async (): Promise<void> => {
   }
 };
 
+/**
+ * Start a background timer that periodically probes SMTP connectivity; do nothing if the probe is already scheduled.
+ */
 export const startSmtpProbe = (): void => {
   if (smtpProbeTimer) return;
   void probeSmtp();
@@ -32,12 +35,18 @@ export const startSmtpProbe = (): void => {
   smtpProbeTimer.unref();
 };
 
+/**
+ * Stop the recurring SMTP probe timer if it's currently active by clearing its interval and resetting the timer reference.
+ */
 export const stopSmtpProbe = (): void => {
   if (!smtpProbeTimer) return;
   clearInterval(smtpProbeTimer);
   smtpProbeTimer = null;
 };
 
+/**
+ * Configures an Express application with health check and readiness endpoints.
+ */
 export const createServer = (): express.Express => {
   const app = express();
 
@@ -67,6 +76,9 @@ export const createServer = (): express.Express => {
   return app;
 };
 
+/**
+ * Start an HTTP server listening on the configured port, log the startup, initiate the SMTP probe, and return the Server instance.
+ */
 export const startServer = (): Server => {
   const port = config.app.port || 5001;
   const server = createServer().listen(port, () => {

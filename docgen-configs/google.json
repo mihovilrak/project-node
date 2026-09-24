@@ -13,7 +13,7 @@
       "kind": "google",
       "apiKeyEnv": "GEMINI_API_KEY"
     },
-    "model": "gemini-3.6-flash",
+    "model": "gemini-3.5-flash",
     "concurrency": 1,
     "maxSymbolsPerRun": 2000
   },

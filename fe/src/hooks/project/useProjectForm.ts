@@ -7,6 +7,11 @@ import logger from '../../utils/logger';
 import { toDateOnlyString } from '../../utils/dateUtils';
 import { ProjectStatusId } from '../../constants/statusIds';
 
+/**
+ * Manage form state and validation for creating or editing a project.
+ * @param project Optional project object to initialize form fields; if not provided, defaults are used.
+ * @param parentId Optional parent project ID to set as the initial parent_id value.
+ */
 export const useProjectForm = (project?: Project, parentId?: string | null) => {
   const [formData, setFormData] = useState<ProjectFormData>({
     name: project?.name || '',

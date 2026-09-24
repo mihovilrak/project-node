@@ -12,6 +12,10 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const EMPTY_COMMENTS: Comment[] = [];
 
+/**
+ * Manage task comments including fetching, creating, updating, and deleting operations.
+ * @param taskId string
+ */
 export const useTaskComments = (taskId: string) => {
   const { currentUser } = useAuth();
   const {

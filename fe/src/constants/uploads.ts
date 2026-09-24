@@ -32,6 +32,10 @@ export const ALLOWED_UPLOAD_TYPES: Readonly<Record<string, readonly string[]>> =
 
 export const UPLOAD_ACCEPT = Object.keys(ALLOWED_UPLOAD_TYPES).join(',');
 
+/**
+ * Check an uploaded file's size and MIME type and return a human-readable error message if it is invalid.
+ * @param file The uploaded File to validate — the function inspects its size, name (for extension), and MIME type.
+ */
 export const validateUploadFile = (file: File): string | null => {
   if (file.size > MAX_UPLOAD_SIZE_BYTES) {
     return 'File size must not exceed 10 MB';

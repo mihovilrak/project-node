@@ -8,6 +8,13 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { UserStatusId } from '../../constants/statusIds';
 
+/**
+ * Manage form state and validation for creating or editing user accounts in a dialog.
+ * @param user The user object to edit, or null/undefined to create a new user.
+ * @param open Whether the dialog is currently open.
+ * @param onClose Callback invoked when the dialog should close.
+ * @param onUserSaved Callback invoked with the saved user object after successful submission.
+ */
 export const useUserDialog = (
   user: User | null | undefined,
   open: boolean,

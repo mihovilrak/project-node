@@ -21,6 +21,9 @@ export interface Project {
   progress?: number;
 }
 
+/**
+ * Represent a user's membership and role assignment within a project.
+ */
 export interface ProjectMember {
   project_id: number;
   user_id: number;
@@ -31,6 +34,9 @@ export interface ProjectMember {
   user?: User;
 }
 
+/**
+ * Extend project information with team members, task metrics, and an optional update timestamp.
+ */
 export interface ProjectDetails extends Omit<Project, 'updated_on'> {
   updated_on?: Date | null;
   members?: ProjectMember[];
@@ -68,6 +74,9 @@ export interface ProjectTaskFilters {
   assignee?: string;
 }
 
+/**
+ * Filter projects by status, creator, parent hierarchy, and date ranges.
+ */
 export interface ProjectFilters {
   statusId?: number;
   createdBy?: number;

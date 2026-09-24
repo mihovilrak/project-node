@@ -9,6 +9,10 @@ export const api: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
+/**
+ * Log details of an Axios error and, when appropriate, trigger a redirect to the login page and authentication events on 401 responses.
+ * @param error The AxiosError from a failed HTTP request; used to read response status, request config (method and URL), and message.
+ */
 export const handleApiError = (error: AxiosError): Promise<never> => {
   const status = error.response?.status;
   const config = error.config;

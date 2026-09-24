@@ -4,6 +4,9 @@ export interface UserStatus {
   color?: string;
 }
 
+/**
+ * Represent a user record received from the backend, including identity, contact, role and status metadata.
+ */
 export interface User {
   id: number;
   login: string;
@@ -51,6 +54,9 @@ export interface UserUpdate {
   status_id?: number;
 }
 
+/**
+ * Provide the structure of the form payload used to create or update a user, including identity fields, credentials (with optional current and confirmation), role id, and optional status id.
+ */
 export interface UserFormData {
   login: string;
   name: string;
@@ -70,6 +76,9 @@ export interface UserDialogProps {
   onUserSaved: (user: User) => void;
 }
 
+/**
+ * Track the user details, whether a fetch is in progress, and any error message.
+ */
 export interface UserDetailsState {
   user: User | null;
   loading: boolean;

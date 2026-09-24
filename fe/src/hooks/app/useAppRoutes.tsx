@@ -6,6 +6,9 @@ import { getTaskById } from '../../api/tasks';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Provide task file management handlers and extract the task ID from route parameters.
+ */
 export const useTaskFileWrapper = () => {
   const { id } = useParams<{ id: string }>();
   const handleFileUploaded = (file: TaskFile) => {
@@ -25,11 +28,18 @@ export const useTaskFileWrapper = () => {
   };
 };
 
+/**
+ * Extract and parse the project ID from the current route parameters.
+ * @returns Object with projectId as a number, or 0 if not present.
+ */
 export const useTimeLogCalendarWrapper = () => {
   const { projectId } = useParams<{ projectId: string }>();
   return { projectId: projectId ? parseInt(projectId) : 0 };
 };
 
+/**
+ * Fetch and manage task data for the time logs view.
+ */
 export const useTaskTimeLogsWrapper = () => {
   const [task, setTask] = useState<Task | null>(null);
   const [error, setError] = useState<string | null>(null);

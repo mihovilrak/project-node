@@ -11,14 +11,22 @@ export interface Notification {
   created_on: Date;
 }
 
-// Extended notification type with joined data
+/**
+ * Extend notification records with type-specific display properties for rendering.
+ *
+ * Includes type_name, type_icon, and type_color alongside base notification fields to support complete UI presentation without additional lookups.
+ */
 export interface NotificationWithDetails extends Notification {
   type_name: string;
   type_icon: string;
   type_color: string;
 }
 
-// Notification type IDs matching the database
+/**
+ * Enumerate notification categories that correspond to database type identifiers.
+ *
+ * Maps numeric type IDs to notification events such as task assignments, updates, comments, completions, project changes, and membership additions.
+ */
 export enum NotificationType {
   TaskDueSoon = 1,
   TaskAssigned = 2,

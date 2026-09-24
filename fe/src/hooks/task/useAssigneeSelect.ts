@@ -4,6 +4,11 @@ import { ProjectMember } from '../../types/project';
 
 const EMPTY_MEMBERS: ProjectMember[] = [];
 
+/**
+ * Fetch and manage project members for assignee selection.
+ * @param projectId Project identifier to load members for.
+ * @returns Object containing projectMembers array and error state.
+ */
 export const useAssigneeSelect = (projectId?: number | null) => {
   const { data: projectMembers, error } = useAsyncResource<ProjectMember[]>(
     (signal) => getProjectMembers(projectId as number, signal),

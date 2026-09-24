@@ -10,6 +10,10 @@ import { getActivityTypes } from '../../api/activityTypes';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Fetch and manage projects, tasks, users, and activity types for the time log dialog.
+ * @param root0 Configuration object with open state, optional project ID, and admin permission flag.
+ */
 export const useTimeLogData = ({
   open,
   projectId,

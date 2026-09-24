@@ -15,6 +15,9 @@ export interface CommentFormProps {
   onCommentAdded: (comment: Comment) => void;
 }
 
+/**
+ * Provide properties for rendering a task's comment list and handling comment updates and deletions while optionally identifying the current user.
+ */
 export interface CommentListProps {
   comments: Comment[];
   onCommentUpdated: (commentId: number, newText: string) => Promise<void>;

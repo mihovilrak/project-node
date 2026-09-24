@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Comment } from '../../types/comment';
 
+/**
+ * Manage comment editing state and submission with error handling.
+ * @param comment The comment object to edit, or null if no comment is selected.
+ * @param onSave Callback function invoked with the comment id and updated text after successful submission.
+ */
 export const useCommentEdit = (
   comment: Comment | null,
   onSave: (id: number, text: string) => Promise<void>,

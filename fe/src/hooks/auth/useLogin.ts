@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LoginRequest } from '../../types/auth';
 
+/**
+ * Manage login form state and submission with authentication error handling.
+ * @returns Object with login form state, error messages, and handlers for input changes and form submission.
+ */
 export const useLogin = () => {
   const { login, error: contextError } = useAuth();
   const [loginDetails, setLoginDetails] = useState<LoginRequest>({

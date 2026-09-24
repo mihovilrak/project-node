@@ -7,7 +7,14 @@ import { LoginInput } from '../types/login';
 const MAX_LOGIN_LENGTH = 255;
 const MAX_PASSWORD_LENGTH = 1024;
 
-// Login controller
+/**
+ * Authenticate a user, verify credentials against the database, establish a session, and return user permissions.
+ *
+ * Validates that login and password are non-empty strings and do not exceed maximum length constraints. Authenticates credentials via the database, records the login event, regenerates the session ID to prevent session fixation attacks, and persists the session before responding. Returns a 400 status for validation errors, 401 for invalid credentials, 500 for session failures, and 200 with user data and permissions on success.
+ * @param req Express request object containing credentials in the body
+ * @param res Express response object for sending authentication results
+ * @param pool Database connection pool for credential verification and session operations
+ */
 export const login = async (
   req: Request,
   res: Response,
@@ -89,7 +96,13 @@ export const login = async (
   });
 };
 
-// Logout controller
+/**
+ * Destroy the user session and clear the session cookie.
+ *
+ * Captures cookie attributes before session destruction to ensure proper cookie removal, as clearCookie requires matching path, sameSite, secure, and httpOnly values. Returns a 500 error if session destruction fails, or a 200 success response with the cookie cleared.
+ * @param req Express request object containing the session to destroy
+ * @param res Express response object used to send the logout result and clear the session cookie
+ */
 export const logout = (req: Request, res: Response): void => {
   // Capture the cookie attributes before the session is destroyed: clearCookie only
   // removes a cookie when path/sameSite/secure/httpOnly match the ones it was set with.

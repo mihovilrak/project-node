@@ -11,7 +11,8 @@
   "generate": {
     "provider": {
       "kind": "openai",
-      "apiKeyEnv": "OPENAI_API_KEY"
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "maxOutputTokens": 4000
     },
     "model": "gpt-5-mini",
     "concurrency": 4,
@@ -21,7 +22,8 @@
     "enabled": true,
     "provider": {
       "kind": "openai",
-      "apiKeyEnv": "OPENAI_API_KEY"
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "maxOutputTokens": 4000
     },
     "model": "gpt-5-nano"
   },

@@ -1,3 +1,6 @@
+/**
+ * Represent a system administrator with user association and lifecycle tracking.
+ */
 export interface Admin {
   id: number;
   user_id: number;
@@ -43,6 +46,9 @@ export interface Permission {
   name: string;
 }
 
+/**
+ * Filter system activity logs by date range and activity type.
+ */
 export interface SystemLogQuery {
   startDate?: string;
   endDate?: string;

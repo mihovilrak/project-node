@@ -7,6 +7,13 @@ export interface UpdateAssignments {
   nextIndex: number;
 }
 
+/**
+ * Construct a parameterized SQL UPDATE clause from a record of updates filtered against allowed columns.
+ * @param updates A record of column names to values to apply, or null/undefined if no updates are provided.
+ * @param allowedColumns A whitelist of column names that are permitted to be updated.
+ * @param startIndex The starting parameter index for placeholders in the generated SQL clause, defaults to 1.
+ * @returns An object containing the filtered columns, a parameterized SET clause, corresponding values, and the next available parameter index, or null if no updates matched the allowed columns.
+ */
 export const buildUpdateAssignments = (
   updates: Record<string, unknown> | undefined | null,
   allowedColumns: readonly string[],

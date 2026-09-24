@@ -15,6 +15,10 @@ interface ColorOptionSelectProps {
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/**
+ * Render a dropdown selector for task attributes with color-coded visual indicators.
+ * @param root0 Props object containing label, name, value, options array with color metadata, and change handler.
+ */
 export const ColorOptionSelect: React.FC<ColorOptionSelectProps> = ({
   label,
   name,

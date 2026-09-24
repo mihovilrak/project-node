@@ -209,6 +209,12 @@ function activeFiltersToFilterValues(
   return out as FilterValues;
 }
 
+/**
+ * Construct the list of available filter definitions based on type and enabled options.
+ * @param type 'tasks' | 'projects' | 'users' | 'time_logs'
+ * @param options FilterPanelOptions
+ * @returns AvailableFilterDef[]
+ */
 export function getAvailableFilters(
   type: 'tasks' | 'projects' | 'users' | 'time_logs',
   options: FilterPanelOptions,
@@ -339,6 +345,13 @@ const getDefaultOperator = (
   return 'contains';
 };
 
+/**
+ * Manage filter state and provide methods for applying, resetting, and displaying active filters.
+ * @param filters Current filter values to initialize and sync the filter state.
+ * @param onFilterChange Callback invoked with updated filter values when filters are applied or cleared.
+ * @param options Configuration object providing available options for filter fields such as statuses, priorities, and users.
+ * @param type Filter context type determining which available filters are exposed: tasks, projects, users, or time_logs.
+ */
 export const useFilterPanel = (
   filters: FilterValues,
   onFilterChange: (filters: FilterValues) => void,

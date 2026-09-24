@@ -21,7 +21,9 @@ export const ALLOWED_UPLOAD_TYPES: Record<string, string[]> = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ],
   '.xls': ['application/vnd.ms-excel'],
-  '.xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  '.xlsx': [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
   '.ppt': ['application/vnd.ms-powerpoint'],
   '.pptx': [
     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -31,6 +33,12 @@ export const ALLOWED_UPLOAD_TYPES: Record<string, string[]> = {
   '.zip': ['application/zip', 'application/x-zip-compressed'],
 };
 
+/**
+ * Validate file uploads against a whitelist of allowed MIME types by extension.
+ * @param req The Express request object.
+ * @param file The uploaded file object containing originalname and mimetype properties.
+ * @param cb Callback function invoked with an error if validation fails or null and true if validation succeeds.
+ */
 export const uploadFileFilter: multer.Options['fileFilter'] = (
   req,
   file,

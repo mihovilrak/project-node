@@ -2,8 +2,11 @@ import * as schedule from 'node-schedule';
 import { pool } from '../db';
 import { logger } from '../utils/logger';
 
-// archived_on marks "aged out" so it stays distinguishable from the
-// active = false that api/ writes when a user deletes a notification.
+/**
+ * Archive notifications that are older than 30 days and already read by marking them inactive and setting archived_on so they remain distinguishable from notifications a user deleted (which also set active = false).
+ *
+ * Runs a database UPDATE that sets active = false and archived_on = NOW() for notifications where active is true, created_on is more than 30 days ago, and the notification has been read (read_on IS NOT NULL or is_read = true). Logs the number of rows affected on success and logs an error on failure. The archived_on timestamp is intentionally used to mark "aged out" notifications so they can be distinguished from notifications where active = false was set by a user delete.
+ */
 export const cleanupOldNotifications = async (): Promise<void> => {
   try {
     const result = await pool.query(

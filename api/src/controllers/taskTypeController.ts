@@ -5,7 +5,14 @@ import { TaskTypeCreateInput, TaskTypeUpdateInput } from '../types/taskType';
 import { AVAILABLE_ICONS } from '../utils/iconConstants';
 import logger from '../utils/logger';
 
-// Task Type Controllers
+/**
+ * Fetch all active task types and return them as JSON, with error handling for database failures.
+ *
+ * Retrieves task types from the model, orders them by name, and responds with the result. Logs errors and returns a 500 status with an error message if the database query fails.
+ * @param req Express request object
+ * @param res Express response object for sending the task types or error message
+ * @param pool Database connection pool for querying task types
+ */
 export const getTaskTypes = async (
   req: Request,
   res: Response,
@@ -20,7 +27,14 @@ export const getTaskTypes = async (
   }
 };
 
-// Get task type by ID
+/**
+ * Retrieve a task type by its ID from the database.
+ *
+ * Returns a 404 status if the task type does not exist. Responds with a 500 status on database errors.
+ * @param req Express request object containing the task type ID in params
+ * @param res Express response object for sending the result or error
+ * @param pool Database connection pool
+ */
 export const getTaskTypeById = async (
   req: Request,
   res: Response,
@@ -41,7 +55,14 @@ export const getTaskTypeById = async (
   }
 };
 
-// Create a task type
+/**
+ * Insert a new task type with validated name, color, and optional description and icon.
+ *
+ * Requires name and color fields in the request body. Color must be a valid hex format (#RRGGBB). Icon defaults to 'Task' if not provided. Active status defaults to true.
+ * @param req Express request object containing task type data in the body
+ * @param res Express response object for sending the created task type or error
+ * @param pool Database connection pool for persisting the new task type
+ */
 export const createTaskType = async (
   req: Request,
   res: Response,
@@ -85,7 +106,14 @@ export const createTaskType = async (
   }
 };
 
-// Update a task type
+/**
+ * Update an existing task type with optional name, description, color, icon, and active status.
+ *
+ * Validates hex color format (#RRGGBB) when provided. Preserves false values for the active field. Returns 404 if the task type does not exist.
+ * @param req Express request containing task type ID in params and update fields in body
+ * @param res Express response for sending the updated task type or error status
+ * @param pool Database connection pool
+ */
 export const updateTaskType = async (
   req: Request,
   res: Response,
@@ -125,7 +153,14 @@ export const updateTaskType = async (
   }
 };
 
-// Delete a task type
+/**
+ * Remove a task type by marking it inactive in the database.
+ *
+ * Returns a 404 error if the task type does not exist. Returns a 500 error if the deletion operation fails.
+ * @param req Express request containing the task type id in params
+ * @param res Express response object for sending the result
+ * @param pool Database connection pool for executing the deletion query
+ */
 export const deleteTaskType = async (
   req: Request,
   res: Response,

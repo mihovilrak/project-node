@@ -27,7 +27,14 @@ export const getTaskComments = async (
   }
 };
 
-// Create a comment
+/**
+ * Add a new comment to a task and notify watchers.
+ *
+ * Requires an authenticated user session. Extracts the task ID from the request and comment text from the body, then creates the comment and generates notifications for all users watching the task.
+ * @param req Combined request object containing user session, task ID, and comment body
+ * @param res Response object for sending the created comment or error status
+ * @param pool Database connection pool
+ */
 export const createComment = async (
   req: CustomRequest & TaskRequest,
   res: Response,
@@ -63,7 +70,14 @@ export const createComment = async (
   }
 };
 
-// Edit a comment
+/**
+ * Update a comment's text and return the modified comment or a 404 error if not found.
+ *
+ * Extracts the comment ID from request parameters and updated text from the request body, then delegates to the comment model for persistence. Returns the updated comment with user details on success, or a 404 response if the comment does not exist. Catches and logs errors, responding with a 500 status for unexpected failures.
+ * @param req Express request containing the comment ID in params and updated comment text in the body
+ * @param res Express response object for sending the result or error status
+ * @param pool Database connection pool for executing queries
+ */
 export const editComment = async (
   req: Request,
   res: Response,
@@ -84,7 +98,12 @@ export const editComment = async (
   }
 };
 
-// Delete a comment
+/**
+ * Remove a comment by marking it inactive and returning its data.
+ * @param req Express request containing the comment id in params
+ * @param res Express response object
+ * @param pool Database connection pool
+ */
 export const deleteComment = async (
   req: Request,
   res: Response,

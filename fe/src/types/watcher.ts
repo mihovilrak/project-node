@@ -1,3 +1,6 @@
+/**
+ * Represent a user watching a task, including their numeric task and user IDs, display name, and optional role.
+ */
 export interface TaskWatcher {
   task_id: number;
   user_id: number;

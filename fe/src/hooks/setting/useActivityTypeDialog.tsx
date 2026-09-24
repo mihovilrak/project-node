@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { ActivityType } from '../../types/setting';
 import { ActivityTypeFormData } from '../../types/setting';
 
+/**
+ * Manage activity type form state and provide handlers for editing or creating activity types.
+ * @param activityType An activity type object to initialize the form, or undefined to start with empty default values.
+ */
 export const useActivityTypeDialog = (
   activityType: ActivityType | undefined,
 ) => {

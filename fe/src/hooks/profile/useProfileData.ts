@@ -45,6 +45,9 @@ const toStats = (profile: ProfileData | null): ProfileStats =>
       }
     : DEFAULT_STATS;
 
+/**
+ * Manage profile data loading, display, and updates with dialog and statistics state.
+ */
 export const useProfileData = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);

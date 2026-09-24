@@ -18,6 +18,9 @@ import logger from '../utils/logger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Return the current authentication context (current user, permissions, loading state, and auth helpers) and throw if not used within an AuthProvider.
+ */
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -26,6 +29,10 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
+/**
+ * Provide authentication state and actions to descendant components, performing an initial session check, exposing login/logout, permission checks, and loading/error state.
+ * @param root0 React nodes to render inside the provider; typically the app subtree that needs access to authentication state and actions.
+ */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);

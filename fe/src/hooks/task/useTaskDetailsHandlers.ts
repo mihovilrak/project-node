@@ -4,6 +4,9 @@ import { Comment } from '../../types/comment';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import logger from '../../utils/logger';
 
+/**
+ * Provide handlers and state management for task details UI interactions including status menus, comments, time logs, subtasks, and watchers.
+ */
 export const useTaskDetailsHandlers = () => {
   const [state, setState] = useState<TaskDetailsState>({
     statusMenuAnchor: null,
