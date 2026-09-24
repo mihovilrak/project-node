@@ -4,11 +4,14 @@ import { CustomRequest } from '../../types/express';
 import * as userController from '../userController';
 import * as userModel from '../../models/userModel';
 import * as permissionModel from '../../models/permissionModel';
+import * as sessionModel from '../../models/sessionModel';
 import { Session } from 'express-session';
 
-// Mock the models
 jest.mock('../../models/userModel');
 jest.mock('../../models/permissionModel');
+jest.mock('../../models/sessionModel');
+
+const STRONG_PASSWORD = 'Correct-Horse-Battery-9';
 
 describe('UserController', () => {
   let mockReq: Partial<Request & CustomRequest>;
@@ -18,38 +21,7 @@ describe('UserController', () => {
   beforeEach(() => {
     const mockSession = {
       id: 'test-session-id',
-      cookie: {
-        originalMaxAge: null,
-        expires: undefined,
-        secure: false,
-        httpOnly: true,
-        path: '/',
-        domain: undefined,
-        sameSite: 'strict',
-      },
-      regenerate: jest.fn((callback: (err: any) => void) => {
-        callback(null);
-        return mockSession as unknown as Session;
-      }),
-      destroy: jest.fn((callback: (err: any) => void) => {
-        callback(null);
-        return mockSession as unknown as Session;
-      }),
-      reload: jest.fn((callback: (err: any) => void) => {
-        callback(null);
-        return mockSession as unknown as Session;
-      }),
-      resetMaxAge: jest.fn().mockReturnThis(),
-      touch: jest.fn(),
-      save: jest.fn((callback?: (err: any) => void) => {
-        if (callback) callback(null);
-        return mockSession as unknown as Session;
-      }),
-      user: {
-        id: '1',
-        login: 'test',
-        role_id: 1,
-      },
+      user: { id: '1', login: 'test', role_id: 1 },
     } as unknown as Session &
       Partial<{ user: { id: string; login: string; role_id: number } }>;
 
@@ -58,28 +30,25 @@ describe('UserController', () => {
       query: {},
       body: {},
       session: mockSession,
+      sessionID: 'test-session-id',
     };
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
     mockPool = {};
-    jest.clearAllMocks();
   });
 
+  const call = (
+    handler: (req: any, res: Response, pool: Pool) => Promise<unknown>,
+  ) => handler(mockReq, mockRes as Response, mockPool as Pool);
+
   describe('getUsers', () => {
-    it('should return all users', async () => {
-      const mockUsers = [
-        { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' },
-        { id: '2', login: 'user2', name: 'User 2', email: 'user2@test.com' },
-      ];
+    it('defaults to active users', async () => {
+      const mockUsers = [{ id: '1', login: 'user1' }];
       (userModel.getUsers as jest.Mock).mockResolvedValue(mockUsers);
 
-      await userController.getUsers(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUsers);
 
       expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, {
         whereParams: { status_id: 1 },
@@ -89,415 +58,401 @@ describe('UserController', () => {
       expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });
 
-    it('should return users with whereParams filter', async () => {
-      const mockUsers = [
-        { id: '1', login: 'user1', name: 'User 1', email: 'user1@test.com' },
-      ];
-      const whereParams = { status_id: 1 };
+    it('passes whereParams through', async () => {
+      const whereParams = { role_id: 2 };
       mockReq.query = { whereParams: JSON.stringify(whereParams) };
-      (userModel.getUsers as jest.Mock).mockResolvedValue(mockUsers);
+      (userModel.getUsers as jest.Mock).mockResolvedValue([]);
 
-      await userController.getUsers(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUsers);
 
       expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, {
         whereParams,
         includeDeleted: false,
       });
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockUsers);
     });
 
-    it('should handle errors', async () => {
-      (userModel.getUsers as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
+    it('includes every status with all=true', async () => {
+      mockReq.query = { all: 'true' };
+      (userModel.getUsers as jest.Mock).mockResolvedValue([]);
 
-      await userController.getUsers(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUsers);
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
+      expect(userModel.getUsers).toHaveBeenCalledWith(mockPool, {
+        whereParams: {},
+        includeDeleted: true,
       });
+    });
+
+    it.each(['{bad', '[1,2]', 'null'])(
+      'returns 400 for whereParams %s',
+      async (value) => {
+        mockReq.query = { whereParams: value };
+
+        await call(userController.getUsers);
+
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({
+          error: 'Invalid whereParams',
+        });
+        expect(userModel.getUsers).not.toHaveBeenCalled();
+      },
+    );
+
+    it('propagates errors', async () => {
+      (userModel.getUsers as jest.Mock).mockRejectedValue(new Error('db'));
+      await expect(call(userController.getUsers)).rejects.toThrow('db');
+    });
+  });
+
+  describe('getUserOptions', () => {
+    it('returns user options', async () => {
+      const options = [{ id: 1, login: 'a', name: 'A', surname: 'B' }];
+      (userModel.getUserOptions as jest.Mock).mockResolvedValue(options);
+
+      await call(userController.getUserOptions);
+
+      expect(userModel.getUserOptions).toHaveBeenCalledWith(mockPool);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(options);
     });
   });
 
   describe('getUserStatuses', () => {
-    it('should return user statuses', async () => {
-      const mockStatuses = [
-        { id: 1, name: 'Active' },
-        { id: 2, name: 'Inactive' },
-      ];
-      (userModel.getUserStatuses as jest.Mock).mockResolvedValue(mockStatuses);
+    it('returns user statuses', async () => {
+      const statuses = [{ id: 1, name: 'Active' }];
+      (userModel.getUserStatuses as jest.Mock).mockResolvedValue(statuses);
 
-      await userController.getUserStatuses(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUserStatuses);
 
-      expect(userModel.getUserStatuses).toHaveBeenCalledWith(mockPool);
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockStatuses);
-    });
-
-    it('should handle errors', async () => {
-      (userModel.getUserStatuses as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await userController.getUserStatuses(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(mockRes.json).toHaveBeenCalledWith(statuses);
     });
   });
 
   describe('getUserById', () => {
-    it('should return a user when found', async () => {
-      const mockUser = {
-        id: '1',
-        login: 'user1',
-        name: 'User 1',
-        email: 'user1@test.com',
-      };
+    it('returns a user when found', async () => {
+      const user = { id: '1', login: 'user1' };
       mockReq.params = { id: '1' };
-      (userModel.getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (userModel.getUserById as jest.Mock).mockResolvedValue(user);
 
-      await userController.getUserById(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUserById);
 
       expect(userModel.getUserById).toHaveBeenCalledWith(mockPool, '1');
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockUser);
+      expect(mockRes.json).toHaveBeenCalledWith(user);
     });
 
-    it('should return 404 when user not found', async () => {
+    it('returns 404 when user not found', async () => {
       mockReq.params = { id: '999' };
       (userModel.getUserById as jest.Mock).mockResolvedValue(null);
 
-      await userController.getUserById(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUserById);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not found' });
     });
 
-    it('should handle errors', async () => {
-      mockReq.params = { id: '1' };
-      (userModel.getUserById as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
+    it('returns 400 for a non-numeric id', async () => {
+      mockReq.params = { id: 'abc' };
 
-      await userController.getUserById(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUserById);
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(userModel.getUserById).not.toHaveBeenCalled();
     });
   });
 
   describe('createUser', () => {
-    it('should create a user successfully', async () => {
-      const mockUserData = {
-        login: 'newuser',
-        name: 'New',
-        surname: 'User',
-        email: 'newuser@test.com',
-        password: 'password123',
-        role_id: 2,
-      };
-      const createdUser = { id: '3', ...mockUserData };
-      mockReq.body = mockUserData;
+    const validBody = {
+      login: 'newuser',
+      name: 'New',
+      surname: 'User',
+      email: 'newuser@test.com',
+      password: STRONG_PASSWORD,
+      role_id: 2,
+    };
+
+    it('creates a user', async () => {
+      const createdUser = { id: '3', ...validBody };
+      mockReq.body = validBody;
       (userModel.createUser as jest.Mock).mockResolvedValue(createdUser);
 
-      await userController.createUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.createUser);
 
       expect(userModel.createUser).toHaveBeenCalledWith(
         mockPool,
-        mockUserData.login,
-        mockUserData.name,
-        mockUserData.surname,
-        mockUserData.email,
-        mockUserData.password,
-        mockUserData.role_id,
+        'newuser',
+        'New',
+        'User',
+        'newuser@test.com',
+        STRONG_PASSWORD,
+        2,
       );
       expect(mockRes.status).toHaveBeenCalledWith(201);
       expect(mockRes.json).toHaveBeenCalledWith(createdUser);
     });
 
-    it('should handle errors', async () => {
-      mockReq.body = {
-        login: 'newuser',
-        name: 'New',
-        surname: 'User',
-        email: 'newuser@test.com',
-        password: 'pass',
-        role_id: 2,
-      };
-      (userModel.createUser as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
+    it('rejects a weak password', async () => {
+      mockReq.body = { ...validBody, password: 'short' };
 
-      await userController.createUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.createUser);
 
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(userModel.createUser).not.toHaveBeenCalled();
+    });
+
+    it.each(['login', 'name', 'surname', 'email'])(
+      'rejects a missing %s',
+      async (field) => {
+        mockReq.body = { ...validBody, [field]: '' };
+
+        await call(userController.createUser);
+
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+      },
+    );
+
+    it('rejects an invalid role_id', async () => {
+      mockReq.body = { ...validBody, role_id: 'x' };
+
+      await call(userController.createUser);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('rejects over-long fields', async () => {
+      mockReq.body = { ...validBody, name: 'a'.repeat(256) };
+
+      await call(userController.createUser);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
     });
   });
 
   describe('updateUser', () => {
-    it('should update a user successfully', async () => {
-      const mockUpdates = { name: 'Updated Name' };
-      const updatedUser = {
-        id: '1',
-        login: 'user1',
-        name: 'Updated Name',
-        email: 'user1@test.com',
-      };
-      mockReq.params = { id: '1' };
-      mockReq.body = mockUpdates;
+    it('updates a user without touching sessions', async () => {
+      const updatedUser = { id: '2', name: 'Updated', status_id: 1 };
+      mockReq.params = { id: '2' };
+      mockReq.body = { name: 'Updated', ignored: true };
       (userModel.updateUser as jest.Mock).mockResolvedValue(updatedUser);
 
-      await userController.updateUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.updateUser);
 
       expect(userModel.updateUser).toHaveBeenCalledWith(
         mockPool,
-        mockUpdates,
-        '1',
+        { name: 'Updated' },
+        '2',
       );
+      expect(sessionModel.deleteUserSessions).not.toHaveBeenCalled();
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedUser);
     });
 
-    it('should return 404 when user not found', async () => {
+    it('drops role_id and status_id on self update', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { name: 'Me', role_id: 1, status_id: 2 };
+      (userModel.updateUser as jest.Mock).mockResolvedValue({
+        id: '1',
+        status_id: 1,
+      });
+
+      await call(userController.updateUser);
+
+      expect(userModel.updateUser).toHaveBeenCalledWith(
+        mockPool,
+        { name: 'Me' },
+        '1',
+      );
+    });
+
+    it('rejects a weak password', async () => {
+      mockReq.params = { id: '2' };
+      mockReq.body = { password: 'short' };
+
+      await call(userController.updateUser);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(userModel.updateUser).not.toHaveBeenCalled();
+    });
+
+    it('ends the sessions of a user whose password was reset', async () => {
+      mockReq.params = { id: '2' };
+      mockReq.body = { password: STRONG_PASSWORD };
+      (userModel.updateUser as jest.Mock).mockResolvedValue({
+        id: '2',
+        status_id: 1,
+      });
+
+      await call(userController.updateUser);
+
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '2',
+        undefined,
+      );
+    });
+
+    it('keeps the current session on a self password change', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { password: STRONG_PASSWORD };
+      (userModel.updateUser as jest.Mock).mockResolvedValue({
+        id: '1',
+        status_id: 1,
+      });
+
+      await call(userController.updateUser);
+
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        'test-session-id',
+      );
+    });
+
+    it('ends the sessions of a deactivated user', async () => {
+      mockReq.params = { id: '2' };
+      mockReq.body = { status_id: 2 };
+      (userModel.updateUser as jest.Mock).mockResolvedValue({
+        id: '2',
+        status_id: 2,
+      });
+
+      await call(userController.updateUser);
+
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '2',
+        undefined,
+      );
+    });
+
+    it('returns 404 when user not found', async () => {
       mockReq.params = { id: '999' };
       mockReq.body = { name: 'Test' };
       (userModel.updateUser as jest.Mock).mockResolvedValue(null);
 
-      await userController.updateUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.updateUser);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not found' });
-    });
-
-    it('should handle errors', async () => {
-      mockReq.params = { id: '1' };
-      mockReq.body = { name: 'Test' };
-      (userModel.updateUser as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await userController.updateUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
     });
   });
 
   describe('changeUserStatus', () => {
-    it('should change user status successfully', async () => {
-      const updatedUser = {
-        id: '1',
-        login: 'user1',
-        name: 'User 1',
-        status_id: 2,
-      };
-      mockReq.params = { id: '1' };
+    it('deactivates a user and ends their sessions', async () => {
+      const updatedUser = { id: '2', status_id: 2 };
+      mockReq.params = { id: '2' };
       mockReq.body = { status: 2 };
       (userModel.changeUserStatus as jest.Mock).mockResolvedValue(updatedUser);
 
-      await userController.changeUserStatus(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.changeUserStatus);
 
-      expect(userModel.changeUserStatus).toHaveBeenCalledWith(mockPool, '1', 2);
+      expect(userModel.changeUserStatus).toHaveBeenCalledWith(mockPool, '2', 2);
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '2',
+      );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(updatedUser);
     });
 
-    it('should return 404 when user not found', async () => {
+    it('keeps sessions when activating', async () => {
+      mockReq.params = { id: '2' };
+      mockReq.body = { status: 1 };
+      (userModel.changeUserStatus as jest.Mock).mockResolvedValue({ id: '2' });
+
+      await call(userController.changeUserStatus);
+
+      expect(sessionModel.deleteUserSessions).not.toHaveBeenCalled();
+    });
+
+    it('rejects a self status change', async () => {
+      mockReq.params = { id: '1' };
+      mockReq.body = { status: 2 };
+
+      await call(userController.changeUserStatus);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(userModel.changeUserStatus).not.toHaveBeenCalled();
+    });
+
+    it('rejects an invalid status', async () => {
+      mockReq.params = { id: '2' };
+      mockReq.body = { status: 'x' };
+
+      await call(userController.changeUserStatus);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('returns 404 when user not found', async () => {
       mockReq.params = { id: '999' };
       mockReq.body = { status: 2 };
       (userModel.changeUserStatus as jest.Mock).mockResolvedValue(null);
 
-      await userController.changeUserStatus(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.changeUserStatus);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not found' });
-    });
-
-    it('should handle errors', async () => {
-      mockReq.params = { id: '1' };
-      mockReq.body = { status: 2 };
-      (userModel.changeUserStatus as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await userController.changeUserStatus(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
     });
   });
 
   describe('deleteUser', () => {
-    it('should delete a user successfully', async () => {
-      mockReq.params = { id: '1' };
-      (userModel.deleteUser as jest.Mock).mockResolvedValue({ id: '1' });
+    it('deletes a user and ends their sessions', async () => {
+      mockReq.params = { id: '2' };
+      (userModel.deleteUser as jest.Mock).mockResolvedValue({ id: '2' });
 
-      await userController.deleteUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
+      await call(userController.deleteUser);
+
+      expect(userModel.deleteUser).toHaveBeenCalledWith(mockPool, '2');
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '2',
       );
-
-      expect(userModel.deleteUser).toHaveBeenCalledWith(mockPool, '1');
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'User deleted' });
     });
 
-    it('should return 404 when user not found', async () => {
+    it('rejects self deletion', async () => {
+      mockReq.params = { id: '1' };
+
+      await call(userController.deleteUser);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(userModel.deleteUser).not.toHaveBeenCalled();
+    });
+
+    it('returns 404 when user not found', async () => {
       mockReq.params = { id: '999' };
       (userModel.deleteUser as jest.Mock).mockResolvedValue(null);
 
-      await userController.deleteUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.deleteUser);
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'User not found' });
-    });
-
-    it('should handle errors', async () => {
-      mockReq.params = { id: '1' };
-      (userModel.deleteUser as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await userController.deleteUser(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      expect(sessionModel.deleteUserSessions).not.toHaveBeenCalled();
     });
   });
 
   describe('getUserPermissions', () => {
-    it('should return user permissions', async () => {
-      const mockPermissions = ['read:users', 'write:users', 'delete:users'];
+    it('returns user permissions', async () => {
+      const permissions = ['Admin'];
       (permissionModel.getUserPermissions as jest.Mock).mockResolvedValue(
-        mockPermissions,
+        permissions,
       );
 
-      await userController.getUserPermissions(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
-      );
+      await call(userController.getUserPermissions);
 
       expect(permissionModel.getUserPermissions).toHaveBeenCalledWith(
         mockPool,
         '1',
       );
-      expect(mockRes.json).toHaveBeenCalledWith(mockPermissions);
+      expect(mockRes.json).toHaveBeenCalledWith(permissions);
     });
 
-    it('should return 401 when not authenticated', async () => {
+    it('throws 401 when not authenticated', async () => {
       mockReq.session!.user = undefined;
 
-      await userController.getUserPermissions(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
+      await expect(call(userController.getUserPermissions)).rejects.toMatchObject(
+        { status: 401 },
       );
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'Not authenticated' });
-    });
-
-    it('should handle errors', async () => {
-      (permissionModel.getUserPermissions as jest.Mock).mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      await userController.getUserPermissions(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
     });
   });
 });

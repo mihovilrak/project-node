@@ -2,6 +2,11 @@ import { Pool } from 'pg';
 import { Profile, ProfileUpdateInput } from '../types/profile';
 import { Task } from '../types/task';
 import { Project } from '../types/project';
+import { buildUpdateAssignments } from '../utils/sqlUpdate';
+
+const PROFILE_COLUMNS =
+  'id, login, name, surname, email, status_id, role_id, created_on, updated_on';
+const PROFILE_UPDATABLE_COLUMNS = ['email', 'name', 'surname'] as const;
 
 // Get user profile
 export const getProfile = async (
@@ -15,7 +20,7 @@ export const getProfile = async (
 /**
  * Update the user profile with new email, name, or surname information.
  *
- * Returns the updated profile object on success or null if the user does not exist. Updates the updated_on timestamp to the current database time.
+ * Only the fields present in profileData are written. Returns the updated profile object, the current profile when no field is given, or null if the user does not exist.
  * @param pool Database connection pool
  * @param userId The ID of the user whose profile is being updated
  * @param profileData Object containing optional fields: name, surname, and email to update
@@ -26,15 +31,20 @@ export const updateProfile = async (
   userId: string,
   profileData: ProfileUpdateInput,
 ): Promise<Profile | null> => {
-  const { email, name, surname } = profileData;
+  const assignments = buildUpdateAssignments(
+    profileData as Record<string, unknown>,
+    PROFILE_UPDATABLE_COLUMNS,
+  );
+  if (!assignments) {
+    return getProfile(pool, userId);
+  }
 
   const result = await pool.query(
     `UPDATE users
-     SET (email, name, surname, updated_on)
-     = ($1, $2, $3, CURRENT_TIMESTAMP)
-     WHERE id = $4
-     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
-    [email, name, surname, userId],
+     SET ${assignments.setClause}
+     WHERE id = $${assignments.nextIndex}
+     RETURNING ${PROFILE_COLUMNS}`,
+    [...assignments.values, userId],
   );
   return result.rows[0] || null;
 };
@@ -65,7 +75,7 @@ export const verifyPassword = async (
 /**
  * Update the user's password with bcrypt hashing and return the updated profile.
  *
- * The password is hashed using bcrypt with a cost factor of 12 before storage. The update timestamp is automatically set to the current time.
+ * The password is hashed using bcrypt with a cost factor of 12 before storage. The update timestamp is set by the users update trigger.
  * @param pool Database connection pool
  * @param userId Identifier of the user whose password to change
  * @param password New password to set
@@ -78,36 +88,12 @@ export const changePassword = async (
 ): Promise<Profile | null> => {
   const result = await pool.query(
     `UPDATE users
-     SET (password, updated_on)
-     = (crypt($1, gen_salt('bf', 12)), CURRENT_TIMESTAMP)
+     SET password = crypt($1, gen_salt('bf', 12))
      WHERE id = $2
-     RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
+     RETURNING ${PROFILE_COLUMNS}`,
     [password, userId],
   );
   return result.rows[0] || null;
-};
-
-/**
- * Invalidate all sessions for a user except the current one to enforce account-wide sign-out on password change.
- *
- * When currentSid is provided, that session is preserved; when omitted or null, all sessions are deleted. Returns the count of deleted sessions.
- * @param pool Database connection pool
- * @param userId Identifier of the user whose sessions to invalidate
- * @param currentSid Session ID of the current request to exclude from deletion
- * @returns Number of invalidated sessions.
- */
-export const deleteOtherSessions = async (
-  pool: Pool,
-  userId: string,
-  currentSid?: string,
-): Promise<number> => {
-  const result = await pool.query(
-    `DELETE FROM session
-     WHERE sess -> 'user' ->> 'id' = $1
-       AND ($2::varchar IS NULL OR sid <> $2)`,
-    [String(userId), currentSid ?? null],
-  );
-  return result.rowCount ?? 0;
 };
 
 // Get recent tasks
