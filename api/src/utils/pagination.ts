@@ -4,10 +4,9 @@ export interface Pagination {
 }
 
 // Every list endpoint is capped, so an unfiltered call can never stream an
-// entire table into memory. Clients page with ?limit=&offset=; leaving them off
-// keeps the previous "give me everything" behaviour up to the cap.
+// entire table into memory. Clients page with ?limit=&offset=.
 export const MAX_PAGE_SIZE = 500;
-export const DEFAULT_PAGE_SIZE = MAX_PAGE_SIZE;
+export const DEFAULT_PAGE_SIZE = 50;
 
 const toInteger = (value: unknown): number | null => {
   if (value === undefined || value === null || value === '') return null;

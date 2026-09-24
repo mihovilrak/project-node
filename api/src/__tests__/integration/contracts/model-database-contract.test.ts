@@ -107,21 +107,13 @@ describe('model/database contracts for previously broken runtime paths', () => {
     );
   });
 
-  it('keeps projects_for_user return columns aligned and removes owner/member duplicates', async () => {
-    await testPool.query(
-      `INSERT INTO project_users (project_id, user_id)
-       VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-      [project.id, owner.id],
-    );
-
+  it('drops the unused projects_for_user and is_admin functions', async () => {
     const result = await testPool.query(
-      'SELECT * FROM projects_for_user($1) WHERE id = $2',
-      [owner.id, project.id],
+      `SELECT to_regprocedure('projects_for_user(integer)') AS projects,
+              to_regprocedure('is_admin(integer)') AS admin`,
     );
 
-    expect(result.rows).toHaveLength(1);
-    expect(result.rows[0]).toHaveProperty('parent_id');
-    expect(result.rows[0]).toHaveProperty('updated_on');
+    expect(result.rows[0]).toEqual({ projects: null, admin: null });
   });
 
   it('keeps user_notifications return columns aligned with notification data', async () => {
@@ -179,8 +171,8 @@ describe('model/database contracts for previously broken runtime paths', () => {
     );
   });
 
-  it('uses SQL-side timestamp defaults when system-log dates are omitted', async () => {
-    await expect(adminModel.getSystemLogs(testPool)).resolves.toEqual(
+  it('uses SQL-side timestamp defaults when report dates are omitted', async () => {
+    await expect(adminModel.getTimeLogReport(testPool)).resolves.toEqual(
       expect.any(Array),
     );
   });

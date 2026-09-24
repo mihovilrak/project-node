@@ -18,7 +18,7 @@ export default (pool: Pool): Router => {
   router.get(
     '/logs',
     checkPermission(pool, 'Admin'),
-    withPool(pool, adminController.getSystemLogs),
+    withPool(pool, adminController.getTimeLogReport),
   );
   router.use('/task-types', taskTypeRouter.default(pool));
   router.use('/activity-types', activityTypeRouter.default(pool));
