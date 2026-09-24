@@ -27,15 +27,18 @@ jobs:
       contents: read
 
   build:
-    # One job builds the image, smoke-tests the compose stack against that exact
-    # image, and only then pushes it. Splitting the two made every push build
-    # twice and left main and tag images untested.
+    # The image is built once. Outside PRs it is pushed untagged (by digest),
+    # smoke-tested from the registry, and only tagged once the tests pass, so
+    # the published tags point at exactly the image that was tested.
     name: Build, Test and Push Image
     runs-on: ubuntu-latest
     needs: ci
     permissions:
       contents: read
       packages: write
+    outputs:
+      image: ${{ steps.image.outputs.name }}
+      digest: ${{ steps.tag.outputs.digest }}
 
     steps:
       - name: Checkout code
@@ -44,11 +47,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
+      - name: Resolve image name
+        id: image
+        run: echo "name=${REGISTRY}/${IMAGE_NAME,,}" >> "$GITHUB_OUTPUT"
+
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ steps.image.outputs.name }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -57,17 +64,47 @@ jobs:
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build image
+        if: github.event_name == 'pull_request'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          push: false
           load: true
           tags: pm:ci
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+
+      - name: Build and push image by digest
+        id: push
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          provenance: true
+          sbom: true
+
+      - name: Pull pushed image for testing
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.name }}@${{ steps.push.outputs.digest }}
+        run: |
+          docker pull "$IMAGE_REF"
+          docker tag "$IMAGE_REF" pm:ci
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -79,29 +116,22 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
 
-      - name: Create .env for the test stack
+      # Passwords go through Docker secrets exactly as in production; .env
+      # only carries the non-secret settings.
+      - name: Create secrets and .env for the test stack
         run: |
           set -euo pipefail
+          sh scripts/init-secrets.sh
+          ls -l secrets
           {
             echo 'APP_IMAGE=pm:ci'
             echo 'POSTGRES_USER=pm_user'
             echo 'POSTGRES_DB=pm_db'
-            echo 'POSTGRES_PASSWORD=ci_postgres_password'
-            echo 'APP_DB_PASSWORD=ci_app_password'
-            echo 'ADMIN_PASSWORD=ci_admin_password'
             echo 'TZ=UTC'
             echo 'NODE_ENV=production'
             echo 'FE_URL=http://localhost:3000'
-            echo 'EMAIL_ENABLED=false'
-            echo 'EMAIL_HOST=localhost'
-            echo 'EMAIL_PORT=587'
-            echo 'EMAIL_SECURE=false'
             echo 'EMAIL_USER=ci@example.com'
-            echo 'EMAIL_PASSWORD=ci_email_password'
-            echo 'EMAIL_FROM=CI <ci@example.com>'
             echo 'LOG_LEVEL=info'
-            # Secrets the app refuses to start without; random per run.
-            echo "SESSION_SECRET=$(openssl rand -hex 32)"
           } > .env
 
       # The backup service runs as the nginx user (uid 101) from the app image.
@@ -155,6 +185,17 @@ jobs:
             exit 1
           fi
 
+          # The seeded admin's password came from secrets/admin_password.txt.
+          echo "Testing admin login with the secret file..."
+          jq -n --rawfile password secrets/admin_password.txt '{login: "admin", password: $password}' > /tmp/admin.json
+          admin_status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/login -H 'Content-Type: application/json' --data @/tmp/admin.json)
+          rm -f /tmp/admin.json
+          echo "POST /api/login (admin) -> $admin_status"
+          if [ "$admin_status" != "200" ]; then
+            echo "Expected 200 from admin login, got $admin_status"
+            exit 1
+          fi
+
           echo "Testing backup..."
           docker compose exec -T backup sh /app/db/backup.sh
           # Verified inside the container: pg_restore needs a seekable file.
@@ -169,31 +210,51 @@ jobs:
           docker compose logs --no-color --tail=500 || true
 
       - name: Stop services
-        # Runs even if an earlier step (e.g. the vulnerability scan) failed
-        # before .env was created, so guard against compose erroring on the
-        # missing required variables.
         if: always()
-        run: '[ -f .env ] && docker compose down -v || true'
+        run: docker compose down -v || true
+
+      # A manifest-only retag of the tested digest; nothing is rebuilt.
+      - name: Tag tested image
+        id: tag
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+          META_JSON: ${{ steps.meta.outputs.json }}
+        run: |
+          set -euo pipefail
+          mapfile -t tags < <(jq -r '.tags[]' <<< "$META_JSON")
+          args=()
+          for tag in "${tags[@]}"; do args+=(-t "$tag"); done
+          docker buildx imagetools create "${args[@]}" "$IMAGE@$DIGEST"
+          tagged=$(docker buildx imagetools inspect "${tags[0]}" --format '{{json .Manifest}}' | jq -r '.digest')
+          echo "Tagged ${tags[*]} -> $tagged (built $DIGEST)"
+          echo "digest=$tagged" >> "$GITHUB_OUTPUT"
+
+  sign:
+    # Kept apart from the build so the OIDC token is never exposed to steps
+    # that run repository code.
+    name: Sign Image
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Log in to Container Registry
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Re-runs against the build cache the previous step populated, so this is
-      # a push of the already-tested layers rather than a second build.
-      - name: Push image
-        if: github.event_name != 'pull_request'
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          platforms: linux/amd64
-          provenance: true
-          sbom: true
+      - name: Sign image (keyless)
+        env:
+          IMAGE_REF: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+        run: cosign sign --yes "$IMAGE_REF"
