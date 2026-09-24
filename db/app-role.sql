@@ -17,11 +17,13 @@ create role :"app_user";
 -- would land in the server log under log_statement = ddl/all. migrate.sh runs
 -- this in one transaction as the superuser, so SET LOCAL can suppress it.
 set local log_statement = 'none';
+set local log_min_error_statement = 'panic';
 
 alter role :"app_user" with login nosuperuser nocreatedb nocreaterole
     noreplication nobypassrls password :'app_password';
 
 reset log_statement;
+reset log_min_error_statement;
 
 grant connect on database :"db_name" to :"app_user";
 grant usage on schema public to :"app_user";
