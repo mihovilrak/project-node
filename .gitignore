@@ -1,6 +1,8 @@
 **/node_modules/
 instructions.md
 db/backup/
+db/db_data/
+/secrets/
 .obsolete
 .env
 .env.test

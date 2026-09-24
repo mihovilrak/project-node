@@ -1,7 +1,24 @@
+# Passwords are Docker secrets read from ./secrets/*.txt (create them with
+# scripts/init-secrets.sh or scripts/init-secrets.ps1) and exposed to the
+# containers as *_FILE paths. Outside Swarm, secrets are plain bind mounts and
+# the uid/gid/mode options are ignored, so the host files must be readable by
+# the container users (postgres, nginx): chmod 0644 or 0444.
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  app_db_password:
+    file: ./secrets/app_db_password.txt
+  admin_password:
+    file: ./secrets/admin_password.txt
+  session_secret:
+    file: ./secrets/session_secret.txt
+  email_password:
+    file: ./secrets/email_password.txt
+
 x-db: &db
   POSTGRES_DB: ${POSTGRES_DB}
   POSTGRES_USER: ${POSTGRES_USER}
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+  POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
 
 # The API and notification service connect as the non-superuser role that
 # the migrate service creates; the superuser is only used by db, migrate and backup.
@@ -9,13 +26,13 @@ x-app-db: &app-db
   POSTGRES_HOST: db
   POSTGRES_DB: ${POSTGRES_DB}
   POSTGRES_USER: ${APP_DB_USER:-pm_app}
-  POSTGRES_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD must be set}
+  POSTGRES_PASSWORD_FILE: /run/secrets/app_db_password
 
-# Only the SMTP credentials stay in the environment; host, port, sender and the
-# on/off switch are edited in the admin UI and stored in app_settings.
+# Only the SMTP credentials stay outside the database; host, port, sender and
+# the on/off switch are edited in the admin UI and stored in app_settings.
 x-email: &email
   EMAIL_USER: ${EMAIL_USER}
-  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+  EMAIL_PASSWORD_FILE: /run/secrets/email_password
 
 x-defaults: &defaults
   restart: unless-stopped
@@ -45,7 +62,7 @@ x-app: &app
 services:
   db:
     <<: *defaults
-    image: postgres:18.1-alpine3.23
+    image: postgres:18.1-alpine3.23@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29
     user: postgres
     networks:
       - backend
@@ -54,6 +71,8 @@ services:
     environment:
       <<: *db
       PGTZ: ${TZ}
+    secrets:
+      - postgres_password
     volumes:
       - db_data:/var/lib/postgresql
     tmpfs:
@@ -78,10 +97,14 @@ services:
       <<: *db
       POSTGRES_HOST: db
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_PASSWORD_FILE: /run/secrets/admin_password
       ADMIN_PASSWORD_FORCE_RESET: ${ADMIN_PASSWORD_FORCE_RESET:-false}
       APP_DB_USER: ${APP_DB_USER:-pm_app}
-      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD must be set}
+      APP_DB_PASSWORD_FILE: /run/secrets/app_db_password
+    secrets:
+      - postgres_password
+      - app_db_password
+      - admin_password
     depends_on:
       db:
         condition: service_healthy
@@ -98,9 +121,13 @@ services:
       <<: [*app-db, *email]
       NODE_ENV: ${NODE_ENV:-production}
       TZ: ${TZ}
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set}
+      SESSION_SECRET_FILE: /run/secrets/session_secret
       FE_URL: ${FE_URL}
       LOG_LEVEL: ${LOG_LEVEL}
+    secrets:
+      - app_db_password
+      - session_secret
+      - email_password
     volumes:
       - app_uploads:/app/uploads
     healthcheck:
@@ -127,6 +154,9 @@ services:
       FE_URL: ${FE_URL}
       LOG_LEVEL: ${LOG_LEVEL}
       METRICS_ENABLED: ${METRICS_ENABLED:-false}
+    secrets:
+      - app_db_password
+      - email_password
     healthcheck:
       # /ready gates on the database, /health on the cached SMTP probe.
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5001/ready && wget -q -O /dev/null http://127.0.0.1:5001/health"]
@@ -174,6 +204,8 @@ services:
       BACKUP_TIME: ${BACKUP_TIME:-00:00}
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
       TZ: ${TZ}
+    secrets:
+      - postgres_password
     volumes:
       - ./db/backup:/backups
     depends_on:
