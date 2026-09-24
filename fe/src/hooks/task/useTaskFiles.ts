@@ -6,6 +6,10 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const EMPTY_FILES: TaskFile[] = [];
 
+/**
+ * Manage task file uploads, deletions, and retrieval with automatic refetching.
+ * @param taskId string
+ */
 export const useTaskFiles = (taskId: string) => {
   const {
     data: files,

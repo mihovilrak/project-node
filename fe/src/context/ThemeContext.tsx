@@ -38,6 +38,10 @@ const resolveTheme = (
   return appTheme;
 };
 
+/**
+ * Provide and synchronize application theme state (light/dark) with server settings, system preference, localStorage, and cross-window events, and expose a toggle for user override.
+ * @param root0 React children to render inside the ThemeContext provider and the Material-UI ThemeProvider.
+ */
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {

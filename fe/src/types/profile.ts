@@ -9,6 +9,9 @@ export interface ProfileData extends User {
   total_hours: number;
 }
 
+/**
+ * Provide aggregate numeric statistics summarizing a user's profile activity.
+ */
 export interface ProfileStats {
   totalTasks: number;
   completedTasks: number;
@@ -58,6 +61,9 @@ export interface ProfileFormData {
 
 export type ProfileUpdateData = Pick<User, 'name' | 'surname' | 'email'>;
 
+/**
+ * Specify the props for a profile task list component: an array of Task objects, an optional loading flag, and a handler invoked with a task's id when a task is clicked.
+ */
 export interface ProfileTaskListProps {
   tasks: Task[];
   loading?: boolean;
@@ -69,6 +75,9 @@ export interface PasswordChangeDialogProps {
   onClose: () => void;
 }
 
+/**
+ * Represent the state of a password-change form, including the current password, the proposed new password, a confirmation field, and an optional error message.
+ */
 export interface PasswordForm {
   currentPassword: string;
   newPassword: string;

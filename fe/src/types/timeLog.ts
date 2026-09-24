@@ -6,6 +6,9 @@ import { ActivityType } from './setting';
 
 export type { ActivityType } from './setting';
 
+/**
+ * Represent a time log entry including core identifiers, logged date and duration, optional description, audit timestamps, and optional display metadata.
+ */
 export interface TimeLog {
   id: number;
   task_id: number;
@@ -38,6 +41,9 @@ export interface TimeSpent {
   spent_time: number;
 }
 
+/**
+ * Provide all data and callbacks needed to render and manage a time-entry form: option lists (projects, tasks, activity types, users), current selections and inputs (project/task/user/activity, spentTime, description, logDate), optional read-only flags, validation error, and change handlers.
+ */
 export interface TimeLogFormProps {
   projects: Project[];
   tasks: Task[];
@@ -81,6 +87,9 @@ export interface TimeLogChartProps {
   activityTypes: ActivityType[];
 }
 
+/**
+ * Represent a chart data point containing the label, total hours, and display color for visualization.
+ */
 export interface ChartData {
   name: string;
   hours: number;
@@ -95,6 +104,9 @@ export interface ExtendedTimeLogFormProps extends TimeLogFormProps {
   activityTypes: ActivityType[];
 }
 
+/**
+ * Provide props for a TimeLog list component, including the list of time logs and optional callbacks to edit or delete entries.
+ */
 export interface TimeLogListProps {
   timeLogs: TimeLog[];
   onEdit?: (timeLog: TimeLog) => void;
@@ -105,6 +117,9 @@ export interface TimeLogStatsProps {
   timeLogs: TimeLog[];
 }
 
+/**
+ * Provide the props required by a component to display and manage time logs for a single task, including data, dialog state, and handlers for submit, delete, edit, and dialog close.
+ */
 export interface TaskTimeLoggingProps {
   taskId: number;
   projectId: number;
@@ -117,6 +132,9 @@ export interface TaskTimeLoggingProps {
   onTimeLogDialogClose: () => void;
 }
 
+/**
+ * Supply the date list, time log entries, and helper functions to obtain logs for a date, compute total hours, determine a day's color by hours, and format time values for a calendar grid.
+ */
 export interface TimeLogCalendarGridProps {
   days: Date[];
   timeLogs: TimeLog[];
@@ -126,12 +144,18 @@ export interface TimeLogCalendarGridProps {
   formatTime: (time: string | number) => string;
 }
 
+/**
+ * Provide props for a calendar header component to display the current date, total logged hours, and handle month navigation.
+ */
 export interface TimeLogCalendarHeaderProps {
   currentDate: Date;
   totalHours: number;
   onNavigateMonth: (direction: 'next' | 'prev') => void;
 }
 
+/**
+ * Specify the inputs that control time log data loading and UI behavior: whether the log view is open, an optional project scope, and if the current user has admin permissions.
+ */
 export interface UseTimeLogDataProps {
   open: boolean;
   projectId?: number;

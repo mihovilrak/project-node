@@ -34,7 +34,13 @@ export const _clearTimezoneCacheForTest = (): void => {
   timezoneCache = null;
 };
 
-// Get System Settings
+/**
+ * Retrieve the application-wide settings record.
+ *
+ * Queries the app_settings table for the singleton settings row (id = 1). Returns null if no settings record exists.
+ * @param pool Database connection pool
+ * @returns Promise resolving to the Settings object or null if not found
+ */
 export const getSystemSettings = async (
   pool: Pool,
 ): Promise<Settings | null> => {
@@ -42,7 +48,14 @@ export const getSystemSettings = async (
   return result.rows[0] || null;
 };
 
-// Update System Settings
+/**
+ * Persist application settings to the database, updating only the provided fields while preserving existing values.
+ *
+ * Omitted fields retain their current database values. All columns are NOT NULL; callers may send a subset of settings (the general form and runtime panel post separately). The update targets the singleton settings row (id = 1) and returns the complete updated record or null if no row exists.
+ * @param pool Database connection pool for executing the update query.
+ * @param settings Partial settings object containing only the fields to update; unspecified properties are ignored.
+ * @returns The updated settings record with all fields populated, or null if the settings row does not exist.
+ */
 export const updateSystemSettings = async (
   pool: Pool,
   settings: SettingsUpdateInput,
@@ -100,7 +113,14 @@ export const getUserSettings = async (
   return result.rows[0] || null;
 };
 
-// Update User Settings
+/**
+ * Persist or update user-specific settings with fallback to existing values for omitted fields.
+ *
+ * All settings columns are NOT NULL; omitted fields retain their stored value or use column defaults on first write. Email notification settings support both email_notifications_enabled and email_notifications keys for compatibility.
+ * @param pool Database connection pool
+ * @param userId Unique identifier for the user
+ * @param settings Partial settings object with optional theme, language, and notification preferences
+ */
 export const updateUserSettings = async (
   pool: Pool,
   userId: string,
@@ -167,7 +187,13 @@ function formatOffsetLabel(seconds: number): string {
   return `UTC${sign}${hh}:${mm}`;
 }
 
-// Get timezones from PostgreSQL pg_timezone_names view, with simple in-memory caching
+/**
+ * Retrieve all available timezones from the PostgreSQL pg_timezone_names view with in-memory caching.
+ *
+ * Queries timezones matching the pattern '%/%' (region-based names) and caches results in memory with a configurable TTL. Transforms database rows into enriched timezone objects including region, UTC offset in seconds, and formatted labels. Returns cached data if available and not expired.
+ * @param pool Database connection pool for executing timezone queries.
+ * @returns Array of timezone objects with name, region, abbreviation, UTC offset, DST flag, and display label.
+ */
 export const getTimezones = async (pool: Pool): Promise<Timezone[]> => {
   const now = Date.now();
   if (timezoneCache && timezoneCache.expiresAt > now) {

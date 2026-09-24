@@ -10,6 +10,10 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const EMPTY_WATCHERS: TaskWatcher[] = [];
 
+/**
+ * Fetch and manage the list of users watching a task.
+ * @param taskId The task identifier to load and manage watchers for.
+ */
 export const useTaskWatchers = (taskId: string) => {
   const {
     data: watchers,

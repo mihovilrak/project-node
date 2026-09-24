@@ -36,7 +36,16 @@ function toArray(val: number | number[] | null | undefined): number[] | null {
   return [val];
 }
 
-// Get all tasks (get_tasks params include date ranges and created_by)
+/**
+ * Retrieve tasks with optional filtering by status, dates, assignees, and other criteria.
+ *
+ * Supports filtering by task ID, project, assignee, holder, status, priority, type, parent task, creator, due date range, start date range, creation date range, and estimated time range. Filters for active or inactive statuses; defaults to active statuses when no filters are specified. Results are paginated and optionally scoped to a specific user's accessible tasks.
+ * @param pool Database connection pool
+ * @param filters Query filters including ID, project ID, assignee/holder IDs, status/priority/type IDs, parent ID, creator ID, date ranges (due, start, created), estimated time bounds, and status activation flags
+ * @param pagination Pagination configuration; defaults to defaultPagination()
+ * @param scopeUserId User ID to scope results to that user's accessible tasks; null or undefined for unscoped access
+ * @returns Promise resolving to an array of TaskDetails objects
+ */
 export const getTasks = async (
   pool: Pool,
   filters?: TaskQueryFilters,
@@ -154,7 +163,14 @@ export const getTaskById = async (
   return result.rows[0] || null;
 };
 
-// Create a task
+/**
+ * Insert a new task with associated metadata and watchers into the database.
+ *
+ * Executes a stored procedure to create a task and its relationships. Throws an error if the database operation fails to return a task ID.
+ * @param pool Database connection or transaction client.
+ * @param root1 Task attributes including name, dates, priority, status, type, parent task reference, project, holder, assignee, creator, and associated tag identifiers.
+ * @param watchers Array of user IDs to notify about task activity.
+ */
 export const createTask = async (
   pool: Queryable,
   {
@@ -247,7 +263,15 @@ export const updateTask = async (
   return result.rows[0] || null;
 };
 
-// Change a task status
+/**
+ * Update a task's status and refresh its updated timestamp.
+ *
+ * Returns the updated task record or null if the task does not exist.
+ * @param pool Database connection or transaction client
+ * @param id Task identifier
+ * @param statusId Status identifier to assign
+ * @returns Updated task record or null if not found
+ */
 export const changeTaskStatus = async (
   pool: Queryable,
   id: number,
@@ -263,7 +287,14 @@ export const changeTaskStatus = async (
   return result.rows[0] || null;
 };
 
-// Delete a task
+/**
+ * Mark a task as deleted by updating its status and timestamp.
+ *
+ * Sets the task status to 'deleted' and updates the modification timestamp. Returns the updated task record or null if the task does not exist.
+ * @param pool Database connection pool
+ * @param id Task identifier
+ * @returns Updated Task object or null if task not found
+ */
 export const deleteTask = async (
   pool: Pool,
   id: string,
@@ -308,7 +339,16 @@ export const getActiveTasks = async (
   return result.rows;
 };
 
-// Get tasks by project
+/**
+ * Retrieve tasks for a specific project with optional access scoping and pagination.
+ *
+ * Results are filtered by project identifier and optionally scoped to a specific user's accessible tasks. Results are ordered by creation date and identifier in descending order.
+ * @param pool Database connection pool.
+ * @param project_id Project identifier to filter tasks.
+ * @param pagination Pagination configuration with limit and offset; defaults to standard pagination.
+ * @param scopeUserId User identifier to scope results to that user's accessible tasks; if null or undefined, all project tasks are returned.
+ * @returns Promise resolving to an array of task details for the specified project.
+ */
 export const getTasksByProject = async (
   pool: Pool,
   project_id: string,
@@ -328,8 +368,16 @@ export const getTasksByProject = async (
   return result.rows;
 };
 
-// Get tasks whose start/due window overlaps a date range (calendar view).
-// Tasks with neither date set are excluded - they have nowhere to sit on a calendar.
+/**
+ * Retrieve tasks whose start or due date window overlaps a given date range, excluding tasks with neither date set.
+ *
+ * Tasks are matched when their start/due window overlaps the query interval. If scopeUserId is provided, results are limited to projects accessible to that user. Results are ordered by start_date (nulls last) then by id.
+ * @param pool Database connection pool.
+ * @param startDate Start of the date range (inclusive).
+ * @param endDate End of the date range (inclusive).
+ * @param scopeUserId Optional user ID to filter results to accessible projects; if null or undefined, all projects are included.
+ * @returns Promise resolving to an array of TaskDetails.
+ */
 export const getTasksByDateRange = async (
   pool: Pool,
   startDate: string,
@@ -353,7 +401,11 @@ export const getTasksByDateRange = async (
   return result.rows;
 };
 
-// Get subtasks
+/**
+ * Retrieve all subtasks associated with a parent task, ordered by creation date.
+ * @param pool Database connection pool
+ * @param parentId Identifier of the parent task
+ */
 export const getSubtasks = async (
   pool: Pool,
   parentId: string,

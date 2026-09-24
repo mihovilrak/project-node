@@ -1,3 +1,6 @@
+/**
+ * Model metadata and display properties for categorizing items.
+ */
 export interface Tag {
   id: number;
   name: string;

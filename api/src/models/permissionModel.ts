@@ -8,14 +8,9 @@ interface PermissionCacheEntry {
 
 const PERMISSION_CACHE_TTL_MS = 30_000;
 const MAX_PERMISSION_CACHE_ENTRIES = 10_000;
-const permissionCaches = new WeakMap<
-  Pool,
-  Map<string, PermissionCacheEntry>
->();
+const permissionCaches = new WeakMap<Pool, Map<string, PermissionCacheEntry>>();
 
-const getPermissionCache = (
-  pool: Pool,
-): Map<string, PermissionCacheEntry> => {
+const getPermissionCache = (pool: Pool): Map<string, PermissionCacheEntry> => {
   let cache = permissionCaches.get(pool);
   if (!cache) {
     cache = new Map<string, PermissionCacheEntry>();
@@ -24,6 +19,11 @@ const getPermissionCache = (
   return cache;
 };
 
+/**
+ * Clear cached permissions for a specific user or all users in a connection pool.
+ * @param pool Database connection pool managing the cache.
+ * @param userId User identifier to invalidate; if omitted, clears all cached permissions for the pool.
+ */
 export const invalidatePermissionCache = (
   pool: Pool,
   userId?: string,
@@ -53,7 +53,14 @@ export const getUserPermissions = async (
   return result.rows;
 };
 
-// Check if a user has a specific permission
+/**
+ * Determine whether a user holds a specific permission, using cached results when available.
+ *
+ * Results are cached with a configurable TTL to reduce database queries. The cache is automatically pruned when it reaches capacity by removing the oldest entry. Expired cache entries are deleted on access.
+ * @param pool Database connection pool
+ * @param userId Identifier of the user to check
+ * @param requiredPermission The permission to verify
+ */
 export const hasPermission = async (
   pool: Pool,
   userId: string,

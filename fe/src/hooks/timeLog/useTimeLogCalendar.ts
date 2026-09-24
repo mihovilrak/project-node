@@ -3,6 +3,10 @@ import dayjs from 'dayjs';
 import { TimeLog } from '../../types/timeLog';
 import { useTheme } from '@mui/material';
 
+/**
+ * Manage calendar state and calculations for displaying time logs across a monthly grid.
+ * @param initialTimeLogs Array of time log entries to populate the calendar; defaults to an empty array.
+ */
 export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const theme = useTheme();

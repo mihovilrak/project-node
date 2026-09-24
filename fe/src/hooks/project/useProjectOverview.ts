@@ -5,6 +5,10 @@ import { getSubprojects } from '../../api/projects';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
+/**
+ * Fetch and manage subprojects for a given project with navigation support for adding new subprojects.
+ * @param projectId The numeric identifier of the project, or undefined if not available.
+ */
 export const useProjectOverview = (projectId: number | undefined) => {
   const navigate = useNavigate();
   const [subprojects, setSubprojects] = useState<Project[]>([]);

@@ -19,6 +19,11 @@ const EMPTY_SELECT_DATA: ProjectSelectData = {
   error: null,
 };
 
+/**
+ * Load and return projects, members, and tasks for a given project, filtering out the specified task.
+ * @param projectId The project identifier to load members and tasks for.
+ * @param taskId The task identifier to exclude from the returned project tasks.
+ */
 export const useProjectSelect = (
   projectId?: number | null,
   taskId?: string | null,

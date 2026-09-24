@@ -6,7 +6,14 @@ import { CustomRequest } from '../types/express';
 import logger from '../utils/logger';
 import { UserStatusId } from '../constants/statusIds';
 
-// Get users
+/**
+ * Retrieve users with optional filtering by status and deletion state.
+ *
+ * By default returns only active users. Pass all=1 or all=true to include inactive and deleted users. Accepts whereParams query parameter as JSON string for custom filtering. Returns 500 on error.
+ * @param req Express request containing optional query parameters: all (boolean flag) and whereParams (JSON-encoded filter object)
+ * @param res Express response object
+ * @param pool Database connection pool
+ */
 export const getUsers = async (
   req: Request,
   res: Response,
@@ -32,7 +39,14 @@ export const getUsers = async (
   }
 };
 
-// Get user by ID
+/**
+ * Retrieve a single user by their identifier from the database.
+ *
+ * Returns a 404 response if the user does not exist. Returns a 500 response on server errors.
+ * @param req Express request object containing the user ID in route parameters
+ * @param res Express response object for sending the retrieved user data or error messages
+ * @param pool Database connection pool for executing queries
+ */
 export const getUserById = async (
   req: Request,
   res: Response,
@@ -54,7 +68,14 @@ export const getUserById = async (
 const MAX_USER_STRING_LENGTH = 255;
 const MAX_PASSWORD_LENGTH = 1024;
 
-// Create a user
+/**
+ * Accept and validate user data, then persist a new user record to the database.
+ *
+ * Requires login, name, surname, email, password, and role_id in the request body. Validates that login, name, surname, and email are non-empty strings not exceeding maximum length; password is a non-empty string not exceeding maximum length; and role_id is a positive integer. Returns the created user with status 201 on success, or a 400 error response if validation fails, or a 500 error response if database insertion fails.
+ * @param req Express request object containing user data in body
+ * @param res Express response object for sending the created user or error
+ * @param pool Database connection pool for user persistence
+ */
 export const createUser = async (
   req: Request,
   res: Response,
@@ -130,7 +151,14 @@ export const createUser = async (
   }
 };
 
-// Update a user (body is the update payload directly; id comes from URL)
+/**
+ * Update user fields by ID from the request URL, filtering updates to allowed keys and preventing self-modification of role and status.
+ *
+ * Accepts an update payload in the request body containing any of: login, name, surname, email, password, role_id, status_id. Users cannot modify their own role_id or status_id. Returns the updated user record on success or a 404 error if the user is not found.
+ * @param req CustomRequest with params.id and body containing update fields
+ * @param res Response object for sending the result or error
+ * @param pool Database connection pool for executing the update query
+ */
 export const updateUser = async (
   req: CustomRequest,
   res: Response,
@@ -168,7 +196,14 @@ export const updateUser = async (
   }
 };
 
-// Change user status
+/**
+ * Update a user's status in the database.
+ *
+ * Returns the updated user object on success. Returns a 404 error if the user is not found. Returns a 500 error if an internal server error occurs during the operation.
+ * @param req HTTP request containing the user ID in params and the new status in the request body
+ * @param res HTTP response object for sending the result
+ * @param pool Database connection pool for executing the status update query
+ */
 export const changeUserStatus = async (
   req: Request,
   res: Response,
@@ -188,7 +223,12 @@ export const changeUserStatus = async (
   }
 };
 
-// Delete a user
+/**
+ * Remove a user by identifier from the system.
+ * @param req HTTP request containing the user ID in path parameters
+ * @param res HTTP response object for sending the result
+ * @param pool database connection pool for executing the delete operation
+ */
 export const deleteUser = async (
   req: Request,
   res: Response,
@@ -222,7 +262,14 @@ export const getUserStatuses = async (
   }
 };
 
-// Get user permissions
+/**
+ * Retrieve the permission set for the authenticated user from the database.
+ *
+ * Requires an authenticated session; returns a 401 error if the user is not authenticated, and a 500 error if the database query fails.
+ * @param req The custom request object containing session data with authenticated user information.
+ * @param res The response object used to send the permission list or error responses.
+ * @param pool The database connection pool for executing permission queries.
+ */
 export const getUserPermissions = async (
   req: CustomRequest,
   res: Response,

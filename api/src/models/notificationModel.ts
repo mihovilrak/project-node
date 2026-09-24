@@ -12,7 +12,14 @@ import {
   paginationClause,
 } from '../utils/pagination';
 
-// Get notifications by user ID
+/**
+ * Retrieve paginated notifications for a user, excluding soft-deleted entries and including notification type metadata.
+ *
+ * The query joins notification type details (name, icon, color) for client rendering and excludes dismissed notifications via the user_notifications() database function. Results are ordered by creation date descending, then by id descending.
+ * @param pool database connection pool
+ * @param user_id identifier of the user whose notifications to retrieve
+ * @param pagination limit and offset for result pagination; defaults to the standard pagination configuration
+ */
 export const getNotificationsByUserId = async (
   pool: Pool,
   user_id: string,
@@ -31,7 +38,14 @@ export const getNotificationsByUserId = async (
   return result.rows;
 };
 
-// Mark all of a user's notifications as read
+/**
+ * Mark all unread active notifications for a user as read with a timestamp.
+ *
+ * Updates only notifications that are currently unread and active, setting is_read to true and read_on to the current timestamp. Returns the updated notification records.
+ * @param pool Database connection pool
+ * @param user_id User identifier
+ * @returns Array of updated notification records
+ */
 export const markNotificationsAsRead = async (
   pool: Pool,
   user_id: string,
@@ -48,6 +62,13 @@ export const markNotificationsAsRead = async (
   return result.rows;
 };
 
+/**
+ * Mark a single notification as read with the current timestamp.
+ * @param pool database connection pool
+ * @param id notification identifier
+ * @param user_id user identifier
+ * @returns Promise<Notification[]>
+ */
 export const markNotificationAsRead = async (
   pool: Pool,
   id: string,
@@ -66,8 +87,15 @@ export const markNotificationAsRead = async (
   return result.rows;
 };
 
-// Delete notification. Scoped to the owner: returns false when the notification
-// does not exist or belongs to another user.
+/**
+ * Remove a notification, returning false if it does not exist or belongs to another user.
+ *
+ * This operation is scoped to the notification owner. The deletion is performed by marking the notification as inactive. Returns false when the notification ID does not exist or when the user_id does not match the notification owner.
+ * @param pool Database connection pool
+ * @param id Notification ID to delete
+ * @param user_id ID of the user attempting deletion; used to verify ownership
+ * @returns true if the notification was successfully deleted, false if not found or not owned by the user
+ */
 export const deleteNotification = async (
   pool: Pool,
   id: string,
@@ -84,7 +112,13 @@ export const deleteNotification = async (
   return (result.rowCount ?? 0) > 0;
 };
 
-// Create watcher notifications
+/**
+ * Generate notifications for all users watching a task when an action occurs.
+ *
+ * Invokes the create_watcher_notifications database function to instantiate notification records. Used when tasks are created, updated, or commented upon to alert watchers of activity.
+ * @param pool Database connection or transaction
+ * @param root1 Task identifier, user performing the action, and notification type
+ */
 export const createWatcherNotifications = async (
   pool: Queryable,
   { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput,
@@ -96,7 +130,11 @@ export const createWatcherNotifications = async (
   return result.rows;
 };
 
-// Create project member notifications
+/**
+ * Generate and persist notifications for all members of a project following a user action.
+ * @param pool Database connection or transaction context.
+ * @param root1 Project identifier, user who triggered the action, and notification type identifier.
+ */
 export const createProjectMemberNotifications = async (
   pool: Queryable,
   {

@@ -23,6 +23,10 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { TaskStatusId } from '../../constants/statusIds';
 
+/**
+ * Manage task form state, validation, and data loading for creating and editing tasks.
+ * @param root0 Configuration object with task identifiers, project context, and current user information.
+ */
 export const useTaskForm = ({
   taskId,
   projectId,

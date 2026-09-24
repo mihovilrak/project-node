@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "symbols": {
+    "src/services/notificationService.ts#NotificationService.processNewNotifications": {
+      "symbolHash": "070f24eac2fa1fda36629a81b199f2d4b8293e6770e808f624b1d5f116a06307",
+      "docHash": "8bbdaaf23df8c733d589250318b6fe39c1fd3fda8c90b309724c08e55224b931",
+      "filePath": "src/services/notificationService.ts",
+      "startLine": 36
+    },
+    "src/services/notificationService.ts#NotificationService.getEmailTemplate": {
+      "symbolHash": "997afebd504a168d8f0821fe654058ced86f564e49bfc2d49198cb37bd6e55e0",
+      "docHash": "1f691f80fe18e53b37d5c6750d525c1a7fab922e6709250bd98ca5f191f83b56",
+      "filePath": "src/services/notificationService.ts",
+      "startLine": 140
+    },
+    "src/services/notificationService.ts#NotificationService.markEmailed": {
+      "symbolHash": "13353621132c99830b14f8bbca38c427124a2f4f3949c0be0a138347aac7ce5e",
+      "docHash": "c2bff340a76f4ef51a7c40fcac334eaee0d4153637f8eeea61db61a38e438248",
+      "filePath": "src/services/notificationService.ts",
+      "startLine": 88
+    },
+    "src/server.ts#createServer": {
+      "symbolHash": "416b37a367ac0f031c9b707d8a66e7b7c55903c385825667ec6240a51eea7e4b",
+      "docHash": "7497a72fe619be100f757ab00c55a80705cd10fe1bdb549a18da7ae333ddc845",
+      "filePath": "src/server.ts",
+      "startLine": 44
+    },
+    "src/config.ts#applySettings": {
+      "symbolHash": "6ce200a02dbc64581a069b214c390cd8c3c91438073d169f9fd0b76aaf3587ce",
+      "docHash": "51be271df7ce8d3ad288ec1e1a41b10463e0e1f1b3f920437ee9d871f27da41b",
+      "filePath": "src/config.ts",
+      "startLine": 39
+    },
+    "src/config.ts#validateConfig": {
+      "symbolHash": "fbc3016bc099147d76695370c7dd1575305ca5913b1ac2506a0bddb38f2b5572",
+      "docHash": "0bc10903665853d652a0bd0f4b5915e92c097e1b1ce78e59c1d644febba0df95",
+      "filePath": "src/config.ts",
+      "startLine": 54
+    },
+    "src/jobs/cleanup.ts#cleanupOldNotifications": {
+      "symbolHash": "7634509078e2e6abf881c192234ca2798e5169ec80ba448caa782a879147f363",
+      "docHash": "d440c5815e8ecf5659c419b42ca8250f144c9e2f8843df6566e8617f1d0f8022",
+      "filePath": "src/jobs/cleanup.ts",
+      "startLine": 10
+    },
+    "src/jobs/dueSoon.ts#createDueSoonNotifications": {
+      "symbolHash": "13c9d0472fdf6e0cc0d8c61dcd5c6cbf92c5fd927d5c04a3c46068c99f6c0887",
+      "docHash": "b181227048e076ce5c04d2fbb857b4490609b8847fb5cb8bd6b71ff96a59af8f",
+      "filePath": "src/jobs/dueSoon.ts",
+      "startLine": 8
+    },
+    "src/server.ts#startSmtpProbe": {
+      "symbolHash": "ad80c67dc55a60a5da2d6d521b631ac15124a000d7854016c67179e9afc39830",
+      "docHash": "b19da2dfecd57d06dc046e026bb66339d24fe4f10d08ccdda91557dee28535e2",
+      "filePath": "src/server.ts",
+      "startLine": 30
+    },
+    "src/server.ts#stopSmtpProbe": {
+      "symbolHash": "dd3bfe89a6428754b5f1656b6322ccbd500207ecf28dadc907369c8f28cf9479",
+      "docHash": "d10cc2cab51356158f6fea7b3f9d43f827151ed79470685ec1dc0fa31bc88c32",
+      "filePath": "src/server.ts",
+      "startLine": 41
+    },
+    "src/server.ts#startServer": {
+      "symbolHash": "8fb78adc7e53ab2a29bcd80a06d16099d16c1c4ccb1452187f48cd10969f6c47",
+      "docHash": "1daf22e101a22fd60792aa22475c2ec0842b39fda3054d71645f484d256a5a79",
+      "filePath": "src/server.ts",
+      "startLine": 82
+    },
+    "src/services/emailService.ts#EmailService.resolveTemplateDir": {
+      "symbolHash": "f04e7fffe90f9a4bffda797d87c1c01493bdd05e9dbeacb5f4560cbf3060bbcc",
+      "docHash": "ef8633d09404970b9a7e1184a8e68bb790a409fc525d8c41ac4b802de605f556",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 31
+    },
+    "src/services/emailService.ts#EmailService.createTransport": {
+      "symbolHash": "0d255670bccea82668c859fca9dc4849cd16c3464a953b53e76350d15673c547",
+      "docHash": "3cb426ec0e97c195bb56d77eb4f1eb5305a7d658552218325fd07105dd117d99",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 45
+    },
+    "src/services/emailService.ts#EmailService.refreshTransport": {
+      "symbolHash": "b15cf6c6949664a8a23e2ee1ba556e069a2cfb510c98794d4bf25b257b8cc81c",
+      "docHash": "cb108899fc9ed302bae1c25e20bc12f6c7638fe7b39d08c9a887abbdce1cfa2f",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 67
+    },
+    "src/services/emailService.ts#EmailService.initializeTemplates": {
+      "symbolHash": "99c6208c5728ba9e4b67c9451ef8ea98b61b6fd79f3ce436c22554b9597a1750",
+      "docHash": "38363bfd8dd157393b305b2c6b9308713879c4885cb1b569c39cb2ba8875e246",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 76
+    },
+    "src/services/emailService.ts#EmailService.loadTemplate": {
+      "symbolHash": "db5e27198f3fb347d7cd0d19a7a9ab126b2c7187ece14a97f2796a2934310f30",
+      "docHash": "3421bab480ea0d6cc99dec4e76b95511be45e136fa74f2fceaa1c8256a0b69e1",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 99
+    },
+    "src/services/emailService.ts#EmailService.sendEmail": {
+      "symbolHash": "9e161e851277e26ecb369084b489ad0b79a6e96dd5fb7a3f99e383523236a11e",
+      "docHash": "157fc0043c7b7042d22219c68b4402d351a8434c7be16488342b2e91ba1baccd",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 117
+    },
+    "src/services/emailService.ts#EmailService.sendEmailWithRetry": {
+      "symbolHash": "1670b12edc1139fadc63db4904065bb46e4e1927f08ea414f9bd84750769d696",
+      "docHash": "7e76f9064e1a7133aa605e8019442e17a327f91cb8362ea37583085f1fb7b625",
+      "filePath": "src/services/emailService.ts",
+      "startLine": 156
+    },
+    "src/types/config.types.ts#AppSettingsRow": {
+      "symbolHash": "d4a2959aaa4975f32aa499b8933b367aba3bb60206a31b89d74d516a3f5880a5",
+      "docHash": "5b80619e430c05718631395160bbf07fd9e028eceae8c4449fe5f0ac7bc639ca",
+      "filePath": "src/types/config.types.ts",
+      "startLine": 38
+    },
+    "src/types/email.types.ts#EmailService": {
+      "symbolHash": "813f5ba0f95010a900e343d3aafb2d214565ce7654493fee1a19ac1038dc9bdf",
+      "docHash": "ca538cc28a41e7f1bbe6f1b8e4e47d1156e204b4cd884dc1b0fa700608dee382",
+      "filePath": "src/types/email.types.ts",
+      "startLine": 25
+    },
+    "src/types/metrics.types.ts#Metrics": {
+      "symbolHash": "ccee95cc621a78f20ba01cd10fd68c9d51d81f10a1c28276eac70362fbffc4d6",
+      "docHash": "6630f3d5192a8fe3ef9def028e760ab7251442d6eda7faa7c82a8724951242aa",
+      "filePath": "src/types/metrics.types.ts",
+      "startLine": 10
+    },
+    "src/types/notification-service.types.ts#NotificationEmailData": {
+      "symbolHash": "dca99abf595c0eafce146c4ceba187e9ba0662a8a4a74dae954d5ac908c4440e",
+      "docHash": "cb0e51db136a9b2d35435b32bf738400525a30b087bf23f3ab57dc24773e4a05",
+      "filePath": "src/types/notification-service.types.ts",
+      "startLine": 32
+    },
+    "src/services/notificationService.ts#NotificationService.sendNotificationEmail": {
+      "symbolHash": "ecd1b7c7b819515b23c8eac77f51132cbd4f743b415fe44f4ac9980f55d74fec",
+      "docHash": "1eb02a68dc15e1344453dbfcd568880cef5f59ee12b59103edbd64b7b07b3c6d",
+      "filePath": "src/services/notificationService.ts",
+      "startLine": 105
+    },
+    "src/settingsStore.ts#reloadSettings": {
+      "symbolHash": "f21f50c374219532fafb60aea0d371c9a412daf49557ab1ae6811f804ed0372e",
+      "docHash": "4be49f59f8a4bcece2e100052de731450ac1e3c6ea64f19bca367c38d05502ef",
+      "filePath": "src/settingsStore.ts",
+      "startLine": 16
+    },
+    "src/types/config.types.ts#EmailConfig": {
+      "symbolHash": "7520a6490851da34949eb6cf2ef330b5a877ed38942afc8ecfe164621fd6fd14",
+      "docHash": "0996d10f77f3731a66026b14ee3b8ff5605175412e73cc32a59816b384e37bf2",
+      "filePath": "src/types/config.types.ts",
+      "startLine": 17
+    },
+    "src/types/notification-service.types.ts#DatabaseNotification": {
+      "symbolHash": "e4f97792252cf59b3d69f3266a861c4290efdb8b92731185b4803948bb763945",
+      "docHash": "08b49347ce4845b56cb53fecc95ccd8b56bc927eb25c60a9e4775d0eb3e115a5",
+      "filePath": "src/types/notification-service.types.ts",
+      "startLine": 6
+    }
+  }
+}

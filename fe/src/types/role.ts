@@ -1,5 +1,8 @@
 import { Permission } from './admin';
 
+/**
+ * Define a role with identity, descriptive metadata, active status, timestamps, and associated permissions.
+ */
 export interface Role {
   id: number;
   name: string;
@@ -11,6 +14,9 @@ export interface Role {
   permissions?: Permission[] | number[];
 }
 
+/**
+ * Specify props for a roles table component, including the roles list, edit and optional delete handlers, a loading indicator, and a manage permission flag.
+ */
 export interface RolesTableProps {
   roles: Role[];
   onEdit: (role: Role) => void;
@@ -19,6 +25,9 @@ export interface RolesTableProps {
   canManage?: boolean;
 }
 
+/**
+ * Define the form payload used when creating or editing a role, including its display name, description text, active status, and associated permission IDs.
+ */
 export interface RoleFormData {
   name: string;
   description: string;

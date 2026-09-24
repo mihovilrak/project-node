@@ -12,6 +12,9 @@ export const pool: Pool = createPool(config.database, logger, {
   maxUses: 7500,
 });
 
+/**
+ * Verify database connectivity and terminate the process if the connection fails.
+ */
 export async function ensureConnection(): Promise<void> {
   try {
     await pool.query('SELECT 1');
