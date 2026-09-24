@@ -1,11 +1,25 @@
 import { Pool, QueryResult } from 'pg';
 import {
   User,
+  UserOption,
   UserQueryFilters,
   UserUpdateInput,
   UserStatus,
 } from '../types/user';
 import { invalidatePermissionCache } from './permissionModel';
+import { buildUpdateAssignments } from '../utils/sqlUpdate';
+
+const USER_COLUMNS =
+  'id, login, name, surname, email, status_id, role_id, created_on, updated_on';
+const UPDATABLE_USER_COLUMNS = [
+  'login',
+  'name',
+  'surname',
+  'email',
+  'password',
+  'role_id',
+  'status_id',
+] as const;
 
 /**
  * Retrieve all available user statuses ordered by identifier.
@@ -58,6 +72,22 @@ export const getUsers = async (
   return result.rows;
 };
 
+/**
+ * Lists active users with only the fields a picker needs.
+ *
+ * @param pool - Database connection pool.
+ * @returns Active users ordered by name.
+ */
+export const getUserOptions = async (pool: Pool): Promise<UserOption[]> => {
+  const result = await pool.query(
+    `SELECT id, login, name, surname
+    FROM users
+    WHERE status_id = user_status_id('active')
+    ORDER BY name, surname, id`,
+  );
+  return result.rows;
+};
+
 // Get a user by ID
 export const getUserById = async (
   pool: Pool,
@@ -92,7 +122,7 @@ export const createUser = async (
     `INSERT INTO users
     (login, name, surname, email, password, role_id)
     VALUES ($1, $2, $3, $4, crypt($5, gen_salt('bf', 12)), $6)
-    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
+    RETURNING ${USER_COLUMNS}`,
     [login, name, surname, email, password, role_id],
   );
   return result.rows[0];
@@ -111,44 +141,37 @@ export const updateUser = async (
   updates: UserUpdateInput | Record<string, unknown>,
   id: string,
 ): Promise<User | null> => {
-  const columns = Object.keys(updates).filter((k) =>
-    [
-      'login',
-      'name',
-      'surname',
-      'email',
-      'password',
-      'role_id',
-      'status_id',
-    ].includes(k),
-  ) as Array<keyof UserUpdateInput>;
-  if (columns.length === 0) {
+  const assignments = buildUpdateAssignments(
+    updates as Record<string, unknown>,
+    UPDATABLE_USER_COLUMNS,
+  );
+  if (!assignments) {
     return getUserById(pool, id);
   }
-  const values: unknown[] = [];
-  const setExpressions = columns.map((column, index) => {
-    if (column === 'password') {
-      values.push((updates as UserUpdateInput)[column]);
-      return `password = crypt($${index + 1}, gen_salt('bf', 12))`;
-    } else {
-      values.push((updates as UserUpdateInput)[column]);
-      return `${column} = $${index + 1}`;
-    }
-  });
+  const setClause = assignments.columns
+    .map((column, index) =>
+      column === 'password'
+        ? `password = crypt($${index + 1}, gen_salt('bf', 12))`
+        : `${column} = $${index + 1}`,
+    )
+    .join(', ');
 
-  const query = `UPDATE users SET ${setExpressions.join(', ')} WHERE id = $${columns.length + 1}`;
+  const result = await pool.query(
+    `UPDATE users SET ${setClause}
+    WHERE id = $${assignments.nextIndex}
+    RETURNING ${USER_COLUMNS}`,
+    [...assignments.values, id],
+  );
 
-  values.push(id);
-
-  const result = await pool.query(query, values);
-
-  if (result.rowCount && result.rowCount > 0) {
-    if (columns.includes('role_id') || columns.includes('status_id')) {
-      invalidatePermissionCache(pool, id);
-    }
-    return getUserById(pool, id);
+  const user = result.rows[0] || null;
+  if (
+    user &&
+    (assignments.columns.includes('role_id') ||
+      assignments.columns.includes('status_id'))
+  ) {
+    invalidatePermissionCache(pool, id);
   }
-  return null;
+  return user;
 };
 
 /**
@@ -166,9 +189,9 @@ export const changeUserStatus = async (
 ): Promise<User | null> => {
   const result = await pool.query(
     `UPDATE users
-    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
+    SET status_id = $1
     WHERE id = $2
-    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
+    RETURNING ${USER_COLUMNS}`,
     [status, id],
   );
   if (result.rows[0]) invalidatePermissionCache(pool, id);
@@ -188,9 +211,9 @@ export const deleteUser = async (
 ): Promise<User | null> => {
   const result = await pool.query(
     `UPDATE users
-    SET (status_id, updated_on) = (user_status_id('deleted'), CURRENT_TIMESTAMP)
+    SET status_id = user_status_id('deleted')
     WHERE id = $1
-    RETURNING id, login, name, surname, email, status_id, role_id, created_on, updated_on`,
+    RETURNING ${USER_COLUMNS}`,
     [id],
   );
   if (result.rows[0]) invalidatePermissionCache(pool, id);

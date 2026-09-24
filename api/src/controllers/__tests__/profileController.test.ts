@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import { jest } from '@jest/globals';
 import * as profileModel from '../../models/profileModel';
+import * as sessionModel from '../../models/sessionModel';
 import {
   getProfile,
   updateProfile,
@@ -19,8 +20,8 @@ import { Task } from '../../types/task';
 import { Project } from '../../types/project';
 import { Session, SessionData } from 'express-session';
 
-// Mock the profile model
 jest.mock('../../models/profileModel');
+jest.mock('../../models/sessionModel');
 
 describe('Profile Controller', () => {
   let mockPool: Pool;
@@ -68,6 +69,7 @@ describe('Profile Controller', () => {
       params: {},
       body: {},
       session: mockSession,
+      sessionID: 'test-session-id',
     };
   });
 
@@ -113,23 +115,19 @@ describe('Profile Controller', () => {
         save: (callback: (err: any) => void) => callback(null),
       } as Session & Partial<SessionData>;
 
-      await getProfile(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      await expect(
+        getProfile(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toMatchObject({ status: 401 });
     });
 
-    it('should handle internal server errors', async () => {
+    it('should propagate database errors', async () => {
       jest
         .spyOn(profileModel, 'getProfile')
         .mockRejectedValue(new Error('DB error'));
 
-      await getProfile(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        getProfile(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toThrow('DB error');
     });
 
     it('should handle case when profile is not found', async () => {
@@ -218,12 +216,9 @@ describe('Profile Controller', () => {
         save: (callback: (err: any) => void) => callback(null),
       } as Session & Partial<SessionData>;
 
-      await updateProfile(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      await expect(
+        updateProfile(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toMatchObject({ status: 401 });
     });
 
     it('should handle case when profile update fails', async () => {
@@ -321,9 +316,9 @@ describe('Profile Controller', () => {
         .spyOn(profileModel, 'getRecentProjects')
         .mockRejectedValue(new Error('DB error'));
 
-      await getRecentProjects(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
+      await expect(
+        getRecentProjects(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toThrow('DB error');
     });
   });
 
@@ -352,10 +347,29 @@ describe('Profile Controller', () => {
         '1',
         'NewPass123!secure',
       );
+      expect(sessionModel.deleteUserSessions).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        'test-session-id',
+      );
       expect(mockStatus).toHaveBeenCalledWith(200);
       expect(mockJson).toHaveBeenCalledWith({
         message: `Password updated successfully on ${updatedOn}`,
       });
+    });
+
+    it('should return 404 when the user no longer exists', async () => {
+      mockRequest.body = {
+        old_password: 'oldPass123!A',
+        new_password: 'NewPass123!secure',
+      };
+      jest.spyOn(profileModel, 'verifyPassword').mockResolvedValue(true);
+      jest.spyOn(profileModel, 'changePassword').mockResolvedValue(null);
+
+      await changePassword(mockRequest as Request, mockResponse, mockPool);
+
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(sessionModel.deleteUserSessions).not.toHaveBeenCalled();
     });
 
     it('should update password with valid input (current_password from frontend)', async () => {
