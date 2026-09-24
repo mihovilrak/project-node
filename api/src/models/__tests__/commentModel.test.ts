@@ -99,40 +99,6 @@ describe('CommentModel', () => {
     });
   });
 
-  describe('commentWithUser', () => {
-    it('should return comment with user details', async () => {
-      const commentWithUser = {
-        id: 1,
-        task_id: 1,
-        user_id: 1,
-        user_name: 'John Doe',
-        user_login: 'johndoe',
-        comment: 'Test comment',
-        created_on: new Date(),
-        updated_on: new Date(),
-      };
-      (mockPool.query as jest.Mock).mockResolvedValue(
-        mockQueryResult([commentWithUser]),
-      );
-
-      const result = await commentModel.commentWithUser(mockPool, '1');
-
-      expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('get_comments(p_id'),
-        ['1'],
-      );
-      expect(result).toEqual(commentWithUser);
-    });
-
-    it('should return null when comment not found', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
-
-      const result = await commentModel.commentWithUser(mockPool, '999');
-
-      expect(result).toBeNull();
-    });
-  });
-
   describe('editComment', () => {
     it('should edit an existing comment', async () => {
       const editedComment = {
@@ -150,12 +116,13 @@ describe('CommentModel', () => {
       const result = await commentModel.editComment(
         mockPool,
         '1',
+        '7',
         'Edited comment',
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE comments'),
-        ['1', 'Edited comment'],
+        expect.stringContaining('task_id = $2'),
+        ['1', '7', 'Edited comment'],
       );
       expect(result).toEqual(editedComment);
     });
@@ -166,6 +133,7 @@ describe('CommentModel', () => {
       const result = await commentModel.editComment(
         mockPool,
         '999',
+        '7',
         'Non-existent',
       );
 
@@ -175,7 +143,12 @@ describe('CommentModel', () => {
     it('should not re-read the comment when the update matched no rows', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await commentModel.editComment(mockPool, '999', 'Nope');
+      const result = await commentModel.editComment(
+        mockPool,
+        '999',
+        '7',
+        'Nope',
+      );
 
       expect(mockPool.query).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
@@ -197,11 +170,11 @@ describe('CommentModel', () => {
         mockQueryResult([deletedComment]),
       );
 
-      const result = await commentModel.deleteComment(mockPool, '1');
+      const result = await commentModel.deleteComment(mockPool, '1', '7');
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE comments'),
-        ['1'],
+        expect.stringContaining('task_id = $2'),
+        ['1', '7'],
       );
       expect(result).toEqual(deletedComment);
     });
@@ -209,7 +182,7 @@ describe('CommentModel', () => {
     it('should return null when comment not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await commentModel.deleteComment(mockPool, '999');
+      const result = await commentModel.deleteComment(mockPool, '999', '7');
 
       expect(result).toBeNull();
     });

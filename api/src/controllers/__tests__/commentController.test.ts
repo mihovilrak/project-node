@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
-import { jest } from '@jest/globals';
 import * as commentModel from '../../models/commentModel';
 import * as notificationModel from '../../models/notificationModel';
 import {
@@ -8,37 +7,56 @@ import {
   createComment,
   editComment,
   deleteComment,
+  MAX_COMMENT_LENGTH,
 } from '../commentController';
-import {
-  CommentCreateInput,
-  CommentUpdateInput,
-  Comment,
-  CommentWithUser,
-  TaskRequest,
-} from '../../types/comment';
+import { Comment, CommentWithUser, TaskRequest } from '../../types/comment';
 import { NotificationType } from '../../types/notification';
-import { Session, SessionData } from 'express-session';
 import { CustomRequest } from '../../types/express';
 
-// Mocks
 jest.mock('../../models/commentModel');
 jest.mock('../../models/notificationModel');
 
 describe('Comment Controller', () => {
+  let mockClient: { query: jest.Mock; release: jest.Mock };
   let mockPool: Pool;
-  let mockRequest: Partial<Request & TaskRequest>;
   let mockResponse: Response;
   let mockJson: jest.Mock;
   let mockStatus: jest.Mock;
 
+  const comment: Comment = {
+    id: 1,
+    task_id: 1,
+    user_id: 1,
+    comment: 'New comment',
+    created_on: new Date(),
+    updated_on: new Date(),
+    active: true,
+  };
+  const commentWithUser: CommentWithUser = { ...comment, user_name: 'John' };
+
+  const createReq = (
+    body: unknown,
+    withUser = true,
+  ): CustomRequest & TaskRequest =>
+    ({
+      taskId: '1',
+      body,
+      session: withUser ? { user: { id: '1' } } : {},
+    }) as unknown as CustomRequest & TaskRequest;
+
+  const editReq = (body?: unknown): Request & TaskRequest =>
+    ({ taskId: '5', params: { id: '1' }, body }) as unknown as Request &
+      TaskRequest;
+
   beforeEach(() => {
-    // Reset all mocks
     jest.clearAllMocks();
-
-    // Create mock pool
-    mockPool = {} as Pool;
-
-    // Create mock response
+    mockClient = {
+      query: jest.fn().mockResolvedValue({ rows: [] }),
+      release: jest.fn(),
+    };
+    mockPool = {
+      connect: jest.fn().mockResolvedValue(mockClient),
+    } as unknown as Pool;
     mockJson = jest.fn().mockReturnThis();
     mockStatus = jest.fn().mockReturnThis();
     mockResponse = {
@@ -48,285 +66,177 @@ describe('Comment Controller', () => {
   });
 
   describe('getTaskComments', () => {
-    const mockComments: CommentWithUser[] = [
-      {
-        id: 1,
-        task_id: 1,
-        user_id: 1,
-        comment: 'Test comment',
-        created_on: new Date(),
-        updated_on: new Date(),
-        active: true,
-        user_name: 'John',
-      },
-    ];
+    it('returns the comments of the task', async () => {
+      (commentModel.getTaskComments as jest.Mock).mockResolvedValueOnce([
+        commentWithUser,
+      ]);
 
-    it('should return comments successfully', async () => {
-      mockRequest = {
-        taskId: '1',
-      };
-
-      jest
-        .spyOn(commentModel, 'getTaskComments')
-        .mockResolvedValueOnce(mockComments);
-
-      await getTaskComments(mockRequest as TaskRequest, mockResponse, mockPool);
+      await getTaskComments(
+        { taskId: '1' } as TaskRequest,
+        mockResponse,
+        mockPool,
+      );
 
       expect(commentModel.getTaskComments).toHaveBeenCalledWith(mockPool, '1');
       expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(mockJson).toHaveBeenCalledWith(mockComments);
+      expect(mockJson).toHaveBeenCalledWith([commentWithUser]);
     });
 
-    it('should handle errors', async () => {
-      mockRequest = {
-        taskId: '1',
-      };
+    it('forwards database errors', async () => {
+      (commentModel.getTaskComments as jest.Mock).mockRejectedValueOnce(
+        new Error('Database error'),
+      );
 
-      const error = new Error('Database error');
-      jest.spyOn(commentModel, 'getTaskComments').mockRejectedValueOnce(error);
-
-      await getTaskComments(mockRequest as TaskRequest, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        getTaskComments({ taskId: '1' } as TaskRequest, mockResponse, mockPool),
+      ).rejects.toThrow('Database error');
     });
   });
 
   describe('createComment', () => {
-    const mockNewComment: Comment = {
-      id: 1,
-      task_id: 1,
-      user_id: 1,
-      comment: 'New comment',
-      created_on: new Date(),
-      updated_on: new Date(),
-      active: true,
-    };
-
-    const createMockSession = (
-      withUser = true,
-    ): Session & Partial<SessionData> => {
-      const session = {
-        id: 'test-session',
-        cookie: {
-          originalMaxAge: null,
-        },
-        ...(withUser && {
-          user: {
-            id: '1',
-            login: 'testuser',
-            role_id: 1,
-          },
-        }),
-      } as Session & Partial<SessionData>;
-
-      // Add session methods that return the session object for chaining
-      session.regenerate = (callback: (err: any) => void) => {
-        callback(null);
-        return session;
-      };
-      session.destroy = (callback: (err: any) => void) => {
-        callback(null);
-        return session;
-      };
-      session.reload = (callback: (err: any) => void) => {
-        callback(null);
-        return session;
-      };
-      session.resetMaxAge = () => {
-        return session;
-      };
-      session.save = (callback?: (err: any) => void) => {
-        if (callback) callback(null);
-        return session;
-      };
-      session.touch = () => {
-        return session;
-      };
-
-      return session;
-    };
-
-    it('should create comment successfully', async () => {
-      mockRequest = {
-        taskId: '1',
-        body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession(),
-      };
-
-      jest
-        .spyOn(commentModel, 'createComment')
-        .mockResolvedValueOnce(mockNewComment);
-      jest
-        .spyOn(notificationModel, 'createWatcherNotifications')
-        .mockResolvedValueOnce([]);
+    it('creates the comment and notifies watchers in one transaction', async () => {
+      (commentModel.createComment as jest.Mock).mockResolvedValueOnce(comment);
+      (
+        notificationModel.createWatcherNotifications as jest.Mock
+      ).mockResolvedValueOnce([]);
 
       await createComment(
-        mockRequest as CustomRequest & TaskRequest,
+        createReq({ comment: 'New comment' }),
         mockResponse,
         mockPool,
       );
 
       expect(commentModel.createComment).toHaveBeenCalledWith(
-        mockPool,
+        mockClient,
         '1',
         '1',
         'New comment',
       );
       expect(notificationModel.createWatcherNotifications).toHaveBeenCalledWith(
-        mockPool,
+        mockClient,
         {
           task_id: 1,
           action_user_id: 1,
           type_id: NotificationType.TaskComment,
         },
       );
+      expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
       expect(mockStatus).toHaveBeenCalledWith(201);
-      expect(mockJson).toHaveBeenCalledWith(mockNewComment);
+      expect(mockJson).toHaveBeenCalledWith(comment);
     });
 
-    it('should return 401 when user is not authenticated', async () => {
-      mockRequest = {
-        taskId: '1',
-        body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession(false),
-      };
+    it('rolls back the comment when notifying fails', async () => {
+      (commentModel.createComment as jest.Mock).mockResolvedValueOnce(comment);
+      (
+        notificationModel.createWatcherNotifications as jest.Mock
+      ).mockRejectedValueOnce(new Error('notify failed'));
 
-      await createComment(
-        mockRequest as CustomRequest & TaskRequest,
-        mockResponse,
-        mockPool,
-      );
-
-      expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      await expect(
+        createComment(createReq({ comment: 'x' }), mockResponse, mockPool),
+      ).rejects.toThrow('notify failed');
+      expect(mockClient.query).toHaveBeenCalledWith('ROLLBACK');
     });
 
-    it('should handle errors', async () => {
-      mockRequest = {
-        taskId: '1',
-        body: { comment: 'New comment' } as CommentCreateInput,
-        session: createMockSession(),
-      };
+    it('throws 401 without a session user', async () => {
+      await expect(
+        createComment(
+          createReq({ comment: 'x' }, false),
+          mockResponse,
+          mockPool,
+        ),
+      ).rejects.toMatchObject({ status: 401 });
+      expect(commentModel.createComment).not.toHaveBeenCalled();
+    });
 
-      const error = new Error('Database error');
-      jest.spyOn(commentModel, 'createComment').mockRejectedValueOnce(error);
+    it.each([
+      [undefined, 'Comment text is required'],
+      [{}, 'Comment text is required'],
+      [{ comment: '   ' }, 'Comment text is required'],
+      [{ comment: 42 }, 'Comment text is required'],
+      [
+        { comment: 'a'.repeat(MAX_COMMENT_LENGTH + 1) },
+        `Comment must be at most ${MAX_COMMENT_LENGTH} characters`,
+      ],
+    ])('rejects invalid body #%# with 400', async (body, error) => {
+      await createComment(createReq(body), mockResponse, mockPool);
 
-      await createComment(
-        mockRequest as CustomRequest & TaskRequest,
-        mockResponse,
-        mockPool,
-      );
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({ error });
+      expect(commentModel.createComment).not.toHaveBeenCalled();
     });
   });
 
   describe('editComment', () => {
-    const mockEditedComment: CommentWithUser = {
-      id: 1,
-      task_id: 1,
-      user_id: 1,
-      comment: 'Updated comment',
-      created_on: new Date(),
-      updated_on: new Date(),
-      active: true,
-      user_name: 'Test User',
-    };
+    it('edits the comment scoped to the task', async () => {
+      (commentModel.editComment as jest.Mock).mockResolvedValueOnce(
+        commentWithUser,
+      );
 
-    it('should edit comment successfully', async () => {
-      mockRequest = {
-        params: { id: '1' },
-        body: { comment: 'Updated comment' } as CommentUpdateInput,
-      };
-
-      jest
-        .spyOn(commentModel, 'editComment')
-        .mockResolvedValueOnce(mockEditedComment);
-
-      await editComment(mockRequest as Request, mockResponse, mockPool);
+      await editComment(
+        editReq({ comment: 'Updated comment' }),
+        mockResponse,
+        mockPool,
+      );
 
       expect(commentModel.editComment).toHaveBeenCalledWith(
         mockPool,
         '1',
+        '5',
         'Updated comment',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(mockJson).toHaveBeenCalledWith(mockEditedComment);
+      expect(mockJson).toHaveBeenCalledWith(commentWithUser);
     });
 
-    it('should return 404 when the comment does not exist', async () => {
-      mockRequest = {
-        params: { id: '999' },
-        body: { comment: 'Updated comment' } as CommentUpdateInput,
-      };
+    it('returns 404 when no active comment matches on the task', async () => {
+      (commentModel.editComment as jest.Mock).mockResolvedValueOnce(null);
 
-      jest.spyOn(commentModel, 'editComment').mockResolvedValueOnce(null);
-
-      await editComment(mockRequest as Request, mockResponse, mockPool);
+      await editComment(editReq({ comment: 'x' }), mockResponse, mockPool);
 
       expect(mockStatus).toHaveBeenCalledWith(404);
       expect(mockJson).toHaveBeenCalledWith({ error: 'Comment not found' });
     });
 
-    it('should handle errors', async () => {
-      mockRequest = {
-        params: { id: '1' },
-        body: { comment: 'Updated comment' } as CommentUpdateInput,
-      };
+    it('returns 400 for empty text', async () => {
+      await editComment(editReq({ comment: '' }), mockResponse, mockPool);
 
-      const error = new Error('Database error');
-      jest.spyOn(commentModel, 'editComment').mockRejectedValueOnce(error);
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(commentModel.editComment).not.toHaveBeenCalled();
+    });
 
-      await editComment(mockRequest as Request, mockResponse, mockPool);
+    it('forwards database errors', async () => {
+      (commentModel.editComment as jest.Mock).mockRejectedValueOnce(
+        new Error('Database error'),
+      );
 
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        editComment(editReq({ comment: 'x' }), mockResponse, mockPool),
+      ).rejects.toThrow('Database error');
     });
   });
 
   describe('deleteComment', () => {
-    const mockDeletedComment: Comment = {
-      id: 1,
-      task_id: 1,
-      user_id: 1,
-      comment: 'Deleted comment',
-      created_on: new Date(),
-      updated_on: new Date(),
-      active: false,
-    };
+    it('deletes the comment scoped to the task', async () => {
+      const deleted = { ...comment, active: false };
+      (commentModel.deleteComment as jest.Mock).mockResolvedValueOnce(deleted);
 
-    it('should delete comment successfully', async () => {
-      mockRequest = {
-        params: { id: '1' },
-      };
+      await deleteComment(editReq(), mockResponse, mockPool);
 
-      jest
-        .spyOn(commentModel, 'deleteComment')
-        .mockResolvedValueOnce(mockDeletedComment);
-
-      await deleteComment(mockRequest as Request, mockResponse, mockPool);
-
-      expect(commentModel.deleteComment).toHaveBeenCalledWith(mockPool, '1');
+      expect(commentModel.deleteComment).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        '5',
+      );
       expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(mockJson).toHaveBeenCalledWith(mockDeletedComment);
+      expect(mockJson).toHaveBeenCalledWith(deleted);
     });
 
-    it('should handle errors', async () => {
-      mockRequest = {
-        params: { id: '1' },
-      };
+    it('returns 404 when no active comment matches on the task', async () => {
+      (commentModel.deleteComment as jest.Mock).mockResolvedValueOnce(null);
 
-      const error = new Error('Database error');
-      jest.spyOn(commentModel, 'deleteComment').mockRejectedValueOnce(error);
+      await deleteComment(editReq(), mockResponse, mockPool);
 
-      await deleteComment(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      expect(mockStatus).toHaveBeenCalledWith(404);
     });
   });
 });

@@ -9,30 +9,35 @@ import {
   TaskRequest,
 } from '../types/comment';
 import { NotificationType } from '../types/notification';
-import logger from '../utils/logger';
+import { sessionUserId } from '../utils/sessionUser';
+import { withTransaction } from '../utils/transaction';
 
-// Get task comments
+export const MAX_COMMENT_LENGTH = 400;
+
+const commentError = (comment: unknown): string | null => {
+  if (typeof comment !== 'string' || comment.trim() === '') {
+    return 'Comment text is required';
+  }
+  if (comment.length > MAX_COMMENT_LENGTH) {
+    return `Comment must be at most ${MAX_COMMENT_LENGTH} characters`;
+  }
+  return null;
+};
+
+/** Return the active comments of the task in the route. */
 export const getTaskComments = async (
   req: TaskRequest,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const taskId = req.taskId;
-    const comments = await commentModel.getTaskComments(pool, taskId || '');
-    res.status(200).json(comments);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const comments = await commentModel.getTaskComments(pool, req.taskId || '');
+  res.status(200).json(comments);
 };
 
 /**
- * Add a new comment to a task and notify watchers.
- *
- * Requires an authenticated user session. Extracts the task ID from the request and comment text from the body, then creates the comment and generates notifications for all users watching the task.
- * @param req Combined request object containing user session, task ID, and comment body
- * @param res Response object for sending the created comment or error status
+ * Add a comment to the task in the route and notify its watchers in the same transaction.
+ * @param req Request with the session user, task id and `{ comment }` body
+ * @param res Response: 201 with the comment, or 400 for empty or overlong text
  * @param pool Database connection pool
  */
 export const createComment = async (
@@ -40,85 +45,81 @@ export const createComment = async (
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const taskId = req.taskId;
-    const { comment } = req.body as CommentCreateInput;
-    const userId = req.session?.user?.id;
+  const userId = sessionUserId(req);
+  const taskId = req.taskId || '';
+  const { comment } = (req.body ?? {}) as CommentCreateInput;
 
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
+  const invalid = commentError(comment);
+  if (invalid) {
+    return res.status(400).json({ error: invalid });
+  }
 
-    const newComment = await commentModel.createComment(
-      pool,
-      taskId || '',
+  const newComment = await withTransaction(pool, async (client) => {
+    const created = await commentModel.createComment(
+      client,
+      taskId,
       userId,
       comment,
     );
-
-    // Create notifications for watchers
-    await notificationModel.createWatcherNotifications(pool, {
-      action_user_id: parseInt(userId),
-      type_id: NotificationType.TaskComment, // Task Comment
-      task_id: parseInt(taskId!),
+    await notificationModel.createWatcherNotifications(client, {
+      action_user_id: Number(userId),
+      type_id: NotificationType.TaskComment,
+      task_id: Number(taskId),
     });
+    return created;
+  });
 
-    res.status(201).json(newComment);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  res.status(201).json(newComment);
 };
 
 /**
- * Update a comment's text and return the modified comment or a 404 error if not found.
- *
- * Extracts the comment ID from request parameters and updated text from the request body, then delegates to the comment model for persistence. Returns the updated comment with user details on success, or a 404 response if the comment does not exist. Catches and logs errors, responding with a 500 status for unexpected failures.
- * @param req Express request containing the comment ID in params and updated comment text in the body
- * @param res Express response object for sending the result or error status
- * @param pool Database connection pool for executing queries
+ * Update the text of a comment on the task in the route.
+ * @param req Request with the comment id in params and `{ comment }` body
+ * @param res Response: 200 with the comment, 400 for invalid text, 404 if it is not an active comment on this task
+ * @param pool Database connection pool
  */
 export const editComment = async (
-  req: Request,
+  req: Request & TaskRequest,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  const { id } = req.params;
-  const { comment } = req.body as CommentUpdateInput;
+  const { comment } = (req.body ?? {}) as CommentUpdateInput;
 
-  try {
-    const editedComment = await commentModel.editComment(pool, id, comment);
-    if (!editedComment) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-    res.status(200).json(editedComment);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
+  const invalid = commentError(comment);
+  if (invalid) {
+    return res.status(400).json({ error: invalid });
   }
+
+  const editedComment = await commentModel.editComment(
+    pool,
+    req.params.id,
+    req.taskId || '',
+    comment,
+  );
+  if (!editedComment) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+  res.status(200).json(editedComment);
 };
 
 /**
- * Remove a comment by marking it inactive and returning its data.
- * @param req Express request containing the comment id in params
- * @param res Express response object
+ * Soft-delete a comment on the task in the route.
+ * @param req Request with the comment id in params
+ * @param res Response: 200 with the comment, or 404 if it is not an active comment on this task
  * @param pool Database connection pool
  */
 export const deleteComment = async (
-  req: Request,
+  req: Request & TaskRequest,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  const { id } = req.params;
-
-  try {
-    const deletedComment = await commentModel.deleteComment(pool, id);
-    if (!deletedComment) {
-      return res.status(404).json({ error: 'Comment not found' });
-    }
-    res.status(200).json(deletedComment);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
+  const deletedComment = await commentModel.deleteComment(
+    pool,
+    req.params.id,
+    req.taskId || '',
+  );
+  if (!deletedComment) {
+    return res.status(404).json({ error: 'Comment not found' });
   }
+  res.status(200).json(deletedComment);
 };
