@@ -1,11 +1,15 @@
 jest.mock('../../db', () => ({
   pool: {
     query: jest.fn(),
+    connect: jest.fn(),
   },
 }));
 
 jest.mock('../../config', () => ({
-  config: { appBaseUrl: 'https://app.example.com' },
+  config: {
+    appBaseUrl: 'https://app.example.com',
+    app: { emailEnabled: true },
+  },
 }));
 
 jest.mock('../../settingsStore', () => ({
@@ -36,47 +40,41 @@ jest.mock('../../metrics', () => ({
 
 import { notificationService } from '../../services/notificationService';
 import { pool } from '../../db';
+import { config } from '../../config';
 import { reloadSettings } from '../../settingsStore';
 import { emailService } from '../../services/emailService';
 import { metrics } from '../../metrics';
+import { logger } from '../../utils/logger';
 import { DatabaseNotification } from '../../types/notification-service.types';
 
+const CLAIM_SQL = 'SELECT * FROM get_notifications_for_service($1, $2)';
+
 describe('NotificationService', () => {
+  let client: { query: jest.Mock; release: jest.Mock };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    config.app.emailEnabled = true;
+    client = {
+      query: jest.fn().mockResolvedValue({ rows: [{ locked: true }] }),
+      release: jest.fn(),
+    };
+    (pool.connect as jest.Mock).mockResolvedValue(client);
   });
 
   describe('getEmailTemplate', () => {
-    it('should return taskDueSoon for type_id 1', () => {
-      expect(notificationService.getEmailTemplate(1)).toBe('taskDueSoon');
-    });
-
-    it('should return taskAssigned for type_id 2', () => {
-      expect(notificationService.getEmailTemplate(2)).toBe('taskAssigned');
-    });
-
-    it('should return taskUpdated for type_id 3', () => {
-      expect(notificationService.getEmailTemplate(3)).toBe('taskUpdated');
-    });
-
-    it('should return taskComment for type_id 4', () => {
-      expect(notificationService.getEmailTemplate(4)).toBe('taskComment');
-    });
-
-    it('should return taskCompleted for type_id 5', () => {
-      expect(notificationService.getEmailTemplate(5)).toBe('taskCompleted');
-    });
-
-    it('should return projectUpdate for type_id 6', () => {
-      expect(notificationService.getEmailTemplate(6)).toBe('projectUpdate');
-    });
-
-    it('should return default for unknown type_id', () => {
-      expect(notificationService.getEmailTemplate(99)).toBe('default');
-    });
-
-    it('should return default for type_id 0', () => {
-      expect(notificationService.getEmailTemplate(0)).toBe('default');
+    it.each([
+      ['Task Due Soon', 'taskDueSoon'],
+      ['Task Assigned', 'taskAssigned'],
+      ['Task Updated', 'taskUpdated'],
+      ['Task Comment', 'taskComment'],
+      ['Task Completed', 'taskCompleted'],
+      ['Project Update', 'projectUpdate'],
+      ['Task Created', 'default'],
+      ['Added to Project', 'default'],
+      ['constructor', 'default'],
+    ])('should map %s to %s', (typeName, template) => {
+      expect(notificationService.getEmailTemplate(typeName)).toBe(template);
     });
   });
 
@@ -86,7 +84,7 @@ describe('NotificationService', () => {
         id: '1',
         user_id: '100',
         type_id: 1,
-        type_name: 'Task due soon',
+        type_name: 'Task Due Soon',
         title: 'Task Due Soon',
         message: 'Your task is due soon',
         link: '/tasks/1',
@@ -103,10 +101,91 @@ describe('NotificationService', () => {
 
       await notificationService.processNewNotifications();
 
-      expect(pool.query).toHaveBeenCalledWith(
-        'SELECT * FROM get_notifications_for_service($1, $2)',
-        [100, 5],
+      expect(pool.query).toHaveBeenCalledWith(CLAIM_SQL, [100, 5]);
+    });
+
+    it('should hold the advisory lock for the run and release it', async () => {
+      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+
+      await notificationService.processNewNotifications();
+
+      expect(client.query).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining('pg_try_advisory_lock'),
+        expect.any(Array),
       );
+      expect(client.query).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('pg_advisory_unlock'),
+        expect.any(Array),
+      );
+      expect(client.release).toHaveBeenCalledWith();
+    });
+
+    it('should skip the run when another instance holds the lock', async () => {
+      client.query.mockResolvedValueOnce({ rows: [{ locked: false }] });
+
+      await notificationService.processNewNotifications();
+
+      expect(pool.query).not.toHaveBeenCalled();
+      expect(reloadSettings).not.toHaveBeenCalled();
+      expect(client.query).toHaveBeenCalledTimes(1);
+      expect(client.release).toHaveBeenCalled();
+    });
+
+    it('should skip a run that overlaps one still in progress', async () => {
+      let finishSend: () => void = () => {};
+      (emailService.sendEmailWithRetry as jest.Mock).mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          finishSend = resolve;
+        }),
+      );
+      (pool.query as jest.Mock)
+        .mockResolvedValueOnce({ rows: mockNotifications })
+        .mockResolvedValue({ rows: [] });
+
+      const first = notificationService.processNewNotifications();
+      await new Promise((resolve) => setImmediate(resolve));
+      await notificationService.processNewNotifications();
+
+      expect(pool.connect).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('still in progress'),
+      );
+
+      finishSend();
+      await first;
+
+      // The guard is cleared once the first run finishes.
+      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      await notificationService.processNewNotifications();
+      expect(pool.connect).toHaveBeenCalledTimes(2);
+    });
+
+    it('should destroy the connection when the unlock fails', async () => {
+      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      const unlockError = new Error('connection lost');
+      client.query
+        .mockResolvedValueOnce({ rows: [{ locked: true }] })
+        .mockRejectedValueOnce(unlockError);
+
+      await notificationService.processNewNotifications();
+
+      expect(client.release).toHaveBeenCalledWith(unlockError);
+    });
+
+    it('should not claim rows while email is disabled', async () => {
+      config.app.emailEnabled = false;
+
+      await notificationService.processNewNotifications();
+
+      expect(reloadSettings).toHaveBeenCalled();
+      expect(pool.query).not.toHaveBeenCalledWith(
+        CLAIM_SQL,
+        expect.anything(),
+      );
+      expect(emailService.sendEmailWithRetry).not.toHaveBeenCalled();
+      expect(client.release).toHaveBeenCalled();
     });
 
     it('should rebuild the transport when SMTP settings changed', async () => {
@@ -143,7 +222,7 @@ describe('NotificationService', () => {
           taskUrl: 'https://app.example.com/tasks/1',
           title: 'Task Due Soon',
           message: 'Your task is due soon',
-          typeName: 'Task due soon',
+          typeName: 'Task Due Soon',
         },
       );
     });
@@ -159,7 +238,7 @@ describe('NotificationService', () => {
       expect(metrics.setProcessingTime).toHaveBeenCalled();
     });
 
-    it('should mark the sent notifications in a single statement', async () => {
+    it('should mark a sent notification emailed', async () => {
       (pool.query as jest.Mock)
         .mockResolvedValueOnce({ rows: mockNotifications })
         .mockResolvedValueOnce({ rows: [] });
@@ -168,8 +247,30 @@ describe('NotificationService', () => {
 
       expect(pool.query).toHaveBeenLastCalledWith(
         expect.stringContaining('SET emailed_on = NOW()'),
-        [['1']],
+        ['1'],
       );
+    });
+
+    it('should keep going when marking one notification fails', async () => {
+      const rows = [
+        { ...mockNotifications[0], id: '1' },
+        { ...mockNotifications[0], id: '2' },
+      ];
+      (pool.query as jest.Mock)
+        .mockResolvedValueOnce({ rows })
+        .mockRejectedValueOnce(new Error('DB error'))
+        .mockResolvedValueOnce({ rows: [] });
+
+      await notificationService.processNewNotifications();
+
+      expect(pool.query).toHaveBeenCalledWith(
+        expect.stringContaining('SET emailed_on'),
+        ['2'],
+      );
+      expect(metrics.increment).toHaveBeenCalledWith('notificationErrors');
+      expect(metrics.increment).toHaveBeenCalledWith('notificationsSent');
+      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(metrics.setProcessingTime).toHaveBeenCalled();
     });
 
     it('should not count a failed send as sent', async () => {
@@ -185,6 +286,7 @@ describe('NotificationService', () => {
       expect(metrics.increment).toHaveBeenCalledWith('emailErrors');
       expect(metrics.increment).not.toHaveBeenCalledWith('notificationsSent');
       expect(pool.query).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledTimes(1);
     });
 
     it('should dead-letter a notification on its final attempt', async () => {
@@ -225,6 +327,17 @@ describe('NotificationService', () => {
       await notificationService.processNewNotifications();
 
       expect(metrics.increment).toHaveBeenCalledWith('notificationErrors');
+      expect(client.release).toHaveBeenCalled();
+    });
+
+    it('should handle a failure to get a connection', async () => {
+      (pool.connect as jest.Mock).mockRejectedValueOnce(
+        new Error('pool exhausted'),
+      );
+
+      await notificationService.processNewNotifications();
+
+      expect(metrics.increment).toHaveBeenCalledWith('notificationErrors');
     });
 
     it('should process multiple notifications', async () => {
@@ -245,23 +358,16 @@ describe('NotificationService', () => {
       await notificationService.processNewNotifications();
 
       expect(emailService.sendEmailWithRetry).toHaveBeenCalledTimes(2);
-      expect(pool.query).toHaveBeenLastCalledWith(expect.any(String), [
-        ['1', '2'],
-      ]);
+      expect(pool.query).toHaveBeenCalledWith(expect.any(String), ['1']);
+      expect(pool.query).toHaveBeenCalledWith(expect.any(String), ['2']);
     });
   });
 
   describe('markEmailed', () => {
-    it('should not query when there is nothing to mark', async () => {
-      await notificationService.markEmailed([]);
-
-      expect(pool.query).not.toHaveBeenCalled();
-    });
-
     it('should count a failed update as a notification error', async () => {
       (pool.query as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      await notificationService.markEmailed(['1']);
+      await notificationService.markEmailed('1');
 
       expect(metrics.increment).toHaveBeenCalledWith('notificationErrors');
     });
@@ -272,7 +378,7 @@ describe('NotificationService', () => {
       id: '1',
       user_id: '100',
       type_id: 2,
-      type_name: 'Task assigned',
+      type_name: 'Task Assigned',
       title: 'Task Assigned',
       message: 'A task was assigned to you',
       link: '/tasks/5',
@@ -297,7 +403,7 @@ describe('NotificationService', () => {
           taskUrl: 'https://app.example.com/tasks/5',
           title: 'Task Assigned',
           message: 'A task was assigned to you',
-          typeName: 'Task assigned',
+          typeName: 'Task Assigned',
         },
       );
     });

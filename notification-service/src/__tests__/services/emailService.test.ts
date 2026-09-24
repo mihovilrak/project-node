@@ -224,5 +224,35 @@ describe('EmailService', () => {
         { userName: 'Test User' },
       );
     });
+
+    it('should warn per retry and rethrow the last error without logging it', async () => {
+      jest.resetModules();
+
+      const { emailService } = await import('../../services/emailService');
+      const { logger } = await import('../../utils/logger');
+      const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+      const errorSpy = jest.spyOn(logger, 'error').mockImplementation(() => {});
+      jest
+        .spyOn(emailService, 'sendEmail')
+        .mockRejectedValue(new Error('SMTP down'));
+      jest.spyOn(global, 'setTimeout').mockImplementation(((fn: () => void) => {
+        fn();
+        return 0;
+      }) as unknown as typeof setTimeout);
+
+      await expect(
+        emailService.sendEmailWithRetry(
+          'recipient@test.com',
+          'Test Subject',
+          'default',
+          {},
+          2,
+        ),
+      ).rejects.toThrow('SMTP down');
+
+      expect(emailService.sendEmail).toHaveBeenCalledTimes(2);
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
   });
 });

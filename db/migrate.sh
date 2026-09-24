@@ -67,11 +67,14 @@ if [ -n "${APP_DB_USER:-}" ]; then
     echo "APP_DB_USER must differ from POSTGRES_USER" >&2
     exit 1
   fi
+  file_env APP_DB_PASSWORD
   if [ -z "${APP_DB_PASSWORD:-}" ]; then
-    echo "APP_DB_PASSWORD is required when APP_DB_USER is set" >&2
+    echo "APP_DB_PASSWORD or APP_DB_PASSWORD_FILE is required when APP_DB_USER is set" >&2
     exit 1
   fi
-  run_psql -1 -f "$DB_DIR/app-role.sql"
+  # app-role.sql reads the password with \getenv.
+  APP_DB_PASSWORD="$APP_DB_PASSWORD" \
+    psql -X -q --no-password -v ON_ERROR_STOP=1 -1 -f "$DB_DIR/app-role.sql"
   echo "Application role ready: $APP_DB_USER"
 fi
 
