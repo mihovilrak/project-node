@@ -176,7 +176,7 @@ describe('get_spent_time', () => {
 
 describe('permission functions', () => {
   const isAdmin = async (client: PoolClient, userId: number) =>
-    (await client.query('select is_admin($1) as ok', [userId])).rows[0].ok;
+    check(client, userId, 'Admin');
 
   const check = async (client: PoolClient, userId: number, name: string) =>
     (await client.query('select permission_check($1, $2) as ok', [userId, name]))
@@ -243,6 +243,28 @@ describe('permission functions', () => {
       expect(await isAdmin(client, -1)).toBe(false);
       expect(await check(client, -1, 'Create tasks')).toBe(false);
       expect(await permissionsOf(client, -1)).toEqual([]);
+    });
+  });
+
+  it('gives an inactive user nothing', async () => {
+    await inRollback(appPool, async (client) => {
+      const admin = await insertUser(client, { role: 'Admin', status_id: 2 });
+
+      expect(await isAdmin(client, admin.id)).toBe(false);
+      expect(await check(client, admin.id, 'Create tasks')).toBe(false);
+      expect(await permissionsOf(client, admin.id)).toEqual([]);
+    });
+  });
+
+  it('ignores the grants of an inactive role', async () => {
+    await inRollback(appPool, async (client) => {
+      const dev = await insertUser(client);
+      await client.query(
+        `update roles set active = false where name = 'Developer'`,
+      );
+
+      expect(await check(client, dev.id, 'Log time')).toBe(false);
+      expect(await permissionsOf(client, dev.id)).toEqual([]);
     });
   });
 });
