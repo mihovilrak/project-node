@@ -1,6 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LookupsProvider } from './context/LookupsContext';
+import { NotificationsProvider } from './context/NotificationsContext';
 import Layout from './components/Layout/Layout';
 import PrivateRoute from './utils/PrivateRoute';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -45,16 +47,8 @@ import {
 } from './hooks/app/useAppRoutes';
 
 const TaskFileWrapper: React.FC = () => {
-  const { taskId, handleFileUploaded, handleFileDeleted } =
-    useTaskFileWrapper();
-
-  return (
-    <TaskFiles
-      taskId={taskId}
-      onFileUploaded={handleFileUploaded}
-      onFileDeleted={handleFileDeleted}
-    />
-  );
+  const { taskId } = useTaskFileWrapper();
+  return <TaskFiles taskId={taskId} />;
 };
 
 const TimeLogCalendarWrapper: React.FC = () => {
@@ -82,150 +76,166 @@ const App: React.FC = () => {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <AuthProvider>
-          <ErrorBoundary>
-            <Suspense
-              fallback={
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '200px',
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              }
-            >
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/"
-                  element={
-                    <Layout>
-                      <Outlet />
-                    </Layout>
+          <LookupsProvider>
+            <NotificationsProvider>
+              <ErrorBoundary>
+                <Suspense
+                  fallback={
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '200px',
+                      }}
+                    >
+                      <CircularProgress />
+                    </Box>
                   }
                 >
-                  <Route index element={<PrivateRoute element={<Home />} />} />
-                  <Route
-                    path="/users"
-                    element={
-                      <PrivateRoute
-                        element={<Users />}
-                        requiredPermission="Admin"
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route
+                      path="/"
+                      element={
+                        <Layout>
+                          <Outlet />
+                        </Layout>
+                      }
+                    >
+                      <Route
+                        index
+                        element={<PrivateRoute element={<Home />} />}
                       />
-                    }
-                  />
-                  <Route
-                    path="/users/new"
-                    element={
-                      <PrivateRoute
-                        element={<UserForm />}
-                        requiredPermission="Admin"
+                      <Route
+                        path="/users"
+                        element={
+                          <PrivateRoute
+                            element={<Users />}
+                            requiredPermission="Admin"
+                          />
+                        }
                       />
-                    }
-                  />
-                  <Route
-                    path="/users/:id"
-                    element={<PrivateRoute element={<UserDetails />} />}
-                  />
-                  <Route
-                    path="/users/:id/edit"
-                    element={
-                      <PrivateRoute
-                        element={<UserForm />}
-                        requiredPermission="Admin"
+                      <Route
+                        path="/users/new"
+                        element={
+                          <PrivateRoute
+                            element={<UserForm />}
+                            requiredPermission="Admin"
+                          />
+                        }
                       />
-                    }
-                  />
-                  <Route
-                    path="/projects"
-                    element={<PrivateRoute element={<Projects />} />}
-                  />
-                  <Route
-                    path="/projects/new"
-                    element={
-                      <PrivateRoute
-                        element={<ProjectForm />}
-                        requiredPermission="Create projects"
+                      <Route
+                        path="/users/:id"
+                        element={
+                          <PrivateRoute
+                            element={<UserDetails />}
+                            requiredPermission="Admin"
+                          />
+                        }
                       />
-                    }
-                  />
-                  <Route
-                    path="/projects/:id"
-                    element={<PrivateRoute element={<ProjectDetails />} />}
-                  />
-                  <Route
-                    path="/tasks"
-                    element={<PrivateRoute element={<Tasks />} />}
-                  />
-                  <Route
-                    path="/tasks/new"
-                    element={
-                      <PrivateRoute
-                        element={<TaskForm />}
-                        requiredPermission="Create tasks"
+                      <Route
+                        path="/users/:id/edit"
+                        element={
+                          <PrivateRoute
+                            element={<UserForm />}
+                            requiredPermission="Admin"
+                          />
+                        }
                       />
-                    }
-                  />
-                  <Route
-                    path="/tasks/:id"
-                    element={<PrivateRoute element={<TaskDetails />} />}
-                  />
-                  <Route
-                    path="/tasks/:id/edit"
-                    element={
-                      <PrivateRoute
-                        element={<TaskForm />}
-                        requiredPermission="Edit tasks"
+                      <Route
+                        path="/projects"
+                        element={<PrivateRoute element={<Projects />} />}
                       />
-                    }
-                  />
-                  <Route
-                    path="/tasks/active"
-                    element={<PrivateRoute element={<ActiveTasks />} />}
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <PrivateRoute
-                        element={<Settings />}
-                        requiredPermission="Admin"
+                      <Route
+                        path="/projects/new"
+                        element={
+                          <PrivateRoute
+                            element={<ProjectForm />}
+                            requiredPermission="Create projects"
+                          />
+                        }
                       />
-                    }
-                  />
-                  <Route
-                    path="/notifications"
-                    element={<PrivateRoute element={<NotificationsPage />} />}
-                  />
-                  <Route
-                    path="/profile"
-                    element={<PrivateRoute element={<Profile />} />}
-                  />
-                  <Route
-                    path="/calendar"
-                    element={<PrivateRoute element={<Calendar />} />}
-                  />
-                  <Route
-                    path="/tasks/:id/files"
-                    element={<PrivateRoute element={<TaskFileWrapper />} />}
-                  />
-                  <Route
-                    path="/tasks/:id/time-logs"
-                    element={<PrivateRoute element={<TaskTimeLogsWrapper />} />}
-                  />
-                  <Route
-                    path="/projects/:projectId/time-logs/calendar"
-                    element={
-                      <PrivateRoute element={<TimeLogCalendarWrapper />} />
-                    }
-                  />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
+                      <Route
+                        path="/projects/:id"
+                        element={<PrivateRoute element={<ProjectDetails />} />}
+                      />
+                      <Route
+                        path="/tasks"
+                        element={<PrivateRoute element={<Tasks />} />}
+                      />
+                      <Route
+                        path="/tasks/new"
+                        element={
+                          <PrivateRoute
+                            element={<TaskForm />}
+                            requiredPermission="Create tasks"
+                          />
+                        }
+                      />
+                      <Route
+                        path="/tasks/:id"
+                        element={<PrivateRoute element={<TaskDetails />} />}
+                      />
+                      <Route
+                        path="/tasks/:id/edit"
+                        element={
+                          <PrivateRoute
+                            element={<TaskForm />}
+                            requiredPermission="Edit tasks"
+                          />
+                        }
+                      />
+                      <Route
+                        path="/tasks/active"
+                        element={<PrivateRoute element={<ActiveTasks />} />}
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <PrivateRoute
+                            element={<Settings />}
+                            requiredPermission="Admin"
+                          />
+                        }
+                      />
+                      <Route
+                        path="/notifications"
+                        element={
+                          <PrivateRoute element={<NotificationsPage />} />
+                        }
+                      />
+                      <Route
+                        path="/profile"
+                        element={<PrivateRoute element={<Profile />} />}
+                      />
+                      <Route
+                        path="/calendar"
+                        element={<PrivateRoute element={<Calendar />} />}
+                      />
+                      <Route
+                        path="/tasks/:id/files"
+                        element={<PrivateRoute element={<TaskFileWrapper />} />}
+                      />
+                      <Route
+                        path="/tasks/:id/time-logs"
+                        element={
+                          <PrivateRoute element={<TaskTimeLogsWrapper />} />
+                        }
+                      />
+                      <Route
+                        path="/projects/:projectId/time-logs/calendar"
+                        element={
+                          <PrivateRoute element={<TimeLogCalendarWrapper />} />
+                        }
+                      />
+                      <Route path="*" element={<NotFound />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+              </ErrorBoundary>
+            </NotificationsProvider>
+          </LookupsProvider>
         </AuthProvider>
       </LocalizationProvider>
     </ThemeProvider>

@@ -53,7 +53,6 @@ const NotificationsPage: React.FC = () => {
     handleNotificationClick,
     handleDeleteNotification,
     handleMarkAllAsRead,
-    fetchNotifications,
   } = useNotificationCenter(userId, 60000);
 
   const filteredNotifications = useMemo(() => {
@@ -71,7 +70,6 @@ const NotificationsPage: React.FC = () => {
     setMarkingAll(true);
     try {
       await handleMarkAllAsRead();
-      await fetchNotifications();
     } finally {
       setMarkingAll(false);
     }
