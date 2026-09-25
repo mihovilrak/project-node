@@ -63,6 +63,7 @@ export const getFileById = async (
  * @param fileId The ID of the file to delete.
  * @param ownerId Optional user ID to restrict deletion to files owned by this
  *   user. If omitted, any file with the given ID is deleted.
+ * @param taskId Optional task ID the file must belong to.
  * @returns The deleted file record, or null if the file was not found or
  *   ownership validation failed.
  */
@@ -70,19 +71,23 @@ export const deleteFile = async (
   pool: Pool,
   fileId: string,
   ownerId?: string,
+  taskId?: string,
 ): Promise<File | null> => {
-  const result = ownerId
-    ? await pool.query(
-        `DELETE FROM files
-        WHERE id = $1 AND user_id = $2
-        RETURNING *`,
-        [fileId, ownerId],
-      )
-    : await pool.query(
-        `DELETE FROM files
-        WHERE id = $1
-        RETURNING *`,
-        [fileId],
-      );
+  const values = [fileId];
+  const conditions = ['id = $1'];
+  if (ownerId) {
+    values.push(ownerId);
+    conditions.push(`user_id = $${values.length}`);
+  }
+  if (taskId) {
+    values.push(taskId);
+    conditions.push(`task_id = $${values.length}`);
+  }
+  const result = await pool.query(
+    `DELETE FROM files
+    WHERE ${conditions.join(' AND ')}
+    RETURNING *`,
+    values,
+  );
   return result.rows[0] || null;
 };
