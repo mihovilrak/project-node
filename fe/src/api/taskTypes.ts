@@ -2,18 +2,22 @@ import { api } from './api';
 import { TaskType } from '../types/task';
 
 /**
- * Fetch all task types from the server.
+ * Fetch task types from the server.
  *
- * Performs an HTTP GET to '/admin/task-types' and returns the response data as
- * an array of TaskType; accepts an optional AbortSignal to cancel the network
- * request.
+ * Performs an HTTP GET to '/admin/task-types'. Only active types are returned
+ * unless `includeInactive` is set (honoured for admins only).
  *
  * @param signal Optional AbortSignal used to cancel the HTTP request.
+ * @param includeInactive Also return deactivated task types.
  */
 export const getTaskTypes = async (
   signal?: AbortSignal,
+  includeInactive = false,
 ): Promise<TaskType[]> => {
-  const response = await api.get<TaskType[]>('/admin/task-types', { signal });
+  const response = await api.get<TaskType[]>('/admin/task-types', {
+    ...(includeInactive ? { params: { include_inactive: true } } : {}),
+    signal,
+  });
   return response.data;
 };
 

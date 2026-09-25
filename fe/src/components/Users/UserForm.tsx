@@ -115,21 +115,27 @@ const UserForm: React.FC = () => {
                     placeholder="Leave blank to keep current password"
                     error={!!fieldErrors.password}
                     helperText={fieldErrors.password}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                            data-testid="toggle-password-visibility"
-                            aria-label={
-                              showPassword ? 'Hide password' : 'Show password'
-                            }
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              data-testid="toggle-password-visibility"
+                              aria-label={
+                                showPassword ? 'Hide password' : 'Show password'
+                              }
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -146,7 +152,87 @@ const UserForm: React.FC = () => {
                       placeholder="Confirm new password"
                       error={!!fieldErrors.confirmPassword}
                       helperText={fieldErrors.confirmPassword}
-                      InputProps={{
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
+                                edge="end"
+                                aria-label={
+                                  showConfirmPassword
+                                    ? 'Hide confirmed password'
+                                    : 'Show confirmed password'
+                                }
+                              >
+                                {showConfirmPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                  </Grid>
+                )}
+              </>
+            ) : (
+              <>
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formValues.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter password"
+                    error={!!fieldErrors.password}
+                    helperText={fieldErrors.password}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              data-testid="toggle-password-visibility"
+                              aria-label={
+                                showPassword ? 'Hide password' : 'Show password'
+                              }
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={formValues.confirmPassword || ''}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Confirm password"
+                    error={!!fieldErrors.confirmPassword}
+                    helperText={fieldErrors.confirmPassword}
+                    slotProps={{
+                      input: {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
@@ -168,77 +254,7 @@ const UserForm: React.FC = () => {
                             </IconButton>
                           </InputAdornment>
                         ),
-                      }}
-                    />
-                  </Grid>
-                )}
-              </>
-            ) : (
-              <>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formValues.password}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter password"
-                    error={!!fieldErrors.password}
-                    helperText={fieldErrors.password}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                            data-testid="toggle-password-visibility"
-                            aria-label={
-                              showPassword ? 'Hide password' : 'Show password'
-                            }
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formValues.confirmPassword || ''}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Confirm password"
-                    error={!!fieldErrors.confirmPassword}
-                    helperText={fieldErrors.confirmPassword}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() =>
-                              setShowConfirmPassword(!showConfirmPassword)
-                            }
-                            edge="end"
-                            aria-label={
-                              showConfirmPassword
-                                ? 'Hide confirmed password'
-                                : 'Show confirmed password'
-                            }
-                          >
-                            {showConfirmPassword ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
+                      },
                     }}
                   />
                 </Grid>
@@ -255,6 +271,8 @@ const UserForm: React.FC = () => {
                 onChange={handleInputChange}
                 required
                 disabled={loading}
+                error={!!fieldErrors.role_id}
+                helperText={fieldErrors.role_id}
               >
                 {!roles || roles.length === 0 ? (
                   <MenuItem value="" disabled>

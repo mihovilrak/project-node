@@ -69,8 +69,10 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: { minHeight: '50vh' },
+      slotProps={{
+        paper: {
+          sx: { minHeight: '50vh' },
+        },
       }}
       aria-labelledby="watcher-dialog-title"
     >

@@ -8,12 +8,13 @@ import {
 } from '@testing-library/react';
 import UserTable from '../UserTable';
 import { User } from '../../../types/user';
-import { deleteUser } from '../../../api/users';
+import { changeUserStatus, deleteUser } from '../../../api/users';
 import logger from '../../../utils/logger';
 
 // Mock the deleteUser API call
 jest.mock('../../../api/users', () => ({
   deleteUser: jest.fn(),
+  changeUserStatus: jest.fn(),
 }));
 
 // Mock activityTypes API to prevent getAvailableIcons errors
@@ -357,4 +358,80 @@ describe('UserTable', () => {
       { timeout: 10000 },
     );
   }, 15000);
+
+  describe('status actions', () => {
+    const inactiveUser: User = {
+      ...mockUsers[1],
+      id: 3,
+      login: 'old',
+      name: 'Old',
+      surname: 'Timer',
+      status_id: 2,
+      status_name: 'Inactive',
+    };
+    const onUserUpdated = jest.fn();
+    const renderWithStatus = () =>
+      render(
+        <UserTable
+          users={[...mockUsers, inactiveUser]}
+          onEditUser={mockOnEditUser}
+          onUserDeleted={mockOnUserDeleted}
+          onUserUpdated={onUserUpdated}
+          currentUserId={1}
+        />,
+      );
+
+    test("hides status and delete actions on the current user's row", () => {
+      renderWithStatus();
+      expect(screen.queryByTestId('status-user-1')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('delete-user-1')).not.toBeInTheDocument();
+      expect(screen.getByTestId('edit-user-1')).toBeInTheDocument();
+    });
+
+    test('shows the status of each user', () => {
+      renderWithStatus();
+      expect(screen.getByText('Inactive')).toBeInTheDocument();
+    });
+
+    test('deactivates a user after confirmation', async () => {
+      (changeUserStatus as jest.Mock).mockResolvedValueOnce({});
+      renderWithStatus();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Deactivate Jane Smith' }),
+      );
+      expect(changeUserStatus).not.toHaveBeenCalled();
+      expect(screen.getByText('Deactivate user')).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Deactivate' }));
+
+      await waitFor(() => expect(changeUserStatus).toHaveBeenCalledWith(2, 2));
+      expect(onUserUpdated).toHaveBeenCalled();
+    });
+
+    test('activates an inactive user without confirmation', async () => {
+      (changeUserStatus as jest.Mock).mockResolvedValueOnce({});
+      renderWithStatus();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Activate Old Timer' }),
+      );
+
+      await waitFor(() => expect(changeUserStatus).toHaveBeenCalledWith(3, 1));
+      expect(onUserUpdated).toHaveBeenCalled();
+    });
+
+    test('shows status change errors', async () => {
+      (changeUserStatus as jest.Mock).mockRejectedValueOnce({
+        response: { data: { error: 'User not found' } },
+      });
+      renderWithStatus();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Activate Old Timer' }),
+      );
+
+      expect(await screen.findByText('User not found')).toBeInTheDocument();
+      expect(onUserUpdated).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -36,10 +36,7 @@ export interface CommentEditDialogProps {
 export interface TaskCommentSectionProps {
   taskId: number;
   comments: Comment[];
-  editingComment: Comment | null;
   onCommentSubmit: (text: string) => Promise<void>;
   onCommentUpdate: (commentId: number, text: string) => Promise<void>;
   onCommentDelete: (commentId: number) => Promise<void>;
-  onEditStart: (comment: Comment) => void;
-  onEditEnd: () => void;
 }

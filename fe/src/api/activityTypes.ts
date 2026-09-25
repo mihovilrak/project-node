@@ -2,18 +2,20 @@ import { api } from './api';
 import { ActivityType } from '../types/setting';
 
 /**
- * Fetch the list of activity types from the admin API.
+ * Fetch activity types from the admin API.
  *
- * Performs a GET request to /admin/activity-types and returns the array of
- * ActivityType objects from the response. If an AbortSignal is provided the
- * underlying HTTP request will be cancelled when the signal is aborted.
+ * Performs a GET request to /admin/activity-types. Only active types are
+ * returned unless `includeInactive` is set (honoured for admins only).
  *
  * @param signal Optional AbortSignal used to cancel the HTTP request.
+ * @param includeInactive Also return deactivated activity types.
  */
 export const getActivityTypes = async (
   signal?: AbortSignal,
+  includeInactive = false,
 ): Promise<ActivityType[]> => {
   const response = await api.get<ActivityType[]>('/admin/activity-types', {
+    ...(includeInactive ? { params: { include_inactive: true } } : {}),
     signal,
   });
   return response.data;

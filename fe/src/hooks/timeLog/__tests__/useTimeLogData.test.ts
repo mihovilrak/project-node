@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useTimeLogData } from '../useTimeLogData';
-import { getProjects } from '../../../api/projects';
+import { getProjectMembers, getProjects } from '../../../api/projects';
 import { getProjectTasks } from '../../../api/tasks';
 import { getUserOptions } from '../../../api/users';
 import { getActivityTypes } from '../../../api/activityTypes';
@@ -209,6 +209,29 @@ describe('useTimeLogData', () => {
 
     expect(getUserOptions).toHaveBeenCalled();
     expect(result.current.users).toEqual(mockUsers);
+  });
+
+  it('limits admin user options to project members', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValue([
+      {
+        project_id: 1,
+        user_id: 5,
+        name: 'Mia',
+        surname: 'Member',
+        role: 'Developer',
+        created_on: '2025-01-01',
+      },
+    ]);
+    const { result } = renderHook(() =>
+      useTimeLogData({ open: true, projectId: 1, hasAdminPermission: true }),
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(getProjectMembers).toHaveBeenCalledWith(1, expect.any(AbortSignal));
+    expect(getUserOptions).not.toHaveBeenCalled();
+    expect(result.current.users).toEqual([
+      { id: 5, login: '', name: 'Mia', surname: 'Member' },
+    ]);
   });
 
   it('loads tasks when the project changes', async () => {

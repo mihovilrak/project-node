@@ -6,7 +6,9 @@ import {
   removeTaskWatcher,
 } from '../../api/watchers';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 
 const EMPTY_WATCHERS: TaskWatcher[] = [];
 
@@ -39,7 +41,11 @@ export const useTaskWatchers = (taskId: string) => {
       await fetchWatchers();
     } catch (error: unknown) {
       logger.error('Failed to add watcher:', error);
-      throw new Error(getApiErrorMessage(error, 'Failed to add watcher'));
+      throw new Error(
+        getApiErrorStatus(error) === 409
+          ? 'This user is already watching the task'
+          : getApiErrorMessage(error, 'Failed to add watcher'),
+      );
     }
   };
 

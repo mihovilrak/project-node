@@ -1,5 +1,7 @@
 export const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
 
+export const FILE_TOO_LARGE_MESSAGE = 'File too large (max 10 MB)';
+
 export const ALLOWED_UPLOAD_TYPES: Readonly<Record<string, readonly string[]>> =
   {
     '.png': ['image/png'],
@@ -41,7 +43,7 @@ export const UPLOAD_ACCEPT = Object.keys(ALLOWED_UPLOAD_TYPES).join(',');
  */
 export const validateUploadFile = (file: File): string | null => {
   if (file.size > MAX_UPLOAD_SIZE_BYTES) {
-    return 'File size must not exceed 10 MB';
+    return FILE_TOO_LARGE_MESSAGE;
   }
 
   const extensionIndex = file.name.lastIndexOf('.');

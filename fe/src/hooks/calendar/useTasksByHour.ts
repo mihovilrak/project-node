@@ -1,38 +1,60 @@
 import { Task } from '../../types/task';
 import { toLocalDate } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
+import {
+  getTasksForDay,
+  getTimeLogsForDay,
+  hasTimeOfDay,
+  isSameLocalDay,
+  sumHours,
+} from '../../utils/calendarUtils';
 
 /**
- * Organize tasks and time logs by hour of the day for calendar display.
+ * Split a day's tasks into hourly slots and an all-day list.
  *
- * @param tasks Array of task records to filter by start date hour.
- * @param timeLogs Array of time log records to filter by creation hour.
+ * Task dates without a time of day (the usual case, since they are `date`
+ * columns) go to `allDayTasks` instead of the 00:00 slot. Time logs only carry
+ * a date, so they are returned per day rather than per hour.
+ *
+ * @param tasks Tasks to place.
+ * @param timeLogs Time logs to place by `log_date`.
+ * @param date Day to show; when omitted nothing is filtered by day.
  */
-export const useTasksByHour = (tasks: Task[], timeLogs: TimeLog[]) => {
+export const useTasksByHour = (
+  tasks: Task[],
+  timeLogs: TimeLog[],
+  date?: Date,
+) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Ensure tasks and timeLogs are always arrays
   const safeTasks = Array.isArray(tasks) ? tasks : [];
   const safeTimeLogs = Array.isArray(timeLogs) ? timeLogs : [];
 
-  const getTasksForHour = (hour: number): Task[] => {
-    return safeTasks.filter((task) => {
-      const taskDate = toLocalDate(task.start_date);
-      if (!taskDate) return false;
-      return taskDate.getHours() === hour;
-    });
-  };
+  const dayTasks = date ? getTasksForDay(safeTasks, date) : safeTasks;
+  const dayTimeLogs = date
+    ? getTimeLogsForDay(safeTimeLogs, date)
+    : safeTimeLogs;
 
-  const getTimeLogsForHour = (hour: number): TimeLog[] => {
-    return safeTimeLogs.filter((timeLog) => {
-      const logDate = new Date(timeLog.created_on);
-      return logDate.getHours() === hour;
+  // A timed task only gets an hour slot on the day it starts; on its due/end
+  // day it is listed with the all-day tasks.
+  const isTimed = (task: Task) =>
+    hasTimeOfDay(task.start_date) &&
+    (!date || isSameLocalDay(task.start_date, date));
+
+  const allDayTasks = dayTasks.filter((task) => !isTimed(task));
+
+  const getTasksForHour = (hour: number): Task[] =>
+    dayTasks.filter((task) => {
+      if (!isTimed(task)) return false;
+      const start = toLocalDate(task.start_date);
+      return start !== null && start.getHours() === hour;
     });
-  };
 
   return {
     hours,
+    allDayTasks,
+    dayTimeLogs,
+    totalHours: sumHours(dayTimeLogs),
     getTasksForHour,
-    getTimeLogsForHour,
   };
 };

@@ -47,9 +47,9 @@ const Login: React.FC = () => {
               value={loginDetails?.login || ''}
               onChange={handleInputChange}
               autoComplete="username"
-              inputProps={{ 'data-testid': 'login-input' }}
-              InputLabelProps={{
-                sx: { bgcolor: 'background.paper', px: 1 },
+              slotProps={{
+                htmlInput: { 'data-testid': 'login-input' },
+                inputLabel: { sx: { bgcolor: 'background.paper', px: 1 } },
               }}
             />
           </Box>
@@ -63,23 +63,23 @@ const Login: React.FC = () => {
               value={loginDetails?.password || ''}
               onChange={handleInputChange}
               autoComplete="current-password"
-              inputProps={{ 'data-testid': 'password-input' }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                      data-testid="toggle-password-visibility"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              InputLabelProps={{
-                sx: { bgcolor: 'background.paper', px: 1 },
+              slotProps={{
+                htmlInput: { 'data-testid': 'password-input' },
+                inputLabel: { sx: { bgcolor: 'background.paper', px: 1 } },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                        data-testid="toggle-password-visibility"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Box>

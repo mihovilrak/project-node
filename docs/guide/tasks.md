@@ -68,7 +68,7 @@ Requires **Create tasks**.
 ## Files
 
 1. Open the task and select **Upload File**.
-2. Pick a file up to 10 MB.
+2. Pick a file up to 10 MB. A larger file is not uploaded and the page shows "File too large (max 10 MB)".
 
 Allowed types: images (png, jpg, jpeg, gif, webp, bmp), pdf, txt, csv, md, json, Office documents (doc, docx, xls, xlsx, ppt, pptx, odt, ods) and zip. Deleting a file requires **Delete files**.
 

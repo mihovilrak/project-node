@@ -133,6 +133,21 @@ export const deleteUser = async (id: number): Promise<void> => {
 };
 
 /**
+ * Set a user's status (admin only). Deactivating ends the user's sessions;
+ * admins cannot change their own status.
+ *
+ * @param id Numeric ID of the user.
+ * @param status Target status ID (see UserStatusId).
+ */
+export const changeUserStatus = async (
+  id: number,
+  status: number,
+): Promise<User> => {
+  const response = await api.patch<User>(`/users/${id}/status`, { status });
+  return response.data;
+};
+
+/**
  * Fetch the active users as lightweight picker options. Available to any
  * authenticated user (unlike getUsers, which is admin-only).
  *

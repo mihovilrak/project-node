@@ -18,6 +18,7 @@ export interface DeleteConfirmDialogProps {
   open: boolean;
   title?: string;
   content?: string;
+  confirmLabel?: string;
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;
@@ -40,6 +41,11 @@ export interface AsyncResourceOptions<T> {
    */
   enabled?: boolean;
   errorMessage?: string;
+  /**
+   * Refetch on this interval while enabled and the tab is visible; 0 or
+   * undefined disables polling.
+   */
+  pollIntervalMs?: number;
 }
 
 export interface AsyncResource<T> {

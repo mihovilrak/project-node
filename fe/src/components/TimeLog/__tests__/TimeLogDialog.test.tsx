@@ -117,6 +117,28 @@ describe('TimeLogDialog', () => {
     expect(screen.getByRole('combobox', { name: /User/i })).toBeInTheDocument();
   });
 
+  it('hides the user select for project managers', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      currentUser: mockUser,
+      hasPermission: (permission: string) => permission === 'Project Manager',
+    });
+    render(<TimeLogDialog {...defaultProps} />, { wrapper });
+    expect(
+      screen.queryByRole('combobox', { name: /User/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows API errors from saving', () => {
+    (useTimeLogDialog as jest.Mock).mockReturnValue({
+      ...mockTimeLogData,
+      submitError: 'User is not a project member',
+    });
+    render(<TimeLogDialog {...defaultProps} />, { wrapper });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'User is not a project member',
+    );
+  });
+
   it('calls onClose when Cancel button is clicked', () => {
     render(<TimeLogDialog {...defaultProps} />, { wrapper });
     fireEvent.click(screen.getByText('Cancel'));

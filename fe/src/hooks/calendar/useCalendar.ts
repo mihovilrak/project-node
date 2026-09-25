@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Task } from '../../types/task';
 import { getTasksByDateRange } from '../../api/tasks';
+import { getMyTimeLogs } from '../../api/timeLogs';
+import { toDateOnlyString } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarView } from '../../types/calendar';
 import { useNavigate } from 'react-router-dom';
@@ -28,8 +30,8 @@ const getRange = (selectedDate: Date, view: CalendarView) => {
 };
 
 /**
- * Manage calendar view state, selected date, and fetch tasks for the visible
- * date range.
+ * Manage calendar view state, selected date, and fetch tasks and the user's own
+ * time logs for the visible date range.
  */
 export const useCalendar = () => {
   const [view, setView] = useState<CalendarView>('month');
@@ -54,6 +56,22 @@ export const useCalendar = () => {
     },
   );
 
+  const { data: timeLogs, error: timeLogsError } = useAsyncResource<TimeLog[]>(
+    async (signal) =>
+      (await getMyTimeLogs(
+        {
+          startDate: toDateOnlyString(start),
+          endDate: toDateOnlyString(end),
+        },
+        signal,
+      )) || [],
+    [start, end],
+    {
+      initialData: EMPTY_TIME_LOGS,
+      errorMessage: 'Failed to load time logs',
+    },
+  );
+
   const handleDateChange = (newDate: Date): void => {
     setSelectedDate(newDate);
   };
@@ -66,17 +84,19 @@ export const useCalendar = () => {
     navigate(`/tasks/${taskId}`);
   };
 
+  // Time logs have no page of their own; open the task they belong to.
   const handleTimeLogClick = (timeLogId: number): void => {
-    navigate(`/time-logs/${timeLogId}`);
+    const log = timeLogs.find((entry) => entry.id === timeLogId);
+    if (log?.task_id) navigate(`/tasks/${log.task_id}`);
   };
 
   return {
     tasks,
     loading,
-    error,
+    error: error ?? timeLogsError,
     view,
     selectedDate,
-    timeLogs: EMPTY_TIME_LOGS,
+    timeLogs,
     handleDateChange,
     handleViewChange,
     handleTaskClick,

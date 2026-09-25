@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   getNotifications,
   markAsRead,
@@ -39,6 +39,7 @@ export const useNotificationsData = (
       initialData: EMPTY_NOTIFICATIONS,
       enabled: Boolean(userId),
       errorMessage: 'Failed to load notifications',
+      pollIntervalMs,
     },
   );
 
@@ -46,33 +47,6 @@ export const useNotificationsData = (
     () => notifications.filter((n) => !n?.is_read).length,
     [notifications],
   );
-
-  useEffect(() => {
-    if (!userId || pollIntervalMs <= 0) return;
-    let interval: ReturnType<typeof setInterval> | null = null;
-    const start = () => {
-      if (!interval) interval = setInterval(fetchNotifications, pollIntervalMs);
-    };
-    const stop = () => {
-      if (interval) clearInterval(interval);
-      interval = null;
-    };
-    const handleVisibility = () => {
-      if (document.hidden) {
-        stop();
-      } else {
-        fetchNotifications();
-        start();
-      }
-    };
-
-    if (!document.hidden) start();
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      stop();
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [userId, pollIntervalMs, fetchNotifications]);
 
   const markNotificationRead = useCallback(
     async (id: number) => {

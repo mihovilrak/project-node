@@ -27,6 +27,11 @@ jest.mock('../RolesTable', () => ({
   default: () => <div data-testid="roles-table">RolesTable</div>,
 }));
 
+jest.mock('../TagsTable', () => ({
+  __esModule: true,
+  default: () => <div data-testid="tags-table">TagsTable</div>,
+}));
+
 jest.mock('../TypesAndRolesDialog', () => ({
   __esModule: true,
   TypesAndRolesDialog: () => (
@@ -40,6 +45,8 @@ describe('TypesAndRolesManager', () => {
     taskTypes: [],
     activityTypes: [],
     roles: [],
+    tags: [],
+    showInactive: false,
     loading: false,
     error: null,
     dialogOpen: false,
@@ -53,7 +60,8 @@ describe('TypesAndRolesManager', () => {
     handleDialogClose: jest.fn(),
     handleSave: jest.fn(),
     handleDelete: jest.fn(),
-    handleRoleUpdate: jest.fn(),
+    handleReactivate: jest.fn(),
+    handleShowInactiveChange: jest.fn(),
   };
 
   beforeEach(() => {
@@ -81,6 +89,44 @@ describe('TypesAndRolesManager', () => {
     expect(screen.getByText('Task Types')).toBeInTheDocument();
     expect(screen.getByText('Activity Types')).toBeInTheDocument();
     expect(screen.getByText('Roles')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Tags' })).toBeInTheDocument();
+  });
+
+  it('renders TagsTable and the Add Tag button on the Tags tab', () => {
+    (useTypesAndRoles as jest.Mock).mockReturnValue({
+      state: { ...mockState, activeTab: 3 },
+      ...mockHandlers,
+    });
+
+    render(<TypesAndRolesManager />);
+    expect(screen.getByTestId('tags-table')).toBeInTheDocument();
+    expect(screen.getByText('Add Tag')).toBeInTheDocument();
+  });
+
+  it('toggles show inactive', () => {
+    render(<TypesAndRolesManager />);
+    fireEvent.click(screen.getByRole('switch', { name: 'Show inactive' }));
+    expect(mockHandlers.handleShowInactiveChange).toHaveBeenCalledWith(true);
+  });
+
+  it('hides the show inactive switch on the Roles tab and for non-admins', () => {
+    (useTypesAndRoles as jest.Mock).mockReturnValue({
+      state: { ...mockState, activeTab: 2 },
+      ...mockHandlers,
+    });
+    const { rerender } = render(<TypesAndRolesManager />);
+    expect(screen.queryByLabelText('Show inactive')).not.toBeInTheDocument();
+
+    (usePermission as jest.Mock).mockReturnValue({
+      hasPermission: false,
+      loading: false,
+    });
+    (useTypesAndRoles as jest.Mock).mockReturnValue({
+      state: mockState,
+      ...mockHandlers,
+    });
+    rerender(<TypesAndRolesManager />);
+    expect(screen.queryByLabelText('Show inactive')).not.toBeInTheDocument();
   });
 
   it('shows loading state', () => {

@@ -1,109 +1,58 @@
 import { Task } from '../../types/task';
-import { toLocalDate } from '../../utils/dateUtils';
 import { TimeLog } from '../../types/timeLog';
 import { CalendarDay } from '../../types/calendar';
+import {
+  getTasksForDay as tasksForDay,
+  getTimeLogsForDay as timeLogsForDay,
+  sumHours,
+} from '../../utils/calendarUtils';
 
 /**
- * Generate a calendar month view with days from adjacent months and associate
- * tasks and time logs to each day.
+ * Generate a 6-week month grid (Sunday first) including the adjacent months'
+ * days, with each day's tasks, time logs and total logged hours.
  *
- * @param date The month and year to generate the calendar for.
- * @param tasks Array of tasks to filter and associate with calendar days.
- * @param timeLogs Array of time logs to filter and associate with calendar
- *   days.
+ * @param date Any day in the month to display.
+ * @param tasks Tasks to place on their start, due and end dates.
+ * @param timeLogs Time logs to place on their `log_date`.
  */
 export const useCalendarDays = (
   date: Date,
   tasks: Task[],
   timeLogs: TimeLog[],
 ) => {
+  const getTasksForDay = (day: Date): Task[] => tasksForDay(tasks, day);
+
+  const getTimeLogsForDay = (day: Date): TimeLog[] =>
+    timeLogsForDay(timeLogs, day);
+
+  /**
+   * Sum of `spent_time` in hours (decimal).
+   */
+  const calculateTotalTime = (dayTimeLogs: TimeLog[]): number =>
+    sumHours(dayTimeLogs);
+
+  const buildDay = (day: Date, isCurrentMonth: boolean): CalendarDay => {
+    const dayLogs = getTimeLogsForDay(day);
+    return {
+      date: day,
+      isCurrentMonth,
+      isToday: day.toDateString() === new Date().toDateString(),
+      isWeekend: day.getDay() === 0 || day.getDay() === 6,
+      tasks: getTasksForDay(day),
+      timeLogs: dayLogs,
+      totalTime: calculateTotalTime(dayLogs),
+    };
+  };
+
   const getDaysInMonth = (): CalendarDay[] => {
     const year = date.getFullYear();
     const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days: CalendarDay[] = [];
+    const firstWeekday = new Date(year, month, 1).getDay();
 
-    // Add days from previous month
-    for (let i = 0; i < firstDay.getDay(); i++) {
-      const prevDate = new Date(year, month, -i);
-      days.unshift({
-        date: prevDate,
-        isCurrentMonth: false,
-        isToday: false,
-        isWeekend: prevDate.getDay() === 0 || prevDate.getDay() === 6,
-        tasks: getTasksForDay(prevDate),
-        timeLogs: getTimeLogsForDay(prevDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(prevDate)),
-      });
-    }
-
-    // Add days from current month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      const currentDate = new Date(year, month, i);
-      days.push({
-        date: currentDate,
-        isCurrentMonth: true,
-        isToday: currentDate.toDateString() === new Date().toDateString(),
-        isWeekend: currentDate.getDay() === 0 || currentDate.getDay() === 6,
-        tasks: getTasksForDay(currentDate),
-        timeLogs: getTimeLogsForDay(currentDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(currentDate)),
-      });
-    }
-
-    // Add days from next month
-    const remainingDays = 42 - days.length; // 6 rows * 7 days
-    for (let i = 1; i <= remainingDays; i++) {
-      const nextDate = new Date(year, month + 1, i);
-      days.push({
-        date: nextDate,
-        isCurrentMonth: false,
-        isToday: false,
-        isWeekend: nextDate.getDay() === 0 || nextDate.getDay() === 6,
-        tasks: getTasksForDay(nextDate),
-        timeLogs: getTimeLogsForDay(nextDate),
-        totalTime: calculateTotalTime(getTimeLogsForDay(nextDate)),
-      });
-    }
-
-    return days;
-  };
-
-  const getTasksForDay = (day: Date): Task[] => {
-    if (!tasks || !Array.isArray(tasks)) {
-      return [];
-    }
-    return tasks.filter((task) => {
-      const startDate = toLocalDate(task.start_date);
-      const endDate = toLocalDate(task.end_date);
-      const dueDate = toLocalDate(task.due_date);
-      return (
-        (startDate && startDate.toDateString() === day.toDateString()) ||
-        (endDate && endDate.toDateString() === day.toDateString()) ||
-        (dueDate && dueDate.toDateString() === day.toDateString())
-      );
+    return Array.from({ length: 42 }, (_, index) => {
+      const day = new Date(year, month, 1 - firstWeekday + index);
+      return buildDay(day, day.getMonth() === month);
     });
-  };
-
-  const getTimeLogsForDay = (day: Date): TimeLog[] => {
-    if (!timeLogs || !Array.isArray(timeLogs)) {
-      return [];
-    }
-    return timeLogs.filter((timeLog) => {
-      const logDate = new Date(timeLog.created_on);
-      return logDate.toDateString() === day.toDateString();
-    });
-  };
-
-  const calculateTotalTime = (dayTimeLogs: TimeLog[]): number => {
-    return dayTimeLogs.reduce((total, log) => {
-      const hours =
-        typeof log.spent_time === 'string'
-          ? parseFloat(log.spent_time)
-          : log.spent_time;
-      return total + (hours || 0);
-    }, 0);
   };
 
   return {

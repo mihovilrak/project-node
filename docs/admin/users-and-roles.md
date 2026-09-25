@@ -10,7 +10,7 @@ Everything on this page requires the **Admin** permission. The **Users** and **S
 
 1. Select **Users** in the app bar, then **Add New User**. You can also use **Create User** under **Settings** > **Users**.
 2. Enter **Login**, **First Name**, **Last Name** and **Email**.
-3. Pick a **Role**.
+3. Pick a **Role**. There is no default, so the form cannot be saved until you choose one.
 4. Enter a **Password** and **Confirm Password**. Passwords need at least 12 characters with a lowercase letter, an uppercase letter, a digit and a special character.
 5. Save. The account is created **Active**.
 
@@ -26,24 +26,15 @@ Setting a new password signs the user out of every session.
 
 ## Deactivate a user
 
-Deactivating blocks sign-in and keeps the user's data. There is no status control in the app yet, so use the API as an administrator:
+Deactivating blocks sign-in and keeps the user's data.
 
-1. Sign in as an administrator and copy the `connect.sid` cookie.
-2. Send the new status:
+1. Open **Settings** > **Users**.
+2. Select the **Deactivate** icon on the user.
+3. Confirm.
 
-   ```sh
-   curl -X PATCH https://pm.example.com/api/users/42/status \
-     -H 'Content-Type: application/json' \
-     -H 'X-Requested-With: XMLHttpRequest' \
-     -b 'connect.sid=<cookie>' \
-     -d '{"status": 2}'
-   ```
+The user's sessions end at once. Their next request is rejected and they are sent to the sign-in page. An inactive user holds no permissions. Your own row has no status or delete controls, so you cannot deactivate or delete yourself.
 
-   Status ids: `1` Active, `2` Inactive, `3` Deleted.
-
-Any status other than Active ends all of the user's sessions at once. Their next request is rejected and they are sent to the sign-in page. An inactive user holds no permissions. You cannot change your own status.
-
-To reactivate, send `{"status": 1}`.
+To reactivate, select the **Activate** icon on the user. No confirmation is needed. This also restores a deleted user.
 
 ## Delete a user
 

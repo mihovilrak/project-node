@@ -1,6 +1,14 @@
 import { api } from '../api';
 import { Tag } from '../../types/tag';
-import { addTaskTags, getTags, getTaskTags, removeTaskTag } from '../tags';
+import {
+  addTaskTags,
+  createTag,
+  deleteTag,
+  getTags,
+  getTaskTags,
+  removeTaskTag,
+  updateTag,
+} from '../tags';
 
 // Mock the api module
 jest.mock('../api');
@@ -40,6 +48,51 @@ describe('Tags API', () => {
       mockedApi.get.mockRejectedValueOnce(error);
 
       await expect(getTags()).rejects.toThrow(error);
+    });
+  });
+
+  describe('tag administration', () => {
+    it('requests inactive tags when asked', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: [mockTag] });
+
+      await getTags(undefined, true);
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/tags', {
+        params: { include_inactive: true },
+        signal: undefined,
+      });
+    });
+
+    it('creates a tag', async () => {
+      mockedApi.post.mockResolvedValueOnce({ data: mockTag });
+
+      const result = await createTag({ name: 'Test Tag', color: '#FF0000' });
+
+      expect(mockedApi.post).toHaveBeenCalledWith('/tags', {
+        name: 'Test Tag',
+        color: '#FF0000',
+      });
+      expect(result).toEqual(mockTag);
+    });
+
+    it('updates and reactivates a tag', async () => {
+      mockedApi.put.mockResolvedValue({ data: mockTag });
+
+      await updateTag(1, { name: 'Renamed' });
+      await updateTag(1, { active: true });
+
+      expect(mockedApi.put).toHaveBeenCalledWith('/tags/1', {
+        name: 'Renamed',
+      });
+      expect(mockedApi.put).toHaveBeenCalledWith('/tags/1', { active: true });
+    });
+
+    it('deletes a tag', async () => {
+      mockedApi.delete.mockResolvedValueOnce({ data: {} });
+
+      await deleteTag(1);
+
+      expect(mockedApi.delete).toHaveBeenCalledWith('/tags/1');
     });
   });
 

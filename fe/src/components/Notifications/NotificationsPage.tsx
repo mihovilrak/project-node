@@ -4,10 +4,6 @@ import {
   Box,
   Button,
   List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
   CircularProgress,
   Tabs,
   Tab,
@@ -16,7 +12,6 @@ import {
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
-  Delete as DeleteIcon,
   Task as TaskIcon,
   Folder as FolderIcon,
   Comment as CommentIcon,
@@ -26,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { useNotificationCenter } from '../../hooks/notification/useNotificationCenter';
+import NotificationListItem from './NotificationListItem';
 
 const iconMap: { [key: string]: React.ComponentType } = {
   task: TaskIcon,
@@ -147,53 +143,26 @@ const NotificationsPage: React.FC = () => {
             <Typography color="text.secondary">No notifications</Typography>
           </Box>
         ) : (
-          <List sx={{ p: 0 }}>
-            {filteredNotifications.map((notification) => {
-              const isRead = notification?.is_read;
-              return (
-                <ListItem
-                  key={notification?.id}
-                  onClick={() =>
-                    notification && handleNotificationClick(notification)
-                  }
-                  sx={{
-                    backgroundColor: isRead ? 'inherit' : 'action.hover',
-                    '&:hover': { cursor: 'pointer' },
-                  }}
-                >
-                  <ListItemIcon>
-                    {getIcon(notification?.type_name || '')}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mr: 0.5 }}
-                        >
-                          #{notification?.id}
-                        </Typography>
-                        {notification?.title || 'No title'}
-                      </>
-                    }
-                    secondary={notification?.message || 'No message'}
-                  />
-                  <IconButton
-                    onClick={(e) =>
-                      notification?.id &&
-                      handleDeleteNotification(notification.id, e)
-                    }
-                    size="small"
-                    aria-label="delete notification"
-                    disabled={!notification?.id}
+          <List sx={{ p: 0 }} aria-label="Notifications">
+            {filteredNotifications.map((notification) => (
+              <NotificationListItem
+                key={notification.id}
+                notification={notification}
+                icon={getIcon(notification.type_name || '')}
+                prefix={
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mr: 0.5 }}
                   >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </ListItem>
-              );
-            })}
+                    #{notification.id}
+                  </Typography>
+                }
+                onOpen={handleNotificationClick}
+                onDelete={handleDeleteNotification}
+              />
+            ))}
           </List>
         )}
       </Paper>

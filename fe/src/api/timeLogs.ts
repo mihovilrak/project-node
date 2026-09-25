@@ -58,6 +58,26 @@ export const getProjectTimeLogs = async (
 };
 
 /**
+ * Fetch the signed-in user's own time logs, optionally filtered by
+ * `startDate`/`endDate` (YYYY-MM-DD, matched against `log_date`).
+ *
+ * @param params Query filters forwarded to /time-logs/user/logs.
+ * @param signal Optional AbortSignal to cancel the request.
+ */
+export const getMyTimeLogs = async (
+  params?: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<TimeLog[]> => {
+  return fetchAllPages(async (page) => {
+    const response = await api.get<TimeLog[]>('/time-logs/user/logs', {
+      params: { ...params, ...page },
+      signal,
+    });
+    return response.data;
+  });
+};
+
+/**
  * Retrieve the total spent time for a project by its ID.
  *
  * Sends a GET request to /time-logs/projects/{projectId}/spent-time and
@@ -79,18 +99,13 @@ export const getProjectSpentTime = async (
  * Create a time log entry for a specific task by posting the provided
  * TimeLogCreate fields to the API.
  *
- * Performs an HTTP POST to /time-logs/tasks/{taskId}/logs with a payload
- * containing log_date, spent_time, description, and activity_type_id. If
- * description is omitted it is sent as an empty string. The taskId path
- * parameter is used to associate the new log with the task (the task_id field
- * on the TimeLogCreate is not used by this call).
+ * Performs an HTTP POST to /time-logs/tasks/{taskId}/logs. `user_id` is only
+ * sent when set; admins may use it to log for another project member (403 for
+ * non-admins, 400 when the target is not an active member).
  *
- * @param taskId Task ID (number) identifying the task to attach the new time
- *   log to; used in the request URL.
- * @param timeLog Object matching TimeLogCreate: must include log_date (string),
- *   spent_time (number), and activity_type_id (number); description is optional
- *   and will be sent as an empty string if omitted. Note: task_id inside this
- *   object is ignored by the request (taskId parameter is used instead).
+ * @param taskId Task ID used in the request URL (task_id in the body is
+ *   ignored).
+ * @param timeLog Time log fields; description defaults to an empty string.
  */
 export const createTimeLog = async (
   taskId: number,
@@ -101,6 +116,7 @@ export const createTimeLog = async (
     spent_time: timeLog.spent_time,
     description: timeLog.description ?? '',
     activity_type_id: timeLog.activity_type_id,
+    ...(timeLog.user_id ? { user_id: timeLog.user_id } : {}),
   });
   return response.data;
 };
@@ -110,16 +126,11 @@ export const createTimeLog = async (
  * description and activity type.
  *
  * Sends an HTTP PUT to /time-logs/:id and returns the server's updated TimeLog.
- * Only the fields log_date, spent_time, description and activity_type_id from
- * the provided TimeLogCreate are sent in the request body — task_id and user_id
- * (if present) are not forwarded. The operation updates the server record
- * (which may change updated_on) and resolves with the complete TimeLog returned
- * by the API.
+ * task_id is not forwarded; `user_id` is sent only when set (admin
+ * reassignment, same rules as createTimeLog).
  *
  * @param timeLogId Numeric ID of the time log to update.
- * @param timeLog Partial time log data (TimeLogCreate) containing at least
- *   log_date, spent_time and activity_type_id; description is optional. task_id
- *   and user_id, if present, are ignored by this call.
+ * @param timeLog Time log fields to update.
  */
 export const updateTimeLog = async (
   timeLogId: number,
@@ -130,6 +141,7 @@ export const updateTimeLog = async (
     spent_time: timeLog.spent_time,
     description: timeLog.description,
     activity_type_id: timeLog.activity_type_id,
+    ...(timeLog.user_id ? { user_id: timeLog.user_id } : {}),
   });
   return response.data;
 };

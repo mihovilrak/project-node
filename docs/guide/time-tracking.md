@@ -13,7 +13,7 @@ Requires **Log time** and access to the task's project.
 5. Pick an **Activity Type**, for example Development, Meeting or Code Review.
 6. Optionally add a **Description**, then save.
 
-Time is always logged against your own account.
+Time is logged against your own account. Administrators also see a **User** field and can log or reassign time for any active member of the task's project. It defaults to the administrator.
 
 ![A task's time logs](/screenshots/time-logs.png)
 
@@ -31,7 +31,7 @@ You can only change your own entries. Administrators can change anyone's.
 - **Task page**: the header shows estimated and spent time; **Time Logs** lists each entry.
 - **Project Overview**: estimated and spent time across all the project's tasks.
 - **Project Time Log tab**: every entry for the project.
-- **Project time calendar**: open `/projects/<id>/time-logs/calendar` to see hours per day for a month, with a **Total Time Spent** figure. There is no link to it in the app yet.
+- **Project time calendar**: on the project's **Time Log** tab, select **Calendar view** to see hours per day for a month, with a **Total Time Spent** figure.
 - **Profile**: **Hours Logged** shows your total.
 
 Administrators can pull a cross-user report through the API. See [Settings](/admin/settings#time-log-report).

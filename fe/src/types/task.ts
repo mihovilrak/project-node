@@ -227,7 +227,6 @@ export interface TaskDetailsContentProps {
   comments: Comment[];
   timeLogDialogOpen: boolean;
   selectedTimeLog: TimeLog | null;
-  editingComment: Comment | null;
   onSubtaskDeleted: (subtaskId: number) => void;
   onSubtaskUpdated: (subtaskId: number, updatedSubtask: Task) => void;
   onTimeLogSubmit: (data: TimeLogCreate) => Promise<void>;
@@ -237,8 +236,6 @@ export interface TaskDetailsContentProps {
   onCommentSubmit: (content: string) => Promise<void>;
   onCommentUpdate: (commentId: number, text: string) => Promise<void>;
   onCommentDelete: (id: number) => Promise<void>;
-  onEditStart: (comment: Comment | null) => void;
-  onEditEnd: () => void;
   onAddSubtaskClick: () => void;
   onTimeLogClick: () => void;
   canLogTime?: boolean;
@@ -259,12 +256,11 @@ export interface TaskDetailsSidebarProps {
 
 /**
  * Represent the UI state for a task details view, including the status menu
- * anchor, the comment being edited, time log dialog visibility and selection,
- * and watcher dialog visibility.
+ * anchor, time log dialog visibility and selection, and watcher dialog
+ * visibility.
  */
 export interface TaskDetailsState {
   statusMenuAnchor: HTMLElement | null;
-  editingComment: Comment | null;
   timeLogDialogOpen: boolean;
   selectedTimeLog: TimeLog | null;
   watcherDialogOpen: boolean;

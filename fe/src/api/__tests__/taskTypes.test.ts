@@ -42,6 +42,17 @@ describe('Task Types API', () => {
       expect(result).toEqual(mockTaskTypes);
     });
 
+    it('requests inactive rows when asked', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: [] });
+
+      await getTaskTypes(undefined, true);
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/admin/task-types', {
+        params: { include_inactive: true },
+        signal: undefined,
+      });
+    });
+
     it('should throw error when fetch fails', async () => {
       const error = new Error('Network error');
       mockedApi.get.mockRejectedValueOnce(error);

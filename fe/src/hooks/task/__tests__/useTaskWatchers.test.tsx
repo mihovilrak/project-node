@@ -106,6 +106,17 @@ describe('useTaskWatchers', () => {
     });
   });
 
+  it('explains a duplicate watcher', async () => {
+    (addTaskWatcher as jest.Mock).mockRejectedValueOnce({
+      response: { status: 409, data: { error: 'Resource already exists' } },
+    });
+    const { result } = renderHook(() => useTaskWatchers('1'));
+
+    await expect(result.current.handleAddWatcher(3)).rejects.toThrow(
+      'This user is already watching the task',
+    );
+  });
+
   it('should handle remove watcher error', async () => {
     const error = new Error('Failed to remove watcher');
     (removeTaskWatcher as jest.Mock).mockRejectedValue(error);

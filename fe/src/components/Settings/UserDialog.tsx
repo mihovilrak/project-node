@@ -113,21 +113,23 @@ const UserDialog: React.FC<UserDialogProps> = ({
                 onChange={handleTextChange}
                 fullWidth
                 required={!user}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        data-testid="toggle-password-visibility"
-                        aria-label={
-                          showPassword ? 'Hide password' : 'Show password'
-                        }
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          data-testid="toggle-password-visibility"
+                          aria-label={
+                            showPassword ? 'Hide password' : 'Show password'
+                          }
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
             </Grid>
@@ -141,29 +143,31 @@ const UserDialog: React.FC<UserDialogProps> = ({
                   onChange={handleTextChange}
                   fullWidth
                   required={!user || !!formData.password}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          edge="end"
-                          data-testid="toggle-confirm-password-visibility"
-                          aria-label={
-                            showConfirmPassword
-                              ? 'Hide confirmed password'
-                              : 'Show confirmed password'
-                          }
-                        >
-                          {showConfirmPassword ? (
-                            <VisibilityOff />
-                          ) : (
-                            <Visibility />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            edge="end"
+                            data-testid="toggle-confirm-password-visibility"
+                            aria-label={
+                              showConfirmPassword
+                                ? 'Hide confirmed password'
+                                : 'Show confirmed password'
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
               </Grid>

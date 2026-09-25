@@ -62,7 +62,6 @@ jest.mock('../../../hooks/task/useTaskDetailsHandlers', () => ({
   useTaskDetailsHandlers: () => ({
     state: {
       statusMenuAnchor: null,
-      editingComment: null,
       timeLogDialogOpen: false,
       selectedTimeLog: null,
       watcherDialogOpen: false,
@@ -71,7 +70,6 @@ jest.mock('../../../hooks/task/useTaskDetailsHandlers', () => ({
     handleStatusMenuClose: jest.fn(),
     handleStatusChange: jest.fn(),
     handleSaveComment: jest.fn(),
-    handleEditStart: jest.fn(),
     handleTimeLogSubmit: jest.fn(),
     handleTimeLogEdit: jest.fn(),
     handleTimeLogDialogClose: jest.fn(),
