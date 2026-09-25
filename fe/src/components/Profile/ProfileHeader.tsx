@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import { ProfileHeaderProps } from '../../types/profile';
+import { getSafeImageUrl } from '../../utils/urlSafety';
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
   return (
@@ -13,7 +14,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
       }}
     >
       <Avatar
-        src={user?.avatar_url || undefined}
+        src={getSafeImageUrl(user?.avatar_url)}
         alt={`${user?.name || ''} ${user?.surname || ''}`}
         sx={{ width: 80, height: 80 }}
         data-testid="user-avatar"

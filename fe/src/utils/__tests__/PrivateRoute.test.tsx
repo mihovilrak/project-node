@@ -8,9 +8,11 @@ import { UserPermission } from '../../types/auth';
 
 // Mock dependencies
 jest.mock('../../context/AuthContext');
+let mockLocation = { pathname: '/', search: '' };
 jest.mock('react-router-dom', () => ({
   Navigate: jest.fn(() => null),
   Outlet: jest.fn(() => null),
+  useLocation: () => mockLocation,
 }));
 jest.mock('@mui/material', () => ({
   Box: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -40,6 +42,28 @@ describe('PrivateRoute', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLocation = { pathname: '/', search: '' };
+  });
+
+  it('passes the current path as next when redirecting to login', () => {
+    mockLocation = { pathname: '/tasks/5', search: '?tab=files' };
+    mockUseAuth.mockReturnValue({
+      currentUser: null,
+      hasPermission: () => false,
+      permissionsLoading: false,
+      userPermissions: [],
+      error: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+    });
+
+    render(<PrivateRoute />);
+    expect(Navigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: `/login?next=${encodeURIComponent('/tasks/5?tab=files')}`,
+      }),
+      undefined,
+    );
   });
 
   it('should show loading spinner when permissions are loading', () => {

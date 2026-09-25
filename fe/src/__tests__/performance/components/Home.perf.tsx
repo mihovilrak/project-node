@@ -6,16 +6,15 @@ import ActiveTasks from '../../../components/Home/ActiveTasks';
 import { TestWrapper } from '../../TestWrapper';
 import { Task } from '../../../types/task';
 import { getActiveTasks } from '../../../api/tasks';
-import { useSystemSettings } from '../../../hooks/setting/useSystemSettings';
+import { getWelcomeMessage } from '../../../api/settings';
 
 // Mock API calls - use jest.fn() without referencing variables to avoid hoisting issues
 jest.mock('../../../api/tasks', () => ({
   getActiveTasks: jest.fn(),
 }));
 
-// Mock hooks - use jest.fn() without referencing variables to avoid hoisting issues
-jest.mock('../../../hooks/setting/useSystemSettings', () => ({
-  useSystemSettings: jest.fn(),
+jest.mock('../../../api/settings', () => ({
+  getWelcomeMessage: jest.fn(),
 }));
 
 // Mock data
@@ -51,12 +50,9 @@ const mockTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
   estimated_time: null,
 }));
 
-// Mock system settings
-const mockSettings = {
-  settings: {
-    welcome_message:
-      '<h1>Welcome to the Project Management App</h1><p>This is a test welcome message.</p>',
-  },
+const mockWelcome = {
+  welcome_message:
+    '<h1>Welcome to the Project Management App</h1><p>This is a test welcome message.</p>',
 };
 
 // Performance measurement callback
@@ -94,7 +90,7 @@ describe('Home Components Performance Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getActiveTasks as jest.Mock).mockResolvedValue([]);
-    (useSystemSettings as jest.Mock).mockReturnValue({ state: mockSettings });
+    (getWelcomeMessage as jest.Mock).mockResolvedValue(mockWelcome);
   });
 
   describe('Home Component Performance Tests', () => {
@@ -104,9 +100,8 @@ describe('Home Components Performance Tests', () => {
     });
 
     test('Home initial render performance without welcome message', () => {
-      const settingsWithoutMessage = { settings: { welcome_message: '' } };
-      (useSystemSettings as jest.Mock).mockReturnValue({
-        state: settingsWithoutMessage,
+      (getWelcomeMessage as jest.Mock).mockResolvedValue({
+        welcome_message: '',
       });
 
       const unmount = measurePerformance(Home);
