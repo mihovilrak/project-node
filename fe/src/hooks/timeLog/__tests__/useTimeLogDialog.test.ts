@@ -196,13 +196,61 @@ describe('useTimeLogDialog', () => {
 
     expect(onSubmit).toHaveBeenCalledWith({
       task_id: 1,
-      user_id: mockUser.id,
       activity_type_id: 0,
       log_date: expect.any(String),
       spent_time: 2.5,
       description: 'Test description',
     });
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('sends the selected user_id when an admin logs for someone else', async () => {
+    const onSubmit = jest.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useTimeLogDialog({ ...defaultProps, onSubmit, hasAdminPermission: true }),
+    );
+
+    act(() => {
+      result.current.handleTaskChange(1, [mockTask]);
+      result.current.setSelectedUserId(7);
+      result.current.setSpentTime('1');
+    });
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ task_id: 1, user_id: 7 }),
+    );
+  });
+
+  it('shows the API error message when saving fails', async () => {
+    const onSubmit = jest.fn().mockRejectedValue({
+      response: {
+        status: 400,
+        data: { error: 'User is not a project member' },
+      },
+    });
+    const onClose = jest.fn();
+    const { result } = renderHook(() =>
+      useTimeLogDialog({
+        ...defaultProps,
+        onSubmit,
+        onClose,
+        hasAdminPermission: true,
+      }),
+    );
+
+    act(() => {
+      result.current.handleTaskChange(1, [mockTask]);
+      result.current.setSpentTime('1');
+    });
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.submitError).toBe('User is not a project member');
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('should not submit if task is not selected', async () => {

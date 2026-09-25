@@ -107,9 +107,30 @@ describe('TimeLogs API', () => {
       });
       expect(result).toEqual(mockTimeLog);
     });
+    it('forwards user_id when logging for another user', async () => {
+      mockedApi.post.mockResolvedValueOnce({ data: mockTimeLog });
+
+      await createTimeLog(1, { ...mockTimeLogCreate, user_id: 5 });
+
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/time-logs/tasks/1/logs',
+        expect.objectContaining({ user_id: 5 }),
+      );
+    });
   });
 
   describe('updateTimeLog', () => {
+    it('forwards user_id when reassigning a log', async () => {
+      mockedApi.put.mockResolvedValueOnce({ data: mockTimeLog });
+
+      await updateTimeLog(1, { ...mockTimeLogCreate, user_id: 5 });
+
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        '/time-logs/1',
+        expect.objectContaining({ user_id: 5 }),
+      );
+    });
+
     it('should update existing time log', async () => {
       const updatedTimeLog = { ...mockTimeLog, spent_time: 4 };
       mockedApi.put.mockResolvedValueOnce({ data: updatedTimeLog });

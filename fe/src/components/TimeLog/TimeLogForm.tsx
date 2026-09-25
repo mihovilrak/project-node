@@ -169,7 +169,8 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             ) : (
               users.map((user) => (
                 <MenuItem key={user?.id} value={user?.id}>
-                  {user?.name || 'Unknown'}
+                  {[user?.name, user?.surname].filter(Boolean).join(' ') ||
+                    'Unknown'}
                 </MenuItem>
               ))
             )}
