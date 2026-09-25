@@ -38,6 +38,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     onTimeLogDelete,
     onMemberRemove,
   }) => {
+    const projectId = project?.id;
     // Memoize tab content to prevent re-computation on every render
     const overviewContent = useMemo(
       () => (
@@ -107,12 +108,12 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
           >
             <Typography variant="h6">Time Logs</Typography>
             <Stack direction="row" spacing={1}>
-              {project?.id ? (
+              {projectId ? (
                 <Button
                   variant="outlined"
                   startIcon={<CalendarIcon />}
                   component={RouterLink}
-                  to={`/projects/${project.id}/time-logs/calendar`}
+                  to={`/projects/${projectId}/time-logs/calendar`}
                 >
                   Calendar view
                 </Button>
@@ -132,7 +133,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
         </>
       ),
       [
-        project?.id,
+        projectId,
         timeLogs,
         canLogTime,
         onTimeLogCreate,
@@ -142,10 +143,8 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     );
 
     const ganttContent = useMemo(
-      () => (
-        <MemoizedProjectGantt projectId={project?.id} tasks={tasks || []} />
-      ),
-      [project?.id, tasks],
+      () => <MemoizedProjectGantt projectId={projectId} tasks={tasks || []} />,
+      [projectId, tasks],
     );
 
     return (
