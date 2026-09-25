@@ -56,6 +56,34 @@ Notes:
 - `postgres_password.txt` only takes effect when the database is first created. On an existing database, run `ALTER ROLE` first, then update the file.
 - `app_db_password.txt` is applied by `migrate` on every start, so a plain restart is enough.
 
+### Move passwords out of an old `.env`
+
+Older deployments kept passwords in `.env`. To move them into secret files with the same values, so no password changes and sessions stay valid:
+
+1. Copy each value into its file. Strip any quotes Compose would have removed.
+
+   ```sh
+   mkdir -p secrets && chmod 700 secrets
+   env_value() { sed -n "s/^$1=//p" .env | tail -n 1; }
+   printf '%s' "$(env_value POSTGRES_PASSWORD)" > secrets/postgres_password.txt
+   printf '%s' "$(env_value APP_DB_PASSWORD)"   > secrets/app_db_password.txt
+   printf '%s' "$(env_value ADMIN_PASSWORD)"    > secrets/admin_password.txt
+   printf '%s' "$(env_value SESSION_SECRET)"    > secrets/session_secret.txt
+   printf '%s' "$(env_value EMAIL_PASSWORD)"    > secrets/email_password.txt
+   chmod 644 secrets/*.txt
+   ```
+
+2. Remove the lines from `.env` and restart:
+
+   ```sh
+   sed -i.bak -E '/^(POSTGRES_PASSWORD|APP_DB_PASSWORD|ADMIN_PASSWORD|SESSION_SECRET|EMAIL_PASSWORD)=/d' .env
+   docker compose up -d
+   ```
+
+3. Check the files, then delete `.env.bak`.
+
+Outside Compose (local development, CI) each service still accepts the plain variables (`POSTGRES_PASSWORD` and so on) or a matching `*_FILE` path. Setting both forms of one variable is an error.
+
 ## Settings in the app
 
 Branding, the welcome message, SMTP host, port and TLS, the sender address and the email on/off switch live in the database. Administrators change them under **Settings** > **System** without restarting. See [Settings](/admin/settings).
