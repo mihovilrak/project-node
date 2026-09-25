@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import NotificationCenter from '../NotificationCenter';
 import { useNotificationCenter } from '../../../hooks/notification/useNotificationCenter';
@@ -134,6 +135,69 @@ describe('NotificationCenter', () => {
       mockNotifications[0].id,
       expect.any(Object),
     );
+  });
+
+  it('opens a notification from the keyboard', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<NotificationCenter userId={1} testMode={true} />);
+
+    const item = screen.getByRole('button', {
+      name: /^Unread: Test Notification 1/,
+    });
+    item.focus();
+    await user.keyboard('{Enter}');
+    expect(mockHookReturn.handleNotificationClick).toHaveBeenCalledWith(
+      mockNotifications[0],
+    );
+
+    screen.getByRole('button', { name: /^Test Notification 2/ }).focus();
+    await user.keyboard(' ');
+    expect(mockHookReturn.handleNotificationClick).toHaveBeenCalledWith(
+      mockNotifications[1],
+    );
+  });
+
+  it('names each delete button after its notification and marks unread ones', () => {
+    renderWithRouter(<NotificationCenter userId={1} testMode={true} />);
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Delete notification: Test Notification 1',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^Unread: Test Notification 1/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^Test Notification 2/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('exposes the popup state on the bell button', async () => {
+    const { rerender } = renderWithRouter(<NotificationCenter userId={1} />);
+    const bell = screen.getByRole('button', { name: '1 unread notifications' });
+    expect(bell).toHaveAttribute('aria-expanded', 'false');
+    expect(bell).toHaveAttribute('aria-haspopup', 'dialog');
+
+    (useNotificationCenter as jest.Mock).mockReturnValue({
+      ...mockHookReturn,
+      anchorEl: bell,
+    });
+    rerender(
+      <MemoryRouter>
+        <NotificationCenter userId={1} />
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: '1 unread notifications',
+        hidden: true,
+      }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      await screen.findByRole('dialog', { name: 'Notifications' }),
+    ).toBeInTheDocument();
   });
 
   it('applies different styles for read and unread notifications', () => {
