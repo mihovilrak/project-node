@@ -151,10 +151,10 @@ export const getProjectMembers = async (
   signal?: AbortSignal,
 ): Promise<ProjectMember[]> => {
   return fetchAllPages(async (page) => {
-    const response = await api.get<ProjectMember[]>(
-      `/projects/${id}/members`,
-      { params: page, signal },
-    );
+    const response = await api.get<ProjectMember[]>(`/projects/${id}/members`, {
+      params: page,
+      signal,
+    });
     return response.data;
   });
 };
