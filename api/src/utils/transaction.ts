@@ -27,6 +27,7 @@ export const setActor = async (
  *   be obtained.
  * @param fn An async function receiving the transaction client and returning a
  *   result of type T.
+ * @throws The error thrown by `fn` or by BEGIN/COMMIT, after rolling back.
  */
 export const withTransaction = async <T>(
   pool: Pool,

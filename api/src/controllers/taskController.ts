@@ -250,6 +250,8 @@ export const getTaskById = async (
  * @param req Request with the task creation payload in body
  * @param res Response object
  * @param pool Database connection pool
+ * @throws When the insert returns no task id, and any database error, after
+ *   rolling back.
  */
 export const createTask = async (
   req: CustomRequest,
@@ -476,6 +478,7 @@ export const changeTaskStatus = async (
  *   body
  * @param res Response object
  * @param pool Database connection pool
+ * @throws Database errors other than the date order check violation.
  */
 export const updateTaskDates = async (
   req: CustomRequest,

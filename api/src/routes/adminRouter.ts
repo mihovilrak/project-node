@@ -1,3 +1,11 @@
+/**
+ * Admin routes, mounted at `/api/admin`. Also mounts the task type and activity
+ * type routers.
+ *
+ * OpenAPI tag: Admin.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeRouter from './taskTypeRouter';

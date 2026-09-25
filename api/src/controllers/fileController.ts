@@ -53,6 +53,8 @@ export const getTaskFiles = async (
  * @param req FileUploadRequest containing the uploaded file and task id
  * @param res Express response
  * @param pool Database connection pool
+ * @throws Rethrows the insert error, or the 401 from a missing session user,
+ *   after removing the blob.
  */
 export const uploadFile = async (
   req: FileUploadRequest,

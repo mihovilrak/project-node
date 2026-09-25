@@ -1,3 +1,10 @@
+/**
+ * Current user profile routes, mounted at `/api/profile`.
+ *
+ * OpenAPI tag: Profile.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as profileController from '../controllers/profileController';
