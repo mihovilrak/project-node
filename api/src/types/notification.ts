@@ -22,20 +22,16 @@ export interface NotificationWithDetails extends Notification {
   type_color: string;
 }
 
-/**
- * Enumerate notification categories that correspond to database type identifiers.
- *
- * Maps numeric type IDs to notification events such as task assignments, updates, comments, completions, project changes, and membership additions.
- */
+/** Values are notification_types.name, so ids never have to match the seed order. */
 export enum NotificationType {
-  TaskDueSoon = 1,
-  TaskAssigned = 2,
-  TaskUpdated = 3,
-  TaskComment = 4,
-  TaskCompleted = 5,
-  ProjectUpdate = 6,
-  TaskCreated = 7,
-  ProjectMemberAdded = 8,
+  TaskDueSoon = 'Task Due Soon',
+  TaskAssigned = 'Task Assigned',
+  TaskUpdated = 'Task Updated',
+  TaskComment = 'Task Comment',
+  TaskCompleted = 'Task Completed',
+  ProjectUpdate = 'Project Update',
+  TaskCreated = 'Task Created',
+  ProjectMemberAdded = 'Added to Project',
 }
 
 export interface NotificationTypeInfo {
@@ -57,5 +53,5 @@ export interface NotificationCreateInput {
 export interface CreateWatcherNotificationsInput {
   task_id: number;
   action_user_id: number;
-  type_id: number;
+  type: NotificationType;
 }

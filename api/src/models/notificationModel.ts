@@ -5,12 +5,15 @@ import {
   NotificationWithDetails,
   NotificationCreateInput,
   CreateWatcherNotificationsInput,
+  NotificationType,
 } from '../types/notification';
 import {
   Pagination,
   defaultPagination,
   paginationClause,
 } from '../utils/pagination';
+
+const TYPE_ID_BY_NAME = '(SELECT id FROM notification_types WHERE name = $3)';
 
 /**
  * Retrieve paginated notifications for a user, excluding soft-deleted entries and including notification type metadata.
@@ -117,11 +120,11 @@ export const deleteNotification = async (
  */
 export const createWatcherNotifications = async (
   pool: Queryable,
-  { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput,
+  { task_id, action_user_id, type }: CreateWatcherNotificationsInput,
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `SELECT * FROM create_watcher_notifications($1, $2, $3)`,
-    [task_id, action_user_id, type_id],
+    `SELECT * FROM create_watcher_notifications($1, $2, ${TYPE_ID_BY_NAME})`,
+    [task_id, action_user_id, type],
   );
   return result.rows;
 };
@@ -136,12 +139,12 @@ export const createProjectMemberNotifications = async (
   {
     project_id,
     action_user_id,
-    type_id,
-  }: { project_id: number; action_user_id: number; type_id: number },
+    type,
+  }: { project_id: number; action_user_id: number; type: NotificationType },
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `SELECT * FROM create_project_member_notifications($1, $2, $3)`,
-    [project_id, action_user_id, type_id],
+    `SELECT * FROM create_project_member_notifications($1, $2, ${TYPE_ID_BY_NAME})`,
+    [project_id, action_user_id, type],
   );
   return result.rows;
 };

@@ -15,6 +15,7 @@ import {
   testPool,
 } from '../setup/integration.setup';
 import { CommentWithUser } from '../../../types/comment';
+import { NotificationType } from '../../../types/notification';
 import { Profile } from '../../../types/profile';
 import { ProjectDetails, ProjectMember } from '../../../types/project';
 import { TaskDetails } from '../../../types/task';
@@ -154,13 +155,13 @@ describe('model/database contracts for previously broken runtime paths', () => {
       await notificationModel.createWatcherNotifications(testPool, {
         task_id: taskId,
         action_user_id: owner.id,
-        type_id: 3,
+        type: NotificationType.TaskUpdated,
       });
     const projectNotifications =
       await notificationModel.createProjectMemberNotifications(testPool, {
         project_id: project.id,
         action_user_id: owner.id,
-        type_id: 6,
+        type: NotificationType.ProjectUpdate,
       });
 
     expect(watcherNotifications).toEqual(

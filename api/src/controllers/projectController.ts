@@ -314,7 +314,7 @@ export const addProjectMember = async (
     await notificationModel.createProjectMemberNotifications(client, {
       project_id: Number(id),
       action_user_id: Number(actorId),
-      type_id: NotificationType.ProjectMemberAdded,
+      type: NotificationType.ProjectMemberAdded,
     });
     return added;
   });
