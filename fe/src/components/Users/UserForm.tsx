@@ -33,7 +33,6 @@ const UserForm: React.FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   return (
     <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '16px' }}>
@@ -105,43 +104,6 @@ const UserForm: React.FC = () => {
 
             {isEditMode ? (
               <>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Current Password"
-                    name="currentPassword"
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    value={formValues.currentPassword || ''}
-                    onChange={handleInputChange}
-                    required={!!formValues.password}
-                    placeholder="Enter current password"
-                    error={!!fieldErrors.currentPassword}
-                    helperText={fieldErrors.currentPassword}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() =>
-                              setShowCurrentPassword(!showCurrentPassword)
-                            }
-                            edge="end"
-                            aria-label={
-                              showCurrentPassword
-                                ? 'Hide current password'
-                                : 'Show current password'
-                            }
-                          >
-                            {showCurrentPassword ? (
-                              <VisibilityOff />
-                            ) : (
-                              <Visibility />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth

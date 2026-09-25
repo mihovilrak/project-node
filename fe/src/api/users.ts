@@ -98,16 +98,15 @@ export const createUser = async (userData: UserCreate): Promise<User> => {
  *
  * Performs a PUT request to /users/{id} with the provided userData and returns
  * the server's updated User object (response.data). Provide only the fields to
- * change in userData; when changing a password include currentPassword
- * alongside password. If userData includes an id field it should correspond to
- * the id argument. This operation performs a network request and can fail for
+ * change in userData; a password sets a new one without the current password
+ * (admin reset). If userData includes an id field it should correspond to the
+ * id argument. This operation performs a network request and can fail for
  * validation, authentication, or authorization reasons from the server.
  *
  * @param id Numeric ID of the user to update; used in the request URL path.
  * @param userData Payload containing fields to update (UserUpdate). Include
- *   fields such as login, name, email, role_id, status_id, password and
- *   currentPassword when applicable; omit client-only fields like
- *   confirmPassword.
+ *   fields such as login, name, email, role_id, status_id and password; omit
+ *   client-only fields like confirmPassword.
  */
 export const updateUser = async (
   id: number,

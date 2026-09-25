@@ -35,7 +35,6 @@ export const useUserForm = ({ userId }: UserFormProps) => {
     surname: '',
     email: '',
     password: '',
-    currentPassword: '',
     confirmPassword: '',
     role_id: 4,
   });
@@ -52,7 +51,6 @@ export const useUserForm = ({ userId }: UserFormProps) => {
           surname: user.surname || '',
           email: user.email || '',
           password: '',
-          currentPassword: '',
           confirmPassword: '',
           role_id: Number(user.role_id) || 4,
         });
@@ -90,7 +88,6 @@ export const useUserForm = ({ userId }: UserFormProps) => {
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
-      logger.debug('DEBUG formValues at submit:', formValues);
       e.preventDefault();
 
       const isEditMode = !!userId;
@@ -102,13 +99,11 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       if (!formValues.email?.trim()) err.email = 'Email is required';
 
       if (isEditMode) {
-        if (formValues.password) {
-          if (!formValues.currentPassword?.trim())
-            err.currentPassword =
-              'Current password is required to change password';
-          if (formValues.password !== formValues.confirmPassword) {
-            err.confirmPassword = 'New passwords do not match';
-          }
+        if (
+          formValues.password &&
+          formValues.password !== formValues.confirmPassword
+        ) {
+          err.confirmPassword = 'New passwords do not match';
         }
       } else {
         if (!formValues.password) err.password = 'Password is required';
@@ -135,18 +130,8 @@ export const useUserForm = ({ userId }: UserFormProps) => {
           email: formValues.email,
           role_id: formValues.role_id,
           ...(formValues.status_id && { status_id: formValues.status_id }),
-          // Only include password fields if setting a new password in edit mode
-          // or if creating a new user
-          ...(isEditMode
-            ? formValues.password
-              ? {
-                  password: formValues.password,
-                  currentPassword: formValues.currentPassword,
-                }
-              : {}
-            : {
-                password: formValues.password,
-              }),
+          // A blank password in edit mode keeps the existing one.
+          ...(formValues.password && { password: formValues.password }),
         };
 
         if (userId) {
