@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeModel from '../models/taskTypeModel';
+import { includeInactive } from '../utils/includeInactive';
 import { parseLookupType } from '../utils/lookupType';
 
 export { getAvailableIcons } from '../utils/lookupType';
@@ -9,7 +10,8 @@ export { getAvailableIcons } from '../utils/lookupType';
 const DEFAULT_ICON = 'TaskAlt';
 
 /**
- * Return all active task types ordered by name.
+ * Return task types ordered by name. Admins may pass `?include_inactive=true`
+ * to also get deactivated ones.
  *
  * @param req Express request object
  * @param res Express response object
@@ -20,7 +22,9 @@ export const getTaskTypes = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  res.json(await taskTypeModel.getTaskTypes(pool));
+  res.json(
+    await taskTypeModel.getTaskTypes(pool, await includeInactive(req, pool)),
+  );
 };
 
 /**

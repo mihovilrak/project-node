@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as tagModel from '../models/tagModel';
+import { includeInactive } from '../utils/includeInactive';
 
 const TAG_KEYS = ['name', 'color', 'icon'] as const;
-type TagValues = Partial<Record<(typeof TAG_KEYS)[number], string>>;
+type TagValues = Partial<Record<(typeof TAG_KEYS)[number], string>> & {
+  active?: boolean;
+};
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 // Tags may use any MUI icon name, not only the task/activity type list.
@@ -39,6 +42,11 @@ const parseTag = (
     }
   }
 
+  if (mode === 'update' && input.active !== undefined) {
+    if (typeof input.active !== 'boolean') return { error: 'Invalid active' };
+    values.active = input.active;
+  }
+
   if (mode === 'create' && (!values.name || !values.color)) {
     return { error: 'Name and color are required' };
   }
@@ -53,13 +61,15 @@ const parseTagIds = (value: unknown): number[] | null => {
     : null;
 };
 
-// Get all active tags
+// Active tags; admins may pass ?include_inactive=true to get retired ones too
 export const getTags = async (
   req: Request,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  res.status(200).json(await tagModel.getTags(pool));
+  res
+    .status(200)
+    .json(await tagModel.getTags(pool, await includeInactive(req, pool)));
 };
 
 /**
@@ -139,8 +149,8 @@ export const getTaskTags = async (
 };
 
 /**
- * Update only the provided name, color or icon of a tag. Returns 404 if it does
- * not exist.
+ * Update only the provided name, color, icon or active flag of a tag (`active:
+ * true` reactivates it). Returns 404 if it does not exist.
  *
  * @param req Request with the tag id in params and fields in the body
  * @param res Response object
