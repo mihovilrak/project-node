@@ -164,17 +164,17 @@ describe('Tasks API', () => {
   });
 
   describe('getTasksByDateRange', () => {
-    it('should fetch tasks by date range', async () => {
-      const startDate = new Date('2024-01-01');
-      const endDate = new Date('2024-01-31');
+    it('sends the local calendar dates of the range', async () => {
+      const startDate = new Date(2024, 0, 1, 0, 30);
+      const endDate = new Date(2024, 0, 31, 23, 30);
       mockedApi.get.mockResolvedValueOnce({ data: [mockTask] });
 
       const result = await getTasksByDateRange(startDate, endDate);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/tasks/calendar', {
         params: {
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          start_date: '2024-01-01',
+          end_date: '2024-01-31',
           limit: 500,
           offset: 0,
         },
