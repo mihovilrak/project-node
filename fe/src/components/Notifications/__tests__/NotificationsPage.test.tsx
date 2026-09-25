@@ -110,9 +110,20 @@ describe('NotificationsPage', () => {
   it('shows loading spinner when loading', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...defaultHookReturn,
+      notifications: [],
       loading: true,
     });
     renderPage();
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+
+  it('keeps the list visible during a background refresh', () => {
+    (useNotificationCenter as jest.Mock).mockReturnValue({
+      ...defaultHookReturn,
+      loading: true,
+    });
+    renderPage();
+    expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);
   });
 });

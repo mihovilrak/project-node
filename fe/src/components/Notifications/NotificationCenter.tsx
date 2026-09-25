@@ -144,7 +144,8 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         </Alert>
       )}
 
-      {loading ? (
+      {/* Background polls keep the list visible instead of flashing a spinner. */}
+      {loading && notifications.length === 0 ? (
         renderLoadingComponent()
       ) : filteredNotifications.length === 0 ? (
         <Box sx={{ p: 2, textAlign: 'center' }}>

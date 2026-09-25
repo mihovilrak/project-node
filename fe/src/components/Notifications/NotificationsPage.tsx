@@ -134,7 +134,8 @@ const NotificationsPage: React.FC = () => {
           <Tab label="Unread" value="unread" data-testid="tab-unread" />
         </Tabs>
 
-        {loading ? (
+        {/* Background polls keep the list visible instead of flashing a spinner. */}
+        {loading && notifications.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress
               data-testid="loading-spinner"
