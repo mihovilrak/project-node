@@ -57,24 +57,33 @@ describe('TagModel', () => {
     it('should add tags to a task', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
 
-      await tagModel.addTaskTags(mockPool, '1', ['1', '2']);
+      await tagModel.addTaskTags(mockPool, '1', [1, 2]);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         `SELECT add_task_tags($1, $2)`,
-        ['1', ['1', '2']],
+        ['1', [1, 2]],
       );
     });
   });
 
   describe('removeTaskTag', () => {
-    it('should remove a tag from a task', async () => {
+    it('returns true when a row was removed', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
 
-      await tagModel.removeTaskTag(mockPool, '1', '1');
-
+      await expect(tagModel.removeTaskTag(mockPool, '1', '1')).resolves.toBe(
+        true,
+      );
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('DELETE FROM task_tags'),
         ['1', '1'],
+      );
+    });
+
+    it('returns false when the tag was not on the task', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 0 });
+
+      await expect(tagModel.removeTaskTag(mockPool, '1', '2')).resolves.toBe(
+        false,
       );
     });
   });
@@ -93,38 +102,51 @@ describe('TagModel', () => {
   });
 
   describe('updateTag', () => {
-    it('should update a tag', async () => {
+    it('sets only the provided columns', async () => {
       const mockTag = { id: '1', name: 'Updated', color: '#0000FF' };
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([mockTag]),
       );
 
-      const result = await tagModel.updateTag(
-        mockPool,
-        '1',
-        'Updated',
-        '#0000FF',
+      const result = await tagModel.updateTag(mockPool, '1', {
+        color: '#0000FF',
+      });
+
+      const [sql, params] = (mockPool.query as jest.Mock).mock.calls[0];
+      expect(sql).toContain('SET color = $1');
+      expect(sql).toContain('WHERE id = $2');
+      expect(sql).not.toContain('updated_on');
+      expect(params).toEqual(['#0000FF', '1']);
+      expect(result).toEqual(mockTag);
+    });
+
+    it('returns the current tag when nothing changes', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ id: '1' }]),
       );
 
-      expect(result).toEqual(mockTag);
+      await expect(tagModel.updateTag(mockPool, '1', {})).resolves.toEqual({
+        id: '1',
+      });
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM tags WHERE id = $1',
+        ['1'],
+      );
     });
 
     it('should return null when tag not found', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
-      const result = await tagModel.updateTag(
-        mockPool,
-        '999',
-        'Updated',
-        '#0000FF',
-      );
+      const result = await tagModel.updateTag(mockPool, '999', {
+        name: 'Updated',
+      });
 
       expect(result).toBeNull();
     });
   });
 
   describe('deleteTag', () => {
-    it('should soft delete a tag', async () => {
+    it('should soft delete an active tag', async () => {
       const mockTag = { id: '1', active: false };
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([mockTag]),
@@ -132,10 +154,10 @@ describe('TagModel', () => {
 
       const result = await tagModel.deleteTag(mockPool, '1');
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SET (active, updated_on) = (false'),
-        ['1'],
-      );
+      const [sql, params] = (mockPool.query as jest.Mock).mock.calls[0];
+      expect(sql).toContain('SET active = false');
+      expect(sql).toContain('AND active = true');
+      expect(params).toEqual(['1']);
       expect(result).toEqual(mockTag);
     });
   });

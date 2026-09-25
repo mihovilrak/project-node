@@ -5,6 +5,7 @@ import { ALLOWED_PROJECT_UPDATE_KEYS } from '../../models/projectModel';
 import { ALLOWED_TASK_UPDATE_KEYS } from '../../models/taskModel';
 import { ALLOWED_TIME_LOG_UPDATE_KEYS } from '../../models/timeLogModel';
 import { LOOKUP_TYPE_KEYS } from '../lookupType';
+import { ALLOWED_TAG_UPDATE_KEYS } from '../../models/tagModel';
 
 describe('buildUpdateAssignments', () => {
   const allowed = ['name', 'description', 'color'] as const;
@@ -126,6 +127,7 @@ describe('update whitelists match the actual table columns', () => {
     ['time_logs', ALLOWED_TIME_LOG_UPDATE_KEYS],
     ['activity_types', LOOKUP_TYPE_KEYS],
     ['task_types', LOOKUP_TYPE_KEYS],
+    ['tags', ALLOWED_TAG_UPDATE_KEYS],
   ];
 
   it.each(cases)('%s', (table, whitelist) => {
