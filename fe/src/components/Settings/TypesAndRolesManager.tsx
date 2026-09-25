@@ -7,13 +7,26 @@ import {
   Typography,
   Button,
   Alert,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import TaskTypesTable from './TaskTypesTable';
 import ActivityTypesTable from './ActivityTypesTable';
 import RolesTable from './RolesTable';
+import TagsTable from './TagsTable';
 import { TypesAndRolesDialog } from './TypesAndRolesDialog';
-import { useTypesAndRoles } from '../../hooks/setting/useTypesAndRoles';
+import {
+  TAG_TAB,
+  useTypesAndRoles,
+} from '../../hooks/setting/useTypesAndRoles';
+
+const ADD_LABELS: Record<number, string> = {
+  0: 'Add Task Type',
+  1: 'Add Activity Type',
+  2: 'Add Role',
+  [TAG_TAB]: 'Add Tag',
+};
 import { usePermission } from '../../hooks/common/usePermission';
 
 const TypesAndRolesManager: React.FC = () => {
@@ -27,8 +40,11 @@ const TypesAndRolesManager: React.FC = () => {
     handleDialogClose,
     handleSave,
     handleDelete,
-    handleRoleUpdate,
+    handleReactivate,
+    handleShowInactiveChange,
   } = useTypesAndRoles();
+  // Roles are hard-deleted, so there is nothing inactive to show.
+  const supportsInactive = state.activeTab !== 2;
 
   const renderContent = () => {
     if (state.loading) {
@@ -46,6 +62,7 @@ const TypesAndRolesManager: React.FC = () => {
             taskTypes={state.taskTypes || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onReactivate={handleReactivate}
             loading={state.loading}
             canManage={canManage}
           />
@@ -56,6 +73,7 @@ const TypesAndRolesManager: React.FC = () => {
             activityTypes={state.activityTypes || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onReactivate={handleReactivate}
             loading={state.loading}
             canManage={canManage}
           />
@@ -66,6 +84,17 @@ const TypesAndRolesManager: React.FC = () => {
             roles={state.roles || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            loading={state.loading}
+            canManage={canManage}
+          />
+        );
+      case TAG_TAB:
+        return (
+          <TagsTable
+            tags={state.tags || []}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onReactivate={handleReactivate}
             loading={state.loading}
             canManage={canManage}
           />
@@ -82,6 +111,7 @@ const TypesAndRolesManager: React.FC = () => {
           <Tab label="Task Types" />
           <Tab label="Activity Types" />
           <Tab label="Roles" />
+          <Tab label="Tags" />
         </Tabs>
       </Box>
 
@@ -91,17 +121,34 @@ const TypesAndRolesManager: React.FC = () => {
         </Alert>
       )}
 
-      <Box sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
+      >
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleCreate}
           disabled={permissionLoading || !canManage}
         >
-          {state.activeTab === 0 && 'Add Task Type'}
-          {state.activeTab === 1 && 'Add Activity Type'}
-          {state.activeTab === 2 && 'Add Role'}
+          {ADD_LABELS[state.activeTab]}
         </Button>
+        {canManage && supportsInactive && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={Boolean(state.showInactive)}
+                onChange={(e) => handleShowInactiveChange(e.target.checked)}
+              />
+            }
+            label="Show inactive"
+          />
+        )}
       </Box>
 
       {renderContent()}

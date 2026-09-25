@@ -51,6 +51,12 @@ export const useAuth = (): AuthContextType => {
 };
 
 /**
+ * The signed-in user, or null outside an AuthProvider.
+ */
+export const useCurrentUser = (): User | null =>
+  useContext(AuthContext)?.currentUser ?? null;
+
+/**
  * Provide authentication state and actions to descendant components, performing
  * an initial session check, exposing login/logout, permission checks, and
  * loading/error state.

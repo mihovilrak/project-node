@@ -21,6 +21,18 @@ import { useCalendar } from '../../hooks/calendar/useCalendar';
 import CalendarDayView from './CalendarDayView';
 import CalendarWeekView from './CalendarWeekView';
 import CalendarMonthView from './CalendarMonthView';
+import { CalendarView } from '../../types/calendar';
+
+const shiftDate = (date: Date, view: CalendarView, step: number): Date => {
+  const next = new Date(date);
+  if (view === 'month') {
+    next.setDate(1);
+    next.setMonth(next.getMonth() + step);
+  } else {
+    next.setDate(next.getDate() + step * (view === 'week' ? 7 : 1));
+  }
+  return next;
+};
 
 const Calendar: React.FC = () => {
   const {
@@ -35,6 +47,7 @@ const Calendar: React.FC = () => {
     handleTaskClick,
     handleTimeLogClick,
   } = useCalendar();
+  const viewLabel = view.charAt(0).toUpperCase() + view.slice(1);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -55,30 +68,26 @@ const Calendar: React.FC = () => {
               <Today />
             </IconButton>
             <IconButton
-              aria-label="Previous Month"
-              onClick={() => {
-                const newDate = new Date(selectedDate);
-                newDate.setMonth(newDate.getMonth() - 1);
-                handleDateChange(newDate);
-              }}
+              aria-label={`Previous ${viewLabel}`}
+              onClick={() =>
+                handleDateChange(shiftDate(selectedDate, view, -1))
+              }
             >
               <ChevronLeft />
             </IconButton>
             <IconButton
-              aria-label="Next Month"
-              onClick={() => {
-                const newDate = new Date(selectedDate);
-                newDate.setMonth(newDate.getMonth() + 1);
-                handleDateChange(newDate);
-              }}
+              aria-label={`Next ${viewLabel}`}
+              onClick={() => handleDateChange(shiftDate(selectedDate, view, 1))}
             >
               <ChevronRight />
             </IconButton>
             <Typography variant="h6">
-              {selectedDate.toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric',
-              })}
+              {selectedDate.toLocaleDateString(
+                'en-US',
+                view === 'day'
+                  ? { month: 'long', day: 'numeric', year: 'numeric' }
+                  : { month: 'long', year: 'numeric' },
+              )}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>

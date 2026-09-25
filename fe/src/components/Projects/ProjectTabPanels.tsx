@@ -1,6 +1,11 @@
 import React, { useMemo } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import { Add as AddIcon, Group as GroupIcon } from '@mui/icons-material';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import {
+  Add as AddIcon,
+  CalendarMonth as CalendarIcon,
+  Group as GroupIcon,
+} from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import ProjectOverview from './tabs/ProjectOverview';
 import ProjectTaskList from './tabs/ProjectTaskList';
 import ProjectGantt from './ProjectGantt';
@@ -33,6 +38,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     onTimeLogDelete,
     onMemberRemove,
   }) => {
+    const projectId = project?.id;
     // Memoize tab content to prevent re-computation on every render
     const overviewContent = useMemo(
       () => (
@@ -101,11 +107,23 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
             }}
           >
             <Typography variant="h6">Time Logs</Typography>
-            {canLogTime && (
-              <Button variant="contained" onClick={() => onTimeLogCreate()}>
-                Log Time
-              </Button>
-            )}
+            <Stack direction="row" spacing={1}>
+              {projectId ? (
+                <Button
+                  variant="outlined"
+                  startIcon={<CalendarIcon />}
+                  component={RouterLink}
+                  to={`/projects/${projectId}/time-logs/calendar`}
+                >
+                  Calendar view
+                </Button>
+              ) : null}
+              {canLogTime && (
+                <Button variant="contained" onClick={() => onTimeLogCreate()}>
+                  Log Time
+                </Button>
+              )}
+            </Stack>
           </Box>
           <MemoizedTimeLogList
             timeLogs={timeLogs || []}
@@ -114,14 +132,19 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
           />
         </>
       ),
-      [timeLogs, canLogTime, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
+      [
+        projectId,
+        timeLogs,
+        canLogTime,
+        onTimeLogCreate,
+        onTimeLogEdit,
+        onTimeLogDelete,
+      ],
     );
 
     const ganttContent = useMemo(
-      () => (
-        <MemoizedProjectGantt projectId={project?.id} tasks={tasks || []} />
-      ),
-      [project?.id, tasks],
+      () => <MemoizedProjectGantt projectId={projectId} tasks={tasks || []} />,
+      [projectId, tasks],
     );
 
     return (

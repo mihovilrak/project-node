@@ -26,6 +26,8 @@ See [Watchers](/guide/tasks#watchers) to follow a task.
 3. Select a notification to mark it read and open the task or project it refers to.
 4. Select **View all** to open the full **Notifications** page.
 
+The notification list works from the keyboard. Tab to a notification and press Enter or Space to open it; its delete button comes next. Press Escape to close the list.
+
 The app checks for new notifications every 60 seconds while its browser tab is visible.
 
 ## Clear notifications
@@ -39,6 +41,13 @@ Read notifications older than 30 days are archived automatically.
 
 If your administrator has enabled email (see [Settings](/admin/settings#email-smtp)), notifications are also sent to the email address on your profile.
 
-Email is on by default for everyone, and there is no screen to turn it off yet. Setting either `notifications_enabled` or `email_notifications_enabled` to `false` through `PUT /api/settings/user_settings` stops the emails. In-app notifications still appear.
-
 Emails are sent within about a minute. A failed send is retried with growing delays.
+
+## Preferences
+
+Both switches are on by default. Change them under **Notifications** on your profile. Each change is saved at once.
+
+- **Notifications**: turn off to stop all notifications, both in the app and by email.
+- **Email notifications**: turn off to keep in-app notifications but stop the emails. It can only be on while **Notifications** is on.
+
+Turning notifications off only affects new notifications. Existing ones stay in your list.

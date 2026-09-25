@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { uploadFile } from '../../api/files';
 import { TaskFile } from '../../types/file';
 import { AxiosProgressEvent } from 'axios';
-import { validateUploadFile } from '../../constants/uploads';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import {
+  FILE_TOO_LARGE_MESSAGE,
+  validateUploadFile,
+} from '../../constants/uploads';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 
 /**
  * Manage file uploads with progress tracking and validation for a specific
@@ -56,7 +61,11 @@ export const useFileUpload = (
         onFileUploaded(response);
       }
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Failed to upload file'));
+      setError(
+        getApiErrorStatus(err) === 413
+          ? FILE_TOO_LARGE_MESSAGE
+          : getApiErrorMessage(err, 'Failed to upload file'),
+      );
     } finally {
       setUploading(false);
       setProgress(0);

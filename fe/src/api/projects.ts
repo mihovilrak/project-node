@@ -97,14 +97,16 @@ export const createProject = async (
 };
 
 /**
- * Save project changes. The server does not return the updated record, so
- * callers merge `updates` into their local state.
+ * Save project changes and return the updated project row. The row has no
+ * joined display names (status, creator, parent), so callers keep those from
+ * their local copy.
  */
 export const updateProject = async (
   id: number,
   updates: Partial<Project>,
-): Promise<void> => {
-  await api.put(`/projects/${id}`, updates);
+): Promise<Project> => {
+  const response = await api.put<Project>(`/projects/${id}`, updates);
+  return response.data;
 };
 
 /**

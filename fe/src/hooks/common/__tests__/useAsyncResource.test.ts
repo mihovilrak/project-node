@@ -131,4 +131,194 @@ describe('useAsyncResource', () => {
     unmount();
     expect(captured?.aborted).toBe(true);
   });
+
+  it('does not fetch when refetch is called after unmount', async () => {
+    const fetcher = jest.fn().mockResolvedValue('a');
+    const { result, unmount } = renderHook(() =>
+      useAsyncResource<string>(fetcher, [], { initialData: '' }),
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    const { refetch } = result.current;
+
+    unmount();
+    await refetch();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  describe('polling', () => {
+    let hidden = false;
+
+    beforeAll(() => {
+      Object.defineProperty(document, 'hidden', {
+        configurable: true,
+        get: () => hidden,
+      });
+    });
+
+    afterAll(() => {
+      delete (document as { hidden?: boolean }).hidden;
+    });
+
+    let setIntervalSpy: jest.SpyInstance;
+    let clearIntervalSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      hidden = false;
+      jest.useFakeTimers();
+      setIntervalSpy = jest.spyOn(global, 'setInterval');
+      clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+    });
+
+    afterEach(() => {
+      setIntervalSpy.mockRestore();
+      clearIntervalSpy.mockRestore();
+      jest.useRealTimers();
+    });
+
+    const activeIntervals = () => {
+      const cleared = new Set(clearIntervalSpy.mock.calls.map(([id]) => id));
+      return setIntervalSpy.mock.results.filter(
+        ({ value }) => !cleared.has(value),
+      ).length;
+    };
+
+    const tick = async (ms: number) => {
+      await act(async () => {
+        jest.advanceTimersByTime(ms);
+      });
+    };
+
+    const setHidden = async (value: boolean) => {
+      hidden = value;
+      await act(async () => {
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+    };
+
+    type Props = { id: number; enabled: boolean; pollIntervalMs: number };
+
+    const renderPolling = (fetcher: jest.Mock, props: Partial<Props> = {}) =>
+      renderHook(
+        ({ id, enabled, pollIntervalMs }: Props) =>
+          useAsyncResource<string>(fetcher, [id], {
+            initialData: '',
+            enabled,
+            pollIntervalMs,
+          }),
+        {
+          initialProps: {
+            id: 1,
+            enabled: true,
+            pollIntervalMs: 1000,
+            ...props,
+          },
+        },
+      );
+
+    it('refetches on the interval', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      renderPolling(fetcher);
+      await tick(0);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(3);
+    });
+
+    it('clears the interval on unmount', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      const { unmount } = renderPolling(fetcher);
+      await tick(0);
+
+      unmount();
+      await tick(5000);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(activeIntervals()).toBe(0);
+    });
+
+    it('restarts the interval on a deps change without duplicating it', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      const { rerender } = renderPolling(fetcher);
+      await tick(500);
+
+      rerender({ id: 2, enabled: true, pollIntervalMs: 1000 });
+      await tick(0);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(activeIntervals()).toBe(1);
+
+      await tick(500);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      await tick(500);
+      expect(fetcher).toHaveBeenCalledTimes(3);
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(4);
+    });
+
+    it('stops polling when disabled or the interval is zero', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      const { rerender } = renderPolling(fetcher);
+      await tick(0);
+
+      rerender({ id: 1, enabled: false, pollIntervalMs: 1000 });
+      await tick(3000);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(activeIntervals()).toBe(0);
+
+      rerender({ id: 1, enabled: true, pollIntervalMs: 1000 });
+      await tick(0);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+
+      rerender({ id: 1, enabled: true, pollIntervalMs: 0 });
+      await tick(3000);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(activeIntervals()).toBe(0);
+    });
+
+    it('pauses while the tab is hidden and refreshes when visible', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      renderPolling(fetcher);
+      await tick(0);
+
+      await setHidden(true);
+      await tick(3000);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+
+      await setHidden(false);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(3);
+    });
+
+    it('keeps the data when a poll fails', async () => {
+      const fetcher = jest
+        .fn()
+        .mockResolvedValueOnce('first')
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockResolvedValueOnce('second');
+      const { result } = renderPolling(fetcher);
+      await tick(0);
+      expect(result.current.data).toBe('first');
+
+      await tick(1000);
+      expect(result.current.data).toBe('first');
+      expect(result.current.error).toBe('offline');
+
+      await tick(1000);
+      expect(result.current.data).toBe('second');
+      expect(result.current.error).toBeNull();
+    });
+
+    it('does not clear an error set by the caller', async () => {
+      const fetcher = jest.fn().mockResolvedValue('a');
+      const { result } = renderPolling(fetcher);
+      await tick(0);
+
+      act(() => result.current.setError('Delete failed'));
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(result.current.error).toBe('Delete failed');
+    });
+  });
 });

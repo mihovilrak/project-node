@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { Task, TaskDetailsState } from '../../types/task';
-import { Comment } from '../../types/comment';
 import { TimeLog } from '../../types/timeLog';
 
 /**
  * Provide handlers and state management for task details UI interactions
- * including status menus, comments, time logs, subtasks, and watchers.
+ * including status menus, time logs, subtasks, and watchers.
  */
 export const useTaskDetailsHandlers = () => {
   const [state, setState] = useState<TaskDetailsState>({
     statusMenuAnchor: null,
-    editingComment: null,
     timeLogDialogOpen: false,
     selectedTimeLog: null,
     watcherDialogOpen: false,
@@ -23,10 +21,6 @@ export const useTaskDetailsHandlers = () => {
 
   const handleStatusMenuClose = () => {
     setState((prev) => ({ ...prev, statusMenuAnchor: null }));
-  };
-
-  const handleEditStart = (comment: Comment | null) => {
-    setState((prev) => ({ ...prev, editingComment: comment }));
   };
 
   const handleTimeLogCreate = () => {
@@ -97,7 +91,6 @@ export const useTaskDetailsHandlers = () => {
     state,
     handleStatusMenuClick,
     handleStatusMenuClose,
-    handleEditStart,
     handleTimeLogCreate,
     handleTimeLogEdit,
     handleTimeLogDialogClose,

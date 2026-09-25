@@ -1,5 +1,9 @@
 import { api } from './api';
-import { AppSettings, TimezoneOption } from '../types/setting';
+import {
+  AppSettings,
+  NotificationPreferences,
+  TimezoneOption,
+} from '../types/setting';
 
 /**
  * Fetch the home page welcome message. Available to any authenticated user (the
@@ -106,4 +110,43 @@ export const testSmtpConnection = async (
     email,
   });
   return response.data;
+};
+
+// Users without a saved row get {} from the API; the column defaults are true.
+const withPreferenceDefaults = (
+  data: Partial<NotificationPreferences> | null | undefined,
+): NotificationPreferences => ({
+  notifications_enabled: data?.notifications_enabled ?? true,
+  email_notifications_enabled: data?.email_notifications_enabled ?? true,
+});
+
+/**
+ * Fetch the signed-in user's notification preferences.
+ *
+ * @param signal Optional AbortSignal to cancel the HTTP request.
+ */
+export const getNotificationPreferences = async (
+  signal?: AbortSignal,
+): Promise<NotificationPreferences> => {
+  const response = await api.get<Partial<NotificationPreferences>>(
+    '/settings/user_settings',
+    { signal },
+  );
+  return withPreferenceDefaults(response.data);
+};
+
+/**
+ * Partially update the signed-in user's notification preferences. Turning
+ * `notifications_enabled` off also stops email notifications.
+ *
+ * @param changes The preferences to change; omitted ones are kept.
+ */
+export const updateNotificationPreferences = async (
+  changes: Partial<NotificationPreferences>,
+): Promise<NotificationPreferences> => {
+  const response = await api.put<Partial<NotificationPreferences>>(
+    '/settings/user_settings',
+    changes,
+  );
+  return withPreferenceDefaults(response.data);
 };

@@ -232,7 +232,7 @@ const TaskForm: React.FC = () => {
               type="number"
               value={formData.estimated_time ?? ''}
               onChange={handleFormChange}
-              inputProps={{ min: 0, step: 0.5 }}
+              slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
               sx={{ mb: 2 }}
             />
           </Grid>
@@ -246,7 +246,7 @@ const TaskForm: React.FC = () => {
                 name="progress"
                 value={formData.progress || 0}
                 onChange={handleFormChange}
-                inputProps={{ min: 0, max: 100, step: 1 }}
+                slotProps={{ htmlInput: { min: 0, max: 100, step: 1 } }}
                 sx={{ mb: 2 }}
               />
             </Grid>

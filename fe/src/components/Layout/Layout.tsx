@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { useNavigation } from '../../hooks/layout/useNavigation';
+import { useNavigation, ADMIN_TABS } from '../../hooks/layout/useNavigation';
 import {
   Brightness4,
   Brightness7,
@@ -31,8 +31,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout, currentUser, hasPermission } = useAuth();
   const { activeTab } = useNavigation();
   const isAdmin = hasPermission('Admin');
-  // Users (3) and Settings (4) are admin-only; MUI warns on a value with no tab.
-  const tabValue = isAdmin || activeTab < 3 ? activeTab : false;
+  // MUI warns when the value matches no rendered tab.
+  const tabValue =
+    activeTab && (isAdmin || !ADMIN_TABS.includes(activeTab))
+      ? activeTab
+      : false;
   const { mode, toggleTheme } = useTheme();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -54,12 +57,30 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <AppBar position="fixed">
         <Toolbar>
           <Tabs value={tabValue} textColor="inherit" indicatorColor="secondary">
-            <Tab label="Home" component={Link} to="/" />
-            <Tab label="Projects" component={Link} to="/projects" />
-            <Tab label="Tasks" component={Link} to="/tasks" />
-            {isAdmin && <Tab label="Users" component={Link} to="/users" />}
+            <Tab label="Home" value="/" component={Link} to="/" />
+            <Tab
+              label="Projects"
+              value="/projects"
+              component={Link}
+              to="/projects"
+            />
+            <Tab label="Tasks" value="/tasks" component={Link} to="/tasks" />
+            <Tab
+              label="Calendar"
+              value="/calendar"
+              component={Link}
+              to="/calendar"
+            />
             {isAdmin && (
-              <Tab label="Settings" component={Link} to="/settings" />
+              <Tab label="Users" value="/users" component={Link} to="/users" />
+            )}
+            {isAdmin && (
+              <Tab
+                label="Settings"
+                value="/settings"
+                component={Link}
+                to="/settings"
+              />
             )}
           </Tabs>
           <Box sx={{ flexGrow: 1 }} />

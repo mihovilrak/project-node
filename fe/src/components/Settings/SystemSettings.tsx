@@ -471,7 +471,9 @@ const SystemSettings: React.FC = () => {
                     onChange={(e) =>
                       setField('email_enabled', e.target.checked)
                     }
-                    inputProps={{ 'aria-label': 'Email enabled' }}
+                    slotProps={{
+                      input: { 'aria-label': 'Email enabled', role: 'switch' },
+                    }}
                   />
                 }
                 label="Email sending enabled"
@@ -497,7 +499,12 @@ const SystemSettings: React.FC = () => {
                   <Switch
                     checked={Boolean(state.settings.email_secure)}
                     onChange={(e) => setField('email_secure', e.target.checked)}
-                    inputProps={{ 'aria-label': 'SMTP implicit TLS' }}
+                    slotProps={{
+                      input: {
+                        'aria-label': 'SMTP implicit TLS',
+                        role: 'switch',
+                      },
+                    }}
                   />
                 }
                 label="Implicit TLS (port 465)"

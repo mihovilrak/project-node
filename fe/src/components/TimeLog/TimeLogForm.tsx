@@ -169,7 +169,8 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             ) : (
               users.map((user) => (
                 <MenuItem key={user?.id} value={user?.id}>
-                  {user?.name || 'Unknown'}
+                  {[user?.name, user?.surname].filter(Boolean).join(' ') ||
+                    'Unknown'}
                 </MenuItem>
               ))
             )}
@@ -188,40 +189,40 @@ const TimeLogForm: React.FC<TimeLogFormProps> = ({
             helperText={timeError || 'Enter time in hours (increments of 0.25)'}
             required
             fullWidth
-            inputProps={{
-              step: STEP,
-              min: MIN_HOURS,
-              max: MAX_HOURS,
-              pattern: '^\\d*\\.?([0-9]{1,2})?$',
-            }}
             slotProps={{
-              htmlInput: { 'aria-label': 'Time spent in hours' },
-            }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end" sx={{ mr: -0.5 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <IconButton
-                      size="small"
-                      onClick={handleIncrement}
-                      disabled={currentHours >= MAX_HOURS}
-                      aria-label="Increase time"
-                      sx={{ py: 0, minWidth: 24, minHeight: 24 }}
-                    >
-                      <KeyboardArrowUpIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={handleDecrement}
-                      disabled={currentHours <= MIN_HOURS}
-                      aria-label="Decrease time"
-                      sx={{ py: 0, minWidth: 24, minHeight: 24 }}
-                    >
-                      <KeyboardArrowDownIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </InputAdornment>
-              ),
+              htmlInput: {
+                'aria-label': 'Time spent in hours',
+                step: STEP,
+                min: MIN_HOURS,
+                max: MAX_HOURS,
+                pattern: '^\\d*\\.?([0-9]{1,2})?$',
+              },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end" sx={{ mr: -0.5 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <IconButton
+                        size="small"
+                        onClick={handleIncrement}
+                        disabled={currentHours >= MAX_HOURS}
+                        aria-label="Increase time"
+                        sx={{ py: 0, minWidth: 24, minHeight: 24 }}
+                      >
+                        <KeyboardArrowUpIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={handleDecrement}
+                        disabled={currentHours <= MIN_HOURS}
+                        aria-label="Decrease time"
+                        sx={{ py: 0, minWidth: 24, minHeight: 24 }}
+                      >
+                        <KeyboardArrowDownIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         </Grid>

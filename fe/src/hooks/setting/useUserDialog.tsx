@@ -29,7 +29,7 @@ export const useUserDialog = (
     email: '',
     password: '',
     confirmPassword: '',
-    role_id: 3,
+    role_id: '',
     status_id: UserStatusId.Active,
   });
   const [submitError, setError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export const useUserDialog = (
         email: user.email || '',
         password: '',
         confirmPassword: '',
-        role_id: user.role_id || 3,
+        role_id: user.role_id || '',
         status_id: user.status_id,
       });
     } else {
@@ -62,7 +62,7 @@ export const useUserDialog = (
         email: '',
         password: '',
         confirmPassword: '',
-        role_id: 3,
+        role_id: '',
         status_id: UserStatusId.Active,
       });
     }
@@ -76,10 +76,11 @@ export const useUserDialog = (
     }));
   };
 
-  const handleRoleChange = (e: SelectChangeEvent<number>): void => {
+  const handleRoleChange = (e: SelectChangeEvent<number | ''>): void => {
+    const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      role_id: e.target.value as number,
+      role_id: value === '' ? '' : Number(value),
     }));
   };
 
@@ -115,6 +116,11 @@ export const useUserDialog = (
         setError('Passwords do not match');
         return;
       }
+    }
+
+    if (!formData.role_id) {
+      setError('Please select a role');
+      return;
     }
 
     try {

@@ -4,11 +4,14 @@ import { Role as AdminRole } from '../../types/role';
 import TaskTypeDialog from './TaskTypeDialog';
 import ActivityTypeDialog from './ActivityTypeDialog';
 import RoleDialog from './RoleDialog';
+import TagDialog from './TagDialog';
+import { Tag } from '../../types/tag';
+import { TAG_TAB } from '../../hooks/setting/useTypesAndRoles';
 import { TypesAndRolesDialogProps } from '../../types/setting';
 
 /**
- * Render the appropriate dialog for editing tasks, activities, or roles based
- * on the active tab.
+ * Render the appropriate dialog for editing tasks, activities, roles or tags
+ * based on the active tab.
  *
  * @param root0 Object containing activeTab to determine which dialog to
  *   display, dialogOpen to control visibility, selectedItem for editing,
@@ -48,6 +51,15 @@ export const TypesAndRolesDialog: React.FC<TypesAndRolesDialogProps> = ({
         <RoleDialog
           open={dialogOpen}
           role={(selectedItem as AdminRole) || undefined}
+          onClose={onClose}
+          onSave={onSave}
+        />
+      );
+    case TAG_TAB:
+      return (
+        <TagDialog
+          open={dialogOpen}
+          tag={(selectedItem as Tag) || undefined}
           onClose={onClose}
           onSave={onSave}
         />

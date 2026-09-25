@@ -29,6 +29,11 @@ jest.mock('../ProfileEditDialog', () => ({
   default: () => <div data-testid="profile-edit-dialog" />,
 }));
 
+jest.mock('../NotificationPreferences', () => ({
+  __esModule: true,
+  default: () => <div data-testid="notification-preferences" />,
+}));
+
 jest.mock('../PasswordChangeDialog', () => ({
   __esModule: true,
   default: () => <div data-testid="password-change-dialog" />,
@@ -117,6 +122,7 @@ describe('Profile', () => {
     expect(screen.getByTestId('profile-stats')).toBeInTheDocument();
     expect(screen.getByTestId('profile-task-list')).toBeInTheDocument();
     expect(screen.getByTestId('profile-project-list')).toBeInTheDocument();
+    expect(screen.getByTestId('notification-preferences')).toBeInTheDocument();
   });
 
   test('handles edit profile button click', () => {

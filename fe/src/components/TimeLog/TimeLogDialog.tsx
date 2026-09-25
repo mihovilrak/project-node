@@ -23,8 +23,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   onSubmit,
 }) => {
   const { currentUser, hasPermission } = useAuth();
-  const hasAdminPermission =
-    hasPermission('Admin') || hasPermission('Project Manager');
+  // Logging on behalf of others is admin-only in the API.
+  const hasAdminPermission = hasPermission('Admin');
 
   const {
     selectedProjectId,
@@ -69,10 +69,12 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-          boxShadow: 3,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            boxShadow: 3,
+          },
         },
       }}
       aria-labelledby="time-log-dialog-title"

@@ -1,65 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+
+export type NavTab =
+  '/' | '/projects' | '/tasks' | '/calendar' | '/users' | '/settings';
+
+export const ADMIN_TABS: NavTab[] = ['/users', '/settings'];
+
+const SECTION_PREFIXES: NavTab[] = [
+  '/projects',
+  '/tasks',
+  '/calendar',
+  '/users',
+  '/settings',
+];
 
 /**
- * Manage navigation state and synchronize the active tab with the current
- * route.
+ * Map the current route to the top-level tab it belongs to, or `false` when no
+ * tab matches (e.g. /profile).
  */
-export const useNavigation = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState<number>(0);
-
-  // Sync activeTab with current route (order: Home, Projects, Tasks, Users, Settings)
-  useEffect(() => {
-    const pathname = location.pathname;
-
-    if (pathname === '/' || pathname === '/home') {
-      setActiveTab(0);
-    } else if (pathname.startsWith('/projects')) {
-      setActiveTab(1);
-    } else if (pathname.startsWith('/tasks')) {
-      setActiveTab(2);
-    } else if (pathname.startsWith('/users')) {
-      setActiveTab(3);
-    } else if (pathname === '/settings') {
-      setActiveTab(4);
-    } else if (pathname === '/profile') {
-      setActiveTab(0);
-    }
-  }, [location.pathname]);
-
-  const handleTabChange = useCallback(
-    (_event: React.SyntheticEvent, newValue: number) => {
-      setActiveTab(newValue);
-      switch (newValue) {
-        case 0:
-          navigate('/');
-          break;
-        case 1:
-          navigate('/projects');
-          break;
-        case 2:
-          navigate('/tasks');
-          break;
-        case 3:
-          navigate('/users');
-          break;
-        case 4:
-          navigate('/settings');
-          break;
-        case 5:
-          navigate('/profile');
-          break;
-        default:
-          break;
-      }
-    },
-    [navigate],
+export const getNavTab = (pathname: string): NavTab | false => {
+  if (pathname === '/' || pathname === '/home') return '/';
+  // Project time-log calendars live under /projects, not /calendar.
+  return (
+    SECTION_PREFIXES.find(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    ) ?? false
   );
+};
 
-  return {
-    activeTab,
-    handleTabChange,
-  };
+export const useNavigation = () => {
+  const location = useLocation();
+  return { activeTab: getNavTab(location.pathname) };
 };

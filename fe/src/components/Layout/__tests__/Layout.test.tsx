@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 // Create mocks for test
 let mockCurrentUser: any = null;
 let mockIsAdmin = true;
-let mockActiveTab = 0;
+let mockActiveTab: string | false = '/';
 const mockLogout = jest.fn();
 const mockToggleTheme = jest.fn();
 
@@ -22,6 +22,7 @@ jest.mock('../../../context/AuthContext', () => ({
 }));
 
 jest.mock('../../../hooks/layout/useNavigation', () => ({
+  ADMIN_TABS: ['/users', '/settings'],
   useNavigation: () => ({
     activeTab: mockActiveTab,
   }),
@@ -107,7 +108,7 @@ describe('Layout', () => {
     jest.clearAllMocks();
     mockCurrentUser = null;
     mockIsAdmin = true;
-    mockActiveTab = 0;
+    mockActiveTab = '/';
   });
 
   const renderLayout = () => {
@@ -155,14 +156,28 @@ describe('Layout', () => {
       'href',
       '/settings',
     );
+    expect(screen.getByTestId('tab-link-calendar')).toHaveAttribute(
+      'href',
+      '/calendar',
+    );
+  });
+
+  it('marks the calendar tab active on the calendar route', () => {
+    mockActiveTab = '/calendar';
+    renderLayout();
+    expect(screen.getByTestId('tabs')).toHaveAttribute(
+      'data-value',
+      '/calendar',
+    );
   });
 
   it('hides admin-only tabs for non-admin users', () => {
     mockIsAdmin = false;
-    mockActiveTab = 3;
+    mockActiveTab = '/users';
     renderLayout();
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Tasks')).toBeInTheDocument();
+    expect(screen.getByText('Calendar')).toBeInTheDocument();
     expect(screen.queryByText('Users')).not.toBeInTheDocument();
     expect(screen.queryByText('Settings')).not.toBeInTheDocument();
     expect(screen.getByTestId('tabs')).toHaveAttribute('data-value', 'false');
