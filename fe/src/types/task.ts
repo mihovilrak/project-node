@@ -242,6 +242,7 @@ export interface TaskDetailsContentProps {
   onAddSubtaskClick: () => void;
   onTimeLogClick: () => void;
   onCommentRefresh?: () => Promise<void>;
+  canLogTime?: boolean;
 }
 
 export interface TaskDetailsSidebarProps {
@@ -307,6 +308,7 @@ export interface ParentTaskSelectProps {
   projectTasks: Task[];
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   parentIdFromUrl?: string | null;
+  disabled?: boolean;
 }
 
 export interface UseTaskFormProps {

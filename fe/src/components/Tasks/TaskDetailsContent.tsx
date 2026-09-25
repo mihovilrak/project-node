@@ -29,6 +29,7 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onEditEnd,
   onAddSubtaskClick,
   onTimeLogClick,
+  canLogTime = true,
   onCommentRefresh,
 }) => (
   <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
@@ -78,14 +79,16 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         <Typography variant="h5" component="h2">
           Time Logs:
         </Typography>
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<AccessTimeIcon />}
-          onClick={onTimeLogClick}
-        >
-          Log Time
-        </Button>
+        {canLogTime && (
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AccessTimeIcon />}
+            onClick={onTimeLogClick}
+          >
+            Log Time
+          </Button>
+        )}
       </Box>
       <TaskTimeLogging
         taskId={Number(id)}

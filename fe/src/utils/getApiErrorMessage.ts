@@ -5,6 +5,18 @@ const STATUS_MESSAGES: Record<number, string> = {
 };
 
 /**
+ * HTTP status of a failed API request, or undefined for non-HTTP errors.
+ */
+export function getApiErrorStatus(error: unknown): number | undefined {
+  if (error !== null && typeof error === 'object' && 'response' in error) {
+    const status = (error as { response?: { status?: unknown } }).response
+      ?.status;
+    if (typeof status === 'number') return status;
+  }
+  return undefined;
+}
+
+/**
  * Extracts a user-facing error message from an unknown error (e.g. Axios
  * error). Uses type guards; does not use `any`.
  */

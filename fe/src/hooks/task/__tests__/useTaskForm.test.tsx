@@ -414,6 +414,9 @@ describe('useTaskForm', () => {
       expect.objectContaining({ status_id: 2 }),
     );
     expect(changeTaskStatus).not.toHaveBeenCalled();
+    const updates = (updateTask as jest.Mock).mock.calls[0][1];
+    expect(updates).not.toHaveProperty('project_id');
+    expect(updates).not.toHaveProperty('parent_id');
   });
 
   it('keeps edit mode and blocks submit when loading fails', async () => {

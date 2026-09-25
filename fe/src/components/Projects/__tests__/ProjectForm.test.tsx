@@ -224,6 +224,9 @@ describe('ProjectForm Component', () => {
         expect.any(Error),
       );
     });
+    expect(await screen.findByText('API Error')).toBeInTheDocument();
+    expect(addProjectMember).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   // This test is split into two separate tests to isolate the functionality

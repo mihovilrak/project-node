@@ -47,6 +47,7 @@ const ProjectDetails: React.FC = () => {
     canEdit,
     canDelete,
     canManageMembers,
+    canLogTime,
     handleProjectUpdate,
     handleProjectDelete,
     handleMemberRemove,
@@ -157,6 +158,7 @@ const ProjectDetails: React.FC = () => {
           members={members}
           timeLogs={timeLogs}
           canManageMembers={canManageMembers}
+          canLogTime={canLogTime}
           onCreateTask={handleCreateTask}
           onManageMembers={handleManageMembers}
           onTimeLogCreate={openTimeLogDialog}

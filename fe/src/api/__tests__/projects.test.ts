@@ -11,6 +11,7 @@ import {
   addProjectMember,
   removeProjectMember,
   getSubprojects,
+  changeProjectStatus,
 } from '../projects';
 
 // Mock the api module
@@ -63,9 +64,29 @@ describe('Projects API', () => {
       const result = await getProjects();
 
       expect(mockedApi.get).toHaveBeenCalledWith('/projects', {
-        params: undefined,
+        params: { limit: 500, offset: 0 },
+        signal: undefined,
       });
       expect(result).toEqual(mockProjects);
+    });
+
+    it('should request following pages until one comes back short', async () => {
+      const fullPage = Array.from({ length: 500 }, (_, i) => ({
+        ...mockProject,
+        id: i + 1,
+      }));
+      mockedApi.get
+        .mockResolvedValueOnce({ data: fullPage })
+        .mockResolvedValueOnce({ data: [mockProject] });
+
+      const result = await getProjects({ status_id: 1 });
+
+      expect(mockedApi.get).toHaveBeenCalledTimes(2);
+      expect(mockedApi.get).toHaveBeenLastCalledWith('/projects', {
+        params: { status_id: 1, limit: 500, offset: 500 },
+        signal: undefined,
+      });
+      expect(result).toHaveLength(501);
     });
   });
 
@@ -135,6 +156,18 @@ describe('Projects API', () => {
     });
   });
 
+  describe('changeProjectStatus', () => {
+    it('should patch the status endpoint', async () => {
+      mockedApi.patch.mockResolvedValueOnce({ data: {} });
+
+      await changeProjectStatus(1, 3);
+
+      expect(mockedApi.patch).toHaveBeenCalledWith('/projects/1/status', {
+        status_id: 3,
+      });
+    });
+  });
+
   describe('deleteProject', () => {
     it('should delete project successfully', async () => {
       mockedApi.delete.mockResolvedValueOnce({ data: null });
@@ -157,6 +190,7 @@ describe('Projects API', () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockProjectMember] });
       const result = await getProjectMembers(1);
       expect(mockedApi.get).toHaveBeenCalledWith('/projects/1/members', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockProjectMember]);
@@ -220,6 +254,7 @@ describe('Projects API', () => {
       const result = await getSubprojects(1);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/projects/1/subprojects', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockProject]);

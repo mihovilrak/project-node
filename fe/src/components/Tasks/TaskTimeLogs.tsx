@@ -15,6 +15,7 @@ import TimeLogStats from '../TimeLog/TimeLogStats';
 import TimeLogList from '../TimeLog/TimeLogList';
 import { TaskTimeLogsProps } from '../../types/task';
 import { useTimeLogCrud } from '../../hooks/timeLog/useTimeLogCrud';
+import { usePermission } from '../../hooks/common/usePermission';
 
 const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
       [id],
       Boolean(id),
     );
+  const { hasPermission: canLogTime } = usePermission('Log time');
   const [actionError, setActionError] = useState<string | null>(null);
   const [timeLogDialogOpen, setTimeLogDialogOpen] = useState<boolean>(false);
   const [selectedTimeLog, setSelectedTimeLog] = useState<TimeLog | null>(null);
@@ -95,12 +97,14 @@ const TaskTimeLogs: React.FC<TaskTimeLogsProps> = ({ task }) => {
           }}
         >
           <Typography variant="h6">Time Logs</Typography>
-          <Button
-            variant="contained"
-            onClick={() => setTimeLogDialogOpen(true)}
-          >
-            Log Time
-          </Button>
+          {canLogTime && (
+            <Button
+              variant="contained"
+              onClick={() => setTimeLogDialogOpen(true)}
+            >
+              Log Time
+            </Button>
+          )}
         </Box>
 
         {actionError && (

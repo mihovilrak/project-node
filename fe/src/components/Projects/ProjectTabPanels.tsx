@@ -25,6 +25,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     members,
     timeLogs,
     canManageMembers,
+    canLogTime = true,
     onCreateTask,
     onManageMembers,
     onTimeLogCreate,
@@ -100,9 +101,11 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
             }}
           >
             <Typography variant="h6">Time Logs</Typography>
-            <Button variant="contained" onClick={() => onTimeLogCreate()}>
-              Log Time
-            </Button>
+            {canLogTime && (
+              <Button variant="contained" onClick={() => onTimeLogCreate()}>
+                Log Time
+              </Button>
+            )}
           </Box>
           <MemoizedTimeLogList
             timeLogs={timeLogs || []}
@@ -111,7 +114,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
           />
         </>
       ),
-      [timeLogs, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
+      [timeLogs, canLogTime, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
     );
 
     const ganttContent = useMemo(

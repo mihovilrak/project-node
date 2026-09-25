@@ -68,6 +68,15 @@ jest.mock('../../TimeLog/TimeLogList', () => ({
   ),
 }));
 
+let mockCanLogTime = true;
+jest.mock('../../../context/AuthContext', () => ({
+  useAuth: () => ({
+    hasPermission: (permission: string) =>
+      permission === 'Log time' ? mockCanLogTime : true,
+    permissionsLoading: false,
+  }),
+}));
+
 // Mock react-router-dom useParams
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -132,6 +141,7 @@ const renderComponent = async () => {
 describe('TaskTimeLogs', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanLogTime = true;
     (getTaskTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
   });
 
@@ -275,5 +285,28 @@ describe('TaskTimeLogs', () => {
 
     expect(await screen.findByText('Delete failed')).toBeInTheDocument();
     expect(screen.getByTestId('time-log-list')).toBeInTheDocument();
+  });
+
+  it('hides Log Time without the Log time permission', async () => {
+    mockCanLogTime = false;
+    renderComponent();
+
+    expect(await screen.findByTestId('time-log-list')).toBeInTheDocument();
+    expect(screen.queryByText('Log Time')).not.toBeInTheDocument();
+  });
+
+  it('treats deleting an already removed log as success', async () => {
+    (deleteTimeLog as jest.Mock).mockRejectedValueOnce({
+      response: { status: 404 },
+    });
+    renderComponent();
+    await screen.findByTestId('time-log-list');
+
+    fireEvent.click(screen.getByTestId('mock-delete'));
+
+    await waitFor(() => {
+      expect(getTaskTimeLogs).toHaveBeenCalledTimes(2);
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

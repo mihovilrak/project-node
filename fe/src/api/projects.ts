@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Project, ProjectMember, ProjectStatus } from '../types/project';
+import { fetchAllPages } from './pagination';
 
 /**
  * Fetch the projects list from the server, optionally filtering by status,
@@ -32,11 +33,13 @@ export const getProjects = async (
   },
   signal?: AbortSignal,
 ): Promise<Project[]> => {
-  const response = await api.get<Project[]>('/projects', {
-    params,
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Project[]>('/projects', {
+      params: { ...params, ...page },
+      signal,
+    });
+    return response.data;
   });
-  return response.data;
 };
 
 /**
@@ -105,6 +108,20 @@ export const updateProject = async (
 };
 
 /**
+ * Move a project to another status. PUT /projects/:id ignores status_id, so
+ * status changes go through this endpoint.
+ *
+ * @param id Numeric ID of the project.
+ * @param statusId ID of the target project status.
+ */
+export const changeProjectStatus = async (
+  id: number,
+  statusId: number,
+): Promise<void> => {
+  await api.patch(`/projects/${id}/status`, { status_id: statusId });
+};
+
+/**
  * Delete the project with the given ID on the server.
  *
  * Issues an HTTP DELETE request to /projects/{id} to remove the project
@@ -133,10 +150,13 @@ export const getProjectMembers = async (
   id: number,
   signal?: AbortSignal,
 ): Promise<ProjectMember[]> => {
-  const response = await api.get<ProjectMember[]>(`/projects/${id}/members`, {
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<ProjectMember[]>(
+      `/projects/${id}/members`,
+      { params: page, signal },
+    );
+    return response.data;
   });
-  return response.data || [];
 };
 
 /**
@@ -203,11 +223,13 @@ export const getSubprojects = async (
   projectId: number,
   signal?: AbortSignal,
 ): Promise<Project[]> => {
-  const response = await api.get<Project[]>(
-    `/projects/${projectId}/subprojects`,
-    { signal },
-  );
-  return response.data;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Project[]>(
+      `/projects/${projectId}/subprojects`,
+      { params: page, signal },
+    );
+    return response.data;
+  });
 };
 
 /**

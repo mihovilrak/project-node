@@ -67,6 +67,7 @@ describe('Tasks API', () => {
       const result = await getTasks(filters);
 
       expect(mockedApi.get).toHaveBeenCalledWith(`/tasks?status=1&priority=2`, {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockTask]);
@@ -85,6 +86,7 @@ describe('Tasks API', () => {
       await getTasks({ status_id: 0, search: '' });
 
       expect(mockedApi.get).toHaveBeenCalledWith('/tasks?status_id=0', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
     });
@@ -155,7 +157,7 @@ describe('Tasks API', () => {
 
       expect(mockedApi.get).toHaveBeenCalledWith(
         `/projects/${projectId}/tasks?status=1`,
-        { signal: undefined },
+        { params: { limit: 500, offset: 0 }, signal: undefined },
       );
       expect(result).toEqual([mockTask]);
     });
@@ -173,7 +175,10 @@ describe('Tasks API', () => {
         params: {
           start_date: startDate.toISOString(),
           end_date: endDate.toISOString(),
+          limit: 500,
+          offset: 0,
         },
+        signal: undefined,
       });
       expect(result).toEqual([mockTask]);
     });

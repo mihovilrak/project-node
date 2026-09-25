@@ -1,5 +1,6 @@
 import { api } from './api';
 import { TimeLog, TimeLogCreate, TimeSpent } from '../types/timeLog';
+import { fetchAllPages } from './pagination';
 
 /**
  * Fetch time log entries for a specific task from the backend API.
@@ -17,10 +18,13 @@ export const getTaskTimeLogs = async (
   taskId: number,
   signal?: AbortSignal,
 ): Promise<TimeLog[]> => {
-  const response = await api.get<TimeLog[]>(`/time-logs/tasks/${taskId}/logs`, {
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<TimeLog[]>(
+      `/time-logs/tasks/${taskId}/logs`,
+      { params: page, signal },
+    );
+    return response.data;
   });
-  return response.data;
 };
 
 /**
@@ -44,11 +48,13 @@ export const getProjectTimeLogs = async (
   params?: Record<string, unknown>,
   signal?: AbortSignal,
 ): Promise<TimeLog[]> => {
-  const response = await api.get<TimeLog[]>(
-    `/time-logs/projects/${projectId}/logs`,
-    { params, signal },
-  );
-  return response.data;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<TimeLog[]>(
+      `/time-logs/projects/${projectId}/logs`,
+      { params: { ...params, ...page }, signal },
+    );
+    return response.data;
+  });
 };
 
 /**
