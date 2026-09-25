@@ -118,6 +118,24 @@ describe('useFileUpload', () => {
     expect(mockEvent.target.value).toBe('');
   });
 
+  it('prefers the API error message on upload failure', async () => {
+    mockedUploadFile.mockRejectedValueOnce({
+      isAxiosError: true,
+      message: 'Request failed with status code 403',
+      response: { status: 403, data: { error: 'Access denied' } },
+    });
+
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
+
+    await act(async () => {
+      await result.current.handleFileChange(mockEvent);
+    });
+
+    expect(result.current.error).toBe('Access denied');
+  });
+
   it('rejects files larger than 10 MB before upload', async () => {
     const oversizedFile = new File(['large'], 'large.pdf', {
       type: 'application/pdf',

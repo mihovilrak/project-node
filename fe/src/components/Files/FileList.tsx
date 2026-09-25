@@ -18,16 +18,19 @@ import { downloadFile } from '../../api/files';
 import { Link as RouterLink } from 'react-router-dom';
 import { formatFileSize, safeDecodeFileName } from '../../utils/fileUtils';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const FileList: React.FC<FileListProps> = ({
   files,
   taskId,
   onFileDeleted,
+  onError,
 }) => {
   const handleDownload = (fileId: number) => {
-    downloadFile(taskId, fileId).catch((error: unknown) =>
-      logger.error('Failed to download file', error),
-    );
+    downloadFile(taskId, fileId).catch((error: unknown) => {
+      logger.error('Failed to download file', error);
+      onError?.(getApiErrorMessage(error, 'Failed to download file'));
+    });
   };
 
   if (files.length === 0) {
