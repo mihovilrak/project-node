@@ -15,7 +15,6 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   comments,
   timeLogDialogOpen,
   selectedTimeLog,
-  editingComment,
   onSubtaskDeleted,
   onSubtaskUpdated,
   onTimeLogSubmit,
@@ -25,8 +24,6 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onCommentSubmit,
   onCommentUpdate,
   onCommentDelete,
-  onEditStart,
-  onEditEnd,
   onAddSubtaskClick,
   onTimeLogClick,
   canLogTime = true,
@@ -120,12 +117,9 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
       <TaskCommentSection
         taskId={Number(id)}
         comments={comments}
-        editingComment={editingComment}
         onCommentSubmit={onCommentSubmit}
         onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
-        onEditStart={onEditStart}
-        onEditEnd={onEditEnd}
       />
     </Paper>
   </Grid>

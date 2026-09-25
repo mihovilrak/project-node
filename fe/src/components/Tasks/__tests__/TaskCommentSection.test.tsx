@@ -59,12 +59,9 @@ const mockComments: Comment[] = [
 const mockProps: TaskCommentSectionProps = {
   taskId: 1,
   comments: mockComments,
-  editingComment: null, // Initialize as null
   onCommentSubmit: jest.fn(),
   onCommentUpdate: jest.fn(),
   onCommentDelete: jest.fn(),
-  onEditStart: jest.fn(),
-  onEditEnd: jest.fn(),
 };
 
 describe('TaskCommentSection', () => {

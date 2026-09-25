@@ -123,14 +123,12 @@ describe('TaskDetails', () => {
     (TaskDetailsHandlers.useTaskDetailsHandlers as jest.Mock).mockReturnValue({
       state: {
         statusMenuAnchor: null,
-        editingComment: null,
         timeLogDialogOpen: false,
         selectedTimeLog: null,
         watcherDialogOpen: false,
       },
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: jest.fn(),
-      handleEditStart: jest.fn(),
       handleTimeLogCreate: jest.fn(),
       handleTimeLogEdit: jest.fn(),
       handleTimeLogDialogClose: jest.fn(),
@@ -210,7 +208,6 @@ describe('TaskDetails', () => {
     (TaskDetailsHandlers.useTaskDetailsHandlers as jest.Mock).mockReturnValue({
       state: {
         statusMenuAnchor: null,
-        editingComment: null,
         timeLogDialogOpen: false,
         selectedTimeLog: null,
         watcherDialogOpen: false,
@@ -218,7 +215,6 @@ describe('TaskDetails', () => {
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: mockHandleStatusMenuClose,
       handleStatusChange: mockHandleStatusChange,
-      handleEditStart: jest.fn(),
       handleTimeLogCreate: jest.fn(),
       handleTimeLogEdit: jest.fn(),
       handleTimeLogDialogClose: jest.fn(),

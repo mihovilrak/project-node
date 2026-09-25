@@ -147,7 +147,6 @@ const mockProps = {
   comments: mockComments,
   timeLogDialogOpen: false,
   selectedTimeLog: null,
-  editingComment: null,
   onSubtaskDeleted: jest.fn(),
   onSubtaskUpdated: jest.fn(),
   onTimeLogSubmit: jest.fn(),
@@ -157,8 +156,6 @@ const mockProps = {
   onCommentSubmit: jest.fn(),
   onCommentUpdate: jest.fn(),
   onCommentDelete: jest.fn(),
-  onEditStart: jest.fn(),
-  onEditEnd: jest.fn(),
   onAddSubtaskClick: jest.fn(),
   onTimeLogClick: jest.fn(),
 };

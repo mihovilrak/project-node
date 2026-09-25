@@ -1,20 +1,8 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTaskDetailsHandlers } from '../useTaskDetailsHandlers';
-import { Comment } from '../../../types/comment';
 import { TimeLog } from '../../../types/timeLog';
 
 describe('useTaskDetailsHandlers', () => {
-  const mockComment: Comment = {
-    id: 1,
-    task_id: 1,
-    user_id: 1,
-    comment: 'Test comment',
-    active: true,
-    created_on: '2024-01-25T00:00:00Z',
-    updated_on: null,
-    user_name: 'Test User',
-  };
-
   const mockEvent = {
     currentTarget: document.createElement('button'),
     preventDefault: () => {},
@@ -60,22 +48,6 @@ describe('useTaskDetailsHandlers', () => {
     });
 
     expect(result.current.state.statusMenuAnchor).toBeNull();
-  });
-
-  it('should handle comment editing', () => {
-    const { result } = renderHook(() => useTaskDetailsHandlers());
-
-    act(() => {
-      result.current.handleEditStart(mockComment);
-    });
-
-    expect(result.current.state.editingComment).toBe(mockComment);
-
-    act(() => {
-      result.current.handleEditStart(null);
-    });
-
-    expect(result.current.state.editingComment).toBeNull();
   });
 
   it('should handle time log dialog', async () => {

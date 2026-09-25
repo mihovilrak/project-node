@@ -47,14 +47,12 @@ const TaskDetails: React.FC = () => {
   const {
     state: {
       statusMenuAnchor,
-      editingComment,
       timeLogDialogOpen,
       selectedTimeLog,
       watcherDialogOpen,
     },
     handleStatusMenuClick,
     handleStatusMenuClose,
-    handleEditStart,
     handleTimeLogCreate,
     handleTimeLogEdit,
     handleTimeLogDialogClose,
@@ -151,7 +149,6 @@ const TaskDetails: React.FC = () => {
         comments={comments}
         timeLogDialogOpen={timeLogDialogOpen}
         selectedTimeLog={selectedTimeLog}
-        editingComment={editingComment}
         onSubtaskDeleted={(subtaskId) =>
           subtaskId && handleSubtaskDelete(subtasks, subtaskId, setSubtasks)
         }
@@ -187,8 +184,6 @@ const TaskDetails: React.FC = () => {
           await handleCommentUpdate(commentId, text);
         }}
         onCommentDelete={handleCommentDelete}
-        onEditStart={handleEditStart}
-        onEditEnd={() => handleEditStart(null)}
         onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
         onTimeLogClick={handleTimeLogCreate}
         canLogTime={hasPermission('Log time')}
