@@ -1,36 +1,15 @@
 import { renderHook, act } from '@testing-library/react';
 import { useCommentForm } from '../useCommentForm';
-import { createComment } from '../../../api/comments';
-import { Comment } from '../../../types/comment';
-
-// Mock the createComment API function
-jest.mock('../../../api/comments');
-const mockedCreateComment = createComment as jest.MockedFunction<
-  typeof createComment
->;
 
 describe('useCommentForm', () => {
-  const mockTaskId = 1;
-  const mockNewComment: Comment = {
-    id: 1,
-    comment: 'New test comment',
-    created_on: new Date().toISOString(),
-    updated_on: new Date().toISOString(),
-    task_id: mockTaskId,
-    user_id: 1,
-    active: true,
-  };
-
-  const mockOnCommentAdded = jest.fn();
+  const mockOnSubmit = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should initialize with empty state', () => {
-    const { result } = renderHook(() =>
-      useCommentForm(mockTaskId, mockOnCommentAdded),
-    );
+    const { result } = renderHook(() => useCommentForm(mockOnSubmit));
 
     expect(result.current.comment).toBe('');
     expect(result.current.loading).toBe(false);
@@ -38,9 +17,7 @@ describe('useCommentForm', () => {
   });
 
   it('should update comment when setComment is called', () => {
-    const { result } = renderHook(() =>
-      useCommentForm(mockTaskId, mockOnCommentAdded),
-    );
+    const { result } = renderHook(() => useCommentForm(mockOnSubmit));
 
     act(() => {
       result.current.setComment('New comment');
@@ -50,10 +27,8 @@ describe('useCommentForm', () => {
   });
 
   it('should handle successful comment submission', async () => {
-    mockedCreateComment.mockResolvedValueOnce(mockNewComment);
-    const { result } = renderHook(() =>
-      useCommentForm(mockTaskId, mockOnCommentAdded),
-    );
+    mockOnSubmit.mockResolvedValueOnce(undefined);
+    const { result } = renderHook(() => useCommentForm(mockOnSubmit));
 
     // Set up form data
     act(() => {
@@ -70,19 +45,15 @@ describe('useCommentForm', () => {
     });
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockedCreateComment).toHaveBeenCalledWith(mockTaskId, {
-      comment: 'New comment',
-    });
-    expect(mockOnCommentAdded).toHaveBeenCalledWith(mockNewComment);
+    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    expect(mockOnSubmit).toHaveBeenCalledWith('New comment');
     expect(result.current.comment).toBe('');
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeNull();
   });
 
   it('should not submit empty comment', async () => {
-    const { result } = renderHook(() =>
-      useCommentForm(mockTaskId, mockOnCommentAdded),
-    );
+    const { result } = renderHook(() => useCommentForm(mockOnSubmit));
 
     const mockEvent = {
       preventDefault: jest.fn(),
@@ -93,18 +64,16 @@ describe('useCommentForm', () => {
     });
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(mockedCreateComment).not.toHaveBeenCalled();
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
   it('should handle submission error', async () => {
     const mockError = {
       response: { status: 400, data: { error: 'Failed to create comment' } },
     };
-    mockedCreateComment.mockRejectedValueOnce(mockError);
+    mockOnSubmit.mockRejectedValueOnce(mockError);
 
-    const { result } = renderHook(() =>
-      useCommentForm(mockTaskId, mockOnCommentAdded),
-    );
+    const { result } = renderHook(() => useCommentForm(mockOnSubmit));
 
     // Set up form data
     act(() => {
@@ -122,6 +91,6 @@ describe('useCommentForm', () => {
 
     expect(result.current.error).toBe('Failed to create comment');
     expect(result.current.loading).toBe(false);
-    expect(mockOnCommentAdded).not.toHaveBeenCalled();
+    expect(result.current.comment).toBe('New comment');
   });
 });

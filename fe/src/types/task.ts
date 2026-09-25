@@ -241,7 +241,6 @@ export interface TaskDetailsContentProps {
   onEditEnd: () => void;
   onAddSubtaskClick: () => void;
   onTimeLogClick: () => void;
-  onCommentRefresh?: () => Promise<void>;
   canLogTime?: boolean;
 }
 

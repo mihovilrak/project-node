@@ -39,20 +39,28 @@ export const useTaskComments = (taskId: string) => {
       if (!currentUser?.id) throw new Error('User not authenticated');
       if (!taskId) throw new Error('Task ID is required');
 
-      const newComment = await createComment(Number(taskId), {
+      const created = await createComment(Number(taskId), {
         comment: content,
       });
 
-      if (!newComment) {
+      if (!created) {
         throw new Error('Failed to create comment');
       }
+
+      // The create endpoint returns the bare row; the list shows the author.
+      const newComment: Comment = {
+        ...created,
+        user_name:
+          created.user_name ??
+          `${currentUser.name} ${currentUser.surname}`.trim(),
+      };
 
       setComments((prev) => {
         const exists = prev.some((c) => c?.id === newComment.id);
         if (exists) {
           return prev.map((c) => (c?.id === newComment.id ? newComment : c));
         }
-        return [...prev, newComment];
+        return [newComment, ...prev];
       });
       return newComment;
     } catch (error: unknown) {

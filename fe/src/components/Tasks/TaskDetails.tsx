@@ -42,7 +42,6 @@ const TaskDetails: React.FC = () => {
     handleCommentSubmit,
     handleCommentUpdate,
     handleCommentDelete,
-    fetchComments,
   } = useTaskComments(id!);
 
   const {
@@ -191,7 +190,6 @@ const TaskDetails: React.FC = () => {
         onCommentSubmit={async (content) => {
           if (content) await handleCommentSubmit(content);
         }}
-        onCommentRefresh={fetchComments}
         onCommentUpdate={async (commentId, text) => {
           await handleCommentUpdate(commentId, text);
         }}

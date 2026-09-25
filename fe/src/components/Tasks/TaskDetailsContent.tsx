@@ -30,7 +30,6 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
   onAddSubtaskClick,
   onTimeLogClick,
   canLogTime = true,
-  onCommentRefresh,
 }) => (
   <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
     <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
@@ -127,7 +126,6 @@ const TaskDetailsContent: React.FC<TaskDetailsContentProps> = ({
         onCommentDelete={onCommentDelete}
         onEditStart={onEditStart}
         onEditEnd={onEditEnd}
-        onCommentRefresh={onCommentRefresh}
       />
     </Paper>
   </Grid>

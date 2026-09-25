@@ -11,8 +11,8 @@ export interface Comment {
 }
 
 export interface CommentFormProps {
-  taskId: number;
-  onCommentAdded: (comment: Comment) => void;
+  onSubmit: (text: string) => Promise<unknown>;
+  disabled?: boolean;
 }
 
 /**
@@ -42,5 +42,4 @@ export interface TaskCommentSectionProps {
   onCommentDelete: (commentId: number) => Promise<void>;
   onEditStart: (comment: Comment) => void;
   onEditEnd: () => void;
-  onCommentRefresh?: () => Promise<void>;
 }
