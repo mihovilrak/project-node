@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import ErrorBoundary from '../ErrorBoundary';
+import logger from '../../../utils/logger';
 
 const ThrowError = (): React.ReactElement => {
   throw new Error('Test error');
@@ -30,5 +31,10 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Go to Home')).toBeInTheDocument();
     expect(screen.getByText('Reload page')).toBeInTheDocument();
+    expect(logger.error).toHaveBeenCalledWith(
+      'ErrorBoundary caught an error:',
+      expect.objectContaining({ message: 'Test error' }),
+      expect.any(String),
+    );
   });
 });

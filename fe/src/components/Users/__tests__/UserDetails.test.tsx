@@ -143,7 +143,7 @@ describe('UserDetails', () => {
     render(<UserDetails />);
 
     await waitFor(() => {
-      expect(getUserById).toHaveBeenCalledWith(1);
+      expect(getUserById).toHaveBeenCalledWith(1, expect.any(AbortSignal));
     });
   });
 });
