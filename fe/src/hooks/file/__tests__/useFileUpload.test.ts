@@ -136,6 +136,22 @@ describe('useFileUpload', () => {
     expect(result.current.error).toBe('Access denied');
   });
 
+  it('explains a 413 from the server', async () => {
+    mockedUploadFile.mockRejectedValueOnce({
+      response: { status: 413, data: { error: 'File too large' } },
+    });
+
+    const { result } = renderHook(() =>
+      useFileUpload(mockTaskId, mockOnFileUploaded),
+    );
+
+    await act(async () => {
+      await result.current.handleFileChange(mockEvent);
+    });
+
+    expect(result.current.error).toBe('File too large (max 10 MB)');
+  });
+
   it('rejects files larger than 10 MB before upload', async () => {
     const oversizedFile = new File(['large'], 'large.pdf', {
       type: 'application/pdf',
@@ -154,7 +170,7 @@ describe('useFileUpload', () => {
       await result.current.handleFileChange(oversizedEvent);
     });
 
-    expect(result.current.error).toBe('File size must not exceed 10 MB');
+    expect(result.current.error).toBe('File too large (max 10 MB)');
     expect(mockedUploadFile).not.toHaveBeenCalled();
     expect(oversizedEvent.target.value).toBe('');
   });
