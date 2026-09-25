@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request from '../setup/request';
 import { Express } from 'express';
 import {
   cleanupTables,
@@ -222,7 +222,7 @@ describe('route authorization', () => {
       },
     );
     expect(markResponse.status).toBe(200);
-    expect(markResponse.body).toEqual([]);
+    expect(markResponse.body).toEqual({ updated: 0 });
 
     const deleteResponse = await requestAsLimitedUser(
       'delete',

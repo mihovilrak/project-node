@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request from '../setup/request';
 import { Express } from 'express';
 import {
   cleanupTables,
@@ -16,7 +16,10 @@ beforeAll(async () => {
   app = appModule.default;
 });
 
-const seedNotification = async (userId: number, title = 'Test notification') => {
+const seedNotification = async (
+  userId: number,
+  title = 'Test notification',
+) => {
   const result = await testPool.query(
     `INSERT INTO notifications (user_id, type_id, title, message)
      VALUES ($1, 1, $2, 'Body') RETURNING *`,
@@ -26,7 +29,13 @@ const seedNotification = async (userId: number, title = 'Test notification') => 
 };
 
 beforeEach(async () => {
-  await cleanupTables(['notifications', 'projects', 'project_users', 'session', 'users']);
+  await cleanupTables([
+    'notifications',
+    'projects',
+    'project_users',
+    'session',
+    'users',
+  ]);
 
   user = await seedTestUser();
 
@@ -98,8 +107,12 @@ describe('PATCH /api/notifications', () => {
       .send({});
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(2);
-    expect(response.body.every((n: any) => n.is_read)).toBe(true);
+    expect(response.body).toEqual({ updated: 2 });
+
+    const unread = await testPool.query(
+      'SELECT id FROM notifications WHERE is_read = false',
+    );
+    expect(unread.rows).toHaveLength(0);
   });
 
   it('marks only the specified notification as read', async () => {
@@ -112,13 +125,22 @@ describe('PATCH /api/notifications', () => {
       .send({ notification_id: first.id });
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(1);
-    expect(response.body[0].id).toBe(first.id);
+    expect(response.body).toEqual({ updated: 1 });
 
     const unread = await testPool.query(
       'SELECT id FROM notifications WHERE is_read = false',
     );
     expect(unread.rows).toHaveLength(1);
+    expect(unread.rows[0].id).not.toBe(first.id);
+  });
+
+  it('returns 400 for a non-numeric notification_id', async () => {
+    const response = await request(app)
+      .patch('/api/notifications')
+      .set('Cookie', authCookies)
+      .send({ notification_id: 'abc' });
+
+    expect(response.status).toBe(400);
   });
 });
 
