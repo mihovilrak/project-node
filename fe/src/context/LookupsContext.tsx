@@ -50,7 +50,11 @@ export const createLookupStore = (): LookupStore => {
   const get = <K extends LookupKey>(key: K): Promise<LookupMap[K]> => {
     let promise = cache.get(key) as Promise<LookupMap[K]> | undefined;
     if (!promise) {
-      promise = fetchers[key]().then((data) => data ?? ([] as LookupMap[K]));
+      promise = Promise.resolve()
+        .then(() => fetchers[key]())
+        .then((data) =>
+          Array.isArray(data) ? data : ([] as unknown as LookupMap[K]),
+        );
       // Drop failed requests so the next consumer retries.
       promise.catch(() => {
         if (cache.get(key) === promise) cache.delete(key);

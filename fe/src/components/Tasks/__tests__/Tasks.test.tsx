@@ -15,6 +15,8 @@ import {
   getTaskStatuses,
   getPriorities,
 } from '../../../api/tasks';
+import { getProjects } from '../../../api/projects';
+import { getUserOptions } from '../../../api/users';
 import { Task } from '../../../types/task';
 import userEvent from '@testing-library/user-event';
 import logger from '../../../utils/logger';
@@ -25,6 +27,13 @@ jest.mock('../../../api/tasks', () => ({
   deleteTask: jest.fn(),
   getTaskStatuses: jest.fn().mockResolvedValue([]),
   getPriorities: jest.fn().mockResolvedValue([]),
+}));
+jest.mock('../../../api/projects', () => ({
+  getProjects: jest.fn().mockResolvedValue([]),
+}));
+jest.mock('../../../api/users', () => ({
+  ...jest.requireActual('../../../api/users'),
+  getUserOptions: jest.fn().mockResolvedValue([]),
 }));
 const mockedGetTasks = getTasks as jest.MockedFunction<typeof getTasks>;
 const mockedDeleteTask = deleteTask as jest.MockedFunction<typeof deleteTask>;
@@ -126,6 +135,8 @@ describe('Tasks Component', () => {
     jest.clearAllMocks();
     mockedGetTaskStatuses.mockResolvedValue([]);
     mockedGetPriorities.mockResolvedValue([]);
+    (getProjects as jest.Mock).mockResolvedValue([]);
+    (getUserOptions as jest.Mock).mockResolvedValue([]);
   });
 
   test('shows loading state initially', () => {
@@ -211,28 +222,6 @@ describe('Tasks Component', () => {
     });
   }, 10000);
 
-  test('filters tasks by search term', async () => {
-    mockedGetTasks.mockResolvedValue(mockTasks);
-    renderTasks();
-
-    await waitFor(
-      () => {
-        expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-        expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    // For simplicity and robustness, rely on the already-tested FilterPanel behavior
-    // by directly filtering the in-memory array using the same predicate logic.
-    const filtered = mockTasks.filter((task) =>
-      task.name.toLowerCase().includes('task 1'),
-    );
-
-    expect(filtered).toHaveLength(1);
-    expect(filtered[0].name).toBe('Test Task 1');
-  });
-
   test('filters tasks by priority using filter panel', async () => {
     mockedGetTasks.mockResolvedValue(mockTasks);
     mockedGetTaskStatuses.mockResolvedValue([
@@ -300,6 +289,9 @@ describe('Tasks Component', () => {
       },
       { timeout: 15000 },
     );
+    expect(mockedGetTasks).toHaveBeenCalledTimes(2);
+    expect(mockedGetTaskStatuses).toHaveBeenCalledTimes(1);
+    expect(mockedGetPriorities).toHaveBeenCalledTimes(1);
   }, 30000);
 
   test('sorts tasks correctly', async () => {
@@ -389,6 +381,86 @@ describe('Tasks Component', () => {
       { timeout: 10000 },
     );
   }, 15000);
+
+  test('search filters client-side without refetching', async () => {
+    mockedGetTasks.mockResolvedValue(mockTasks);
+    renderTasks();
+
+    await screen.findByText('Test Task 1');
+    expect(mockedGetTasks).toHaveBeenCalledTimes(1);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /expand filters/i }),
+    );
+    await userEvent.click(screen.getByTestId('add-filter-search'));
+    const filterPanel = screen.getByTestId('filter-panel');
+    await userEvent.type(
+      within(filterPanel).getByRole('textbox', { name: /value/i }),
+      'Task 1',
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: /apply filters/i }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Test Task 2')).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    expect(mockedGetTasks).toHaveBeenCalledTimes(1);
+  }, 20000);
+
+  test('loads filter options once', async () => {
+    mockedGetTasks.mockResolvedValue(mockTasks);
+    renderTasks();
+
+    await screen.findByText('Test Task 1');
+    await waitFor(() => {
+      expect(mockedGetTaskStatuses).toHaveBeenCalledTimes(1);
+      expect(mockedGetPriorities).toHaveBeenCalledTimes(1);
+      expect(getProjects).toHaveBeenCalledTimes(1);
+      expect(getUserOptions).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  test('shows tasks whose parent is not in the result as roots', async () => {
+    mockedGetTasks.mockResolvedValue([
+      { ...mockTasks[0], id: 7, name: 'Orphan Child', parent_id: 99 },
+    ]);
+    renderTasks();
+
+    expect(await screen.findByText('Orphan Child')).toBeInTheDocument();
+  });
+
+  test('paginates the grid view', async () => {
+    mockedGetTasks.mockResolvedValue(
+      Array.from({ length: 35 }, (_, i) => ({
+        ...mockTasks[0],
+        id: i + 1,
+        name: `Paged ${String(i + 1).padStart(2, '0')}`,
+      })),
+    );
+    renderTasks();
+
+    expect(await screen.findByText('Paged 01')).toBeInTheDocument();
+    expect(screen.queryByText('Paged 31')).not.toBeInTheDocument();
+
+    const pagination = screen.getByTestId('tasks-pagination');
+    await userEvent.click(
+      within(pagination).getByRole('button', { name: /page 2/i }),
+    );
+    expect(await screen.findByText('Paged 31')).toBeInTheDocument();
+    expect(screen.queryByText('Paged 01')).not.toBeInTheDocument();
+  }, 15000);
+
+  test('shows a warning when filter options fail to load', async () => {
+    mockedGetTasks.mockResolvedValue(mockTasks);
+    mockedGetPriorities.mockRejectedValue({
+      response: { status: 403, data: { error: 'Forbidden' } },
+    });
+    renderTasks();
+
+    expect(await screen.findByText('Forbidden')).toBeInTheDocument();
+  });
 
   test('handles API error gracefully', async () => {
     mockedGetTasks.mockRejectedValue(new Error('API error'));

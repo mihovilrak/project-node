@@ -17,6 +17,9 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../../api/projects');
+jest.mock('../../../api/users', () => ({
+  getUserOptions: jest.fn().mockResolvedValue([]),
+}));
 
 const mockProjects: Project[] = [
   {
@@ -243,4 +246,62 @@ describe('Projects Component', () => {
       screen.getByRole('button', { name: /collapse subprojects/i }),
     ).toBeInTheDocument();
   });
+
+  it('shows nested subprojects at every level', async () => {
+    (getProjects as jest.Mock).mockResolvedValue([
+      mockProjects[0],
+      { ...mockProjects[0], id: 3, name: 'Subproject A1', parent_id: 1 },
+      { ...mockProjects[0], id: 4, name: 'Grandchild A1a', parent_id: 3 },
+    ]);
+
+    render(<Projects />);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /expand subprojects/i }),
+    );
+    const card1 = screen.getByTestId('project-card-1');
+    expect(within(card1).getByText('Grandchild A1a')).toBeInTheDocument();
+  });
+
+  it('shows projects whose parent is not in the result as roots', async () => {
+    (getProjects as jest.Mock).mockResolvedValue([
+      { ...mockProjects[0], id: 3, name: 'Subproject A1', parent_id: 1 },
+    ]);
+
+    render(<Projects />);
+
+    expect(await screen.findByText('Subproject A1')).toBeInTheDocument();
+    expect(screen.queryByText('No projects yet.')).not.toBeInTheDocument();
+  });
+
+  it('searches client-side and loads options once', async () => {
+    const { getProjectStatuses } = require('../../../api/projects');
+    const { getUserOptions } = require('../../../api/users');
+    render(<Projects />);
+
+    await screen.findByText('Project A');
+    // One call for the list, one for the parent options.
+    expect(getProjects).toHaveBeenCalledTimes(2);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /expand filters/i }),
+    );
+    await userEvent.click(screen.getByTestId('add-filter-search'));
+    await userEvent.type(
+      within(screen.getByTestId('filter-panel')).getByRole('textbox', {
+        name: /value/i,
+      }),
+      'Project B',
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: /apply filters/i }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Project A')).not.toBeInTheDocument();
+    });
+    expect(getProjects).toHaveBeenCalledTimes(2);
+    expect(getProjectStatuses).toHaveBeenCalledTimes(1);
+    expect(getUserOptions).toHaveBeenCalledTimes(1);
+  }, 15000);
 });
