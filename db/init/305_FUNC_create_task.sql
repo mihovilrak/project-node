@@ -93,8 +93,7 @@ create or replace function create_task(
         ) returning id into v_task_id;
 
         if p_tag_ids is not null then
-            insert into task_tags (task_id, tag_id)
-            values (v_task_id, unnest(p_tag_ids));
+            perform add_task_tags(v_task_id, p_tag_ids);
         end if;
 
         if p_watchers is not null then
