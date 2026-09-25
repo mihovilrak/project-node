@@ -187,11 +187,12 @@ const main = async (): Promise<void> => {
     await shoot(page, '/tasks', 'tasks');
     await shoot(page, `/tasks/${taskId}`, 'task-details');
     await shoot(page, `/tasks/${taskId}/time-logs`, 'time-logs');
-    await shoot(page, '/calendar', 'calendar');
     await shoot(page, '/users', 'users');
     await shoot(page, '/settings', 'settings');
     await page.getByRole('tab', { name: 'System' }).click();
     await settle(page);
+    // Shown only, never saved: keeps the seeded sender domain out of the docs.
+    await page.getByLabel('Sender Email').fill('noreply@example.com');
     await page.screenshot({ path: resolve(OUT_DIR, 'settings-system.png') });
     console.log('captured settings-system.png');
   } finally {
