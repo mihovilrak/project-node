@@ -21,7 +21,9 @@ import {
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 import { User } from '../../types/user';
 import { deleteUser } from '../../api/users';
 import { UserTableProps } from '../../types/setting';
@@ -38,6 +40,9 @@ const UserTable: React.FC<UserTableProps> = ({
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<boolean>(false);
+  // Deleting the last row of the last page would otherwise leave an empty page.
+  const lastPage = Math.max(0, Math.ceil(users.length / rowsPerPage) - 1);
+  const currentPage = Math.min(page, lastPage);
 
   const handleChangePage = (_event: unknown, newPage: number): void => {
     setPage(newPage);
@@ -68,6 +73,12 @@ const UserTable: React.FC<UserTableProps> = ({
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (error: unknown) {
+      if (getApiErrorStatus(error) === 404) {
+        onUserDeleted();
+        setDeleteDialogOpen(false);
+        setUserToDelete(null);
+        return;
+      }
       logger.error('Failed to delete user:', error);
       setDeleteError(
         getApiErrorMessage(error, 'Failed to delete user. Please try again.'),
@@ -100,7 +111,10 @@ const UserTable: React.FC<UserTableProps> = ({
           </TableHead>
           <TableBody>
             {users
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .slice(
+                currentPage * rowsPerPage,
+                currentPage * rowsPerPage + rowsPerPage,
+              )
               .map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.login}</TableCell>
@@ -163,7 +177,7 @@ const UserTable: React.FC<UserTableProps> = ({
       <TablePagination
         component="div"
         count={users.length}
-        page={page}
+        page={currentPage}
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}

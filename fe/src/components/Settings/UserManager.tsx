@@ -76,7 +76,8 @@ const UserManager: React.FC = () => {
         </Alert>
       )}
 
-      {loading ? (
+      {/* Refetches keep the table mounted so paging survives a save. */}
+      {loading && users.length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
           <CircularProgress />
         </Box>
