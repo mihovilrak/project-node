@@ -566,7 +566,11 @@ describe('TaskController', () => {
         mockPool as Pool,
       );
 
-      expect(taskModel.deleteTask).toHaveBeenCalledWith(mockPool, taskId);
+      expect(mockClient.query).toHaveBeenCalledWith(
+        `SELECT set_config('app.user_id', $1, true)`,
+        ['1'],
+      );
+      expect(taskModel.deleteTask).toHaveBeenCalledWith(mockClient, taskId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ success: true });
     });

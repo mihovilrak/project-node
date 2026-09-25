@@ -13,7 +13,7 @@ import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
 import logger from '../utils/logger';
 import { parsePagination } from '../utils/pagination';
-import { withTransaction } from '../utils/transaction';
+import { setActor, withTransaction } from '../utils/transaction';
 import { parseIdParam, toTimestamp } from '../utils/requestParsing';
 import { sessionUserId } from '../utils/sessionUser';
 
@@ -379,6 +379,7 @@ export const updateTask = async (
   }
 
   const task = await withTransaction(pool, async (client) => {
+    await setActor(client, userId);
     const updated = await taskModel.updateTask(client, id, taskData);
     if (!updated) {
       return null;
@@ -421,6 +422,7 @@ export const changeTaskStatus = async (
   }
 
   const task = await withTransaction(pool, async (client) => {
+    await setActor(client, userId);
     const updated = await taskModel.changeTaskStatus(
       client,
       Number(id),
@@ -485,6 +487,7 @@ export const updateTaskDates = async (
   let task;
   try {
     task = await withTransaction(pool, async (client) => {
+      await setActor(client, userId);
       const updated = await taskModel.updateTask(client, id, dates);
       if (!updated) {
         return null;
@@ -522,11 +525,15 @@ export const updateTaskDates = async (
  * @param pool Database connection pool
  */
 export const deleteTask = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  const task = await taskModel.deleteTask(pool, req.params.id as string);
+  const userId = sessionUserId(req);
+  const task = await withTransaction(pool, async (client) => {
+    await setActor(client, userId);
+    return taskModel.deleteTask(client, req.params.id as string);
+  });
   if (!task) {
     res.status(404).json({ error: 'Task not found' });
     return;
