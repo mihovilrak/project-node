@@ -3,14 +3,11 @@ import {
   IconButton,
   Badge,
   Button,
-  Menu,
+  Popover,
   Typography,
   Box,
   Divider,
   List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   CircularProgress,
   Paper,
   Tabs,
@@ -19,7 +16,6 @@ import {
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
-  Delete as DeleteIcon,
   Task as TaskIcon,
   Folder as FolderIcon,
   Comment as CommentIcon,
@@ -30,6 +26,7 @@ import {
 import { Link } from 'react-router-dom';
 import { NotificationCenterProps } from '../../types/notification';
 import { useNotificationCenter } from '../../hooks/notification/useNotificationCenter';
+import NotificationListItem from './NotificationListItem';
 
 const iconMap: { [key: string]: React.ComponentType } = {
   task: TaskIcon,
@@ -59,6 +56,8 @@ export interface ExtendedNotificationCenterProps extends NotificationCenterProps
 
 type TabValue = 'all' | 'read' | 'unread';
 
+const POPOVER_ID = 'notification-center';
+
 const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
   userId,
   className,
@@ -77,6 +76,7 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
     handleNotificationClick,
     handleDeleteNotification,
   } = useNotificationCenter(userId);
+  const open = Boolean(anchorEl);
 
   const filteredNotifications = useMemo(() => {
     if (tabValue === 'read') return notifications.filter((n) => n?.is_read);
@@ -152,41 +152,15 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
           <Typography color="text.secondary">No notifications</Typography>
         </Box>
       ) : (
-        <List sx={{ p: 0 }}>
+        <List sx={{ p: 0 }} aria-label="Notifications">
           {filteredNotifications.map((notification) => (
-            <ListItem
-              key={notification?.id}
-              onClick={() =>
-                notification && handleNotificationClick(notification)
-              }
-              sx={{
-                backgroundColor: notification?.is_read
-                  ? 'inherit'
-                  : 'action.hover',
-                '&:hover': {
-                  cursor: 'pointer',
-                },
-              }}
-            >
-              <ListItemIcon>
-                {getIcon(notification?.type_name || '')}
-              </ListItemIcon>
-              <ListItemText
-                primary={notification?.title || 'No title'}
-                secondary={notification?.message || 'No message'}
-              />
-              <IconButton
-                onClick={(e) =>
-                  notification?.id &&
-                  handleDeleteNotification(notification.id, e)
-                }
-                size="small"
-                aria-label="delete notification"
-                disabled={!notification?.id}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </ListItem>
+            <NotificationListItem
+              key={notification.id}
+              notification={notification}
+              icon={getIcon(notification.type_name || '')}
+              onOpen={handleNotificationClick}
+              onDelete={handleDeleteNotification}
+            />
           ))}
         </List>
       )}
@@ -207,6 +181,9 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         color="inherit"
         onClick={handleClick}
         aria-label={`${unreadCount} unread notifications`}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls={open ? POPOVER_ID : undefined}
       >
         <Badge badgeContent={unreadCount} color="error">
           <NotificationsIcon />
@@ -229,20 +206,26 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
         </Paper>
       )}
 
-      {/* Real menu for production use */}
+      {/* A Popover rather than a Menu: the content is tabs, links and list
+          buttons, not menu items, so it needs normal Tab navigation. */}
       {!testMode && (
-        <Menu
+        <Popover
+          id={POPOVER_ID}
           anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
+          open={open}
           onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           slotProps={{
             paper: {
+              role: 'dialog',
+              'aria-label': 'Notifications',
               sx: { width: 360, maxHeight: 480 },
             },
           }}
         >
           {renderMenuContent()}
-        </Menu>
+        </Popover>
       )}
     </>
   );
