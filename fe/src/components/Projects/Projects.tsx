@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getProjects, getProjectStatuses } from '../../api/projects';
-import { getUsers } from '../../api/users';
+import { getProjects } from '../../api/projects';
+import { useLookup } from '../../context/LookupsContext';
 import {
+  Alert,
   Card,
   CardContent,
   Typography,
@@ -21,12 +22,32 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Project } from '../../types/project';
-import { ProjectStatus } from '../../types/project';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { ProjectStatusId } from '../../constants/statusIds';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues, FilterOption } from '../../types/filterPanel';
+
+type ProjectParams = NonNullable<Parameters<typeof getProjects>[0]>;
+
+const toNumber = (value: unknown): number =>
+  value != null && value !== '' ? Number(value) : NaN;
+
+const buildProjectParams = (f: FilterValues): ProjectParams => {
+  const statusNum = toNumber(f.status_id);
+  const params: ProjectParams = {
+    status_id: !Number.isNaN(statusNum) ? statusNum : ProjectStatusId.Active,
+  };
+  const createdByNum = toNumber(f.created_by);
+  if (!Number.isNaN(createdByNum)) params.created_by = createdByNum;
+  const parentNum = toNumber(f.parent_id);
+  if (!Number.isNaN(parentNum)) params.parent_id = parentNum;
+  if (f.start_date_from) params.start_date_from = String(f.start_date_from);
+  if (f.start_date_to) params.start_date_to = String(f.start_date_to);
+  if (f.due_date_from) params.due_date_from = String(f.due_date_from);
+  if (f.due_date_to) params.due_date_to = String(f.due_date_to);
+  return params;
+};
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
@@ -34,8 +55,13 @@ const Projects: React.FC = () => {
   const [filters, setFilters] = useState<FilterValues>({
     status_id: ProjectStatusId.Active,
   });
-  const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
-  const [users, setUsers] = useState<FilterOption[]>([]);
+  const { data: statuses, error: statusesError } = useLookup('projectStatuses');
+  const { data: userList, error: usersError } = useLookup('users');
+  const [parentOptions, setParentOptions] = useState<FilterOption[]>([]);
+  const [parentOptionsError, setParentOptionsError] = useState<string | null>(
+    null,
+  );
+  const optionsError = statusesError || usersError || parentOptionsError;
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,67 +71,49 @@ const Projects: React.FC = () => {
   );
 
   const fetchProjects = useCallback(
-    async (currentFilters?: FilterValues): Promise<void> => {
+    async (f: FilterValues, signal?: AbortSignal): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
-        const f = currentFilters || {};
-        const statusNum =
-          f.status_id != null && f.status_id !== '' ? Number(f.status_id) : NaN;
-        const params: Parameters<typeof getProjects>[0] = {
-          status_id: !Number.isNaN(statusNum) ? statusNum : 1,
-        };
-        const createdByNum =
-          f.created_by != null && f.created_by !== ''
-            ? Number(f.created_by)
-            : NaN;
-        if (!Number.isNaN(createdByNum)) params.created_by = createdByNum;
-        const parentNum =
-          f.parent_id != null && f.parent_id !== '' ? Number(f.parent_id) : NaN;
-        if (!Number.isNaN(parentNum)) params.parent_id = parentNum;
-        if (f.start_date_from)
-          params.start_date_from = String(f.start_date_from);
-        if (f.start_date_to) params.start_date_to = String(f.start_date_to);
-        if (f.due_date_from) params.due_date_from = String(f.due_date_from);
-        if (f.due_date_to) params.due_date_to = String(f.due_date_to);
-        const projectList = await getProjects(params);
+        const projectList = await getProjects(buildProjectParams(f), signal);
+        if (signal?.aborted) return;
         setProjects(projectList || []);
       } catch (error: unknown) {
+        if (signal?.aborted) return;
         logger.error('Failed to fetch projects', error);
         setError(getApiErrorMessage(error, 'Failed to load projects'));
       } finally {
-        setLoading(false);
+        if (!signal?.aborted) setLoading(false);
       }
     },
     [],
   );
 
+  // Search is applied client-side, so typing must not refetch.
+  const { search: _search, ...serverFilters } = filters;
+  const serverFiltersKey = JSON.stringify(serverFilters);
+
   useEffect(() => {
-    fetchProjects(filters);
-    const loadOptions = async () => {
-      try {
-        const [statusesData, usersData] = await Promise.all([
-          getProjectStatuses().catch(() => []),
-          getUsers().catch(() => []),
-        ]);
-        setStatuses(statusesData);
-        setUsers(
-          (usersData || []).map(
-            (u: { id: number; name?: string; login?: string }) => ({
-              id: u.id,
-              name: u.name
-                ? `${u.name} (${u.login || u.id})`
-                : String(u.login || u.id),
-            }),
-          ),
+    const controller = new AbortController();
+    fetchProjects(JSON.parse(serverFiltersKey), controller.signal);
+    return () => controller.abort();
+  }, [fetchProjects, serverFiltersKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getProjects(undefined, controller.signal)
+      .then((data) =>
+        setParentOptions((data ?? []).map((p) => ({ id: p.id, name: p.name }))),
+      )
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        logger.error('Failed to fetch parent project options:', err);
+        setParentOptionsError(
+          getApiErrorMessage(err, 'Failed to load parent projects'),
         );
-      } catch {
-        setStatuses([]);
-        setUsers([]);
-      }
-    };
-    loadOptions();
-  }, [fetchProjects, filters]);
+      });
+    return () => controller.abort();
+  }, []);
 
   const handleCreateProject = (): void => {
     navigate('/projects/new');
@@ -115,36 +123,53 @@ const Projects: React.FC = () => {
     setSortOrder(event.target.value as 'asc' | 'desc');
   };
 
-  const handleFilterChange = (newFilters: FilterValues): void => {
+  const handleFilterChange = useCallback((newFilters: FilterValues): void => {
     setFilters(newFilters);
-  };
+  }, []);
+
+  const users = useMemo<FilterOption[]>(
+    () =>
+      userList.map((u) => ({
+        id: u.id,
+        name: u.name
+          ? `${u.name}${u.surname ? ` ${u.surname}` : ''} (${u.login})`
+          : u.login,
+      })),
+    [userList],
+  );
 
   const filterOptions = useMemo(
     () => ({
       search: true,
       statuses: statuses.map((s) => ({ id: s.id, name: s.name })),
       createdBy: users,
-      parent_id: projects.map((p) => ({ id: p.id, name: p.name })),
+      parent_id: parentOptions,
       start_date_from: true,
       start_date_to: true,
       due_date_from: true,
       due_date_to: true,
     }),
-    [statuses, users, projects],
+    [statuses, users, parentOptions],
   );
 
-  const roots = useMemo(
-    () => projects.filter((p) => p?.parent_id == null),
+  const projectIds = useMemo(
+    () => new Set(projects.map((p) => p.id)),
     [projects],
   );
 
+  // Projects whose parent is not in the result (e.g. filtered by parent) are roots.
+  const roots = useMemo(
+    () =>
+      projects.filter(
+        (p) => p?.parent_id == null || !projectIds.has(p.parent_id),
+      ),
+    [projects, projectIds],
+  );
+
   const childrenByParentId = useMemo(() => {
-    const rootIds = new Set(
-      roots.map((r) => r?.id).filter((id): id is number => id != null),
-    );
     const map = new Map<number, Project[]>();
     projects.forEach((p) => {
-      if (p?.parent_id != null && rootIds.has(p.parent_id)) {
+      if (p?.parent_id != null && projectIds.has(p.parent_id)) {
         const list = map.get(p.parent_id) ?? [];
         list.push(p);
         map.set(p.parent_id, list);
@@ -154,30 +179,43 @@ const Projects: React.FC = () => {
       list.sort((a, b) => (a?.name ?? '').localeCompare(b?.name ?? '')),
     );
     return map;
-  }, [projects, roots]);
+  }, [projects, projectIds]);
 
-  const filteredRoots = useMemo(
-    () =>
-      roots
-        .filter((project) => {
-          if (filters.search) {
-            const searchTerm = filters.search.toLowerCase();
-            const name = project?.name?.toLowerCase() ?? '';
-            const description = project?.description?.toLowerCase() ?? '';
-            if (!name.includes(searchTerm) && !description.includes(searchTerm))
-              return false;
-          }
-          return true;
-        })
-        .sort((a, b) => {
-          const nameA = a?.name ?? '';
-          const nameB = b?.name ?? '';
-          return sortOrder === 'asc'
-            ? nameA.localeCompare(nameB)
-            : nameB.localeCompare(nameA);
-        }),
-    [roots, filters.search, sortOrder],
+  const descendantsOf = useCallback(
+    (projectId: number): Array<{ project: Project; depth: number }> => {
+      const result: Array<{ project: Project; depth: number }> = [];
+      const visit = (id: number, depth: number) => {
+        (childrenByParentId.get(id) ?? []).forEach((child) => {
+          result.push({ project: child, depth });
+          visit(child.id, depth + 1);
+        });
+      };
+      visit(projectId, 1);
+      return result;
+    },
+    [childrenByParentId],
   );
+
+  const filteredRoots = useMemo(() => {
+    const searchTerm = filters.search?.toLowerCase();
+    const matches = (p: Project) =>
+      (p?.name?.toLowerCase() ?? '').includes(searchTerm ?? '') ||
+      (p?.description?.toLowerCase() ?? '').includes(searchTerm ?? '');
+    return roots
+      .filter(
+        (project) =>
+          !searchTerm ||
+          matches(project) ||
+          descendantsOf(project.id).some(({ project: d }) => matches(d)),
+      )
+      .sort((a, b) => {
+        const nameA = a?.name ?? '';
+        const nameB = b?.name ?? '';
+        return sortOrder === 'asc'
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+  }, [roots, descendantsOf, filters.search, sortOrder]);
 
   const toggleExpanded = useCallback((projectId: number) => {
     setExpandedProjectIds((prev) => {
@@ -307,6 +345,12 @@ const Projects: React.FC = () => {
           </Button>
         </Box>
 
+        {optionsError && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {optionsError}
+          </Alert>
+        )}
+
         <FilterPanel
           type="projects"
           filters={filters}
@@ -332,7 +376,7 @@ const Projects: React.FC = () => {
           sx={{ mt: 2, width: '100%', maxWidth: 1400 }}
         >
           {filteredRoots.map((project) => {
-            const subprojects = childrenByParentId.get(project?.id ?? 0) ?? [];
+            const subprojects = descendantsOf(project.id);
             const hasSubprojects = subprojects.length > 0;
             const isExpanded = expandedProjectIds.has(project?.id ?? 0);
             return (
@@ -356,13 +400,13 @@ const Projects: React.FC = () => {
                           borderColor: 'divider',
                         }}
                       >
-                        {subprojects.map((sub) => (
+                        {subprojects.map(({ project: sub, depth }) => (
                           <Box
                             key={sub?.id}
                             sx={{ mb: 0.5, pl: 1 }}
                             data-testid={`project-card-${sub?.id}`}
                           >
-                            {projectCardContent(sub, false, false, 1)}
+                            {projectCardContent(sub, false, false, depth)}
                           </Box>
                         ))}
                       </Box>
@@ -384,7 +428,7 @@ const Projects: React.FC = () => {
           }}
         >
           {filteredRoots.map((project) => {
-            const subprojects = childrenByParentId.get(project?.id ?? 0) ?? [];
+            const subprojects = descendantsOf(project.id);
             const hasSubprojects = subprojects.length > 0;
             const isExpanded = expandedProjectIds.has(project?.id ?? 0);
             return (
@@ -405,13 +449,13 @@ const Projects: React.FC = () => {
                         pl: 1,
                       }}
                     >
-                      {subprojects.map((sub) => (
+                      {subprojects.map(({ project: sub, depth }) => (
                         <Box
                           key={sub?.id}
                           sx={{ mb: 0.5, pl: 1 }}
                           data-testid={`project-card-${sub?.id}`}
                         >
-                          {projectCardContent(sub, false, false, 1)}
+                          {projectCardContent(sub, false, false, depth)}
                         </Box>
                       ))}
                     </Box>
