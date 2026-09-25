@@ -31,8 +31,18 @@ describe('TagModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('WHERE active = true'),
+        [false],
       );
       expect(result).toEqual(mockTags);
+    });
+
+    it('should include inactive tags when asked', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+      await tagModel.getTags(mockPool, true);
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('OR $1'),
+        [true],
+      );
     });
   });
 

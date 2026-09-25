@@ -1,9 +1,10 @@
+import { applyLogLevel } from '@pm/backend-common';
 import { pool } from './db';
 import { applySettings, config } from './config';
 import { logger } from './utils/logger';
 import { AppSettingsRow } from './types/config.types';
 
-const QUERY = `SELECT sender_email, app_base_url, email_enabled, email_host, email_port, email_secure
+const QUERY = `SELECT sender_email, app_base_url, email_enabled, email_host, email_port, email_secure, log_level
                FROM app_settings WHERE id = 1`;
 
 let warnedAboutCredentials = false;
@@ -20,7 +21,8 @@ let warnedAboutCredentials = false;
  * and sets warnedAboutCredentials to true; otherwise it clears that flag. The
  * function mutates module-level configuration state and returns a boolean
  * indicating whether any settings were changed; callers use that return value
- * to decide (for example) whether to refresh the email transport.
+ * to decide (for example) whether to refresh the email transport. A valid
+ * log_level also replaces the current logger level.
  */
 export const reloadSettings = async (): Promise<boolean> => {
   let row: AppSettingsRow | null = null;
@@ -36,6 +38,7 @@ export const reloadSettings = async (): Promise<boolean> => {
   }
 
   const changed = applySettings(row);
+  applyLogLevel(logger, row?.log_level);
 
   if (config.app.emailEnabled && !config.email.auth.pass) {
     if (!warnedAboutCredentials) {

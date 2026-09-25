@@ -3,6 +3,7 @@ import app from './app';
 import config from './config';
 import { ensureConnection, pool } from './db';
 import logger from './utils/logger';
+import { applyStoredLogLevel } from './utils/logLevel';
 
 let server: Server | undefined;
 let shuttingDown = false;
@@ -53,6 +54,7 @@ process.on('uncaughtException', (err) => {
 });
 
 ensureConnection()
+  .then(() => applyStoredLogLevel(pool))
   .then(() => {
     server = app.listen(config.port, () => {
       logger.info(`Server is running on port ${config.port}`);

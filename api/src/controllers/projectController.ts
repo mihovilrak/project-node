@@ -353,7 +353,7 @@ export const deleteProjectMember = async (
     res.status(404).json({ error: 'Project member not found' });
     return;
   }
-  res.status(200).json(result);
+  res.status(200).json({ message: 'Project member removed' });
 };
 
 // Get child projects of a project

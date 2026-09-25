@@ -7,9 +7,11 @@ import { Session } from 'express-session';
 import { CustomRequest } from '../../types/express';
 
 import logger from '../../utils/logger';
+import { setLogLevel } from '../../utils/logLevel';
 
 jest.mock('../../models/settingsModel');
 jest.mock('nodemailer');
+jest.mock('../../utils/logLevel');
 jest.mock('../../utils/logger', () => ({
   __esModule: true,
   default: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
@@ -590,6 +592,49 @@ describe('SettingsController', () => {
         }),
         'Runtime settings updated',
       );
+    });
+
+    it('applies a saved log_level immediately', async () => {
+      mockReq.body = { log_level: 'debug' };
+      (settingsModel.updateSystemSettings as jest.Mock).mockResolvedValue({
+        log_level: 'debug',
+      });
+
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(setLogLevel).toHaveBeenCalledWith('debug');
+    });
+
+    it('leaves the log level alone when log_level is not sent', async () => {
+      mockReq.body = { app_name: 'Renamed' };
+      (settingsModel.updateSystemSettings as jest.Mock).mockResolvedValue({
+        log_level: 'debug',
+      });
+
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(setLogLevel).not.toHaveBeenCalled();
+    });
+
+    it('does not apply a log_level that failed validation', async () => {
+      mockReq.body = { log_level: 'trace' };
+
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(setLogLevel).not.toHaveBeenCalled();
     });
 
     it('treats a missing body as an empty update', async () => {

@@ -43,7 +43,9 @@ begin
     from unnest(p_user_ids) as r(recipient_id)
     join notification_types nt on nt.id = p_type_id
     join users u on u.id = p_action_user_id
+    left join user_settings s on s.user_id = r.recipient_id
     where r.recipient_id <> p_action_user_id
+    and coalesce(s.notifications_enabled, true)
     returning
         notifications.id,
         notifications.user_id,

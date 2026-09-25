@@ -24,6 +24,12 @@ describe('ActivityTypeModel', () => {
     );
     expect(mockPool.query).toHaveBeenCalledWith(
       expect.stringContaining('WHERE active = true'),
+      [false],
+    );
+    await activityTypeModel.getActivityTypes(mockPool, true);
+    expect(mockPool.query).toHaveBeenLastCalledWith(
+      expect.stringContaining('OR $1'),
+      [true],
     );
   });
 

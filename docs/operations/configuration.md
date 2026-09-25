@@ -13,7 +13,7 @@ Edit `.env`, then run `docker compose up -d` to recreate the affected services.
 | `TZ` | | Time zone for the containers and the backup schedule, for example `Europe/Zagreb`. |
 | `FE_URL` | | Public address, for example `https://pm.example.com`. Required in production. It sets the allowed CORS origin, and an `https://` value makes the session cookie `Secure`. |
 | `NODE_ENV` | `production` | |
-| `LOG_LEVEL` | `info` | `trace`, `debug`, `info`, `warn`, `error` or `fatal`. |
+| `LOG_LEVEL` | `info` | Start-up level: `trace`, `debug`, `info`, `warn`, `error` or `fatal`. Replaced by the stored **Log Level** setting once the database is reachable. |
 | `ADMIN_EMAIL` | `admin@example.com` | Email of the `admin` user created on first start. |
 | `ADMIN_PASSWORD_FORCE_RESET` | `false` | `true` overwrites the existing admin's password with `secrets/admin_password.txt` on the next start. Set it back afterwards. |
 | `EMAIL_USER` | | SMTP username. |
@@ -88,4 +88,4 @@ Outside Compose (local development, CI) each service still accepts the plain var
 
 Branding, the welcome message, SMTP host, port and TLS, the sender address and the email on/off switch live in the database. Administrators change them under **Settings** > **System** without restarting. See [Settings](/admin/settings).
 
-The **Log Level** field on that screen is stored but not applied yet. Use `LOG_LEVEL` instead.
+The **Log Level** field on that screen overrides `LOG_LEVEL` once each service has read it from the database. See [Monitoring](/operations/monitoring#logs).

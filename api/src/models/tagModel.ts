@@ -2,19 +2,29 @@ import { Pool } from 'pg';
 import { Tag, TagUpdateInput } from '../types/tag';
 import { buildUpdateAssignments } from '../utils/sqlUpdate';
 
-export const ALLOWED_TAG_UPDATE_KEYS = ['name', 'color', 'icon'] as const;
+export const ALLOWED_TAG_UPDATE_KEYS = [
+  'name',
+  'color',
+  'icon',
+  'active',
+] as const;
 
 /**
- * Retrieve all active tags ordered by name.
+ * Retrieve tags ordered by name; only active ones unless `includeInactive` is
+ * set.
  *
  * @param pool Database connection pool for executing the query.
- * @returns Promise resolving to an array of active Tag objects.
+ * @param includeInactive Also return deactivated tags.
  */
-export const getTags = async (pool: Pool): Promise<Tag[]> => {
+export const getTags = async (
+  pool: Pool,
+  includeInactive = false,
+): Promise<Tag[]> => {
   const result = await pool.query(
     `SELECT * FROM tags
-    WHERE active = true
+    WHERE active = true OR $1
     ORDER BY name ASC`,
+    [includeInactive],
   );
   return result.rows;
 };
@@ -88,7 +98,7 @@ export const getTaskTags = async (
 };
 
 /**
- * Update only the provided name, color or icon of a tag.
+ * Update only the provided name, color, icon or active flag of a tag.
  *
  * @param pool Database connection pool
  * @param id Identifier of the tag to update

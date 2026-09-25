@@ -39,7 +39,7 @@ export interface Config {
 /**
  * Represent the runtime-editable half of app_settings shared with the API,
  * containing the database row fields sender_email, app_base_url, email_enabled,
- * email_host, email_port, and email_secure.
+ * email_host, email_port, email_secure and log_level.
  */
 export interface AppSettingsRow {
   sender_email: string;
@@ -48,4 +48,5 @@ export interface AppSettingsRow {
   email_host: string;
   email_port: number;
   email_secure: boolean;
+  log_level: string;
 }
