@@ -250,6 +250,8 @@ export interface TaskDetailsSidebarProps {
   projectId: number;
   watchers: TaskWatcher[];
   watcherDialogOpen: boolean;
+  canManageWatchers: boolean;
+  currentUserId?: number;
   onAddWatcher: (userId: number) => void;
   onRemoveWatcher: (userId: number) => void;
   onWatcherDialogClose: () => void;

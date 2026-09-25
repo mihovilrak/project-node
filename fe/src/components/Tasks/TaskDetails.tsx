@@ -16,7 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 const TaskDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { hasPermission } = useAuth();
+  const { hasPermission, currentUser } = useAuth();
 
   const {
     task,
@@ -65,6 +65,18 @@ const TaskDetails: React.FC = () => {
     handleWatcherDialogOpen,
     handleWatcherDialogClose,
   } = useTaskDetailsHandlers();
+
+  const runWatcherAction = async (
+    action: (userId: number) => Promise<void>,
+    userId: number,
+  ) => {
+    try {
+      setActionError(null);
+      await action(userId);
+    } catch (error: unknown) {
+      setActionError(getApiErrorMessage(error, 'Failed to update watchers'));
+    }
+  };
 
   const handleStatusChange = async (statusId: number) => {
     await handleStatusChangeCore(statusId);
@@ -196,8 +208,12 @@ const TaskDetails: React.FC = () => {
         projectId={task.project_id}
         watchers={watchers || []}
         watcherDialogOpen={watcherDialogOpen}
-        onAddWatcher={handleAddWatcher}
-        onRemoveWatcher={handleRemoveWatcher}
+        canManageWatchers={hasPermission('Edit tasks')}
+        currentUserId={currentUser?.id}
+        onAddWatcher={(userId) => runWatcherAction(handleAddWatcher, userId)}
+        onRemoveWatcher={(userId) =>
+          runWatcherAction(handleRemoveWatcher, userId)
+        }
         onWatcherDialogClose={handleWatcherDialogClose}
         onManageWatchers={handleWatcherDialogOpen}
       />

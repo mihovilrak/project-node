@@ -12,6 +12,7 @@ export interface TaskWatcher {
 export interface WatcherListProps {
   watchers: TaskWatcher[];
   canManageWatchers: boolean;
+  currentUserId?: number;
   onRemoveWatcher: (userId: number) => void;
   onManageWatchers: () => void;
 }
