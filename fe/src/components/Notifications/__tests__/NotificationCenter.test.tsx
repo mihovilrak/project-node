@@ -74,6 +74,17 @@ describe('NotificationCenter', () => {
     expect(screen.getByTestId('loading-state-indicator')).toBeInTheDocument();
   });
 
+  it('keeps the list visible during a background refresh', () => {
+    (useNotificationCenter as jest.Mock).mockReturnValue({
+      ...mockHookReturn,
+      loading: true,
+    });
+    renderWithRouter(<NotificationCenter userId={1} testMode={true} />);
+
+    expect(screen.getByText('Test Notification 1')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+  });
+
   it('shows empty state when no notifications', () => {
     (useNotificationCenter as jest.Mock).mockReturnValue({
       ...mockHookReturn,
