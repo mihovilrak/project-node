@@ -12,7 +12,7 @@ import {
   TemplateData,
 } from '../types/email.types';
 
-class EmailService implements IEmailService {
+export class EmailService implements IEmailService {
   public transporter: nodemailer.Transporter;
   public templates: EmailTemplates;
   private templateDir: string;

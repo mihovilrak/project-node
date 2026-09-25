@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, MenuItem, TextField } from '@mui/material';
 
-interface ColorOption {
+export interface ColorOption {
   id: number;
   name: string;
   color?: string | null;
 }
 
-interface ColorOptionSelectProps {
+export interface ColorOptionSelectProps {
   label: string;
   name: 'status_id' | 'priority_id';
   value: number | string | null;

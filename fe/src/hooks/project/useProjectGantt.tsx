@@ -8,7 +8,7 @@ import { FormattedTask } from '../../types/project';
 import { Task } from '../../types/task';
 import { toLocalDate } from '../../utils/dateUtils';
 
-type StyledProps<P> = P & { style?: CSSProperties };
+export type StyledProps<P> = P & { style?: CSSProperties };
 export type GanttAppointmentProps = StyledProps<Appointments.AppointmentProps>;
 export type GanttAppointmentContentProps =
   StyledProps<Appointments.AppointmentContentProps>;
