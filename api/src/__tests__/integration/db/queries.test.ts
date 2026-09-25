@@ -428,3 +428,72 @@ describe('comment, user and profile queries', () => {
     });
   });
 });
+
+describe('project aggregates', () => {
+  it('ignore deleted tasks in project_stats and project_details', async () => {
+    await inRollback(appPool, async (client) => {
+      const user = await insertUser(client);
+      const project = await insertProject(client, user.id);
+      const live = await insertTask(client, project.id, user.id, {
+        estimated_time: 4,
+      });
+      const gone = await insertTask(client, project.id, user.id, {
+        estimated_time: 10,
+      });
+      await client.query('update tasks set progress = 50 where id = $1', [
+        live.id,
+      ]);
+      await client.query(
+        `update tasks set progress = 100, status_id = task_status_id('deleted')
+         where id = $1`,
+        [gone.id],
+      );
+      await insertTimeLog(client, live.id, user.id, 2);
+      await insertTimeLog(client, gone.id, user.id, 3);
+
+      const expected = { estimated_time: '4.00', spent_time: '2.00' };
+      const stats = await client.query(
+        'select * from project_stats() where project_id = $1',
+        [project.id],
+      );
+      expect(stats.rows[0]).toMatchObject({ ...expected, progress: 50 });
+
+      const details = await client.query('select * from project_details($1)', [
+        project.id,
+      ]);
+      expect(details.rows[0]).toMatchObject({ ...expected, progress: '50' });
+    });
+  });
+});
+
+describe('recent_tasks', () => {
+  it('lists only tasks in live projects the user belongs to', async () => {
+    await inRollback(appPool, async (client) => {
+      const owner = await insertUser(client);
+      const user = await insertUser(client);
+      const member = await insertProject(client, owner.id);
+      const former = await insertProject(client, owner.id);
+      const dead = await insertProject(client, owner.id);
+      for (const p of [member, dead]) {
+        await client.query(
+          'insert into project_users (project_id, user_id) values ($1, $2)',
+          [p.id, user.id],
+        );
+      }
+      const visible = await insertTask(client, member.id, owner.id, {
+        assignee_id: user.id,
+      });
+      await insertTask(client, former.id, owner.id, { assignee_id: user.id });
+      await insertTask(client, dead.id, owner.id, { assignee_id: user.id });
+      await client.query(
+        `update projects set status_id = project_status_id('deleted') where id = $1`,
+        [dead.id],
+      );
+
+      const { rows } = await client.query('select * from recent_tasks($1)', [
+        user.id,
+      ]);
+      expect(rows.map((r) => r.id)).toEqual([visible.id]);
+    });
+  });
+});

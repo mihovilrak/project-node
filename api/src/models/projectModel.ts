@@ -20,7 +20,7 @@ import {
 /**
  * Fetch projects with enriched details including status name, creator name, time estimates, and progress, scoped to user accessibility.
  *
- * Results include status_name, created_by_name, estimated_time, spent_time, and progress from the project_details lateral join. When scopeUserId is provided, results are filtered by projects the user can access, preventing pagination issues from post-filtering. Results are ordered by project ID and respect the provided pagination limits.
+ * Results include status_name, created_by_name, estimated_time, spent_time, and progress joined from project_stats(). When scopeUserId is provided, results are filtered by projects the user can access, preventing pagination issues from post-filtering. Results are ordered by project ID and respect the provided pagination limits.
  * @param pool Database connection pool
  * @param filters Optional project filters by status, creator, parent, or date ranges
  * @param pagination Pagination parameters with limit and offset
@@ -58,9 +58,14 @@ export const getProjects = async (
     conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
   const page = paginationClause(pagination, values.length + 1);
   const query = `SELECT p.id, p.name, p.description, p.start_date, p.end_date, p.due_date, p.parent_id, p.status_id, p.created_by, p.created_on, p.updated_on,
-    pd.status_name, pd.created_by_name, pd.estimated_time, pd.spent_time, pd.progress
+    ps.name AS status_name, u.name AS created_by_name,
+    COALESCE(st.estimated_time, 0) AS estimated_time,
+    COALESCE(st.spent_time, 0) AS spent_time,
+    COALESCE(st.progress, 0)::numeric AS progress
 FROM projects p
-LEFT JOIN LATERAL (SELECT status_name, created_by_name, estimated_time, spent_time, progress FROM project_details(p.id)) pd ON true${whereClause}
+LEFT JOIN project_statuses ps ON ps.id = p.status_id
+LEFT JOIN users u ON u.id = p.created_by
+LEFT JOIN project_stats() st ON st.project_id = p.id${whereClause}
 ORDER BY p.id
 ${page.clause}`;
 

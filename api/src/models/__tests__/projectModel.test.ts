@@ -34,7 +34,8 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('FROM projects p');
-      expect(query).toContain('project_details(p.id)');
+      expect(query).toContain('LEFT JOIN project_stats() st');
+      expect(query).not.toContain('project_details');
       expect(query).toContain('status_name');
       expect(query).toContain('created_by_name');
       expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([50, 0]);
