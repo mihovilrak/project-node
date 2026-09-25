@@ -1,3 +1,11 @@
+/**
+ * Task routes, mounted at `/api/tasks`, including task tags and watchers. Also
+ * mounts the comment and file routers.
+ *
+ * OpenAPI tag: Tasks.
+ *
+ * @packageDocumentation
+ */
 import { Router, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';

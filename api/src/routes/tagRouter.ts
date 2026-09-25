@@ -1,3 +1,10 @@
+/**
+ * Tag routes, mounted at `/api/tags`.
+ *
+ * OpenAPI tag: Tags.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as tagController from '../controllers/tagController';

@@ -287,7 +287,7 @@ export type SimpleChangeEvent = {
   };
 };
 
-type FormChangeHandler = (e: SimpleChangeEvent) => void;
+export type FormChangeHandler = (e: SimpleChangeEvent) => void;
 
 /**
  * Provide properties for the task form's date-picker section: the form state, a

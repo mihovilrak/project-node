@@ -1,3 +1,10 @@
+/**
+ * Project routes, mounted at `/api/projects`.
+ *
+ * OpenAPI tag: Projects.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';

@@ -1,3 +1,10 @@
+/**
+ * Task file routes, mounted at `/api/tasks/{id}/files` and `/api/files`.
+ *
+ * OpenAPI tag: Files.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';

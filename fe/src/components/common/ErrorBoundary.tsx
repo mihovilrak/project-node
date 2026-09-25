@@ -3,11 +3,11 @@ import { Box, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import logger from '../../utils/logger';
 
-interface Props {
+export interface Props {
   children: ReactNode;
 }
 
-interface State {
+export interface State {
   hasError: boolean;
 }
 

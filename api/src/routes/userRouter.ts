@@ -1,3 +1,10 @@
+/**
+ * User routes, mounted at `/api/users`.
+ *
+ * OpenAPI tag: Users.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as userController from '../controllers/userController';

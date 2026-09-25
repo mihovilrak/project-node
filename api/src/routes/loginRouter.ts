@@ -1,3 +1,10 @@
+/**
+ * Login route, mounted at `/api/login`.
+ *
+ * OpenAPI tag: Session.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { Pool } from 'pg';

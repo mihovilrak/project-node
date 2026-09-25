@@ -1,3 +1,10 @@
+/**
+ * Time log routes, mounted at `/api/time-logs`.
+ *
+ * OpenAPI tag: Time Logs.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as timeLogController from '../controllers/timeLogController';

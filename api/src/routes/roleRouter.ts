@@ -1,3 +1,10 @@
+/**
+ * Role routes, mounted at `/api/roles`.
+ *
+ * OpenAPI tag: Roles.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as roleController from '../controllers/roleController';
