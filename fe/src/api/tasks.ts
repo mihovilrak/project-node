@@ -8,6 +8,7 @@ import {
 } from '../types/task';
 import { ApiResponse } from '../types/api';
 import { fetchAllPages } from './pagination';
+import { toDateOnlyString } from '../utils/dateUtils';
 
 const serializeTaskFilters = (filters: TaskFilters): string => {
   const queryParams = new URLSearchParams();
@@ -202,8 +203,8 @@ export const getTasksByDateRange = async (
   return fetchAllPages(async (page) => {
     const response = await api.get<Task[]>('/tasks/calendar', {
       params: {
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
+        start_date: toDateOnlyString(startDate),
+        end_date: toDateOnlyString(endDate),
         ...page,
       },
       signal,
