@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProjectMemberSelect from '../ProjectMemberSelect';
-import { User } from '../../../types/user';
+import { UserOption } from '../../../types/user';
 
 // Mock Material-UI components
 jest.mock('@mui/material', () => {
@@ -48,35 +48,9 @@ jest.mock('@mui/material', () => {
   };
 });
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    login: 'john.doe',
-    name: 'John',
-    surname: 'Doe',
-    email: 'john@example.com',
-    role_id: 1,
-    status_id: 1,
-    avatar_url: null,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-    role_name: 'Developer',
-  },
-  {
-    id: 2,
-    login: 'jane.smith',
-    name: 'Jane',
-    surname: 'Smith',
-    email: 'jane@example.com',
-    role_id: 2,
-    status_id: 1,
-    avatar_url: null,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-    role_name: 'Project Manager',
-  },
+const mockUsers: UserOption[] = [
+  { id: 1, login: 'john.doe', name: 'John', surname: 'Doe' },
+  { id: 2, login: 'jane.smith', name: 'Jane', surname: 'Smith' },
 ];
 
 const mockSelectedUsers = [1];
@@ -103,7 +77,7 @@ describe('ProjectMemberSelect', () => {
     expect(primaryTextElements[1].textContent).toBe('Jane Smith');
   });
 
-  it('shows correct role for each user', () => {
+  it('shows the login for each user', () => {
     render(
       <ProjectMemberSelect
         users={mockUsers}
@@ -112,10 +86,9 @@ describe('ProjectMemberSelect', () => {
       />,
     );
 
-    // Check for user roles using test ids
     const secondaryTextElements = screen.getAllByTestId('list-item-secondary');
-    expect(secondaryTextElements[0].textContent).toBe('Role: Developer');
-    expect(secondaryTextElements[1].textContent).toBe('Role: Project Manager');
+    expect(secondaryTextElements[0].textContent).toBe('john.doe');
+    expect(secondaryTextElements[1].textContent).toBe('jane.smith');
   });
 
   it('shows correct checkbox state for selected users', () => {

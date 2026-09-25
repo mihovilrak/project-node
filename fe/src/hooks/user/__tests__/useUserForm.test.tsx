@@ -58,25 +58,19 @@ describe('useUserForm', () => {
       role_id: 4,
     });
 
-    // Wait for roles to be fetched
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(getRoles).toHaveBeenCalled();
+    expect(getRoles).toHaveBeenCalledTimes(1);
     expect(result.current.roles).toEqual(mockRoles);
-    expect(result.current.loading).toBe(false);
   });
 
   it('should fetch user data when userId is provided', async () => {
     const { result } = renderHook(() => useUserForm({ userId: '1' }));
 
-    // Wait for user data to be fetched
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(getUserById).toHaveBeenCalledWith(1);
+    expect(getUserById).toHaveBeenCalledTimes(1);
+    expect(getUserById).toHaveBeenCalledWith(1, expect.any(AbortSignal));
     expect(result.current.formValues).toEqual({
       login: mockUser.login,
       name: mockUser.name,

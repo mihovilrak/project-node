@@ -1,6 +1,7 @@
 import { Task } from './task';
-import { User } from './user';
+import { UserOption } from './user';
 import { Dayjs } from 'dayjs';
+import { SelectChangeEvent } from '@mui/material';
 import {
   ValidResourceInstance,
   FormatterFn,
@@ -149,7 +150,7 @@ export interface ProjectEditFormData extends Partial<Project> {
 }
 
 export interface ProjectMemberSelectProps {
-  users: User[];
+  users: UserOption[];
   selectedUsers: number[];
   onUserSelect: (userId: number) => void;
 }
@@ -170,7 +171,7 @@ export type AppointmentComponentProps = {
   data: FormattedTask;
   draggable: boolean;
   resources: ValidResourceInstance[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 /**
@@ -186,7 +187,7 @@ export type AppointmentContentComponentProps = {
   durationType: 'long' | 'short' | 'middle';
   recurringIconComponent: React.ComponentType<object>;
   resources: ValidResourceInstance[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type TooltipContentComponentProps = AppointmentTooltip.ContentProps & {
@@ -282,7 +283,7 @@ export interface TaskFormProps {
  * cancelation, and submission.
  */
 export interface ProjectDetailsFormProps {
-  formData: any;
+  formData: ProjectFormData;
   errors: Record<string, string>;
   dateError: string;
   availableProjects: Project[];
@@ -292,12 +293,12 @@ export interface ProjectDetailsFormProps {
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-  handleStatusChange: (event: any) => void;
+  handleStatusChange: (event: SelectChangeEvent<number>) => void;
   handleDateChange: (
     field: 'start_date' | 'due_date',
     newValue: Dayjs | null,
   ) => void;
-  handleParentChange: (e: any) => void;
+  handleParentChange: (e: SelectChangeEvent<string | number>) => void;
   handleCancel: () => void;
   onSubmit: () => void;
 }
@@ -307,7 +308,7 @@ export interface ProjectDetailsFormProps {
  * members.
  */
 export interface ProjectMembersFormProps {
-  users: User[];
+  users: UserOption[];
   selectedUsers: number[];
   memberError: string;
   onUserSelect: (userId: number) => void;
