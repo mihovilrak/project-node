@@ -14,6 +14,7 @@ export const ALLOWED_TIME_LOG_UPDATE_KEYS = [
   'spent_time',
   'description',
   'activity_type_id',
+  'user_id',
 ] as const;
 
 // Query strings arrive as '' when a filter input is cleared; that is "no
@@ -72,6 +73,17 @@ export const createTimeLog = async (
     ],
   );
   return result.rows[0];
+};
+
+export const getTimeLogTaskId = async (
+  pool: Pool,
+  timeLogId: string,
+): Promise<string | null> => {
+  const result = await pool.query(
+    'SELECT task_id FROM time_logs WHERE id = $1',
+    [timeLogId],
+  );
+  return result.rows[0] ? String(result.rows[0].task_id) : null;
 };
 
 // Returns null when the time log does not exist.
