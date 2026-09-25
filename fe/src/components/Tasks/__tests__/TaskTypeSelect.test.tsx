@@ -70,7 +70,7 @@ describe('TaskTypeSelect', () => {
     });
 
     expect(logger.error).toHaveBeenCalledWith(
-      'Failed to fetch task types:',
+      'Failed to load types:',
       expect.any(Error),
     );
   });

@@ -13,28 +13,16 @@ import {
   Grid,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import * as Icons from '@mui/icons-material';
 import { TaskHeaderProps } from '../../types/task';
 import logger from '../../utils/logger';
 import PersonIcon from '@mui/icons-material/Person';
 import FolderIcon from '@mui/icons-material/Folder';
 import { formatDate } from '../../utils/dateUtils';
+import { getMuiIcon } from '../../utils/muiIcons';
 
-const getIconComponent = (
-  iconName?: string,
-  color?: string,
-): React.ReactElement | undefined => {
-  if (!iconName) return undefined;
-  try {
-    const IconComponent = Icons[
-      iconName as keyof typeof Icons
-    ] as React.ComponentType<any>;
-    return IconComponent
-      ? React.createElement(IconComponent, { sx: { color } })
-      : undefined;
-  } catch {
-    return undefined;
-  }
+const renderTypeIcon = (iconName?: string, color?: string) => {
+  const Icon = getMuiIcon(iconName);
+  return Icon ? <Icon sx={{ color }} /> : null;
 };
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({
@@ -190,7 +178,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
               <Grid size={{ xs: 12, sm: 6 }}>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   {task?.type_icon &&
-                    getIconComponent(task.type_icon, task?.type_color)}
+                    renderTypeIcon(task.type_icon, task?.type_color)}
                   <Typography variant="body2">
                     Type:{' '}
                     <span style={{ color: task?.type_color || '#666' }}>

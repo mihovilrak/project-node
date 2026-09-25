@@ -10,96 +10,11 @@ import {
   FormControlLabel,
   Switch,
   Alert,
-  IconButton,
-  Box,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
-import * as Icons from '@mui/icons-material';
 import { MuiColorInput } from 'mui-color-input';
-import { TaskTypeDialogProps, IconSelectorProps } from '../../types/setting';
-import { useIconSelector } from '../../hooks/setting/useIconSelector';
+import { TaskTypeDialogProps } from '../../types/setting';
+import IconSelector from '../common/IconSelector';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
-
-const IconSelector = ({ value, onChange }: IconSelectorProps) => {
-  const { icons, open, error, handleOpen, handleClose, handleSelect } =
-    useIconSelector(value);
-
-  const getIconComponent = (iconName?: string) => {
-    if (!iconName) return null;
-    try {
-      const IconComponent = Icons[
-        iconName as keyof typeof Icons
-      ] as React.ComponentType<any>;
-      return IconComponent ? <IconComponent /> : null;
-    } catch {
-      return null;
-    }
-  };
-
-  return (
-    <FormControl fullWidth margin="normal">
-      <InputLabel shrink>Icon</InputLabel>
-      <Box mt={2}>
-        <IconButton
-          onClick={handleOpen}
-          aria-label={value ? `Icon: ${value}. Change icon` : 'Select icon'}
-          sx={{
-            border: '1px dashed grey',
-            borderRadius: 1,
-            width: '100%',
-            height: '56px',
-          }}
-        >
-          {value ? getIconComponent(value) || value : 'Select Icon'}
-        </IconButton>
-      </Box>
-
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="task-type-dialog-title"
-      >
-        <DialogTitle id="task-type-dialog-title">Select an Icon</DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <Grid container spacing={1} sx={{ p: 2 }}>
-            {(icons || []).map((iconName, index) => {
-              const IconComponent = iconName
-                ? getIconComponent(iconName)
-                : null;
-              return (
-                <Grid key={iconName ?? `icon-${index}`} size={{ xs: 6, sm: 4 }}>
-                  <IconButton
-                    onClick={() => {
-                      if (iconName) {
-                        handleSelect(iconName);
-                        onChange(iconName);
-                      }
-                    }}
-                    disabled={!iconName}
-                    aria-label={iconName ? `Select icon ${iconName}` : 'Icon'}
-                    sx={{
-                      border:
-                        value === iconName ? '2px solid primary.main' : 'none',
-                      borderRadius: 1,
-                    }}
-                  >
-                    {IconComponent || iconName || 'Unknown'}
-                  </IconButton>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </DialogContent>
-      </Dialog>
-    </FormControl>
-  );
-};
 
 const TaskTypeDialog: React.FC<TaskTypeDialogProps> = ({
   open,

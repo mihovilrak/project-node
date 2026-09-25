@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   FormControl,
   InputLabel,
@@ -8,10 +8,9 @@ import {
   CircularProgress,
   SelectChangeEvent,
 } from '@mui/material';
-import * as Icons from '@mui/icons-material';
-import { getTaskTypes } from '../../api/taskTypes';
-import { TaskType, TaskTypeSelectProps } from '../../types/task';
-import logger from '../../utils/logger';
+import { TaskTypeSelectProps } from '../../types/task';
+import { useLookup } from '../../context/LookupsContext';
+import { getMuiIcon } from '../../utils/muiIcons';
 
 const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
   value,
@@ -19,23 +18,7 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
   error,
   required,
 }) => {
-  const [taskTypes, setTaskTypes] = useState<TaskType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchTaskTypes = async (): Promise<void> => {
-      try {
-        const types = await getTaskTypes();
-        setTaskTypes(types || []);
-      } catch (error: unknown) {
-        logger.error('Failed to fetch task types:', error);
-        setTaskTypes([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTaskTypes();
-  }, []);
+  const { data: taskTypes, loading } = useLookup('types');
 
   const handleChange = (event: SelectChangeEvent<number>): void => {
     onChange(event);
@@ -65,9 +48,7 @@ const TaskTypeSelect: React.FC<TaskTypeSelectProps> = ({
         ) : (
           taskTypes.map((type) => {
             if (!type?.id) return null;
-            const Icon = type?.icon
-              ? Icons[type.icon as keyof typeof Icons]
-              : null;
+            const Icon = getMuiIcon(type?.icon);
             return (
               <MenuItem key={type.id} value={type.id}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
