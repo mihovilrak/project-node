@@ -142,9 +142,10 @@ const seed = async (page: Page, userId: number): Promise<Seeded> => {
 };
 
 const settle = async (page: Page): Promise<void> => {
-  await page.waitForLoadState('networkidle');
+  // Some screens poll, so the network may never go fully idle.
+  await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => undefined);
   // Let MUI transitions and charts finish animating.
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1_000);
 };
 
 const shoot = async (page: Page, path: string, file: string): Promise<void> => {
@@ -168,8 +169,8 @@ const main = async (): Promise<void> => {
     const page = await context.newPage();
 
     await shoot(page, '/login', 'login');
-    await page.getByLabel('Username').fill(LOGIN);
-    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page.locator('input[name="login"]').fill(LOGIN);
+    await page.locator('input[name="password"]').fill(PASSWORD);
     const [login] = await Promise.all([
       page.waitForResponse((res) => res.url().endsWith('/api/login')),
       page.locator('button[type="submit"]').click(),
@@ -187,9 +188,12 @@ const main = async (): Promise<void> => {
     await shoot(page, `/tasks/${taskId}`, 'task-details');
     await shoot(page, `/tasks/${taskId}/time-logs`, 'time-logs');
     await shoot(page, '/calendar', 'calendar');
-    await shoot(page, '/notifications', 'notifications');
     await shoot(page, '/users', 'users');
     await shoot(page, '/settings', 'settings');
+    await page.getByRole('tab', { name: 'System' }).click();
+    await settle(page);
+    await page.screenshot({ path: resolve(OUT_DIR, 'settings-system.png') });
+    console.log('captured settings-system.png');
   } finally {
     await browser.close();
   }
