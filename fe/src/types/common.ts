@@ -41,6 +41,11 @@ export interface AsyncResourceOptions<T> {
    */
   enabled?: boolean;
   errorMessage?: string;
+  /**
+   * Refetch on this interval while enabled and the tab is visible; 0 or
+   * undefined disables polling.
+   */
+  pollIntervalMs?: number;
 }
 
 export interface AsyncResource<T> {
