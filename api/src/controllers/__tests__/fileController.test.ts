@@ -14,6 +14,7 @@ import {
 import { File } from '../../types/file';
 import { CustomRequest } from '../../types/express';
 import { Session, SessionData } from 'express-session';
+import { UPLOADS_DIR } from '../../utils/uploadsDir';
 
 // Mock the dependencies
 jest.mock('../../models/fileModel');
@@ -233,8 +234,9 @@ describe('fileController', () => {
       );
 
       expect(mockRes.download).toHaveBeenCalledWith(
-        '/path/to/file',
+        mockFile.stored_name,
         mockFile.original_name,
+        { root: UPLOADS_DIR },
       );
     });
 

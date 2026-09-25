@@ -115,7 +115,8 @@ export const downloadFile = async (
     res.status(404).json({ error: 'File not found on disk' });
     return;
   }
-  res.download(resolvedPath, file.original_name);
+  // Relative to root so a dot directory above the uploads dir is not refused.
+  res.download(file.stored_name, file.original_name, { root: UPLOADS_DIR });
 };
 
 /**
