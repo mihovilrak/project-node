@@ -27,6 +27,7 @@ const row = (overrides: Partial<AppSettingsRow> = {}): AppSettingsRow => ({
   email_host: 'smtp.example.com',
   email_port: 2525,
   email_secure: true,
+  log_level: 'info',
   ...overrides,
 });
 

@@ -28,6 +28,26 @@ const createLogger = (env = process.env) =>
     },
   });
 
+// Levels an admin may store in app_settings.log_level (mirrors its check
+// constraint).
+const LOG_LEVELS = Object.freeze(['error', 'warn', 'info', 'debug']);
+
+/**
+ * Switch a running logger to `level`. Anything outside LOG_LEVELS (including
+ * null, for a missing settings row) leaves the current level in place.
+ *
+ * @param {import('pino').Logger} logger
+ * @param {unknown} level
+ * @returns {boolean} Whether the level changed
+ */
+const applyLogLevel = (logger, level) => {
+  if (!LOG_LEVELS.includes(level) || logger.level === level) return false;
+  const from = logger.level;
+  logger.level = level;
+  logger.info({ from, to: level }, 'Log level changed');
+  return true;
+};
+
 /**
  * Resolve a secret from `<name>_FILE` (Docker secrets) or from `<name>` itself;
  * setting both throws. Trailing newlines are stripped the same way the postgres
@@ -130,6 +150,8 @@ const createPool = (database, logger, overrides = {}) => {
 };
 
 module.exports = {
+  LOG_LEVELS,
+  applyLogLevel,
   buildEmailConfig,
   createLogger,
   createPool,

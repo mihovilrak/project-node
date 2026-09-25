@@ -7,7 +7,9 @@ import {
   SettingsUpdateInput,
   UserSettingsUpdateInput,
 } from '../types/settings';
+import { LOG_LEVELS } from '@pm/backend-common';
 import logger from '../utils/logger';
+import { setLogLevel } from '../utils/logLevel';
 import { sessionUserId } from '../utils/sessionUser';
 import { buildEmailConfig } from '../config';
 
@@ -75,7 +77,6 @@ export const getAppTheme = async (
   res.status(200).json({ theme: settings?.theme || 'light' });
 };
 
-const LOG_LEVELS = ['error', 'warn', 'info', 'debug'];
 const THEMES = ['light', 'dark', 'system'];
 const MAX_SETTING_LENGTH = 255;
 const MAX_WELCOME_MESSAGE_LENGTH = 20000;
@@ -124,7 +125,7 @@ function validateSettings(input: Record<string, unknown>): string | null {
   }
   if (
     input.log_level !== undefined &&
-    !LOG_LEVELS.includes(input.log_level as string)
+    !(LOG_LEVELS as readonly string[]).includes(input.log_level as string)
   ) {
     return `log_level must be one of: ${LOG_LEVELS.join(', ')}`;
   }
@@ -223,6 +224,7 @@ export const updateSystemSettings = async (
   }
 
   const settings = await settingsModel.updateSystemSettings(pool, input);
+  if (input.log_level !== undefined) setLogLevel(settings?.log_level);
   res.status(200).json(settings);
 };
 

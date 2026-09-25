@@ -39,7 +39,8 @@ docker compose logs -f notifications
 docker compose logs --since 1h web
 ```
 
-- Set the level with `LOG_LEVEL` in `.env`, then run `docker compose up -d`.
+- The level comes from **Settings** > **System** > **Log Level** (`error`, `warn`, `info` or `debug`). A change takes effect without a restart: at once in the API instance that saved it, and in the notification service at its next settings refresh (every batch tick).
+- `LOG_LEVEL` in `.env` is only the start-up level. It applies until a service has read the stored level from the database, and stays in force if that read fails.
 - Docker keeps up to three 10 MB log files per container.
 - Ship logs elsewhere with a Docker logging driver or an agent that reads the container logs.
 
