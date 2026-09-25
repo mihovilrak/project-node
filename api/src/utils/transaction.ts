@@ -5,6 +5,17 @@ import logger from './logger';
 // already enlisted in a transaction.
 export type Queryable = Pool | PoolClient;
 
+// Record the acting user for the current transaction; task triggers read it
+// with current_setting('app.user_id', true) to skip notifying the actor.
+export const setActor = async (
+  client: PoolClient,
+  userId: string | number,
+): Promise<void> => {
+  await client.query(`SELECT set_config('app.user_id', $1, true)`, [
+    String(userId),
+  ]);
+};
+
 /**
  * Execute a function within a database transaction that automatically commits on success or rolls back on error, ensuring the client is always released.
  *

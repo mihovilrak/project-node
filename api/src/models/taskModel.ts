@@ -312,7 +312,7 @@ export const changeTaskStatus = async (
  * @returns Updated Task object or null if task not found
  */
 export const deleteTask = async (
-  pool: Pool,
+  pool: Queryable,
   id: string,
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
