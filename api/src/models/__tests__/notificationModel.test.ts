@@ -109,10 +109,10 @@ describe('NotificationModel', () => {
         expect.stringContaining('UPDATE notifications'),
         ['1'],
       );
-      expect(result).toEqual(updatedNotifications);
+      expect(result).toBe(2);
     });
 
-    it('should return empty array when no unread notifications', async () => {
+    it('should return 0 when no unread notifications', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
 
       const result = await notificationModel.markNotificationsAsRead(
@@ -120,7 +120,7 @@ describe('NotificationModel', () => {
         '1',
       );
 
-      expect(result).toEqual([]);
+      expect(result).toBe(0);
     });
   });
 

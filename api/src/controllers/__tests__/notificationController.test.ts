@@ -7,10 +7,7 @@ import {
   markAsRead,
   deleteNotification,
 } from '../notificationController';
-import {
-  NotificationWithDetails,
-  Notification,
-} from '../../types/notification';
+import { NotificationWithDetails } from '../../types/notification';
 import { Session, SessionData } from 'express-session';
 
 // Mock the notification model
@@ -133,14 +130,10 @@ describe('Notification Controller', () => {
     it('should reject an unauthenticated request', async () => {
       mockRequest.session = createMockSession(false);
 
-      await getUserNotifications(
-        mockRequest as Request,
-        mockResponse,
-        mockPool,
-      );
-
+      await expect(
+        getUserNotifications(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toMatchObject({ status: 401 });
       expect(notificationModel.getNotificationsByUserId).not.toHaveBeenCalled();
-      expect(mockStatus).toHaveBeenCalledWith(401);
     });
 
     it('should handle errors when getting notifications', async () => {
@@ -150,38 +143,18 @@ describe('Notification Controller', () => {
         .spyOn(notificationModel, 'getNotificationsByUserId')
         .mockRejectedValueOnce(error);
 
-      await getUserNotifications(
-        mockRequest as Request,
-        mockResponse,
-        mockPool,
-      );
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        getUserNotifications(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toThrow('Database error');
     });
   });
 
   describe('markAsRead', () => {
-    const mockUpdatedNotifications: Notification[] = [
-      {
-        id: 1,
-        user_id: 1,
-        type_id: 1,
-        title: 'Test Notification',
-        message: 'Test Message',
-        link: null,
-        is_read: true,
-        active: true,
-        read_on: new Date(),
-        created_on: new Date(),
-      },
-    ];
-
     it('should mark every notification of the session user as read', async () => {
       mockRequest.params = { user_id: '999' };
       jest
         .spyOn(notificationModel, 'markNotificationsAsRead')
-        .mockResolvedValueOnce(mockUpdatedNotifications);
+        .mockResolvedValueOnce(3);
 
       await markAsRead(mockRequest as Request, mockResponse, mockPool);
 
@@ -190,14 +163,14 @@ describe('Notification Controller', () => {
         '1',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(mockJson).toHaveBeenCalledWith(mockUpdatedNotifications);
+      expect(mockJson).toHaveBeenCalledWith({ updated: 3 });
     });
 
     it('should mark a single notification as read, scoped to the owner', async () => {
       mockRequest.body = { notification_id: 7 };
       jest
         .spyOn(notificationModel, 'markNotificationAsRead')
-        .mockResolvedValueOnce(mockUpdatedNotifications);
+        .mockResolvedValueOnce(1);
 
       await markAsRead(mockRequest as Request, mockResponse, mockPool);
 
@@ -207,15 +180,25 @@ describe('Notification Controller', () => {
         '1',
       );
       expect(mockStatus).toHaveBeenCalledWith(200);
+      expect(mockJson).toHaveBeenCalledWith({ updated: 1 });
+    });
+
+    it('should reject a non-numeric notification id', async () => {
+      mockRequest.body = { notification_id: 'abc' };
+
+      await markAsRead(mockRequest as Request, mockResponse, mockPool);
+
+      expect(notificationModel.markNotificationAsRead).not.toHaveBeenCalled();
+      expect(mockStatus).toHaveBeenCalledWith(400);
     });
 
     it('should reject an unauthenticated request', async () => {
       mockRequest.session = createMockSession(false);
 
-      await markAsRead(mockRequest as Request, mockResponse, mockPool);
-
+      await expect(
+        markAsRead(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toMatchObject({ status: 401 });
       expect(notificationModel.markNotificationsAsRead).not.toHaveBeenCalled();
-      expect(mockStatus).toHaveBeenCalledWith(401);
     });
 
     it('should handle errors when marking notifications as read', async () => {
@@ -225,10 +208,9 @@ describe('Notification Controller', () => {
         .spyOn(notificationModel, 'markNotificationsAsRead')
         .mockRejectedValueOnce(error);
 
-      await markAsRead(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        markAsRead(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toThrow('Database error');
     });
   });
 
@@ -270,10 +252,9 @@ describe('Notification Controller', () => {
         .spyOn(notificationModel, 'deleteNotification')
         .mockRejectedValueOnce(error);
 
-      await deleteNotification(mockRequest as Request, mockResponse, mockPool);
-
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(mockJson).toHaveBeenCalledWith({ error: 'Internal server error' });
+      await expect(
+        deleteNotification(mockRequest as Request, mockResponse, mockPool),
+      ).rejects.toThrow('Database error');
     });
   });
 });
