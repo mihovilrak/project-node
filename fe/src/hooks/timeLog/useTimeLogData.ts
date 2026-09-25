@@ -6,7 +6,6 @@ import { getProjectMembers, getProjects } from '../../api/projects';
 import { getProjectTasks } from '../../api/tasks';
 import { getActivityTypes } from '../../api/activityTypes';
 import { useAsyncResource } from '../common/useAsyncResource';
-import { useLookup } from '../../context/LookupsContext';
 
 const EMPTY_PROJECTS: Project[] = [];
 const EMPTY_TASKS: Task[] = [];
@@ -53,7 +52,8 @@ export const useTimeLogData = ({
       errorMessage: 'Failed to load tasks',
     },
   );
-  // Admins can only log for project members, so prefer the member list.
+  // The API only accepts project members as the log owner, so there is no
+  // user list until a project is known.
   const members = useAsyncResource<UserOption[]>(
     async (signal) =>
       (await getProjectMembers(projectId as number, signal)).map((member) => ({
@@ -69,20 +69,18 @@ export const useTimeLogData = ({
       errorMessage: 'Failed to load project members',
     },
   );
-  const allUsers = useLookup('users', open && hasAdminPermission && !projectId);
-  const users = projectId ? members : allUsers;
 
   return {
     projects: projects.data,
     tasks: projectId ? tasks.data : EMPTY_TASKS,
-    users: users.data,
+    users: projectId ? members.data : EMPTY_USERS,
     activityTypes: activityTypes.data,
     isLoading:
       activityTypes.loading ||
       projects.loading ||
       tasks.loading ||
-      (hasAdminPermission && users.loading),
+      (hasAdminPermission && Boolean(projectId) && members.loading),
     loadError:
-      activityTypes.error || projects.error || tasks.error || users.error,
+      activityTypes.error || projects.error || tasks.error || members.error,
   };
 };

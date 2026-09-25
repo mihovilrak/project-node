@@ -3683,4 +3683,6 @@ components:
           description: >-
             Log on behalf of another user. Admin only (403 otherwise); the
             target must be an active member of the task's project (400
-            otherwise). Defaults to the caller.
+            otherwise). Defaults to the caller on create; on update, resending
+            the current owner is a no-op. Must be a positive integer (400 for
+            null or empty).

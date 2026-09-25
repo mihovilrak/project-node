@@ -310,6 +310,53 @@ describe('useAsyncResource', () => {
       expect(result.current.error).toBeNull();
     });
 
+    it('polls without toggling loading', async () => {
+      const next = deferred<string>();
+      const fetcher = jest
+        .fn()
+        .mockResolvedValueOnce('first')
+        .mockReturnValueOnce(next.promise);
+      const { result } = renderPolling(fetcher);
+      await tick(0);
+
+      await tick(1000);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(result.current.loading).toBe(false);
+
+      await act(async () => {
+        next.resolve('second');
+        await next.promise;
+      });
+      expect(result.current.data).toBe('second');
+    });
+
+    it('skips a tick while a request is in flight', async () => {
+      const pending = deferred<string>();
+      const fetcher = jest.fn().mockReturnValue(pending.promise);
+      renderPolling(fetcher);
+
+      await tick(3000);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops a poll result when the caller edited the data meanwhile', async () => {
+      const next = deferred<string>();
+      const fetcher = jest
+        .fn()
+        .mockResolvedValueOnce('first')
+        .mockReturnValueOnce(next.promise);
+      const { result } = renderPolling(fetcher);
+      await tick(0);
+
+      await tick(1000);
+      act(() => result.current.setData('edited'));
+      await act(async () => {
+        next.resolve('stale');
+        await next.promise;
+      });
+      expect(result.current.data).toBe('edited');
+    });
+
     it('does not clear an error set by the caller', async () => {
       const fetcher = jest.fn().mockResolvedValue('a');
       const { result } = renderPolling(fetcher);

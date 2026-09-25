@@ -75,15 +75,18 @@ export const createTimeLog = async (
   return result.rows[0];
 };
 
-export const getTimeLogTaskId = async (
+export const getTimeLogRef = async (
   pool: Pool,
   timeLogId: string,
-): Promise<string | null> => {
+): Promise<{ taskId: string; userId: string } | null> => {
   const result = await pool.query(
-    'SELECT task_id FROM time_logs WHERE id = $1',
+    'SELECT task_id, user_id FROM time_logs WHERE id = $1',
     [timeLogId],
   );
-  return result.rows[0] ? String(result.rows[0].task_id) : null;
+  const row = result.rows[0];
+  return row
+    ? { taskId: String(row.task_id), userId: String(row.user_id) }
+    : null;
 };
 
 // Returns null when the time log does not exist.

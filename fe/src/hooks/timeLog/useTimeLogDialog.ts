@@ -51,20 +51,29 @@ export const useTimeLogDialog = ({
     hasAdminPermission,
   });
 
+  // Keep the log's current owner (edit) or the caller (create) selectable even
+  // when they are not in the member list: both are accepted without reassigning.
   const users = useMemo<UserOption[]>(() => {
-    if (!currentUser || loadedUsers.some((u) => u.id === currentUser.id)) {
+    const keep: UserOption | null = timeLog
+      ? {
+          id: timeLog.user_id,
+          login: '',
+          name: timeLog.user ?? `User ${timeLog.user_id}`,
+          surname: '',
+        }
+      : currentUser
+        ? {
+            id: currentUser.id,
+            login: currentUser.login,
+            name: currentUser.name,
+            surname: currentUser.surname,
+          }
+        : null;
+    if (!keep || loadedUsers.some((u) => u.id === keep.id)) {
       return loadedUsers;
     }
-    return [
-      {
-        id: currentUser.id,
-        login: currentUser.login,
-        name: currentUser.name,
-        surname: currentUser.surname,
-      },
-      ...loadedUsers,
-    ];
-  }, [currentUser, loadedUsers]);
+    return [keep, ...loadedUsers];
+  }, [timeLog, currentUser, loadedUsers]);
 
   // Reset initialization flag and submit error when dialog closes
   useEffect(() => {
@@ -107,6 +116,8 @@ export const useTimeLogDialog = ({
   const handleProjectChange = (id: number | null) => {
     setSelectedProjectId(id || undefined);
     setSelectedTaskId(undefined);
+    // The previous pick may not be a member of the new project.
+    if (!timeLog) setSelectedUserId(currentUser?.id || 0);
   };
 
   const handleTaskChange = (id: number | null, taskList: Task[]) => {
@@ -129,10 +140,14 @@ export const useTimeLogDialog = ({
       return;
     }
 
+    // Send user_id only when it changes the owner, so edits of logs whose owner
+    // has since left the project don't re-trigger the membership check.
+    const defaultOwner = timeLog ? timeLog.user_id : currentUser?.id;
     const timeLogData: TimeLogCreate = {
       task_id: selectedTaskId,
-      // Only admins may set user_id; the API rejects it for everyone else.
-      ...(hasAdminPermission && selectedUserId
+      ...(hasAdminPermission &&
+      selectedUserId &&
+      selectedUserId !== defaultOwner
         ? { user_id: selectedUserId }
         : {}),
       activity_type_id: selectedActivityTypeId,

@@ -15,8 +15,10 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
  * cleanup so a stale response can never overwrite fresher state.
  *
  * With `pollIntervalMs` it also refetches on that interval while the tab is
- * visible. Polls keep the current data when they fail and do not clear an error
- * set by the caller.
+ * visible. Polls run in the background: they don't toggle `loading`, are
+ * skipped while another request is in flight, keep the current data when they
+ * fail, don't clear an error set by the caller, and are dropped if the caller
+ * changed `data` via `setData` while they were running.
  */
 export const useAsyncResource = <T>(
   fetcher: (signal: AbortSignal) => Promise<T>,
@@ -25,7 +27,7 @@ export const useAsyncResource = <T>(
 ): AsyncResource<T> => {
   const { initialData, enabled = true, errorMessage, pollIntervalMs } = options;
 
-  const [data, setData] = useState<T>(initialData);
+  const [data, setDataState] = useState<T>(initialData);
   const [loading, setLoading] = useState<boolean>(enabled);
   const [error, setErrorState] = useState<string | null>(null);
 
@@ -36,6 +38,8 @@ export const useAsyncResource = <T>(
   const mountedRef = useRef(true);
   // True while `error` came from a failed fetch rather than from setError.
   const loadErrorRef = useRef(false);
+  const inFlightRef = useRef(false);
+  const localEditRef = useRef(0);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -50,24 +54,33 @@ export const useAsyncResource = <T>(
     setErrorState(value);
   }, []);
 
+  const setData = useCallback((value: SetStateAction<T>) => {
+    localEditRef.current += 1;
+    setDataState(value);
+  }, []);
+
   const run = useCallback(
     async (isPoll: boolean): Promise<void> => {
       // A late refetch (e.g. after an awaited mutation) must not start a
       // request nobody will abort.
       if (!mountedRef.current) return;
+      if (isPoll && inFlightRef.current) return;
       controllerRef.current?.abort();
       const controller = new AbortController();
       controllerRef.current = controller;
+      inFlightRef.current = true;
+      const editsAtStart = localEditRef.current;
 
-      setLoading(true);
       if (!isPoll) {
+        setLoading(true);
         loadErrorRef.current = false;
         setErrorState(null);
       }
       try {
         const result = await fetcherRef.current(controller.signal);
         if (controller.signal.aborted) return;
-        setData(result);
+        if (isPoll && localEditRef.current !== editsAtStart) return;
+        setDataState(result);
         if (loadErrorRef.current) {
           loadErrorRef.current = false;
           setErrorState(null);
@@ -75,13 +88,16 @@ export const useAsyncResource = <T>(
       } catch (err: unknown) {
         if (controller.signal.aborted) return;
         logger.error(errorMessage ?? 'Failed to load data:', err);
-        if (!isPoll) setData(initialDataRef.current);
+        if (!isPoll) setDataState(initialDataRef.current);
         loadErrorRef.current = true;
         setErrorState(
           getApiErrorMessage(err, errorMessage ?? 'Failed to load data'),
         );
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) {
+          inFlightRef.current = false;
+          if (!isPoll) setLoading(false);
+        }
       }
     },
     [errorMessage],

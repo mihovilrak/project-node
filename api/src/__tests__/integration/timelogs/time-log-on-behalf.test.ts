@@ -135,4 +135,27 @@ describe('PUT /api/time-logs/:timeLogId with user_id', () => {
 
     expect(response.status).toBe(403);
   });
+
+  it('accepts the current owner even after they left the project', async () => {
+    await testPool.query(
+      'DELETE FROM project_users WHERE project_id = $1 AND user_id = $2',
+      [projectId, member.id],
+    );
+    const response = await request(app)
+      .put(`/api/time-logs/${logId}`)
+      .set('Cookie', adminCookies)
+      .send({ user_id: member.id, spent_time: 2 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.user_id).toBe(member.id);
+  });
+
+  it('returns 400 for a null user_id', async () => {
+    const response = await request(app)
+      .put(`/api/time-logs/${logId}`)
+      .set('Cookie', adminCookies)
+      .send({ user_id: null });
+
+    expect(response.status).toBe(400);
+  });
 });

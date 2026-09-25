@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { hasPermission } from '../models/permissionModel';
 import { CustomRequest } from '../types/express';
+import { sessionUserId } from './sessionUser';
 
 /**
  * True when the request asks for `?include_inactive=true` and the session user
@@ -11,7 +12,5 @@ export const includeInactive = async (
   pool: Pool,
 ): Promise<boolean> => {
   if (req.query?.include_inactive !== 'true') return false;
-  const userId = req.session?.user?.id;
-  if (userId === undefined || userId === null || userId === '') return false;
-  return hasPermission(pool, String(userId), 'Admin');
+  return hasPermission(pool, sessionUserId(req), 'Admin');
 };

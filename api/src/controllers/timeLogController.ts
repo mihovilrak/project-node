@@ -32,25 +32,33 @@ type LogUserResolution =
 
 /**
  * Resolve whose time log this is. Logging for someone else needs Admin, and the
- * target must be an active member of the task's project.
+ * target must be an active member of the task's project. Logging one's own time
+ * on create is left to the route's project-access check; reassigning an
+ * existing log (`reassigning`) applies the member check to the caller too.
  */
 const resolveLogUser = async (
   pool: Pool,
   sessionUser: string,
   requested: unknown,
   taskId: string,
+  reassigning = false,
 ): Promise<LogUserResolution> => {
-  if (requested === undefined || requested === null || requested === '') {
-    return { userId: sessionUser };
-  }
-  const target = Number(requested);
+  if (requested === undefined) return { userId: sessionUser };
+  const target =
+    typeof requested === 'number' ||
+    (typeof requested === 'string' && requested.trim() !== '')
+      ? Number(requested)
+      : NaN;
   if (!Number.isInteger(target) || target <= 0) {
     return { status: 400, error: 'user_id must be a positive integer' };
   }
   const targetId = String(target);
-  if (targetId === sessionUser) return { userId: sessionUser };
+  if (targetId === sessionUser && !reassigning) return { userId: sessionUser };
 
-  if (!(await hasPermission(pool, sessionUser, 'Admin'))) {
+  if (
+    targetId !== sessionUser &&
+    !(await hasPermission(pool, sessionUser, 'Admin'))
+  ) {
     return {
       status: 403,
       error: 'Only admins can log time for another user',
@@ -192,20 +200,25 @@ export const updateTimeLog = async (
   }
 
   if (body.user_id !== undefined) {
-    const taskId = await timeLogModel.getTimeLogTaskId(pool, timeLogId);
-    if (!taskId) {
+    const current = await timeLogModel.getTimeLogRef(pool, timeLogId);
+    if (!current) {
       return res.status(404).json({ error: 'Time log not found' });
     }
-    const owner = await resolveLogUser(
-      pool,
-      sessionUserId(req),
-      body.user_id,
-      taskId,
-    );
-    if ('error' in owner) {
-      return res.status(owner.status).json({ error: owner.error });
+    // Resending the current owner is a no-op, so edits of logs whose owner has
+    // since left the project still go through.
+    if (String(body.user_id) !== current.userId) {
+      const owner = await resolveLogUser(
+        pool,
+        sessionUserId(req),
+        body.user_id,
+        current.taskId,
+        true,
+      );
+      if ('error' in owner) {
+        return res.status(owner.status).json({ error: owner.error });
+      }
+      updates.user_id = owner.userId;
     }
-    updates.user_id = owner.userId;
   }
 
   const timeLog = await timeLogModel.updateTimeLog(pool, timeLogId, updates);

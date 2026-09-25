@@ -6,7 +6,12 @@ import logger from '../logger';
 jest.mock('../../models/settingsModel');
 jest.mock('../logger', () => ({
   __esModule: true,
-  default: { level: 'info', info: jest.fn(), warn: jest.fn() },
+  default: {
+    level: 'info',
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
 }));
 
 const pool = {} as Pool;
@@ -59,8 +64,27 @@ describe('logLevel', () => {
     expect(logger.info).not.toHaveBeenCalled();
   });
 
-  it('switches to a valid level', () => {
+  it('logs the change before raising the level past info', () => {
+    let levelAtAudit: string | undefined;
+    (logger.info as jest.Mock).mockImplementation(() => {
+      levelAtAudit = logger.level;
+    });
     expect(setLogLevel('error')).toBe(true);
     expect(logger.level).toBe('error');
+    expect(levelAtAudit).toBe('info');
+    expect(logger.info).toHaveBeenCalledWith(
+      { from: 'info', to: 'error' },
+      'Log level changed',
+    );
+  });
+
+  it('logs at the more verbose level when both are above info', () => {
+    logger.level = 'error';
+    expect(setLogLevel('warn')).toBe(true);
+    expect(logger.warn).toHaveBeenCalledWith(
+      { from: 'error', to: 'warn' },
+      'Log level changed',
+    );
+    expect(logger.info).not.toHaveBeenCalled();
   });
 });

@@ -31,6 +31,15 @@ const createLogger = (env = process.env) =>
 // Levels an admin may store in app_settings.log_level (mirrors its check
 // constraint).
 const LOG_LEVELS = Object.freeze(['error', 'warn', 'info', 'debug']);
+const PINO_LEVEL_VALUES = Object.freeze({
+  trace: 10,
+  debug: 20,
+  info: 30,
+  warn: 40,
+  error: 50,
+  fatal: 60,
+  silent: Infinity,
+});
 
 /**
  * Switch a running logger to `level`. Anything outside LOG_LEVELS (including
@@ -43,8 +52,23 @@ const LOG_LEVELS = Object.freeze(['error', 'warn', 'info', 'debug']);
 const applyLogLevel = (logger, level) => {
   if (!LOG_LEVELS.includes(level) || logger.level === level) return false;
   const from = logger.level;
-  logger.level = level;
-  logger.info({ from, to: level }, 'Log level changed');
+  const fromValue = PINO_LEVEL_VALUES[from] ?? PINO_LEVEL_VALUES.info;
+  const toValue = PINO_LEVEL_VALUES[level];
+  // Emit the audit line while the more verbose of the two thresholds is active,
+  // at info when that lets it through, so raising the level to warn/error
+  // doesn't swallow the record of the change.
+  const verbose = fromValue <= toValue ? from : level;
+  const auditLevel =
+    Math.min(fromValue, toValue) > PINO_LEVEL_VALUES.info ? verbose : 'info';
+  const audit = () =>
+    logger[auditLevel]({ from, to: level }, 'Log level changed');
+  if (fromValue <= toValue) {
+    audit();
+    logger.level = level;
+  } else {
+    logger.level = level;
+    audit();
+  }
   return true;
 };
 
@@ -118,8 +142,8 @@ const DEFAULT_EMAIL_PORT = 587;
 
 /**
  * Build the SMTP transport settings. Host, port and sender come from
- * app_settings (editable at runtime); credentials are secrets and come from
- * the environment.
+ * app_settings (editable at runtime); credentials are secrets and come from the
+ * environment.
  *
  * @param {import('./index').EmailSettings | null} settings
  * @param {NodeJS.ProcessEnv} [env]
