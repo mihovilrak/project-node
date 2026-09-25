@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { createComment } from '../../api/comments';
-import { Comment, CommentError } from '../../types/comment';
+import { Comment } from '../../types/comment';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
  * Manage form state and submission logic for adding comments to a task.
@@ -36,8 +37,7 @@ export const useCommentForm = (
       onCommentAdded(newComment);
       setComment('');
     } catch (err) {
-      const error = err as CommentError;
-      setError(error.error || 'Failed to add comment');
+      setError(getApiErrorMessage(err, 'Failed to add comment'));
       logger.error('Error adding comment:', err);
     } finally {
       setLoading(false);

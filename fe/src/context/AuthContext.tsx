@@ -15,6 +15,26 @@ import {
   UserPermission,
 } from '../types/auth';
 import logger from '../utils/logger';
+import { getApiErrorStatus } from '../utils/getApiErrorMessage';
+
+const LOGIN_FAILED = 'Login failed. Please check your credentials.';
+
+/**
+ * Message for a failed login, including the wait time when the account is
+ * temporarily locked (429 with Retry-After in seconds).
+ */
+const getLoginErrorMessage = (error: unknown): string => {
+  if (getApiErrorStatus(error) !== 429) return LOGIN_FAILED;
+  const retryAfter = Number(
+    (error as { response?: { headers?: Record<string, unknown> } }).response
+      ?.headers?.['retry-after'],
+  );
+  if (!Number.isFinite(retryAfter) || retryAfter <= 0) {
+    return 'Too many failed login attempts. Please try again later.';
+  }
+  const minutes = Math.ceil(retryAfter / 60);
+  return `Too many failed login attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -118,14 +138,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         setCurrentUser(null);
         setUserPermissions([]);
-        setError('Login failed. Please check your credentials.');
+        setError(LOGIN_FAILED);
         setPermissionsLoading(false);
         return false;
       } catch (error) {
         logger.error('Login failed:', error);
         setCurrentUser(null);
         setUserPermissions([]);
-        setError('Login failed. Please check your credentials.');
+        setError(getLoginErrorMessage(error));
         setPermissionsLoading(false);
         return false;
       }

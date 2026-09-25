@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { CommentEditDialogProps } from '../../types/comment';
 import { useCommentEdit } from '../../hooks/comment/useCommentEdit';
+import { MAX_COMMENT_LENGTH } from '../../constants/comments';
 
 const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
   open,
@@ -63,7 +64,8 @@ const CommentEditDialog: React.FC<CommentEditDialogProps> = ({
           value={editedText}
           onChange={(e) => setEditedText(e.target.value)}
           error={!!error}
-          helperText={error}
+          helperText={error || `${editedText.length}/${MAX_COMMENT_LENGTH}`}
+          slotProps={{ htmlInput: { maxLength: MAX_COMMENT_LENGTH } }}
           disabled={isSubmitting}
           sx={{ mt: 2 }}
           onKeyDown={handleKeyPress}

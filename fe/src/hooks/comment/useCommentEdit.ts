@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Comment } from '../../types/comment';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
  * Manage comment editing state and submission with error handling.
@@ -34,7 +35,7 @@ export const useCommentEdit = (
       // Don't reset form here - let the dialog close handler do it
       setIsSubmitting(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update comment');
+      setError(getApiErrorMessage(err, 'Failed to update comment'));
       setIsSubmitting(false);
     }
   };

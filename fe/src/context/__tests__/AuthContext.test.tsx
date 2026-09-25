@@ -210,4 +210,38 @@ describe('AuthContext', () => {
       );
     });
   });
+
+  it('should show the lockout wait time on 429', async () => {
+    (api.post as jest.Mock).mockRejectedValueOnce(
+      Object.assign(new Error('Too Many Requests'), {
+        response: { status: 429, headers: { 'retry-after': '600' } },
+      }),
+    );
+    (api.get as jest.Mock).mockImplementation(() =>
+      Promise.resolve({ data: [] }),
+    );
+
+    render(
+      <AuthProvider>
+        <TestComponent>
+          {(auth) => (
+            <>
+              <button onClick={() => auth.login('bad', 'credentials')}>
+                Login
+              </button>
+              <div data-testid="error">{auth.error || ''}</div>
+            </>
+          )}
+        </TestComponent>
+      </AuthProvider>,
+    );
+
+    await userEvent.click(screen.getByText('Login'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toBe(
+        'Too many failed login attempts. Please try again in 10 minutes.',
+      );
+    });
+  });
 });
