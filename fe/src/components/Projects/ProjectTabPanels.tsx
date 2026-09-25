@@ -1,6 +1,11 @@
 import React, { useMemo } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import { Add as AddIcon, Group as GroupIcon } from '@mui/icons-material';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import {
+  Add as AddIcon,
+  CalendarMonth as CalendarIcon,
+  Group as GroupIcon,
+} from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import ProjectOverview from './tabs/ProjectOverview';
 import ProjectTaskList from './tabs/ProjectTaskList';
 import ProjectGantt from './ProjectGantt';
@@ -101,11 +106,23 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
             }}
           >
             <Typography variant="h6">Time Logs</Typography>
-            {canLogTime && (
-              <Button variant="contained" onClick={() => onTimeLogCreate()}>
-                Log Time
-              </Button>
-            )}
+            <Stack direction="row" spacing={1}>
+              {project?.id ? (
+                <Button
+                  variant="outlined"
+                  startIcon={<CalendarIcon />}
+                  component={RouterLink}
+                  to={`/projects/${project.id}/time-logs/calendar`}
+                >
+                  Calendar view
+                </Button>
+              ) : null}
+              {canLogTime && (
+                <Button variant="contained" onClick={() => onTimeLogCreate()}>
+                  Log Time
+                </Button>
+              )}
+            </Stack>
           </Box>
           <MemoizedTimeLogList
             timeLogs={timeLogs || []}
@@ -114,7 +131,14 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
           />
         </>
       ),
-      [timeLogs, canLogTime, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
+      [
+        project?.id,
+        timeLogs,
+        canLogTime,
+        onTimeLogCreate,
+        onTimeLogEdit,
+        onTimeLogDelete,
+      ],
     );
 
     const ganttContent = useMemo(

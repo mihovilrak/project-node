@@ -93,6 +93,13 @@ describe('ProjectTabPanels', () => {
     expect(screen.getByText('Log Time')).toBeInTheDocument();
   });
 
+  it('links the time logs tab to the project time-log calendar', () => {
+    renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={3} />);
+    expect(
+      screen.getByRole('link', { name: /calendar view/i }),
+    ).toHaveAttribute('href', '/projects/1/time-logs/calendar');
+  });
+
   it('renders gantt tab when activeTab is 4', () => {
     renderWithRouter(<ProjectTabPanels {...mockProps} activeTab={4} />);
     expect(screen.getByTestId('project-gantt')).toBeInTheDocument();
