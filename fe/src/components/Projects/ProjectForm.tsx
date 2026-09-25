@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Paper, Box } from '@mui/material';
 import {
@@ -6,10 +6,10 @@ import {
   addProjectMember,
   getProjects,
 } from '../../api/projects';
-import { getUsers } from '../../api/users';
 import { ProjectFormProps, Project } from '../../types/project';
-import { User } from '../../types/user';
 import { useProjectForm } from '../../hooks/project/useProjectForm';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
+import { useLookup } from '../../context/LookupsContext';
 import logger from '../../utils/logger';
 import ProjectDetailsForm from './ProjectDetailsForm';
 import ProjectMembersForm from './ProjectMembersForm';
@@ -26,8 +26,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     return searchParams.get('parentId');
   }, [location.search]);
 
-  const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [step, setStep] = useState<'details' | 'members'>('details');
   const [memberError, setMemberError] = useState<string>('');
@@ -45,31 +43,12 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     validateForm,
   } = useProjectForm(project, parentId);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const projects = await getProjects();
-        setAvailableProjects(projects || []);
-      } catch (error: unknown) {
-        logger.error('Failed to fetch projects:', error);
-        setAvailableProjects([]);
-      }
-    };
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const userList = await getUsers();
-        setUsers(userList || []);
-      } catch (error: unknown) {
-        logger.error('Failed to fetch users:', error);
-        setUsers([]);
-      }
-    };
-    fetchUsers();
-  }, []);
+  const { data: availableProjects } = useAsyncResource<Project[]>(
+    async (signal) => (await getProjects(undefined, signal)) || [],
+    [],
+    { initialData: [], errorMessage: 'Failed to fetch projects' },
+  );
+  const { data: users } = useLookup('users');
 
   const handleUserSelect = useCallback((userId: number) => {
     setSelectedUsers((prev) =>

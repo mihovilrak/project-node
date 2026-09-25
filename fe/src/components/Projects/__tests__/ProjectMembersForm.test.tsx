@@ -3,37 +3,11 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material';
 import ProjectMembersForm from '../ProjectMembersForm';
-import { User } from '../../../types/user';
+import { UserOption } from '../../../types/user';
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    login: 'john.doe',
-    name: 'John',
-    surname: 'Doe',
-    email: 'john@example.com',
-    role_id: 3,
-    status_id: 1,
-    avatar_url: null,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-    role_name: 'Developer',
-  },
-  {
-    id: 2,
-    login: 'jane.smith',
-    name: 'Jane',
-    surname: 'Smith',
-    email: 'jane@example.com',
-    role_id: 2,
-    status_id: 1,
-    avatar_url: null,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-    role_name: 'Project Manager',
-  },
+const mockUsers: UserOption[] = [
+  { id: 1, login: 'john.doe', name: 'John', surname: 'Doe' },
+  { id: 2, login: 'jane.smith', name: 'Jane', surname: 'Smith' },
 ];
 
 describe('ProjectMembersForm', () => {
@@ -97,9 +71,7 @@ describe('ProjectMembersForm', () => {
     expect(
       screen.getByText(`${selectedUser.name} ${selectedUser.surname}`),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Role: ${selectedUser.role_name}`),
-    ).toBeInTheDocument();
+    expect(screen.getByText(selectedUser.login)).toBeInTheDocument();
   });
 
   it('handles user selection through ProjectMemberSelect', () => {

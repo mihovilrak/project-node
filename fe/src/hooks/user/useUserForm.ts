@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUser, getUserById, updateUser } from '../../api/users';
-import { getRoles } from '../../api/roles';
-import { Role } from '../../types/role';
+import { useLookup, useLookups } from '../../context/LookupsContext';
 import {
   UserFormData,
   UserCreate,
@@ -20,10 +19,16 @@ import getApiErrorMessage from '../../utils/getApiErrorMessage';
  */
 export const useUserForm = ({ userId }: UserFormProps) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [roles, setRoles] = useState<Role[]>([]);
+  const {
+    data: roles,
+    loading: rolesLoading,
+    error: rolesError,
+  } = useLookup('roles');
+  const [userLoading, setUserLoading] = useState<boolean>(!!userId);
+  const { invalidate } = useLookups();
+  const loading = rolesLoading || userLoading;
   const [formValues, setFormValues] = useState<UserFormData>({
     login: '',
     name: '',
@@ -36,45 +41,32 @@ export const useUserForm = ({ userId }: UserFormProps) => {
   });
 
   useEffect(() => {
-    const loadRoles = async () => {
-      try {
-        setLoading(true);
-        const roleData = await getRoles();
-        setRoles(roleData);
-        setError((prev) => (prev ? null : prev));
-      } catch (error) {
-        logger.error('Failed to fetch roles', error);
-        setError('Failed to load roles');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRoles();
-
-    if (userId) {
-      fetchUserData(parseInt(userId));
-    }
-  }, [userId]);
-
-  const fetchUserData = async (id: number) => {
-    try {
-      const user = await getUserById(id);
-      setFormValues({
-        login: user.login || '',
-        name: user.name || '',
-        surname: user.surname || '',
-        email: user.email || '',
-        password: '',
-        currentPassword: '',
-        confirmPassword: '',
-        role_id: Number(user.role_id) || 4,
+    if (!userId) return;
+    const controller = new AbortController();
+    getUserById(parseInt(userId), controller.signal)
+      .then((user) => {
+        if (controller.signal.aborted) return;
+        setFormValues({
+          login: user.login || '',
+          name: user.name || '',
+          surname: user.surname || '',
+          email: user.email || '',
+          password: '',
+          currentPassword: '',
+          confirmPassword: '',
+          role_id: Number(user.role_id) || 4,
+        });
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        logger.error('Failed to fetch user data', error);
+        setError(getApiErrorMessage(error, 'Failed to fetch user data'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setUserLoading(false);
       });
-    } catch (error) {
-      logger.error('Failed to fetch user data', error);
-      setError('Failed to fetch user data');
-    }
-  };
+    return () => controller.abort();
+  }, [userId]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,18 +154,19 @@ export const useUserForm = ({ userId }: UserFormProps) => {
         } else {
           await createUser(userData as UserCreate);
         }
+        invalidate('users');
         navigate('/users');
       } catch (error: unknown) {
         logger.error('Failed to save user', error);
         setError(getApiErrorMessage(error, 'Failed to save user'));
       }
     },
-    [formValues, userId, navigate],
+    [formValues, userId, navigate, invalidate],
   );
 
   return {
     loading,
-    error,
+    error: error ?? (rolesError ? 'Failed to load roles' : null),
     fieldErrors,
     roles,
     formValues,

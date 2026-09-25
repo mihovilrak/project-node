@@ -35,17 +35,20 @@ const fetchers: { [K in LookupKey]: () => Promise<LookupMap[K]> } = {
   users: () => getUserOptions(),
 };
 
-type Listener = () => void;
+/**
+ * Called with the invalidated key, or undefined when everything was cleared.
+ */
+export type LookupListener = (key?: LookupKey) => void;
 
 export interface LookupStore {
   get: <K extends LookupKey>(key: K) => Promise<LookupMap[K]>;
   invalidate: (key?: LookupKey) => void;
-  subscribe: (listener: Listener) => () => void;
+  subscribe: (listener: LookupListener) => () => void;
 }
 
 export const createLookupStore = (): LookupStore => {
   const cache = new Map<LookupKey, Promise<unknown>>();
-  const listeners = new Set<Listener>();
+  const listeners = new Set<LookupListener>();
 
   const get = <K extends LookupKey>(key: K): Promise<LookupMap[K]> => {
     let promise = cache.get(key) as Promise<LookupMap[K]> | undefined;
@@ -67,10 +70,10 @@ export const createLookupStore = (): LookupStore => {
   const invalidate = (key?: LookupKey) => {
     if (key) cache.delete(key);
     else cache.clear();
-    listeners.forEach((listener) => listener());
+    listeners.forEach((listener) => listener(key));
   };
 
-  const subscribe = (listener: Listener) => {
+  const subscribe = (listener: LookupListener) => {
     listeners.add(listener);
     return () => {
       listeners.delete(listener);
@@ -101,6 +104,28 @@ export const useLookups = (): LookupStore => {
   return (store ?? fallback) as LookupStore;
 };
 
+/**
+ * Run `callback` whenever `key` (or every lookup) is invalidated. Lets screens
+ * that fetch richer data than the lookup itself stay in sync with mutations.
+ * Pass a stable callback (e.g. `refetch` from useAsyncResource). Returns the
+ * store it listens on; without a provider, callers must invalidate through it.
+ */
+export const useOnLookupInvalidate = (
+  key: LookupKey,
+  callback: () => void,
+): LookupStore => {
+  const store = useLookups();
+
+  useEffect(
+    () =>
+      store.subscribe((changed) => {
+        if (!changed || changed === key) callback();
+      }),
+    [store, key, callback],
+  );
+  return store;
+};
+
 export interface LookupState<T> {
   data: T;
   loading: boolean;
@@ -125,7 +150,13 @@ export const useLookup = <K extends LookupKey>(
     error: null,
   });
 
-  useEffect(() => store.subscribe(() => setVersion((v) => v + 1)), [store]);
+  useEffect(
+    () =>
+      store.subscribe((changed) => {
+        if (!changed || changed === key) setVersion((v) => v + 1);
+      }),
+    [store, key],
+  );
 
   useEffect(() => {
     if (!enabled) return;

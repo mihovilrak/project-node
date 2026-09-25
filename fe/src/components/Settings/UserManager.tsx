@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Paper,
@@ -12,45 +12,23 @@ import UserTable from './UserTable';
 import UserDialog from './UserDialog';
 import { getUsers } from '../../api/users';
 import { User } from '../../types/user';
-import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
+import { useOnLookupInvalidate } from '../../context/LookupsContext';
 
 const UserManager: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    fetchUsers();
-
-    // Listen for user deletion events from other components
-    const handleUserDeleted = (event: Event) => {
-      // Refresh the user list when a user is deleted from another component
-      fetchUsers();
-    };
-
-    window.addEventListener('userDeleted', handleUserDeleted);
-
-    return () => {
-      window.removeEventListener('userDeleted', handleUserDeleted);
-    };
-  }, []);
-
-  const fetchUsers = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getUsers(undefined, { all: true });
-      setUsers(data || []);
-    } catch (error: unknown) {
-      logger.error('Failed to fetch users:', error);
-      setError(getApiErrorMessage(error, 'Failed to fetch users'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: users,
+    loading,
+    error,
+    refetch,
+  } = useAsyncResource<User[]>(
+    async (signal) => (await getUsers(undefined, { all: true }, signal)) || [],
+    [],
+    { initialData: [], errorMessage: 'Failed to fetch users' },
+  );
+  const { invalidate } = useOnLookupInvalidate('users', refetch);
 
   const handleCreateUser = (): void => {
     setSelectedUser(null);
@@ -69,7 +47,7 @@ const UserManager: React.FC = () => {
 
   const handleUserSaved = (): void => {
     handleDialogClose();
-    fetchUsers();
+    invalidate('users');
   };
 
   return (
