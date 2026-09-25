@@ -54,7 +54,7 @@ describe('useUserDialog', () => {
       email: '',
       password: '',
       confirmPassword: '',
-      role_id: expect.any(Number),
+      role_id: '',
       status_id: 1,
     });
     expect(result.current.error).toBeNull();
@@ -169,6 +169,35 @@ describe('useUserDialog', () => {
     });
 
     expect(result.current.formData.role_id).toBe(2);
+  });
+
+  it('requires a role before creating a user', async () => {
+    const { result } = renderHook(() =>
+      useUserDialog(null, true, mockOnClose, mockOnUserSaved),
+    );
+    act(() => {
+      Object.entries({
+        login: 'newuser',
+        name: 'New',
+        surname: 'User',
+        email: 'new@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      }).forEach(([name, value]) => {
+        result.current.handleTextChange({
+          target: { name, value },
+        } as React.ChangeEvent<HTMLInputElement>);
+      });
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent<HTMLFormElement>);
+    });
+
+    expect(result.current.error).toBe('Please select a role');
+    expect(createUser).not.toHaveBeenCalled();
   });
 
   it('should create new user successfully', async () => {
@@ -292,6 +321,9 @@ describe('useUserDialog', () => {
       result.current.handleTextChange({
         target: { name: 'confirmPassword', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleRoleChange({
+        target: { value: 2 },
+      } as SelectChangeEvent<number | ''>);
     });
 
     await act(async () => {
