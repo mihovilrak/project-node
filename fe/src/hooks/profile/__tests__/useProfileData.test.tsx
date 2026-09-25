@@ -222,6 +222,53 @@ describe('useProfileData', () => {
     expect(result.current.editDialogOpen).toBe(false);
   });
 
+  it('saves the profile once and merges it without refetching', async () => {
+    (updateProfile as jest.Mock).mockResolvedValue({
+      ...mockProfileData,
+      name: 'Updated',
+    });
+    const { result } = renderHook(() => useProfileData());
+    await waitFor(() => {
+      expect(result.current.profile).not.toBeNull();
+    });
+
+    await act(async () => {
+      await result.current.handleProfileUpdate({
+        name: 'Updated',
+        surname: mockProfileData.surname,
+        email: mockProfileData.email,
+      });
+    });
+
+    expect(updateProfile).toHaveBeenCalledTimes(1);
+    expect(getProfile).toHaveBeenCalledTimes(1);
+    expect(getRecentTasks).toHaveBeenCalledTimes(1);
+    expect(result.current.profile?.name).toBe('Updated');
+  });
+
+  it('rejects a failed update and keeps the dialog open', async () => {
+    (updateProfile as jest.Mock).mockRejectedValue(new Error('Email taken'));
+    const { result } = renderHook(() => useProfileData());
+    await waitFor(() => {
+      expect(result.current.profile).not.toBeNull();
+    });
+    act(() => {
+      result.current.setEditDialogOpen(true);
+    });
+
+    await expect(
+      act(() =>
+        result.current.handleProfileUpdate({
+          name: 'x',
+          surname: 'y',
+          email: 'z@example.com',
+        }),
+      ),
+    ).rejects.toThrow('Email taken');
+    expect(result.current.editDialogOpen).toBe(true);
+    expect(result.current.updateSuccess).toBe(false);
+  });
+
   it('should handle dialog state correctly', () => {
     const { result } = renderHook(() => useProfileData());
 

@@ -8,7 +8,6 @@ import {
   Button,
   Alert,
 } from '@mui/material';
-import { updateProfile } from '../../api/profiles';
 import { ProfileEditDialogProps, ProfileFormData } from '../../types/profile';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
@@ -49,8 +48,8 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
       e.preventDefault();
       setLoading(true);
       try {
-        const updatedProfile = await updateProfile(formData);
-        await onProfileUpdate(updatedProfile);
+        setError(null);
+        await onProfileUpdate(formData);
         onClose();
       } catch (err: unknown) {
         logger.error('Failed to update profile:', err);

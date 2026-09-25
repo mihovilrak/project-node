@@ -3,22 +3,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import ProfileEditDialog from '../ProfileEditDialog';
-import { updateProfile } from '../../../api/profiles';
 import {
   ProfileFormData,
   ProfileData,
   ProfileEditDialogProps,
 } from '../../../types/profile';
 
-// Mock the API call
-jest.mock('../../../api/profiles');
-const mockUpdateProfile = updateProfile as jest.MockedFunction<
-  typeof updateProfile
->;
-
 describe('ProfileEditDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUpdateProfile.mockResolvedValue(undefined);
   });
 
   const mockProfile: ProfileData = {
@@ -43,12 +37,9 @@ describe('ProfileEditDialog', () => {
     open: true,
     onClose: jest.fn(),
     profile: mockProfile,
-    onProfileUpdate: jest
-      .fn()
-      .mockImplementation(async (formData: ProfileFormData): Promise<void> => {
-        return Promise.resolve();
-      }),
+    onProfileUpdate: jest.fn(),
   };
+  const mockUpdateProfile = mockProps.onProfileUpdate as jest.Mock;
 
   test('renders with profile data', () => {
     render(<ProfileEditDialog {...mockProps} />);
@@ -78,9 +69,13 @@ describe('ProfileEditDialog', () => {
 
     // Fix: Remove type coercion from waitFor
     await waitFor(() => {
-      expect(mockProps.onProfileUpdate).toHaveBeenCalledWith(
-        expect.any(Object),
-      );
+      expect(mockProps.onClose).toHaveBeenCalledTimes(1);
+    });
+    expect(mockProps.onProfileUpdate).toHaveBeenCalledTimes(1);
+    expect(mockProps.onProfileUpdate).toHaveBeenCalledWith<[ProfileFormData]>({
+      name: 'John',
+      surname: 'Doe',
+      email: 'john@example.com',
     });
   });
 
@@ -98,6 +93,7 @@ describe('ProfileEditDialog', () => {
     await waitFor(() => {
       expect(screen.getByText('Update failed')).toBeInTheDocument();
     });
+    expect(mockProps.onClose).not.toHaveBeenCalled();
   });
 
   test('disables submit button while loading', async () => {
