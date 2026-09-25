@@ -1,0 +1,3638 @@
+openapi: 3.1.0
+info:
+  title: Project Node API
+  version: 1.0.0
+  license:
+    name: MIT
+    identifier: MIT
+  description: |
+    REST API behind the Project Node web app. Every path is under `/api`.
+
+    ## Authentication
+    `POST /api/login` with `{ login, password }` starts a session. The server
+    answers with a `connect.sid` cookie (HttpOnly). Send that cookie on every
+    later request; the browser does it for you when requests are made with
+    credentials. `POST /api/logout` ends the session. Without a valid session
+    the protected routes answer `401 { "error": "Access denied" }`.
+
+    Authorisation has two layers. Some routes need a named permission from the
+    caller's role (see `x-required-permission` on the operation; `Admin`
+    satisfies every check). Project, task and file routes also need the caller
+    to be a member or the creator of the project involved; Admins bypass that.
+
+    ## CSRF
+    Every non-GET/HEAD/OPTIONS request under `/api` must carry
+    `X-Requested-With: XMLHttpRequest`, otherwise it is rejected with
+    `403 { "error": "Missing CSRF header" }`. This applies to login too.
+
+    ## Pagination
+    List endpoints that accept `limit` and `offset` return a plain JSON array
+    (no envelope and no total count). `limit` defaults to 50 and is capped at
+    500; `offset` defaults to 0. Invalid values fall back to the defaults.
+
+    ## Errors
+    Errors are JSON objects with an `error` string, sometimes with a
+    `message` or `details`. Database errors are mapped as follows: a unique
+    violation is `409`, a missing referenced row is `404`, an invalid value is
+    `400`. Deleting or updating something that does not exist is `404`.
+    Unexpected failures are `500 { "error": "Internal Server Error" }`.
+
+    ## Data types
+    `date` columns are `YYYY-MM-DD` strings, timestamps are ISO 8601 date-times.
+    PostgreSQL `numeric` and `bigint` values (hours, progress, sizes, counts)
+    arrive as strings.
+servers:
+  - url: http://localhost:5000
+    description: Local development API
+security:
+  - cookieAuth: []
+tags:
+  - name: Health
+    description: Liveness and database connectivity.
+  - name: Session
+    description: Login, logout and the current session.
+  - name: Projects
+    description: Projects, members and subprojects.
+  - name: Tasks
+    description: Tasks, tags on tasks, watchers and task lookups.
+  - name: Comments
+    description: Comments on a task.
+  - name: Files
+    description: Task attachments.
+  - name: Roles
+    description: Roles and their permissions.
+  - name: Users
+    description: User accounts.
+  - name: Notifications
+    description: The signed-in user's notifications.
+  - name: Tags
+    description: Tag catalogue.
+  - name: Profile
+    description: The signed-in user's profile.
+  - name: Admin
+    description: Administration and reports.
+  - name: Task Types
+    description: Task type catalogue.
+  - name: Activity Types
+    description: Activity type catalogue for time logs.
+  - name: Settings
+    description: Application and user settings.
+  - name: Time Logs
+    description: Time logged against tasks.
+
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Check API and database health
+      security: []
+      responses:
+        '200':
+          description: The API can reach the database.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: The database is unreachable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /api/check-session:
+    get:
+      tags: [Session]
+      operationId: session
+      summary: Return the current session user and permissions
+      responses:
+        '200':
+          description: The session is valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/login:
+    post:
+      tags: [Session]
+      operationId: login
+      summary: Log in and start a session
+      description: |
+        Rate limited to 20 requests per 15 minutes per IP (standard
+        `RateLimit-*` headers). After repeated failures the account is locked
+        for a while and the call answers `429` with `Retry-After`.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Logged in. The response sets the `connect.sid` cookie.
+          headers:
+            Set-Cookie:
+              description: The session cookie.
+              schema:
+                type: string
+                examples: ['connect.sid=s%3A...; Path=/; HttpOnly']
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /api/logout:
+    post:
+      tags: [Session]
+      operationId: logout
+      summary: End the session and clear the cookie
+      security:
+        - {}
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Logged out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/projects/statuses:
+    get:
+      tags: [Projects]
+      operationId: getProjectStatuses
+      summary: List project statuses
+      responses:
+        '200':
+          description: Project statuses.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/projects:
+    get:
+      tags: [Projects]
+      operationId: getProjects
+      summary: List projects the caller can access
+      description: >-
+        Only projects the caller is a member or creator of are returned
+        (all projects for Admins). Defaults to active projects when
+        `status_id` is not given.
+      parameters:
+        - name: status_id
+          in: query
+          schema: { type: integer }
+        - name: created_by
+          in: query
+          schema: { type: integer }
+        - name: parent_id
+          in: query
+          schema: { type: integer }
+        - name: start_date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: start_date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: due_date_from
+          in: query
+          schema: { type: string, format: date }
+        - name: due_date_to
+          in: query
+          schema: { type: string, format: date }
+        - name: whereParams
+          in: query
+          description: JSON object with the same filter keys; replaces the individual filters when given.
+          schema: { type: string }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Projects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectListItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Projects]
+      operationId: createProject
+      summary: Create a project
+      description: With `parent_id`, the caller also needs access to the parent project.
+      x-required-permission: Create projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateInput'
+      responses:
+        '201':
+          description: The created project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/projects/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Projects]
+      operationId: getProjectById
+      summary: Get a project
+      description: Requires access to the project (member, creator or Admin).
+      responses:
+        '200':
+          description: The project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Projects]
+      operationId: updateProject
+      summary: Update a project
+      description: Requires access to the project. Unknown keys are ignored.
+      x-required-permission: Edit projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateInput'
+      responses:
+        '200':
+          description: Number of rows updated (always 1).
+          content:
+            application/json:
+              schema:
+                type: integer
+                examples: [1]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Projects]
+      operationId: deleteProject
+      summary: Delete a project
+      description: Soft delete; the project moves to the "deleted" status. Requires access to the project.
+      x-required-permission: Delete projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Confirmation, e.g. `Project Apollo deleted.`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/projects/{id}/details:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Projects]
+      operationId: getProjectDetails
+      summary: Get a project with names and time totals
+      description: Requires access to the project.
+      responses:
+        '200':
+          description: The project details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/projects/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    patch:
+      tags: [Projects]
+      operationId: changeProjectStatus
+      summary: Change a project's status
+      description: Requires access to the project.
+      x-required-permission: Edit projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: '`status` is accepted as an alias of `status_id`.'
+              properties:
+                status_id: { type: integer, minimum: 1 }
+                status: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Confirmation, e.g. `Project status changed to active for project Apollo.`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/projects/{id}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Projects]
+      operationId: getProjectTasks
+      summary: List a project's tasks
+      description: Requires access to the project.
+      parameters:
+        - name: status
+          in: query
+          description: Task status id.
+          schema: { type: integer }
+        - name: priority
+          in: query
+          description: Priority id.
+          schema: { type: integer }
+        - name: assignee
+          in: query
+          description: Assignee user id.
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/projects/{id}/members:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Projects]
+      operationId: getProjectMembers
+      summary: List project members
+      description: Requires access to the project.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Members.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Projects]
+      operationId: addProjectMember
+      summary: Add a member to a project
+      description: Requires access to the project.
+      x-required-permission: Edit projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdInput'
+      responses:
+        '201':
+          description: The new membership.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectMembership'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Projects]
+      operationId: deleteProjectMember
+      summary: Remove a member from a project
+      description: Requires access to the project. The user id goes in the request body.
+      x-required-permission: Edit projects
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdInput'
+      responses:
+        '200':
+          description: Number of memberships removed (always 1).
+          content:
+            application/json:
+              schema:
+                type: integer
+                examples: [1]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/projects/{id}/subprojects:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Projects]
+      operationId: getSubprojects
+      summary: List direct subprojects
+      description: Requires access to the project.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Subprojects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subproject'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/tasks:
+    get:
+      tags: [Tasks]
+      operationId: getTasks
+      summary: List tasks the caller can access
+      description: Boolean flags accept `1` or `true`.
+      parameters:
+        - { name: id, in: query, schema: { type: integer } }
+        - { name: project_id, in: query, schema: { type: integer } }
+        - { name: assignee_id, in: query, schema: { type: integer } }
+        - { name: holder_id, in: query, schema: { type: integer } }
+        - { name: status_id, in: query, schema: { type: integer } }
+        - { name: priority_id, in: query, schema: { type: integer } }
+        - { name: type_id, in: query, schema: { type: integer } }
+        - { name: parent_id, in: query, schema: { type: integer } }
+        - { name: created_by, in: query, schema: { type: integer } }
+        - { name: due_date_from, in: query, schema: { type: string, format: date } }
+        - { name: due_date_to, in: query, schema: { type: string, format: date } }
+        - { name: start_date_from, in: query, schema: { type: string, format: date } }
+        - { name: start_date_to, in: query, schema: { type: string, format: date } }
+        - { name: created_from, in: query, schema: { type: string, format: date } }
+        - { name: created_to, in: query, schema: { type: string, format: date } }
+        - { name: estimated_time_min, in: query, schema: { type: number } }
+        - { name: estimated_time_max, in: query, schema: { type: number } }
+        - { name: inactive_statuses_only, in: query, schema: { type: string, enum: ['1', 'true'] } }
+        - { name: active_statuses_only, in: query, schema: { type: string, enum: ['1', 'true'] } }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Tasks]
+      operationId: createTask
+      summary: Create a task
+      description: Requires access to the project given in `project_id`.
+      x-required-permission: Create tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateInput'
+      responses:
+        '201':
+          description: The id of the created task.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [task_id]
+                properties:
+                  task_id: { type: integer }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/statuses:
+    get:
+      tags: [Tasks]
+      operationId: getTaskStatuses
+      summary: List task statuses
+      responses:
+        '200':
+          description: Task statuses.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/tasks/priorities:
+    get:
+      tags: [Tasks]
+      operationId: getPriorities
+      summary: List task priorities
+      responses:
+        '200':
+          description: Priorities.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/tasks/active:
+    get:
+      tags: [Tasks]
+      operationId: getActiveTasks
+      summary: List active tasks assigned to the caller
+      responses:
+        '200':
+          description: Tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/tasks/calendar:
+    get:
+      tags: [Tasks]
+      operationId: getTasksByDateRange
+      summary: List tasks overlapping a date range
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          required: true
+          description: Must be on or after `start_date`.
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/tasks/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Tasks]
+      operationId: getTaskById
+      summary: Get a task
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: The task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Tasks]
+      operationId: updateTask
+      summary: Update a task
+      description: >-
+        Requires access to the task's project. Holder and assignee must be
+        project members. Handled by the same controller as `patchTask`.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateInput'
+      responses:
+        '200':
+          description: The updated task row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Tasks]
+      operationId: patchTask
+      summary: Partially update a task
+      description: >-
+        Same behaviour as `updateTask` (controller `updateTask`); only the given
+        keys change.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateInput'
+      responses:
+        '200':
+          description: The updated task row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Tasks]
+      operationId: deleteTask
+      summary: Delete a task
+      description: Soft delete. Requires access to the task's project.
+      x-required-permission: Delete tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: The deleted task row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/subtasks:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Tasks]
+      operationId: getSubtasks
+      summary: List a task's subtasks
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: Subtasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/tasks/{id}/tags:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Tasks]
+      operationId: getTaskTags
+      summary: List a task's tags
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: Tags.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Tasks]
+      operationId: addTaskTags
+      summary: Add tags to a task
+      description: Requires access to the task's project. Tags already on the task are skipped.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tagIds]
+              properties:
+                tagIds:
+                  type: array
+                  items: { type: integer, minimum: 1, maximum: 32767 }
+      responses:
+        '200':
+          description: All tags now on the task.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/tags/{tagId}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+      - name: tagId
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Tasks]
+      operationId: removeTaskTag
+      summary: Remove a tag from a task
+      description: Requires access to the task's project.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Tag removed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/watchers:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Tasks]
+      operationId: getTaskWatchers
+      summary: List a task's watchers
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: Watchers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Watcher'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Tasks]
+      operationId: addTaskWatcher
+      summary: Add a watcher to a task
+      description: >-
+        Requires access to the task's project. Anyone may watch a task
+        themselves; adding another user needs the `Edit tasks` permission, and
+        that user must also be able to access the task.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdInput'
+      responses:
+        '201':
+          description: The watcher row, or `null` when the user already watches the task.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/WatcherRow'
+                  - type: 'null'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/watchers/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+      - name: userId
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      tags: [Tasks]
+      operationId: removeTaskWatcher
+      summary: Remove a watcher from a task
+      description: >-
+        Requires access to the task's project. Removing another user needs the
+        `Edit tasks` permission.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '204':
+          description: Watcher removed.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/dates:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    patch:
+      tags: [Tasks]
+      operationId: updateTaskDates
+      summary: Move a task's start and/or due date
+      description: Requires access to the task's project. At least one date is required.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                start_date: { type: string, format: date }
+                due_date: { type: string, format: date }
+      responses:
+        '200':
+          description: The updated task row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/change-status:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    patch:
+      tags: [Tasks]
+      operationId: changeTaskStatus
+      summary: Change a task's status
+      description: Requires access to the task's project.
+      x-required-permission: Edit tasks
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [statusId]
+              properties:
+                statusId: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: The updated task row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/comments:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Comments]
+      operationId: getTaskComments
+      summary: List a task's comments
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: Comments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Comments]
+      operationId: createComment
+      summary: Comment on a task
+      description: Requires access to the task's project.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '201':
+          description: The comment row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/comments/{commentId}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+      - name: commentId
+        in: path
+        required: true
+        description: Comment id. The route declares it as a second `:id`.
+        schema: { type: integer }
+    put:
+      tags: [Comments]
+      operationId: editComment
+      summary: Edit a comment
+      description: Requires access to the task's project; only the author (or an Admin) may edit.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '200':
+          description: The comment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Comments]
+      operationId: deleteComment
+      summary: Delete a comment
+      description: Soft delete. Requires access to the task's project; only the author (or an Admin) may delete.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: The deleted comment row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/files:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Files]
+      operationId: getTaskFiles
+      summary: List a task's files
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          description: Files.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskFile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Files]
+      operationId: uploadFile
+      summary: Upload a file to a task
+      description: Requires access to the task's project.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        $ref: '#/components/requestBodies/FileUpload'
+      responses:
+        '201':
+          description: The stored file row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/files/{fileId}/download:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+      - $ref: '#/components/parameters/FileIdPath'
+    get:
+      tags: [Files]
+      operationId: downloadFile
+      summary: Download a file
+      description: Requires access to the file's project. The task id in the path is not checked against the file.
+      responses:
+        '200':
+          $ref: '#/components/responses/FileDownload'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tasks/{id}/files/{fileId}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+      - $ref: '#/components/parameters/FileIdPath'
+    delete:
+      tags: [Files]
+      operationId: deleteFile
+      summary: Delete a file
+      description: >-
+        Requires access to the file's project. Non-admins may only delete
+        files they uploaded.
+      x-required-permission: Delete files
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: File deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/files:
+    get:
+      tags: [Files]
+      operationId: getTaskFilesByQuery
+      summary: List a task's files by query parameter
+      description: Same as `getTaskFiles` (controller `getTaskFiles`), with the task id in `taskId`.
+      parameters:
+        - $ref: '#/components/parameters/TaskIdQuery'
+      responses:
+        '200':
+          description: Files.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskFile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Files]
+      operationId: uploadFileByQuery
+      summary: Upload a file to the task given by query parameter
+      description: Same as `uploadFile` (controller `uploadFile`), with the task id in `taskId`.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+        - $ref: '#/components/parameters/TaskIdQuery'
+      requestBody:
+        $ref: '#/components/requestBodies/FileUpload'
+      responses:
+        '201':
+          description: The stored file row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/files/{fileId}/download:
+    parameters:
+      - $ref: '#/components/parameters/FileIdPath'
+    get:
+      tags: [Files]
+      operationId: downloadFileById
+      summary: Download a file by id
+      description: Same as `downloadFile` (controller `downloadFile`). Requires access to the file's project.
+      responses:
+        '200':
+          $ref: '#/components/responses/FileDownload'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/files/{fileId}:
+    parameters:
+      - $ref: '#/components/parameters/FileIdPath'
+    delete:
+      tags: [Files]
+      operationId: deleteFileById
+      summary: Delete a file by id
+      description: >-
+        Same as `deleteFile` (controller `deleteFile`). Requires access to the
+        file's project; non-admins may only delete files they uploaded.
+      x-required-permission: Delete files
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: File deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/roles:
+    get:
+      tags: [Roles]
+      operationId: getRoles
+      summary: List roles with their permissions
+      responses:
+        '200':
+          description: Roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Roles]
+      operationId: createRole
+      summary: Create a role
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/RoleInput'
+                - required: [name]
+      responses:
+        '201':
+          description: Role created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleSaved'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/roles/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    put:
+      tags: [Roles]
+      operationId: updateRole
+      summary: Update a role and replace its permissions
+      description: The built-in Admin role cannot be changed (403).
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleInput'
+      responses:
+        '200':
+          description: Role updated. `id` is returned as a string.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleSaved'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Roles]
+      operationId: deleteRole
+      summary: Delete a role
+      description: The Admin role cannot be deleted (403); a role still assigned to users gives 409.
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Role deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/users:
+    get:
+      tags: [Users]
+      operationId: getUsers
+      summary: List users
+      description: Active users only unless `all` is set.
+      x-required-permission: Admin
+      parameters:
+        - name: all
+          in: query
+          schema: { type: string, enum: ['1', 'true'] }
+        - name: whereParams
+          in: query
+          description: JSON object of column filters.
+          schema: { type: string }
+      responses:
+        '200':
+          description: Users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserListItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Users]
+      operationId: createUser
+      summary: Create a user
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateInput'
+      responses:
+        '201':
+          description: The created user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/users/options:
+    get:
+      tags: [Users]
+      operationId: getUserOptions
+      summary: List active users for pickers
+      responses:
+        '200':
+          description: Users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/users/statuses:
+    get:
+      tags: [Users]
+      operationId: getUserStatuses
+      summary: List user statuses
+      responses:
+        '200':
+          description: User statuses.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusOption'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/users/permissions:
+    get:
+      tags: [Users]
+      operationId: getUserPermissions
+      summary: List the caller's permissions
+      responses:
+        '200':
+          description: Permission names.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPermission'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Users]
+      operationId: getUserById
+      summary: Get a user
+      x-required-permission: Admin
+      responses:
+        '200':
+          description: The user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Users]
+      operationId: updateUser
+      summary: Update a user
+      description: Callers cannot change their own `role_id` or `status_id`; those keys are dropped.
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateInput'
+      responses:
+        '200':
+          description: The updated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Users]
+      operationId: deleteUser
+      summary: Delete a user
+      description: Soft delete. Callers cannot delete themselves.
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: User deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/users/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    patch:
+      tags: [Users]
+      operationId: changeUserStatus
+      summary: Change a user's status
+      description: Callers cannot change their own status.
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: integer
+                  description: User status id.
+      responses:
+        '200':
+          description: The updated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      operationId: getUserNotifications
+      summary: List the caller's notifications
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Notifications, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags: [Notifications]
+      operationId: markAsRead
+      summary: Mark one or all notifications as read
+      description: Without `notification_id`, every unread notification of the caller is marked.
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notification_id: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Number of notifications changed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [updated]
+                properties:
+                  updated: { type: integer }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/notifications/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    delete:
+      tags: [Notifications]
+      operationId: deleteNotification
+      summary: Delete one of the caller's notifications
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Notification deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/tags:
+    get:
+      tags: [Tags]
+      operationId: getTags
+      summary: List tags
+      responses:
+        '200':
+          description: Tags.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Tags]
+      operationId: createTag
+      summary: Create a tag
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/TagInput'
+                - required: [name, color]
+      responses:
+        '201':
+          description: The created tag.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/tags/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    put:
+      tags: [Tags]
+      operationId: updateTag
+      summary: Update a tag
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagInput'
+      responses:
+        '200':
+          description: The updated tag.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Tags]
+      operationId: deleteTag
+      summary: Delete a tag
+      description: Soft delete.
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Tag deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/profile:
+    get:
+      tags: [Profile]
+      operationId: getProfile
+      summary: Get the caller's profile and totals
+      responses:
+        '200':
+          description: The profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [Profile]
+      operationId: updateProfile
+      summary: Update the caller's name or email
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email, maxLength: 255 }
+                name: { type: string, maxLength: 255 }
+                surname: { type: string, maxLength: 255 }
+      responses:
+        '200':
+          description: The updated user, or the unchanged profile when nothing was given.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/User'
+                  - $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/profile/password:
+    put:
+      tags: [Profile]
+      operationId: changePassword
+      summary: Change the caller's password
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_password]
+              description: '`old_password` is accepted as an alias of `current_password`.'
+              properties:
+                current_password: { type: string, format: password }
+                old_password: { type: string, format: password }
+                new_password: { type: string, format: password }
+      responses:
+        '200':
+          description: Password changed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/profile/tasks:
+    get:
+      tags: [Profile]
+      operationId: getRecentTasks
+      summary: List the caller's recent tasks
+      responses:
+        '200':
+          description: Recent tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecentTask'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/profile/projects:
+    get:
+      tags: [Profile]
+      operationId: getRecentProjects
+      summary: List the caller's recent projects
+      responses:
+        '200':
+          description: Recent projects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecentProject'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/access:
+    get:
+      tags: [Admin]
+      operationId: checkAdminAccess
+      summary: Check whether the caller is an Admin
+      responses:
+        '200':
+          description: The caller is an Admin.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [isAdmin]
+                properties:
+                  isAdmin: { type: boolean, const: true }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/stats:
+    get:
+      tags: [Admin]
+      operationId: getSystemStats
+      summary: Get system counters
+      x-required-permission: Admin
+      responses:
+        '200':
+          description: Counters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/logs:
+    get:
+      tags: [Admin]
+      operationId: getTimeLogReport
+      summary: Report time logs across all users
+      x-required-permission: Admin
+      parameters:
+        - name: startDate
+          in: query
+          description: Inclusive lower bound on `created_on`.
+          schema: { type: string, format: date-time }
+        - name: endDate
+          in: query
+          description: Inclusive upper bound on `created_on`; defaults to now.
+          schema: { type: string, format: date-time }
+        - name: type
+          in: query
+          description: Activity type id.
+          schema: { type: integer, minimum: 1 }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Time log rows, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeLogReportRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/permissions:
+    get:
+      tags: [Admin]
+      operationId: getAllPermissions
+      summary: List all permissions
+      x-required-permission: Admin
+      responses:
+        '200':
+          description: Permissions ordered by name.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/task-types:
+    get:
+      tags: [Task Types]
+      operationId: getTaskTypes
+      summary: List task types
+      responses:
+        '200':
+          description: Task types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskType'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Task Types]
+      operationId: createTaskType
+      summary: Create a task type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/LookupTypeInput'
+                - required: [name, color]
+      responses:
+        '201':
+          description: The created task type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/task-types/icons:
+    get:
+      tags: [Task Types]
+      operationId: getAvailableTaskTypeIcons
+      summary: List icon names usable by task types
+      description: Controller `getAvailableIcons`, shared with activity types.
+      responses:
+        '200':
+          $ref: '#/components/responses/IconList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/task-types/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Task Types]
+      operationId: getTaskTypeById
+      summary: Get a task type
+      responses:
+        '200':
+          description: The task type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Task Types]
+      operationId: updateTaskType
+      summary: Update a task type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LookupTypeInput'
+      responses:
+        '200':
+          description: The updated task type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Task Types]
+      operationId: deleteTaskType
+      summary: Delete a task type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Task type deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/activity-types:
+    get:
+      tags: [Activity Types]
+      operationId: getActivityTypes
+      summary: List activity types
+      responses:
+        '200':
+          description: Activity types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityType'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Activity Types]
+      operationId: createActivityType
+      summary: Create an activity type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/LookupTypeInput'
+                - required: [name, color]
+      responses:
+        '201':
+          description: The created activity type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /api/admin/activity-types/icons:
+    get:
+      tags: [Activity Types]
+      operationId: getAvailableActivityTypeIcons
+      summary: List icon names usable by activity types
+      description: Controller `getAvailableIcons`, shared with task types.
+      responses:
+        '200':
+          $ref: '#/components/responses/IconList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin/activity-types/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    put:
+      tags: [Activity Types]
+      operationId: updateActivityType
+      summary: Update an activity type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LookupTypeInput'
+      responses:
+        '200':
+          description: The updated activity type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Activity Types]
+      operationId: deleteActivityType
+      summary: Delete an activity type
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Activity type deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/settings/app_settings:
+    get:
+      tags: [Settings]
+      operationId: getSystemSettings
+      summary: Get application settings
+      x-required-permission: Admin
+      responses:
+        '200':
+          description: The settings row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    put:
+      tags: [Settings]
+      operationId: updateSystemSettings
+      summary: Update application settings
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppSettingsInput'
+      responses:
+        '200':
+          description: The updated settings row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/settings/app_theme:
+    get:
+      tags: [Settings]
+      operationId: getAppTheme
+      summary: Get the default theme
+      responses:
+        '200':
+          description: The theme.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [theme]
+                properties:
+                  theme: { $ref: '#/components/schemas/Theme' }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/settings/welcome:
+    get:
+      tags: [Settings]
+      operationId: getWelcomeMessage
+      summary: Get the welcome message
+      responses:
+        '200':
+          description: The welcome message.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [welcome_message]
+                properties:
+                  welcome_message: { type: [string, 'null'] }
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/settings/timezones:
+    get:
+      tags: [Settings]
+      operationId: getTimezones
+      summary: List time zones
+      responses:
+        '200':
+          description: Time zones.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Timezone'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/settings/user_settings:
+    get:
+      tags: [Settings]
+      operationId: getUserSettings
+      summary: Get the caller's settings
+      responses:
+        '200':
+          description: The settings row, or `{}` when the caller has none yet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [Settings]
+      operationId: updateUserSettings
+      summary: Update the caller's settings
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettingsInput'
+      responses:
+        '200':
+          description: The settings row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/settings/test-smtp:
+    post:
+      tags: [Settings]
+      operationId: testSmtpConnection
+      summary: Send a test email with the configured SMTP settings
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: The email was sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTestResult'
+        '400':
+          description: Invalid address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTestResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          description: SMTP failure.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmtpTestResult'
+
+  /api/time-logs:
+    get:
+      tags: [Time Logs]
+      operationId: getAllTimeLogs
+      summary: List all time logs
+      x-required-permission: Admin
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Time logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeLogDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/time-logs/tasks/{taskId}/logs:
+    parameters:
+      - $ref: '#/components/parameters/TaskIdPath'
+    get:
+      tags: [Time Logs]
+      operationId: getTaskTimeLogs
+      summary: List a task's time logs
+      description: Requires access to the task's project.
+      parameters:
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/ActivityTypeFilter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Time logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeLogDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Time Logs]
+      operationId: createTimeLog
+      summary: Log time on a task
+      description: Requires access to the task's project.
+      x-required-permission: Log time
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/TimeLogInput'
+                - required: [spent_time, activity_type_id]
+      responses:
+        '201':
+          description: The time log row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeLog'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/time-logs/tasks/{taskId}/spent-time:
+    parameters:
+      - $ref: '#/components/parameters/TaskIdPath'
+    get:
+      tags: [Time Logs]
+      operationId: getTaskSpentTime
+      summary: Total hours logged on a task
+      description: Requires access to the task's project.
+      responses:
+        '200':
+          $ref: '#/components/responses/SpentTime'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/time-logs/projects/{projectId}/logs:
+    parameters:
+      - $ref: '#/components/parameters/ProjectIdPath'
+    get:
+      tags: [Time Logs]
+      operationId: getProjectTimeLogs
+      summary: List a project's time logs
+      description: Requires access to the project.
+      parameters:
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/ActivityTypeFilter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Time logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeLogDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/time-logs/projects/{projectId}/spent-time:
+    parameters:
+      - $ref: '#/components/parameters/ProjectIdPath'
+    get:
+      tags: [Time Logs]
+      operationId: getProjectSpentTime
+      summary: Total hours logged on a project
+      description: Requires access to the project.
+      responses:
+        '200':
+          $ref: '#/components/responses/SpentTime'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/time-logs/user/logs:
+    get:
+      tags: [Time Logs]
+      operationId: getUserTimeLogs
+      summary: List the caller's time logs
+      parameters:
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/ActivityTypeFilter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Time logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeLogDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/time-logs/{timeLogId}:
+    parameters:
+      - name: timeLogId
+        in: path
+        required: true
+        schema: { type: integer }
+    put:
+      tags: [Time Logs]
+      operationId: updateTimeLog
+      summary: Update a time log
+      description: Only the user who logged the time (or an Admin) may edit it.
+      x-required-permission: Edit log
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeLogInput'
+      responses:
+        '200':
+          description: The updated time log row.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeLog'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Time Logs]
+      operationId: deleteTimeLog
+      summary: Delete a time log
+      description: Only the user who logged the time (or an Admin) may delete it.
+      x-required-permission: Delete log
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200':
+          description: Time log deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: Session cookie set by `POST /api/login`.
+
+  parameters:
+    CsrfHeader:
+      name: X-Requested-With
+      in: header
+      required: true
+      description: Required on every mutating request; without it the API answers 403.
+      schema:
+        type: string
+        const: XMLHttpRequest
+    Limit:
+      name: limit
+      in: query
+      description: Page size. Invalid values fall back to the default.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 500
+        default: 50
+    Offset:
+      name: offset
+      in: query
+      description: Rows to skip. Invalid values fall back to 0.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    FileIdPath:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    TaskIdPath:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    ProjectIdPath:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    TaskIdQuery:
+      name: taskId
+      in: query
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    StartDate:
+      name: startDate
+      in: query
+      description: Earliest `log_date`.
+      schema: { type: string, format: date }
+    EndDate:
+      name: endDate
+      in: query
+      description: Latest `log_date`.
+      schema: { type: string, format: date }
+    ActivityTypeFilter:
+      name: activity_type_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+
+  requestBodies:
+    FileUpload:
+      required: true
+      description: >-
+        One file in the `file` field, at most 10 MB. Allowed extensions: png,
+        jpg, jpeg, gif, webp, bmp, pdf, txt, csv, md, json, doc, docx, xls,
+        xlsx, ppt, pptx, odt, ods, zip; the MIME type must match the extension.
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required: [file]
+            properties:
+              file:
+                type: string
+                format: binary
+
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: No valid session.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Access denied
+    Forbidden:
+      description: >-
+        Missing CSRF header, missing permission, or no access to the
+        project, task, file or record.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Permission denied: Edit tasks required'
+    NotFound:
+      description: The resource, or a resource it references, does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: A resource with the same unique value already exists, or the resource is still in use.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Resource already exists
+    TooManyRequests:
+      description: Too many attempts.
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying.
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    FileDownload:
+      description: The file contents, sent as an attachment.
+      headers:
+        Content-Disposition:
+          description: '`attachment` with the original file name.'
+          schema:
+            type: string
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+    IconList:
+      description: Icon names.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+    SpentTime:
+      description: Total hours.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [spent_time]
+            properties:
+              spent_time: { type: number }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details: {}
+        missingFields:
+          type: array
+          items: { type: string }
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+    NumericString:
+      type: string
+      description: A PostgreSQL numeric or bigint value serialized as a string.
+      pattern: '^-?\d+(\.\d+)?$'
+      examples: ['12.50']
+    Timestamp:
+      type: string
+      format: date-time
+    NullableTimestamp:
+      type: [string, 'null']
+      format: date-time
+    Date:
+      type: string
+      format: date
+    NullableDate:
+      type: [string, 'null']
+      format: date
+    StatusOption:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        color: { type: [string, 'null'] }
+    UserIdInput:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: integer, minimum: 1 }
+
+    LoginInput:
+      type: object
+      required: [login, password]
+      properties:
+        login: { type: string, minLength: 1, maxLength: 255 }
+        password: { type: string, format: password, minLength: 1, maxLength: 1024 }
+    SessionUser:
+      type: object
+      required: [id, login, role_id]
+      properties:
+        id: { type: integer }
+        login: { type: string }
+        role_id: { type: integer }
+    UserPermission:
+      type: object
+      required: [permission]
+      properties:
+        permission: { type: string }
+    SessionInfo:
+      type: object
+      required: [user, permissions]
+      properties:
+        user: { $ref: '#/components/schemas/SessionUser' }
+        permissions:
+          type: array
+          items: { $ref: '#/components/schemas/UserPermission' }
+    LoginResult:
+      allOf:
+        - $ref: '#/components/schemas/SessionInfo'
+        - type: object
+          required: [message]
+          properties:
+            message: { type: string, const: Login successful }
+
+    Project:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, maxLength: 50 }
+        description: { type: [string, 'null'] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        parent_id: { type: [integer, 'null'] }
+        status_id: { type: integer }
+        created_by: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    ProjectListItem:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            status_name: { type: string }
+            created_by_name: { type: string }
+            estimated_time: { $ref: '#/components/schemas/NumericString' }
+            spent_time: { $ref: '#/components/schemas/NumericString' }
+            progress: { $ref: '#/components/schemas/NumericString' }
+    ProjectDetails:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        parent_id: { type: [integer, 'null'] }
+        parent_name: { type: [string, 'null'] }
+        status_id: { type: integer }
+        status_name: { type: string }
+        created_by: { type: integer }
+        created_by_name: { type: string }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        estimated_time: { $ref: '#/components/schemas/NumericString' }
+        spent_time: { $ref: '#/components/schemas/NumericString' }
+        progress: { $ref: '#/components/schemas/NumericString' }
+    Subproject:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            status: { type: string }
+            created_by_name: { type: string }
+            parent_name: { type: [string, 'null'] }
+    ProjectCreateInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 50 }
+        description: { type: [string, 'null'] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        parent_id: { type: [integer, 'null'], minimum: 1 }
+    ProjectUpdateInput:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, maxLength: 50 }
+        description: { type: [string, 'null'] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        parent_id:
+          type: [integer, 'null']
+          minimum: 1
+          description: '`null` detaches the project from its parent.'
+    ProjectMember:
+      type: object
+      properties:
+        project_id: { type: integer }
+        user_id: { type: integer }
+        name: { type: string }
+        surname: { type: string }
+        role: { type: string }
+    ProjectMembership:
+      type: object
+      properties:
+        id: { type: integer }
+        project_id: { type: integer }
+        user_id: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+
+    Task:
+      type: object
+      description: A raw `tasks` row.
+      properties:
+        id: { type: integer }
+        name: { type: string, maxLength: 100 }
+        description: { type: [string, 'null'] }
+        estimated_time: { oneOf: [{ $ref: '#/components/schemas/NumericString' }, { type: 'null' }] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        priority_id: { type: integer }
+        status_id: { type: integer }
+        type_id: { type: integer }
+        parent_id: { type: [integer, 'null'] }
+        project_id: { type: integer }
+        holder_id: { type: [integer, 'null'] }
+        assignee_id: { type: [integer, 'null'] }
+        created_by: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    TaskDetails:
+      type: object
+      description: A task with the names and colours of related records.
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        project_id: { type: integer }
+        project_name: { type: string }
+        holder_id: { type: [integer, 'null'] }
+        holder_name: { type: [string, 'null'] }
+        assignee_id: { type: [integer, 'null'] }
+        assignee_name: { type: [string, 'null'] }
+        parent_id: { type: [integer, 'null'] }
+        parent_name: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        type_id: { type: integer }
+        type_name: { type: string }
+        type_color: { type: [string, 'null'] }
+        type_icon: { type: [string, 'null'] }
+        status_id: { type: integer }
+        status_name: { type: string }
+        status_color: { type: [string, 'null'] }
+        priority_id: { type: integer }
+        priority_name: { type: string }
+        priority_color: { type: [string, 'null'] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        spent_time: { $ref: '#/components/schemas/NumericString' }
+        progress: { type: integer }
+        created_by: { type: integer }
+        created_by_name: { type: string }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        estimated_time: { oneOf: [{ $ref: '#/components/schemas/NumericString' }, { type: 'null' }] }
+    TaskCreateInput:
+      type: object
+      required:
+        - name
+        - start_date
+        - due_date
+        - priority_id
+        - status_id
+        - type_id
+        - project_id
+        - holder_id
+        - assignee_id
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: [string, 'null'] }
+        estimated_time: { type: [number, 'null'], minimum: 0, maximum: 999.99 }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        priority_id: { type: integer }
+        status_id: { type: integer }
+        type_id: { type: integer }
+        project_id: { type: integer }
+        parent_id: { type: [integer, 'null'] }
+        holder_id: { type: integer }
+        assignee_id: { type: integer }
+        tags:
+          type: array
+          items:
+            type: object
+            required: [id]
+            properties:
+              id: { type: integer }
+    TaskUpdateInput:
+      type: object
+      description: Unknown keys are ignored.
+      properties:
+        name: { type: string, maxLength: 100 }
+        description: { type: [string, 'null'] }
+        estimated_time: { type: [number, 'null'], minimum: 0, maximum: 999.99 }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        end_date: { $ref: '#/components/schemas/NullableDate' }
+        priority_id: { type: integer }
+        status_id: { type: integer }
+        type_id: { type: integer }
+        holder_id: { type: integer }
+        assignee_id: { type: integer }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+
+    CommentInput:
+      type: object
+      required: [comment]
+      properties:
+        comment: { type: string, minLength: 1, maxLength: 400 }
+    CommentRow:
+      type: object
+      properties:
+        id: { type: integer }
+        task_id: { type: integer }
+        user_id: { type: integer }
+        active: { type: boolean }
+        comment: { type: string }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    Comment:
+      allOf:
+        - $ref: '#/components/schemas/CommentRow'
+        - type: object
+          properties:
+            user_name: { type: string }
+
+    FileRow:
+      type: object
+      properties:
+        id: { type: integer }
+        task_id: { type: integer }
+        user_id: { type: integer }
+        original_name: { type: string }
+        stored_name: { type: string }
+        size: { $ref: '#/components/schemas/NumericString' }
+        mime_type: { type: string }
+        file_path: { type: string }
+        uploaded_on: { $ref: '#/components/schemas/Timestamp' }
+    TaskFile:
+      allOf:
+        - $ref: '#/components/schemas/FileRow'
+        - type: object
+          properties:
+            uploaded_by: { type: string, description: Uploader's display name. }
+
+    Tag:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        color: { type: string }
+        icon: { type: string }
+        active: { type: boolean }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    TagInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 50 }
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        icon: { type: string, pattern: '^[A-Za-z0-9]{1,50}$', default: Label }
+
+    Watcher:
+      type: object
+      properties:
+        task_id: { type: integer }
+        user_id: { type: integer }
+        user_name: { type: string }
+        role: { type: string }
+    WatcherRow:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        task_id: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+
+    Permission:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    Role:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        active: { type: boolean }
+        permissions:
+          type: array
+          items: { $ref: '#/components/schemas/Permission' }
+    RoleInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 50 }
+        description: { type: [string, 'null'] }
+        active: { type: boolean, description: Update only. }
+        permissions:
+          type: array
+          description: Permission ids; replaces the current set.
+          items: { type: integer }
+    RoleSaved:
+      type: object
+      required: [message, id]
+      properties:
+        message: { type: string }
+        id: { type: [integer, string] }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        login: { type: string }
+        name: { type: string }
+        surname: { type: string }
+        email: { type: string, format: email }
+        status_id: { type: integer }
+        role_id: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    UserListItem:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            status_name: { type: string }
+            status_color: { type: [string, 'null'] }
+            role_name: { type: string }
+            last_login: { $ref: '#/components/schemas/NullableTimestamp' }
+    UserOption:
+      type: object
+      properties:
+        id: { type: integer }
+        login: { type: string }
+        name: { type: string }
+        surname: { type: string }
+    UserCreateInput:
+      type: object
+      required: [login, name, surname, email, password, role_id]
+      properties:
+        login: { type: string, maxLength: 255 }
+        name: { type: string, maxLength: 255 }
+        surname: { type: string, maxLength: 255 }
+        email: { type: string, format: email, maxLength: 255 }
+        password:
+          type: string
+          format: password
+          description: Must satisfy the password policy.
+        role_id: { type: integer }
+    UserUpdateInput:
+      type: object
+      properties:
+        login: { type: string, maxLength: 255 }
+        name: { type: string, maxLength: 255 }
+        surname: { type: string, maxLength: 255 }
+        email: { type: string, format: email, maxLength: 255 }
+        password:
+          type: string
+          format: password
+          description: Must satisfy the password policy.
+        role_id: { type: integer }
+        status_id: { type: integer }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        type_id: { type: integer }
+        title: { type: string }
+        message: { type: string }
+        link: { type: [string, 'null'] }
+        data: { type: [object, 'null'] }
+        is_read: { type: boolean }
+        active: { type: boolean }
+        read_on: { $ref: '#/components/schemas/NullableTimestamp' }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        type: { type: string }
+        icon: { type: [string, 'null'] }
+        color: { type: [string, 'null'] }
+
+    Profile:
+      type: object
+      properties:
+        id: { type: integer }
+        login: { type: string }
+        name: { type: string }
+        surname: { type: string }
+        email: { type: string, format: email }
+        role_name: { type: string }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        last_login: { $ref: '#/components/schemas/NullableTimestamp' }
+        total_tasks: { $ref: '#/components/schemas/NumericString' }
+        completed_tasks: { $ref: '#/components/schemas/NumericString' }
+        active_projects: { $ref: '#/components/schemas/NumericString' }
+        total_hours: { $ref: '#/components/schemas/NumericString' }
+    RecentTask:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        project_name: { type: string }
+        holder_name: { type: [string, 'null'] }
+        estimated_time: { oneOf: [{ $ref: '#/components/schemas/NumericString' }, { type: 'null' }] }
+        start_date: { $ref: '#/components/schemas/Date' }
+        due_date: { $ref: '#/components/schemas/Date' }
+        status_name: { type: string }
+        priority_name: { type: string }
+        created_by_name: { type: string }
+        priority_color: { type: [string, 'null'] }
+    RecentProject:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        due_date: { $ref: '#/components/schemas/Date' }
+        progress: { type: integer }
+
+    SystemStats:
+      type: object
+      properties:
+        active_users: { $ref: '#/components/schemas/NumericString' }
+        active_projects: { $ref: '#/components/schemas/NumericString' }
+        active_tasks: { $ref: '#/components/schemas/NumericString' }
+        time_logs_30d: { $ref: '#/components/schemas/NumericString' }
+
+    LookupTypeInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 50 }
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        icon:
+          type: [string, 'null']
+          description: One of the names from the matching `/icons` endpoint.
+        description: { type: [string, 'null'] }
+        active: { type: boolean }
+    TaskType:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        color: { type: string }
+        icon: { type: string, default: TaskAlt }
+        active: { type: boolean }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    ActivityType:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        color: { type: string }
+        icon: { type: [string, 'null'] }
+        active: { type: boolean }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+
+    Theme:
+      type: string
+      enum: [light, dark, system]
+    AppSettings:
+      type: object
+      properties:
+        id: { type: integer }
+        app_name: { type: string }
+        company_name: { type: [string, 'null'] }
+        sender_email: { type: [string, 'null'] }
+        time_zone: { type: string }
+        theme: { $ref: '#/components/schemas/Theme' }
+        welcome_message: { type: [string, 'null'] }
+        app_base_url: { type: [string, 'null'] }
+        log_level: { type: string, enum: [error, warn, info, debug] }
+        email_enabled: { type: boolean }
+        email_host: { type: [string, 'null'] }
+        email_port: { type: [integer, 'null'] }
+        email_secure: { type: boolean }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    AppSettingsInput:
+      type: object
+      description: Only the given keys change.
+      properties:
+        app_name: { type: string, minLength: 1, maxLength: 255 }
+        company_name: { type: string, minLength: 1, maxLength: 255 }
+        sender_email: { type: string, minLength: 1, maxLength: 255 }
+        time_zone: { type: string, minLength: 1, maxLength: 255 }
+        theme: { $ref: '#/components/schemas/Theme' }
+        welcome_message: { type: string, maxLength: 20000 }
+        app_base_url: { type: string, minLength: 1, maxLength: 255 }
+        log_level: { type: string, enum: [error, warn, info, debug] }
+        email_enabled: { type: boolean }
+        email_host: { type: string, minLength: 1, maxLength: 255 }
+        email_port: { type: integer, minimum: 1, maximum: 65535 }
+        email_secure: { type: boolean }
+    Timezone:
+      type: object
+      properties:
+        name: { type: string, examples: [Europe/Zagreb] }
+        region: { type: string }
+        abbrev: { type: string }
+        utcOffsetSeconds: { type: integer }
+        isDst: { type: boolean }
+        label: { type: string }
+    UserSettings:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        theme: { $ref: '#/components/schemas/Theme' }
+        language: { type: string }
+        notifications_enabled: { type: boolean }
+        email_notifications_enabled: { type: boolean }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    UserSettingsInput:
+      type: object
+      properties:
+        theme: { $ref: '#/components/schemas/Theme' }
+        language: { type: string, pattern: '^[a-z]{2}(-[A-Z]{2})?$' }
+        notifications_enabled: { type: boolean }
+        email_notifications_enabled: { type: boolean }
+        email_notifications:
+          type: boolean
+          description: Alias of `email_notifications_enabled`.
+    SmtpTestResult:
+      type: object
+      required: [success, message]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        messageId: { type: string }
+        code: { type: string }
+
+    TimeLog:
+      type: object
+      description: A raw `time_logs` row.
+      properties:
+        id: { type: integer }
+        task_id: { type: integer }
+        user_id: { type: integer }
+        log_date: { $ref: '#/components/schemas/Date' }
+        spent_time: { $ref: '#/components/schemas/NumericString' }
+        description: { type: string }
+        activity_type_id: { type: integer }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    TimeLogDetails:
+      type: object
+      properties:
+        id: { type: integer }
+        project_id: { type: integer }
+        project_name: { type: string }
+        task_id: { type: integer }
+        task_name: { type: string }
+        user_id: { type: integer }
+        user: { type: string, description: User's display name. }
+        log_date: { $ref: '#/components/schemas/Date' }
+        spent_time: { $ref: '#/components/schemas/NumericString' }
+        description: { type: string }
+        activity_type_id: { type: integer }
+        activity_type_name: { type: string }
+        activity_type_color: { type: string }
+        activity_type_icon: { type: [string, 'null'] }
+        created_on: { $ref: '#/components/schemas/Timestamp' }
+        updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
+    TimeLogReportRow:
+      allOf:
+        - $ref: '#/components/schemas/TimeLog'
+        - type: object
+          properties:
+            user_login: { type: string }
+            activity_name: { type: string }
+    TimeLogInput:
+      type: object
+      properties:
+        log_date:
+          $ref: '#/components/schemas/Date'
+        spent_time:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 24
+          description: Hours.
+        description: { type: string }
+        activity_type_id: { type: integer }
