@@ -3,7 +3,12 @@ jest.mock('../db', () => ({
 }));
 
 jest.mock('../utils/logger', () => ({
-  logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
+  logger: {
+    level: 'info',
+    warn: jest.fn(),
+    error: jest.fn(),
+    info: jest.fn(),
+  },
 }));
 
 import { reloadSettings } from '../settingsStore';
@@ -18,6 +23,7 @@ const row = {
   email_host: 'smtp.example.com',
   email_port: 2525,
   email_secure: true,
+  log_level: 'info',
 };
 
 describe('reloadSettings', () => {
@@ -60,5 +66,20 @@ describe('reloadSettings', () => {
     await reloadSettings();
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('should apply the stored log level on each reload', async () => {
+    (pool.query as jest.Mock)
+      .mockResolvedValueOnce({ rows: [{ ...row, log_level: 'debug' }] })
+      .mockResolvedValueOnce({ rows: [{ ...row, log_level: 'bogus' }] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await reloadSettings();
+    expect(logger.level).toBe('debug');
+
+    await reloadSettings();
+    await reloadSettings();
+    expect(logger.level).toBe('debug');
+    logger.level = 'info';
   });
 });
