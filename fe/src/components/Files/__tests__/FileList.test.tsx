@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import FileList from '../FileList';
 import { downloadFile } from '../../../api/files';
@@ -63,6 +63,21 @@ describe('FileList', () => {
     const downloadButton = screen.getByLabelText('download');
     fireEvent.click(downloadButton);
     expect(downloadFile).toHaveBeenCalledWith(1, 1);
+  });
+
+  it('reports a forbidden download through onError', async () => {
+    (downloadFile as jest.Mock).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 403, data: new Blob() },
+    });
+    const onError = jest.fn();
+    renderFileList({ onError });
+    fireEvent.click(screen.getByLabelText('download'));
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(
+        'You do not have permission to perform this action',
+      );
+    });
   });
 
   it('calls onFileDeleted when delete button is clicked', () => {

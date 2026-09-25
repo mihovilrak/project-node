@@ -3,6 +3,7 @@ import { uploadFile } from '../../api/files';
 import { TaskFile } from '../../types/file';
 import { AxiosProgressEvent } from 'axios';
 import { validateUploadFile } from '../../constants/uploads';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
  * Manage file uploads with progress tracking and validation for a specific
@@ -55,7 +56,7 @@ export const useFileUpload = (
         onFileUploaded(response);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload file');
+      setError(getApiErrorMessage(err, 'Failed to upload file'));
     } finally {
       setUploading(false);
       setProgress(0);

@@ -13,6 +13,7 @@ export interface FileListProps {
   files: TaskFile[];
   taskId: number;
   onFileDeleted: (fileId: number) => void;
+  onError?: (message: string) => void;
 }
 
 /**

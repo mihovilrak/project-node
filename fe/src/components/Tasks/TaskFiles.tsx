@@ -74,6 +74,7 @@ const TaskFiles: React.FC<TaskFilesProps> = ({
         files={files}
         taskId={taskId}
         onFileDeleted={handleFileDeleted}
+        onError={setActionError}
       />
     </Paper>
   );
