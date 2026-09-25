@@ -35,13 +35,18 @@ const EMPTY_BUNDLE: ProfileBundle = {
   recentProjects: [],
 };
 
+const toNumber = (value: number | string | null | undefined): number => {
+  const n = Number(value ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
 const toStats = (profile: ProfileData | null): ProfileStats =>
   profile
     ? {
-        totalTasks: profile.total_tasks ?? 0,
-        completedTasks: profile.completed_tasks ?? 0,
-        activeProjects: profile.active_projects ?? 0,
-        totalHours: profile.total_hours ?? 0,
+        totalTasks: toNumber(profile.total_tasks),
+        completedTasks: toNumber(profile.completed_tasks),
+        activeProjects: toNumber(profile.active_projects),
+        totalHours: toNumber(profile.total_hours),
       }
     : DEFAULT_STATS;
 

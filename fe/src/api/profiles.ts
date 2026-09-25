@@ -1,5 +1,4 @@
 import { api } from './api';
-import { User } from '../types/user';
 import { Task } from '../types/task';
 import { Project } from '../types/project';
 import {
@@ -27,22 +26,16 @@ export const getProfile = async (
 };
 
 /**
- * Update the user profile on the server by sending the provided profileData and
- * return the updated User.
- *
- * Sends a PUT request to the '/profile' endpoint with profileData as the
- * request body and resolves to the User object returned by the server. This
- * performs a server-side update of the user's persisted profile; callers should
- * handle network or authorization errors and use the returned User to refresh
- * UI state.
+ * Update the signed-in user's profile and return it in the same shape as
+ * {@link getProfile}.
  *
  * @param profileData ProfileUpdateData object containing the fields to update;
  *   sent as the PUT request body to '/profile'.
  */
 export const updateProfile = async (
   profileData: ProfileUpdateData,
-): Promise<User> => {
-  const response = await api.put<User>('/profile', profileData);
+): Promise<ProfileData> => {
+  const response = await api.put<ProfileData>('/profile', profileData);
   return response.data;
 };
 

@@ -74,13 +74,13 @@ describe('Roles API', () => {
     };
 
     it('should update role successfully', async () => {
-      const updatedRole = { ...mockRole, ...updateData };
-      mockedApi.put.mockResolvedValueOnce({ data: updatedRole });
+      const body = { message: 'Role updated successfully', id: 1 };
+      mockedApi.put.mockResolvedValueOnce({ data: body });
 
       const result = await updateRole(1, updateData);
 
       expect(mockedApi.put).toHaveBeenCalledWith('/roles/1', updateData);
-      expect(result).toEqual(updatedRole);
+      expect(result).toEqual(body);
     });
 
     it('should throw error when update fails', async () => {
