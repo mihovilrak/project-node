@@ -183,6 +183,25 @@ describe('TaskForm', () => {
     });
   });
 
+  it('shows the submit error instead of rejecting', async () => {
+    mockHandleSubmit.mockRejectedValueOnce(new Error('Task name taken'));
+    renderTaskForm();
+    fireEvent.submit(screen.getByTestId('task-form'));
+    expect(await screen.findByText('Task name taken')).toBeInTheDocument();
+  });
+
+  it('shows the load error and disables submit', () => {
+    (useTaskForm as jest.Mock).mockReturnValue({
+      ...mockTaskFormHook,
+      isEditing: true,
+      loadError: 'Task not found',
+    });
+
+    renderTaskForm('/tasks/1');
+    expect(screen.getByText('Task not found')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Update Task' })).toBeDisabled();
+  });
+
   it('sets project ID from query parameters', () => {
     renderTaskForm('/tasks/new?projectId=123');
 
