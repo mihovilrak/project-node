@@ -1,3 +1,10 @@
+/**
+ * Notification routes, mounted at `/api/notifications`.
+ *
+ * OpenAPI tag: Notifications.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as notificationController from '../controllers/notificationController';

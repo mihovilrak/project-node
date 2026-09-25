@@ -1,0 +1,28 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Project Node code reference",
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "api",
+    "notification-service",
+    "fe",
+    "packages/backend-common"
+  ],
+  "out": "docs/public/reference",
+  "highlightLanguages": [
+    "bash",
+    "console",
+    "css",
+    "html",
+    "http",
+    "javascript",
+    "json",
+    "tsx",
+    "typescript",
+    "yaml"
+  ],
+  "externalSymbolLinkMappings": {
+    "@types/node": { "*": "https://nodejs.org/api/http.html" },
+    "@types/react": { "*": "https://react.dev/reference/react/Component" }
+  }
+}

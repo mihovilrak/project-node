@@ -20,6 +20,7 @@ export interface UpdateAssignments {
  * @returns An object containing the filtered columns, a parameterized SET
  *   clause, corresponding values, and the next available parameter index, or
  *   null if no updates matched the allowed columns.
+ * @throws When a whitelisted column name is not a plain SQL identifier.
  */
 export const buildUpdateAssignments = (
   updates: Record<string, unknown> | undefined | null,

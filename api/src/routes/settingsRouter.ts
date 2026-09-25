@@ -1,3 +1,10 @@
+/**
+ * User and app settings routes, mounted at `/api/settings`.
+ *
+ * OpenAPI tag: Settings.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';

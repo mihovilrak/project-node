@@ -3,7 +3,7 @@ import { Box, Chip, Paper, Typography } from '@mui/material';
 import { Task } from '../../types/task';
 import { getPriorityColor } from '../../utils/taskUtils';
 
-interface CalendarTaskChipProps {
+export interface CalendarTaskChipProps {
   task: Task;
   onClick: (taskId: number) => void;
   compact?: boolean;

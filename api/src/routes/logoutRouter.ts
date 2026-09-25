@@ -1,3 +1,10 @@
+/**
+ * Logout route, mounted at `/api/logout`.
+ *
+ * OpenAPI tag: Session.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { logout } from '../controllers/loginController';
 
