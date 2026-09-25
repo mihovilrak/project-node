@@ -16,7 +16,11 @@ export default (pool: Pool): Router => {
   router.get('/options', withPool(pool, userController.getUserOptions));
   router.get('/statuses', withPool(pool, userController.getUserStatuses));
   router.get('/permissions', withPool(pool, userController.getUserPermissions));
-  router.get('/:id', withPool(pool, userController.getUserById));
+  router.get(
+    '/:id',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.getUserById),
+  );
   router.post(
     '/',
     checkPermission(pool, 'Admin'),
