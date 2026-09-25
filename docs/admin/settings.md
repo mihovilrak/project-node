@@ -4,6 +4,8 @@ System settings control branding, email, lookups and runtime behaviour for every
 
 Everything on this page requires the **Admin** permission. Select **Settings** in the app bar; it has three tabs: **Users**, **Types & Roles** and **System**. For the **Users** tab, see [Users and roles](/admin/users-and-roles).
 
+![Settings with the Users tab open](/screenshots/settings.png)
+
 ## System settings
 
 1. Open **Settings** > **System**.
@@ -12,6 +14,8 @@ Everything on this page requires the **Admin** permission. Select **Settings** i
 4. Pick the **Time Zone**.
 5. Pick the **Theme**: **Light**, **Dark** or **System** (follows each user's device).
 6. Select **Save Settings**.
+
+![Settings > System](/screenshots/settings-system.png)
 
 Changes apply at once, with no restart.
 
