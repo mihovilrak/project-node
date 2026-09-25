@@ -12,6 +12,7 @@ import {
   Box,
   CircularProgress,
   Icon,
+  Button,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { ActivityType, ActivityTypesTableProps } from '../../types/setting';
@@ -20,6 +21,7 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
   activityTypes,
   onEdit,
   loading,
+  onReactivate,
   canManage = true,
 }) => {
   if (loading) {
@@ -80,6 +82,16 @@ const ActivityTypesTable: React.FC<ActivityTypesTableProps> = ({
                 >
                   <EditIcon />
                 </IconButton>
+                {!activityType.active && onReactivate && (
+                  <Button
+                    size="small"
+                    onClick={() => onReactivate(activityType)}
+                    disabled={!canManage}
+                    aria-label={`Reactivate activity type ${activityType.name}`}
+                  >
+                    Reactivate
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}

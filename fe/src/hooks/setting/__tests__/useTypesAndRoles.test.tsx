@@ -1,5 +1,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useTypesAndRoles } from '../useTypesAndRoles';
+import { TAG_TAB, useTypesAndRoles } from '../useTypesAndRoles';
+import { createTag, deleteTag, getTags, updateTag } from '../../../api/tags';
+import { useLookups } from '../../../context/LookupsContext';
 import {
   getTaskTypes,
   createTaskType,
@@ -21,6 +23,12 @@ import { ActivityType } from '../../../types/setting';
 jest.mock('../../../api/taskTypes');
 jest.mock('../../../api/activityTypes');
 jest.mock('../../../api/roles');
+jest.mock('../../../api/tags');
+jest.mock('../../../context/LookupsContext', () => ({
+  useLookups: jest.fn(),
+}));
+
+const mockInvalidate = jest.fn();
 
 describe('useTypesAndRoles', () => {
   const mockTaskTypes: TaskType[] = [
@@ -43,6 +51,10 @@ describe('useTypesAndRoles', () => {
     (getTaskTypes as jest.Mock).mockResolvedValue(mockTaskTypes);
     (getActivityTypes as jest.Mock).mockResolvedValue(mockActivityTypes);
     (getRoles as jest.Mock).mockResolvedValue(mockRoles);
+    (getTags as jest.Mock).mockResolvedValue([
+      { id: 5, name: 'bug', color: '#ff0000', active: true },
+    ]);
+    (useLookups as jest.Mock).mockReturnValue({ invalidate: mockInvalidate });
   });
 
   it('should fetch all data on mount', async () => {
@@ -254,5 +266,122 @@ describe('useTypesAndRoles', () => {
 
     expect(updateActivityType).toHaveBeenCalledWith(1, updatedActivityType);
     expect(createActivityType).not.toHaveBeenCalled();
+  });
+
+  it('refetches with include_inactive when show inactive is toggled', async () => {
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+    expect(getTaskTypes).toHaveBeenLastCalledWith(expect.anything(), false);
+
+    act(() => {
+      result.current.handleShowInactiveChange(true);
+    });
+
+    await waitFor(() =>
+      expect(getTaskTypes).toHaveBeenLastCalledWith(expect.anything(), true),
+    );
+    expect(getActivityTypes).toHaveBeenLastCalledWith(expect.anything(), true);
+    expect(getTags).toHaveBeenLastCalledWith(expect.anything(), true);
+    expect(result.current.state.showInactive).toBe(true);
+  });
+
+  it('reactivates a task type and refreshes the types lookup', async () => {
+    (updateTaskType as jest.Mock).mockResolvedValueOnce(undefined);
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.handleReactivate(mockTaskTypes[1]);
+    });
+
+    expect(updateTaskType).toHaveBeenCalledWith(2, { active: true });
+    expect(mockInvalidate).toHaveBeenCalledWith('types');
+  });
+
+  it('reactivates an activity type', async () => {
+    (updateActivityType as jest.Mock).mockResolvedValueOnce(undefined);
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+    act(() => {
+      result.current.handleTabChange({} as React.SyntheticEvent, 1);
+    });
+
+    await act(async () => {
+      await result.current.handleReactivate(mockActivityTypes[1]);
+    });
+
+    expect(updateActivityType).toHaveBeenCalledWith(2, { active: true });
+  });
+
+  it('loads tags and creates, updates, deletes and reactivates them', async () => {
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+    expect(result.current.state.tags).toHaveLength(1);
+    act(() => {
+      result.current.handleTabChange({} as React.SyntheticEvent, TAG_TAB);
+    });
+
+    await act(async () => {
+      await result.current.handleSave({ name: 'ui', color: '#00ff00' });
+    });
+    expect(createTag).toHaveBeenCalledWith({ name: 'ui', color: '#00ff00' });
+
+    await act(async () => {
+      await result.current.handleSave({
+        id: 5,
+        name: 'bug2',
+        color: '#ff0000',
+      });
+    });
+    expect(updateTag).toHaveBeenCalledWith(5, {
+      name: 'bug2',
+      color: '#ff0000',
+    });
+
+    await act(async () => {
+      await result.current.handleDelete(5);
+    });
+    expect(deleteTag).toHaveBeenCalledWith(5);
+
+    await act(async () => {
+      await result.current.handleReactivate({
+        id: 5,
+        name: 'bug',
+        color: '#ff0000',
+        active: false,
+      });
+    });
+    expect(updateTag).toHaveBeenCalledWith(5, { active: true });
+    expect(mockInvalidate).toHaveBeenCalledWith('tags');
+  });
+
+  it('rethrows save errors so the dialog can show them', async () => {
+    (createTaskType as jest.Mock).mockRejectedValueOnce(new Error('Duplicate'));
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+    act(() => {
+      result.current.handleCreate();
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.handleSave({ name: 'X', color: '#000000' }),
+      ).rejects.toThrow('Duplicate');
+    });
+
+    expect(result.current.state.dialogOpen).toBe(true);
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('shows delete errors on the page', async () => {
+    (deleteTaskType as jest.Mock).mockRejectedValueOnce(new Error('In use'));
+    const { result } = renderHook(useTypesAndRoles);
+    await waitFor(() => expect(result.current.state.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.handleDelete(1);
+    });
+
+    expect(result.current.state.error).toBe('In use');
   });
 });

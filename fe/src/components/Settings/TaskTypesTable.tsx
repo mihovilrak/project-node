@@ -12,6 +12,7 @@ import {
   Box,
   CircularProgress,
   Typography,
+  Button,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { TaskType, TaskTypesTableProps } from '../../types/setting';
@@ -20,6 +21,7 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
   taskTypes: propTaskTypes,
   onEdit,
   loading: propLoading,
+  onReactivate,
   canManage = true,
 }) => {
   const [taskTypes, setTaskTypes] = useState<TaskType[]>([]);
@@ -95,6 +97,16 @@ const TaskTypesTable: React.FC<TaskTypesTableProps> = ({
                   >
                     <EditIcon />
                   </IconButton>
+                  {type && !type.active && onReactivate && (
+                    <Button
+                      size="small"
+                      onClick={() => onReactivate(type)}
+                      disabled={!canManage}
+                      aria-label={`Reactivate task type ${type.name}`}
+                    >
+                      Reactivate
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))
