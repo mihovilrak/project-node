@@ -18,6 +18,7 @@ export interface DeleteConfirmDialogProps {
   open: boolean;
   title?: string;
   content?: string;
+  confirmLabel?: string;
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;

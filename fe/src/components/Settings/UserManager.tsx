@@ -14,10 +14,12 @@ import { getUsers } from '../../api/users';
 import { User } from '../../types/user';
 import { useAsyncResource } from '../../hooks/common/useAsyncResource';
 import { useOnLookupInvalidate } from '../../context/LookupsContext';
+import { useCurrentUser } from '../../context/AuthContext';
 
 const UserManager: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const currentUser = useCurrentUser();
   const {
     data: users,
     loading,
@@ -86,6 +88,8 @@ const UserManager: React.FC = () => {
           users={users}
           onEditUser={handleEditUser}
           onUserDeleted={handleUserSaved}
+          onUserUpdated={handleUserSaved}
+          currentUserId={currentUser?.id}
         />
       )}
 
