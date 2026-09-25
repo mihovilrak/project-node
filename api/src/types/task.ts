@@ -1,4 +1,3 @@
-import { User } from './user';
 import { Tag } from './tag';
 
 export interface Task {
@@ -113,10 +112,17 @@ export interface TaskUpdateInput {
   progress?: number;
 }
 
+// Row shape of get_task_watchers().
 export interface TaskWatcher {
   task_id: number;
   user_id: number;
-  user?: User;
+  user_name: string | null;
+  role: string | null;
+}
+
+export interface NewTaskWatcher extends TaskWatcher {
+  id: number;
+  created_on: Date;
 }
 
 export interface TaskQueryFilters {

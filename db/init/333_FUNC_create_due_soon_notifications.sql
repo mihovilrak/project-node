@@ -16,7 +16,9 @@ returns integer as $function$
         from tasks t
         join projects p on p.id = t.project_id
         join notification_types nt on nt.name = 'Task Due Soon'
+        left join user_settings s on s.user_id = t.assignee_id
         where t.assignee_id is not null
+        and coalesce(s.notifications_enabled, true)
         and t.due_date between current_date and current_date + 1
         and t.status_id <> all (array[
             task_status_id('done'),

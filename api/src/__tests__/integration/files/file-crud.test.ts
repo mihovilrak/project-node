@@ -131,6 +131,22 @@ describe('POST /api/files', () => {
     expect(stored.rows).toHaveLength(0);
   });
 
+  it('returns 413 for a file over the size limit', async () => {
+    const response = await request(app)
+      .post(`/api/files?taskId=${taskId}`)
+      .set('Cookie', ownerCookies)
+      .attach('file', Buffer.alloc(10 * 1024 * 1024 + 1), 'big.txt');
+
+    expect(response.status).toBe(413);
+    expect(response.body).toEqual({ error: 'File too large' });
+
+    const stored = await testPool.query(
+      'SELECT * FROM files WHERE task_id = $1',
+      [taskId],
+    );
+    expect(stored.rows).toHaveLength(0);
+  });
+
   it('returns 403 for a task outside the user project', async () => {
     const outsider = await seedLowPrivilegeUser();
     const loginResponse = await request(app).post('/api/login').send({

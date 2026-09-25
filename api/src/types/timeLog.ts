@@ -15,6 +15,7 @@ export interface TimeLogCreateInput {
   spent_time: number;
   description: string;
   activity_type_id: number;
+  user_id?: number | string;
 }
 
 export interface TimeLogUpdateInput {
@@ -22,6 +23,7 @@ export interface TimeLogUpdateInput {
   spent_time?: number;
   description?: string;
   activity_type_id?: number;
+  user_id?: number | string;
 }
 
 export interface TimeLogQueryFilters {

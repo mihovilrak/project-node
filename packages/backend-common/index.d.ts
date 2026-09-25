@@ -36,6 +36,9 @@ export interface SmtpConfig {
   from: string;
 }
 
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+export const LOG_LEVELS: readonly LogLevel[];
+export function applyLogLevel(logger: Logger, level: unknown): boolean;
 export function createLogger(env?: NodeJS.ProcessEnv): Logger;
 export function readSecret(
   env: NodeJS.ProcessEnv,

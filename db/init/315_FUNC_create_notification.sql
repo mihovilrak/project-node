@@ -17,7 +17,9 @@ begin
         is_read,
         active,
         created_on
-    ) values (
+    )
+    -- notifications_enabled = false turns off both in-app and email delivery.
+    select
         p_user_id,
         p_type_id,
         p_title,
@@ -26,6 +28,11 @@ begin
         false,
         true,
         current_timestamp
+    where not exists (
+        select 1
+        from user_settings s
+        where s.user_id = p_user_id
+        and not s.notifications_enabled
     );
 
 end;

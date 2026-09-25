@@ -4,16 +4,21 @@ import { LOOKUP_TYPE_KEYS, LookupTypeValues } from '../utils/lookupType';
 import { buildUpdateAssignments } from '../utils/sqlUpdate';
 
 /**
- * Retrieve all active activity types ordered by name.
+ * Retrieve activity types ordered by name; only active ones unless
+ * `includeInactive` is set.
  *
  * @param pool Database connection pool for executing the query
- * @returns Promise resolving to an array of active ActivityType records
+ * @param includeInactive Also return deactivated activity types
  */
-export const getActivityTypes = async (pool: Pool): Promise<ActivityType[]> => {
+export const getActivityTypes = async (
+  pool: Pool,
+  includeInactive = false,
+): Promise<ActivityType[]> => {
   const result = await pool.query(
     `SELECT * FROM activity_types
-    WHERE active = true
+    WHERE active = true OR $1
     ORDER BY name ASC`,
+    [includeInactive],
   );
   return result.rows;
 };

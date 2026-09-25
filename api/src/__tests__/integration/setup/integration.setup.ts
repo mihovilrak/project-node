@@ -1,7 +1,9 @@
 import path from 'path';
 import dotenv from 'dotenv';
+import { Express } from 'express';
 import { Pool } from 'pg';
 import logger from '../../../utils/logger';
+import request from './request';
 
 // Force load .env.test so the app (when imported by tests) uses the test DB
 dotenv.config({ path: path.join(process.cwd(), '.env.test') });
@@ -128,6 +130,31 @@ export const seedLowPrivilegeUser = async () => {
     RETURNING *
   `);
   return result.rows[0];
+};
+
+export const seedAdminUser = async () => {
+  if (!testPool) return null;
+
+  const result = await testPool.query(`
+    INSERT INTO users (login, email, password, name, surname, role_id, status_id)
+    VALUES ('adminuser', 'admin@example.com', crypt(
+      'password123',
+      gen_salt('bf', 12)
+    ), 'Admin', 'User', (SELECT id FROM roles WHERE name = 'Admin'), 1)
+    ON CONFLICT (login) DO UPDATE SET
+      password = EXCLUDED.password,
+      role_id = EXCLUDED.role_id,
+      updated_on = CURRENT_TIMESTAMP
+    RETURNING *
+  `);
+  return result.rows[0];
+};
+
+export const loginAs = async (app: Express, login: string) => {
+  const response = await request(app)
+    .post('/api/login')
+    .send({ login, password: 'password123' });
+  return cookieHeader(response.headers['set-cookie']);
 };
 
 export const seedTestProject = async (userId: number) => {

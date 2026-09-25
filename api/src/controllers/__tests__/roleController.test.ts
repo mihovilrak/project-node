@@ -91,6 +91,10 @@ describe('RoleController', () => {
         mockReq.body,
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Role updated successfully',
+        id: 2,
+      });
     });
 
     it('should return 400 for a non-numeric id', async () => {
