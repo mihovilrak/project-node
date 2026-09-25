@@ -224,6 +224,55 @@ describe('useTimeLogDialog', () => {
     );
   });
 
+  it('omits user_id when an admin edits without changing the owner', async () => {
+    const onSubmit = jest.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useTimeLogDialog({
+        ...defaultProps,
+        timeLog: mockTimeLog,
+        onSubmit,
+        hasAdminPermission: true,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.not.objectContaining({ user_id: expect.anything() }),
+    );
+  });
+
+  it('resets the selected user when the project changes', () => {
+    const { result } = renderHook(() =>
+      useTimeLogDialog({ ...defaultProps, hasAdminPermission: true }),
+    );
+
+    act(() => {
+      result.current.setSelectedUserId(7);
+    });
+    act(() => {
+      result.current.handleProjectChange(1);
+    });
+
+    expect(result.current.selectedUserId).toBe(mockUser.id);
+  });
+
+  it('keeps the log owner in the options when they are not a member', () => {
+    const { result } = renderHook(() =>
+      useTimeLogDialog({
+        ...defaultProps,
+        timeLog: { ...mockTimeLog, user_id: 42, user: 'Former Member' },
+        hasAdminPermission: true,
+      }),
+    );
+
+    expect(result.current.users).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 42 })]),
+    );
+  });
+
   it('shows the API error message when saving fails', async () => {
     const onSubmit = jest.fn().mockRejectedValue({
       response: {

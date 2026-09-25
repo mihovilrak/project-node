@@ -195,7 +195,7 @@ describe('useTimeLogData', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('should load users when has admin permission', async () => {
+  it('has no user options until a project is selected', async () => {
     const { result } = renderHook(() =>
       useTimeLogData({
         open: true,
@@ -204,11 +204,11 @@ describe('useTimeLogData', () => {
       }),
     );
 
-    expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(getUserOptions).toHaveBeenCalled();
-    expect(result.current.users).toEqual(mockUsers);
+    expect(getUserOptions).not.toHaveBeenCalled();
+    expect(getProjectMembers).not.toHaveBeenCalled();
+    expect(result.current.users).toEqual([]);
   });
 
   it('limits admin user options to project members', async () => {

@@ -36,7 +36,7 @@ describe('time logs on behalf of another user', () => {
     jest.resetAllMocks();
     model.createTimeLog.mockResolvedValue({ id: 5 } as any);
     model.updateTimeLog.mockResolvedValue({ id: 5 } as any);
-    model.getTimeLogTaskId.mockResolvedValue('7');
+    model.getTimeLogRef.mockResolvedValue({ taskId: '7', userId: '3' });
     perms.hasPermission.mockResolvedValue(true);
     access.isActiveUser.mockResolvedValue(true);
     access.isTaskProjectMember.mockResolvedValue(true);
@@ -123,15 +123,19 @@ describe('time logs on behalf of another user', () => {
       expect(model.createTimeLog).not.toHaveBeenCalled();
     });
 
-    it('returns 400 for a malformed user_id', async () => {
-      const res = makeRes();
-      await createTimeLog(
-        makeReq({ ...baseBody, user_id: 'abc' }, { taskId: '7' }),
-        res,
-        pool,
-      );
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
+    it.each(['abc', null, '', true])(
+      'returns 400 for a malformed user_id (%p)',
+      async (user_id) => {
+        const res = makeRes();
+        await createTimeLog(
+          makeReq({ ...baseBody, user_id }, { taskId: '7' }),
+          res,
+          pool,
+        );
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(model.createTimeLog).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe('updateTimeLog', () => {
@@ -161,8 +165,59 @@ describe('time logs on behalf of another user', () => {
       expect(model.updateTimeLog).not.toHaveBeenCalled();
     });
 
+    it('skips the owner checks when user_id is the current owner', async () => {
+      access.isTaskProjectMember.mockResolvedValue(false);
+      const res = makeRes();
+      await updateTimeLog(
+        makeReq({ user_id: 3, spent_time: 1 }, { timeLogId: '5' }),
+        res,
+        pool,
+      );
+      expect(perms.hasPermission).not.toHaveBeenCalled();
+      expect(model.updateTimeLog).toHaveBeenCalledWith(pool, '5', {
+        spent_time: 1,
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('checks membership when reassigning a log to the caller', async () => {
+      access.isTaskProjectMember.mockResolvedValue(false);
+      const res = makeRes();
+      await updateTimeLog(
+        makeReq({ user_id: 1 }, { timeLogId: '5' }),
+        res,
+        pool,
+      );
+      expect(access.isTaskProjectMember).toHaveBeenCalledWith(pool, '7', '1');
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(model.updateTimeLog).not.toHaveBeenCalled();
+    });
+
+    it('lets a non-admin claim a log without the admin check', async () => {
+      perms.hasPermission.mockResolvedValue(false);
+      const res = makeRes();
+      await updateTimeLog(
+        makeReq({ user_id: 1 }, { timeLogId: '5' }),
+        res,
+        pool,
+      );
+      expect(perms.hasPermission).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('returns 400 when user_id is null', async () => {
+      const res = makeRes();
+      await updateTimeLog(
+        makeReq({ user_id: null }, { timeLogId: '5' }),
+        res,
+        pool,
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(model.updateTimeLog).not.toHaveBeenCalled();
+    });
+
     it('returns 404 when the log does not exist', async () => {
-      model.getTimeLogTaskId.mockResolvedValue(null);
+      model.getTimeLogRef.mockResolvedValue(null);
       const res = makeRes();
       await updateTimeLog(
         makeReq({ user_id: 9 }, { timeLogId: '5' }),

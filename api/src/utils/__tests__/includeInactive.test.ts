@@ -41,10 +41,10 @@ describe('includeInactive', () => {
     ).resolves.toBe(false);
   });
 
-  it('is false without a session', async () => {
+  it('rejects with 401 without a session', async () => {
     await expect(
       includeInactive(req({ include_inactive: 'true' }), pool),
-    ).resolves.toBe(false);
+    ).rejects.toMatchObject({ status: 401 });
     expect(mockHasPermission).not.toHaveBeenCalled();
   });
 });

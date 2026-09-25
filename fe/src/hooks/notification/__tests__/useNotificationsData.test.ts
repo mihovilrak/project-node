@@ -44,6 +44,8 @@ describe('useNotificationsData', () => {
     jest.useFakeTimers();
     renderHook(() => useNotificationsData(1, 1000));
     expect(getNotifications).toHaveBeenCalledTimes(1);
+    // Ticks are skipped while a request is in flight.
+    await act(async () => {});
 
     await act(async () => {
       jest.advanceTimersByTime(1000);
