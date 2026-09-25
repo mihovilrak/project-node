@@ -1,4 +1,4 @@
--- Run daily by notification-service. One notification per task, assignee and
+-- Run hourly by notification-service. One notification per task, assignee and
 -- due date: re-running the sweep is a no-op, while moving the due date or
 -- reassigning the task notifies again.
 create or replace function create_due_soon_notifications()
