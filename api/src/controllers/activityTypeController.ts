@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as activityTypeModel from '../models/activityTypeModel';
+import { includeInactive } from '../utils/includeInactive';
 import { parseLookupType } from '../utils/lookupType';
 
 export { getAvailableIcons } from '../utils/lookupType';
 
 /**
- * Return all active activity types ordered by name.
+ * Return activity types ordered by name. Admins may pass
+ * `?include_inactive=true` to also get deactivated ones.
  *
  * @param req Express request object
  * @param res Express response object
@@ -17,7 +19,14 @@ export const getActivityTypes = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  res.status(200).json(await activityTypeModel.getActivityTypes(pool));
+  res
+    .status(200)
+    .json(
+      await activityTypeModel.getActivityTypes(
+        pool,
+        await includeInactive(req, pool),
+      ),
+    );
 };
 
 /**

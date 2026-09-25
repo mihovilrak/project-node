@@ -4,16 +4,21 @@ import { LOOKUP_TYPE_KEYS, LookupTypeValues } from '../utils/lookupType';
 import { buildUpdateAssignments } from '../utils/sqlUpdate';
 
 /**
- * Retrieve all active task types ordered by name.
+ * Retrieve task types ordered by name; only active ones unless
+ * `includeInactive` is set.
  *
  * @param pool Database connection pool for executing the query
- * @returns Promise resolving to an array of active TaskType objects
+ * @param includeInactive Also return deactivated task types
  */
-export const getTaskTypes = async (pool: Pool): Promise<TaskType[]> => {
+export const getTaskTypes = async (
+  pool: Pool,
+  includeInactive = false,
+): Promise<TaskType[]> => {
   const result = await pool.query(
     `SELECT * FROM task_types
-    WHERE active = true
+    WHERE active = true OR $1
     ORDER BY name ASC`,
+    [includeInactive],
   );
   return result.rows;
 };

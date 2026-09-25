@@ -22,6 +22,16 @@ describe('TaskTypeModel', () => {
     await expect(taskTypeModel.getTaskTypes(mockPool)).resolves.toEqual([row]);
     expect(mockPool.query).toHaveBeenCalledWith(
       expect.stringContaining('WHERE active = true'),
+      [false],
+    );
+  });
+
+  it('getTaskTypes passes includeInactive through', async () => {
+    (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([row]));
+    await taskTypeModel.getTaskTypes(mockPool, true);
+    expect(mockPool.query).toHaveBeenCalledWith(
+      expect.stringContaining('OR $1'),
+      [true],
     );
   });
 
