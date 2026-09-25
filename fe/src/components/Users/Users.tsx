@@ -80,7 +80,7 @@ const Users: React.FC = () => {
 
   const { data: statuses, error: statusesError } = useAsyncResource<
     UserStatus[]
-  >((signal) => getUserStatuses(signal), [], {
+  >(async (signal) => (await getUserStatuses(signal)) || [], [], {
     initialData: [],
     errorMessage: 'Failed to load user statuses',
   });
