@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,11 +13,14 @@ import {
   CircularProgress,
   Box,
   Typography,
+  Alert,
 } from '@mui/material';
 import { WatcherDialogProps } from '../../types/watcher';
 import { ProjectMember } from '../../types/project';
 import { getProjectMembers } from '../../api/projects';
-import logger from '../../utils/logger';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
+
+const EMPTY_MEMBERS: ProjectMember[] = [];
 
 const WatcherDialog: React.FC<WatcherDialogProps> = ({
   open,
@@ -27,39 +30,36 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
   onAddWatcher,
   onRemoveWatcher,
 }) => {
-  const [loading, setLoading] = useState(true);
-  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const [pendingIds, setPendingIds] = useState<Set<number>>(new Set());
+  const {
+    data: projectMembers,
+    loading,
+    error,
+  } = useAsyncResource<ProjectMember[]>(
+    async (signal) => (await getProjectMembers(projectId, signal)) || [],
+    [projectId],
+    {
+      initialData: EMPTY_MEMBERS,
+      enabled: open && !!projectId,
+      errorMessage: 'Failed to load project members',
+    },
+  );
 
-  useEffect(() => {
-    const fetchProjectMembers = async () => {
-      if (!projectId) return;
-
-      try {
-        setLoading(true);
-        const members = await getProjectMembers(projectId);
-        setProjectMembers(members || []);
-      } catch (error) {
-        logger.error('Failed to fetch project members:', error);
-        setProjectMembers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (open) {
-      fetchProjectMembers();
-    }
-  }, [projectId, open]);
-
-  const handleToggle = (userId: number) => {
-    if (!userId) return;
+  // One request per member at a time, so a double click cannot add twice.
+  const handleToggle = async (userId: number) => {
+    if (!userId || pendingIds.has(userId)) return;
     const isCurrentWatcher = (currentWatchers || []).some(
       (w) => w?.user_id === userId,
     );
-    if (isCurrentWatcher) {
-      onRemoveWatcher(userId);
-    } else {
-      onAddWatcher(userId);
+    setPendingIds((prev) => new Set(prev).add(userId));
+    try {
+      await (isCurrentWatcher ? onRemoveWatcher(userId) : onAddWatcher(userId));
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
     }
   };
 
@@ -76,16 +76,23 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
     >
       <DialogTitle id="watcher-dialog-title">Manage Watchers</DialogTitle>
       <DialogContent>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
         ) : projectMembers.length === 0 ? (
-          <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary" align="center">
-              No project members available
-            </Typography>
-          </Box>
+          !error && (
+            <Box sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary" align="center">
+                No project members available
+              </Typography>
+            </Box>
+          )
         ) : (
           <List>
             {projectMembers.map((member) => {
@@ -93,6 +100,9 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
               const isWatcher = (currentWatchers || []).some(
                 (w) => w?.user_id === member.user_id,
               );
+              const name =
+                `${member?.name || ''} ${member?.surname || ''}`.trim() ||
+                'Unknown User';
               return (
                 <ListItem
                   component="div"
@@ -101,17 +111,16 @@ const WatcherDialog: React.FC<WatcherDialogProps> = ({
                   sx={{ '&:hover': { cursor: 'pointer' } }}
                 >
                   <ListItemText
-                    primary={
-                      `${member?.name || ''} ${member?.surname || ''}`.trim() ||
-                      'Unknown User'
-                    }
+                    primary={name}
                     secondary={member?.role || 'No role'}
                   />
                   <ListItemSecondaryAction>
                     <Checkbox
                       edge="end"
                       checked={isWatcher}
+                      disabled={pendingIds.has(member.user_id)}
                       onChange={() => handleToggle(member.user_id)}
+                      slotProps={{ input: { 'aria-label': `Watch: ${name}` } }}
                     />
                   </ListItemSecondaryAction>
                 </ListItem>
