@@ -116,7 +116,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               onChange={handleTextChange('start_date')}
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               data-testid="project-start-date-input"
             />
           </Grid>
@@ -129,7 +129,7 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
               onChange={handleTextChange('due_date')}
               fullWidth
               required
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               data-testid="project-due-date-input"
             />
           </Grid>
