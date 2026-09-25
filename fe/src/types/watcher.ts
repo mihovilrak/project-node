@@ -3,6 +3,9 @@
  * display name, and optional role.
  */
 export interface TaskWatcher {
+  // Only set on the row returned when a watcher is added.
+  id?: number;
+  created_on?: string;
   task_id: number;
   user_id: number;
   user_name: string;

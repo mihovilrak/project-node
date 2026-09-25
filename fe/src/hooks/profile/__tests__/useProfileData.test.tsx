@@ -305,4 +305,47 @@ describe('useProfileData', () => {
       });
     });
   });
+
+  it('converts string aggregates from the API to numbers', async () => {
+    (getProfile as jest.Mock).mockResolvedValueOnce({
+      ...mockProfileData,
+      total_tasks: '12',
+      completed_tasks: '7',
+      active_projects: '2',
+      total_hours: '15.50',
+    });
+    const { result } = renderHook(() => useProfileData());
+
+    await waitFor(() => {
+      expect(result.current.stats).toEqual({
+        totalTasks: 12,
+        completedTasks: 7,
+        activeProjects: 2,
+        totalHours: 15.5,
+      });
+    });
+  });
+
+  it('keeps stats numeric after merging the saved profile', async () => {
+    (updateProfile as jest.Mock).mockResolvedValueOnce({
+      ...mockProfileData,
+      name: 'Updated',
+      total_tasks: '11',
+      total_hours: '41.25',
+    });
+    const { result } = renderHook(() => useProfileData());
+    await waitFor(() => expect(result.current.profile).not.toBeNull());
+
+    await act(async () => {
+      await result.current.handleProfileUpdate({
+        name: 'Updated',
+        surname: mockProfileData.surname,
+        email: mockProfileData.email,
+      });
+    });
+
+    expect(result.current.profile?.name).toBe('Updated');
+    expect(result.current.stats.totalTasks).toBe(11);
+    expect(result.current.stats.totalHours).toBe(41.25);
+  });
 });

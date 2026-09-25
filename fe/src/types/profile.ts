@@ -2,11 +2,12 @@ import { User } from './user';
 import { Task } from './task';
 import { Project } from './project';
 
+// Postgres COUNT/SUM aggregates arrive as strings; convert with Number().
 export interface ProfileData extends User {
-  total_tasks: number;
-  completed_tasks: number;
-  active_projects: number;
-  total_hours: number;
+  total_tasks: number | string;
+  completed_tasks: number | string;
+  active_projects: number | string;
+  total_hours: number | string;
 }
 
 /**

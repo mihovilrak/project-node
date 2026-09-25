@@ -138,9 +138,11 @@ describe('Projects API', () => {
   describe('updateProject', () => {
     it('should update project with partial data', async () => {
       const partialUpdate: Partial<Project> = { name: 'Updated Name' };
-      mockedApi.put.mockResolvedValueOnce({ data: 1 });
+      mockedApi.put.mockResolvedValueOnce({ data: mockProject });
 
-      await expect(updateProject(1, partialUpdate)).resolves.toBeUndefined();
+      await expect(updateProject(1, partialUpdate)).resolves.toEqual(
+        mockProject,
+      );
 
       expect(mockedApi.put).toHaveBeenCalledWith('/projects/1', partialUpdate);
     });
