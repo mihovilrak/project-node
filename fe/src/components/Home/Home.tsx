@@ -1,15 +1,21 @@
 import React from 'react';
 import ActiveTasks from './ActiveTasks';
 import { Box } from '@mui/material';
-import { useSystemSettings } from '../../hooks/setting/useSystemSettings';
+import { getWelcomeMessage } from '../../api/settings';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
 import { sanitizeHtml } from '../../utils/sanitize';
 
 const Home: React.FC = (): React.ReactElement => {
-  const { state } = useSystemSettings();
+  // A missing banner is not worth an error message; failures are only logged.
+  const { data: welcomeMessage } = useAsyncResource<string | null>(
+    async (signal) => (await getWelcomeMessage(signal)).welcome_message,
+    [],
+    { initialData: null, errorMessage: 'Failed to load welcome message' },
+  );
 
   return (
     <Box>
-      {state?.settings?.welcome_message && (
+      {welcomeMessage && (
         <Box
           data-testid="welcome-message"
           sx={{
@@ -19,9 +25,7 @@ const Home: React.FC = (): React.ReactElement => {
               mb: 2,
             },
           }}
-          dangerouslySetInnerHTML={{
-            __html: sanitizeHtml(state.settings.welcome_message ?? ''),
-          }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(welcomeMessage) }}
         />
       )}
       <ActiveTasks />

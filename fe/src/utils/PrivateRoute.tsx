@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
 import { PrivateRouteProps } from '../types/admin';
@@ -9,6 +9,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   requiredPermission,
 }) => {
   const { currentUser, hasPermission, permissionsLoading } = useAuth();
+  const location = useLocation();
 
   if (permissionsLoading) {
     return (
@@ -26,7 +27,13 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   }
 
   if (!currentUser) {
-    return <Navigate to="/login" />;
+    const next = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={next === '/' ? '/login' : `/login?next=${encodeURIComponent(next)}`}
+        replace
+      />
+    );
   }
 
   if (requiredPermission && !hasPermission(requiredPermission)) {

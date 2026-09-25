@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LoginRequest } from '../../types/auth';
+import { getSafeNextPath } from '../../utils/urlSafety';
 
 /**
  * Manage login form state and submission with authentication error handling.
@@ -17,6 +18,7 @@ export const useLogin = () => {
   });
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -31,7 +33,7 @@ export const useLogin = () => {
     try {
       const success = await login(loginDetails.login, loginDetails.password);
       if (success) {
-        navigate('/');
+        navigate(getSafeNextPath(searchParams.get('next')), { replace: true });
       }
     } catch {
       setError('Login failed. Please check your credentials.');
