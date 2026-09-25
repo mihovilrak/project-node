@@ -255,6 +255,8 @@ const UserForm: React.FC = () => {
                 onChange={handleInputChange}
                 required
                 disabled={loading}
+                error={!!fieldErrors.role_id}
+                helperText={fieldErrors.role_id}
               >
                 {!roles || roles.length === 0 ? (
                   <MenuItem value="" disabled>

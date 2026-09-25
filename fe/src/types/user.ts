@@ -76,7 +76,8 @@ export interface UserFormData {
   email: string;
   password: string;
   confirmPassword?: string;
-  role_id: number;
+  // '' until a role is picked; there is no default role.
+  role_id: number | '';
   status_id?: number;
 }
 

@@ -54,7 +54,7 @@ describe('useUserForm', () => {
       email: '',
       password: '',
       confirmPassword: '',
-      role_id: 4,
+      role_id: '',
     });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -117,6 +117,9 @@ describe('useUserForm', () => {
       result.current.handleInputChange({
         target: { name: 'confirmPassword', value: 'password123' },
       } as React.ChangeEvent<HTMLInputElement>);
+      result.current.handleInputChange({
+        target: { name: 'role_id', value: '2' },
+      } as React.ChangeEvent<HTMLInputElement>);
     });
 
     const mockEvent = {
@@ -135,9 +138,36 @@ describe('useUserForm', () => {
       surname: 'User',
       email: 'new@example.com',
       password: 'password123',
-      role_id: 4,
+      role_id: 2,
     });
     expect(mockNavigate).toHaveBeenCalledWith('/users');
+  });
+
+  it('requires a role in create mode', async () => {
+    const { result } = renderHook(() => useUserForm({}));
+    await act(async () => {
+      Object.entries({
+        login: 'newuser',
+        name: 'New',
+        surname: 'User',
+        email: 'new@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      }).forEach(([name, value]) => {
+        result.current.handleInputChange({
+          target: { name, value },
+        } as React.ChangeEvent<HTMLInputElement>);
+      });
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent);
+    });
+
+    expect(result.current.fieldErrors.role_id).toBe('Role is required');
+    expect(createUser).not.toHaveBeenCalled();
   });
 
   it('should handle form submission in edit mode', async () => {
@@ -205,6 +235,9 @@ describe('useUserForm', () => {
 
     // Set required form values
     await act(async () => {
+      result.current.handleInputChange({
+        target: { name: 'role_id', value: '2' },
+      } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
         target: { name: 'login', value: 'newuser' },
       } as React.ChangeEvent<HTMLInputElement>);

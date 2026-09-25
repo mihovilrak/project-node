@@ -36,7 +36,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
     email: '',
     password: '',
     confirmPassword: '',
-    role_id: 4,
+    role_id: '',
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
           email: user.email || '',
           password: '',
           confirmPassword: '',
-          role_id: Number(user.role_id) || 4,
+          role_id: Number(user.role_id) || '',
         });
       })
       .catch((error: unknown) => {
@@ -71,7 +71,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       const { name, value } = e.target;
       setFormValues((prev) => ({
         ...prev,
-        [name]: name === 'role_id' ? Number(value) : value,
+        [name]: name === 'role_id' && value !== '' ? Number(value) : value,
       }));
       setError(null);
       setFieldErrors((prev) => {
@@ -97,6 +97,7 @@ export const useUserForm = ({ userId }: UserFormProps) => {
       if (!formValues.name?.trim()) err.name = 'First name is required';
       if (!formValues.surname?.trim()) err.surname = 'Last name is required';
       if (!formValues.email?.trim()) err.email = 'Email is required';
+      if (!formValues.role_id) err.role_id = 'Role is required';
 
       if (isEditMode) {
         if (
