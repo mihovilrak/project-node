@@ -33,11 +33,6 @@ export interface CommentEditDialogProps {
   onSave: (commentId: number, newText: string) => Promise<void>;
 }
 
-export interface CommentError {
-  error: string;
-  details?: string;
-}
-
 export interface TaskCommentSectionProps {
   taskId: number;
   comments: Comment[];

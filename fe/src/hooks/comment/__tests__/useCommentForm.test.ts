@@ -97,7 +97,9 @@ describe('useCommentForm', () => {
   });
 
   it('should handle submission error', async () => {
-    const mockError = { error: 'Failed to create comment' };
+    const mockError = {
+      response: { status: 400, data: { error: 'Failed to create comment' } },
+    };
     mockedCreateComment.mockRejectedValueOnce(mockError);
 
     const { result } = renderHook(() =>
@@ -118,7 +120,7 @@ describe('useCommentForm', () => {
       await result.current.handleSubmit(mockEvent);
     });
 
-    expect(result.current.error).toBe(mockError.error);
+    expect(result.current.error).toBe('Failed to create comment');
     expect(result.current.loading).toBe(false);
     expect(mockOnCommentAdded).not.toHaveBeenCalled();
   });

@@ -25,6 +25,16 @@ describe('CommentForm', () => {
     expect(screen.getByPlaceholderText('Add a comment...')).toBeInTheDocument();
   });
 
+  it('limits input length and shows a character counter', async () => {
+    render(<CommentForm taskId={1} onCommentAdded={mockOnCommentAdded} />);
+    const input = screen.getByPlaceholderText('Add a comment...');
+    expect(input).toHaveAttribute('maxLength', '400');
+    expect(screen.getByText('0/400')).toBeInTheDocument();
+
+    await userEvent.type(input, 'Hello');
+    expect(screen.getByText('5/400')).toBeInTheDocument();
+  });
+
   it('disables submit button when input is empty', () => {
     render(<CommentForm taskId={1} onCommentAdded={mockOnCommentAdded} />);
     expect(screen.getByRole('button')).toBeDisabled();

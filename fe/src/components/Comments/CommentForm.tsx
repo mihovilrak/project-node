@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, TextField, Button, CircularProgress } from '@mui/material';
 import { useCommentForm } from '../../hooks/comment/useCommentForm';
 import { CommentFormProps } from '../../types/comment';
+import { MAX_COMMENT_LENGTH } from '../../constants/comments';
 
 const CommentForm: React.FC<CommentFormProps> = ({
   taskId,
@@ -22,7 +23,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
         value={comment || ''}
         onChange={(e) => setComment(e.target.value)}
         error={!!error}
-        helperText={error || ''}
+        helperText={error || `${comment.length}/${MAX_COMMENT_LENGTH}`}
+        slotProps={{ htmlInput: { maxLength: MAX_COMMENT_LENGTH } }}
         disabled={loading || !taskId}
       />
       <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
