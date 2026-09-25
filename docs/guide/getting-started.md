@@ -35,20 +35,18 @@ The bar at the top of every page has:
 
 | Item | What it does |
 | --- | --- |
-| **Home**, **Projects**, **Tasks** | Main sections. |
+| **Home**, **Projects**, **Tasks**, **Calendar** | Main sections. See [Calendar](/guide/calendar). |
 | **Users**, **Settings** | Admin screens. Only users with the **Admin** permission see these tabs. |
 | Sun/moon icon | Switches between light and dark mode. Your choice is saved in this browser. |
 | Bell icon | Opens [notifications](/guide/notifications). The badge shows the unread count. |
 | Your username | Opens your profile. |
 | **Logout** | Ends your session. |
 
-The [calendar](/guide/calendar) has no tab. Open it at `/calendar`.
-
 ## Profile
 
 Select your username in the app bar to open your profile.
 
-The profile shows **Total Tasks**, **Completed Tasks**, **Active Projects** and **Hours Logged**, followed by your tasks and projects.
+The profile shows **Total Tasks**, **Completed Tasks**, **Active Projects** and **Hours Logged**, followed by your tasks and projects. It also has your [notification preferences](/guide/notifications#preferences).
 
 ### Edit your details
 

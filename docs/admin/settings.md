@@ -54,7 +54,7 @@ If email sending is off, the test fails with "Email sending is disabled".
 
 ## Log level
 
-**Runtime Configuration** also has a **Log Level** field. The value is saved, but the services currently read their level from the `LOG_LEVEL` environment variable at start-up. Change `LOG_LEVEL` and restart to change logging. See [Monitoring](/operations/monitoring).
+**Runtime Configuration** also has a **Log Level** field. Saving it changes the logging level of both the API and the notification service while they run, with no restart. The API applies it at once; the notification service picks it up within about a minute. The `LOG_LEVEL` environment variable only sets the level used at start-up, until a service has read the saved value. See [Monitoring](/operations/monitoring).
 
 ## Task and activity types
 
@@ -67,7 +67,12 @@ Task types classify tasks (Bug, Feature and so on). Activity types classify time
 5. Pick a **Color** and an icon.
 6. Set **Active** and save.
 
-To retire a type, turn **Active** off. Existing tasks and time logs keep it, but it is no longer offered and it drops out of the settings list. To bring it back, send `{"active": true}` with `PUT /api/admin/task-types/<id>` or `PUT /api/admin/activity-types/<id>`.
+To retire a type, turn **Active** off. Existing tasks and time logs keep it, but it is no longer offered and it drops out of the settings list.
+
+To bring a type back:
+
+1. Turn on **Show inactive** above the list.
+2. Select **Reactivate** on the type.
 
 ## Roles
 
@@ -75,21 +80,16 @@ Roles are managed under **Settings** > **Types & Roles** > **Roles**. See [Manag
 
 ## Tags
 
-Tags label tasks. The eight default tags cover common areas such as Frontend, Backend and Security. There is no settings screen for tags yet; manage them through the API as an administrator.
+Tags label tasks. The eight default tags cover common areas such as Frontend, Backend and Security.
 
-1. Sign in as an administrator and copy the `connect.sid` cookie.
-2. Create a tag. `name` (up to 50 characters) and `color` (`#RRGGBB`) are required; `icon` is an optional MUI icon name.
+1. Open **Settings** > **Types & Roles** > **Tags**.
+2. Select **Add Tag**, or the edit icon on an existing tag.
+3. Enter a **Name** (up to 50 characters) and a **Color** as a hex value, for example `#7B1FA2`.
+4. Save.
 
-   ```sh
-   curl -X POST https://pm.example.com/api/tags \
-     -H 'Content-Type: application/json' \
-     -H 'X-Requested-With: XMLHttpRequest' \
-     -b 'connect.sid=<cookie>' \
-     -d '{"name": "Mobile", "color": "#7B1FA2"}'
-   ```
+To retire a tag, select its delete icon and confirm. The tag is deactivated, not erased. It disappears from tasks and tag pickers.
 
-3. Rename or recolour with `PUT /api/tags/<id>` and the same body fields.
-4. Retire a tag with `DELETE /api/tags/<id>`. It is deactivated, not erased, and disappears from tag pickers.
+To bring a tag back, turn on **Show inactive** and select **Reactivate** on the tag. It shows again on the tasks that had it.
 
 ## Time log report
 
