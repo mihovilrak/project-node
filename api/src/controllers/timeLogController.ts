@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
+import { isActiveUser, isTaskProjectMember } from '../models/accessModel';
+import { hasPermission } from '../models/permissionModel';
 import * as timeLogModel from '../models/timeLogModel';
 import { CustomRequest } from '../types/express';
 import {
@@ -24,6 +26,47 @@ const isValidSpentTime = (value: unknown): boolean => {
 };
 
 const SPENT_TIME_ERROR = `spent_time must be greater than 0 and at most ${MAX_HOURS_PER_LOG} hours`;
+
+type LogUserResolution =
+  { userId: string } | { status: 400 | 403; error: string };
+
+/**
+ * Resolve whose time log this is. Logging for someone else needs Admin, and the
+ * target must be an active member of the task's project.
+ */
+const resolveLogUser = async (
+  pool: Pool,
+  sessionUser: string,
+  requested: unknown,
+  taskId: string,
+): Promise<LogUserResolution> => {
+  if (requested === undefined || requested === null || requested === '') {
+    return { userId: sessionUser };
+  }
+  const target = Number(requested);
+  if (!Number.isInteger(target) || target <= 0) {
+    return { status: 400, error: 'user_id must be a positive integer' };
+  }
+  const targetId = String(target);
+  if (targetId === sessionUser) return { userId: sessionUser };
+
+  if (!(await hasPermission(pool, sessionUser, 'Admin'))) {
+    return {
+      status: 403,
+      error: 'Only admins can log time for another user',
+    };
+  }
+  if (!(await isActiveUser(pool, targetId))) {
+    return { status: 400, error: 'user_id must refer to an active user' };
+  }
+  if (!(await isTaskProjectMember(pool, taskId, targetId))) {
+    return {
+      status: 400,
+      error: "user_id must refer to a member of the task's project",
+    };
+  }
+  return { userId: targetId };
+};
 
 export const getAllTimeLogs = async (
   req: Request,
@@ -94,9 +137,10 @@ export const createTimeLog = async (
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  const userId = sessionUserId(req);
-  const { log_date, spent_time, description, activity_type_id } = (req.body ??
-    {}) as TimeLogCreateInput;
+  const sessionUser = sessionUserId(req);
+  const taskId = req.params.taskId as string;
+  const { log_date, spent_time, description, activity_type_id, user_id } =
+    (req.body ?? {}) as TimeLogCreateInput;
 
   if (spent_time == null || !activity_type_id) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -105,26 +149,27 @@ export const createTimeLog = async (
     return res.status(400).json({ error: SPENT_TIME_ERROR });
   }
 
-  const timeLog = await timeLogModel.createTimeLog(
-    pool,
-    req.params.taskId as string,
-    userId,
-    {
-      log_date,
-      spent_time,
-      description: description ?? '',
-      activity_type_id,
-    },
-  );
+  const owner = await resolveLogUser(pool, sessionUser, user_id, taskId);
+  if ('error' in owner) {
+    return res.status(owner.status).json({ error: owner.error });
+  }
+
+  const timeLog = await timeLogModel.createTimeLog(pool, taskId, owner.userId, {
+    log_date,
+    spent_time,
+    description: description ?? '',
+    activity_type_id,
+  });
   res.status(201).json(timeLog);
 };
 
 export const updateTimeLog = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
   const body = (req.body ?? {}) as TimeLogUpdateInput;
+  const timeLogId = req.params.timeLogId as string;
 
   // Forward only the keys actually sent so a partial update leaves the rest
   // of the row intact.
@@ -146,11 +191,24 @@ export const updateTimeLog = async (
     return res.status(400).json({ error: SPENT_TIME_ERROR });
   }
 
-  const timeLog = await timeLogModel.updateTimeLog(
-    pool,
-    req.params.timeLogId as string,
-    updates,
-  );
+  if (body.user_id !== undefined) {
+    const taskId = await timeLogModel.getTimeLogTaskId(pool, timeLogId);
+    if (!taskId) {
+      return res.status(404).json({ error: 'Time log not found' });
+    }
+    const owner = await resolveLogUser(
+      pool,
+      sessionUserId(req),
+      body.user_id,
+      taskId,
+    );
+    if ('error' in owner) {
+      return res.status(owner.status).json({ error: owner.error });
+    }
+    updates.user_id = owner.userId;
+  }
+
+  const timeLog = await timeLogModel.updateTimeLog(pool, timeLogId, updates);
   if (!timeLog) {
     return res.status(404).json({ error: 'Time log not found' });
   }
