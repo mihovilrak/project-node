@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getActiveTasks, getTasks } from '../../api/tasks';
 import { useAuth } from '../../context/AuthContext';
@@ -13,17 +13,18 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
+  Alert,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Task } from '../../types/task';
-import logger from '../../utils/logger';
 import {
   chipPropsForPriority,
   chipPropsForStatus,
 } from '../../utils/taskUtils';
 import { usePermission } from '../../hooks/common/usePermission';
 import { formatDate } from '../../utils/dateUtils';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
 
 const TaskCard: React.FC<{
   task: Task;
@@ -171,36 +172,38 @@ const TaskCard: React.FC<{
   );
 };
 
+interface ActiveTaskLists {
+  holderTasks: Task[];
+  assigneeTasks: Task[];
+}
+
+const EMPTY_LISTS: ActiveTaskLists = { holderTasks: [], assigneeTasks: [] };
+
 const ActiveTasks: React.FC = () => {
-  const [holderTasks, setHolderTasks] = useState<Task[]>([]);
-  const [assigneeTasks, setAssigneeTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const userId = currentUser?.id;
 
-  useEffect(() => {
-    const fetchTasks = async (): Promise<void> => {
-      try {
-        setLoading(true);
-        const userId = currentUser?.id;
-        const [holderList, assigneeList] = await Promise.all([
-          userId
-            ? getTasks({ holder_id: userId, active_statuses_only: 1 })
-            : Promise.resolve([]),
-          getActiveTasks(),
-        ]);
-        setHolderTasks(holderList || []);
-        setAssigneeTasks(assigneeList || []);
-      } catch (error: unknown) {
-        logger.error('Failed to fetch active tasks', error);
-        setHolderTasks([]);
-        setAssigneeTasks([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
-  }, [currentUser?.id]);
+  const {
+    data: { holderTasks, assigneeTasks },
+    loading,
+    error,
+  } = useAsyncResource<ActiveTaskLists>(
+    async (signal) => {
+      const [holderList, assigneeList] = await Promise.all([
+        userId
+          ? getTasks({ holder_id: userId, active_statuses_only: 1 }, signal)
+          : Promise.resolve([]),
+        getActiveTasks(signal),
+      ]);
+      return {
+        holderTasks: holderList || [],
+        assigneeTasks: assigneeList || [],
+      };
+    },
+    [userId],
+    { initialData: EMPTY_LISTS, errorMessage: 'Failed to fetch active tasks' },
+  );
 
   if (loading) return <CircularProgress />;
 
@@ -212,6 +215,11 @@ const ActiveTasks: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         My Active Tasks
       </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
