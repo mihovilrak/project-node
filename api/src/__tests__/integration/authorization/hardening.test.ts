@@ -159,6 +159,10 @@ describe('users', () => {
   it('limits the full user list to admins and offers options to everyone', async () => {
     expect((await as(devCookies).get('/api/users')).status).toBe(403);
     expect((await as(adminCookies).get('/api/users')).status).toBe(200);
+    expect((await as(devCookies).get(`/api/users/${pm.id}`)).status).toBe(403);
+    expect((await as(adminCookies).get(`/api/users/${pm.id}`)).status).toBe(
+      200,
+    );
 
     const options = await as(devCookies).get('/api/users/options');
     expect(options.status).toBe(200);
