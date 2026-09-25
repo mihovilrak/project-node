@@ -1,0 +1,21 @@
+{
+  "name": "project-node-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "yarn docs:redoc && vitepress build",
+    "docs:redoc": "redocly build-docs api/openapi.yaml -o public/api/redoc.html && node -e \"require('fs').copyFileSync('api/openapi.yaml','public/api/openapi.yaml')\"",
+    "docs:reference": "cd .. && typedoc",
+    "docs:screenshots": "tsx scripts/screenshots.ts",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.54.3",
+    "playwright": "^1.63.0",
+    "tsx": "^4.23.15",
+    "typedoc": "^0.28.20",
+    "vitepress": "^1.6.4"
+  }
+}

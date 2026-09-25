@@ -14,3 +14,8 @@ fe/build/
 mcp-test-server/
 api/uploads/
 .env.docgen
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+docs/public/reference/
+docs/public/api/redoc.html
+docs/public/api/openapi.yaml

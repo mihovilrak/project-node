@@ -1,0 +1,87 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'api/src/**'
+      - 'fe/src/**'
+      - 'notification-service/src/**'
+      - 'packages/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never cancel a running deployment; queue the next one instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '24.x'
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # TypeDoc source links and VitePress last-updated dates need history.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: |
+            docs/yarn.lock
+            api/yarn.lock
+            fe/yarn.lock
+            notification-service/yarn.lock
+
+      # TypeDoc type-checks each package, so every one needs its dependencies.
+      - name: Install dependencies
+        run: |
+          for dir in docs api fe notification-service; do
+            (cd "$dir" && yarn install --frozen-lockfile)
+          done
+
+      - name: Generate code reference
+        working-directory: ./docs
+        run: yarn docs:reference
+
+      - name: Build site
+        working-directory: ./docs
+        env:
+          DOCS_BASE: /project-node/
+        run: yarn docs:build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
