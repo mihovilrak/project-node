@@ -23,8 +23,8 @@ const TimeLogDialog: React.FC<TimeLogDialogProps> = ({
   onSubmit,
 }) => {
   const { currentUser, hasPermission } = useAuth();
-  const hasAdminPermission =
-    hasPermission('Admin') || hasPermission('Project Manager');
+  // Logging on behalf of others is admin-only in the API.
+  const hasAdminPermission = hasPermission('Admin');
 
   const {
     selectedProjectId,

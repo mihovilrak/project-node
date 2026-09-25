@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { TimeLogCreate, UseTimeLogDialogProps } from '../../types/timeLog';
 import dayjs, { Dayjs } from 'dayjs';
 import { Task } from '../../types/task';
 import { useTimeLogData } from './useTimeLogData';
 import { useTimeLogValidation } from './useTimeLogValidation';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { UserOption } from '../../types/user';
 
 export const useTimeLogDialog = ({
   timeLog,
@@ -36,12 +38,33 @@ export const useTimeLogDialog = ({
 
   const { timeError, validateAndFormatTime } = useTimeLogValidation();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { projects, tasks, users, activityTypes, isLoading, loadError } =
-    useTimeLogData({
-      open,
-      projectId: selectedProjectId ?? projectId,
-      hasAdminPermission,
-    });
+  const {
+    projects,
+    tasks,
+    users: loadedUsers,
+    activityTypes,
+    isLoading,
+    loadError,
+  } = useTimeLogData({
+    open,
+    projectId: selectedProjectId ?? projectId,
+    hasAdminPermission,
+  });
+
+  const users = useMemo<UserOption[]>(() => {
+    if (!currentUser || loadedUsers.some((u) => u.id === currentUser.id)) {
+      return loadedUsers;
+    }
+    return [
+      {
+        id: currentUser.id,
+        login: currentUser.login,
+        name: currentUser.name,
+        surname: currentUser.surname,
+      },
+      ...loadedUsers,
+    ];
+  }, [currentUser, loadedUsers]);
 
   // Reset initialization flag and submit error when dialog closes
   useEffect(() => {
@@ -108,7 +131,10 @@ export const useTimeLogDialog = ({
 
     const timeLogData: TimeLogCreate = {
       task_id: selectedTaskId,
-      user_id: selectedUserId,
+      // Only admins may set user_id; the API rejects it for everyone else.
+      ...(hasAdminPermission && selectedUserId
+        ? { user_id: selectedUserId }
+        : {}),
       activity_type_id: selectedActivityTypeId,
       log_date: logDate.format('YYYY-MM-DD'),
       spent_time: validatedHours,
@@ -121,11 +147,9 @@ export const useTimeLogDialog = ({
       onClose();
     } catch (error: unknown) {
       logger.error('Failed to submit time log:', error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to save time log. Please try again.';
-      setSubmitError(message);
+      setSubmitError(
+        getApiErrorMessage(error, 'Failed to save time log. Please try again.'),
+      );
     }
   };
 

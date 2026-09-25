@@ -162,16 +162,9 @@ const TaskDetails: React.FC = () => {
         }
         onTimeLogSubmit={async (data) => {
           if (!data) return;
-          try {
-            setActionError(null);
-            await handleTimeLogSubmit(data, selectedTimeLog?.id);
-            handleTimeLogDialogClose();
-          } catch (error: unknown) {
-            logger.error('Failed to submit time log:', error);
-            setActionError(
-              getApiErrorMessage(error, 'Failed to save the time log'),
-            );
-          }
+          setActionError(null);
+          // Errors propagate so TimeLogDialog can show them and stay open.
+          await handleTimeLogSubmit(data, selectedTimeLog?.id);
         }}
         onTimeLogDelete={async (timeLogId) => {
           if (!timeLogId) return;
