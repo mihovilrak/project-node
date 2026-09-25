@@ -2,6 +2,7 @@ import { api } from '../api';
 import { User, UserCreate, UserUpdate } from '../../types/user';
 import { Role } from '../../types/role';
 import {
+  changeUserStatus,
   getUsers,
   getUserById,
   createUser,
@@ -111,6 +112,19 @@ describe('Users API', () => {
       const error = new Error('Failed to update user');
       mockedApi.put.mockRejectedValueOnce(error);
       await expect(updateUser(1, mockUserUpdate)).rejects.toThrow(error);
+    });
+  });
+
+  describe('changeUserStatus', () => {
+    it('patches the status', async () => {
+      mockedApi.patch.mockResolvedValueOnce({ data: { id: 2, status_id: 2 } });
+
+      const result = await changeUserStatus(2, 2);
+
+      expect(mockedApi.patch).toHaveBeenCalledWith('/users/2/status', {
+        status: 2,
+      });
+      expect(result).toEqual({ id: 2, status_id: 2 });
     });
   });
 

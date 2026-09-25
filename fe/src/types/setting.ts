@@ -154,6 +154,8 @@ export interface UserTableProps {
   users: User[];
   onEditUser: (user: User) => void;
   onUserDeleted: () => void;
+  onUserUpdated?: () => void;
+  currentUserId?: number;
 }
 
 export interface IconSelectorProps {

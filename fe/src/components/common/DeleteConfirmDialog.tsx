@@ -16,6 +16,7 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   open,
   title = 'Confirm Delete',
   content = 'Are you sure you want to delete this item?',
+  confirmLabel = 'Delete',
   onClose,
   onConfirm,
   loading = false,
@@ -53,7 +54,9 @@ const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
           startIcon={isDeletingState ? <CircularProgress size={20} /> : null}
           data-testid="confirm-delete-button"
         >
-          {isDeletingState ? 'Deleting...' : 'Delete'}
+          {isDeletingState && confirmLabel === 'Delete'
+            ? 'Deleting...'
+            : confirmLabel}
         </Button>
       </DialogActions>
     </Dialog>
