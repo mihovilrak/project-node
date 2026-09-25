@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import * as notificationModel from '../notificationModel';
+import { NotificationType } from '../../types/notification';
 
 // Mock the pg module
 jest.mock('pg', () => ({
@@ -182,13 +183,13 @@ describe('NotificationModel', () => {
         {
           task_id: 1,
           action_user_id: 1,
-          type_id: 1,
+          type: NotificationType.TaskUpdated,
         },
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM create_watcher_notifications($1, $2, $3)',
-        [1, 1, 1],
+        'SELECT * FROM create_watcher_notifications($1, $2, (SELECT id FROM notification_types WHERE name = $3))',
+        [1, 1, 'Task Updated'],
       );
       expect(result).toEqual(createdNotifications);
     });
@@ -225,13 +226,13 @@ describe('NotificationModel', () => {
         {
           project_id: 1,
           action_user_id: 1,
-          type_id: 2,
+          type: NotificationType.ProjectUpdate,
         },
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT * FROM create_project_member_notifications($1, $2, $3)',
-        [1, 1, 2],
+        'SELECT * FROM create_project_member_notifications($1, $2, (SELECT id FROM notification_types WHERE name = $3))',
+        [1, 1, 'Project Update'],
       );
       expect(result).toEqual(createdNotifications);
     });

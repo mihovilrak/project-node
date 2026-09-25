@@ -63,7 +63,7 @@ export const createComment = async (
     );
     await notificationModel.createWatcherNotifications(client, {
       action_user_id: Number(userId),
-      type_id: NotificationType.TaskComment,
+      type: NotificationType.TaskComment,
       task_id: Number(taskId),
     });
     return created;

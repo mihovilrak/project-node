@@ -315,7 +315,7 @@ export const createTask = async (
     await notificationModel.createWatcherNotifications(client, {
       task_id: taskId,
       action_user_id: created_by,
-      type_id: NotificationType.TaskCreated,
+      type: NotificationType.TaskCreated,
     });
 
     return created;
@@ -388,7 +388,7 @@ export const updateTask = async (
     await notificationModel.createWatcherNotifications(client, {
       task_id: Number(id),
       action_user_id: userId,
-      type_id: NotificationType.TaskUpdated,
+      type: NotificationType.TaskUpdated,
     });
 
     return updated;
@@ -435,7 +435,7 @@ export const changeTaskStatus = async (
     await notificationModel.createWatcherNotifications(client, {
       task_id: Number(id),
       action_user_id: userId,
-      type_id: NotificationType.TaskUpdated,
+      type: NotificationType.TaskUpdated,
     });
 
     return updated;
@@ -496,7 +496,7 @@ export const updateTaskDates = async (
       await notificationModel.createWatcherNotifications(client, {
         task_id: Number(id),
         action_user_id: userId,
-        type_id: NotificationType.TaskUpdated,
+        type: NotificationType.TaskUpdated,
       });
 
       return updated;

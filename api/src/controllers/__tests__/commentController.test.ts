@@ -117,7 +117,7 @@ describe('Comment Controller', () => {
         {
           task_id: 1,
           action_user_id: 1,
-          type_id: NotificationType.TaskComment,
+          type: NotificationType.TaskComment,
         },
       );
       expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
