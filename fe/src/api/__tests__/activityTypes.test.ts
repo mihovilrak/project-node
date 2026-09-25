@@ -36,6 +36,17 @@ describe('Activity Types API', () => {
       expect(result).toEqual([mockActivityType]);
     });
 
+    it('requests inactive rows when asked', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: [] });
+
+      await getActivityTypes(undefined, true);
+
+      expect(mockedApi.get).toHaveBeenCalledWith('/admin/activity-types', {
+        params: { include_inactive: true },
+        signal: undefined,
+      });
+    });
+
     it('should throw error on failure', async () => {
       const error = new Error('API Error');
       mockedApi.get.mockRejectedValueOnce(error);

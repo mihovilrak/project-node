@@ -92,4 +92,26 @@ describe('ActivityTypesTable', () => {
     expect(developmentColorBlock).toHaveStyle({ backgroundColor: '#FF0000' });
     expect(meetingColorBlock).toHaveStyle({ backgroundColor: '#00FF00' });
   });
+
+  it('offers Reactivate only for inactive rows', () => {
+    const onReactivate = jest.fn();
+    render(
+      <ActivityTypesTable
+        activityTypes={mockActivityTypes}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+        onReactivate={onReactivate}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Reactivate activity type Development',
+      }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reactivate activity type Meeting' }),
+    );
+    expect(onReactivate).toHaveBeenCalledWith(mockActivityTypes[1]);
+  });
 });

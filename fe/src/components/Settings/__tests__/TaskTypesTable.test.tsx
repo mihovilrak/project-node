@@ -150,4 +150,24 @@ describe('TaskTypesTable', () => {
       'rgb(244, 67, 54)',
     );
   });
+
+  it('offers Reactivate only for inactive rows', () => {
+    const onReactivate = jest.fn();
+    render(
+      <TaskTypesTable
+        taskTypes={mockTaskTypes}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+        onReactivate={onReactivate}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Reactivate task type Task' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Reactivate task type Bug' }),
+    );
+    expect(onReactivate).toHaveBeenCalledWith(mockTaskTypes[1]);
+  });
 });

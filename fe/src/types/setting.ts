@@ -2,6 +2,7 @@ import { User } from './user';
 import { Role } from './role';
 import { Permission } from './admin';
 import { TaskType } from './task';
+import { Tag } from './tag';
 
 export type { Permission } from './admin';
 export type { TaskType } from './task';
@@ -53,6 +54,7 @@ export interface ActivityTypesTableProps {
   activityTypes: ActivityType[];
   onEdit: (activityType: ActivityType) => void;
   onDelete: (id: number) => Promise<void>;
+  onReactivate?: (activityType: ActivityType) => void;
   loading?: boolean;
   canManage?: boolean;
 }
@@ -61,8 +63,25 @@ export interface TaskTypesTableProps {
   taskTypes: TaskType[];
   onEdit: (taskType: TaskType) => void;
   onDelete: (id: number) => Promise<void>;
+  onReactivate?: (taskType: TaskType) => void;
   loading?: boolean;
   canManage?: boolean;
+}
+
+export interface TagsTableProps {
+  tags: Tag[];
+  onEdit: (tag: Tag) => void;
+  onDelete: (id: number) => Promise<void>;
+  onReactivate: (tag: Tag) => void;
+  loading?: boolean;
+  canManage?: boolean;
+}
+
+export interface TagDialogProps {
+  open: boolean;
+  tag?: Tag;
+  onClose: () => void;
+  onSave: (tag: Partial<Tag>) => Promise<void>;
 }
 
 /**
@@ -82,10 +101,12 @@ export interface TypesAndRolesState {
   taskTypes: TaskType[];
   activityTypes: ActivityType[];
   roles: Role[];
+  tags: Tag[];
+  showInactive: boolean;
   loading: boolean;
   error: string | null;
   dialogOpen: boolean;
-  selectedItem: TaskType | ActivityType | Role | null;
+  selectedItem: TypesAndRolesItem | null;
 }
 
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
@@ -158,6 +179,8 @@ export interface ActivityTypeFormProps {
 
 type AdminRole = Role;
 
+export type TypesAndRolesItem = TaskType | ActivityType | AdminRole | Tag;
+
 /**
  * Specify the properties required by a dialog used to create or edit task
  * types, activity types, or admin roles, including which tab is active, whether
@@ -167,7 +190,7 @@ type AdminRole = Role;
 export interface TypesAndRolesDialogProps {
   activeTab: number;
   dialogOpen: boolean;
-  selectedItem: TaskType | ActivityType | AdminRole | null;
+  selectedItem: TypesAndRolesItem | null;
   onClose: () => void;
-  onSave: (item: Partial<TaskType | ActivityType | AdminRole>) => Promise<void>;
+  onSave: (item: Partial<TypesAndRolesItem>) => Promise<void>;
 }
