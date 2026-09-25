@@ -284,7 +284,7 @@ export interface AssigneeSelectionSectionProps {
 export type SimpleChangeEvent = {
   target: {
     name: string;
-    value: any;
+    value: unknown;
   };
 };
 
