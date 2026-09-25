@@ -307,13 +307,16 @@ describe('tasks', () => {
         })
       ).status,
     ).toBe(403);
-    expect(
-      (
-        await as(reporterCookies).post(`/api/tasks/${taskA1}/watchers`, {
-          userId: reporter.id,
-        })
-      ).status,
-    ).toBe(201);
+    const watched = await as(reporterCookies).post(
+      `/api/tasks/${taskA1}/watchers`,
+      { userId: reporter.id },
+    );
+    expect(watched.status).toBe(201);
+    expect(watched.body).toMatchObject({
+      task_id: taskA1,
+      user_id: reporter.id,
+      user_name: expect.any(String),
+    });
   });
 
   it('only watches with project members', async () => {

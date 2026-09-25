@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from 'pg';
-import { TaskWatcher } from '../types/task';
+import { NewTaskWatcher, TaskWatcher } from '../types/task';
 
 // Get task watchers
 export const getTaskWatchers = async (
@@ -14,29 +14,33 @@ export const getTaskWatchers = async (
 };
 
 /**
- * Insert a new task watcher record and return the created watcher or null if
- * insertion fails.
- *
- * Returns the inserted TaskWatcher row with task_id and user_id, or null if no
- * row was returned from the database.
+ * Insert a task watcher. A duplicate raises a unique violation (23505).
  *
  * @param pool Database connection pool
  * @param taskId The task identifier to watch
  * @param userId The user identifier to add as watcher
- * @returns The newly created TaskWatcher object or null
+ * @returns The watcher row plus the get_task_watchers() list fields
  */
 export const addTaskWatcher = async (
   pool: Pool,
   taskId: string,
   userId: number,
-): Promise<TaskWatcher | null> => {
-  const result: QueryResult<TaskWatcher> = await pool.query(
-    `INSERT INTO watchers (task_id, user_id)
-    VALUES ($1, $2)
-    RETURNING *`,
+): Promise<NewTaskWatcher> => {
+  const result: QueryResult<NewTaskWatcher> = await pool.query(
+    `WITH w AS (
+      INSERT INTO watchers (task_id, user_id)
+      VALUES ($1, $2)
+      RETURNING *
+    )
+    SELECT w.id, w.task_id, w.user_id, w.created_on,
+      u.name || ' ' || u.surname AS user_name,
+      r.name AS role
+    FROM w
+    LEFT JOIN users u ON u.id = w.user_id
+    LEFT JOIN roles r ON r.id = u.role_id`,
     [taskId, userId],
   );
-  return result.rows[0] || null;
+  return result.rows[0];
 };
 
 /**

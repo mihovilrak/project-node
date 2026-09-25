@@ -80,9 +80,7 @@ export const updateRole = async (
     }
     throw error;
   }
-  res
-    .status(200)
-    .json({ message: 'Role updated successfully', id: String(id) });
+  res.status(200).json({ message: 'Role updated successfully', id });
 };
 
 /**

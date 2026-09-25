@@ -13,6 +13,15 @@ const PG_ERRORS: Record<string, { status: number; error: string }> = {
   '23514': { status: 400, error: 'Invalid request' },
 };
 
+// multer rejects oversized files as LIMIT_FILE_SIZE; its other codes are
+// malformed uploads (wrong field, too many parts).
+const multerStatus = (err: CustomError): number | undefined =>
+  err.name === 'MulterError'
+    ? err.code === 'LIMIT_FILE_SIZE'
+      ? 413
+      : 400
+    : undefined;
+
 export default (
   err: CustomError,
   req: Request,
@@ -20,7 +29,7 @@ export default (
   _next: NextFunction,
 ): void => {
   const pgError = err.code ? PG_ERRORS[err.code] : undefined;
-  const status = pgError?.status ?? err.status ?? 500;
+  const status = pgError?.status ?? err.status ?? multerStatus(err) ?? 500;
   const context = { err, method: req.method, url: req.originalUrl };
   const logMessage = err.message || 'Unhandled error';
 

@@ -196,8 +196,9 @@ describe('ProjectModel', () => {
   });
 
   describe('updateProject', () => {
-    it('should update a project', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue({ rowCount: 1 });
+    it('should update a project and return the row', async () => {
+      const row = { id: 1, name: 'Updated' };
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([row]));
 
       const result = await projectModel.updateProject(
         mockPool,
@@ -205,7 +206,22 @@ describe('ProjectModel', () => {
         '1',
       );
 
-      expect(result).toBe(1);
+      expect((mockPool.query as jest.Mock).mock.calls[0][0]).toContain(
+        'RETURNING *',
+      );
+      expect(result).toEqual(row);
+    });
+
+    it('should return 0 when the project does not exist', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+
+      const result = await projectModel.updateProject(
+        mockPool,
+        { name: 'Updated' },
+        '999',
+      );
+
+      expect(result).toBe(0);
     });
 
     it('should return null when no allowed update keys', async () => {

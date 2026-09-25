@@ -38,8 +38,14 @@ describe('WatcherModel', () => {
   });
 
   describe('addTaskWatcher', () => {
-    it('should add a task watcher', async () => {
-      const mockWatcher = { task_id: '1', user_id: '2' };
+    it('should add a task watcher and return it with the list fields', async () => {
+      const mockWatcher = {
+        id: 5,
+        task_id: 1,
+        user_id: 2,
+        user_name: 'Ada Lovelace',
+        role: 'Developer',
+      };
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([mockWatcher]),
       );
@@ -50,15 +56,10 @@ describe('WatcherModel', () => {
         expect.stringContaining('INSERT INTO watchers'),
         ['1', 2],
       );
+      expect((mockPool.query as jest.Mock).mock.calls[0][0]).toContain(
+        'AS user_name',
+      );
       expect(result).toEqual(mockWatcher);
-    });
-
-    it('should return null when insert fails', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
-
-      const result = await watcherModel.addTaskWatcher(mockPool, '1', 2);
-
-      expect(result).toBeNull();
     });
   });
 

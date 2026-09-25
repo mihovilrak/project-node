@@ -71,9 +71,9 @@ describe('ProfileModel', () => {
         created_on: new Date(),
         updated_on: new Date(),
       };
-      (mockPool.query as jest.Mock).mockResolvedValue(
-        mockQueryResult([updatedProfile]),
-      );
+      (mockPool.query as jest.Mock)
+        .mockResolvedValueOnce({ ...mockQueryResult([]), rowCount: 1 })
+        .mockResolvedValueOnce(mockQueryResult([updatedProfile]));
 
       const result = await profileModel.updateProfile(mockPool, '1', {
         email: 'newemail@example.com',
@@ -84,6 +84,10 @@ describe('ProfileModel', () => {
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('UPDATE users'),
         ['newemail@example.com', 'Updated', 'Name', '1'],
+      );
+      expect(mockPool.query).toHaveBeenLastCalledWith(
+        'SELECT * FROM get_profile($1)',
+        ['1'],
       );
       expect(result).toEqual(updatedProfile);
     });

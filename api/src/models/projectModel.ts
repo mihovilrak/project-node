@@ -192,7 +192,7 @@ export const ALLOWED_PROJECT_UPDATE_KEYS = [
 ] as const;
 
 /**
- * Update specified project fields and return the count of affected rows.
+ * Update specified project fields and return the updated row.
  *
  * Only fields in ALLOWED_PROJECT_UPDATE_KEYS are applied; returns null if no
  * updates are provided after filtering.
@@ -200,13 +200,14 @@ export const ALLOWED_PROJECT_UPDATE_KEYS = [
  * @param pool Database connection pool
  * @param updates Partial project data with fields to update
  * @param id Project identifier
- * @returns Number of rows updated or null if no valid updates were filtered
+ * @returns The updated project, 0 if it does not exist, or null if no valid
+ *   updates were filtered
  */
 export const updateProject = async (
   pool: Pool,
   updates: Partial<Project>,
   id: string,
-): Promise<number | null> => {
+): Promise<Project | 0 | null> => {
   const assignments = buildUpdateAssignments(
     updates as Record<string, unknown>,
     ALLOWED_PROJECT_UPDATE_KEYS,
@@ -215,13 +216,14 @@ export const updateProject = async (
     return null;
   }
 
-  const result: QueryResult = await pool.query(
+  const result: QueryResult<Project> = await pool.query(
     `UPDATE projects
     SET ${assignments.setClause}
-    WHERE id = $${assignments.nextIndex}`,
+    WHERE id = $${assignments.nextIndex}
+    RETURNING *`,
     [...assignments.values, id],
   );
-  return result.rowCount;
+  return result.rows[0] ?? 0;
 };
 
 // Delete a project
