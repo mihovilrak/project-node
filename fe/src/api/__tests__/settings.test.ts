@@ -6,6 +6,8 @@ import {
   updateSystemSettings,
   getAppTheme,
   testSmtpConnection,
+  getNotificationPreferences,
+  updateNotificationPreferences,
 } from '../settings';
 
 // Mock the api module
@@ -137,6 +139,55 @@ describe('Settings API', () => {
       await expect(testSmtpConnection('admin@example.com')).rejects.toThrow(
         error,
       );
+    });
+  });
+
+  describe('notification preferences', () => {
+    it('defaults missing preferences to enabled', async () => {
+      mockedApi.get.mockResolvedValueOnce({ data: {} });
+      const signal = new AbortController().signal;
+
+      await expect(getNotificationPreferences(signal)).resolves.toEqual({
+        notifications_enabled: true,
+        email_notifications_enabled: true,
+      });
+      expect(mockedApi.get).toHaveBeenCalledWith('/settings/user_settings', {
+        signal,
+      });
+    });
+
+    it('returns stored preferences', async () => {
+      mockedApi.get.mockResolvedValueOnce({
+        data: {
+          theme: 'dark',
+          notifications_enabled: false,
+          email_notifications_enabled: true,
+        },
+      });
+
+      await expect(getNotificationPreferences()).resolves.toEqual({
+        notifications_enabled: false,
+        email_notifications_enabled: true,
+      });
+    });
+
+    it('sends a partial update', async () => {
+      mockedApi.put.mockResolvedValueOnce({
+        data: {
+          notifications_enabled: true,
+          email_notifications_enabled: false,
+        },
+      });
+
+      await expect(
+        updateNotificationPreferences({ email_notifications_enabled: false }),
+      ).resolves.toEqual({
+        notifications_enabled: true,
+        email_notifications_enabled: false,
+      });
+      expect(mockedApi.put).toHaveBeenCalledWith('/settings/user_settings', {
+        email_notifications_enabled: false,
+      });
     });
   });
 });

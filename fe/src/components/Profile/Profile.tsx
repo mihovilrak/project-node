@@ -17,6 +17,7 @@ import ProfileTaskList from './ProfileTaskList';
 import ProfileEditDialog from './ProfileEditDialog';
 import PasswordChangeDialog from './PasswordChangeDialog';
 import ProfileProjectList from './ProfileProjectList';
+import NotificationPreferences from './NotificationPreferences';
 
 const Profile: React.FC = () => {
   const {
@@ -122,6 +123,8 @@ const Profile: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      <NotificationPreferences />
 
       <ProfileEditDialog
         open={editDialogOpen}

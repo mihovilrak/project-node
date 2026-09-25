@@ -196,3 +196,8 @@ export interface TypesAndRolesDialogProps {
   onClose: () => void;
   onSave: (item: Partial<TypesAndRolesItem>) => Promise<void>;
 }
+
+export interface NotificationPreferences {
+  notifications_enabled: boolean;
+  email_notifications_enabled: boolean;
+}
