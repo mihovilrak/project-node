@@ -66,7 +66,7 @@ const FileList: React.FC<FileListProps> = ({
                     : 'Unknown file'}
                 </Typography>
               }
-              secondaryTypographyProps={{ component: 'div' }}
+              slotProps={{ secondary: { component: 'div' } }}
               secondary={
                 <Box component="div">
                   <Typography variant="caption" component="div" display="block">

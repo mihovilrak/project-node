@@ -235,8 +235,10 @@ const NotificationCenter: React.FC<ExtendedNotificationCenterProps> = ({
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleClose}
-          PaperProps={{
-            sx: { width: 360, maxHeight: 480 },
+          slotProps={{
+            paper: {
+              sx: { width: 360, maxHeight: 480 },
+            },
           }}
         >
           {renderMenuContent()}
