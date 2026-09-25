@@ -76,7 +76,11 @@ describe('get_tasks', () => {
     ['p_type_ids', () => ({ p_type_ids: [2] }), 'b'],
     ['p_created_by_ids', (s) => ({ p_created_by_ids: [s.u2.id] }), 'b'],
     ['p_active_statuses_only', () => ({ p_active_statuses_only: true }), 'a'],
-    ['p_inactive_statuses_only', () => ({ p_inactive_statuses_only: true }), 'b'],
+    [
+      'p_inactive_statuses_only',
+      () => ({ p_inactive_statuses_only: true }),
+      'b',
+    ],
     ['p_due_date_from', () => ({ p_due_date_from: '2030-02-01' }), 'b'],
     ['p_due_date_to', () => ({ p_due_date_to: '2030-01-31' }), 'a'],
     ['p_start_date_from', () => ({ p_start_date_from: '2030-01-15' }), 'b'],
@@ -179,8 +183,12 @@ describe('permission functions', () => {
     check(client, userId, 'Admin');
 
   const check = async (client: PoolClient, userId: number, name: string) =>
-    (await client.query('select permission_check($1, $2) as ok', [userId, name]))
-      .rows[0].ok;
+    (
+      await client.query('select permission_check($1, $2) as ok', [
+        userId,
+        name,
+      ])
+    ).rows[0].ok;
 
   const permissionsOf = async (client: PoolClient, userId: number) =>
     (
@@ -363,9 +371,10 @@ describe('comment, user and profile queries', () => {
         'select * from get_comments(p_task_id => $1)',
         [task.id],
       );
-      const byId = await client.query('select * from get_comments(p_id => $1)', [
-        inactive,
-      ]);
+      const byId = await client.query(
+        'select * from get_comments(p_id => $1)',
+        [inactive],
+      );
 
       expect(byTask.rows.map((r) => r.id)).toEqual([active]);
       expect(byId.rows).toEqual([]);
@@ -390,9 +399,9 @@ describe('comment, user and profile queries', () => {
 
       const byDefault = await query({});
       expect(byDefault.map((r) => r.id)).toEqual([active.id, inactive.id]);
-      expect((await query({ p_include_deleted: true })).map((r) => r.id)).toEqual(
-        ids,
-      );
+      expect(
+        (await query({ p_include_deleted: true })).map((r) => r.id),
+      ).toEqual(ids);
       expect((await query({ p_status_id: 3 })).map((r) => r.id)).toEqual([
         deleted.id,
       ]);

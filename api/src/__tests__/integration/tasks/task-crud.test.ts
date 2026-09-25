@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request from '../setup/request';
 import { Express } from 'express';
 import {
   seedTestUser,
