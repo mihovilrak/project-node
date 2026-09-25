@@ -1,3 +1,10 @@
+/**
+ * Activity type routes, mounted at `/api/admin/activity-types`.
+ *
+ * OpenAPI tag: Activity Types.
+ *
+ * @packageDocumentation
+ */
 import { Router, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import * as activityTypeController from '../controllers/activityTypeController';

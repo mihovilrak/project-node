@@ -53,6 +53,7 @@ export const createRole = async (
  *   the body
  * @param res Express response
  * @param pool Database connection pool
+ * @throws Database errors other than the Admin role guard.
  */
 export const updateRole = async (
   req: Request,
@@ -91,6 +92,8 @@ export const updateRole = async (
  * @param req Express request with the role id in params
  * @param res Express response
  * @param pool Database connection pool
+ * @throws Database errors other than the Admin role guard and the foreign key
+ *   violation.
  */
 export const deleteRole = async (
   req: Request,

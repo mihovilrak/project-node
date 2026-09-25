@@ -1,3 +1,10 @@
+/**
+ * Task comment routes, mounted at `/api/tasks/{id}/comments`.
+ *
+ * OpenAPI tag: Comments.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as commentController from '../controllers/commentController';

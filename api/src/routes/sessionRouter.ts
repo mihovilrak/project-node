@@ -1,3 +1,10 @@
+/**
+ * Session check route, mounted at `/api/check-session`.
+ *
+ * OpenAPI tag: Session.
+ *
+ * @packageDocumentation
+ */
 import { Router } from 'express';
 import { Pool } from 'pg';
 import * as sessionController from '../controllers/sessionController';

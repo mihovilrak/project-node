@@ -1,3 +1,10 @@
+/**
+ * Task type routes, mounted at `/api/admin/task-types`.
+ *
+ * OpenAPI tag: Task Types.
+ *
+ * @packageDocumentation
+ */
 import { Router, RequestHandler } from 'express';
 import { Pool } from 'pg';
 import * as taskTypeController from '../controllers/taskTypeController';

@@ -186,6 +186,8 @@ export const getTaskById = async (
  *   parent task reference, project, holder, assignee, creator, and associated
  *   tag identifiers.
  * @param watchers Array of user IDs to notify about task activity.
+ * @throws When no task id is returned, and any error raised by create_task()
+ *   (22023 for members outside the project).
  */
 export const createTask = async (
   pool: Queryable,
