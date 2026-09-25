@@ -11,6 +11,15 @@ export const toHours = (value: number | string | null | undefined): number => {
   return typeof hours === 'number' && Number.isFinite(hours) ? hours : 0;
 };
 
+// Rounding the total minutes first keeps 1.999h from rendering as "1h 60m".
+const splitHours = (value: number | string | null | undefined) => {
+  const totalMinutes = Math.round(Math.max(toHours(value), 0) * 60);
+  return {
+    wholeHours: Math.floor(totalMinutes / 60),
+    minutes: totalMinutes % 60,
+  };
+};
+
 /**
  * Format a numeric or string hour input into a clock-style "H:MM" string.
  *
@@ -21,9 +30,7 @@ export const toHours = (value: number | string | null | undefined): number => {
 export const formatHoursClock = (
   value: number | string | null | undefined,
 ): string => {
-  const hours = toHours(value);
-  const wholeHours = Math.floor(hours);
-  const minutes = Math.round((hours - wholeHours) * 60);
+  const { wholeHours, minutes } = splitHours(value);
   return `${wholeHours}:${minutes.toString().padStart(2, '0')}`;
 };
 
@@ -40,8 +47,6 @@ export const formatHoursClock = (
 export const formatHoursDuration = (
   value: number | string | null | undefined,
 ): string => {
-  const hours = toHours(value);
-  const wholeHours = Math.floor(hours);
-  const minutes = Math.round((hours - wholeHours) * 60);
+  const { wholeHours, minutes } = splitHours(value);
   return `${wholeHours}h ${minutes}m`;
 };

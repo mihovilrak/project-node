@@ -2,6 +2,8 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { TimeLog } from '../../types/timeLog';
 import { useTheme } from '@mui/material';
+import { getTimeLogsForDay, sumHours } from '../../utils/calendarUtils';
+import { formatHoursDuration } from '../../utils/timeUtils';
 
 /**
  * Manage calendar state and calculations for displaying time logs across a
@@ -23,23 +25,11 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
     });
   };
 
-  const getTimeLogsForDate = (date: Date, timeLogs: TimeLog[]): TimeLog[] => {
-    return timeLogs.filter((log) => {
-      const logDate = new Date(log.created_on!);
-      return logDate.toDateString() === date.toDateString();
-    });
-  };
+  const getTimeLogsForDate = (date: Date, timeLogs: TimeLog[]): TimeLog[] =>
+    getTimeLogsForDay(timeLogs, date);
 
-  const getTotalHoursForDate = (date: Date, timeLogs: TimeLog[]): number => {
-    const logs = getTimeLogsForDate(date, timeLogs);
-    return logs.reduce((total, log) => {
-      const hours =
-        typeof log.spent_time === 'string'
-          ? parseFloat(log.spent_time)
-          : log.spent_time;
-      return total + hours;
-    }, 0);
-  };
+  const getTotalHoursForDate = (date: Date, timeLogs: TimeLog[]): number =>
+    sumHours(getTimeLogsForDay(timeLogs, date));
 
   const getDayColor = (hours: number): string => {
     if (hours === 0) return theme.palette.background.paper;
@@ -48,14 +38,8 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
     return theme.palette.warning.light;
   };
 
-  const formatTime = (time: string | number): string => {
-    const hours = typeof time === 'string' ? parseFloat(time) : time;
-    if (isNaN(hours)) return '0h 0m';
-
-    const wholeHours = Math.floor(hours);
-    const minutes = Math.round((hours - wholeHours) * 60);
-    return `${wholeHours}h ${minutes}m`;
-  };
+  const formatTime = (time: string | number): string =>
+    formatHoursDuration(time);
 
   const getCalendarDays = () => {
     const month = dayjs(currentDate).startOf('month');
@@ -64,15 +48,8 @@ export const useTimeLogCalendar = (initialTimeLogs: TimeLog[] = []) => {
     );
   };
 
-  const getTotalMonthHours = (timeLogs: TimeLog[]): number => {
-    return timeLogs.reduce((total, log) => {
-      const hours =
-        typeof log.spent_time === 'string'
-          ? parseFloat(log.spent_time)
-          : log.spent_time;
-      return total + hours;
-    }, 0);
-  };
+  const getTotalMonthHours = (timeLogs: TimeLog[]): number =>
+    sumHours(timeLogs);
 
   return {
     currentDate,

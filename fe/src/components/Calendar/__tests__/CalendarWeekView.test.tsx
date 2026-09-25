@@ -6,13 +6,6 @@ import { Task } from '../../../types/task';
 import { TimeLog } from '../../../types/timeLog';
 import { ThemeProvider, createTheme } from '@mui/material';
 
-// Mock useNavigate
-const mockedNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockedNavigate,
-}));
-
 // Mock useCalendarWeek hook
 jest.mock('../../../hooks/calendar/useCalendarWeek', () => ({
   useCalendarWeek: () => ({
@@ -59,8 +52,8 @@ const mockTasks: Task[] = [
     status_name: 'New',
     priority_id: 1,
     priority_name: 'High/Should',
-    start_date: '2023-01-01T09:00:00',
-    due_date: '2023-01-01T17:00:00',
+    start_date: '2023-01-01',
+    due_date: '2023-01-05',
     end_date: null,
     spent_time: 0,
     progress: 0,
@@ -123,7 +116,7 @@ describe('CalendarWeekView', () => {
 
   test('renders tasks with correct information', () => {
     renderCalendarWeekView();
-    const taskElement = screen.getAllByText(/09:00.*Test Task/)[0]; // Get first occurrence
+    const taskElement = screen.getByText('Starts - Test Task');
     expect(taskElement).toBeInTheDocument();
     expect(screen.getByText(/High\/Should/i)).toBeInTheDocument();
     expect(screen.getByText('New')).toBeInTheDocument();
@@ -131,20 +124,20 @@ describe('CalendarWeekView', () => {
 
   test('renders time logs with correct information', () => {
     renderCalendarWeekView();
-    const timeLogElement = screen.getAllByText(/Test Task \(1:30 hours\)/)[0];
+    const timeLogElement = screen.getByText('Test Task - 1h 30m');
     expect(timeLogElement).toBeInTheDocument();
   });
 
   test('handles task click', () => {
     renderCalendarWeekView();
-    const taskElement = screen.getAllByText(/09:00.*Test Task/)[0]; // Get first occurrence
+    const taskElement = screen.getByText('Starts - Test Task');
     fireEvent.click(taskElement);
     expect(defaultProps.onTaskClick).toHaveBeenCalledWith(1);
   });
 
   test('handles time log click', () => {
     renderCalendarWeekView();
-    const timeLogElement = screen.getAllByText(/Test Task \(1:30 hours\)/)[0];
+    const timeLogElement = screen.getByText('Test Task - 1h 30m');
     fireEvent.click(timeLogElement);
     expect(defaultProps.onTimeLogClick).toHaveBeenCalledWith(1);
   });
@@ -176,10 +169,18 @@ describe('CalendarWeekView', () => {
     jest.useRealTimers();
   });
 
-  test('formats dates correctly', () => {
+  test('labels date-only tasks by role instead of a 00:00 time', () => {
     renderCalendarWeekView();
-    const taskElement = screen.getAllByText(/09:00/)[0];
-    expect(taskElement).toBeInTheDocument();
-    expect(screen.getByText(/17:00/)).toBeInTheDocument();
+    expect(screen.queryByText(/00:00/)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(`Due ${new Date(2023, 0, 5).toLocaleDateString()}`),
+    ).toBeInTheDocument();
+  });
+
+  test('shows the logged total next to the day heading', () => {
+    renderCalendarWeekView();
+    expect(
+      screen.getByText(/Sunday, January 1 - 1h 30m logged/),
+    ).toBeInTheDocument();
   });
 });

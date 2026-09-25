@@ -95,7 +95,8 @@ describe('useTasksByHour', () => {
 
     expect(result.current.hours).toBeDefined();
     expect(result.current.getTasksForHour).toBeDefined();
-    expect(result.current.getTimeLogsForHour).toBeDefined();
+    expect(result.current.allDayTasks).toBeDefined();
+    expect(result.current.dayTimeLogs).toBeDefined();
   });
 
   it('should generate 24 hours', () => {
@@ -124,20 +125,28 @@ describe('useTasksByHour', () => {
     expect(emptyHourTasks.length).toBe(0);
   });
 
-  it('should get time logs for specific hour', () => {
+  it("returns the day's time logs and their total", () => {
     const { result } = renderHook(() =>
-      useTasksByHour(mockTasks, mockTimeLogs),
+      useTasksByHour(mockTasks, mockTimeLogs, new Date(2024, 0, 17)),
     );
 
-    const morningLogs = result.current.getTimeLogsForHour(9);
-    const afternoonLogs = result.current.getTimeLogsForHour(14);
-    const emptyHourLogs = result.current.getTimeLogsForHour(12);
+    expect(result.current.dayTimeLogs.map((log) => log.id)).toEqual([1, 2]);
+    expect(result.current.totalHours).toBe(2.5);
+  });
 
-    expect(morningLogs.length).toBe(1);
-    expect(morningLogs[0].id).toBe(1);
-    expect(afternoonLogs.length).toBe(1);
-    expect(afternoonLogs[0].id).toBe(2);
-    expect(emptyHourLogs.length).toBe(0);
+  it('puts date-only tasks in allDayTasks, not in the 00:00 slot', () => {
+    const dateOnly: Task = {
+      ...mockTasks[0],
+      id: 3,
+      start_date: '2024-01-17',
+      due_date: '2024-01-19',
+    };
+    const { result } = renderHook(() =>
+      useTasksByHour([dateOnly], [], new Date(2024, 0, 17)),
+    );
+
+    expect(result.current.getTasksForHour(0)).toEqual([]);
+    expect(result.current.allDayTasks.map((task) => task.id)).toEqual([3]);
   });
 
   it('should handle empty tasks and time logs', () => {
@@ -145,7 +154,8 @@ describe('useTasksByHour', () => {
 
     expect(result.current.hours.length).toBe(24);
     expect(result.current.getTasksForHour(9)).toEqual([]);
-    expect(result.current.getTimeLogsForHour(9)).toEqual([]);
+    expect(result.current.dayTimeLogs).toEqual([]);
+    expect(result.current.totalHours).toBe(0);
   });
 
   it('should handle tasks with missing start date', () => {
@@ -188,7 +198,7 @@ describe('useTasksByHour', () => {
     expect(tasksForHour).toEqual([]);
   });
 
-  it('should handle tasks and logs across different days', () => {
+  it('only returns tasks for the given day', () => {
     const tasksAcrossDays: Task[] = [
       {
         id: 1,
@@ -248,10 +258,11 @@ describe('useTasksByHour', () => {
       },
     ];
 
-    const { result } = renderHook(() => useTasksByHour(tasksAcrossDays, []));
+    const { result } = renderHook(() =>
+      useTasksByHour(tasksAcrossDays, [], new Date(2024, 0, 17)),
+    );
     const tasksAtNine = result.current.getTasksForHour(9);
 
-    // Should return both tasks since they're at the same hour, regardless of day
-    expect(tasksAtNine.length).toBe(2);
+    expect(tasksAtNine.map((task) => task.id)).toEqual([1]);
   });
 });

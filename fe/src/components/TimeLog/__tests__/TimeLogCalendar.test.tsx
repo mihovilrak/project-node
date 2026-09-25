@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import TimeLogCalendar from '../TimeLogCalendar';
@@ -115,10 +115,10 @@ describe('TimeLogCalendar', () => {
     });
   });
 
-  test('fetches new data when currentDate changes', async () => {
+  test('fetches the visible month and refetches when it changes', async () => {
     (getProjectTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
 
-    render(
+    const { rerender } = render(
       <ThemeProvider theme={createTheme()}>
         <TimeLogCalendar projectId={1} />
       </ThemeProvider>,
@@ -126,21 +126,31 @@ describe('TimeLogCalendar', () => {
 
     await waitFor(() => {
       expect(getProjectTimeLogs).toHaveBeenCalledTimes(1);
-      expect(getProjectTimeLogs).toHaveBeenCalledWith(1);
     });
+    expect(getProjectTimeLogs).toHaveBeenCalledWith(
+      1,
+      { startDate: '2023-01-01', endDate: '2023-01-31' },
+      expect.any(AbortSignal),
+    );
 
-    // Simulate date change with a new mock object
-    const updatedMockHookReturn = {
+    (useTimeLogCalendar as jest.Mock).mockReturnValue({
       ...defaultMockHookReturn,
       currentDate: new Date('2023-02-01'),
-    };
-    act(() => {
-      (useTimeLogCalendar as jest.Mock).mockReturnValue(updatedMockHookReturn);
     });
+    rerender(
+      <ThemeProvider theme={createTheme()}>
+        <TimeLogCalendar projectId={1} />
+      </ThemeProvider>,
+    );
 
     await waitFor(() => {
       expect(getProjectTimeLogs).toHaveBeenCalledTimes(2);
     });
+    expect(getProjectTimeLogs).toHaveBeenLastCalledWith(
+      1,
+      { startDate: '2023-02-01', endDate: '2023-02-28' },
+      expect.any(AbortSignal),
+    );
   });
 
   test('passes correct props to child components', async () => {
