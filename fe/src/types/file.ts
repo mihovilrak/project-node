@@ -13,6 +13,7 @@ export interface FileListProps {
   files: TaskFile[];
   taskId: number;
   onFileDeleted: (fileId: number) => void;
+  onError?: (message: string) => void;
 }
 
 /**
@@ -43,15 +44,8 @@ export interface FileUpload {
  */
 export interface TaskFilesProps {
   taskId: number;
-  onFileUploaded: (file: TaskFile) => void;
-  onFileDeleted: (fileId: number) => void;
-}
-
-export interface TaskFileSectionProps {
-  taskId: number;
-  files: TaskFile[];
-  onFileUploaded: (file: TaskFile) => void;
-  onFileDeleted: (fileId: number) => void;
+  onFileUploaded?: (file: TaskFile) => void;
+  onFileDeleted?: (fileId: number) => void;
 }
 
 export interface FileUploadOptions {

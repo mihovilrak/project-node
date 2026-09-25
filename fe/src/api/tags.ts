@@ -19,41 +19,6 @@ export const getTags = async (signal?: AbortSignal): Promise<Tag[]> => {
 };
 
 /**
- * Create a new tag on the server using the provided partial tag data.
- *
- * Sends a POST request to /tags with the supplied tagData. The server returns
- * the fully populated Tag (including id, created_on, created_by, and other
- * server-assigned fields); any fields omitted from tagData may be filled or
- * validated by the server. tagData is a Partial<Tag>, so only provided fields
- * are sent—required fields and validation rules are enforced server-side.
- *
- * @param tagData Partial<Tag> containing fields to set on the new tag (for
- *   example name, color, icon, description, active). Omitted fields may be
- *   assigned by the server.
- */
-export const createTag = async (tagData: Partial<Tag>): Promise<Tag> => {
-  const response = await api.post<Tag>('/tags', tagData);
-  return response.data;
-};
-
-// Add tags to task
-export const addTaskTags = async (
-  taskId: number,
-  tagIds: number[],
-): Promise<Tag[]> => {
-  const response = await api.post<Tag[]>(`/tasks/${taskId}/tags`, { tagIds });
-  return response.data;
-};
-
-// Remove tag from task
-export const removeTaskTag = async (
-  taskId: number,
-  tagId: number,
-): Promise<void> => {
-  await api.delete<void>(`/tasks/${taskId}/tags/${tagId}`);
-};
-
-/**
  * Fetch the tags assigned to the task identified by taskId.
  *
  * Performs an HTTP GET to /tasks/{taskId}/tags and returns the response payload
@@ -72,4 +37,33 @@ export const getTaskTags = async (
 ): Promise<Tag[]> => {
   const response = await api.get<Tag[]>(`/tasks/${taskId}/tags`, { signal });
   return response.data;
+};
+
+/**
+ * Add tags to a task and return the task's resulting tags.
+ *
+ * @param taskId Numeric ID of the task.
+ * @param tagIds IDs of the tags to add.
+ */
+export const addTaskTags = async (
+  taskId: number,
+  tagIds: number[],
+): Promise<Tag[]> => {
+  const response = await api.post<Tag[]>(`/tasks/${taskId}/tags`, {
+    tagIds: tagIds.map(Number),
+  });
+  return response.data;
+};
+
+/**
+ * Remove a single tag from a task.
+ *
+ * @param taskId Numeric ID of the task.
+ * @param tagId ID of the tag to remove.
+ */
+export const removeTaskTag = async (
+  taskId: number,
+  tagId: number,
+): Promise<void> => {
+  await api.delete(`/tasks/${taskId}/tags/${tagId}`);
 };

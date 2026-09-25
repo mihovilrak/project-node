@@ -1,27 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { getTaskById, createTask, updateTask } from '../../api/tasks';
+import { addTaskTags, getTaskTags, removeTaskTag } from '../../api/tags';
 import {
-  getTaskById,
-  createTask,
-  updateTask,
-  getTaskStatuses,
-  getPriorities,
-  changeTaskStatus,
-} from '../../api/tasks';
-import { getTaskTags, getTags } from '../../api/tags';
-import {
-  TaskStatus,
-  TaskPriority,
+  SimpleChangeEvent,
   TaskFormState,
   UseTaskFormProps,
 } from '../../types/task';
-import { ProjectMember } from '../../types/project';
-import { Tag } from '../../types/tag';
 import { useProjectSelect } from './useProjectSelect';
+import { useLookup } from '../../context/LookupsContext';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
-import { TaskStatusId } from '../../constants/statusIds';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
+import {
+  TaskPriorityId,
+  TaskStatusId,
+  TaskTypeId,
+} from '../../constants/statusIds';
 
 /**
  * Manage task form state, validation, and data loading for creating and editing
@@ -38,8 +35,10 @@ export const useTaskForm = ({
   currentUserId,
 }: UseTaskFormProps) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const isEditing = Boolean(taskId);
+  const [isLoading, setIsLoading] = useState(isEditing);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const savedTagIds = useRef<number[]>([]);
 
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
@@ -49,8 +48,8 @@ export const useTaskForm = ({
       : projectId
         ? Number(projectId)
         : null,
-    type_id: 1,
-    priority_id: 2,
+    type_id: TaskTypeId.Task,
+    priority_id: TaskPriorityId.Normal,
     status_id: TaskStatusId.New,
     parent_id: parentTaskId ? Number(parentTaskId) : null,
     holder_id: currentUserId || null,
@@ -64,41 +63,28 @@ export const useTaskForm = ({
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
-  const [statuses, setStatuses] = useState<TaskStatus[]>([]);
-  const [priorities, setPriorities] = useState<TaskPriority[]>([]);
-  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const { data: statuses, error: statusesError } = useLookup('statuses');
+  const { data: priorities, error: prioritiesError } = useLookup('priorities');
 
-  const {
-    projects,
-    projectMembers: fetchedProjectMembers,
-    projectTasks,
-    selectError,
-  } = useProjectSelect(formData.project_id, taskId);
+  const { projects, projectMembers, projectTasks, selectError } =
+    useProjectSelect(formData.project_id, taskId);
 
   useEffect(() => {
-    setProjectMembers(fetchedProjectMembers);
-  }, [fetchedProjectMembers]);
-
-  useEffect(() => {
+    if (!taskId) return;
     const controller = new AbortController();
     const loadTaskData = async () => {
-      // If taskId exists, we're in edit mode
-      if (!taskId) {
-        setIsEditing(false);
-        return;
-      }
-
       try {
         setIsLoading(true);
+        setLoadError(null);
         const [taskData, taskTags] = await Promise.all([
           getTaskById(Number(taskId), controller.signal),
           getTaskTags(Number(taskId), controller.signal),
         ]);
-        if (taskData) {
-          setIsEditing(true);
-
-          // Format dates properly
+        if (controller.signal.aborted) return;
+        if (!taskData) {
+          setLoadError('Task not found');
+        } else {
+          savedTagIds.current = (taskTags || []).map((tag) => Number(tag.id));
           const formattedStartDate = taskData.start_date
             ? dayjs(taskData.start_date).format('YYYY-MM-DD')
             : null;
@@ -110,8 +96,8 @@ export const useTaskForm = ({
             name: taskData.name || '',
             description: taskData.description || '',
             project_id: taskData.project_id,
-            type_id: taskData.type_id || 1,
-            priority_id: taskData.priority_id || 2,
+            type_id: taskData.type_id || TaskTypeId.Task,
+            priority_id: taskData.priority_id || TaskPriorityId.Normal,
             status_id: taskData.status_id || TaskStatusId.New,
             parent_id: taskData.parent_id || null,
             holder_id: taskData.holder_id || currentUserId || null,
@@ -127,44 +113,19 @@ export const useTaskForm = ({
       } catch (error) {
         if (controller.signal.aborted) return;
         logger.error('Error loading task:', error);
-        setIsEditing(false);
+        setLoadError(getApiErrorMessage(error, 'Failed to load task'));
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
     };
 
-    const fetchData = async () => {
-      try {
-        const [statusesData, prioritiesData, tagsData] = await Promise.all([
-          getTaskStatuses(controller.signal),
-          getPriorities(controller.signal),
-          getTags(controller.signal),
-        ]);
-
-        if (controller.signal.aborted) return;
-        setStatuses(statusesData || []);
-        setPriorities(prioritiesData || []);
-        setAvailableTags(tagsData || []);
-      } catch (error: unknown) {
-        if (controller.signal.aborted) return;
-        logger.error('Error fetching data:', error);
-        setStatuses([]);
-        setPriorities([]);
-        setAvailableTags([]);
-      }
-    };
-
     loadTaskData();
-    fetchData();
     return () => controller.abort();
   }, [taskId, currentUserId]);
 
-  const handleChange = async (e: {
-    target: { name: string; value: string | number | boolean };
-  }) => {
+  const handleChange = useCallback((e: SimpleChangeEvent) => {
     const { name, value } = e.target;
-    let newValue: string | number | boolean | null =
-      value === '' ? null : value;
+    let newValue: unknown = value === '' ? null : value;
     if (name === 'holder_id' || name === 'assignee_id') {
       if (value === '') {
         newValue = null;
@@ -182,35 +143,16 @@ export const useTaskForm = ({
       }
       return prev;
     });
-    setFormData((prev) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    // If we're editing and the status changes, update it immediately
-    if (isEditing && name === 'status_id' && newValue !== null) {
-      const statusId = Number(newValue);
-      if (!Number.isNaN(statusId)) {
-        try {
-          const updatedTask = await changeTaskStatus(Number(taskId), statusId);
-          setFormData((prev) => ({
-            ...prev,
-            status_id: updatedTask.status_id,
-          }));
-        } catch (error) {
-          logger.error('Error updating task status:', error);
-          // Revert the status if update fails
-          setFormData((prev) => ({
-            ...prev,
-            status_id: prev.status_id,
-          }));
-        }
-      }
-    }
-  };
+    setFormData((prev) =>
+      prev[name as keyof TaskFormState] === newValue
+        ? prev
+        : { ...prev, [name]: newValue },
+    );
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loadError) throw new Error(loadError);
     const err: Record<string, string> = {};
     if (!formData.name?.trim()) err.name = 'Name is required';
     if (formData.project_id == null) err.project_id = 'Project is required';
@@ -252,7 +194,29 @@ export const useTaskForm = ({
       };
 
       if (isEditing) {
-        await updateTask(Number(taskId), taskData);
+        // Project and parent are fixed once a task exists; the task PUT
+        // ignores tags, so they are synced through the task tag endpoints.
+        const {
+          project_id: _project,
+          parent_id: _parent,
+          tags,
+          ...updates
+        } = taskData;
+        const id = Number(taskId);
+        await updateTask(id, updates);
+
+        const tagIds = (tags || []).map((tag) => Number(tag.id));
+        const added = tagIds.filter((t) => !savedTagIds.current.includes(t));
+        const removed = savedTagIds.current.filter((t) => !tagIds.includes(t));
+        if (added.length > 0) await addTaskTags(id, added);
+        await Promise.all(
+          removed.map((tagId) =>
+            removeTaskTag(id, tagId).catch((error: unknown) => {
+              if (getApiErrorStatus(error) !== 404) throw error;
+            }),
+          ),
+        );
+        savedTagIds.current = tagIds;
         navigate(`/tasks/${taskId}`);
       } else {
         const newTask = await createTask(taskData);
@@ -274,12 +238,12 @@ export const useTaskForm = ({
     projects,
     projectMembers,
     projectTasks,
-    selectError,
+    selectError: selectError || statusesError || prioritiesError,
     statuses,
     priorities,
-    availableTags,
     isEditing,
     isLoading,
+    loadError,
     handleChange,
     handleSubmit,
   };

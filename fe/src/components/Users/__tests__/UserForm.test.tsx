@@ -23,7 +23,6 @@ const defaultMockFormValues: UserFormData = {
   surname: '',
   email: '',
   password: '',
-  currentPassword: '',
   confirmPassword: '',
   role_id: 1,
 };

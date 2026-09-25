@@ -1,38 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Paper, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { getUserById } from '../../api/users';
-import { UserDetailsState } from '../../types/user';
-import logger from '../../utils/logger';
+import { User, UserDetailsState } from '../../types/user';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
 
 const UserDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [state, setState] = useState<UserDetailsState>({
-    user: null,
-    loading: true,
-    error: null,
-  });
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if (!id) throw new Error('User ID is required');
-        const userData = await getUserById(parseInt(id));
-        setState((prev) => ({ ...prev, user: userData, loading: false }));
-      } catch (error) {
-        logger.error('Failed to fetch user details', error);
-        setState((prev) => ({
-          ...prev,
-          error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to fetch user details',
-          loading: false,
-        }));
-      }
-    };
-    fetchUser();
-  }, [id]);
+  const {
+    data: user,
+    loading,
+    error,
+  } = useAsyncResource<User | null>(
+    (signal) => {
+      if (!id) return Promise.reject(new Error('User ID is required'));
+      return getUserById(parseInt(id), signal);
+    },
+    [id],
+    { initialData: null, errorMessage: 'Failed to fetch user details' },
+  );
+  const state: UserDetailsState = { user, loading, error };
 
   const formatDate = (dateString: string | null | undefined): string => {
     if (!dateString) return '-';

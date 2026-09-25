@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { createAppTheme } from '../theme/theme';
@@ -131,18 +132,20 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       window.removeEventListener('appThemeUpdated', handleThemeUpdate);
   }, [fetchAppTheme]);
 
-  const toggleTheme = () => {
-    // Allow user to toggle theme regardless of app theme setting
-    // This provides user preference override
-    const newMode = mode === 'light' ? 'dark' : 'light';
-    setMode(newMode);
-    localStorage.setItem('themeMode', newMode);
-  };
+  // Allow user to toggle theme regardless of app theme setting
+  const toggleTheme = useCallback(() => {
+    setMode((prev) => {
+      const newMode = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', newMode);
+      return newMode;
+    });
+  }, []);
 
-  const theme = createAppTheme(mode);
+  const theme = useMemo(() => createAppTheme(mode), [mode]);
+  const value = useMemo(() => ({ mode, toggleTheme }), [mode, toggleTheme]);
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );

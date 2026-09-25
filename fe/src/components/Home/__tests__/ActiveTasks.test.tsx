@@ -204,5 +204,16 @@ describe('ActiveTasks', () => {
         expect.any(Error),
       );
     });
+    expect(await screen.findByText('API Error')).toBeInTheDocument();
+  });
+
+  it('fetches each list once with an abort signal', async () => {
+    renderActiveTasks();
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    });
+    expect(getActiveTasks).toHaveBeenCalledTimes(1);
+    expect(getActiveTasks).toHaveBeenCalledWith(expect.any(AbortSignal));
   });
 });

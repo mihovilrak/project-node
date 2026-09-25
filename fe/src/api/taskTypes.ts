@@ -17,12 +17,6 @@ export const getTaskTypes = async (
   return response.data;
 };
 
-// Get task type by id
-export const getTaskTypeById = async (id: number): Promise<TaskType> => {
-  const response = await api.get<TaskType>(`/admin/task-types/${id}`);
-  return response.data;
-};
-
 /**
  * Create a new task type on the server using the provided TaskType fields.
  *
@@ -81,24 +75,4 @@ export const updateTaskType = async (
  */
 export const deleteTaskType = async (id: number): Promise<void> => {
   await api.delete<void>(`/admin/task-types/${id}`);
-};
-
-/**
- * Fetch the list of available icon identifiers from the server.
- *
- * Performs an HTTP GET to '/admin/task-types/icons' and resolves to the array
- * of icon names (string identifiers) returned by the server. The optional
- * AbortSignal can be used to cancel the in-flight network request. This
- * function has no local side effects or caching; the returned list reflects the
- * server response and the promise will reject for network or server errors.
- *
- * @param signal Optional AbortSignal to cancel the request.
- */
-export const getAvailableIcons = async (
-  signal?: AbortSignal,
-): Promise<string[]> => {
-  const response = await api.get<string[]>('/admin/task-types/icons', {
-    signal,
-  });
-  return response.data;
 };

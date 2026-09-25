@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -30,80 +30,74 @@ const ProjectDetails: React.FC = () => {
     timeLogs,
     loading,
     error,
+    actionError,
+    setActionError,
     tasksError,
+    membersError,
+    timeLogsError,
     editDialogOpen,
+    setEditDialogOpen,
     deleteDialogOpen,
-    taskFormOpen,
+    setDeleteDialogOpen,
     timeLogDialogOpen,
-    manageMembersOpen,
     selectedTimeLog,
+    timeLogTaskId,
+    manageMembersOpen,
+    setManageMembersOpen,
     canEdit,
     canDelete,
     canManageMembers,
-    setState,
+    canLogTime,
     handleProjectUpdate,
     handleProjectDelete,
     handleMemberRemove,
-    handleTaskCreate,
+    handleMembersUpdate,
+    openTimeLogDialog,
+    closeTimeLogDialog,
     handleTimeLogSubmit,
     handleTimeLogEdit,
     handleTimeLogDelete,
-    handleMembersUpdate,
-    setTimeLogDialogOpen,
-    setSelectedTimeLog,
-    setTaskFormOpen,
-    setManageMembersOpen,
   } = useProjectDetails(id!);
 
   const handleCreateTask = useCallback(() => {
     navigate(`/tasks/new?projectId=${id}`);
-    setTaskFormOpen(false);
-  }, [navigate, id, setTaskFormOpen]);
+  }, [navigate, id]);
 
   const handleTabChange = useCallback(
-    (_e: React.SyntheticEvent, newValue: number) => {
-      setActiveTab(newValue);
-    },
+    (_e: React.SyntheticEvent, newValue: number) => setActiveTab(newValue),
     [],
   );
 
-  const handleEdit = useCallback(() => {
-    setState((prev) => ({ ...prev, editDialogOpen: true }));
-  }, [setState]);
-
-  const handleDelete = useCallback(() => {
-    setState((prev) => ({ ...prev, deleteDialogOpen: true }));
-  }, [setState]);
-
-  const handleManageMembers = useCallback(() => {
-    setManageMembersOpen(true);
-  }, [setManageMembersOpen]);
-
-  const handleTimeLogCreate = useCallback(() => {
-    setSelectedTimeLog(null);
-    setTimeLogDialogOpen(true);
-  }, [setSelectedTimeLog, setTimeLogDialogOpen]);
-
-  const handleEditDialogClose = useCallback(() => {
-    setState((prev) => ({ ...prev, editDialogOpen: false }));
-  }, [setState]);
-
-  const handleDeleteDialogClose = useCallback(() => {
-    setState((prev) => ({ ...prev, deleteDialogOpen: false }));
-  }, [setState]);
-
-  const handleTimeLogDialogClose = useCallback(() => {
-    setTimeLogDialogOpen(false);
-    setSelectedTimeLog(null);
-  }, [setTimeLogDialogOpen, setSelectedTimeLog]);
-
-  const handleEditMembersDialogClose = useCallback(() => {
-    setManageMembersOpen(false);
-  }, [setManageMembersOpen]);
+  const handleEdit = useCallback(
+    () => setEditDialogOpen(true),
+    [setEditDialogOpen],
+  );
+  const handleEditDialogClose = useCallback(
+    () => setEditDialogOpen(false),
+    [setEditDialogOpen],
+  );
+  const handleDelete = useCallback(
+    () => setDeleteDialogOpen(true),
+    [setDeleteDialogOpen],
+  );
+  const handleDeleteDialogClose = useCallback(
+    () => setDeleteDialogOpen(false),
+    [setDeleteDialogOpen],
+  );
+  const handleManageMembers = useCallback(
+    () => setManageMembersOpen(true),
+    [setManageMembersOpen],
+  );
+  const handleEditMembersDialogClose = useCallback(
+    () => setManageMembersOpen(false),
+    [setManageMembersOpen],
+  );
 
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!project) return <Alert severity="error">Project not found</Alert>;
+
+  const subDataError = tasksError || membersError || timeLogsError;
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -117,54 +111,57 @@ const ProjectDetails: React.FC = () => {
           }}
         >
           <Typography variant="h5" component="h1">
-            {project?.name || 'Unnamed Project'}
+            {project.name || 'Unnamed Project'}
           </Typography>
           <ProjectActions
             canEdit={canEdit}
             canDelete={canDelete}
-            onEdit={() =>
-              setState((prev) => ({ ...prev, editDialogOpen: true }))
-            }
-            onDelete={() =>
-              setState((prev) => ({ ...prev, deleteDialogOpen: true }))
-            }
+            onEdit={handleEdit}
+            onDelete={handleDelete}
             data-testid="project-actions"
           />
         </Box>
 
-        {tasksError && (
+        {actionError && (
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            onClose={() => setActionError(null)}
+          >
+            {actionError}
+          </Alert>
+        )}
+
+        {subDataError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {tasksError}
+            {subDataError}
           </Alert>
         )}
 
         <Tabs
           value={activeTab}
-          onChange={(e, newValue) => {
-            e.preventDefault();
-            setActiveTab(newValue);
-          }}
+          onChange={handleTabChange}
           data-testid="project-tabs"
         >
-          <Tab label="Overview" data-testid="tab-overview" />
-          <Tab label="Tasks" data-testid="tab-tasks" />
-          <Tab label="Members" data-testid="tab-members" />
-          <Tab label="Time Log" data-testid="tab-timelog" />
-          <Tab label="Gantt" data-testid="tab-gantt" />
+          <Tab label="Overview" id="project-tab-0" data-testid="tab-overview" />
+          <Tab label="Tasks" id="project-tab-1" data-testid="tab-tasks" />
+          <Tab label="Members" id="project-tab-2" data-testid="tab-members" />
+          <Tab label="Time Log" id="project-tab-3" data-testid="tab-timelog" />
+          <Tab label="Gantt" id="project-tab-4" data-testid="tab-gantt" />
         </Tabs>
 
         <ProjectTabPanels
           activeTab={activeTab}
           project={project}
           projectDetails={projectDetails}
-          tasks={tasks || []}
-          members={members || []}
-          timeLogs={timeLogs || []}
+          tasks={tasks}
+          members={members}
+          timeLogs={timeLogs}
           canManageMembers={canManageMembers}
-          projectId={id || ''}
+          canLogTime={canLogTime}
           onCreateTask={handleCreateTask}
           onManageMembers={handleManageMembers}
-          onTimeLogCreate={handleTimeLogCreate}
+          onTimeLogCreate={openTimeLogDialog}
           onTimeLogEdit={handleTimeLogEdit}
           onTimeLogDelete={handleTimeLogDelete}
           onMemberRemove={handleMemberRemove}
@@ -188,18 +185,19 @@ const ProjectDetails: React.FC = () => {
 
       <TimeLogDialog
         open={timeLogDialogOpen}
-        onClose={handleTimeLogDialogClose}
+        onClose={closeTimeLogDialog}
         onSubmit={handleTimeLogSubmit}
         timeLog={selectedTimeLog}
+        taskId={timeLogTaskId}
         projectId={id ? Number(id) : undefined}
       />
 
-      {id && (
+      {id && canManageMembers && (
         <EditMembersDialog
           open={manageMembersOpen}
           onClose={handleEditMembersDialogClose}
           projectId={Number(id)}
-          currentMembers={members || []}
+          currentMembers={members}
           onSave={handleMembersUpdate}
         />
       )}

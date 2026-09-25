@@ -25,6 +25,16 @@ export interface User {
   last_login?: string | null;
 }
 
+/**
+ * Active user as returned by GET /users/options for pickers.
+ */
+export interface UserOption {
+  id: number;
+  login: string;
+  name: string;
+  surname: string;
+}
+
 export interface UserDetails extends User {
   status: string;
   role: string;
@@ -47,7 +57,6 @@ export interface UserUpdate {
   id: number;
   login?: string;
   password?: string;
-  currentPassword?: string;
   name?: string;
   surname?: string;
   email?: string;
@@ -57,8 +66,8 @@ export interface UserUpdate {
 
 /**
  * Provide the structure of the form payload used to create or update a user,
- * including identity fields, credentials (with optional current and
- * confirmation), role id, and optional status id.
+ * including identity fields, credentials (with optional confirmation), role id,
+ * and optional status id.
  */
 export interface UserFormData {
   login: string;
@@ -66,7 +75,6 @@ export interface UserFormData {
   surname: string;
   email: string;
   password: string;
-  currentPassword?: string;
   confirmPassword?: string;
   role_id: number;
   status_id?: number;

@@ -22,6 +22,9 @@ jest.mock('../../../hooks/common/usePermission', () => ({
 
 // Mock the API calls
 jest.mock('../../../api/users');
+jest.mock('../../../api/roles', () => ({
+  getRoles: jest.fn().mockResolvedValue([{ id: 1, name: 'Admin' }]),
+}));
 const mockedGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
 const mockedDeleteUser = deleteUser as jest.MockedFunction<typeof deleteUser>;
 const mockedGetUserStatuses = getUserStatuses as jest.MockedFunction<
@@ -204,6 +207,40 @@ describe('Users Component', () => {
         expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
       },
       { timeout: 3000 },
+    );
+    expect(mockedDeleteUser).toHaveBeenCalledTimes(1);
+    expect(mockedGetUsers).toHaveBeenCalledTimes(2);
+  });
+
+  test('search is client-side and does not refetch per keystroke', async () => {
+    await act(async () => {
+      renderUsers();
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByTestId('search-input');
+    fireEvent.change(searchInput, { target: { value: 'j' } });
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+    fireEvent.change(searchInput, { target: { value: 'jo' } });
+    fireEvent.change(searchInput, { target: { value: 'joh' } });
+
+    // Initial load + one refetch because the mock panel drops the status filter.
+    expect(mockedGetUsers).toHaveBeenCalledTimes(2);
+  });
+
+  test('shows a warning when filter options fail to load', async () => {
+    mockedGetUserStatuses.mockRejectedValue(new Error('Statuses down'));
+
+    await act(async () => {
+      renderUsers();
+    });
+
+    expect(await screen.findByTestId('options-error')).toHaveTextContent(
+      'Statuses down',
     );
   });
 

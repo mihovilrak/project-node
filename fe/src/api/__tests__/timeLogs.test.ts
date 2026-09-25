@@ -1,13 +1,10 @@
 import { api } from '../api';
 import { TimeLog, TimeLogCreate } from '../../types/timeLog';
 import {
-  getAllTimeLogs,
   getTaskTimeLogs,
-  getTaskSpentTime,
   getProjectTimeLogs,
   getProjectSpentTime,
   createTimeLog,
-  getUserTimeLogs,
   updateTimeLog,
   deleteTimeLog,
 } from '../timeLogs';
@@ -46,24 +43,6 @@ describe('TimeLogs API', () => {
     jest.clearAllMocks();
   });
 
-  describe('getAllTimeLogs', () => {
-    it('should fetch all time logs', async () => {
-      mockedApi.get.mockResolvedValueOnce({ data: [mockTimeLog] });
-
-      const result = await getAllTimeLogs();
-
-      expect(mockedApi.get).toHaveBeenCalledWith('/time-logs');
-      expect(result).toEqual([mockTimeLog]);
-    });
-
-    it('should handle error when fetching all time logs', async () => {
-      const error = new Error('Failed to fetch time logs');
-      mockedApi.get.mockRejectedValueOnce(error);
-
-      await expect(getAllTimeLogs()).rejects.toThrow(error);
-    });
-  });
-
   describe('getTaskTimeLogs', () => {
     it('should fetch task time logs', async () => {
       mockedApi.get.mockResolvedValueOnce({ data: [mockTimeLog] });
@@ -71,6 +50,7 @@ describe('TimeLogs API', () => {
       const result = await getTaskTimeLogs(1);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/time-logs/tasks/1/logs', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockTimeLog]);
@@ -84,20 +64,6 @@ describe('TimeLogs API', () => {
     });
   });
 
-  describe('getTaskSpentTime', () => {
-    it('should fetch task spent time', async () => {
-      const mockSpentTime = { task_id: 1, spent_time: 8 };
-      mockedApi.get.mockResolvedValueOnce({ data: mockSpentTime });
-
-      const result = await getTaskSpentTime(1);
-
-      expect(mockedApi.get).toHaveBeenCalledWith(
-        '/time-logs/tasks/1/spent-time',
-      );
-      expect(result).toEqual(mockSpentTime);
-    });
-  });
-
   describe('getProjectTimeLogs', () => {
     it('should fetch project time logs with params', async () => {
       const params = { date: '2024-01-01' };
@@ -106,7 +72,8 @@ describe('TimeLogs API', () => {
       const result = await getProjectTimeLogs(1, params);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/time-logs/projects/1/logs', {
-        params,
+        params: { ...params, limit: 500, offset: 0 },
+        signal: undefined,
       });
       expect(result).toEqual([mockTimeLog]);
     });
@@ -139,20 +106,6 @@ describe('TimeLogs API', () => {
         activity_type_id: mockTimeLogCreate.activity_type_id,
       });
       expect(result).toEqual(mockTimeLog);
-    });
-  });
-
-  describe('getUserTimeLogs', () => {
-    it('should fetch user time logs with params', async () => {
-      const params = { date: '2024-01-01' };
-      mockedApi.get.mockResolvedValueOnce({ data: [mockTimeLog] });
-
-      const result = await getUserTimeLogs(params);
-
-      expect(mockedApi.get).toHaveBeenCalledWith('/time-logs/user/logs', {
-        params,
-      });
-      expect(result).toEqual([mockTimeLog]);
     });
   });
 

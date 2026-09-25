@@ -1,8 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
+import { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+import {
+  Appointments,
+  AppointmentTooltip,
+} from '@devexpress/dx-react-scheduler-material-ui';
 import { FormattedTask } from '../../types/project';
 import { Task } from '../../types/task';
 import { toLocalDate } from '../../utils/dateUtils';
+
+type StyledProps<P> = P & { style?: CSSProperties };
+export type GanttAppointmentProps = StyledProps<Appointments.AppointmentProps>;
+export type GanttAppointmentContentProps =
+  StyledProps<Appointments.AppointmentContentProps>;
 
 /**
  * Format tasks for Gantt chart display and provide styling utilities for
@@ -67,9 +76,18 @@ export const useProjectGantt = (initialTasks: Task[]) => {
   }, []);
 
   const renderAppointment = useCallback(
-    ({ children, style, data, draggable, resources, ...restProps }: any) => {
-      const status = data.status?.toLowerCase() || 'unknown';
-      const priority = data.priority?.toLowerCase() || 'normal';
+    ({
+      children,
+      style,
+      data,
+      draggable,
+      resources,
+      ...restProps
+    }: GanttAppointmentProps): GanttAppointmentProps => {
+      const status =
+        (data.status as string | undefined)?.toLowerCase() || 'unknown';
+      const priority =
+        (data.priority as string | undefined)?.toLowerCase() || 'normal';
 
       return {
         ...restProps,
@@ -88,7 +106,11 @@ export const useProjectGantt = (initialTasks: Task[]) => {
   );
 
   const renderAppointmentContent = useCallback(
-    ({ children, style, data, ...restProps }: any) => ({
+    ({
+      style,
+      data,
+      ...restProps
+    }: GanttAppointmentContentProps): GanttAppointmentContentProps => ({
       ...restProps,
       style,
       data,
@@ -121,20 +143,23 @@ export const useProjectGantt = (initialTasks: Task[]) => {
   );
 
   const renderTooltipContent = useCallback(
-    ({ appointmentData, ...restProps }: any) => ({
+    ({
+      appointmentData,
+      ...restProps
+    }: AppointmentTooltip.ContentProps): AppointmentTooltip.ContentProps => ({
       ...restProps,
       appointmentData,
       children: (
         <div style={{ padding: '16px' }}>
           <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-            {appointmentData.title}
+            {appointmentData?.title}
           </div>
           <div style={{ marginBottom: '16px', color: 'rgba(0, 0, 0, 0.6)' }}>
-            {appointmentData.description}
+            {appointmentData?.description}
           </div>
-          <div>Status: {appointmentData.status}</div>
-          <div>Priority: {appointmentData.priority}</div>
-          <div>Type: {appointmentData.type_name}</div>
+          <div>Status: {appointmentData?.status}</div>
+          <div>Priority: {appointmentData?.priority}</div>
+          <div>Type: {appointmentData?.type_name}</div>
         </div>
       ),
     }),

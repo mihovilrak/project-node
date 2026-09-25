@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import FileList from '../FileList';
 import { downloadFile } from '../../../api/files';
@@ -41,6 +41,7 @@ const renderFileList = (props = {}) => {
 describe('FileList', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (downloadFile as jest.Mock).mockResolvedValue(undefined);
   });
 
   it('displays "No files uploaded yet" when files array is empty', () => {
@@ -62,6 +63,21 @@ describe('FileList', () => {
     const downloadButton = screen.getByLabelText('download');
     fireEvent.click(downloadButton);
     expect(downloadFile).toHaveBeenCalledWith(1, 1);
+  });
+
+  it('reports a forbidden download through onError', async () => {
+    (downloadFile as jest.Mock).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 403, data: new Blob() },
+    });
+    const onError = jest.fn();
+    renderFileList({ onError });
+    fireEvent.click(screen.getByLabelText('download'));
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(
+        'You do not have permission to perform this action',
+      );
+    });
   });
 
   it('calls onFileDeleted when delete button is clicked', () => {
@@ -100,5 +116,12 @@ describe('FileList', () => {
     ];
     renderFileList({ files: filesWithSpecialChars });
     expect(screen.getByText('test file with spaces.pdf')).toBeInTheDocument();
+  });
+
+  it('renders names that fail to decode instead of crashing', () => {
+    renderFileList({
+      files: [{ ...mockFiles[0], original_name: '100%.txt' }],
+    });
+    expect(screen.getByText('100%.txt')).toBeInTheDocument();
   });
 });

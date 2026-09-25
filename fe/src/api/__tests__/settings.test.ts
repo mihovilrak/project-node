@@ -1,8 +1,7 @@
 import { api } from '../api';
-import { UserSettings, AppSettings } from '../../types/setting';
+import { AppSettings } from '../../types/setting';
 import {
-  getUserSettings,
-  updateUserSettings,
+  getWelcomeMessage,
   getSystemSettings,
   updateSystemSettings,
   getAppTheme,
@@ -15,23 +14,6 @@ const mockedApi = api as jest.Mocked<typeof api>;
 
 describe('Settings API', () => {
   // Mock data
-  const mockUserSettings: UserSettings = {
-    user_id: 1,
-    timezone: 'UTC',
-    language: 'en',
-    date_format: 'YYYY-MM-DD',
-    time_format: '24h',
-    notification_preferences: {
-      email_notifications: true,
-      push_notifications: true,
-      task_reminders: true,
-      project_updates: true,
-      team_mentions: true,
-    },
-    created_on: '2023-01-01T00:00:00Z',
-    updated_on: null,
-  };
-
   const mockAppSettings: AppSettings = {
     id: 1,
     app_name: 'Test App',
@@ -52,43 +34,25 @@ describe('Settings API', () => {
     jest.clearAllMocks();
   });
 
-  describe('getUserSettings', () => {
-    it('should fetch user settings successfully', async () => {
-      mockedApi.get.mockResolvedValueOnce({ data: mockUserSettings });
+  describe('getWelcomeMessage', () => {
+    it('should fetch the welcome message from /settings/welcome', async () => {
+      mockedApi.get.mockResolvedValueOnce({
+        data: { welcome_message: 'Hi' },
+      });
 
-      const result = await getUserSettings();
+      const result = await getWelcomeMessage();
 
-      expect(mockedApi.get).toHaveBeenCalledWith('/settings/user_settings', {
+      expect(mockedApi.get).toHaveBeenCalledWith('/settings/welcome', {
         signal: undefined,
       });
-      expect(result).toEqual(mockUserSettings);
+      expect(result).toEqual({ welcome_message: 'Hi' });
     });
 
     it('should throw error when fetch fails', async () => {
       const error = new Error('Network error');
       mockedApi.get.mockRejectedValueOnce(error);
 
-      await expect(getUserSettings()).rejects.toThrow(error);
-    });
-  });
-
-  describe('updateUserSettings', () => {
-    it('should update user settings successfully', async () => {
-      mockedApi.put.mockResolvedValueOnce({ data: null });
-
-      await updateUserSettings(mockUserSettings);
-
-      expect(mockedApi.put).toHaveBeenCalledWith(
-        '/settings/user_settings',
-        mockUserSettings,
-      );
-    });
-
-    it('should throw error when update fails', async () => {
-      const error = new Error('Update failed');
-      mockedApi.put.mockRejectedValueOnce(error);
-
-      await expect(updateUserSettings(mockUserSettings)).rejects.toThrow(error);
+      await expect(getWelcomeMessage()).rejects.toThrow(error);
     });
   });
 

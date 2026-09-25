@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import dayjs from 'dayjs';
-import { Project, ProjectFormData, ProjectStatus } from '../../types/project';
-import { getProjectStatuses } from '../../api/projects';
-import logger from '../../utils/logger';
+import { Project, ProjectFormData } from '../../types/project';
+import { useLookup } from '../../context/LookupsContext';
 import { toDateOnlyString } from '../../utils/dateUtils';
 import { ProjectStatusId } from '../../constants/statusIds';
 
@@ -27,36 +26,8 @@ export const useProjectForm = (project?: Project, parentId?: string | null) => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dateError, setDateError] = useState<string>('');
-  const [statuses, setStatuses] = useState<ProjectStatus[]>([]);
-  const [statusesLoading, setStatusesLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchStatuses = async () => {
-      try {
-        setStatusesLoading(true);
-        const statusList = await getProjectStatuses();
-        setStatuses(statusList || []);
-        // Set default status_id to first status if available and no project provided
-        if (
-          !project &&
-          statusList &&
-          statusList.length > 0 &&
-          formData.status_id === ProjectStatusId.Active
-        ) {
-          setFormData((prev) => ({
-            ...prev,
-            status_id: statusList[0].id,
-          }));
-        }
-      } catch (err) {
-        logger.error('Failed to fetch project statuses:', err);
-        setStatuses([]);
-      } finally {
-        setStatusesLoading(false);
-      }
-    };
-    fetchStatuses();
-  }, [project]);
+  const { data: statuses, loading: statusesLoading } =
+    useLookup('projectStatuses');
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -6,7 +6,8 @@ import ProjectTaskList from './tabs/ProjectTaskList';
 import ProjectGantt from './ProjectGantt';
 import ProjectMembersList from './tabs/ProjectMembersList';
 import TimeLogList from '../TimeLog/TimeLogList';
-import { TabPanelProps, ProjectTabPanelsProps } from '../../types/project';
+import TabPanel from '../common/TabPanel';
+import { ProjectTabPanelsProps } from '../../types/project';
 
 // Memoize child components to prevent unnecessary re-renders
 const MemoizedProjectOverview = React.memo(ProjectOverview);
@@ -14,25 +15,6 @@ const MemoizedProjectTaskList = React.memo(ProjectTaskList);
 const MemoizedProjectGantt = React.memo(ProjectGantt);
 const MemoizedProjectMembersList = React.memo(ProjectMembersList);
 const MemoizedTimeLogList = React.memo(TimeLogList);
-
-const TabPanel: React.FC<TabPanelProps> = React.memo(
-  ({ children, value, index }) => {
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        style={{ width: '100%', display: value === index ? 'block' : 'none' }}
-        id={`project-tabpanel-${index}`}
-        aria-labelledby={`project-tab-${index}`}
-      >
-        {value === index && (
-          <Box sx={{ p: 3, width: '100%', overflow: 'auto' }}>{children}</Box>
-        )}
-      </div>
-    );
-  },
-);
-TabPanel.displayName = 'TabPanel';
 
 const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
   ({
@@ -43,7 +25,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     members,
     timeLogs,
     canManageMembers,
-    projectId,
+    canLogTime = true,
     onCreateTask,
     onManageMembers,
     onTimeLogCreate,
@@ -86,25 +68,25 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
     const membersContent = useMemo(
       () => (
         <>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button
-              variant="contained"
-              onClick={onManageMembers}
-              startIcon={<GroupIcon />}
-            >
-              Manage Members
-            </Button>
-          </Box>
+          {canManageMembers && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <Button
+                variant="contained"
+                onClick={onManageMembers}
+                startIcon={<GroupIcon />}
+              >
+                Manage Members
+              </Button>
+            </Box>
+          )}
           <MemoizedProjectMembersList
-            projectId={projectId ? Number(projectId) : 0}
             members={members || []}
             canManageMembers={canManageMembers}
             onMemberRemove={onMemberRemove}
-            onMembersChange={() => {}}
           />
         </>
       ),
-      [projectId, members, canManageMembers, onManageMembers, onMemberRemove],
+      [members, canManageMembers, onManageMembers, onMemberRemove],
     );
 
     const timeLogsContent = useMemo(
@@ -119,9 +101,11 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
             }}
           >
             <Typography variant="h6">Time Logs</Typography>
-            <Button variant="contained" onClick={() => onTimeLogCreate(0)}>
-              Log Time
-            </Button>
+            {canLogTime && (
+              <Button variant="contained" onClick={() => onTimeLogCreate()}>
+                Log Time
+              </Button>
+            )}
           </Box>
           <MemoizedTimeLogList
             timeLogs={timeLogs || []}
@@ -130,7 +114,7 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
           />
         </>
       ),
-      [timeLogs, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
+      [timeLogs, canLogTime, onTimeLogCreate, onTimeLogEdit, onTimeLogDelete],
     );
 
     const ganttContent = useMemo(
@@ -142,23 +126,23 @@ const ProjectTabPanels: React.FC<ProjectTabPanelsProps> = React.memo(
 
     return (
       <>
-        <TabPanel value={activeTab} index={0}>
+        <TabPanel value={activeTab} index={0} idPrefix="project">
           {overviewContent}
         </TabPanel>
 
-        <TabPanel value={activeTab} index={1}>
+        <TabPanel value={activeTab} index={1} idPrefix="project">
           {tasksContent}
         </TabPanel>
 
-        <TabPanel value={activeTab} index={2}>
+        <TabPanel value={activeTab} index={2} idPrefix="project">
           {membersContent}
         </TabPanel>
 
-        <TabPanel value={activeTab} index={3}>
+        <TabPanel value={activeTab} index={3} idPrefix="project">
           {timeLogsContent}
         </TabPanel>
 
-        <TabPanel value={activeTab} index={4}>
+        <TabPanel value={activeTab} index={4} idPrefix="project">
           {ganttContent}
         </TabPanel>
       </>

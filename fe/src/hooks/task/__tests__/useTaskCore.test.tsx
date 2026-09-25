@@ -110,7 +110,7 @@ describe('useTaskCore', () => {
     expect(result.current.error).toBe(null);
     expect(result.current.task).toEqual(mockTask);
     expect(result.current.subtasks).toEqual(mockSubtasks);
-    expect(result.current.statuses).toEqual(mockStatuses);
+    await waitFor(() => expect(result.current.statuses).toEqual(mockStatuses));
   });
 
   it('should handle error when loading task data fails', async () => {
@@ -147,6 +147,23 @@ describe('useTaskCore', () => {
 
     expect(changeTaskStatus).toHaveBeenCalledWith(1, newStatus);
     expect(result.current.task?.status_id).toBe(newStatus);
+  });
+
+  it('should keep the task loaded and set actionError when status change fails', async () => {
+    (changeTaskStatus as jest.Mock).mockRejectedValue(new Error('Denied'));
+
+    const { result } = renderHook(() => useTaskCore('1'));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.handleStatusChange(2);
+    });
+
+    expect(result.current.error).toBe(null);
+    expect(result.current.actionError).toBe('Denied');
+    expect(result.current.task).toEqual(mockTask);
   });
 
   it('should handle task deletion successfully', async () => {

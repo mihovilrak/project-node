@@ -7,6 +7,7 @@ export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
   projectTasks,
   handleChange,
   parentIdFromUrl,
+  disabled = false,
 }) =>
   formData.project_id ? (
     <TextField
@@ -16,7 +17,7 @@ export const ParentTaskSelect: React.FC<ParentTaskSelectProps> = ({
       name="parent_id"
       value={formData.parent_id || ''}
       onChange={handleChange}
-      disabled={Boolean(parentIdFromUrl)}
+      disabled={disabled || Boolean(parentIdFromUrl)}
       sx={{ mb: 2 }}
     >
       <MenuItem value="">None</MenuItem>

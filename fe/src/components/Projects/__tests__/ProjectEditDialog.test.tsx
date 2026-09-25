@@ -1,8 +1,18 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ProjectEditDialog from '../ProjectEditDialog';
-import { updateProject, getProjectStatuses } from '../../../api/projects';
+import {
+  updateProject,
+  changeProjectStatus,
+  getProjectStatuses,
+} from '../../../api/projects';
 import { Project, ProjectStatus } from '../../../types/project';
 
 jest.mock('../../../api/projects');
@@ -52,8 +62,7 @@ describe('ProjectEditDialog', () => {
   });
 
   it('calls API when save button is clicked', async () => {
-    const updatedProject = { ...mockProject, name: 'Updated Project' };
-    (updateProject as jest.Mock).mockResolvedValueOnce(updatedProject);
+    (updateProject as jest.Mock).mockResolvedValueOnce(undefined);
 
     render(<ProjectEditDialog {...defaultProps} />);
 
@@ -61,11 +70,18 @@ describe('ProjectEditDialog', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
+      expect(updateProject).toHaveBeenCalledTimes(1);
       expect(updateProject).toHaveBeenCalledWith(
         mockProject.id,
         expect.any(Object),
       );
-      expect(defaultProps.onSaved).toHaveBeenCalledWith(updatedProject);
+      expect(defaultProps.onSaved).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: mockProject.id,
+          name: mockProject.name,
+          status_name: 'Active',
+        }),
+      );
       expect(defaultProps.onClose).toHaveBeenCalled();
     });
   });
@@ -156,7 +172,7 @@ describe('ProjectEditDialog', () => {
     expect(updateProject).toHaveBeenCalledTimes(1);
   });
 
-  it('updates status correctly', async () => {
+  it('keeps status out of the PUT when it did not change', async () => {
     const updatedProject = {
       ...mockProject,
       status_id: 2,
@@ -178,10 +194,32 @@ describe('ProjectEditDialog', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(updateProject).toHaveBeenCalledWith(
-        mockProject.id,
-        expect.objectContaining({ status_id: 2 }),
-      );
+      expect(updateProject).toHaveBeenCalledTimes(1);
     });
+    expect((updateProject as jest.Mock).mock.calls[0][1]).not.toHaveProperty(
+      'status_id',
+    );
+    expect(changeProjectStatus).not.toHaveBeenCalled();
+  });
+
+  it('changes status through the status endpoint', async () => {
+    (updateProject as jest.Mock).mockResolvedValueOnce(undefined);
+    (changeProjectStatus as jest.Mock).mockResolvedValueOnce(undefined);
+
+    render(<ProjectEditDialog {...defaultProps} />);
+
+    fireEvent.mouseDown(await screen.findByRole('combobox'));
+    const listbox = await screen.findByRole('listbox');
+    fireEvent.click(within(listbox).getByText('Completed'));
+    fireEvent.click(screen.getByText('Save Changes'));
+
+    await waitFor(() => {
+      expect(changeProjectStatus).toHaveBeenCalledTimes(1);
+    });
+    expect(changeProjectStatus).toHaveBeenCalledWith(mockProject.id, 3);
+    expect(updateProject).toHaveBeenCalledTimes(1);
+    expect(defaultProps.onSaved).toHaveBeenCalledWith(
+      expect.objectContaining({ status_id: 3, status_name: 'Completed' }),
+    );
   });
 });

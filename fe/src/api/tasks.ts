@@ -6,8 +6,9 @@ import {
   TaskFilters,
   TaskFormState,
 } from '../types/task';
-import { Tag } from '../types/tag';
 import { ApiResponse } from '../types/api';
+import { fetchAllPages } from './pagination';
+import { toDateOnlyString } from '../utils/dateUtils';
 
 const serializeTaskFilters = (filters: TaskFilters): string => {
   const queryParams = new URLSearchParams();
@@ -40,11 +41,11 @@ export const getTasks = async (
   signal?: AbortSignal,
 ): Promise<Task[]> => {
   const queryParams = serializeTaskFilters(filters);
-  const response = await api.get<Task[]>(
-    `/tasks${queryParams ? `?${queryParams}` : ''}`,
-    { signal },
-  );
-  return response.data;
+  const url = `/tasks${queryParams ? `?${queryParams}` : ''}`;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Task[]>(url, { params: page, signal });
+    return response.data;
+  });
 };
 
 /**
@@ -149,8 +150,10 @@ export const getProjectTasks = async (
 ): Promise<Task[]> => {
   const queryParams = serializeTaskFilters(filters);
   const url = `/projects/${projectId}/tasks${queryParams ? `?${queryParams}` : ''}`;
-  const response = await api.get<Task[]>(url, { signal });
-  return response.data;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Task[]>(url, { params: page, signal });
+    return response.data;
+  });
 };
 
 /**
@@ -197,14 +200,17 @@ export const getTasksByDateRange = async (
   endDate: Date,
   signal?: AbortSignal,
 ): Promise<Task[]> => {
-  const response = await api.get<Task[]>('/tasks/calendar', {
-    params: {
-      start_date: startDate.toISOString(),
-      end_date: endDate.toISOString(),
-    },
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Task[]>('/tasks/calendar', {
+      params: {
+        start_date: toDateOnlyString(startDate),
+        end_date: toDateOnlyString(endDate),
+        ...page,
+      },
+      signal,
+    });
+    return response.data;
   });
-  return response.data;
 };
 
 /**
@@ -300,17 +306,6 @@ export const getPriorities = async (
 ): Promise<TaskPriority[]> => {
   const response = await api.get<TaskPriority[]>('/tasks/priorities', {
     signal,
-  });
-  return response.data;
-};
-
-// Update task tags
-export const updateTaskTags = async (
-  taskId: number,
-  tags: Tag[],
-): Promise<ApiResponse<void>> => {
-  const response = await api.put<ApiResponse<void>>(`/tasks/${taskId}/tags`, {
-    tags,
   });
   return response.data;
 };

@@ -1,8 +1,19 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React, { useEffect } from 'react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import UserManager from '../UserManager';
 import { getUsers } from '../../../api/users';
 import { User } from '../../../types/user';
+import {
+  LookupsProvider,
+  LookupStore,
+  useLookups,
+} from '../../../context/LookupsContext';
 
 // Mock the API calls
 jest.mock('../../../api/users');
@@ -63,9 +74,16 @@ const mockUsers: User[] = [
   },
 ];
 
+const StoreProbe = ({ onStore }: { onStore: (s: LookupStore) => void }) => {
+  const store = useLookups();
+  useEffect(() => onStore(store), [store, onStore]);
+  return null;
+};
+
 describe('UserManager', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (getUsers as jest.Mock).mockReset();
   });
 
   it('shows loading state initially', () => {
@@ -164,25 +182,56 @@ describe('UserManager', () => {
     expect(screen.queryByTestId('user-dialog')).not.toBeInTheDocument();
   });
 
-  it('refreshes user list when userDeleted event is dispatched', async () => {
+  it('refreshes user list when another screen invalidates users', async () => {
     (getUsers as jest.Mock)
       .mockResolvedValueOnce(mockUsers)
-      .mockResolvedValueOnce([mockUsers[0]]); // After deletion, only first user remains
+      .mockResolvedValueOnce([mockUsers[0]]);
 
-    render(<UserManager />);
+    let store: LookupStore | undefined;
+    render(
+      <LookupsProvider>
+        <StoreProbe
+          onStore={(s) => {
+            store = s;
+          }}
+        />
+        <UserManager />
+      </LookupsProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('user-row')).toHaveLength(2);
+    });
+
+    act(() => store!.invalidate('users'));
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('user-row')).toHaveLength(1);
+    });
+    expect(getUsers).toHaveBeenCalledTimes(2);
+  });
+
+  it('ignores invalidation of unrelated lookups', async () => {
+    (getUsers as jest.Mock).mockResolvedValue(mockUsers);
+
+    let store: LookupStore | undefined;
+    render(
+      <LookupsProvider>
+        <StoreProbe
+          onStore={(s) => {
+            store = s;
+          }}
+        />
+        <UserManager />
+      </LookupsProvider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('user-table')).toBeInTheDocument();
     });
 
-    // Dispatch userDeleted event
-    window.dispatchEvent(
-      new CustomEvent('userDeleted', { detail: { userId: 2 } }),
-    );
+    act(() => store!.invalidate('tags'));
 
-    // Verify that getUsers was called again
-    await waitFor(() => {
-      expect(getUsers).toHaveBeenCalledTimes(2);
-    });
+    expect(getUsers).toHaveBeenCalledTimes(1);
   });
 });

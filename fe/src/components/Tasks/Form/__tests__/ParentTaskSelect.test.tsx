@@ -125,6 +125,23 @@ describe('ParentTaskSelect', () => {
     expect(screen.getByText('Task 2')).toBeInTheDocument();
   });
 
+  it('is disabled when the disabled prop is set', () => {
+    render(
+      <ParentTaskSelect
+        formData={mockFormData}
+        projectTasks={mockTasks}
+        handleChange={mockHandleChange}
+        parentIdFromUrl={null}
+        disabled
+      />,
+    );
+
+    expect(screen.getByLabelText('Parent Task')).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+  });
+
   it('is disabled when parentIdFromUrl is provided', () => {
     render(
       <ParentTaskSelect

@@ -6,7 +6,6 @@ import {
   TaskFormState,
   TaskPriority,
 } from '../../types/task';
-import { Tag } from '../../types/tag';
 import {
   getTasks,
   getTaskById,
@@ -21,7 +20,6 @@ import {
   changeTaskStatus,
   getTaskStatuses,
   getPriorities,
-  updateTaskTags,
 } from '../tasks';
 
 jest.mock('../api');
@@ -69,6 +67,7 @@ describe('Tasks API', () => {
       const result = await getTasks(filters);
 
       expect(mockedApi.get).toHaveBeenCalledWith(`/tasks?status=1&priority=2`, {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockTask]);
@@ -87,6 +86,7 @@ describe('Tasks API', () => {
       await getTasks({ status_id: 0, search: '' });
 
       expect(mockedApi.get).toHaveBeenCalledWith('/tasks?status_id=0', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
     });
@@ -157,25 +157,28 @@ describe('Tasks API', () => {
 
       expect(mockedApi.get).toHaveBeenCalledWith(
         `/projects/${projectId}/tasks?status=1`,
-        { signal: undefined },
+        { params: { limit: 500, offset: 0 }, signal: undefined },
       );
       expect(result).toEqual([mockTask]);
     });
   });
 
   describe('getTasksByDateRange', () => {
-    it('should fetch tasks by date range', async () => {
-      const startDate = new Date('2024-01-01');
-      const endDate = new Date('2024-01-31');
+    it('sends the local calendar dates of the range', async () => {
+      const startDate = new Date(2024, 0, 1, 0, 30);
+      const endDate = new Date(2024, 0, 31, 23, 30);
       mockedApi.get.mockResolvedValueOnce({ data: [mockTask] });
 
       const result = await getTasksByDateRange(startDate, endDate);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/tasks/calendar', {
         params: {
-          start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          start_date: '2024-01-01',
+          end_date: '2024-01-31',
+          limit: 500,
+          offset: 0,
         },
+        signal: undefined,
       });
       expect(result).toEqual([mockTask]);
     });
@@ -220,28 +223,6 @@ describe('Tasks API', () => {
         signal: undefined,
       });
       expect(result).toEqual(mockStatuses);
-    });
-  });
-
-  describe('updateTaskTags', () => {
-    it('should update task tags', async () => {
-      const tags: Tag[] = [
-        {
-          id: 1,
-          name: 'Frontend',
-          color: '#e91e63',
-          description: 'Frontend related tasks',
-          created_by: 1,
-          active: true,
-          created_on: '2024-01-01',
-        },
-      ];
-      mockedApi.put.mockResolvedValueOnce({ data: undefined });
-
-      const result = await updateTaskTags(1, tags);
-
-      expect(mockedApi.put).toHaveBeenCalledWith('/tasks/1/tags', { tags });
-      expect(result).toEqual(undefined);
     });
   });
 

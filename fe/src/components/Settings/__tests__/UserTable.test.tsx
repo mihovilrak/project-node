@@ -253,6 +253,50 @@ describe('UserTable', () => {
     expect(mockOnUserDeleted).not.toHaveBeenCalled();
   });
 
+  test('treats a 404 on delete as already deleted', async () => {
+    (deleteUser as jest.Mock).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 404, data: { error: 'User not found' } },
+    });
+    renderUserTable();
+
+    fireEvent.click(screen.getByTestId('delete-user-1'));
+    fireEvent.click(screen.getByTestId('confirm-delete-button'));
+
+    await waitFor(() => {
+      expect(mockOnUserDeleted).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryByTestId('delete-error')).not.toBeInTheDocument();
+    expect(logger.error).not.toHaveBeenCalled();
+  });
+
+  test('moves back a page when the last page empties', () => {
+    const manyUsers = Array.from({ length: 11 }, (_, i) => ({
+      ...mockUsers[1],
+      id: i + 1,
+      login: `user${i + 1}`,
+    }));
+    const { rerender } = render(
+      <UserTable
+        users={manyUsers}
+        onEditUser={mockOnEditUser}
+        onUserDeleted={mockOnUserDeleted}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+    expect(screen.getByText('user11')).toBeInTheDocument();
+
+    rerender(
+      <UserTable
+        users={manyUsers.slice(0, 10)}
+        onEditUser={mockOnEditUser}
+        onUserDeleted={mockOnUserDeleted}
+      />,
+    );
+    expect(screen.getByText('user1')).toBeInTheDocument();
+    expect(screen.getByText('user10')).toBeInTheDocument();
+  });
+
   test('shows loading state while deleting', async () => {
     (deleteUser as jest.Mock).mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 100)),

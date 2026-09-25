@@ -17,7 +17,6 @@ jest.mock('../useTimeLogData', () => ({
     users: mockUsers,
     activityTypes: mockActivityTypes,
     isLoading: false,
-    handleProjectSelect: jest.fn(),
   }),
 }));
 

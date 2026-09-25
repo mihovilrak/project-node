@@ -8,14 +8,22 @@ import { TaskFormState } from '../../types/task';
  *
  * @param root0 Object containing projects array, current form data, change
  *   handler callback, and optional query parameter project ID to disable
- *   selection.
+ *   selection, plus `disabled` to lock the project (it cannot change after
+ *   creation).
  */
 export const ProjectSelect: React.FC<{
   projects: Project[];
   formData: TaskFormState;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   projectIdFromQuery?: string | null;
-}> = ({ projects, formData, handleChange, projectIdFromQuery }) => {
+  disabled?: boolean;
+}> = ({
+  projects,
+  formData,
+  handleChange,
+  projectIdFromQuery,
+  disabled = false,
+}) => {
   // Ensure value is a number or empty string for proper display
   const selectValue =
     formData.project_id !== null && formData.project_id !== undefined
@@ -32,7 +40,7 @@ export const ProjectSelect: React.FC<{
       onChange={handleChange}
       required
       sx={{ mb: 2 }}
-      disabled={!!projectIdFromQuery}
+      disabled={disabled || !!projectIdFromQuery}
       data-testid="ProjectSelectFormControl"
       placeholder={formData.project_id ? undefined : 'Select a project'}
     >

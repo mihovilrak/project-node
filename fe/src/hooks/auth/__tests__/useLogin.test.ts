@@ -4,8 +4,10 @@ import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // Mock dependencies
+let mockSearch = '';
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
+  useSearchParams: () => [new URLSearchParams(mockSearch)],
 }));
 
 jest.mock('../../../context/AuthContext', () => ({
@@ -19,6 +21,7 @@ describe('useLogin', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
+    mockSearch = '';
 
     // Setup mocks
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
@@ -70,8 +73,27 @@ describe('useLogin', () => {
     });
 
     expect(mockLogin).toHaveBeenCalledWith('testuser', 'password123');
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     expect(result.current.error).toBe('');
+  });
+
+  it.each([
+    ['/tasks/5?view=list', '/tasks/5?view=list'],
+    ['https://evil.example', '/'],
+    ['//evil.example', '/'],
+    ['/\\evil.example', '/'],
+  ])('redirects to next=%s as %s after login', async (next, expected) => {
+    mockSearch = `next=${encodeURIComponent(next)}`;
+    mockLogin.mockResolvedValueOnce(true);
+    const { result } = renderHook(() => useLogin());
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent<HTMLFormElement>);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(expected, { replace: true });
   });
 
   it('should set error message on login failure', async () => {

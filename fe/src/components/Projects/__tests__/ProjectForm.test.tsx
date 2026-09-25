@@ -7,9 +7,9 @@ import {
   addProjectMember,
   getProjects,
 } from '../../../api/projects';
-import { getUsers } from '../../../api/users';
+import { getUserOptions } from '../../../api/users';
 import { Project } from '../../../types/project';
-import { User } from '../../../types/user';
+import { UserOption } from '../../../types/user';
 import logger from '../../../utils/logger';
 
 // Mock the DatePicker component to make testing easier
@@ -90,19 +90,8 @@ const mockProjects: Project[] = [
   },
 ];
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    login: 'testuser',
-    name: 'Test',
-    surname: 'User',
-    email: 'test@example.com',
-    role_id: 1,
-    status_id: 1,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-  },
+const mockUsers: UserOption[] = [
+  { id: 1, login: 'testuser', name: 'Test', surname: 'User' },
 ];
 
 describe('ProjectForm Component', () => {
@@ -113,7 +102,7 @@ describe('ProjectForm Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getProjects as jest.Mock).mockResolvedValue(mockProjects);
-    (getUsers as jest.Mock).mockResolvedValue(mockUsers);
+    (getUserOptions as jest.Mock).mockResolvedValue(mockUsers);
     (createProject as jest.Mock).mockResolvedValue({ ...mockProjects[0] });
     (addProjectMember as jest.Mock).mockResolvedValue({});
     jest
@@ -133,8 +122,8 @@ describe('ProjectForm Component', () => {
     render(<ProjectForm onSubmit={mockOnSubmit} onClose={mockOnClose} />);
 
     await waitFor(() => {
-      expect(getProjects).toHaveBeenCalled();
-      expect(getUsers).toHaveBeenCalled();
+      expect(getProjects).toHaveBeenCalledTimes(1);
+      expect(getUserOptions).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -235,6 +224,9 @@ describe('ProjectForm Component', () => {
         expect.any(Error),
       );
     });
+    expect(await screen.findByText('API Error')).toBeInTheDocument();
+    expect(addProjectMember).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   // This test is split into two separate tests to isolate the functionality

@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ProjectMembersList from '../ProjectMembersList';
 import { ProjectMember } from '../../../../types/project';
-import {
-  addProjectMember,
-  removeProjectMember,
-} from '../../../../api/projects';
-import { Alert } from '@mui/material';
-
-jest.mock('../../../../api/projects', () => ({
-  addProjectMember: jest.fn(),
-  removeProjectMember: jest.fn(),
-}));
 
 const mockMembers: ProjectMember[] = [
   {
@@ -35,11 +25,9 @@ const mockMembers: ProjectMember[] = [
 ];
 
 const defaultProps = {
-  projectId: 1,
   members: mockMembers,
   canManageMembers: true,
   onMemberRemove: jest.fn(),
-  onMembersChange: jest.fn(),
 };
 
 const renderProjectMembersList = (props = {}) => {
@@ -62,18 +50,6 @@ describe('ProjectMembersList', () => {
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
     expect(screen.getByText('Role: Developer')).toBeInTheDocument();
     expect(screen.getByText('Role: Project Manager')).toBeInTheDocument();
-  });
-
-  test('shows manage members button when canManageMembers is true', () => {
-    renderProjectMembersList();
-
-    expect(screen.getByText('Manage Members')).toBeInTheDocument();
-  });
-
-  test('hides manage members button when canManageMembers is false', () => {
-    renderProjectMembersList({ canManageMembers: false });
-
-    expect(screen.queryByText('Manage Members')).not.toBeInTheDocument();
   });
 
   test('shows empty state when no members', () => {
@@ -104,58 +80,6 @@ describe('ProjectMembersList', () => {
     expect(defaultProps.onMemberRemove).toHaveBeenCalledWith(
       mockMembers[0].user_id,
     );
-  });
-
-  test('opens EditMembersDialog when manage members button is clicked', () => {
-    renderProjectMembersList();
-
-    const manageButton = screen.getByText('Manage Members');
-    fireEvent.click(manageButton);
-
-    expect(screen.getByText('Edit Project Members')).toBeInTheDocument();
-  });
-
-  test('handles member updates successfully', async () => {
-    (addProjectMember as jest.Mock).mockResolvedValue({});
-    (removeProjectMember as jest.Mock).mockResolvedValue({});
-
-    renderProjectMembersList();
-
-    const manageButton = screen.getByText('Manage Members');
-    fireEvent.click(manageButton);
-
-    const saveButton = screen.getByText('Save Changes');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      expect(defaultProps.onMembersChange).toHaveBeenCalled();
-    });
-  });
-
-  test('displays error alert when error state is set', () => {
-    const TestComponent = () => {
-      const [error, setError] = useState('Failed to update project members');
-      return (
-        <>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <ProjectMembersList {...defaultProps} />
-        </>
-      );
-    };
-
-    render(
-      <BrowserRouter>
-        <TestComponent />
-      </BrowserRouter>,
-    );
-
-    expect(
-      screen.getByText('Failed to update project members'),
-    ).toBeInTheDocument();
   });
 
   test('renders member links correctly', () => {

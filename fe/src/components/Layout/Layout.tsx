@@ -28,8 +28,11 @@ const APP_BAR_HEIGHT = 64;
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const { logout, currentUser } = useAuth();
+  const { logout, currentUser, hasPermission } = useAuth();
   const { activeTab } = useNavigation();
+  const isAdmin = hasPermission('Admin');
+  // Users (3) and Settings (4) are admin-only; MUI warns on a value with no tab.
+  const tabValue = isAdmin || activeTab < 3 ? activeTab : false;
   const { mode, toggleTheme } = useTheme();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -50,16 +53,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <AppBar position="fixed">
         <Toolbar>
-          <Tabs
-            value={activeTab}
-            textColor="inherit"
-            indicatorColor="secondary"
-          >
+          <Tabs value={tabValue} textColor="inherit" indicatorColor="secondary">
             <Tab label="Home" component={Link} to="/" />
             <Tab label="Projects" component={Link} to="/projects" />
             <Tab label="Tasks" component={Link} to="/tasks" />
-            <Tab label="Users" component={Link} to="/users" />
-            <Tab label="Settings" component={Link} to="/settings" />
+            {isAdmin && <Tab label="Users" component={Link} to="/users" />}
+            {isAdmin && (
+              <Tab label="Settings" component={Link} to="/settings" />
+            )}
           </Tabs>
           <Box sx={{ flexGrow: 1 }} />
           <Tooltip

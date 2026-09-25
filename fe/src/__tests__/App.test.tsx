@@ -74,8 +74,6 @@ jest.mock('../components/Settings/Settings', () => ({
 jest.mock('../hooks/app/useAppRoutes', () => ({
   useTaskFileWrapper: () => ({
     taskId: 1,
-    handleFileUploaded: jest.fn(),
-    handleFileDeleted: jest.fn(),
   }),
   useTimeLogCalendarWrapper: () => ({
     projectId: 1,
@@ -88,6 +86,12 @@ jest.mock('../hooks/app/useAppRoutes', () => ({
 jest.mock('../context/AuthContext', () => ({
   ...jest.requireActual('../context/AuthContext'),
   useAuth: jest.fn(),
+}));
+
+jest.mock('../context/NotificationsContext', () => ({
+  NotificationsProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
+  useNotificationsContext: () => null,
 }));
 
 describe('App Component', () => {

@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import logger from '../../utils/logger';
 
 interface Props {
   children: ReactNode;
@@ -24,8 +25,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   /**
-   * Log caught errors and their stack traces to the console in non-test
-   * environments.
+   * Log caught errors and their component stack.
    *
    * @param error The error object thrown during rendering in the component
    *   tree.
@@ -33,9 +33,11 @@ class ErrorBoundary extends Component<Props, State> {
    *   component stack trace.
    */
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    if (process.env.NODE_ENV !== 'test') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
-    }
+    logger.error(
+      'ErrorBoundary caught an error:',
+      error,
+      errorInfo.componentStack,
+    );
   }
 
   /**

@@ -50,3 +50,14 @@ export interface AsyncResource<T> {
   setError: Dispatch<SetStateAction<string | null>>;
   refetch: () => Promise<void>;
 }
+
+/**
+ * Render children only while `value` matches `index`; `idPrefix` scopes the
+ * element ids used for aria wiring.
+ */
+export interface TabPanelProps {
+  children?: ReactNode;
+  index: number;
+  value: number;
+  idPrefix?: string;
+}

@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Notification } from '../types/notification';
+import { fetchAllPages } from './pagination';
 
 /**
  * Fetch the current authenticated user's notifications from the server; the
@@ -16,8 +17,13 @@ import { Notification } from '../types/notification';
 export const getNotifications = async (
   signal?: AbortSignal,
 ): Promise<Notification[]> => {
-  const response = await api.get<Notification[]>('/notifications', { signal });
-  return response.data;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Notification[]>('/notifications', {
+      params: page,
+      signal,
+    });
+    return response.data;
+  });
 };
 
 /**

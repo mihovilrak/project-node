@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Box } from '@mui/material';
-import TaskFileSection from './TaskFileSection';
+import TaskFiles from './TaskFiles';
 import WatcherList from '../Watchers/WatcherList';
 import WatcherDialog from '../Watchers/WatcherDialog';
 import { TaskDetailsSidebarProps } from '../../types/task';
@@ -8,11 +8,10 @@ import { TaskDetailsSidebarProps } from '../../types/task';
 const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
   id,
   projectId,
-  files,
   watchers,
   watcherDialogOpen,
-  onFileUploaded,
-  onFileDeleted,
+  canManageWatchers,
+  currentUserId,
   onAddWatcher,
   onRemoveWatcher,
   onWatcherDialogClose,
@@ -20,18 +19,14 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
 }) => (
   <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
     <Box sx={{ mb: 5, p: 3 }}>
-      <TaskFileSection
-        taskId={Number(id)}
-        files={files}
-        onFileUploaded={onFileUploaded}
-        onFileDeleted={onFileDeleted}
-      />
+      <TaskFiles taskId={Number(id)} />
     </Box>
 
     <Box sx={{ p: 3 }}>
       <WatcherList
         watchers={watchers}
-        canManageWatchers={true}
+        canManageWatchers={canManageWatchers}
+        currentUserId={currentUserId}
         onRemoveWatcher={onRemoveWatcher}
         onManageWatchers={onManageWatchers}
       />

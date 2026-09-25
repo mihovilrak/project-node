@@ -1,32 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Task } from '../../types/task';
-import { TaskFile } from '../../types/file';
 import { getTaskById } from '../../api/tasks';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
- * Provide task file management handlers and extract the task ID from route
- * parameters.
+ * Extract the task ID from route parameters for the task files view.
  */
 export const useTaskFileWrapper = () => {
   const { id } = useParams<{ id: string }>();
-  const handleFileUploaded = (file: TaskFile) => {
-    logger.info('File uploaded:', file);
-  };
-
-  const handleFileDeleted = (fileId: number) => {
-    logger.info('File deleted:', fileId);
-  };
-
-  const taskId = id ? parseInt(id) : 0;
-
-  return {
-    taskId,
-    handleFileUploaded,
-    handleFileDeleted,
-  };
+  return { taskId: id ? parseInt(id) : 0 };
 };
 
 /**

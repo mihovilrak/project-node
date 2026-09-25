@@ -12,11 +12,15 @@ import {
   Alert,
   Typography,
 } from '@mui/material';
-import { User } from '../../types/user';
-import { EditMembersDialogProps } from '../../types/project';
-import { getUsers } from '../../api/users';
+import { EditMembersDialogProps, ProjectMember } from '../../types/project';
+import { useLookup } from '../../context/LookupsContext';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
+
+const memberIds = (members: ProjectMember[] | undefined): number[] =>
+  (members || [])
+    .map((m) => m?.user_id)
+    .filter((id): id is number => id !== undefined && id !== null);
 
 const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   open,
@@ -24,35 +28,19 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   currentMembers,
   onSave,
 }) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>(
-    (currentMembers || [])
-      .map((m) => m?.user_id)
-      .filter((id): id is number => id !== undefined && id !== null),
+  const { data: users, error: usersError } = useLookup('users', open);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>(() =>
+    memberIds(currentMembers),
   );
   const [error, setError] = useState<string>('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const fetchedUsers = await getUsers();
-        setUsers(fetchedUsers || []);
-      } catch (error: unknown) {
-        logger.error('Failed to fetch users:', error);
-        setUsers([]);
-        setError(getApiErrorMessage(error, 'Failed to load users'));
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    setSelectedUsers(
-      (currentMembers || [])
-        .map((m) => m?.user_id)
-        .filter((id): id is number => id !== undefined && id !== null),
-    );
-  }, [currentMembers]);
+    if (open) {
+      setSelectedUsers(memberIds(currentMembers));
+      setError('');
+    }
+  }, [open, currentMembers]);
 
   const handleToggleUser = (userId: number) => {
     setSelectedUsers((prev) =>
@@ -63,6 +51,7 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       setError('');
       await onSave(selectedUsers);
@@ -70,6 +59,8 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
     } catch (error: unknown) {
       logger.error('Failed to save members:', error);
       setError(getApiErrorMessage(error, 'Failed to save changes'));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -85,9 +76,9 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
         Edit Project Members
       </DialogTitle>
       <DialogContent>
-        {error && (
+        {(error || usersError) && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {error || usersError}
           </Alert>
         )}
         {users.length === 0 ? (
@@ -116,8 +107,10 @@ const EditMembersDialog: React.FC<EditMembersDialogProps> = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} color="primary">
+        <Button onClick={onClose} disabled={saving}>
+          Cancel
+        </Button>
+        <Button onClick={handleSave} color="primary" disabled={saving}>
           Save Changes
         </Button>
       </DialogActions>

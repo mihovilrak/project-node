@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FixedSizeList as List } from 'react-window';
 import {
@@ -22,9 +22,10 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getUsers, deleteUser, getUserStatuses } from '../../api/users';
-import { getRoles } from '../../api/roles';
 import { usePermission } from '../../hooks/common/usePermission';
-import { User } from '../../types/user';
+import { useAsyncResource } from '../../hooks/common/useAsyncResource';
+import { useLookup, useOnLookupInvalidate } from '../../context/LookupsContext';
+import { User, UserStatus } from '../../types/user';
 import FilterPanel from '../common/FilterPanel';
 import { FilterValues } from '../../types/filterPanel';
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog';
@@ -32,12 +33,13 @@ import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { UserStatusId } from '../../constants/statusIds';
 
+const toNumber = (value: unknown): number | undefined => {
+  if (value == null || value === '') return undefined;
+  const num = Number(value);
+  return Number.isNaN(num) ? undefined : num;
+};
+
 const Users: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [statuses, setStatuses] = useState<{ id: number; name: string }[]>([]);
-  const [roles, setRoles] = useState<{ id: number; name: string }[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>({
     status_id: UserStatusId.Active,
   });
@@ -50,57 +52,40 @@ const Users: React.FC = () => {
   const { hasPermission: canEditUser } = usePermission('Edit users');
   const { hasPermission: canDeleteUser } = usePermission('Delete users');
 
-  const fetchUsers = useCallback(async (currentFilters?: FilterValues) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const statusId = toNumber(filters.status_id);
+  const roleId = toNumber(filters.role_id);
 
+  // Search is applied client-side, so only status/role changes hit the API.
+  const {
+    data: users,
+    loading,
+    error,
+    refetch,
+  } = useAsyncResource<User[]>(
+    async (signal) => {
       const whereParams: Record<string, number> = {};
-      const statusNum =
-        currentFilters?.status_id != null && currentFilters?.status_id !== ''
-          ? Number(currentFilters.status_id)
-          : NaN;
-      if (!Number.isNaN(statusNum)) whereParams.status_id = statusNum;
-      const roleNum =
-        currentFilters?.role_id != null && currentFilters?.role_id !== ''
-          ? Number(currentFilters.role_id)
-          : NaN;
-      if (!Number.isNaN(roleNum)) whereParams.role_id = roleNum;
-      const includeAll =
-        currentFilters?.status_id == null || currentFilters?.status_id === '';
+      if (statusId !== undefined) whereParams.status_id = statusId;
+      if (roleId !== undefined) whereParams.role_id = roleId;
       const userList = await getUsers(
         Object.keys(whereParams).length ? whereParams : undefined,
-        includeAll ? { all: true } : undefined,
+        statusId === undefined ? { all: true } : undefined,
+        signal,
       );
-      setUsers(userList || []);
-    } catch (error: unknown) {
-      logger.error('Failed to fetch users', error);
-      setError(getApiErrorMessage(error, 'Failed to load users'));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return userList || [];
+    },
+    [statusId, roleId],
+    { initialData: [], errorMessage: 'Failed to fetch users' },
+  );
+  const { invalidate } = useOnLookupInvalidate('users', refetch);
 
-  useEffect(() => {
-    fetchUsers(filters);
-  }, [fetchUsers, filters]);
-
-  useEffect(() => {
-    const loadOptions = async () => {
-      try {
-        const [statusesData, rolesData] = await Promise.all([
-          getUserStatuses().catch(() => []),
-          getRoles().catch(() => []),
-        ]);
-        setStatuses(statusesData);
-        setRoles(rolesData);
-      } catch {
-        setStatuses([]);
-        setRoles([]);
-      }
-    };
-    loadOptions();
-  }, []);
+  const { data: statuses, error: statusesError } = useAsyncResource<
+    UserStatus[]
+  >(async (signal) => (await getUserStatuses(signal)) || [], [], {
+    initialData: [],
+    errorMessage: 'Failed to load user statuses',
+  });
+  const { data: roles, error: rolesError } = useLookup('roles');
+  const optionsError = statusesError ?? rolesError;
 
   const handleDeleteClick = (user: User) => {
     setUserToDelete(user);
@@ -114,12 +99,8 @@ const Users: React.FC = () => {
     try {
       setDeleteError(null);
       await deleteUser(userToDelete.id);
-      // Refresh users list from API to ensure consistency
-      await fetchUsers(filters);
-      // Dispatch custom event to notify other components (e.g., UserManager in Settings)
-      window.dispatchEvent(
-        new CustomEvent('userDeleted', { detail: { userId: userToDelete.id } }),
-      );
+      // Refetches this list, Settings > Users and every user picker.
+      invalidate('users');
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (error: unknown) {
@@ -217,6 +198,11 @@ const Users: React.FC = () => {
         options={filterOptions}
         onFilterChange={handleFilterChange}
       />
+      {optionsError && (
+        <Alert severity="warning" sx={{ mt: 2 }} data-testid="options-error">
+          {optionsError}
+        </Alert>
+      )}
 
       <Box marginTop={2} sx={{ width: '100%', maxWidth: 1400 }}>
         {error ? (

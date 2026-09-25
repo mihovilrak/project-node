@@ -12,6 +12,7 @@ import { RoleDialogProps } from '../../types/role';
 import { useRoleDialog } from '../../hooks/setting/useRoleDialog';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { RoleForm } from './RoleForm';
+import { ADMIN_ROLE_NAME } from '../../constants/roles';
 
 const RoleDialog: React.FC<RoleDialogProps> = ({
   open,
@@ -72,6 +73,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({
             groupedPermissions={groupedPermissions}
             onChange={handleChange}
             onPermissionToggle={handlePermissionToggle}
+            isAdminRole={role?.name === ADMIN_ROLE_NAME}
           />
         </DialogContent>
         <DialogActions>

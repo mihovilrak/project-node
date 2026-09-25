@@ -144,4 +144,19 @@ describe('useCalendar', () => {
     expect(getTasksByDateRange).toHaveBeenCalledTimes(2); // Initial call + view change
     expect(result.current.view).toBe('week');
   });
+
+  it('requests the full six-week month grid', async () => {
+    const { result } = renderHook(() => useCalendar());
+
+    await act(async () => {
+      result.current.handleDateChange(new Date(2024, 1, 15));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const [start, end] = (getTasksByDateRange as jest.Mock).mock.calls.at(
+      -1,
+    ) as [Date, Date];
+    expect(start.toDateString()).toBe(new Date(2024, 0, 28).toDateString());
+    expect(end.toDateString()).toBe(new Date(2024, 2, 9).toDateString());
+  });
 });

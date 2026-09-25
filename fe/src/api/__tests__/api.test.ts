@@ -4,17 +4,14 @@ import logger from '../../utils/logger';
 
 // Mock axios with interceptors so api.ts can attach 401 handler
 jest.mock('axios', () => ({
-  create: jest.fn().mockReturnValue({
-    defaults: {
-      baseURL: '/api',
-      withCredentials: true,
-    },
+  create: jest.fn((config: Record<string, unknown>) => ({
+    defaults: config,
     interceptors: {
       response: {
         use: jest.fn(),
       },
     },
-  }),
+  })),
 }));
 
 describe('API Configuration', () => {
@@ -23,6 +20,12 @@ describe('API Configuration', () => {
     expect(api).toBeDefined();
     expect(api.defaults.baseURL).toBe('/api');
     expect(api.defaults.withCredentials).toBe(true);
+  });
+
+  it('sends the CSRF X-Requested-With header on every request', () => {
+    expect(api.defaults.headers).toEqual(
+      expect.objectContaining({ 'X-Requested-With': 'XMLHttpRequest' }),
+    );
   });
 
   it('logs rejected requests once with request context', async () => {
@@ -41,7 +44,7 @@ describe('API Configuration', () => {
   });
 
   it('uses SPA navigation and emits an auth reset event on 401', async () => {
-    window.history.replaceState(null, '', '/tasks');
+    window.history.replaceState(null, '', '/tasks?page=2');
     const replaceState = jest.spyOn(window.history, 'replaceState');
     const dispatchEvent = jest.spyOn(window, 'dispatchEvent');
     const error = Object.assign(new Error('Unauthorized'), {
@@ -51,7 +54,11 @@ describe('API Configuration', () => {
 
     await expect(handleApiError(error)).rejects.toBe(error);
 
-    expect(replaceState).toHaveBeenCalledWith(null, '', '/login');
+    expect(replaceState).toHaveBeenCalledWith(
+      null,
+      '',
+      `/login?next=${encodeURIComponent('/tasks?page=2')}`,
+    );
     expect(dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({ type: AUTH_UNAUTHORIZED_EVENT }),
     );

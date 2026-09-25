@@ -1,13 +1,13 @@
 import { useAsyncResource } from '../common/useAsyncResource';
 import { TaskFile } from '../../types/file';
-import { getTaskFiles, uploadFile, deleteFile } from '../../api/files';
+import { getTaskFiles, deleteFile } from '../../api/files';
 import logger from '../../utils/logger';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 const EMPTY_FILES: TaskFile[] = [];
 
 /**
- * Manage task file uploads, deletions, and retrieval with automatic refetching.
+ * Load a task's files and delete them. Uploads go through useFileUpload.
  *
  * @param taskId String
  */
@@ -15,6 +15,7 @@ export const useTaskFiles = (taskId: string) => {
   const {
     data: files,
     setData: setFiles,
+    error,
     refetch: refreshFiles,
   } = useAsyncResource<TaskFile[]>(
     async (signal) => (await getTaskFiles(Number(taskId), signal)) || [],
@@ -25,27 +26,6 @@ export const useTaskFiles = (taskId: string) => {
       errorMessage: 'Failed to fetch files',
     },
   );
-
-  const handleFileUpload = async (file: File) => {
-    try {
-      if (!taskId) throw new Error('Task ID is required');
-      if (!file) throw new Error('File is required');
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('task_id', taskId);
-
-      const uploadedFile = await uploadFile(Number(taskId), formData);
-      if (!uploadedFile) {
-        throw new Error('Failed to upload file');
-      }
-      await refreshFiles();
-      return uploadedFile;
-    } catch (error: unknown) {
-      logger.error('Failed to upload file:', error);
-      throw new Error(getApiErrorMessage(error, 'Failed to upload file'));
-    }
-  };
 
   const handleFileDelete = async (fileId: number) => {
     try {
@@ -62,7 +42,7 @@ export const useTaskFiles = (taskId: string) => {
 
   return {
     files,
-    handleFileUpload,
+    error,
     handleFileDelete,
     refreshFiles,
   };
