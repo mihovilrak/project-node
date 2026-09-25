@@ -47,6 +47,7 @@ const Calendar: React.FC = () => {
     handleTaskClick,
     handleTimeLogClick,
   } = useCalendar();
+  const viewLabel = view.charAt(0).toUpperCase() + view.slice(1);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -67,7 +68,7 @@ const Calendar: React.FC = () => {
               <Today />
             </IconButton>
             <IconButton
-              aria-label={`Previous ${view}`}
+              aria-label={`Previous ${viewLabel}`}
               onClick={() =>
                 handleDateChange(shiftDate(selectedDate, view, -1))
               }
@@ -75,7 +76,7 @@ const Calendar: React.FC = () => {
               <ChevronLeft />
             </IconButton>
             <IconButton
-              aria-label={`Next ${view}`}
+              aria-label={`Next ${viewLabel}`}
               onClick={() => handleDateChange(shiftDate(selectedDate, view, 1))}
             >
               <ChevronRight />
