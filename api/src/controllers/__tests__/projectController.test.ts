@@ -582,7 +582,7 @@ describe('ProjectController', () => {
     it('should clear the parent when parent_id is null', async () => {
       mockReq.params = { id: '1' };
       mockReq.body = { parent_id: null };
-      (projectModel.updateProject as jest.Mock).mockResolvedValue(1);
+      (projectModel.updateProject as jest.Mock).mockResolvedValue({ id: 1 });
 
       await projectController.updateProject(
         mockReq as any,
@@ -847,7 +847,7 @@ describe('ProjectController', () => {
 
   describe('deleteProjectMember', () => {
     it('should delete a project member successfully', async () => {
-      const mockResult = { success: true };
+      const mockResult = 1;
       mockReq.params = { id: '1' };
       mockReq.body = { userId: '2' };
       (projectModel.deleteProjectMember as jest.Mock).mockResolvedValue(
@@ -866,7 +866,9 @@ describe('ProjectController', () => {
         '2',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockResult);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'Project member removed',
+      });
     });
 
     it('should return 404 when project member not found', async () => {

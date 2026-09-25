@@ -20,9 +20,9 @@ export const getProfile = async (
 /**
  * Update the user profile with new email, name, or surname information.
  *
- * Only the fields present in profileData are written. Returns the updated
- * profile object, the current profile when no field is given, or null if the
- * user does not exist.
+ * Only the fields present in profileData are written. Returns the profile in
+ * the get_profile() shape (as GET /profile), the current profile when no field
+ * is given, or null if the user does not exist.
  *
  * @param pool Database connection pool
  * @param userId The ID of the user whose profile is being updated
@@ -46,11 +46,10 @@ export const updateProfile = async (
   const result = await pool.query(
     `UPDATE users
      SET ${assignments.setClause}
-     WHERE id = $${assignments.nextIndex}
-     RETURNING ${PROFILE_COLUMNS}`,
+     WHERE id = $${assignments.nextIndex}`,
     [...assignments.values, userId],
   );
-  return result.rows[0] || null;
+  return result.rowCount ? getProfile(pool, userId) : null;
 };
 
 /**

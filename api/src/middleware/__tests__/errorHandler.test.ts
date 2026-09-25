@@ -83,6 +83,18 @@ describe('ErrorHandler Middleware', () => {
   });
 
   it.each([
+    ['LIMIT_FILE_SIZE', 413, 'File too large'],
+    ['LIMIT_UNEXPECTED_FILE', 400, 'Unexpected field'],
+  ])('maps multer error %s to %i', (code, status, message) => {
+    process.env.NODE_ENV = 'production';
+
+    handle({ name: 'MulterError', message, code });
+
+    expect(mockRes.status).toHaveBeenCalledWith(status);
+    expect(mockRes.json).toHaveBeenCalledWith({ error: message });
+  });
+
+  it.each([
     ['23505', 409, 'Resource already exists'],
     ['23503', 404, 'Referenced resource not found'],
     ['P0002', 404, 'Resource not found'],

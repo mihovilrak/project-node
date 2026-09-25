@@ -161,7 +161,7 @@ describe('Project CRUD Operations', () => {
         .send(updateData);
 
       expect(response.status).toBe(200);
-      // API returns row count; verify update by fetching project
+      expect(response.body).toMatchObject({ id: projectId, ...updateData });
       const getResponse = await request(app)
         .get(`/api/projects/${projectId}`)
         .set('Cookie', authCookies);
