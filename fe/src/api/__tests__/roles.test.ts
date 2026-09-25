@@ -50,14 +50,13 @@ describe('Roles API', () => {
     };
 
     it('should create role successfully', async () => {
-      mockedApi.post.mockResolvedValueOnce({
-        data: { ...mockRole, ...newRole },
-      });
+      const created = { message: 'Role created successfully', id: 5 };
+      mockedApi.post.mockResolvedValueOnce({ data: created });
 
       const result = await createRole(newRole);
 
       expect(mockedApi.post).toHaveBeenCalledWith('/roles', newRole);
-      expect(result).toEqual({ ...mockRole, ...newRole });
+      expect(result).toEqual(created);
     });
 
     it('should throw error when creation fails', async () => {

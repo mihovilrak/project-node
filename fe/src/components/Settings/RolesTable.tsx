@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { RolesTableProps } from '../../types/role';
+import { ADMIN_ROLE_NAME } from '../../constants/roles';
 
 const RolesTable: React.FC<RolesTableProps> = ({
   roles,
@@ -83,7 +84,7 @@ const RolesTable: React.FC<RolesTableProps> = ({
                     size="small"
                     color="error"
                     aria-label="Delete role"
-                    disabled={!canManage}
+                    disabled={!canManage || role.name === ADMIN_ROLE_NAME}
                   >
                     <DeleteIcon />
                   </IconButton>

@@ -95,4 +95,13 @@ describe('RolesTable', () => {
     expect(screen.queryByRole('row')).toBeTruthy();
     expect(screen.getAllByRole('row')).toHaveLength(1); // Only header row
   });
+
+  it('disables delete for the Admin role only', () => {
+    render(<RolesTable {...defaultProps} onDelete={jest.fn()} />);
+    const [adminDelete, userDelete] = screen.getAllByRole('button', {
+      name: 'Delete role',
+    });
+    expect(adminDelete).toBeDisabled();
+    expect(userDelete).toBeEnabled();
+  });
 });

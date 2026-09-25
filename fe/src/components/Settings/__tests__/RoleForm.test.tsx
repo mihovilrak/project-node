@@ -127,4 +127,24 @@ describe('RoleForm', () => {
       categoryTexts.indexOf('projects'),
     );
   });
+
+  it('locks name, active and the Admin permission when editing Admin', () => {
+    render(
+      <RoleForm
+        {...defaultProps}
+        formData={{ ...mockFormData, name: 'Admin' }}
+        groupedPermissions={{
+          ...mockGroupedPermissions,
+          admin: [{ id: 4, name: 'Admin' }],
+        }}
+        isAdminRole
+      />,
+    );
+    expect(screen.getByLabelText(/Name/)).toBeDisabled();
+    expect(screen.getByRole('switch', { name: 'Active' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Admin' })).toBeDisabled();
+    expect(
+      screen.getByRole('checkbox', { name: 'Create Users' }),
+    ).toBeEnabled();
+  });
 });
