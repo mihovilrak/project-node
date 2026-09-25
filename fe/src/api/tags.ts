@@ -38,3 +38,32 @@ export const getTaskTags = async (
   const response = await api.get<Tag[]>(`/tasks/${taskId}/tags`, { signal });
   return response.data;
 };
+
+/**
+ * Add tags to a task and return the task's resulting tags.
+ *
+ * @param taskId Numeric ID of the task.
+ * @param tagIds IDs of the tags to add.
+ */
+export const addTaskTags = async (
+  taskId: number,
+  tagIds: number[],
+): Promise<Tag[]> => {
+  const response = await api.post<Tag[]>(`/tasks/${taskId}/tags`, {
+    tagIds: tagIds.map(Number),
+  });
+  return response.data;
+};
+
+/**
+ * Remove a single tag from a task.
+ *
+ * @param taskId Numeric ID of the task.
+ * @param tagId ID of the tag to remove.
+ */
+export const removeTaskTag = async (
+  taskId: number,
+  tagId: number,
+): Promise<void> => {
+  await api.delete(`/tasks/${taskId}/tags/${tagId}`);
+};

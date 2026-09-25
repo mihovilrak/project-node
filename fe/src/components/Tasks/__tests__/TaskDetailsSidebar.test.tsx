@@ -29,6 +29,7 @@ const defaultProps = {
   projectId: 1,
   watchers: mockWatchers,
   watcherDialogOpen: false,
+  canManageWatchers: true,
   onAddWatcher: jest.fn(),
   onRemoveWatcher: jest.fn(),
   onWatcherDialogClose: jest.fn(),

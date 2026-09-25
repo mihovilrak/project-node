@@ -1,6 +1,6 @@
 import { api } from '../api';
 import { Tag } from '../../types/tag';
-import { getTags, getTaskTags } from '../tags';
+import { addTaskTags, getTags, getTaskTags, removeTaskTag } from '../tags';
 
 // Mock the api module
 jest.mock('../api');
@@ -61,6 +61,29 @@ describe('Tags API', () => {
       mockedApi.get.mockRejectedValueOnce(error);
 
       await expect(getTaskTags(1)).rejects.toThrow(error);
+    });
+  });
+
+  describe('addTaskTags', () => {
+    it('posts integer tag ids and returns the task tags', async () => {
+      mockedApi.post.mockResolvedValueOnce({ data: [mockTag] });
+
+      const result = await addTaskTags(3, [1, '2' as unknown as number]);
+
+      expect(mockedApi.post).toHaveBeenCalledWith('/tasks/3/tags', {
+        tagIds: [1, 2],
+      });
+      expect(result).toEqual([mockTag]);
+    });
+  });
+
+  describe('removeTaskTag', () => {
+    it('deletes the task tag', async () => {
+      mockedApi.delete.mockResolvedValueOnce({ data: {} });
+
+      await removeTaskTag(3, 1);
+
+      expect(mockedApi.delete).toHaveBeenCalledWith('/tasks/3/tags/1');
     });
   });
 });

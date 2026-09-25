@@ -10,6 +10,8 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
   projectId,
   watchers,
   watcherDialogOpen,
+  canManageWatchers,
+  currentUserId,
   onAddWatcher,
   onRemoveWatcher,
   onWatcherDialogClose,
@@ -23,7 +25,8 @@ const TaskDetailsSidebar: React.FC<TaskDetailsSidebarProps> = ({
     <Box sx={{ p: 3 }}>
       <WatcherList
         watchers={watchers}
-        canManageWatchers={true}
+        canManageWatchers={canManageWatchers}
+        currentUserId={currentUserId}
         onRemoveWatcher={onRemoveWatcher}
         onManageWatchers={onManageWatchers}
       />

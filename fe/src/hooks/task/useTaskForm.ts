@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { getTaskById, createTask, updateTask } from '../../api/tasks';
-import { getTaskTags } from '../../api/tags';
+import { addTaskTags, getTaskTags, removeTaskTag } from '../../api/tags';
 import {
   SimpleChangeEvent,
   TaskFormState,
@@ -11,7 +11,9 @@ import {
 import { useProjectSelect } from './useProjectSelect';
 import { useLookup } from '../../context/LookupsContext';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 import {
   TaskPriorityId,
   TaskStatusId,
@@ -36,6 +38,7 @@ export const useTaskForm = ({
   const isEditing = Boolean(taskId);
   const [isLoading, setIsLoading] = useState(isEditing);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const savedTagIds = useRef<number[]>([]);
 
   const [formData, setFormData] = useState<TaskFormState>({
     name: '',
@@ -81,6 +84,7 @@ export const useTaskForm = ({
         if (!taskData) {
           setLoadError('Task not found');
         } else {
+          savedTagIds.current = (taskTags || []).map((tag) => Number(tag.id));
           const formattedStartDate = taskData.start_date
             ? dayjs(taskData.start_date).format('YYYY-MM-DD')
             : null;
@@ -190,10 +194,29 @@ export const useTaskForm = ({
       };
 
       if (isEditing) {
-        // Project and parent are fixed once a task exists.
-        const { project_id: _project, parent_id: _parent, ...updates } =
-          taskData;
-        await updateTask(Number(taskId), updates);
+        // Project and parent are fixed once a task exists; the task PUT
+        // ignores tags, so they are synced through the task tag endpoints.
+        const {
+          project_id: _project,
+          parent_id: _parent,
+          tags,
+          ...updates
+        } = taskData;
+        const id = Number(taskId);
+        await updateTask(id, updates);
+
+        const tagIds = (tags || []).map((tag) => Number(tag.id));
+        const added = tagIds.filter((t) => !savedTagIds.current.includes(t));
+        const removed = savedTagIds.current.filter((t) => !tagIds.includes(t));
+        if (added.length > 0) await addTaskTags(id, added);
+        await Promise.all(
+          removed.map((tagId) =>
+            removeTaskTag(id, tagId).catch((error: unknown) => {
+              if (getApiErrorStatus(error) !== 404) throw error;
+            }),
+          ),
+        );
+        savedTagIds.current = tagIds;
         navigate(`/tasks/${taskId}`);
       } else {
         const newTask = await createTask(taskData);

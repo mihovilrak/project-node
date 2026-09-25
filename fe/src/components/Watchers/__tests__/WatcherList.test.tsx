@@ -69,6 +69,21 @@ describe('WatcherList', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('lets users without manage rights remove only themselves', () => {
+    renderWithRouter(
+      <WatcherList
+        {...defaultProps}
+        canManageWatchers={false}
+        currentUserId={2}
+      />,
+    );
+    const removeButtons = screen.getAllByRole('button', {
+      name: /remove watcher/i,
+    });
+    expect(removeButtons).toHaveLength(1);
+    expect(removeButtons[0]).toHaveAccessibleName('Remove watcher Jane Smith');
+  });
+
   it('renders user links correctly', () => {
     renderWithRouter(<WatcherList {...defaultProps} />);
     const userLinks = screen.getAllByRole('link');

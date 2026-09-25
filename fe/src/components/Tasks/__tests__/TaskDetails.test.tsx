@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import TaskDetails from '../TaskDetails';
 import * as TaskCore from '../../../hooks/task/useTaskCore';
@@ -32,7 +32,11 @@ jest.mock('../TaskDetailsContent', () => ({
 
 jest.mock('../TaskDetailsSidebar', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-details-sidebar" />,
+  default: ({ onAddWatcher }: { onAddWatcher: (userId: number) => void }) => (
+    <div data-testid="task-details-sidebar">
+      <button onClick={() => onAddWatcher(5)}>add watcher</button>
+    </div>
+  ),
 }));
 
 const mockTask: Task = {
@@ -234,5 +238,36 @@ describe('TaskDetails', () => {
     });
   });
 
-  // Add more test cases as needed for other interactions
+  test('shows a watcher error instead of rejecting unhandled', async () => {
+    const setActionError = jest.fn();
+    const handleAddWatcher = jest
+      .fn()
+      .mockRejectedValue(new Error('Permission denied: Edit tasks required'));
+    (TaskCore.useTaskCore as jest.Mock).mockReturnValue({
+      task: mockTask,
+      subtasks: [],
+      statuses: mockStatuses,
+      loading: false,
+      error: null,
+      actionError: null,
+      setActionError,
+      handleDelete: jest.fn(),
+      setSubtasks: jest.fn(),
+    });
+    (TaskWatchers.useTaskWatchers as jest.Mock).mockReturnValue({
+      watchers: [],
+      handleAddWatcher,
+      handleRemoveWatcher: jest.fn(),
+    });
+
+    renderTaskDetails();
+    fireEvent.click(screen.getByText('add watcher'));
+
+    await waitFor(() => {
+      expect(setActionError).toHaveBeenLastCalledWith(
+        'Permission denied: Edit tasks required',
+      );
+    });
+    expect(handleAddWatcher).toHaveBeenCalledWith(5);
+  });
 });
