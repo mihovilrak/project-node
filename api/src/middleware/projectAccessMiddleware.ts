@@ -10,7 +10,7 @@ import {
   isFileProjectMember,
 } from '../models/accessModel';
 
-type IdResolver = (req: CustomRequest) => string | undefined;
+export type IdResolver = (req: CustomRequest) => string | undefined;
 type MembershipCheck = (
   pool: Pool,
   id: string,

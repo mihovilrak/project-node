@@ -53,7 +53,7 @@ const testIdMap: { [key: string]: string } = {
 };
 
 // Extended props to include testMode for testing
-interface ExtendedNotificationCenterProps extends NotificationCenterProps {
+export interface ExtendedNotificationCenterProps extends NotificationCenterProps {
   testMode?: boolean;
 }
 

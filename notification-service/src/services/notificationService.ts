@@ -43,7 +43,7 @@ async function runWithConcurrency<T>(
   }
 }
 
-class NotificationService {
+export class NotificationService {
   private running = false;
 
   /**
