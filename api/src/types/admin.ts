@@ -32,7 +32,7 @@ export interface SystemStats {
   total_time_logged: number;
 }
 
-export interface SystemLog {
+export interface TimeLogReportRow {
   id: number;
   user_id: number;
   user_login: string;
@@ -48,10 +48,10 @@ export interface Permission {
 }
 
 /**
- * Filter system activity logs by date range and activity type.
+ * Filters for the admin time-log report.
  */
-export interface SystemLogQuery {
+export interface TimeLogReportFilters {
   startDate?: string;
   endDate?: string;
-  type?: string;
+  type?: number;
 }

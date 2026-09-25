@@ -34,10 +34,11 @@ describe('ProjectModel', () => {
 
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('FROM projects p');
-      expect(query).toContain('project_details(p.id)');
+      expect(query).toContain('LEFT JOIN project_stats() st');
+      expect(query).not.toContain('project_details');
       expect(query).toContain('status_name');
       expect(query).toContain('created_by_name');
-      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([500, 0]);
+      expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([50, 0]);
       expect(result).toEqual(mockProjects);
     });
 
@@ -52,7 +53,7 @@ describe('ProjectModel', () => {
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
       expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
-        1, 500, 0,
+        1, 50, 0,
       ]);
       expect(result).toEqual(mockProjects);
     });
@@ -71,7 +72,7 @@ describe('ProjectModel', () => {
       const query = (mockPool.query as jest.Mock).mock.calls[0][0];
       expect(query).toContain('p.status_id = $1');
       expect((mockPool.query as jest.Mock).mock.calls[0][1]).toEqual([
-        1, 500, 0,
+        1, 50, 0,
       ]);
       expect(result).toEqual(mockProjects);
     });
@@ -85,7 +86,7 @@ describe('ProjectModel', () => {
 
       const [sql, params] = (mockPool.query as jest.Mock).mock.calls[0];
       expect(sql).toContain('p.id IN (');
-      expect(params).toEqual(['7', 500, 0]);
+      expect(params).toEqual(['7', 50, 0]);
     });
 
     it('leaves the listing unscoped when no user is given', async () => {
@@ -158,6 +159,22 @@ describe('ProjectModel', () => {
         expect.any(Array),
       );
       expect(result).toEqual(mockProject);
+    });
+  });
+
+  describe('wouldCreateCycle', () => {
+    it('should walk the ancestors of the proposed parent', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(
+        mockQueryResult([{ cycle: true }]),
+      );
+
+      const result = await projectModel.wouldCreateCycle(mockPool, '1', 2);
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('WITH RECURSIVE ancestors'),
+        ['1', 2],
+      );
+      expect(result).toBe(true);
     });
   });
 
@@ -297,7 +314,7 @@ describe('ProjectModel', () => {
       expect(query).not.toContain('evil_key');
       // Only status mapped to status_id; project_id, assignee_id, priority_id
       const values = (mockPool.query as jest.Mock).mock.calls[0][1];
-      expect(values).toEqual(['1', null, [1], null, 500, 0]);
+      expect(values).toEqual(['1', null, [1], null, 50, 0]);
     });
   });
 

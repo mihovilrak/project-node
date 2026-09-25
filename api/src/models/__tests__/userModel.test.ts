@@ -168,6 +168,18 @@ describe('UserModel', () => {
     });
   });
 
+  describe('getUserOptions', () => {
+    it('returns active users with picker columns only', async () => {
+      const rows = [{ id: 1, login: 'a', name: 'A', surname: 'B' }];
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult(rows));
+
+      await expect(userModel.getUserOptions(mockPool)).resolves.toEqual(rows);
+      const sql = (mockPool.query as jest.Mock).mock.calls[0][0];
+      expect(sql).toContain('SELECT id, login, name, surname');
+      expect(sql).toContain("user_status_id('active')");
+    });
+  });
+
   describe('updateUser', () => {
     it('should update a user and return the updated user', async () => {
       const mockUser = {
@@ -176,17 +188,23 @@ describe('UserModel', () => {
         name: 'Updated',
         email: 'user1@test.com',
       };
-      (mockPool.query as jest.Mock)
-        .mockResolvedValueOnce({ rowCount: 1 })
-        .mockResolvedValueOnce(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValueOnce(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.updateUser(
         mockPool,
-        { name: 'Updated' },
+        { name: 'Updated', created_on: 'x' },
         '1',
       );
 
-      expect(mockPool.query).toHaveBeenCalledTimes(2);
+      expect(mockPool.query).toHaveBeenCalledTimes(1);
+      const [sql, values] = (mockPool.query as jest.Mock).mock.calls[0];
+      expect(sql).toContain('name = $1');
+      expect(sql).toContain('WHERE id = $2');
+      expect(sql).toContain('RETURNING');
+      expect(sql).not.toContain('created_on =');
+      expect(values).toEqual(['Updated', '1']);
       expect(result).toEqual(mockUser);
     });
 
@@ -197,9 +215,9 @@ describe('UserModel', () => {
         name: 'User 1',
         email: 'user1@test.com',
       };
-      (mockPool.query as jest.Mock)
-        .mockResolvedValueOnce({ rowCount: 1 })
-        .mockResolvedValueOnce(mockQueryResult([mockUser]));
+      (mockPool.query as jest.Mock).mockResolvedValueOnce(
+        mockQueryResult([mockUser]),
+      );
 
       const result = await userModel.updateUser(
         mockPool,
@@ -230,7 +248,7 @@ describe('UserModel', () => {
     });
 
     it('should return null when no row was updated', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValueOnce({ rowCount: 0 });
+      (mockPool.query as jest.Mock).mockResolvedValueOnce(mockQueryResult([]));
 
       const result = await userModel.updateUser(
         mockPool,

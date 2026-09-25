@@ -1,209 +1,187 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
-import * as taskTypeController from '../taskTypeController';
 import * as taskTypeModel from '../../models/taskTypeModel';
+import * as taskTypeController from '../taskTypeController';
+import { AVAILABLE_ICONS } from '../../utils/iconConstants';
 
 jest.mock('../../models/taskTypeModel');
 
 describe('TaskTypeController', () => {
-  let mockReq: any;
-  let mockRes: Partial<Response>;
-  let mockPool: Partial<Pool>;
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  const pool = {} as Pool;
+  const row = { id: 1, name: 'Bug', color: '#FF0000', icon: 'BugReport' };
 
   beforeEach(() => {
-    mockReq = { params: {}, query: {}, body: {} };
-    mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
-    mockPool = {};
     jest.clearAllMocks();
+    req = { params: {}, body: {} };
+    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
   });
 
-  describe('getTaskTypes', () => {
-    it('should return all task types', async () => {
-      const mockTypes = [{ id: '1', name: 'Bug', color: '#FF0000' }];
-      (taskTypeModel.getTaskTypes as jest.Mock).mockResolvedValue(mockTypes);
-      await taskTypeController.getTaskTypes(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.json).toHaveBeenCalledWith(mockTypes);
-    });
+  it('getTaskTypes returns the list', async () => {
+    (taskTypeModel.getTaskTypes as jest.Mock).mockResolvedValue([row]);
+    await taskTypeController.getTaskTypes(
+      req as Request,
+      res as Response,
+      pool,
+    );
+    expect(res.json).toHaveBeenCalledWith([row]);
+  });
 
-    it('should handle errors', async () => {
-      (taskTypeModel.getTaskTypes as jest.Mock).mockRejectedValue(
-        new Error('DB error'),
-      );
-      await taskTypeController.getTaskTypes(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-    });
+  it('propagates model errors', async () => {
+    (taskTypeModel.getTaskTypes as jest.Mock).mockRejectedValue(
+      new Error('db'),
+    );
+    await expect(
+      taskTypeController.getTaskTypes(req as Request, res as Response, pool),
+    ).rejects.toThrow('db');
   });
 
   describe('getTaskTypeById', () => {
-    it('should return a task type', async () => {
-      mockReq.params = { id: '1' };
-      const mockType = { id: '1', name: 'Bug', color: '#FF0000' };
-      (taskTypeModel.getTaskTypeById as jest.Mock).mockResolvedValue(mockType);
+    it('returns the type', async () => {
+      req.params = { id: '1' };
+      (taskTypeModel.getTaskTypeById as jest.Mock).mockResolvedValue(row);
       await taskTypeController.getTaskTypeById(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.json).toHaveBeenCalledWith(mockType);
+      expect(res.json).toHaveBeenCalledWith(row);
     });
 
-    it('should return 404 when not found', async () => {
-      mockReq.params = { id: '999' };
+    it('returns 404 when missing', async () => {
+      req.params = { id: '9' };
       (taskTypeModel.getTaskTypeById as jest.Mock).mockResolvedValue(null);
       await taskTypeController.getTaskTypeById(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(404);
     });
   });
 
   describe('createTaskType', () => {
-    it('should create a task type', async () => {
-      mockReq.body = { name: 'Feature', color: '#00FF00' };
-      const createdType = { id: '2', name: 'Feature', color: '#00FF00' };
-      (taskTypeModel.createTaskType as jest.Mock).mockResolvedValue(
-        createdType,
-      );
+    it('defaults the icon to TaskAlt and active to true', async () => {
+      req.body = { name: 'Bug', color: '#FF0000', description: '' };
+      (taskTypeModel.createTaskType as jest.Mock).mockResolvedValue(row);
       await taskTypeController.createTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(taskTypeModel.createTaskType).toHaveBeenCalledWith(pool, {
+        name: 'Bug',
+        description: null,
+        color: '#FF0000',
+        icon: 'TaskAlt',
+        active: true,
+      });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith(row);
     });
 
-    it('should return 400 when name is missing', async () => {
-      mockReq.body = { color: '#00FF00' };
+    it.each([
+      [{ color: '#FF0000' }],
+      [{ name: 'Bug' }],
+      [{ name: 'Bug', color: 'red' }],
+      [{ name: 'Bug', color: '#FF0000', icon: 'Nope' }],
+    ])('rejects %j with 400', async (body) => {
+      req.body = body;
       await taskTypeController.createTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Name and color are required',
-      });
-    });
-
-    it('should return 400 when color format is invalid', async () => {
-      mockReq.body = { name: 'Feature', color: 'invalid' };
-      await taskTypeController.createTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Invalid color format',
-      });
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(taskTypeModel.createTaskType).not.toHaveBeenCalled();
     });
   });
 
   describe('updateTaskType', () => {
-    it('should update a task type', async () => {
-      mockReq.params = { id: '1' };
-      mockReq.body = { name: 'Updated Bug' };
-      const updatedType = { id: '1', name: 'Updated Bug' };
-      (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(
-        updatedType,
-      );
+    it('forwards only the sent fields', async () => {
+      req.params = { id: '1' };
+      req.body = { color: '#00FF00', active: false };
+      (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(row);
       await taskTypeController.updateTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.json).toHaveBeenCalledWith(updatedType);
-    });
-
-    it('should pass active: false to model when body has active: false', async () => {
-      mockReq.params = { id: '1' };
-      mockReq.body = {
-        name: 'Updated',
-        color: '#000000',
-        icon: 'Task',
+      expect(taskTypeModel.updateTaskType).toHaveBeenCalledWith(pool, '1', {
+        color: '#00FF00',
         active: false,
-      };
-      const updatedType = { id: '1', name: 'Updated', active: false };
-      (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(
-        updatedType,
-      );
-      await taskTypeController.updateTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(taskTypeModel.updateTaskType).toHaveBeenCalledWith(
-        mockPool,
-        '1',
-        'Updated',
-        null,
-        '#000000',
-        'Task',
-        false,
-      );
+      });
+      expect(res.json).toHaveBeenCalledWith(row);
     });
 
-    it('should return 404 when not found', async () => {
-      mockReq.params = { id: '999' };
-      mockReq.body = { name: 'Updated' };
+    it('replaces a cleared icon with the default', async () => {
+      req.params = { id: '1' };
+      req.body = { icon: '' };
+      (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(row);
+      await taskTypeController.updateTaskType(
+        req as Request,
+        res as Response,
+        pool,
+      );
+      expect(taskTypeModel.updateTaskType).toHaveBeenCalledWith(pool, '1', {
+        icon: 'TaskAlt',
+      });
+    });
+
+    it('rejects an invalid color with 400', async () => {
+      req.params = { id: '1' };
+      req.body = { color: 'blue' };
+      await taskTypeController.updateTaskType(
+        req as Request,
+        res as Response,
+        pool,
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(taskTypeModel.updateTaskType).not.toHaveBeenCalled();
+    });
+
+    it('returns 404 when missing', async () => {
+      req.params = { id: '9' };
+      req.body = { name: 'X' };
       (taskTypeModel.updateTaskType as jest.Mock).mockResolvedValue(null);
       await taskTypeController.updateTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-    });
-
-    it('should return 400 when color format is invalid on update', async () => {
-      mockReq.params = { id: '1' };
-      mockReq.body = { name: 'Updated', color: 'rgb(255, 0, 0)' };
-      await taskTypeController.updateTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Invalid color format',
-      });
-      expect(taskTypeModel.updateTaskType).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(404);
     });
   });
 
   describe('deleteTaskType', () => {
-    it('should delete a task type', async () => {
-      mockReq.params = { id: '1' };
-      (taskTypeModel.deleteTaskType as jest.Mock).mockResolvedValue(true);
+    it('deletes the type', async () => {
+      req.params = { id: '1' };
+      (taskTypeModel.deleteTaskType as jest.Mock).mockResolvedValue(row);
       await taskTypeController.deleteTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.json).toHaveBeenCalledWith({
+      expect(res.json).toHaveBeenCalledWith({
         message: 'Task type deleted successfully',
       });
     });
 
-    it('should return 404 when not found', async () => {
-      mockReq.params = { id: '999' };
+    it('returns 404 when missing', async () => {
+      req.params = { id: '9' };
       (taskTypeModel.deleteTaskType as jest.Mock).mockResolvedValue(null);
       await taskTypeController.deleteTaskType(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
+        req as Request,
+        res as Response,
+        pool,
       );
-      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(404);
     });
+  });
+
+  it('getAvailableIcons returns the icon list', () => {
+    taskTypeController.getAvailableIcons(req as Request, res as Response);
+    expect(res.json).toHaveBeenCalledWith(AVAILABLE_ICONS);
   });
 });

@@ -14,6 +14,7 @@ import {
 import { File } from '../../types/file';
 import { CustomRequest } from '../../types/express';
 import { Session, SessionData } from 'express-session';
+import { UPLOADS_DIR } from '../../utils/uploadsDir';
 
 // Mock the dependencies
 jest.mock('../../models/fileModel');
@@ -154,15 +155,13 @@ describe('fileController', () => {
       );
     });
 
-    it('should handle unauthorized user', async () => {
+    it('should reject a request without a session user and remove the blob', async () => {
       mockReq.session = createMockSession(false);
 
-      await uploadFile(mockReq as any, mockRes as Response, mockPool as Pool);
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      await expect(
+        uploadFile(mockReq as any, mockRes as Response, mockPool as Pool),
+      ).rejects.toMatchObject({ status: 401 });
+      expect(fs.unlink).toHaveBeenCalledWith(mockFile.path);
     });
 
     it('should handle missing file', async () => {
@@ -185,6 +184,7 @@ describe('fileController', () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid task ID' });
+      expect(fs.unlink).toHaveBeenCalledWith(mockFile.path);
     });
 
     it('should pass error to next on upload errors', async () => {
@@ -194,6 +194,7 @@ describe('fileController', () => {
       await expect(
         uploadFile(mockReq as any, mockRes as Response, mockPool as Pool),
       ).rejects.toThrow('Upload error');
+      expect(fs.unlink).toHaveBeenCalledWith(mockFile.path);
       expect(mockRes.status).not.toHaveBeenCalledWith(500);
     });
   });
@@ -224,7 +225,6 @@ describe('fileController', () => {
 
     it('should download file successfully', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fsSync.existsSync as jest.Mock).mockReturnValue(true);
 
       await downloadFile(
@@ -234,25 +234,10 @@ describe('fileController', () => {
       );
 
       expect(mockRes.download).toHaveBeenCalledWith(
-        '/path/to/file',
+        mockFile.stored_name,
         mockFile.original_name,
+        { root: UPLOADS_DIR },
       );
-    });
-
-    it('should return 401 when user not authenticated', async () => {
-      mockReq.session = createMockSession(false);
-      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-
-      await downloadFile(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
     });
 
     it('should handle file not found in database', async () => {
@@ -268,25 +253,8 @@ describe('fileController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'File not found' });
     });
 
-    it('should return 403 when user does not have access to file', async () => {
-      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(false);
-
-      await downloadFile(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(403);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Access denied to this file',
-      });
-    });
-
     it('should return 403 when resolved path escapes uploads dir', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (path.relative as jest.Mock).mockReturnValue('../etc/passwd');
 
       await downloadFile(
@@ -301,7 +269,6 @@ describe('fileController', () => {
 
     it('should handle file not found on disk', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fsSync.existsSync as jest.Mock).mockReturnValue(false);
 
       await downloadFile(
@@ -355,7 +322,6 @@ describe('fileController', () => {
 
     it('should delete file successfully', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
       (fs.unlink as jest.Mock).mockResolvedValue(undefined);
 
@@ -374,25 +340,18 @@ describe('fileController', () => {
       });
     });
 
-    it('should return 401 when user not authenticated', async () => {
+    it('should reject a request without a session user', async () => {
       mockReq.session = createMockSession(false);
-      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
 
-      await deleteFile(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(401);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'User not authenticated',
-      });
+      await expect(
+        deleteFile(mockReq as Request, mockRes as Response, mockPool as Pool),
+      ).rejects.toMatchObject({ status: 401 });
       expect(fileModel.deleteFile).not.toHaveBeenCalled();
     });
 
-    it('should handle file not found', async () => {
-      (fileModel.getFileById as jest.Mock).mockResolvedValue(null);
+    it('should return 404 to an administrator when the file is gone', async () => {
+      (hasPermission as jest.Mock).mockResolvedValue(true);
+      (fileModel.deleteFile as jest.Mock).mockResolvedValue(null);
 
       await deleteFile(
         mockReq as Request,
@@ -401,31 +360,11 @@ describe('fileController', () => {
       );
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({ error: 'File not found' });
-      expect(fileModel.deleteFile).not.toHaveBeenCalled();
       expect(fs.unlink).not.toHaveBeenCalled();
-    });
-
-    it('should return 403 when user does not have access to file', async () => {
-      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(false);
-
-      await deleteFile(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(403);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Access denied to this file',
-      });
-      expect(fileModel.deleteFile).not.toHaveBeenCalled();
     });
 
     it('should pass error to next on database deletion error', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fileModel.deleteFile as jest.Mock).mockRejectedValue(
         new Error('Database error'),
       );
@@ -438,7 +377,6 @@ describe('fileController', () => {
 
     it('should return 403 when the file belongs to another user', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fileModel.deleteFile as jest.Mock).mockResolvedValue(null);
 
       await deleteFile(
@@ -453,7 +391,6 @@ describe('fileController', () => {
 
     it('should delete any file for an administrator', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (hasPermission as jest.Mock).mockResolvedValue(true);
       (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
       (fs.unlink as jest.Mock).mockResolvedValue(undefined);
@@ -474,7 +411,6 @@ describe('fileController', () => {
 
     it('should succeed even if file does not exist on disk', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
-      (fileModel.canUserAccessFile as jest.Mock).mockResolvedValue(true);
       (fileModel.deleteFile as jest.Mock).mockResolvedValue(mockFile);
       (fs.unlink as jest.Mock).mockRejectedValue(new Error('File not found'));
 

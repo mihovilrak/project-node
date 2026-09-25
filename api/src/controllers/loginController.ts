@@ -1,5 +1,6 @@
 import { Request, Response, CookieOptions } from 'express';
 import { Pool } from 'pg';
+import * as loginAttemptModel from '../models/loginAttemptModel';
 import * as loginModel from '../models/loginModel';
 import * as permissionModel from '../models/permissionModel';
 import { LoginInput } from '../types/login';
@@ -15,8 +16,9 @@ const MAX_PASSWORD_LENGTH = 1024;
  * maximum length constraints. Authenticates credentials via the database,
  * records the login event, regenerates the session ID to prevent session
  * fixation attacks, and persists the session before responding. Returns a 400
- * status for validation errors, 401 for invalid credentials, 500 for session
- * failures, and 200 with user data and permissions on success.
+ * status for validation errors, 401 for invalid credentials, 429 while the
+ * account is locked after repeated failures, 500 for session failures, and 200
+ * with user data and permissions on success.
  *
  * @param req Express request object containing credentials in the body
  * @param res Express response object for sending authentication results
@@ -54,16 +56,24 @@ export const login = async (
     });
   }
 
-  // Check if the credentials are correct
+  const retryAfter = await loginAttemptModel.getAccountLock(pool, trimmedLogin);
+  if (retryAfter !== null) {
+    res.set('Retry-After', String(retryAfter));
+    return res.status(429).json({
+      error: 'Too many failed login attempts. Please try again later.',
+    });
+  }
+
   const user = await loginModel.login(pool, trimmedLogin, trimmedPassword);
 
   if (!user) {
+    await loginAttemptModel.recordFailedLogin(pool, trimmedLogin);
     return res.status(401).json({
       error: 'Invalid username or password',
     });
   }
 
-  // Log login to table app_logins
+  await loginAttemptModel.clearFailedLogins(pool, trimmedLogin);
   await loginModel.app_logins(pool, user.id);
 
   const permissions = await permissionModel.getUserPermissions(

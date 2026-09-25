@@ -1,32 +1,63 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import {
+  ProjectCreateInput,
   ProjectTaskFilters,
   ProjectUpdateInput,
   ProjectQueryFilters,
 } from '../types/project';
-import { CustomRequest, ProjectRequest } from '../types/express';
+import { CustomRequest } from '../types/express';
 import * as projectModel from '../models/projectModel';
-import { resolveProjectScope } from '../models/accessModel';
+import { isProjectMember, resolveProjectScope } from '../models/accessModel';
+import { hasPermission } from '../models/permissionModel';
 import * as notificationModel from '../models/notificationModel';
 import { NotificationType } from '../types/notification';
-import logger from '../utils/logger';
 import { parsePagination } from '../utils/pagination';
 import { withTransaction } from '../utils/transaction';
+import { parsePositiveInteger } from '../utils/requestParsing';
+import { sessionUserId } from '../utils/sessionUser';
 import { ProjectStatusId } from '../constants/statusIds';
 import { mapProjectQueryFilters } from '../mappers/projectFilters';
 
+const MAX_PROJECT_NAME_LENGTH = 500;
+const MAX_PROJECT_DESCRIPTION_LENGTH = 5000;
+
+type ParentCheck = { ok: true } | { ok: false; status: number; error: string };
+
+// The caller must be able to see the parent, and for an existing project the
+// parent must not be the project itself or one of its descendants.
+const checkParent = async (
+  pool: Pool,
+  req: Request,
+  parentId: number,
+  projectId?: string,
+): Promise<ParentCheck> => {
+  const userId = sessionUserId(req as CustomRequest);
+  if (
+    !(await hasPermission(pool, userId, 'Admin')) &&
+    !(await isProjectMember(pool, String(parentId), userId))
+  ) {
+    return { ok: false, status: 403, error: 'No access to parent project' };
+  }
+  if (
+    projectId !== undefined &&
+    (await projectModel.wouldCreateCycle(pool, projectId, parentId))
+  ) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'A project cannot be its own ancestor',
+    };
+  }
+  return { ok: true };
+};
+
 /**
- * Retrieve all projects accessible to the authenticated user, filtered and
- * paginated according to query parameters.
+ * Retrieve the projects the user can access, filtered and paginated. Defaults
+ * to active projects.
  *
- * Defaults to active projects if no status filter is provided. Scopes results
- * to projects the user can access and applies pagination within the scoped
- * dataset to prevent silently shortened pages. Requires authentication.
- *
- * @param req Request object with optional query filters for status, creator,
- *   parent project, and date ranges
- * @param res Response object to send the projects list or error
+ * @param req Request with optional query filters
+ * @param res Express response
  * @param pool Database connection pool
  */
 export const getProjects = async (
@@ -34,119 +65,67 @@ export const getProjects = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const filters = mapProjectQueryFilters(req.query);
-    if (filters.statusId === undefined) {
-      filters.statusId = ProjectStatusId.Active;
-    }
-
-    const userId = (req as unknown as CustomRequest).session?.user?.id;
-    if (!userId) {
-      res.status(401).json({ error: 'Not authenticated' });
-      return;
-    }
-
-    // Scoped in the query rather than filtered afterwards, so a page is not
-    // silently shortened by rows the user cannot see.
-    const projects = await projectModel.getProjects(
-      pool,
-      filters,
-      parsePagination(req.query),
-      await resolveProjectScope(pool, userId),
-    );
-    res.status(200).json(projects);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching projects');
-    res.status(500).json({ error: 'Internal server error' });
+  const filters = mapProjectQueryFilters(req.query);
+  if (filters.statusId === undefined) {
+    filters.statusId = ProjectStatusId.Active;
   }
+
+  const userId = sessionUserId(req as unknown as CustomRequest);
+  // Scoped in the query rather than filtered afterwards, so a page is not
+  // silently shortened by rows the user cannot see.
+  const projects = await projectModel.getProjects(
+    pool,
+    filters,
+    parsePagination(req.query),
+    await resolveProjectScope(pool, userId),
+  );
+  res.status(200).json(projects);
 };
 
-/**
- * Retrieve a single project by its identifier.
- *
- * @param req Express request object containing the project ID in the URL
- *   parameters
- * @param res Express response object for sending the project data or error
- *   status
- * @param pool Database connection pool for querying project information
- */
+// Get a project by ID
 export const getProjectById = async (
   req: Request<{ id: string }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const project = await projectModel.getProjectById(pool, id);
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' });
-      return;
-    }
-    res.status(200).json(project);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching project by ID');
-    res.status(500).json({ error: 'Internal server error' });
+  const project = await projectModel.getProjectById(pool, req.params.id);
+  if (!project) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
   }
+  res.status(200).json(project);
 };
 
-/**
- * Retrieve comprehensive project details including members, task counts, and
- * metadata by project ID.
- *
- * @param req Request object with project ID in URL parameters
- * @param res Response object to send project details or error status
- * @param pool Database connection pool for executing queries
- */
+// Get project details including members and task counts
 export const getProjectDetails = async (
   req: Request<{ id: string }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const project = await projectModel.getProjectDetails(pool, id);
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' });
-      return;
-    }
-    res.status(200).json(project);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching project details');
-    res.status(500).json({ error: 'Internal server error' });
+  const project = await projectModel.getProjectDetails(pool, req.params.id);
+  if (!project) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
   }
+  res.status(200).json(project);
 };
 
-const MAX_PROJECT_NAME_LENGTH = 500;
-const MAX_PROJECT_DESCRIPTION_LENGTH = 5000;
-
 /**
- * Create a new project with validation for name, description, and optional
- * dates.
+ * Create a project. The name is required; a parent must be a project the user
+ * can access.
  *
- * Requires an authenticated user. The project name is mandatory, must be a
- * non-empty string, and cannot exceed the maximum length limit. Description is
- * optional but cannot exceed the maximum length limit. Start date, due date,
- * and parent project ID are optional. Returns the created project on success
- * with HTTP 201 status.
- *
- * @param req ProjectRequest containing body with name, description, start_date,
- *   due_date, and parent_id, along with authenticated user session
- * @param res Response object for sending project data or error messages
- * @param pool Database connection pool for executing queries
+ * @param req Request with name, description, start_date, due_date and parent_id
+ *   in the body
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const createProject = async (
-  req: ProjectRequest,
+  req: Request<{}, {}, ProjectCreateInput>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
   const { name, description, start_date, due_date, parent_id } = req.body ?? {};
-
-  const created_by = req.session.user?.id;
-
-  if (!created_by) {
-    res.status(401).json({ error: 'User not authenticated' });
-    return;
-  }
+  const createdBy = sessionUserId(req as unknown as CustomRequest);
 
   if (typeof name !== 'string' || !name.trim()) {
     res.status(400).json({
@@ -183,74 +162,69 @@ export const createProject = async (
     return;
   }
 
-  try {
-    const project = await projectModel.createProject(
-      pool,
-      trimmedName,
-      desc,
-      start_date ?? null,
-      due_date ?? null,
-      created_by,
-      parent_id,
-    );
-
-    res.status(201).json(project);
-  } catch (error) {
-    logger.error({ err: error }, 'Error creating project');
-    res.status(500).json({ error: 'Internal server error' });
+  let parentId: number | null = null;
+  if (parent_id !== undefined && parent_id !== null && parent_id !== '') {
+    parentId = parsePositiveInteger(parent_id);
+    if (parentId === null) {
+      res.status(400).json({ error: 'parent_id must be a positive integer' });
+      return;
+    }
+    const check = await checkParent(pool, req as Request, parentId);
+    if (!check.ok) {
+      res.status(check.status).json({ error: check.error });
+      return;
+    }
   }
+
+  const project = await projectModel.createProject(
+    pool,
+    trimmedName,
+    desc,
+    start_date ?? null,
+    due_date ?? null,
+    createdBy,
+    parentId,
+  );
+  res.status(201).json(project);
 };
 
 /**
- * Update a project's status by ID, validating that the status identifier is a
- * positive integer.
+ * Update a project's status. Accepts status_id or status in the body.
  *
- * Accepts status_id or status in the request body, coercing to a number and
- * rejecting values that are not positive integers. Returns 404 if the project
- * is not found, 400 if status validation fails, and 500 on database errors.
- *
- * @param req Request object with project id in params and status_id or status
- *   in body
- * @param res Response object for sending the operation result or error
- * @param pool Database connection pool for executing the status update
+ * @param req Request with project id in params and status_id or status in body
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const changeProjectStatus = async (
   req: Request<{ id: string }, {}, { status_id?: number; status?: number }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  const { id } = req.params;
-  const statusId = Number(req.body.status_id ?? req.body.status);
-  if (!Number.isInteger(statusId) || statusId < 1) {
+  const statusId = parsePositiveInteger(req.body.status_id ?? req.body.status);
+  if (statusId === null) {
     res.status(400).json({ error: 'status_id must be a positive integer' });
     return;
   }
-  try {
-    const result = await projectModel.changeProjectStatus(pool, id, statusId);
-    if (!result) {
-      res.status(404).json({ error: 'Project not found' });
-      return;
-    }
-    res.status(200).json(result);
-  } catch (error) {
-    logger.error({ err: error }, 'Error changing project status');
-    res.status(500).json({ error: 'Internal server error' });
+  const result = await projectModel.changeProjectStatus(
+    pool,
+    req.params.id,
+    statusId,
+  );
+  if (!result) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
   }
+  res.status(200).json(result);
 };
 
 /**
- * Modify project fields and return the updated project, or respond with 404 if
- * not found.
+ * Update project fields. parent_id may be null to detach the project; a new
+ * parent must be accessible and must not create a loop.
  *
- * Coerces parent_id from string to number if provided. Returns 200 with updated
- * project data on success, 404 if the project does not exist, or 500 on server
- * error.
- *
- * @param req Express request with project id in params and ProjectUpdateInput
- *   fields (name, description, start_date, due_date, status, parent_id) in
+ * @param req Request with project id in params and ProjectUpdateInput fields in
  *   body
- * @param res Express response to send the updated project or error
- * @param pool Database connection pool for executing the update query
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const updateProject = async (
   req: Request<{ id: string }, {}, ProjectUpdateInput>,
@@ -258,50 +232,51 @@ export const updateProject = async (
   pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
-  const updates = {
-    ...req.body,
-    parent_id: req.body.parent_id ? Number(req.body.parent_id) : undefined,
-  };
-  try {
-    const result = await projectModel.updateProject(pool, updates, id);
-    if (!result) {
-      res.status(404).json({ error: 'Project not found' });
+  const body = req.body ?? {};
+  let parentId: number | null | undefined;
+  if (body.parent_id === null || body.parent_id === '') {
+    parentId = null;
+  } else if (body.parent_id !== undefined) {
+    parentId = parsePositiveInteger(body.parent_id);
+    if (parentId === null) {
+      res.status(400).json({ error: 'parent_id must be a positive integer' });
       return;
     }
-    res.status(200).json(result);
-  } catch (error) {
-    logger.error({ err: error }, 'Error updating project');
-    res.status(500).json({ error: 'Internal server error' });
+    const check = await checkParent(pool, req as Request, parentId, id);
+    if (!check.ok) {
+      res.status(check.status).json({ error: check.error });
+      return;
+    }
   }
+
+  const result = await projectModel.updateProject(
+    pool,
+    { ...body, parent_id: parentId },
+    id,
+  );
+  if (result === null) {
+    res.status(400).json({ error: 'No valid fields to update' });
+    return;
+  }
+  if (result === 0) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
+  }
+  res.status(200).json(result);
 };
 
-/**
- * Remove a project from the database by its identifier.
- *
- * Returns a 404 response if the project does not exist. Returns a 500 response
- * on internal server errors.
- *
- * @param req Express request with project id in route parameters
- * @param res Express response to send the deletion result or error
- * @param pool Database connection pool for executing the delete operation
- */
+// Delete a project
 export const deleteProject = async (
   req: Request<{ id: string }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  const { id } = req.params;
-  try {
-    const result = await projectModel.deleteProject(pool, id);
-    if (!result) {
-      res.status(404).json({ error: 'Project not found' });
-      return;
-    }
-    res.status(200).json(result);
-  } catch (error) {
-    logger.error({ err: error }, 'Error deleting project');
-    res.status(500).json({ error: 'Internal server error' });
+  const result = await projectModel.deleteProject(pool, req.params.id);
+  if (!result) {
+    res.status(404).json({ error: 'Project not found' });
+    return;
   }
+  res.status(200).json(result);
 };
 
 // Get project members
@@ -310,175 +285,125 @@ export const getProjectMembers = async (
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const members = await projectModel.getProjectMembers(
-      pool,
-      id,
-      parsePagination(req.query),
-    );
-    res.status(200).json(members);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching project members');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const members = await projectModel.getProjectMembers(
+    pool,
+    req.params.id,
+    parsePagination(req.query),
+  );
+  res.status(200).json(members);
 };
 
 /**
- * Add a user to a project and notify all members atomically.
+ * Add a user to a project and, in the same transaction, notify every member
+ * except the actor (the new member included).
  *
- * Membership and notification creation are performed within a single
- * transaction to ensure that a failed notification does not leave a member
- * unannounced. Returns a 404 response if the project or user does not exist.
+ * An existing membership yields 409 and an unknown project or user 404 (via the
+ * error handler).
  *
- * @param req Request object with project id in params and userId in body
- * @param res Response object for sending HTTP responses
+ * @param req Request with project id in params and userId in body
+ * @param res Express response
  * @param pool Database connection pool
  */
 export const addProjectMember = async (
-  req: Request<{ id: string }, {}, { userId: string }>,
+  req: Request<{ id: string }, {}, { userId?: unknown }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
   const { id } = req.params;
-  const { userId } = req.body;
-  try {
-    // Membership and its notifications are one unit of work: a failed
-    // notification must not leave a silently unannounced member behind.
-    const result = await withTransaction(pool, async (client) => {
-      const member = await projectModel.addProjectMember(client, id, userId);
-      if (!member) {
-        return null;
-      }
-      await notificationModel.createProjectMemberNotifications(client, {
-        project_id: parseInt(id),
-        action_user_id: parseInt(userId),
-        type_id: NotificationType.ProjectMemberAdded,
-      });
-      return member;
+  const userId = parsePositiveInteger(req.body?.userId);
+  if (userId === null) {
+    res.status(400).json({ error: 'A numeric userId is required' });
+    return;
+  }
+  const actorId = sessionUserId(req as unknown as CustomRequest);
+
+  const member = await withTransaction(pool, async (client) => {
+    const added = await projectModel.addProjectMember(
+      client,
+      id,
+      String(userId),
+    );
+    await notificationModel.createProjectMemberNotifications(client, {
+      project_id: Number(id),
+      action_user_id: Number(actorId),
+      type: NotificationType.ProjectMemberAdded,
     });
-
-    if (!result) {
-      res.status(404).json({ error: 'Project or user not found' });
-      return;
-    }
-    res.status(201).json(result);
-  } catch (error) {
-    logger.error({ err: error }, 'Error adding project member');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    return added;
+  });
+  res.status(201).json(member);
 };
 
-/**
- * Remove a user from a project's membership list.
- *
- * @param req Express request with project id in params and userId in body
- * @param res Express response object
- * @param pool Database connection pool
- */
+// Remove a user from a project
 export const deleteProjectMember = async (
-  req: Request<{ id: string }, {}, { userId: string }>,
+  req: Request<{ id: string }, {}, { userId?: unknown }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  const { id } = req.params;
-  const { userId } = req.body;
-  try {
-    const result = await projectModel.deleteProjectMember(pool, id, userId);
-    if (!result) {
-      res.status(404).json({ error: 'Project member not found' });
-      return;
-    }
-    res.status(200).json(result);
-  } catch (error) {
-    logger.error({ err: error }, 'Error deleting project member');
-    res.status(500).json({ error: 'Internal server error' });
+  const userId = parsePositiveInteger(req.body?.userId);
+  if (userId === null) {
+    res.status(400).json({ error: 'A numeric userId is required' });
+    return;
   }
+  const result = await projectModel.deleteProjectMember(
+    pool,
+    req.params.id,
+    String(userId),
+  );
+  if (!result) {
+    res.status(404).json({ error: 'Project member not found' });
+    return;
+  }
+  res.status(200).json(result);
 };
 
-/**
- * Retrieve child projects for a given parent project with pagination support.
- *
- * @param req Request object with parent project ID in route parameters
- * @param res Response object for sending subprojects data
- * @param pool Database connection pool
- */
+// Get child projects of a project
 export const getSubprojects = async (
   req: Request<{ id: string }>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const subprojects = await projectModel.getSubprojects(
-      pool,
-      id,
-      parsePagination(req.query),
-    );
-    res.status(200).json(subprojects);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching subprojects');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const subprojects = await projectModel.getSubprojects(
+    pool,
+    req.params.id,
+    parsePagination(req.query),
+  );
+  res.status(200).json(subprojects);
 };
 
 /**
- * Retrieve tasks associated with a project, with optional filtering by status,
- * priority, and assignee.
+ * Retrieve a project's tasks, optionally filtered by status, priority and
+ * assignee, with pagination.
  *
- * Accepts query parameters for status, priority, and assignee to filter
- * results. Supports pagination through query parameters. Returns paginated task
- * results with HTTP 200 on success or HTTP 500 on server error.
- *
- * @param req Express request with project ID in path parameters and optional
- *   query filters for status, priority, assignee, and pagination
- * @param res Express response object for sending task results or error messages
- * @param pool Database connection pool for executing queries
+ * @param req Request with project id in params and optional query filters
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const getProjectTasks = async (
   req: Request<{ id: string }, {}, {}, ProjectTaskFilters>,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const { id: projectId } = req.params;
-    const { status, priority, assignee } = req.query;
+  const { status, priority, assignee } = req.query;
+  const filters: ProjectTaskFilters = {};
+  if (status) filters.status = status;
+  if (priority) filters.priority = priority;
+  if (assignee) filters.assignee = assignee;
 
-    const filters: ProjectTaskFilters = {};
-    if (status) filters.status = status;
-    if (priority) filters.priority = priority;
-    if (assignee) filters.assignee = assignee;
-
-    const tasks = await projectModel.getProjectTasks(
-      pool,
-      projectId,
-      filters,
-      parsePagination(req.query),
-    );
-    res.status(200).json(tasks);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching project tasks');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const tasks = await projectModel.getProjectTasks(
+    pool,
+    req.params.id,
+    filters,
+    parsePagination(req.query),
+  );
+  res.status(200).json(tasks);
 };
 
-/**
- * Retrieve all available project status definitions.
- *
- * @param req Express request object
- * @param res Express response object for sending the status list
- * @param pool Database connection pool for querying project statuses
- */
+// Get all project statuses
 export const getProjectStatuses = async (
   req: Request,
   res: Response,
   pool: Pool,
 ): Promise<void> => {
-  try {
-    const statuses = await projectModel.getProjectStatuses(pool);
-    res.status(200).json(statuses);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching project statuses');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const statuses = await projectModel.getProjectStatuses(pool);
+  res.status(200).json(statuses);
 };

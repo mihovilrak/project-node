@@ -1,10 +1,11 @@
 import { Pool } from 'pg';
-import { Tag, TagCreateInput, TagUpdateInput } from '../types/tag';
+import { Tag, TagUpdateInput } from '../types/tag';
+import { buildUpdateAssignments } from '../utils/sqlUpdate';
+
+export const ALLOWED_TAG_UPDATE_KEYS = ['name', 'color', 'icon'] as const;
 
 /**
  * Retrieve all active tags ordered by name.
- *
- * Returns tags where the active flag is true, sorted alphabetically by name.
  *
  * @param pool Database connection pool for executing the query.
  * @returns Promise resolving to an array of active Tag objects.
@@ -19,11 +20,7 @@ export const getTags = async (pool: Pool): Promise<Tag[]> => {
 };
 
 /**
- * Insert a new tag into the database with the provided name, color, and
- * optional icon.
- *
- * If no icon is specified, defaults to 'Label'. Returns the newly created tag
- * record with all fields including id, timestamps, and active status.
+ * Insert a new tag; the icon defaults to 'Label'.
  *
  * @param pool Database connection pool
  * @param name Tag name
@@ -37,43 +34,40 @@ export const createTag = async (
   color: string,
   icon?: string,
 ): Promise<Tag> => {
-  const defaultIcon = icon || 'Label';
   const result = await pool.query(
     `INSERT INTO tags (name, color, icon)
     VALUES ($1, $2, $3)
     RETURNING *`,
-    [name, color, defaultIcon],
+    [name, color, icon || 'Label'],
   );
   return result.rows[0];
 };
 
-// Add tags to task
+// Attach active tags to a task; unknown or inactive ids are ignored
 export const addTaskTags = async (
   pool: Pool,
   taskId: string,
-  tagIds: string[],
+  tagIds: number[],
 ): Promise<void> => {
   await pool.query(`SELECT add_task_tags($1, $2)`, [taskId, tagIds]);
 };
 
-// Remove tag from task
+// Remove a tag from a task; returns false when the tag was not on the task
 export const removeTaskTag = async (
   pool: Pool,
   taskId: string,
   tagId: string,
-): Promise<void> => {
-  await pool.query(
+): Promise<boolean> => {
+  const result = await pool.query(
     `DELETE FROM task_tags
     WHERE task_id = $1 AND tag_id = $2`,
     [taskId, tagId],
   );
+  return (result.rowCount ?? 0) > 0;
 };
 
 /**
- * Retrieve all active tags associated with a specific task, ordered by name.
- *
- * Returns only tags marked as active. Results are sorted alphabetically by tag
- * name.
+ * Retrieve the active tags of a task, ordered by name.
  *
  * @param pool Database connection pool
  * @param taskId Identifier of the task whose tags are to be retrieved
@@ -94,77 +88,44 @@ export const getTaskTags = async (
 };
 
 /**
- * Update the name, color, or icon of an existing tag.
- *
- * If no fields are specified for update, the existing tag is returned
- * unchanged. The updated_on timestamp is automatically set to the current time
- * when any field is modified.
+ * Update only the provided name, color or icon of a tag.
  *
  * @param pool Database connection pool
  * @param id Identifier of the tag to update
- * @param name New tag name, or undefined to leave unchanged
- * @param color New tag color, or undefined to leave unchanged
- * @param icon New tag icon, or undefined to leave unchanged
- * @returns The updated tag object, or null if no tag with the given id exists
+ * @param updates Validated fields to change
+ * @returns The updated tag, or null if no tag with the given id exists
  */
 export const updateTag = async (
   pool: Pool,
   id: string,
-  name?: string,
-  color?: string,
-  icon?: string,
+  updates: TagUpdateInput,
 ): Promise<Tag | null> => {
-  const updates: string[] = [];
-  const values: unknown[] = [];
-  let paramIndex = 1;
-
-  if (name !== undefined) {
-    updates.push(`name = $${paramIndex}`);
-    values.push(name);
-    paramIndex++;
-  }
-
-  if (color !== undefined) {
-    updates.push(`color = $${paramIndex}`);
-    values.push(color);
-    paramIndex++;
-  }
-
-  if (icon !== undefined) {
-    updates.push(`icon = $${paramIndex}`);
-    values.push(icon);
-    paramIndex++;
-  }
-
-  if (updates.length === 0) {
-    // No updates to make
+  const assignments = buildUpdateAssignments(
+    updates as Record<string, unknown>,
+    ALLOWED_TAG_UPDATE_KEYS,
+  );
+  if (!assignments) {
     const result = await pool.query(`SELECT * FROM tags WHERE id = $1`, [id]);
     return result.rows[0] || null;
   }
 
-  updates.push(`updated_on = CURRENT_TIMESTAMP`);
-  values.push(id);
-
   const result = await pool.query(
     `UPDATE tags
-    SET ${updates.join(', ')}
-    WHERE id = $${paramIndex}
+    SET ${assignments.setClause}
+    WHERE id = $${assignments.nextIndex}
     RETURNING *`,
-    values,
+    [...assignments.values, id],
   );
   return result.rows[0] || null;
 };
 
 /**
- * Mark a tag as inactive and return the updated record or null if not found.
- *
- * Performs a soft delete by setting the active flag to false and updating the
- * timestamp, rather than removing the record from the database.
+ * Soft-delete an active tag.
  *
  * @param pool Database connection pool
  * @param id The tag identifier to delete
- * @returns The deleted tag object with updated fields, or null if the tag does
- *   not exist
+ * @returns The deactivated tag, or null if it does not exist or is already
+ *   inactive
  */
 export const deleteTag = async (
   pool: Pool,
@@ -172,8 +133,8 @@ export const deleteTag = async (
 ): Promise<Tag | null> => {
   const result = await pool.query(
     `UPDATE tags
-    SET (active, updated_on) = (false, CURRENT_TIMESTAMP)
-    WHERE id = $1
+    SET active = false
+    WHERE id = $1 AND active = true
     RETURNING *`,
     [id],
   );

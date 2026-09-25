@@ -116,6 +116,49 @@ describe('task_notifications trigger', () => {
     });
   });
 
+  it('does not notify the acting user set in app.user_id', async () => {
+    await inRollback(appPool, async (client) => {
+      const { creator, task } = await setup(client);
+      await client.query(`select set_config('app.user_id', $1, true)`, [
+        String(creator.id),
+      ]);
+
+      await client.query(
+        `update tasks set assignee_id = $1, status_id = task_status_id('done')
+         where id = $2`,
+        [creator.id, task.id],
+      );
+
+      const { rows } = await client.query(
+        'select count(*)::int from notifications where user_id = $1',
+        [creator.id],
+      );
+      expect(rows[0].count).toBe(0);
+    });
+  });
+
+  it('still notifies others when an actor is set', async () => {
+    await inRollback(appPool, async (client) => {
+      const { creator, assignee, task } = await setup(client);
+      await client.query(`select set_config('app.user_id', $1, true)`, [
+        String(assignee.id),
+      ]);
+
+      await client.query(
+        `update tasks set assignee_id = $1, status_id = task_status_id('done')
+         where id = $2`,
+        [assignee.id, task.id],
+      );
+
+      expect(
+        await notificationsFor(client, assignee.id, 'Task Assigned'),
+      ).toHaveLength(0);
+      expect(
+        await notificationsFor(client, creator.id, 'Task Completed'),
+      ).toHaveLength(1);
+    });
+  });
+
   it('aborts the task update when the notification fails', async () => {
     await inRollback(testPool, async (client) => {
       const { assignee, task } = await setup(client);

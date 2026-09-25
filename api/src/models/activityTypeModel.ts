@@ -1,19 +1,10 @@
 import { Pool } from 'pg';
-import { ActivityType, ActivityTypeUpdateInput } from '../types/activityType';
+import { ActivityType } from '../types/activityType';
+import { LOOKUP_TYPE_KEYS, LookupTypeValues } from '../utils/lookupType';
 import { buildUpdateAssignments } from '../utils/sqlUpdate';
-
-export const ALLOWED_ACTIVITY_TYPE_UPDATE_KEYS = [
-  'name',
-  'description',
-  'color',
-  'icon',
-] as const;
 
 /**
  * Retrieve all active activity types ordered by name.
- *
- * Queries the database for activity types where the active flag is true,
- * returning results sorted alphabetically by name.
  *
  * @param pool Database connection pool for executing the query
  * @returns Promise resolving to an array of active ActivityType records
@@ -28,58 +19,48 @@ export const getActivityTypes = async (pool: Pool): Promise<ActivityType[]> => {
 };
 
 /**
- * Insert a new activity type into the database and return the created record.
+ * Insert a new activity type and return the created record.
  *
  * @param pool Database connection pool
- * @param name The activity type name
- * @param description Optional description of the activity type
- * @param color Hex color code for the activity type
- * @param icon Optional icon identifier for the activity type
- * @returns The newly created ActivityType object with generated id and
- *   timestamps
+ * @param input Validated activity type fields; name and color are required
  */
 export const createActivityType = async (
   pool: Pool,
-  name: string,
-  description: string | null,
-  color: string,
-  icon: string | null,
+  input: {
+    name: string;
+    description: string | null;
+    color: string;
+    icon: string | null;
+    active: boolean;
+  },
 ): Promise<ActivityType> => {
   const result = await pool.query(
     `INSERT INTO activity_types
-    (name, description, color, icon)
-    VALUES ($1, $2, $3, $4)
+    (name, description, color, icon, active)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *`,
-    [name, description, color, icon],
+    [input.name, input.description, input.color, input.icon, input.active],
   );
   return result.rows[0];
 };
 
 /**
- * Update an activity type with specified field changes, returning the modified
- * record or null if not found.
- *
- * Only active activity types can be updated. If no updates are provided,
- * returns the current record. Updates are filtered to allowed fields: name,
- * description, color, icon, and active status. The updated_on timestamp is
- * automatically set to the current time.
+ * Update only the provided fields of an activity type.
  *
  * @param pool Database connection pool
  * @param id Activity type identifier
- * @param updates Object containing fields to update
+ * @param updates Validated fields to change; omitted keys are left untouched
+ * @returns Updated ActivityType or null if not found
  */
 export const updateActivityType = async (
   pool: Pool,
   id: string,
-  updates: ActivityTypeUpdateInput,
+  updates: LookupTypeValues,
 ): Promise<ActivityType | null> => {
-  const assignments = buildUpdateAssignments(
-    updates as Record<string, unknown>,
-    ALLOWED_ACTIVITY_TYPE_UPDATE_KEYS,
-  );
+  const assignments = buildUpdateAssignments(updates, LOOKUP_TYPE_KEYS);
   if (!assignments) {
     const current = await pool.query(
-      `SELECT * FROM activity_types WHERE id = $1 AND active = true`,
+      `SELECT * FROM activity_types WHERE id = $1`,
       [id],
     );
     return current.rows[0] || null;
@@ -87,8 +68,8 @@ export const updateActivityType = async (
 
   const result = await pool.query(
     `UPDATE activity_types
-    SET ${assignments.setClause}, updated_on = CURRENT_TIMESTAMP
-    WHERE id = $${assignments.nextIndex} AND active = true
+    SET ${assignments.setClause}
+    WHERE id = $${assignments.nextIndex}
     RETURNING *`,
     [...assignments.values, id],
   );
@@ -96,15 +77,12 @@ export const updateActivityType = async (
 };
 
 /**
- * Deactivate an activity type by marking it as inactive without removing it
- * from the database.
- *
- * Sets the active flag to false and updates the timestamp. Returns the updated
- * activity type record or null if no matching id exists.
+ * Soft-delete an active activity type.
  *
  * @param pool Database connection pool
  * @param id The activity type identifier to deactivate
- * @returns The deactivated ActivityType object, or null if not found
+ * @returns The deactivated ActivityType, or null if it does not exist or is
+ *   already inactive
  */
 export const deleteActivityType = async (
   pool: Pool,
@@ -112,8 +90,8 @@ export const deleteActivityType = async (
 ): Promise<ActivityType | null> => {
   const result = await pool.query(
     `UPDATE activity_types
-    SET (active, updated_on) = (false, CURRENT_TIMESTAMP)
-    WHERE id = $1
+    SET active = false
+    WHERE id = $1 AND active = true
     RETURNING *`,
     [id],
   );

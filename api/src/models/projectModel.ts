@@ -22,9 +22,9 @@ import {
  * time estimates, and progress, scoped to user accessibility.
  *
  * Results include status_name, created_by_name, estimated_time, spent_time, and
- * progress from the project_details lateral join. When scopeUserId is provided,
- * results are filtered by projects the user can access, preventing pagination
- * issues from post-filtering. Results are ordered by project ID and respect the
+ * progress joined from project_stats(). When scopeUserId is provided, results
+ * are filtered by projects the user can access, preventing pagination issues
+ * from post-filtering. Results are ordered by project ID and respect the
  * provided pagination limits.
  *
  * @param pool Database connection pool
@@ -66,9 +66,14 @@ export const getProjects = async (
     conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
   const page = paginationClause(pagination, values.length + 1);
   const query = `SELECT p.id, p.name, p.description, p.start_date, p.end_date, p.due_date, p.parent_id, p.status_id, p.created_by, p.created_on, p.updated_on,
-    pd.status_name, pd.created_by_name, pd.estimated_time, pd.spent_time, pd.progress
+    ps.name AS status_name, u.name AS created_by_name,
+    COALESCE(st.estimated_time, 0) AS estimated_time,
+    COALESCE(st.spent_time, 0) AS spent_time,
+    COALESCE(st.progress, 0)::numeric AS progress
 FROM projects p
-LEFT JOIN LATERAL (SELECT status_name, created_by_name, estimated_time, spent_time, progress FROM project_details(p.id)) pd ON true${whereClause}
+LEFT JOIN project_statuses ps ON ps.id = p.status_id
+LEFT JOIN users u ON u.id = p.created_by
+LEFT JOIN project_stats() st ON st.project_id = p.id${whereClause}
 ORDER BY p.id
 ${page.clause}`;
 
@@ -122,7 +127,7 @@ export const createProject = async (
   start_date: Date | null,
   due_date: Date | null,
   created_by: string,
-  parent_id?: string,
+  parent_id: number | null = null,
 ): Promise<Project> => {
   const result: QueryResult<Project> = await pool.query(
     `INSERT INTO projects
@@ -156,13 +161,34 @@ export const changeProjectStatus = async (
   return result.rows[0] || null;
 };
 
+// True when making parentId the parent of projectId would close a loop, i.e.
+// projectId is parentId itself or one of its ancestors.
+export const wouldCreateCycle = async (
+  pool: Queryable,
+  projectId: string,
+  parentId: number,
+): Promise<boolean> => {
+  const result = await pool.query(
+    `WITH RECURSIVE ancestors(id) AS (
+      SELECT $2::int
+      UNION
+      SELECT p.parent_id
+      FROM projects p
+      JOIN ancestors a ON p.id = a.id
+      WHERE p.parent_id IS NOT NULL
+    )
+    SELECT EXISTS (SELECT 1 FROM ancestors WHERE id = $1::int) AS cycle`,
+    [projectId, parentId],
+  );
+  return Boolean(result.rows[0]?.cycle);
+};
+
 export const ALLOWED_PROJECT_UPDATE_KEYS = [
   'name',
   'description',
   'start_date',
   'due_date',
   'parent_id',
-  'status_id',
 ] as const;
 
 /**

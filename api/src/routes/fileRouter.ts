@@ -5,7 +5,10 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { Pool } from 'pg';
 import checkPermission from '../middleware/permissionMiddleware';
-import { requireTaskAccessBy } from '../middleware/projectAccessMiddleware';
+import {
+  requireFileAccess,
+  requireTaskAccessBy,
+} from '../middleware/projectAccessMiddleware';
 import * as fileController from '../controllers/fileController';
 import { withPool } from '../utils/withPool';
 import { uploadFileFilter } from '../utils/uploadFilter';
@@ -38,15 +41,17 @@ const upload = multer({
 export default (pool: Pool): Router => {
   const router = Router();
 
-  // Middleware to set taskId from query params
-  router.use((req: any, res, next) => {
-    if (req.query.taskId) {
+  // Mounted under /tasks/:id the task router has already set req.taskId.
+  router.use((req, res, next) => {
+    if (!req.taskId && typeof req.query.taskId === 'string') {
       req.taskId = req.query.taskId;
     }
     next();
   });
 
-  const taskAccess = requireTaskAccessBy(pool, (req) => (req as any).taskId);
+  const fileAccess = requireFileAccess(pool);
+
+  const taskAccess = requireTaskAccessBy(pool, (req) => req.taskId);
 
   // Get task files
   router.get('/', taskAccess, withPool(pool, fileController.getTaskFiles));
@@ -60,12 +65,17 @@ export default (pool: Pool): Router => {
   );
 
   // Download a file
-  router.get('/:fileId/download', withPool(pool, fileController.downloadFile));
+  router.get(
+    '/:fileId/download',
+    fileAccess,
+    withPool(pool, fileController.downloadFile),
+  );
 
   // Delete a file
   router.delete(
     '/:fileId',
     checkPermission(pool, 'Delete files'),
+    fileAccess,
     withPool(pool, fileController.deleteFile),
   );
 

@@ -52,12 +52,13 @@ describe('SettingsController', () => {
       (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await settingsController.getSystemSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        settingsController.getSystemSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -105,12 +106,13 @@ describe('SettingsController', () => {
       (settingsModel.getSystemSettings as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await settingsController.getAppTheme(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        settingsController.getAppTheme(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -134,12 +136,13 @@ describe('SettingsController', () => {
       (settingsModel.updateSystemSettings as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await settingsController.updateSystemSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      await expect(
+        settingsController.updateSystemSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -160,12 +163,13 @@ describe('SettingsController', () => {
 
     it('should return 401 when not authenticated', async () => {
       mockReq.session.user = undefined;
-      await settingsController.getUserSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(401);
+      await expect(
+        settingsController.getUserSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toMatchObject({ status: 401 });
     });
 
     it('should return empty object when no settings', async () => {
@@ -182,15 +186,13 @@ describe('SettingsController', () => {
       (settingsModel.getUserSettings as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await settingsController.getUserSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        settingsController.getUserSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -212,12 +214,13 @@ describe('SettingsController', () => {
     it('should return 401 when not authenticated', async () => {
       mockReq.session.user = undefined;
       mockReq.body = { theme: 'dark' };
-      await settingsController.updateUserSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(401);
+      await expect(
+        settingsController.updateUserSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toMatchObject({ status: 401 });
     });
 
     it('should handle errors', async () => {
@@ -225,15 +228,13 @@ describe('SettingsController', () => {
       (settingsModel.updateUserSettings as jest.Mock).mockRejectedValue(
         new Error('DB error'),
       );
-      await settingsController.updateUserSettings(
-        mockReq,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        settingsController.updateUserSettings(
+          mockReq,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -268,16 +269,13 @@ describe('SettingsController', () => {
         new Error('DB error'),
       );
 
-      await settingsController.getTimezones(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        settingsController.getTimezones(
+          mockReq as Request,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -606,6 +604,78 @@ describe('SettingsController', () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(logger.warn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getWelcomeMessage', () => {
+    it('returns only the welcome message', async () => {
+      (settingsModel.getWelcomeMessage as jest.Mock).mockResolvedValue('Hi');
+
+      await settingsController.getWelcomeMessage(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({ welcome_message: 'Hi' });
+    });
+  });
+
+  describe('settings validation', () => {
+    it.each([
+      [{ app_name: '' }, 'app_name cannot be empty'],
+      [
+        { app_name: 'x'.repeat(256) },
+        'app_name must be at most 255 characters',
+      ],
+      [{ welcome_message: 5 }, expect.stringContaining('welcome_message')],
+      [{ email_enabled: 'yes' }, 'email_enabled must be true or false'],
+      [{ theme: 'neon' }, expect.stringContaining('theme must be one of')],
+    ])('rejects invalid system settings %j', async (body, error) => {
+      mockReq.body = body;
+      await settingsController.updateSystemSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error });
+      expect(settingsModel.updateSystemSettings).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [[1, 2], 'Settings must be an object'],
+      [{ theme: 'neon' }, expect.stringContaining('theme must be one of')],
+      [{ language: 'english' }, expect.stringContaining('language')],
+      [
+        { notifications_enabled: 1 },
+        'notifications_enabled must be true or false',
+      ],
+    ])('rejects invalid user settings %j', async (body, error) => {
+      mockReq.body = body;
+      await settingsController.updateUserSettings(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ error });
+      expect(settingsModel.updateUserSettings).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-string SMTP test address', async () => {
+      mockReq.body = { email: ['a@b.co'] };
+      await settingsController.testSmtpConnection(
+        mockReq,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Invalid email address format',
+      });
     });
   });
 });

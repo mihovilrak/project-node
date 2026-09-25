@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request from '../setup/request';
 import { Express } from 'express';
 import {
   cleanupTables,
@@ -167,11 +167,11 @@ describe('GET /api/files/:fileId/download', () => {
     expect(response.headers['content-disposition']).toContain('note.txt');
   });
 
-  it('returns 404 for a non-existent file', async () => {
+  it('returns 403 for a non-existent file so ids cannot be probed', async () => {
     const response = await request(app)
       .get('/api/files/999999/download')
       .set('Cookie', ownerCookies);
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(403);
   });
 
   it('returns 403 for a user without task access', async () => {

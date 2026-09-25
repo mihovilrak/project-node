@@ -18,6 +18,7 @@ export default (pool: Pool): Router => {
     withPool(pool, settingsController.updateSystemSettings),
   );
   router.get('/app_theme', withPool(pool, settingsController.getAppTheme));
+  router.get('/welcome', withPool(pool, settingsController.getWelcomeMessage));
   router.get('/timezones', withPool(pool, settingsController.getTimezones));
   router.get(
     '/user_settings',

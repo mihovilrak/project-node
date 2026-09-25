@@ -24,6 +24,7 @@ import timeLogRoutes from './routes/timeLogRouter';
 import authMiddleware from './middleware/authMiddleware';
 import sessionMiddleware from './middleware/sessionMiddleware';
 import errorHandler from './middleware/errorHandler';
+import csrfMiddleware from './middleware/csrfMiddleware';
 
 // Create Express app
 const app: Express = express();
@@ -42,6 +43,8 @@ app.use(
 
 // Security headers
 app.use(helmet());
+
+app.use('/api', csrfMiddleware);
 
 // Body parser middleware
 const API_BODY_LIMIT = '1mb';
