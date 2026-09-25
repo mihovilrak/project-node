@@ -5,6 +5,7 @@ import {
   getTasksForDay,
   getTimeLogsForDay,
   hasTimeOfDay,
+  isSameLocalDay,
   sumHours,
 } from '../../utils/calendarUtils';
 
@@ -34,7 +35,11 @@ export const useTasksByHour = (
     ? getTimeLogsForDay(safeTimeLogs, date)
     : safeTimeLogs;
 
-  const isTimed = (task: Task) => hasTimeOfDay(task.start_date);
+  // A timed task only gets an hour slot on the day it starts; on its due/end
+  // day it is listed with the all-day tasks.
+  const isTimed = (task: Task) =>
+    hasTimeOfDay(task.start_date) &&
+    (!date || isSameLocalDay(task.start_date, date));
 
   const allDayTasks = dayTasks.filter((task) => !isTimed(task));
 

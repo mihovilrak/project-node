@@ -149,6 +149,21 @@ describe('useTasksByHour', () => {
     expect(result.current.allDayTasks.map((task) => task.id)).toEqual([3]);
   });
 
+  it('lists a timed task as all-day on its due day, not in its start hour', () => {
+    const spanning: Task = {
+      ...mockTasks[0],
+      id: 4,
+      start_date: new Date(2024, 0, 16, 9).toISOString(),
+      due_date: '2024-01-17',
+    };
+    const { result } = renderHook(() =>
+      useTasksByHour([spanning], [], new Date(2024, 0, 17)),
+    );
+
+    expect(result.current.getTasksForHour(9)).toEqual([]);
+    expect(result.current.allDayTasks.map((task) => task.id)).toEqual([4]);
+  });
+
   it('should handle empty tasks and time logs', () => {
     const { result } = renderHook(() => useTasksByHour([], []));
 
