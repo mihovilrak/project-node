@@ -65,6 +65,7 @@ describe('User Management Flow', () => {
     jest.clearAllMocks();
     // Default mock for getUsers
     mockedUsersApi.getUsers.mockResolvedValue([mockUser]);
+    mockedUsersApi.getUserStatuses.mockResolvedValue([]);
   });
 
   it('should display users list', async () => {
