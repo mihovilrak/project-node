@@ -8,7 +8,12 @@ import { withPool } from '../utils/withPool';
 export default (pool: Pool): Router => {
   const router = Router();
 
-  router.get('/', withPool(pool, userController.getUsers));
+  router.get(
+    '/',
+    checkPermission(pool, 'Admin'),
+    withPool(pool, userController.getUsers),
+  );
+  router.get('/options', withPool(pool, userController.getUserOptions));
   router.get('/statuses', withPool(pool, userController.getUserStatuses));
   router.get('/permissions', withPool(pool, userController.getUserPermissions));
   router.get('/:id', withPool(pool, userController.getUserById));

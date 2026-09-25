@@ -5,12 +5,15 @@ import {
   NotificationWithDetails,
   NotificationCreateInput,
   CreateWatcherNotificationsInput,
+  NotificationType,
 } from '../types/notification';
 import {
   Pagination,
   defaultPagination,
   paginationClause,
 } from '../utils/pagination';
+
+const TYPE_ID_BY_NAME = '(SELECT id FROM notification_types WHERE name = $3)';
 
 /**
  * Retrieve paginated notifications for a user, excluding soft-deleted entries
@@ -45,56 +48,50 @@ export const getNotificationsByUserId = async (
 };
 
 /**
- * Mark all unread active notifications for a user as read with a timestamp.
- *
- * Updates only notifications that are currently unread and active, setting
- * is_read to true and read_on to the current timestamp. Returns the updated
- * notification records.
+ * Mark all unread active notifications of a user as read.
  *
  * @param pool Database connection pool
  * @param user_id User identifier
- * @returns Array of updated notification records
+ * @returns Number of notifications marked as read
  */
 export const markNotificationsAsRead = async (
   pool: Pool,
   user_id: string,
-): Promise<Notification[]> => {
+): Promise<number> => {
   const result = await pool.query(
     `UPDATE notifications
     SET (is_read, read_on) = (true, current_timestamp)
     WHERE user_id = $1
     AND is_read = false
-    AND active = true
-    RETURNING *`,
+    AND active = true`,
     [user_id],
   );
-  return result.rows;
+  return result.rowCount ?? 0;
 };
 
 /**
- * Mark a single notification as read with the current timestamp.
+ * Mark one unread notification of a user as read.
  *
  * @param pool Database connection pool
  * @param id Notification identifier
  * @param user_id User identifier
- * @returns Promise<Notification[]>
+ * @returns 1 if it was marked, 0 if missing, already read or not the user's
  */
 export const markNotificationAsRead = async (
   pool: Pool,
   id: string,
   user_id: string,
-): Promise<Notification[]> => {
+): Promise<number> => {
   const result = await pool.query(
     `UPDATE notifications
     SET (is_read, read_on) = (true, current_timestamp)
     WHERE id = $1
     AND user_id = $2
     AND is_read = false
-    AND active = true
-    RETURNING *`,
+    AND active = true`,
     [id, user_id],
   );
-  return result.rows;
+  return result.rowCount ?? 0;
 };
 
 /**
@@ -121,7 +118,7 @@ export const deleteNotification = async (
     SET active = false
     WHERE id = $1
     AND user_id = $2
-    RETURNING id`,
+    AND active = true`,
     [id, user_id],
   );
   return (result.rowCount ?? 0) > 0;
@@ -140,11 +137,11 @@ export const deleteNotification = async (
  */
 export const createWatcherNotifications = async (
   pool: Queryable,
-  { task_id, action_user_id, type_id }: CreateWatcherNotificationsInput,
+  { task_id, action_user_id, type }: CreateWatcherNotificationsInput,
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `SELECT * FROM create_watcher_notifications($1, $2, $3)`,
-    [task_id, action_user_id, type_id],
+    `SELECT * FROM create_watcher_notifications($1, $2, ${TYPE_ID_BY_NAME})`,
+    [task_id, action_user_id, type],
   );
   return result.rows;
 };
@@ -162,12 +159,12 @@ export const createProjectMemberNotifications = async (
   {
     project_id,
     action_user_id,
-    type_id,
-  }: { project_id: number; action_user_id: number; type_id: number },
+    type,
+  }: { project_id: number; action_user_id: number; type: NotificationType },
 ): Promise<Notification[]> => {
   const result = await pool.query(
-    `SELECT * FROM create_project_member_notifications($1, $2, $3)`,
-    [project_id, action_user_id, type_id],
+    `SELECT * FROM create_project_member_notifications($1, $2, ${TYPE_ID_BY_NAME})`,
+    [project_id, action_user_id, type],
   );
   return result.rows;
 };

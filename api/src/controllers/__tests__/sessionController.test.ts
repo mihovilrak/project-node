@@ -105,8 +105,7 @@ describe('SessionController', () => {
       });
     });
 
-    it('should return 500 on internal error', async () => {
-      // Create a getter that throws an error
+    it('rethrows errors for the error handler', async () => {
       Object.defineProperty(mockReq.session, 'user', {
         get: () => {
           throw new Error('Session error');
@@ -114,16 +113,13 @@ describe('SessionController', () => {
         configurable: true,
       });
 
-      await sessionController.session(
-        mockReq as CustomRequest,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        sessionController.session(
+          mockReq as CustomRequest,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow('Session error');
     });
   });
 });

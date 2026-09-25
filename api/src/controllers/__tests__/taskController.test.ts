@@ -106,7 +106,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasks).toHaveBeenCalledWith(
         mockPool,
         undefined,
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -145,7 +145,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasksByProject).toHaveBeenCalledWith(
         mockPool,
         projectId,
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -184,7 +184,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasks).toHaveBeenCalledWith(
         mockPool,
         { assignee_id: Number(assigneeId) },
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -223,7 +223,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasks).toHaveBeenCalledWith(
         mockPool,
         { holder_id: Number(holderId) },
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -244,7 +244,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasks).toHaveBeenCalledWith(
         mockPool,
         expect.objectContaining({ status_id: [1, 2] }),
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -263,7 +263,7 @@ describe('TaskController', () => {
       expect(taskModel.getTasks).toHaveBeenCalledWith(
         mockPool,
         undefined,
-        { limit: 500, offset: 0 },
+        { limit: 50, offset: 0 },
         '1',
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -274,16 +274,13 @@ describe('TaskController', () => {
         new Error('Database error'),
       );
 
-      await taskController.getTasks(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        taskController.getTasks(
+          mockReq as Request,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 
@@ -333,114 +330,6 @@ describe('TaskController', () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'Task not found' });
-    });
-  });
-
-  describe('getTaskByAssignee', () => {
-    it('should return tasks for a given assignee', async () => {
-      const assigneeId = '123';
-      const mockTasks = [
-        {
-          id: '1',
-          name: 'Test Task',
-          description: 'Test Description',
-          start_date: new Date(),
-          due_date: new Date(),
-          priority_id: '1',
-          status_id: '1',
-          type_id: '1',
-          project_id: '1',
-          holder_id: '1',
-          assignee_id: assigneeId,
-          created_by: '1',
-          created_on: new Date(),
-          updated_on: new Date(),
-        },
-      ];
-      mockReq.query = { assignee_id: assigneeId };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue(mockTasks);
-
-      await taskController.getTaskByAssignee(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, {
-        whereParams: { assignee_id: Number(assigneeId) },
-      });
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
-    });
-
-    it('should return 404 when no tasks are found', async () => {
-      mockReq.query = { assignee_id: '123' };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue([]);
-
-      await taskController.getTaskByAssignee(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'No tasks assigned',
-      });
-    });
-  });
-
-  describe('getTaskByHolder', () => {
-    it('should return tasks for a given holder', async () => {
-      const holderId = '123';
-      const mockTasks = [
-        {
-          id: '1',
-          name: 'Test Task',
-          description: 'Test Description',
-          start_date: new Date(),
-          due_date: new Date(),
-          priority_id: '1',
-          status_id: '1',
-          type_id: '1',
-          project_id: '1',
-          holder_id: holderId,
-          assignee_id: '2',
-          created_by: '1',
-          created_on: new Date(),
-          updated_on: new Date(),
-        },
-      ];
-      mockReq.query = { holder_id: holderId };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue(mockTasks);
-
-      await taskController.getTaskByHolder(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(taskModel.getTasks).toHaveBeenCalledWith(mockPool, {
-        whereParams: { holder_id: Number(holderId) },
-      });
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(mockTasks);
-    });
-
-    it('should return 404 when no tasks are found', async () => {
-      mockReq.query = { holder_id: '123' };
-      (taskModel.getTasks as jest.Mock).mockResolvedValue([]);
-
-      await taskController.getTaskByHolder(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(404);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'No tasks assigned',
-      });
     });
   });
 
@@ -564,6 +453,48 @@ describe('TaskController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(404);
       expect(mockRes.json).toHaveBeenCalledWith({ error: 'Task not found' });
     });
+
+    it('should return 400 when the new holder is not a project member', async () => {
+      mockReq.params = { id: '123' };
+      mockReq.body = { holder_id: 9 };
+      (taskModel.areTaskProjectMembers as jest.Mock).mockResolvedValue(false);
+
+      await taskController.updateTask(
+        mockReq as CustomRequest,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(taskModel.areTaskProjectMembers).toHaveBeenCalledWith(
+        mockPool,
+        '123',
+        [9],
+      );
+      expect(taskModel.updateTask).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+  });
+
+  describe('updateTaskDates', () => {
+    it('should map a date check violation to 400', async () => {
+      mockReq.params = { id: '123' };
+      mockReq.body = { due_date: '2020-01-01' };
+      (taskModel.updateTask as jest.Mock).mockRejectedValue(
+        Object.assign(new Error('check'), { code: '23514' }),
+      );
+
+      await taskController.updateTaskDates(
+        mockReq as CustomRequest,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(taskModel.getTaskById).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Due date must be on or after start date',
+      });
+    });
   });
 
   describe('changeTaskStatus', () => {
@@ -635,7 +566,11 @@ describe('TaskController', () => {
         mockPool as Pool,
       );
 
-      expect(taskModel.deleteTask).toHaveBeenCalledWith(mockPool, taskId);
+      expect(mockClient.query).toHaveBeenCalledWith(
+        `SELECT set_config('app.user_id', $1, true)`,
+        ['1'],
+      );
+      expect(taskModel.deleteTask).toHaveBeenCalledWith(mockClient, taskId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({ success: true });
     });
@@ -646,16 +581,13 @@ describe('TaskController', () => {
         new Error('Database error'),
       );
 
-      await taskController.deleteTask(
-        mockReq as Request,
-        mockRes as Response,
-        mockPool as Pool,
-      );
-
-      expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        error: 'Internal server error',
-      });
+      await expect(
+        taskController.deleteTask(
+          mockReq as Request,
+          mockRes as Response,
+          mockPool as Pool,
+        ),
+      ).rejects.toThrow();
     });
   });
 

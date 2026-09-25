@@ -60,6 +60,13 @@ export interface UserStatus {
   color?: string;
 }
 
+export interface UserOption {
+  id: number;
+  login: string;
+  name: string;
+  surname: string;
+}
+
 export interface UserRole {
   id: number;
   name: string;

@@ -1,14 +1,15 @@
 import { Pool } from 'pg';
-import { SystemStats, SystemLog, Permission } from '../types/admin';
-
-// Check if user is admin
-export const isUserAdmin = async (
-  pool: Pool,
-  userId: string,
-): Promise<boolean> => {
-  const result = await pool.query(`SELECT is_admin($1)`, [userId]);
-  return result.rows[0].is_admin;
-};
+import {
+  SystemStats,
+  TimeLogReportRow,
+  TimeLogReportFilters,
+  Permission,
+} from '../types/admin';
+import {
+  Pagination,
+  defaultPagination,
+  paginationClause,
+} from '../utils/pagination';
 
 /**
  * Retrieve aggregated system statistics including user counts, projects, tasks,
@@ -24,51 +25,43 @@ export const getSystemStats = async (pool: Pool): Promise<SystemStats> => {
 };
 
 /**
- * Retrieve system activity logs with optional filtering by date range and
- * activity type.
+ * Retrieve a page of time logs across all users for the admin report, newest
+ * first.
  *
- * Queries time_logs joined with user and activity type information, ordered by
- * creation date descending. Date parameters default to negative infinity and
- * current time respectively when omitted. Activity type filtering is applied
- * only when the type parameter is provided.
+ * The start date defaults to the earliest log and the end date to now. The
+ * activity type filter applies only when set.
  *
  * @param pool Database connection pool
- * @param startDate ISO timestamp string for log start boundary, or undefined
- *   for earliest logs
- * @param endDate ISO timestamp string for log end boundary, or undefined for
- *   current time
- * @param type Activity type identifier to filter logs, or undefined to include
- *   all types
+ * @param filters Optional date range and activity type filters
+ * @param pagination Page size and offset
  */
-export const getSystemLogs = async (
+export const getTimeLogReport = async (
   pool: Pool,
-  startDate?: string,
-  endDate?: string,
-  type?: string,
-): Promise<SystemLog[]> => {
-  let query = `
-    SELECT tl.*,
-    u.login as user_login,
-    at.name as activity_name
-    FROM time_logs tl
-    JOIN users u ON tl.user_id = u.id
-    JOIN activity_types at ON tl.activity_type_id = at.id
-    WHERE tl.created_on >= COALESCE($1::timestamptz, '-infinity')
-      AND tl.created_on <= COALESCE($2::timestamptz, now())
-  `;
-
+  filters: TimeLogReportFilters = {},
+  pagination: Pagination = defaultPagination(),
+): Promise<TimeLogReportRow[]> => {
   // A bind parameter is never parsed as SQL, so 'NOW()' would reach Postgres as
   // a literal string; the default belongs in the statement instead.
-  const params: (string | null)[] = [startDate ?? null, endDate ?? null];
-
-  if (type) {
-    query += ' AND tl.activity_type_id = $3';
-    params.push(type);
-  }
-
-  query += ' ORDER BY tl.created_on DESC';
-
-  const result = await pool.query(query, params);
+  const params: (string | number | null)[] = [
+    filters.startDate ?? null,
+    filters.endDate ?? null,
+    filters.type ?? null,
+  ];
+  const page = paginationClause(pagination, params.length + 1);
+  const result = await pool.query(
+    `SELECT tl.*,
+       u.login AS user_login,
+       at.name AS activity_name
+     FROM time_logs tl
+     JOIN users u ON tl.user_id = u.id
+     JOIN activity_types at ON tl.activity_type_id = at.id
+     WHERE tl.created_on >= COALESCE($1::timestamptz, '-infinity')
+       AND tl.created_on <= COALESCE($2::timestamptz, now())
+       AND ($3::integer IS NULL OR tl.activity_type_id = $3::integer)
+     ORDER BY tl.created_on DESC, tl.id DESC
+     ${page.clause}`,
+    [...params, ...page.values],
+  );
   return result.rows;
 };
 

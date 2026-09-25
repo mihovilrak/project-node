@@ -3,8 +3,12 @@ import { Pool } from 'pg';
 import nodemailer from 'nodemailer';
 import * as settingsModel from '../models/settingsModel';
 import { CustomRequest } from '../types/express';
-import { SettingsUpdateInput } from '../types/settings';
+import {
+  SettingsUpdateInput,
+  UserSettingsUpdateInput,
+} from '../types/settings';
 import logger from '../utils/logger';
+import { sessionUserId } from '../utils/sessionUser';
 import { buildEmailConfig } from '../config';
 
 // Get System Settings
@@ -12,21 +16,31 @@ export const getSystemSettings = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const settings = await settingsModel.getSystemSettings(pool);
-    res.status(200).json(settings);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+): Promise<void> => {
+  const settings = await settingsModel.getSystemSettings(pool);
+  res.status(200).json(settings);
+};
+
+/**
+ * Returns the welcome message shown on the home page to any signed-in user.
+ *
+ * @param req Express request object
+ * @param res Express response with `{ welcome_message }`
+ * @param pool Database connection pool
+ */
+export const getWelcomeMessage = async (
+  req: Request,
+  res: Response,
+  pool: Pool,
+): Promise<void> => {
+  const welcome_message = await settingsModel.getWelcomeMessage(pool);
+  res.status(200).json({ welcome_message });
 };
 
 /**
  * Retrieve all available timezones with in-memory caching.
  *
- * Results are cached in memory to avoid repeated database queries. On error,
- * returns a 500 status with a generic error message.
+ * Results are cached in memory to avoid repeated database queries.
  *
  * @param req Express request object
  * @param res Express response object for sending the timezone list
@@ -36,14 +50,9 @@ export const getTimezones = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const timezones = await settingsModel.getTimezones(pool);
-    return res.status(200).json(timezones);
-  } catch (error) {
-    logger.error({ err: error });
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+): Promise<void> => {
+  const timezones = await settingsModel.getTimezones(pool);
+  res.status(200).json(timezones);
 };
 
 /**
@@ -61,20 +70,15 @@ export const getAppTheme = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const settings = await settingsModel.getSystemSettings(pool);
-    if (!settings) {
-      return res.status(200).json({ theme: 'light' });
-    }
-    res.status(200).json({ theme: settings.theme || 'light' });
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+): Promise<void> => {
+  const settings = await settingsModel.getSystemSettings(pool);
+  res.status(200).json({ theme: settings?.theme || 'light' });
 };
 
 const LOG_LEVELS = ['error', 'warn', 'info', 'debug'];
+const THEMES = ['light', 'dark', 'system'];
+const MAX_SETTING_LENGTH = 255;
+const MAX_WELCOME_MESSAGE_LENGTH = 20000;
 
 // Fields the admin UI can change that alter how the app behaves at runtime,
 // rather than only how it looks. Kept separate so they can be audit-logged.
@@ -88,22 +92,40 @@ const RUNTIME_KEYS = [
   'sender_email',
 ] as const;
 
-function validateSettings(input: SettingsUpdateInput): string | null {
-  const nonEmpty: (keyof SettingsUpdateInput)[] = [
-    'app_name',
-    'company_name',
-    'sender_email',
-    'time_zone',
-    'app_base_url',
-    'email_host',
-  ];
-  for (const key of nonEmpty) {
+const REQUIRED_STRING_KEYS = [
+  'app_name',
+  'company_name',
+  'sender_email',
+  'time_zone',
+  'app_base_url',
+  'email_host',
+] as const;
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+function validateSettings(input: Record<string, unknown>): string | null {
+  for (const key of REQUIRED_STRING_KEYS) {
     const value = input[key];
-    if (value !== undefined && String(value).trim() === '') {
+    if (value === undefined) continue;
+    if (typeof value !== 'string' || value.trim() === '') {
       return `${key} cannot be empty`;
     }
+    if (value.length > MAX_SETTING_LENGTH) {
+      return `${key} must be at most ${MAX_SETTING_LENGTH} characters`;
+    }
   }
-  if (input.log_level !== undefined && !LOG_LEVELS.includes(input.log_level)) {
+  if (
+    input.welcome_message !== undefined &&
+    (typeof input.welcome_message !== 'string' ||
+      input.welcome_message.length > MAX_WELCOME_MESSAGE_LENGTH)
+  ) {
+    return `welcome_message must be text of at most ${MAX_WELCOME_MESSAGE_LENGTH} characters`;
+  }
+  if (
+    input.log_level !== undefined &&
+    !LOG_LEVELS.includes(input.log_level as string)
+  ) {
     return `log_level must be one of: ${LOG_LEVELS.join(', ')}`;
   }
   if (input.email_port !== undefined) {
@@ -117,11 +139,31 @@ function validateSettings(input: SettingsUpdateInput): string | null {
       return `${key} must be true or false`;
     }
   }
+  if (input.theme !== undefined && !THEMES.includes(input.theme as string)) {
+    return `theme must be one of: ${THEMES.join(', ')}`;
+  }
+  return null;
+}
+
+function validateUserSettings(input: Record<string, unknown>): string | null {
+  if (input.theme !== undefined && !THEMES.includes(input.theme as string)) {
+    return `theme must be one of: ${THEMES.join(', ')}`;
+  }
   if (
-    input.theme !== undefined &&
-    !['light', 'dark', 'system'].includes(input.theme)
+    input.language !== undefined &&
+    (typeof input.language !== 'string' ||
+      !/^[a-z]{2}(-[A-Z]{2})?$/.test(input.language))
   ) {
-    return 'theme must be one of: light, dark, system';
+    return 'language must be a language code such as en or en-US';
+  }
+  for (const key of [
+    'notifications_enabled',
+    'email_notifications_enabled',
+    'email_notifications',
+  ]) {
+    if (input[key] !== undefined && typeof input[key] !== 'boolean') {
+      return `${key} must be true or false`;
+    }
   }
   return null;
 }
@@ -130,10 +172,10 @@ function validateSettings(input: SettingsUpdateInput): string | null {
  * Persist application-wide settings changes to the database while validating
  * input and logging sensitive runtime configuration updates.
  *
- * Validates incoming settings against a schema before persisting. When runtime
- * keys such as SMTP or public base URL are modified, logs the change with actor
- * identity, originating IP address, and before/after values for audit
- * purposes.
+ * Validates incoming settings before persisting and returns 400 on invalid
+ * input. When runtime keys such as SMTP or public base URL are modified, logs
+ * the change with actor identity, originating IP address, and before/after
+ * values for audit purposes.
  *
  * @param req The request object containing user session context and settings
  *   payload in the body
@@ -146,51 +188,48 @@ export const updateSystemSettings = async (
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const input = (req.body ?? {}) as SettingsUpdateInput;
-    const invalid = validateSettings(input);
-    if (invalid) {
-      return res.status(400).json({ error: invalid });
-    }
-
-    const changedRuntimeKeys = RUNTIME_KEYS.filter(
-      (key) => input[key] !== undefined,
-    );
-    if (changedRuntimeKeys.length > 0) {
-      const previous = await settingsModel.getSystemSettings(pool);
-      // Changing SMTP or the public base URL over HTTP has a wide blast radius,
-      // so every write leaves a trail naming the actor and the before/after value.
-      logger.warn(
-        {
-          actor: {
-            id: req.session?.user?.id,
-            login: req.session?.user?.login,
-          },
-          ip: req.ip,
-          changes: changedRuntimeKeys.map((key) => ({
-            key,
-            from: previous?.[key] ?? null,
-            to: input[key],
-          })),
-        },
-        'Runtime settings updated',
-      );
-    }
-
-    const settings = await settingsModel.updateSystemSettings(pool, input);
-    res.status(200).json(settings);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
+  const body = req.body ?? {};
+  if (!isPlainObject(body)) {
+    return res.status(400).json({ error: 'Settings must be an object' });
   }
+  const invalid = validateSettings(body);
+  if (invalid) {
+    return res.status(400).json({ error: invalid });
+  }
+  const input = body as SettingsUpdateInput;
+
+  const changedRuntimeKeys = RUNTIME_KEYS.filter(
+    (key) => input[key] !== undefined,
+  );
+  if (changedRuntimeKeys.length > 0) {
+    const previous = await settingsModel.getSystemSettings(pool);
+    // Changing SMTP or the public base URL over HTTP has a wide blast radius,
+    // so every write leaves a trail naming the actor and the before/after value.
+    logger.warn(
+      {
+        actor: {
+          id: req.session?.user?.id,
+          login: req.session?.user?.login,
+        },
+        ip: req.ip,
+        changes: changedRuntimeKeys.map((key) => ({
+          key,
+          from: previous?.[key] ?? null,
+          to: input[key],
+        })),
+      },
+      'Runtime settings updated',
+    );
+  }
+
+  const settings = await settingsModel.updateSystemSettings(pool, input);
+  res.status(200).json(settings);
 };
 
 /**
  * Retrieve the authenticated user's application settings from the database.
  *
- * Requires an authenticated session; returns an empty object if no settings
- * exist for the user. Responds with 401 if the user is not authenticated or 500
- * on database errors.
+ * Returns an empty object if no settings exist for the user.
  *
  * @param req Express request with session containing authenticated user ID
  * @param res Express response object for sending the settings data
@@ -200,27 +239,20 @@ export const getUserSettings = async (
   req: CustomRequest,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-    const settings = await settingsModel.getUserSettings(pool, userId);
-    res.status(200).json(settings || {});
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
-  }
+): Promise<void> => {
+  const settings = await settingsModel.getUserSettings(
+    pool,
+    sessionUserId(req),
+  );
+  res.status(200).json(settings || {});
 };
 
 /**
  * Update the authenticated user's settings and return the persisted
  * configuration.
  *
- * Requires an authenticated session with a user ID. Omitted fields in the
- * request body fall back to existing values. Returns a 401 error if the user is
- * not authenticated and a 500 error on server failures.
+ * Omitted fields in the request body fall back to existing values. Returns 400
+ * when a value has the wrong type.
  *
  * @param req The HTTP request object with session data containing user
  *   authentication.
@@ -232,21 +264,21 @@ export const updateUserSettings = async (
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const userId = req.session?.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-    const settings = await settingsModel.updateUserSettings(
-      pool,
-      userId,
-      req.body as SettingsUpdateInput,
-    );
-    res.status(200).json(settings);
-  } catch (error) {
-    logger.error({ err: error });
-    res.status(500).json({ error: 'Internal server error' });
+  const userId = sessionUserId(req);
+  const body = req.body ?? {};
+  if (!isPlainObject(body)) {
+    return res.status(400).json({ error: 'Settings must be an object' });
   }
+  const invalid = validateUserSettings(body);
+  if (invalid) {
+    return res.status(400).json({ error: invalid });
+  }
+  const settings = await settingsModel.updateUserSettings(
+    pool,
+    userId,
+    body as UserSettingsUpdateInput,
+  );
+  res.status(200).json(settings);
 };
 
 /**
@@ -267,7 +299,7 @@ export const testSmtpConnection = async (
   pool: Pool,
 ): Promise<Response | void> => {
   try {
-    const { email } = req.body;
+    const email = req.body?.email;
 
     if (!email) {
       return res.status(400).json({
@@ -276,9 +308,12 @@ export const testSmtpConnection = async (
       });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (
+      typeof email !== 'string' ||
+      email.length > MAX_SETTING_LENGTH ||
+      !emailRegex.test(email)
+    ) {
       return res.status(400).json({
         success: false,
         message: 'Invalid email address format',

@@ -28,7 +28,6 @@ alter table notifications add column if not exists email_attempted_on timestampt
 -- same flag, so the two were indistinguishable after the fact.
 alter table notifications add column if not exists archived_on timestamptz null;
 
-create index if not exists notifications_user_idx on notifications(user_id);
 create index if not exists notifications_type_idx on notifications(type_id);
 create index if not exists notifications_created_idx on notifications(created_on);
 create index if not exists notifications_user_active_created_idx on notifications (user_id, active, created_on desc);

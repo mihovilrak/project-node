@@ -53,7 +53,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks(p_active_statuses_only => $1)'),
-        [true, 500, 0],
+        [true, 50, 0],
       );
       expect(result).toEqual(mockTasks);
     });
@@ -72,7 +72,7 @@ describe('TaskModel', () => {
         expect.stringContaining(
           'get_tasks(p_project_ids => $1, p_status_ids => $2)',
         ),
-        [[1], [1], 500, 0],
+        [[1], [1], 50, 0],
       );
       expect(result).toEqual(mockTasks);
     });
@@ -84,7 +84,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks(p_active_statuses_only => $1)'),
-        [true, 500, 0],
+        [true, 50, 0],
       );
       expect(result).toEqual([]);
     });
@@ -104,7 +104,7 @@ describe('TaskModel', () => {
       expect(sql).toContain(
         'get_tasks(p_status_ids => $1, p_priority_ids => $2)',
       );
-      expect(args).toEqual([[1, 2], [2, 3], 500, 0]);
+      expect(args).toEqual([[1, 2], [2, 3], 50, 0]);
       expect(result).toEqual(mockTasks);
     });
   });
@@ -351,7 +351,7 @@ describe('TaskModel', () => {
       expect(sql).toContain('WHERE project_id IN');
       expect(sql).toContain('$2');
       expect(sql).toContain('LIMIT $3 OFFSET $4');
-      expect(params).toEqual([true, '7', 500, 0]);
+      expect(params).toEqual([true, '7', 50, 0]);
     });
 
     it('leaves the query unscoped when no user is given', async () => {
@@ -376,7 +376,7 @@ describe('TaskModel', () => {
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('get_tasks'),
-        ['1', 500, 0],
+        ['1', 50, 0],
       );
       expect(mockPool.query.mock.calls[0][0]).not.toContain('project_users');
       expect(result).toEqual(projectTasks);
@@ -390,7 +390,7 @@ describe('TaskModel', () => {
       const [sql, params] = (mockPool.query as jest.Mock).mock.calls[0];
       expect(sql).toContain('WHERE project_id IN');
       expect(sql).toContain('LIMIT $3 OFFSET $4');
-      expect(params).toEqual(['1', '7', 500, 0]);
+      expect(params).toEqual(['1', '7', 50, 0]);
     });
   });
 

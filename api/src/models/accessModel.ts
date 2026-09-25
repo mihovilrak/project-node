@@ -54,17 +54,6 @@ export const accessibleProjectsSubquery = (userIdIndex: number): string =>
     LEFT JOIN project_users apu ON apu.project_id = ap.id AND apu.user_id = $${userIdIndex}
     WHERE apu.user_id IS NOT NULL OR ap.created_by = $${userIdIndex}`;
 
-export const getAccessibleProjectIds = async (
-  pool: Pool,
-  userId: string,
-): Promise<number[]> => {
-  const result = await pool.query<{ id: number }>(
-    accessibleProjectsSubquery(1),
-    [userId],
-  );
-  return result.rows.map((row) => Number(row.id));
-};
-
 // The user id a list query must scope to, or null when the user is an
 // administrator and sees everything.
 export const resolveProjectScope = async (
@@ -73,29 +62,24 @@ export const resolveProjectScope = async (
 ): Promise<string | null> =>
   (await hasPermission(pool, userId, 'Admin')) ? null : userId;
 
-/**
- * Remove rows for projects the user cannot access, unless the user holds Admin
- * permission.
- *
- * Administrators receive the complete result set unchanged. Non-administrators
- * are filtered to only rows where the project ID matches their accessible
- * projects.
- *
- * @param pool Database connection pool
- * @param userId User identifier to check access permissions for
- * @param rows Array of objects to filter
- * @param projectIdKey Object key containing the project identifier
- */
-export const filterByProjectAccess = async <T extends object>(
+// Is the user a member of the project owning the file? False when the file
+// does not exist, so a guard cannot be used to probe for file ids.
+export const isFileProjectMember = async (
   pool: Pool,
+  fileId: string,
   userId: string,
-  rows: T[],
-  projectIdKey: keyof T,
-): Promise<T[]> => {
-  if (rows.length === 0) return rows;
-  if (await hasPermission(pool, userId, 'Admin')) return rows;
-  const accessible = new Set(await getAccessibleProjectIds(pool, userId));
-  return rows.filter((row) => accessible.has(Number(row[projectIdKey])));
+): Promise<boolean> => {
+  const result = await pool.query(
+    `SELECT 1
+    FROM files f
+    JOIN tasks t ON t.id = f.task_id
+    JOIN projects p ON p.id = t.project_id
+    LEFT JOIN project_users pu ON pu.project_id = p.id AND pu.user_id = $2
+    WHERE f.id = $1 AND ${MEMBERSHIP_PREDICATE}
+    LIMIT 1`,
+    [fileId, userId],
+  );
+  return (result.rowCount ?? 0) > 0;
 };
 
 /**

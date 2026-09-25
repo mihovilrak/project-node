@@ -5,6 +5,7 @@
  */
 export const AVAILABLE_ICONS: string[] = [
   // Task and work related
+  'Task',
   'TaskAlt',
   'BugReport',
   'WorkOutline',
@@ -347,7 +348,6 @@ export const AVAILABLE_ICONS: string[] = [
   'SportsEsports',
 
   // Entertainment
-  'MusicNote',
   'Movie',
   'Theater',
   'Camera',

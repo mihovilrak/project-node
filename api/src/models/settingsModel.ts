@@ -5,13 +5,6 @@ import {
   UserSettingsUpdateInput,
 } from '../types/settings';
 
-interface DbTimezoneRow {
-  name: string;
-  abbrev: string;
-  utc_offset: string;
-  is_dst: boolean;
-}
-
 export interface Timezone {
   name: string;
   region: string;
@@ -21,9 +14,10 @@ export interface Timezone {
   label: string;
 }
 
+// Offsets change with DST, so only the zone names are cached.
 interface TimezoneCache {
   expiresAt: number;
-  data: Timezone[];
+  names: string[];
 }
 
 const TIMEZONE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -52,6 +46,13 @@ export const getSystemSettings = async (
   return result.rows[0] || null;
 };
 
+export const getWelcomeMessage = async (pool: Pool): Promise<string> => {
+  const result = await pool.query(
+    `SELECT welcome_message FROM app_settings WHERE id = 1`,
+  );
+  return result.rows[0]?.welcome_message ?? '';
+};
+
 /**
  * Persist application settings to the database, updating only the provided
  * fields while preserving existing values.
@@ -77,7 +78,7 @@ export const updateSystemSettings = async (
   const result = await pool.query(
     `UPDATE app_settings
      SET (app_name, company_name, sender_email, time_zone, theme, welcome_message,
-          app_base_url, log_level, email_enabled, email_host, email_port, email_secure, updated_on)
+          app_base_url, log_level, email_enabled, email_host, email_port, email_secure)
         = (
           COALESCE($1, app_name),
           COALESCE($2, company_name),
@@ -90,8 +91,7 @@ export const updateSystemSettings = async (
           COALESCE($9, email_enabled),
           COALESCE($10, email_host),
           COALESCE($11, email_port),
-          COALESCE($12, email_secure),
-          CURRENT_TIMESTAMP
+          COALESCE($12, email_secure)
         )
      WHERE id = 1
      RETURNING *`,
@@ -159,13 +159,12 @@ export const updateUserSettings = async (
        COALESCE($5, true)
      )
      ON CONFLICT (user_id) DO UPDATE
-     SET (theme, language, notifications_enabled, email_notifications_enabled, updated_on)
+     SET (theme, language, notifications_enabled, email_notifications_enabled)
         = (
           COALESCE($2, user_settings.theme),
           COALESCE($3, user_settings.language),
           COALESCE($4, user_settings.notifications_enabled),
-          COALESCE($5, user_settings.email_notifications_enabled),
-          CURRENT_TIMESTAMP
+          COALESCE($5, user_settings.email_notifications_enabled)
         )
      RETURNING *`,
     [
@@ -179,21 +178,30 @@ export const updateUserSettings = async (
   return result.rows[0] || null;
 };
 
-function parseIntervalToSeconds(interval: string | unknown): number {
-  const raw = interval != null ? String(interval) : '';
-  if (!raw) return 0;
-  const trimmed = raw.trim();
-  const negative = trimmed.startsWith('-');
-  const value = negative ? trimmed.slice(1) : trimmed;
-  const parts = value.split(':');
-  if (parts.length < 2) return 0;
-  const [hoursStr, minutesStr, secondsStr = '0'] = parts;
-  const hours = parseInt(hoursStr, 10) || 0;
-  const minutes = parseInt(minutesStr, 10) || 0;
-  const seconds = parseInt(secondsStr, 10) || 0;
-  const total = hours * 3600 + minutes * 60 + seconds;
-  return negative ? -total : total;
-}
+// Offset in seconds of `timeZone` at `at`, or null if Intl does not know the zone.
+const offsetSecondsAt = (timeZone: string, at: Date): number | null => {
+  let part: string | undefined;
+  try {
+    part = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      timeZoneName: 'longOffset',
+    })
+      .formatToParts(at)
+      .find((p) => p.type === 'timeZoneName')?.value;
+  } catch {
+    return null;
+  }
+  const match = /^GMT(?:([+-])(\d{2}):(\d{2}))?$/.exec(part ?? '');
+  if (!match) return null;
+  if (!match[1]) return 0;
+  const seconds = Number(match[2]) * 3600 + Number(match[3]) * 60;
+  return match[1] === '-' ? -seconds : seconds;
+};
+
+const abbrevAt = (timeZone: string, at: Date): string =>
+  new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'short' })
+    .formatToParts(at)
+    .find((p) => p.type === 'timeZoneName')?.value ?? '';
 
 function formatOffsetLabel(seconds: number): string {
   const sign = seconds >= 0 ? '+' : '-';
@@ -206,46 +214,52 @@ function formatOffsetLabel(seconds: number): string {
 }
 
 /**
- * Retrieve all available timezones from the PostgreSQL pg_timezone_names view
- * with in-memory caching.
+ * List the region-based time zones known to PostgreSQL with their current
+ * offset.
  *
- * Queries timezones matching the pattern '%/%' (region-based names) and caches
- * results in memory with a configurable TTL. Transforms database rows into
- * enriched timezone objects including region, UTC offset in seconds, and
- * formatted labels. Returns cached data if available and not expired.
+ * Only the zone names are cached; offsets, abbreviations and DST flags are
+ * computed per call so they stay correct across DST changes.
  *
  * @param pool Database connection pool for executing timezone queries.
+ * @param now Instant the offsets are computed for (defaults to the current
+ *   time).
  * @returns Array of timezone objects with name, region, abbreviation, UTC
  *   offset, DST flag, and display label.
  */
-export const getTimezones = async (pool: Pool): Promise<Timezone[]> => {
-  const now = Date.now();
-  if (timezoneCache && timezoneCache.expiresAt > now) {
-    return timezoneCache.data;
+export const getTimezones = async (
+  pool: Pool,
+  now: Date = new Date(),
+): Promise<Timezone[]> => {
+  if (!timezoneCache || timezoneCache.expiresAt <= Date.now()) {
+    const result = await pool.query<{ name: string }>(
+      `SELECT name FROM pg_timezone_names WHERE name LIKE '%/%' ORDER BY name`,
+    );
+    timezoneCache = {
+      names: result.rows.map((row) => row.name),
+      expiresAt: Date.now() + TIMEZONE_TTL_MS,
+    };
   }
 
-  const result = await pool.query<DbTimezoneRow>(
-    `SELECT name, abbrev, utc_offset, is_dst FROM pg_timezone_names WHERE name LIKE '%/%' ORDER BY name`,
-  );
+  const year = now.getUTCFullYear();
+  const january = new Date(Date.UTC(year, 0, 1));
+  const july = new Date(Date.UTC(year, 6, 1));
 
-  const data: Timezone[] = result.rows.map((row) => {
-    const region = row.name.split('/')[0] || 'Other';
-    const utcOffsetSeconds = parseIntervalToSeconds(row.utc_offset);
-    const offsetLabel = formatOffsetLabel(utcOffsetSeconds);
-    return {
-      name: row.name,
-      region,
-      abbrev: row.abbrev,
-      utcOffsetSeconds,
-      isDst: row.is_dst,
-      label: `${row.name} (${offsetLabel})`,
-    };
+  return timezoneCache.names.flatMap((name) => {
+    const utcOffsetSeconds = offsetSecondsAt(name, now);
+    if (utcOffsetSeconds === null) return [];
+    const standard = Math.min(
+      offsetSecondsAt(name, january) ?? utcOffsetSeconds,
+      offsetSecondsAt(name, july) ?? utcOffsetSeconds,
+    );
+    return [
+      {
+        name,
+        region: name.split('/')[0] || 'Other',
+        abbrev: abbrevAt(name, now),
+        utcOffsetSeconds,
+        isDst: utcOffsetSeconds > standard,
+        label: `${name} (${formatOffsetLabel(utcOffsetSeconds)})`,
+      },
+    ];
   });
-
-  timezoneCache = {
-    data,
-    expiresAt: now + TIMEZONE_TTL_MS,
-  };
-
-  return data;
 };

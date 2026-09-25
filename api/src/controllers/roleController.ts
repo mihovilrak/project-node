@@ -2,139 +2,128 @@ import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as roleModel from '../models/roleModel';
 import { RoleCreateInput, RoleUpdateInput } from '../types/role';
-import logger from '../utils/logger';
+import { parsePositiveInteger } from '../utils/requestParsing';
+
+const pgCode = (error: unknown): string | undefined =>
+  error instanceof Error && 'code' in error
+    ? String((error as { code: unknown }).code)
+    : undefined;
+
+// Raised by update_role/delete_role when the seeded Admin role would be broken.
+const ADMIN_ROLE_PROTECTED = '42501';
 
 // Get all roles
 export const getRoles = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const roles = await roleModel.getRoles(pool);
-    res.status(200).json(roles);
-  } catch (error) {
-    logger.error({ err: error }, 'Error getting roles');
-    res.status(500).json({ error: 'Failed to get roles' });
-  }
+): Promise<void> => {
+  const roles = await roleModel.getRoles(pool);
+  res.status(200).json(roles);
 };
 
 /**
- * Insert a new role record from request data into the database and return the
- * created role ID.
+ * Create a role and return its id. A duplicate name yields 409 via the error
+ * handler.
  *
- * @param req Express request object containing role data in the body with
- *   required name field.
- * @param res Express response object used to send status and JSON responses.
- * @param pool Database connection pool for executing queries.
+ * @param req Express request with the role data in the body
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const createRole = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const roleData = req.body as RoleCreateInput;
-
-    if (!roleData.name) {
-      return res.status(400).json({ error: 'Role name is required' });
-    }
-
-    const roleId = await roleModel.createRole(pool, roleData);
-    res.status(201).json({
-      message: 'Role created successfully',
-      id: roleId,
-    });
-  } catch (error) {
-    logger.error({ err: error }, 'Error creating role');
-    if (error instanceof Error && 'code' in error && error.code === '23505') {
-      // Unique violation
-      return res.status(409).json({
-        error: 'Role with this name already exists',
-      });
-    }
-    res.status(500).json({
-      error: 'Failed to create role',
-    });
+): Promise<void> => {
+  const roleData = req.body as RoleCreateInput;
+  if (typeof roleData?.name !== 'string' || !roleData.name.trim()) {
+    res.status(400).json({ error: 'Role name is required' });
+    return;
   }
+
+  const roleId = await roleModel.createRole(pool, roleData);
+  res.status(201).json({ message: 'Role created successfully', id: roleId });
 };
 
 /**
- * Modify an existing role with validation of required fields and conflict
- * detection.
+ * Update a role. The Admin role cannot be renamed, deactivated or lose the
+ * Admin permission (403).
  *
- * @param req Express request containing the role ID in params and updated role
- *   data in the body
- * @param res Express response object for sending the result or error
- * @param pool Database connection pool for executing the update operation
+ * @param req Express request with the role id in params and the role data in
+ *   the body
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const updateRole = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const { id } = req.params;
-    const roleData = req.body as RoleUpdateInput;
-
-    if (!id) {
-      return res.status(400).json({ error: 'Role ID is required' });
-    }
-
-    if (!roleData.name) {
-      return res.status(400).json({ error: 'Role name is required' });
-    }
-
-    await roleModel.updateRole(pool, id, roleData);
-    res.status(200).json({
-      message: 'Role updated successfully',
-      id,
-    });
-  } catch (error) {
-    logger.error({ err: error }, 'Error updating role');
-    if (error instanceof Error && 'code' in error) {
-      if (error.code === '23505') {
-        return res.status(409).json({
-          error: 'Role with this name already exists',
-        });
-      }
-      if (error.code === '404') {
-        return res.status(404).json({ error: 'Role not found' });
-      }
-    }
-    res.status(500).json({ error: 'Failed to update role' });
+): Promise<void> => {
+  const id = parsePositiveInteger(req.params.id);
+  if (id === null) {
+    res.status(400).json({ error: 'Invalid role ID' });
+    return;
   }
+  const roleData = req.body as RoleUpdateInput;
+  if (typeof roleData?.name !== 'string' || !roleData.name.trim()) {
+    res.status(400).json({ error: 'Role name is required' });
+    return;
+  }
+
+  try {
+    await roleModel.updateRole(pool, String(id), roleData);
+  } catch (error) {
+    if (pgCode(error) === ADMIN_ROLE_PROTECTED) {
+      res.status(403).json({ error: (error as Error).message });
+      return;
+    }
+    throw error;
+  }
+  res
+    .status(200)
+    .json({ message: 'Role updated successfully', id: String(id) });
 };
 
 /**
- * Delete a role by identifier, preventing deletion if the role is assigned to
- * users.
+ * Delete a role. Fails with 409 while users hold it and with 403 for the Admin
+ * role.
  *
- * @param req Express request object containing the role identifier in params
- * @param res Express response object for sending JSON responses
- * @param pool Database connection pool for executing queries
+ * @param req Express request with the role id in params
+ * @param res Express response
+ * @param pool Database connection pool
  */
 export const deleteRole = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
+): Promise<void> => {
+  const id = parsePositiveInteger(req.params.id);
+  if (id === null) {
+    res.status(400).json({ error: 'Invalid role ID' });
+    return;
+  }
+
+  let deleted: boolean;
   try {
-    const { id } = req.params;
-    const deleted = await roleModel.deleteRole(pool, id);
-
-    if (!deleted) {
-      return res.status(404).json({ error: 'Role not found' });
-    }
-
-    res.status(200).json({ message: 'Role deleted successfully' });
+    deleted = await roleModel.deleteRole(pool, String(id));
   } catch (error) {
-    logger.error({ err: error }, 'Error deleting role');
-    if (error instanceof Error && 'code' in error && error.code === '23503') {
-      return res
+    const code = pgCode(error);
+    if (code === ADMIN_ROLE_PROTECTED) {
+      res.status(403).json({ error: (error as Error).message });
+      return;
+    }
+    if (code === '23503') {
+      res
         .status(409)
         .json({ error: 'Role cannot be deleted while assigned to users' });
+      return;
     }
-    res.status(500).json({ error: 'Failed to delete role' });
+    throw error;
   }
+
+  if (!deleted) {
+    res.status(404).json({ error: 'Role not found' });
+    return;
+  }
+  res.status(200).json({ message: 'Role deleted successfully' });
 };

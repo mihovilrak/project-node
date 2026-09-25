@@ -57,7 +57,7 @@ export interface ProjectCreateInput {
   description: string;
   start_date?: Date;
   due_date?: Date;
-  parent_id?: string;
+  parent_id?: number | string | null;
 }
 
 export interface ProjectUpdateInput {
@@ -65,8 +65,7 @@ export interface ProjectUpdateInput {
   description?: string;
   start_date?: Date;
   due_date?: Date;
-  status?: string;
-  parent_id?: string;
+  parent_id?: number | string | null;
 }
 
 export interface ProjectTaskFilters {

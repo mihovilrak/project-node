@@ -8,8 +8,11 @@ describe('ErrorHandler Middleware', () => {
   let mockNext: NextFunction;
   const originalEnv = process.env.NODE_ENV;
 
+  const handle = (err: CustomError) =>
+    errorHandler(err, mockReq as Request, mockRes as Response, mockNext);
+
   beforeEach(() => {
-    mockReq = {};
+    mockReq = { method: 'GET', originalUrl: '/api/test' };
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -22,19 +25,14 @@ describe('ErrorHandler Middleware', () => {
     process.env.NODE_ENV = originalEnv;
   });
 
-  it('should handle ValidationError', async () => {
+  it('should handle ValidationError', () => {
     const validationError: CustomError = {
       name: 'ValidationError',
       message: 'Validation failed',
       details: { field: 'email', message: 'Invalid email format' },
     };
 
-    await errorHandler(
-      validationError,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+    handle(validationError);
 
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
@@ -43,119 +41,56 @@ describe('ErrorHandler Middleware', () => {
     });
   });
 
-  it('should handle UnauthorizedError', async () => {
-    const unauthorizedError: CustomError = {
-      name: 'UnauthorizedError',
-      message: 'Unauthorized',
-    };
-
-    await errorHandler(
-      unauthorizedError,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
-
-    expect(mockRes.status).toHaveBeenCalledWith(401);
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Unauthorized',
-      message: 'Invalid token or no token provided',
-    });
-  });
-
-  it('should handle generic errors with custom status', async () => {
-    const genericError: CustomError = {
-      name: 'Error',
-      message: 'Custom error message',
-      status: 422,
-    };
-
-    await errorHandler(
-      genericError,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+  it('should handle generic errors with custom status', () => {
+    handle({ name: 'Error', message: 'Custom error message', status: 422 });
 
     expect(mockRes.status).toHaveBeenCalledWith(422);
   });
 
-  it('should default to 500 status when no status provided', async () => {
-    const genericError: CustomError = {
-      name: 'Error',
-      message: 'Something went wrong',
-    };
-
-    await errorHandler(
-      genericError,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+  it('should default to 500 status when no status provided', () => {
+    handle({ name: 'Error', message: 'Something went wrong' });
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
   });
 
-  it('should include stack trace in development mode', async () => {
+  it('should never include a stack trace', () => {
     process.env.NODE_ENV = 'development';
-    const errorWithStack: CustomError = {
-      name: 'Error',
-      message: 'Test error',
-      stack: 'Error stack trace',
-    };
 
-    await errorHandler(
-      errorWithStack,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+    handle({ name: 'Error', message: 'Test error', stack: 'Error stack' });
 
-    expect(mockRes.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        stack: 'Error stack trace',
-      }),
-    );
+    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Test error' });
   });
 
-  it('should not include stack trace or the raw message in production mode', async () => {
+  it('should not include the raw message in production mode', () => {
     process.env.NODE_ENV = 'production';
-    const errorWithStack: CustomError = {
-      name: 'Error',
-      message: 'Test error',
-      stack: 'Error stack trace',
-    };
 
-    await errorHandler(
-      errorWithStack,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+    handle({ name: 'Error', message: 'Test error', stack: 'Error stack' });
 
     expect(mockRes.json).toHaveBeenCalledWith({
       error: 'Internal Server Error',
     });
   });
 
-  it('should still echo a deliberate 4xx message in production mode', async () => {
+  it('should still echo a deliberate 4xx message in production mode', () => {
     process.env.NODE_ENV = 'production';
-    const clientError: CustomError = {
-      name: 'Error',
-      message: 'Name is required',
-      status: 400,
-    };
 
-    await errorHandler(
-      clientError,
-      mockReq as Request,
-      mockRes as Response,
-      mockNext,
-    );
+    handle({ name: 'Error', message: 'Name is required', status: 400 });
 
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       error: 'Name is required',
     });
+  });
+
+  it.each([
+    ['23505', 409, 'Resource already exists'],
+    ['23503', 404, 'Referenced resource not found'],
+    ['P0002', 404, 'Resource not found'],
+    ['22023', 400, 'Invalid request'],
+  ])('maps postgres error %s to %i', (code, status, error) => {
+    handle({ name: 'error', message: 'constraint users_login_key', code });
+
+    expect(mockRes.status).toHaveBeenCalledWith(status);
+    expect(mockRes.json).toHaveBeenCalledWith({ error });
   });
 });

@@ -24,30 +24,6 @@ describe('AdminModel', () => {
     jest.clearAllMocks();
   });
 
-  describe('isUserAdmin', () => {
-    it('should return true when user is admin', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(
-        mockQueryResult([{ is_admin: true }]),
-      );
-
-      const result = await adminModel.isUserAdmin(mockPool, '1');
-
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT is_admin($1)', ['1']);
-      expect(result).toBe(true);
-    });
-
-    it('should return false when user is not admin', async () => {
-      (mockPool.query as jest.Mock).mockResolvedValue(
-        mockQueryResult([{ is_admin: false }]),
-      );
-
-      const result = await adminModel.isUserAdmin(mockPool, '2');
-
-      expect(mockPool.query).toHaveBeenCalledWith('SELECT is_admin($1)', ['2']);
-      expect(result).toBe(false);
-    });
-  });
-
   describe('getSystemStats', () => {
     it('should return system statistics', async () => {
       const mockStats = {
@@ -69,7 +45,7 @@ describe('AdminModel', () => {
     });
   });
 
-  describe('getSystemLogs', () => {
+  describe('getTimeLogReport', () => {
     const mockLogs = [
       {
         id: 1,
@@ -96,36 +72,30 @@ describe('AdminModel', () => {
         mockQueryResult(mockLogs),
       );
 
-      const result = await adminModel.getSystemLogs(
+      const result = await adminModel.getTimeLogReport(
         mockPool,
-        '2025-01-01',
-        '2025-01-31',
+        { startDate: '2025-01-01', endDate: '2025-01-31' },
+        { limit: 10, offset: 5 },
       );
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT tl.*'),
-        ['2025-01-01', '2025-01-31'],
+        expect.stringContaining('LIMIT $4 OFFSET $5'),
+        ['2025-01-01', '2025-01-31', null, 10, 5],
       );
       expect(result).toEqual(mockLogs);
     });
 
-    it('should return system logs with date range and type filter', async () => {
+    it('should filter by activity type', async () => {
       (mockPool.query as jest.Mock).mockResolvedValue(
         mockQueryResult([mockLogs[0]]),
       );
 
-      const result = await adminModel.getSystemLogs(
-        mockPool,
-        '2025-01-01',
-        '2025-01-31',
-        '1',
-      );
+      await adminModel.getTimeLogReport(mockPool, { type: 1 });
 
       expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('AND tl.activity_type_id = $3'),
-        ['2025-01-01', '2025-01-31', '1'],
+        expect.stringContaining('tl.activity_type_id = $3::integer'),
+        [null, null, 1, 50, 0],
       );
-      expect(result).toEqual([mockLogs[0]]);
     });
 
     it('should bind nulls and let SQL supply the date defaults', async () => {
@@ -133,11 +103,11 @@ describe('AdminModel', () => {
         mockQueryResult(mockLogs),
       );
 
-      const result = await adminModel.getSystemLogs(mockPool);
+      const result = await adminModel.getTimeLogReport(mockPool);
 
       expect(mockPool.query).toHaveBeenCalledWith(
         expect.stringContaining('COALESCE($2::timestamptz, now())'),
-        [null, null],
+        [null, null, null, 50, 0],
       );
       expect(result).toEqual(mockLogs);
     });

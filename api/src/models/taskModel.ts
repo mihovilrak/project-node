@@ -240,7 +240,6 @@ export const createTask = async (
 
 export const ALLOWED_TASK_UPDATE_KEYS = [
   'name',
-  'project_id',
   'holder_id',
   'assignee_id',
   'description',
@@ -253,6 +252,23 @@ export const ALLOWED_TASK_UPDATE_KEYS = [
   'end_date',
   'progress',
 ] as const;
+
+// True when every user is a member of the task's project; null when the task
+// does not exist.
+export const areTaskProjectMembers = async (
+  pool: Queryable,
+  taskId: string,
+  userIds: number[],
+): Promise<boolean | null> => {
+  const result = await pool.query(
+    `SELECT bool_and(is_project_member(t.project_id, u)) AS ok
+     FROM tasks t, unnest($2::int[]) AS u
+     WHERE t.id = $1`,
+    [taskId, userIds],
+  );
+  const ok = result.rows[0]?.ok;
+  return ok === undefined || ok === null ? null : Boolean(ok);
+};
 
 // Update a task
 export const updateTask = async (
@@ -280,7 +296,7 @@ export const updateTask = async (
 };
 
 /**
- * Update a task's status and refresh its updated timestamp.
+ * Update a task's status.
  *
  * Returns the updated task record or null if the task does not exist.
  *
@@ -296,7 +312,7 @@ export const changeTaskStatus = async (
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
     `UPDATE tasks
-    SET (status_id, updated_on) = ($1, CURRENT_TIMESTAMP)
+    SET status_id = $1
     WHERE id = $2
     RETURNING *`,
     [statusId, id],
@@ -305,9 +321,8 @@ export const changeTaskStatus = async (
 };
 
 /**
- * Mark a task as deleted by updating its status and timestamp.
+ * Mark a task as deleted.
  *
- * Sets the task status to 'deleted' and updates the modification timestamp.
  * Returns the updated task record or null if the task does not exist.
  *
  * @param pool Database connection pool
@@ -315,12 +330,12 @@ export const changeTaskStatus = async (
  * @returns Updated Task object or null if task not found
  */
 export const deleteTask = async (
-  pool: Pool,
+  pool: Queryable,
   id: string,
 ): Promise<Task | null> => {
   const result: QueryResult<Task> = await pool.query(
     `UPDATE tasks
-    SET (status_id, updated_on) = (task_status_id('deleted'), CURRENT_TIMESTAMP)
+    SET status_id = task_status_id('deleted')
     WHERE id = $1
     RETURNING *`,
     [id],
@@ -414,20 +429,21 @@ export const getTasksByDateRange = async (
   startDate: string,
   endDate: string,
   scopeUserId?: string | null,
+  pagination: Pagination = defaultPagination(),
 ): Promise<TaskDetails[]> => {
   const scoped = scopeUserId != null;
-  const conditions = [
-    'coalesce(start_date, due_date) <= $2::date',
-    'coalesce(due_date, start_date) >= $1::date',
-  ];
+  // start_date and due_date are NOT NULL, so a plain overlap test is enough.
+  const conditions = ['start_date <= $2::date', 'due_date >= $1::date'];
   if (scoped) {
     conditions.push(`project_id IN (${accessibleProjectsSubquery(3)})`);
   }
+  const page = paginationClause(pagination, scoped ? 4 : 3);
   const result: QueryResult<TaskDetails> = await pool.query(
     `SELECT * FROM get_tasks()
      WHERE ${conditions.join(' AND ')}
-     ORDER BY start_date NULLS LAST, id`,
-    [startDate, endDate, ...(scoped ? [scopeUserId] : [])],
+     ORDER BY start_date, id
+     ${page.clause}`,
+    [startDate, endDate, ...(scoped ? [scopeUserId] : []), ...page.values],
   );
   return result.rows;
 };

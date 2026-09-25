@@ -10,7 +10,9 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const CONTAINER = 'pm_test_db';
-const IMAGE = 'postgres:18.1-alpine3.23';
+// Same image and digest as docker-compose.yml.
+const IMAGE =
+  'postgres:18.1-alpine3.23@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29';
 const PORT = 5433;
 const USER = 'pm_user';
 const PASSWORD = 'pm_password';
@@ -45,15 +47,14 @@ function main() {
     process.exit(1);
   }
 
-  const inspect = spawnSync('docker', [
-    'inspect',
-    '-f',
-    '{{.State.Running}}',
-    CONTAINER
-  ], {
-    stdio: 'pipe',
-    encoding: 'utf8',
-  });
+  const inspect = spawnSync(
+    'docker',
+    ['inspect', '-f', '{{.State.Running}}', CONTAINER],
+    {
+      stdio: 'pipe',
+      encoding: 'utf8',
+    },
+  );
   const running = inspect.status === 0 && inspect.stdout.trim() === 'true';
 
   if (!running) {
@@ -66,11 +67,18 @@ function main() {
     } else {
       console.log('Creating container %s (port %d)...', CONTAINER, PORT);
       docker([
-        'run', '-d', '--name', CONTAINER,
-        '-e', 'POSTGRES_DB=' + DB,
-        '-e', 'POSTGRES_USER=' + USER,
-        '-e', 'POSTGRES_PASSWORD=' + PASSWORD,
-        '-p', PORT + ':5432',
+        'run',
+        '-d',
+        '--name',
+        CONTAINER,
+        '-e',
+        'POSTGRES_DB=' + DB,
+        '-e',
+        'POSTGRES_USER=' + USER,
+        '-e',
+        'POSTGRES_PASSWORD=' + PASSWORD,
+        '-p',
+        PORT + ':5432',
         IMAGE,
       ]);
     }
@@ -81,7 +89,13 @@ function main() {
   console.log('Waiting for Postgres...');
   for (let i = 0; i < 30; i++) {
     const ok = runQuiet('docker', [
-      'exec', CONTAINER, 'pg_isready', '-U', USER, '-d', DB,
+      'exec',
+      CONTAINER,
+      'pg_isready',
+      '-U',
+      USER,
+      '-d',
+      DB,
     ]);
     if (ok) break;
     if (i === 29) {
@@ -98,18 +112,32 @@ function main() {
   console.log('Running db/migrate.sh...');
   docker(['exec', CONTAINER, 'rm', '-rf', '/tmp/db']);
   docker(['exec', CONTAINER, 'mkdir', '/tmp/db']);
-  for (const entry of ['init', 'migrate.sh', 'pgpass.sh', 'app-role.sql', 'seed-admin.sh']) {
+  for (const entry of [
+    'init',
+    'migrate.sh',
+    'pgpass.sh',
+    'app-role.sql',
+    'seed-admin.sh',
+  ]) {
     docker(['cp', path.join(dbDir, entry), CONTAINER + ':/tmp/db/' + entry]);
   }
   docker([
     'exec',
-    '-e', 'POSTGRES_HOST=127.0.0.1',
-    '-e', 'POSTGRES_DB=' + DB,
-    '-e', 'POSTGRES_USER=' + USER,
-    '-e', 'POSTGRES_PASSWORD=' + PASSWORD,
-    '-e', 'APP_DB_USER=' + APP_USER,
-    '-e', 'APP_DB_PASSWORD=' + APP_PASSWORD,
-    CONTAINER, 'sh', '/tmp/db/migrate.sh',
+    '-e',
+    'POSTGRES_HOST=127.0.0.1',
+    '-e',
+    'POSTGRES_DB=' + DB,
+    '-e',
+    'POSTGRES_USER=' + USER,
+    '-e',
+    'POSTGRES_PASSWORD=' + PASSWORD,
+    '-e',
+    'APP_DB_USER=' + APP_USER,
+    '-e',
+    'APP_DB_PASSWORD=' + APP_PASSWORD,
+    CONTAINER,
+    'sh',
+    '/tmp/db/migrate.sh',
   ]);
 
   console.log('Done.');
@@ -143,8 +171,7 @@ function printNext() {
     Linux / macOS / Git Bash:
       ${sh} yarn test:integration
 
-    Or put the same values in api/.env.test and run: yarn test:integration:local`
-  );
+    Or put the same values in api/.env.test and run: yarn test:integration:local`);
 }
 
 main();

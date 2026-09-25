@@ -1,6 +1,5 @@
 import { Pool } from 'pg';
 import { Role, RoleCreateInput, RoleUpdateInput } from '../types/role';
-import logger from '../utils/logger';
 import { invalidatePermissionCache } from './permissionModel';
 
 // Get all roles
@@ -25,16 +24,11 @@ export const createRole = async (
   roleData: RoleCreateInput,
 ): Promise<string> => {
   const { name, description, permissions } = roleData;
-  try {
-    const roleResult = await pool.query(
-      'SELECT create_role($1, $2, $3, $4) as id',
-      [name, description, true, permissions],
-    );
-    return roleResult.rows[0].id;
-  } catch (error) {
-    logger.error({ err: error }, 'Error creating role');
-    throw error;
-  }
+  const roleResult = await pool.query(
+    'SELECT create_role($1, $2, $3, $4) as id',
+    [name, description, true, permissions],
+  );
+  return roleResult.rows[0].id;
 };
 
 /**
@@ -51,19 +45,14 @@ export const updateRole = async (
   roleData: RoleUpdateInput,
 ): Promise<void> => {
   const { name, description, active, permissions } = roleData;
-  try {
-    await pool.query('SELECT update_role($1, $2, $3, $4, $5)', [
-      id,
-      name,
-      description,
-      active,
-      permissions,
-    ]);
-    invalidatePermissionCache(pool);
-  } catch (error) {
-    logger.error({ err: error }, 'Error updating role');
-    throw error;
-  }
+  await pool.query('SELECT update_role($1, $2, $3, $4, $5)', [
+    id,
+    name,
+    description,
+    active,
+    permissions,
+  ]);
+  invalidatePermissionCache(pool);
 };
 
 /**

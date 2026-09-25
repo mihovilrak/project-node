@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { Comment, CommentWithUser } from '../types/comment';
+import { Queryable } from '../utils/transaction';
 
 // Get all comments for a task
 export const getTaskComments = async (
@@ -15,12 +16,12 @@ export const getTaskComments = async (
 
 // Create a new comment for a task
 export const createComment = async (
-  pool: Pool,
+  db: Queryable,
   taskId: string,
   userId: string,
   comment: string,
 ): Promise<Comment> => {
-  const result = await pool.query(
+  const result = await db.query(
     `INSERT INTO comments (task_id, user_id, comment)
      VALUES ($1, $2, $3)
      RETURNING *`,
@@ -30,56 +31,32 @@ export const createComment = async (
 };
 
 /**
- * Retrieve a comment by ID along with its associated user information.
- *
- * Returns null if no comment exists for the given ID.
- *
- * @param pool Database connection pool
- * @param id Comment identifier
- */
-export const commentWithUser = async (
-  pool: Pool,
-  id: string,
-): Promise<CommentWithUser | null> => {
-  const result = await pool.query('SELECT * FROM get_comments(p_id => $1)', [
-    id,
-  ]);
-  return result.rows[0] || null;
-};
-
-/**
- * Update a comment's text and return it with user details, or null if not
- * found.
- *
- * Returns null if the comment ID is stale, deleted, or inactive, rather than
- * attempting a follow-up read that might retrieve a deleted row.
+ * Update an active comment on the given task and return it with user details.
  *
  * @param pool Database connection pool
  * @param id Comment ID to update
+ * @param taskId Task the comment must belong to
  * @param comment New comment text
- * @returns The updated comment with user details, or null if the comment does
- *   not exist or is inactive
+ * @returns The updated comment, or null if no active comment with that id
+ *   exists on the task
  */
 export const editComment = async (
   pool: Pool,
   id: string,
+  taskId: string,
   comment: string,
 ): Promise<CommentWithUser | null> => {
-  // Update the comment
   const updated = await pool.query(
     `UPDATE comments
-    SET (comment, updated_on) = ($2, current_timestamp)
-    WHERE id = $1 AND active`,
-    [id, comment],
+    SET comment = $3
+    WHERE id = $1 AND task_id = $2 AND active`,
+    [id, taskId, comment],
   );
 
-  // A stale or deleted id matches nothing; report that instead of returning the
-  // row a follow-up read might still find.
   if (!updated.rowCount) {
     return null;
   }
 
-  // Fetch the updated comment with user details
   const result = await pool.query('SELECT * FROM get_comments(p_id => $1)', [
     id,
   ]);
@@ -88,24 +65,24 @@ export const editComment = async (
 };
 
 /**
- * Mark a comment as inactive and return its data, or null if not found.
- *
- * Performs a soft delete by setting the active flag to false and updating the
- * timestamp. Only operates on comments that are currently active.
+ * Soft-delete an active comment on the given task and return it, or null if not
+ * found.
  *
  * @param pool Database connection pool
  * @param id Comment identifier
+ * @param taskId Task the comment must belong to
  */
 export const deleteComment = async (
   pool: Pool,
   id: string,
+  taskId: string,
 ): Promise<Comment | null> => {
   const result = await pool.query(
     `UPDATE comments
-    SET (active, updated_on) = (false, current_timestamp)
-    WHERE id = $1 AND active
+    SET active = false
+    WHERE id = $1 AND task_id = $2 AND active
     RETURNING *`,
-    [id],
+    [id, taskId],
   );
   return result.rows[0] || null;
 };
