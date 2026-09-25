@@ -4,19 +4,6 @@ import CalendarDayView from '../CalendarDayView';
 import { Task } from '../../../types/task';
 import { TimeLog } from '../../../types/timeLog';
 
-// Mock the useTasksByHour hook
-jest.mock('../../../hooks/calendar/useTasksByHour', () => ({
-  useTasksByHour: (tasks: Task[], timeLogs: TimeLog[]) => ({
-    hours: Array.from({ length: 24 }, (_, i) => i),
-    getTasksForHour: (hour: number) =>
-      tasks.filter((task) => new Date(task.start_date!).getHours() === hour),
-    getTimeLogsForHour: (hour: number) =>
-      timeLogs.filter(
-        (timeLog) => new Date(timeLog.created_on).getHours() === hour,
-      ),
-  }),
-}));
-
 describe('CalendarDayView', () => {
   const mockTasks: Task[] = [
     {
@@ -84,7 +71,7 @@ describe('CalendarDayView', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-01',
-      spent_time: 30,
+      spent_time: 0.5,
       description: '',
       created_on: '2024-01-01T10:00:00Z',
       updated_on: null,
@@ -97,7 +84,7 @@ describe('CalendarDayView', () => {
       user_id: 1,
       activity_type_id: 1,
       log_date: '2024-01-01',
-      spent_time: 45,
+      spent_time: 0.75,
       description: '',
       created_on: '2024-01-01T14:00:00Z',
       updated_on: null,
@@ -107,7 +94,7 @@ describe('CalendarDayView', () => {
   ];
 
   const mockProps = {
-    date: new Date(),
+    date: new Date(2024, 0, 1),
     view: 'day' as const,
     tasks: mockTasks,
     timeLogs: mockTimeLogs,
@@ -133,11 +120,35 @@ describe('CalendarDayView', () => {
     expect(screen.getByText('Test Task 2')).toBeInTheDocument();
   });
 
-  it('displays time logs in correct hour slots', () => {
+  it("lists the day's time logs in hours and minutes with a total", () => {
     render(<CalendarDayView {...mockProps} />);
 
-    expect(screen.getByText('Test TimeLog 1 - 30 minutes')).toBeInTheDocument();
-    expect(screen.getByText('Test TimeLog 2 - 45 minutes')).toBeInTheDocument();
+    expect(screen.getByText('Test TimeLog 1 - 0h 30m')).toBeInTheDocument();
+    expect(screen.getByText('Test TimeLog 2 - 0h 45m')).toBeInTheDocument();
+    expect(screen.getByText('Time logged: 1h 15m')).toBeInTheDocument();
+  });
+
+  it('shows date-only tasks as all-day instead of at 00:00', () => {
+    const dateOnly = {
+      ...mockTasks[0],
+      id: 3,
+      name: 'Date-only Task',
+      start_date: '2024-01-01',
+    };
+    render(<CalendarDayView {...mockProps} tasks={[dateOnly]} />);
+
+    const allDay = screen.getByTestId('all-day');
+    expect(allDay).toHaveTextContent('Starts - Date-only Task');
+    const midnight = screen.getByText('00:00').parentElement!;
+    expect(midnight).not.toHaveTextContent('Date-only Task');
+  });
+
+  it('ignores tasks and logs from other days', () => {
+    render(<CalendarDayView {...mockProps} date={new Date(2024, 0, 2)} />);
+
+    expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Test TimeLog 1/)).not.toBeInTheDocument();
+    expect(screen.getByText('Nothing scheduled')).toBeInTheDocument();
   });
 
   it('handles task clicks', () => {
@@ -150,7 +161,7 @@ describe('CalendarDayView', () => {
   it('handles time log clicks', () => {
     render(<CalendarDayView {...mockProps} />);
 
-    fireEvent.click(screen.getByText('Test TimeLog 1 - 30 minutes'));
+    fireEvent.click(screen.getByText('Test TimeLog 1 - 0h 30m'));
     expect(mockProps.onTimeLogClick).toHaveBeenCalledWith(1);
   });
 

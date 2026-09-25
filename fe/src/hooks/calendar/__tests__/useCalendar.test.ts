@@ -1,12 +1,14 @@
 import { renderHook, act } from '@testing-library/react';
 import { useCalendar } from '../useCalendar';
 import { getTasksByDateRange } from '../../../api/tasks';
+import { getMyTimeLogs } from '../../../api/timeLogs';
 import { Task } from '../../../types/task';
 import { useNavigate } from 'react-router-dom';
 import logger from '../../../utils/logger';
 
 // Mock dependencies
 jest.mock('../../../api/tasks');
+jest.mock('../../../api/timeLogs');
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
 }));
@@ -46,9 +48,24 @@ describe('useCalendar', () => {
     },
   ];
 
+  const mockTimeLogs = [
+    {
+      id: 7,
+      task_id: 42,
+      user_id: 1,
+      activity_type_id: 1,
+      log_date: '2024-02-15',
+      spent_time: 1.5,
+      description: '',
+      created_on: '2024-02-15T10:00:00Z',
+      updated_on: null,
+    },
+  ];
+
   beforeEach(() => {
     jest.clearAllMocks();
     (getTasksByDateRange as jest.Mock).mockResolvedValue(mockTasks);
+    (getMyTimeLogs as jest.Mock).mockResolvedValue(mockTimeLogs);
   });
 
   it('should initialize with default values', () => {
@@ -93,15 +110,32 @@ describe('useCalendar', () => {
     expect(mockNavigate).toHaveBeenCalledWith(`/tasks/${taskId}`);
   });
 
-  it('should navigate to time log details on time log click', () => {
+  it('opens the task of a clicked time log', async () => {
     const { result } = renderHook(() => useCalendar());
-    const timeLogId = 1;
 
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     act(() => {
-      result.current.handleTimeLogClick(timeLogId);
+      result.current.handleTimeLogClick(7);
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith(`/time-logs/${timeLogId}`);
+    expect(mockNavigate).toHaveBeenCalledWith('/tasks/42');
+  });
+
+  it("loads the user's time logs for the visible range", async () => {
+    const { result } = renderHook(() => useCalendar());
+
+    await act(async () => {
+      result.current.handleDateChange(new Date(2024, 1, 15));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(getMyTimeLogs).toHaveBeenLastCalledWith(
+      { startDate: '2024-01-28', endDate: '2024-03-09' },
+      expect.any(AbortSignal),
+    );
+    expect(result.current.timeLogs).toEqual(mockTimeLogs);
   });
 
   it('should fetch tasks for month view', async () => {

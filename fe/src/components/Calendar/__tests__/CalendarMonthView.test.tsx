@@ -81,7 +81,7 @@ const mockTimeLogs: TimeLog[] = [
     user_id: 1,
     activity_type_id: 1,
     log_date: '2023-01-01',
-    spent_time: 120,
+    spent_time: 2,
     description: '',
     created_on: '2023-01-01',
     updated_on: null,
@@ -95,8 +95,16 @@ const mockCalendarDay: CalendarDay = {
   isWeekend: true,
   tasks: mockTasks,
   timeLogs: mockTimeLogs,
-  totalTime: 120,
+  totalTime: 2,
 };
+
+const buildMonth = (overrides: Partial<CalendarDay> = {}): CalendarDay[] =>
+  Array.from({ length: 42 }, (_, index) => ({
+    ...mockCalendarDay,
+    date: new Date(2023, 0, 1 + index),
+    isToday: index === 0,
+    ...overrides,
+  }));
 
 const mockProps: CalendarViewProps = {
   date: new Date(2024, 2, 15),
@@ -106,7 +114,7 @@ const mockProps: CalendarViewProps = {
     {
       id: 1,
       task_id: 1,
-      spent_time: 120,
+      spent_time: 2,
       created_on: '2024-03-15',
       user_id: 1,
       activity_type_id: 1,
@@ -124,7 +132,7 @@ const mockProps: CalendarViewProps = {
 describe('CalendarMonthView', () => {
   beforeEach(() => {
     (useCalendarDays as jest.Mock).mockReturnValue({
-      getDaysInMonth: () => Array(42).fill(mockCalendarDay),
+      getDaysInMonth: () => buildMonth(),
     });
   });
 
@@ -145,6 +153,37 @@ describe('CalendarMonthView', () => {
   it('shows time logged summary when totalTime > 0', () => {
     render(<CalendarMonthView {...mockProps} />);
     expect(screen.getAllByText('Time logged: 2h 0m').length).toBeGreaterThan(0);
+  });
+
+  it('does not render a stray 0 on days without logged time', () => {
+    (useCalendarDays as jest.Mock).mockReturnValue({
+      getDaysInMonth: () =>
+        buildMonth({ tasks: [], timeLogs: [], totalTime: 0 }),
+    });
+    render(<CalendarMonthView {...mockProps} />);
+    expect(screen.queryByText(/Time logged/)).not.toBeInTheDocument();
+    screen.getAllByTestId('month-day').forEach((cell) => {
+      expect(cell.textContent).toMatch(/^\d{1,2}$/);
+      expect(cell.textContent).not.toBe('0');
+    });
+  });
+
+  it('lays out headers and days in a 7-column grid', () => {
+    render(<CalendarMonthView {...mockProps} />);
+    const grid = screen.getByTestId('month-grid');
+    expect(grid).toHaveStyle({ display: 'grid' });
+    expect(getComputedStyle(grid).gridTemplateColumns).toContain('repeat(7');
+    expect(screen.getAllByTestId('weekday-header')).toHaveLength(7);
+    expect(screen.getAllByTestId('month-day')).toHaveLength(42);
+    expect(grid.children[7]).toHaveTextContent(/^1/);
+  });
+
+  it('formats fractional hours without rounding up', () => {
+    (useCalendarDays as jest.Mock).mockReturnValue({
+      getDaysInMonth: () => buildMonth({ tasks: [], totalTime: 1.75 }),
+    });
+    render(<CalendarMonthView {...mockProps} />);
+    expect(screen.getAllByText('Time logged: 1h 45m')).toHaveLength(42);
   });
 
   it('calls onDateChange and onViewChange when clicking a day', () => {
@@ -168,7 +207,7 @@ describe('CalendarMonthView', () => {
       getDaysInMonth: () => [
         {
           ...mockCalendarDay,
-          tasks: manyTasks,
+          tasks: manyTasks.map((task, index) => ({ ...task, id: index + 10 })),
         },
       ],
     });

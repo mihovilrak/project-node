@@ -75,8 +75,29 @@ describe('TimeLogCalendarGrid', () => {
 
   test('shows total hours chip', () => {
     renderWithTheme(<TimeLogCalendarGrid {...mockProps} />);
-    const hourChips = screen.getAllByText('6.0h');
+    const hourChips = screen.getAllByText('6h');
     expect(hourChips).toHaveLength(2);
+  });
+
+  test('renders weekday headers and offsets the first day', () => {
+    const wednesday = new Date(2023, 1, 1);
+    renderWithTheme(<TimeLogCalendarGrid {...mockProps} days={[wednesday]} />);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(7);
+    const grid = screen.getByTestId('timelog-calendar-grid');
+    const cells = Array.from(grid.children);
+    // 7 headers, 3 blanks (Sun-Tue), then the 1st on Wednesday.
+    expect(cells).toHaveLength(11);
+    expect(cells[10]).toHaveAttribute('role', 'gridcell');
+  });
+
+  test('hides the hours chip on empty days', () => {
+    renderWithTheme(
+      <TimeLogCalendarGrid
+        {...mockProps}
+        getTotalHoursForDate={jest.fn(() => 0)}
+      />,
+    );
+    expect(screen.queryByTestId('AccessTimeIcon')).not.toBeInTheDocument();
   });
 
   test('calls helper functions with correct parameters', () => {
