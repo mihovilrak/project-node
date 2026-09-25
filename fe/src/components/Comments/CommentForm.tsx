@@ -2,15 +2,14 @@ import React from 'react';
 import { Box, TextField, Button, CircularProgress } from '@mui/material';
 import { useCommentForm } from '../../hooks/comment/useCommentForm';
 import { CommentFormProps } from '../../types/comment';
+import { MAX_COMMENT_LENGTH } from '../../constants/comments';
 
 const CommentForm: React.FC<CommentFormProps> = ({
-  taskId,
-  onCommentAdded,
+  onSubmit,
+  disabled = false,
 }) => {
-  const { comment, setComment, loading, error, handleSubmit } = useCommentForm(
-    taskId,
-    onCommentAdded,
-  );
+  const { comment, setComment, loading, error, handleSubmit } =
+    useCommentForm(onSubmit);
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -22,14 +21,15 @@ const CommentForm: React.FC<CommentFormProps> = ({
         value={comment || ''}
         onChange={(e) => setComment(e.target.value)}
         error={!!error}
-        helperText={error || ''}
-        disabled={loading || !taskId}
+        helperText={error || `${comment.length}/${MAX_COMMENT_LENGTH}`}
+        slotProps={{ htmlInput: { maxLength: MAX_COMMENT_LENGTH } }}
+        disabled={loading || disabled}
       />
       <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="submit"
           variant="contained"
-          disabled={loading || !taskId || !comment?.trim()}
+          disabled={loading || disabled || !comment?.trim()}
         >
           {loading ? <CircularProgress size={24} /> : 'Add Comment'}
         </Button>

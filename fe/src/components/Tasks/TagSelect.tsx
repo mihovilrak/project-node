@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
   Autocomplete,
   Chip,
@@ -6,46 +6,33 @@ import {
   CircularProgress,
   Box,
 } from '@mui/material';
-import * as Icons from '@mui/icons-material';
-import { getTags } from '../../api/tags';
-import { Tag, TagSelectProps } from '../../types/tag';
-import logger from '../../utils/logger';
+import { Label as LabelIcon } from '@mui/icons-material';
+import { TagSelectProps } from '../../types/tag';
+import { useLookup } from '../../context/LookupsContext';
+import { getMuiIcon } from '../../utils/muiIcons';
+
+const renderTagIcon = (iconName?: string): React.ReactElement => {
+  const Icon = getMuiIcon(iconName) ?? LabelIcon;
+  return <Icon />;
+};
 
 const TagSelect: React.FC<TagSelectProps> = ({
   selectedTags,
   onTagsChange,
 }) => {
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchTags = async (): Promise<void> => {
-      try {
-        setLoading(true);
-        const fetchedTags = (await getTags()) as Tag[];
-        const activeTags = (fetchedTags || [])
-          .filter((tag) => tag?.active)
-          .map((tag) => ({
-            id: tag?.id || 0,
-            name: tag?.name || 'Unknown',
-            color: tag?.color || '#666',
-            icon: tag?.icon || 'Label',
-            description: tag?.description || null,
-            created_by: tag?.created_by || 0,
-            active: tag?.active || false,
-            created_on: tag?.created_on || '',
-            creator_name: tag?.creator_name || '',
-          }));
-        setTags(activeTags);
-      } catch (error) {
-        logger.error('Failed to fetch tags:', error);
-        setTags([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTags();
-  }, []);
+  const { data: allTags, loading } = useLookup('tags');
+  const tags = useMemo(
+    () =>
+      allTags
+        .filter((tag) => tag?.active)
+        .map((tag) => ({
+          ...tag,
+          name: tag.name || 'Unknown',
+          color: tag.color || '#666',
+          icon: tag.icon || 'Label',
+        })),
+    [allTags],
+  );
 
   if (loading) {
     return (
@@ -54,16 +41,6 @@ const TagSelect: React.FC<TagSelectProps> = ({
       </Box>
     );
   }
-
-  const getIconComponent = (iconName?: string): React.ReactElement => {
-    const name = iconName || 'Label';
-    const IconComponent = Icons[
-      name as keyof typeof Icons
-    ] as React.ComponentType<any>;
-    return IconComponent
-      ? React.createElement(IconComponent)
-      : React.createElement(Icons.Label);
-  };
 
   return (
     <Autocomplete
@@ -82,13 +59,13 @@ const TagSelect: React.FC<TagSelectProps> = ({
           {...props}
           sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
         >
-          {getIconComponent(tag?.icon)}
+          {renderTagIcon(tag?.icon)}
           <span>{tag?.name || 'Unknown'}</span>
         </Box>
       )}
       renderTags={(tagValue, getTagProps) =>
         (tagValue || []).map((tag, index) => {
-          const Icon = getIconComponent(tag?.icon);
+          const Icon = renderTagIcon(tag?.icon);
 
           return (
             <Chip

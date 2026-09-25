@@ -6,6 +6,8 @@ import '@testing-library/jest-dom';
 
 // Create mocks for test
 let mockCurrentUser: any = null;
+let mockIsAdmin = true;
+let mockActiveTab = 0;
 const mockLogout = jest.fn();
 const mockToggleTheme = jest.fn();
 
@@ -14,12 +16,14 @@ jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
     currentUser: mockCurrentUser,
     logout: mockLogout,
+    hasPermission: (permission: string) =>
+      permission === 'Admin' ? mockIsAdmin : true,
   }),
 }));
 
 jest.mock('../../../hooks/layout/useNavigation', () => ({
   useNavigation: () => ({
-    activeTab: 0,
+    activeTab: mockActiveTab,
   }),
 }));
 
@@ -102,6 +106,8 @@ describe('Layout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCurrentUser = null;
+    mockIsAdmin = true;
+    mockActiveTab = 0;
   });
 
   const renderLayout = () => {
@@ -149,6 +155,17 @@ describe('Layout', () => {
       'href',
       '/settings',
     );
+  });
+
+  it('hides admin-only tabs for non-admin users', () => {
+    mockIsAdmin = false;
+    mockActiveTab = 3;
+    renderLayout();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Tasks')).toBeInTheDocument();
+    expect(screen.queryByText('Users')).not.toBeInTheDocument();
+    expect(screen.queryByText('Settings')).not.toBeInTheDocument();
+    expect(screen.getByTestId('tabs')).toHaveAttribute('data-value', 'false');
   });
 
   it('shows theme toggle with correct tooltip', () => {

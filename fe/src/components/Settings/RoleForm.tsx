@@ -9,12 +9,14 @@ import {
   Box,
 } from '@mui/material';
 import { RoleFormProps } from '../../types/role';
+import { ADMIN_ROLE_NAME } from '../../constants/roles';
 
 export const RoleForm: React.FC<RoleFormProps> = ({
   formData,
   groupedPermissions,
   onChange,
   onPermissionToggle,
+  isAdminRole = false,
 }) => {
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -25,6 +27,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
           onChange={(e) => onChange('name', e.target.value)}
           fullWidth
           required
+          disabled={isAdminRole}
         />
       </Grid>
       <Grid size={{ xs: 12 }}>
@@ -71,6 +74,9 @@ export const RoleForm: React.FC<RoleFormProps> = ({
                               permission.id,
                             )}
                             onChange={() => onPermissionToggle(permission)}
+                            disabled={
+                              isAdminRole && permission.name === ADMIN_ROLE_NAME
+                            }
                           />
                         }
                         label={permission?.name || 'Unknown Permission'}
@@ -107,6 +113,7 @@ export const RoleForm: React.FC<RoleFormProps> = ({
             <Switch
               checked={formData?.active ?? true}
               onChange={(e) => onChange('active', e.target.checked)}
+              disabled={isAdminRole}
             />
           }
           label="Active"

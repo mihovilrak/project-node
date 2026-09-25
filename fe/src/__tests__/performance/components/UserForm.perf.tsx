@@ -42,7 +42,6 @@ jest.mock('../../../hooks/user/useUserForm', () => ({
       role_id: 1,
       password: '',
       confirmPassword: '',
-      currentPassword: '',
     },
     handleInputChange: jest.fn(),
     handleSubmit: jest.fn((e: React.FormEvent) => e.preventDefault()),

@@ -2,12 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import TaskDetailsSidebar from '../TaskDetailsSidebar';
-import { TaskFile } from '../../../types/file';
 import { TaskWatcher } from '../../../types/watcher';
 
 // Mock child components
-jest.mock('../TaskFileSection', () => () => (
-  <div data-testid="task-file-section">TaskFileSection</div>
+jest.mock('../TaskFiles', () => () => (
+  <div data-testid="task-file-section">TaskFiles</div>
 ));
 jest.mock('../../Watchers/WatcherList', () => () => (
   <div data-testid="watcher-list">WatcherList</div>
@@ -15,19 +14,6 @@ jest.mock('../../Watchers/WatcherList', () => () => (
 jest.mock('../../Watchers/WatcherDialog', () => () => (
   <div data-testid="watcher-dialog">WatcherDialog</div>
 ));
-
-const mockFiles: TaskFile[] = [
-  {
-    id: 1,
-    task_id: 1,
-    user_id: 1,
-    name: 'test.pdf',
-    original_name: 'test.pdf',
-    mime_type: 'application/pdf',
-    size: 1024,
-    uploaded_on: '2023-01-01',
-  },
-];
 
 const mockWatchers: TaskWatcher[] = [
   {
@@ -41,11 +27,9 @@ const mockWatchers: TaskWatcher[] = [
 const defaultProps = {
   id: '1',
   projectId: 1,
-  files: mockFiles,
   watchers: mockWatchers,
   watcherDialogOpen: false,
-  onFileUploaded: jest.fn(),
-  onFileDeleted: jest.fn(),
+  canManageWatchers: true,
   onAddWatcher: jest.fn(),
   onRemoveWatcher: jest.fn(),
   onWatcherDialogClose: jest.fn(),
@@ -68,7 +52,7 @@ describe('TaskDetailsSidebar', () => {
     expect(screen.getByTestId('watcher-dialog')).toBeInTheDocument();
   });
 
-  it('passes correct props to TaskFileSection', () => {
+  it('renders TaskFiles', () => {
     const { container } = renderWithRouter(
       <TaskDetailsSidebar {...defaultProps} />,
     );
@@ -126,11 +110,6 @@ describe('TaskDetailsSidebar', () => {
     // Check that Grid element exists (even if it doesn't have the old item class)
     const gridElement = container.querySelector('[class*="MuiGrid"]');
     expect(gridElement).toBeInTheDocument();
-  });
-
-  it('handles empty files array', () => {
-    renderWithRouter(<TaskDetailsSidebar {...defaultProps} files={[]} />);
-    expect(screen.getByTestId('task-file-section')).toBeInTheDocument();
   });
 
   it('handles empty watchers array', () => {

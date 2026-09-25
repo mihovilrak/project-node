@@ -20,6 +20,8 @@ import {
   createTaskType,
 } from '../../api/taskTypes';
 import { useAsyncResource } from '../common/useAsyncResource';
+import { useLookups } from '../../context/LookupsContext';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 interface TypesAndRolesData {
   taskTypes: TaskType[];
@@ -46,6 +48,7 @@ export const useTypesAndRoles = () => {
   >(null);
   const [mutating, setMutating] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const { invalidate } = useLookups();
 
   const {
     data,
@@ -110,11 +113,11 @@ export const useTypesAndRoles = () => {
       setMutating(true);
       setMutationError(null);
       await mutate();
+      if (activeTab === 0) invalidate('types');
+      else if (activeTab === 2) invalidate('roles');
       await fetchData();
     } catch (error) {
-      setMutationError(
-        error instanceof Error ? error.message : fallbackMessage,
-      );
+      setMutationError(getApiErrorMessage(error, fallbackMessage));
     } finally {
       setMutating(false);
     }

@@ -38,11 +38,14 @@ jest.mock('../../Files/FileList', () => ({
   default: ({
     files,
     onFileDeleted,
+    onError,
   }: {
     files: TaskFile[];
     onFileDeleted: (id: number) => void;
+    onError?: (message: string) => void;
   }) => (
     <div data-testid="file-list">
+      <button onClick={() => onError?.('Download denied')}>Download</button>
       {files.map((file) => (
         <div key={file.id}>
           {file.original_name}
@@ -77,12 +80,14 @@ const mockFiles: TaskFile[] = [
 ];
 
 const mockRefreshFiles = jest.fn();
+const mockHandleFileDelete = jest.fn().mockResolvedValue(undefined);
 
 describe('TaskFiles', () => {
   beforeEach(() => {
     (useTaskFiles as jest.Mock).mockReturnValue({
       files: mockFiles,
       refreshFiles: mockRefreshFiles,
+      handleFileDelete: mockHandleFileDelete,
     });
   });
 
@@ -142,15 +147,31 @@ describe('TaskFiles', () => {
     fireEvent.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(mockRefreshFiles).toHaveBeenCalled();
+      expect(mockHandleFileDelete).toHaveBeenCalledTimes(1);
+      expect(mockHandleFileDelete).toHaveBeenCalledWith(mockFiles[0].id);
       expect(onFileDeleted).toHaveBeenCalledWith(mockFiles[0].id);
     });
+  });
+
+  it('shows download errors reported by the file list', async () => {
+    render(
+      <TaskFiles
+        taskId={1}
+        onFileUploaded={jest.fn()}
+        onFileDeleted={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByText('Download'));
+
+    expect(await screen.findByText('Download denied')).toBeInTheDocument();
   });
 
   it('displays correct number of files', () => {
     (useTaskFiles as jest.Mock).mockReturnValue({
       files: [],
       refreshFiles: mockRefreshFiles,
+      handleFileDelete: mockHandleFileDelete,
     });
 
     render(

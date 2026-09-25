@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import { User, UserFormData, UserUpdate, UserCreate } from '../../types/user';
 import { createUser, updateUser } from '../../api/users';
-import { getRoles } from '../../api/roles';
-import { Role } from '../../types/role';
-import logger from '../../utils/logger';
+import { useLookup } from '../../context/LookupsContext';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import { UserStatusId } from '../../constants/statusIds';
 
@@ -34,28 +32,13 @@ export const useUserDialog = (
     role_id: 3,
     status_id: UserStatusId.Active,
   });
-  const [error, setError] = useState<string | null>(null);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [rolesLoading, setRolesLoading] = useState<boolean>(true);
-
-  // Fetch roles from API when dialog opens
-  useEffect(() => {
-    if (open) {
-      const loadRoles = async () => {
-        try {
-          setRolesLoading(true);
-          const rolesData = await getRoles();
-          setRoles(rolesData);
-        } catch (error) {
-          logger.error('Failed to fetch roles:', error);
-          setError('Failed to load roles');
-        } finally {
-          setRolesLoading(false);
-        }
-      };
-      loadRoles();
-    }
-  }, [open]);
+  const [submitError, setError] = useState<string | null>(null);
+  const {
+    data: roles,
+    loading: rolesLoading,
+    error: rolesError,
+  } = useLookup('roles', open);
+  const error = submitError ?? (rolesError ? 'Failed to load roles' : null);
 
   useEffect(() => {
     if (!open) return;

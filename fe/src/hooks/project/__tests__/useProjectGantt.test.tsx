@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useProjectGantt } from '../useProjectGantt';
+import { GanttAppointmentProps, useProjectGantt } from '../useProjectGantt';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { ReactNode } from 'react';
 import { Task } from '../../../types/task';
@@ -213,17 +213,20 @@ describe('useProjectGantt', () => {
 
     const renderedAppointment = result.current.renderAppointment({
       data: {
+        startDate: new Date('2024-01-01'),
         status: 'in progress',
         priority: 'high/should',
       },
       style: {},
       children: null,
-    });
+      draggable: false,
+      resources: [],
+    } as GanttAppointmentProps);
 
-    expect(renderedAppointment.style.backgroundColor).toBe(
+    expect(renderedAppointment.style?.backgroundColor).toBe(
       createTheme().palette.primary.main,
     );
-    expect(renderedAppointment.style.borderLeft).toBe(
+    expect(renderedAppointment.style?.borderLeft).toBe(
       `4px solid ${createTheme().palette.warning.main}`,
     );
   });

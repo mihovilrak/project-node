@@ -7,13 +7,9 @@ import { Comment, TaskCommentSectionProps } from '../../../types/comment';
 // Mock child components
 jest.mock('../../Comments/CommentForm', () => ({
   __esModule: true,
-  default: ({ onCommentAdded }: any) => (
+  default: ({ onSubmit }: { onSubmit: (text: string) => Promise<unknown> }) => (
     <div data-testid="comment-form">
-      <button
-        onClick={() => onCommentAdded({ id: 999, comment: 'New comment' })}
-      >
-        Add Comment
-      </button>
+      <button onClick={() => onSubmit('New comment')}>Add Comment</button>
     </div>
   ),
 }));
@@ -91,23 +87,14 @@ describe('TaskCommentSection', () => {
     // Edit dialog is now managed by CommentList, not TaskCommentSection
   });
 
-  test('handles new comment submission', async () => {
-    const mockOnCommentRefresh = jest.fn();
-    const propsWithRefresh = {
-      ...mockProps,
-      onCommentRefresh: mockOnCommentRefresh,
-    };
-    renderComponent(propsWithRefresh);
-    const addButton = screen.getByText('Add Comment');
-    fireEvent.click(addButton);
+  test('submits new comments through onCommentSubmit once', async () => {
+    renderComponent();
+    fireEvent.click(screen.getByText('Add Comment'));
 
-    // After fix: onCommentRefresh should be called instead of onCommentSubmit
-    // to avoid duplicate comment creation
     await waitFor(() => {
-      expect(mockOnCommentRefresh).toHaveBeenCalled();
+      expect(mockProps.onCommentSubmit).toHaveBeenCalledTimes(1);
     });
-    // onCommentSubmit should NOT be called since comment is already created
-    expect(mockProps.onCommentSubmit).not.toHaveBeenCalled();
+    expect(mockProps.onCommentSubmit).toHaveBeenCalledWith('New comment');
   });
 
   test('handles comment update', async () => {

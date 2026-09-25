@@ -132,7 +132,7 @@ describe('TagSelect Component', () => {
     });
 
     expect(logger.error).toHaveBeenCalledWith(
-      'Failed to fetch tags:',
+      'Failed to load tags:',
       expect.any(Error),
     );
   });

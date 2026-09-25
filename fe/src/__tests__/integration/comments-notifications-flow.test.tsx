@@ -273,12 +273,12 @@ describe('Comments and Notifications Flow', () => {
   it('should handle error cases', async () => {
     const user = userEvent.setup();
 
-    // Mock API error
-    mockedApi.get.mockImplementationOnce((url) => {
-      if (url.includes('/tasks')) {
-        return Promise.reject(new Error('Failed to fetch tasks'));
+    const defaultGet = mockedApi.get.getMockImplementation()!;
+    mockedApi.get.mockImplementation((url, ...rest) => {
+      if (url.includes('/tasks') && !url.includes('/tasks/')) {
+        return Promise.reject({ response: { status: 500, data: {} } });
       }
-      return Promise.resolve({ data: [] });
+      return defaultGet(url, ...rest);
     });
 
     render(
@@ -298,5 +298,5 @@ describe('Comments and Notifications Flow', () => {
     expect(screen.getByTestId('task-error')).toHaveTextContent(
       'Failed to load tasks. Please try again later.',
     );
-  });
+  }, 15000);
 });

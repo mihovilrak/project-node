@@ -1,19 +1,15 @@
 import { useState } from 'react';
-import { createComment } from '../../api/comments';
-import { Comment, CommentError } from '../../types/comment';
 import logger from '../../utils/logger';
+import getApiErrorMessage from '../../utils/getApiErrorMessage';
 
 /**
- * Manage form state and submission logic for adding comments to a task.
+ * Manage the new-comment input and its submission state.
  *
- * @param taskId The numeric identifier of the task to which the comment will be
- *   added.
- * @param onCommentAdded Callback invoked with the new comment object after
- *   successful submission.
+ * @param onSubmit Persists the trimmed comment text; rejections are shown as
+ *   the form error.
  */
 export const useCommentForm = (
-  taskId: number,
-  onCommentAdded: (comment: Comment) => void,
+  onSubmit: (text: string) => Promise<unknown>,
 ) => {
   const [comment, setComment] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,15 +25,10 @@ export const useCommentForm = (
     setError(null);
 
     try {
-      const newComment = await createComment(taskId, {
-        comment: comment.trim(),
-      });
-
-      onCommentAdded(newComment);
+      await onSubmit(comment.trim());
       setComment('');
     } catch (err) {
-      const error = err as CommentError;
-      setError(error.error || 'Failed to add comment');
+      setError(getApiErrorMessage(err, 'Failed to add comment'));
       logger.error('Error adding comment:', err);
     } finally {
       setLoading(false);

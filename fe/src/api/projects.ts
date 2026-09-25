@@ -1,5 +1,6 @@
 import { api } from './api';
 import { Project, ProjectMember, ProjectStatus } from '../types/project';
+import { fetchAllPages } from './pagination';
 
 /**
  * Fetch the projects list from the server, optionally filtering by status,
@@ -32,31 +33,13 @@ export const getProjects = async (
   },
   signal?: AbortSignal,
 ): Promise<Project[]> => {
-  const response = await api.get<Project[]>('/projects', {
-    params,
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Project[]>('/projects', {
+      params: { ...params, ...page },
+      signal,
+    });
+    return response.data;
   });
-  return response.data;
-};
-
-/**
- * Retrieve the project with the given id from the server.
- *
- * Performs a GET /projects/:id request and returns the primary Project record.
- * The optional AbortSignal can be used to cancel the in-flight request. For
- * expanded or additional project data, use getProjectDetails alongside this
- * call.
- *
- * @param id Number - the numeric id of the project to fetch (required)
- * @param signal AbortSignal | undefined - optional signal to cancel the HTTP
- *   request
- */
-export const getProjectById = async (
-  id: number,
-  signal?: AbortSignal,
-): Promise<Project> => {
-  const response = await api.get<Project>(`/projects/${id}`, { signal });
-  return response.data;
 };
 
 /**
@@ -114,41 +97,28 @@ export const createProject = async (
 };
 
 /**
- * Update a project's workflow state by sending the new status identifier to the
- * server.
+ * Save project changes. The server does not return the updated record, so
+ * callers merge `updates` into their local state.
+ */
+export const updateProject = async (
+  id: number,
+  updates: Partial<Project>,
+): Promise<void> => {
+  await api.put(`/projects/${id}`, updates);
+};
+
+/**
+ * Move a project to another status. PUT /projects/:id ignores status_id, so
+ * status changes go through this endpoint.
  *
- * Sends a PATCH request to /projects/{id}/status with a JSON body { status_id:
- * statusId } and returns the backend response message. This operation mutates
- * the project record on the server and will fail if the project or status id
- * does not exist or if the caller lacks permission to change the project's
- * status.
- *
- * @param id Numeric project identifier (project id).
- * @param statusId Numeric identifier of the new project status; sent as
- *   status_id in the request body.
- * @returns Promise resolving to an object with a `message` string confirming
- *   the status change.
+ * @param id Numeric ID of the project.
+ * @param statusId ID of the target project status.
  */
 export const changeProjectStatus = async (
   id: number,
   statusId: number,
-): Promise<{ message: string }> => {
-  const response = await api.patch<{ message: string }>(
-    `/projects/${id}/status`,
-    {
-      status_id: statusId,
-    },
-  );
-  return response.data;
-};
-
-// Update project
-export const updateProject = async (
-  id: number,
-  updates: Partial<Project>,
-): Promise<Project> => {
-  const response = await api.put<Project>(`/projects/${id}`, updates);
-  return response.data;
+): Promise<void> => {
+  await api.patch(`/projects/${id}/status`, { status_id: statusId });
 };
 
 /**
@@ -180,10 +150,13 @@ export const getProjectMembers = async (
   id: number,
   signal?: AbortSignal,
 ): Promise<ProjectMember[]> => {
-  const response = await api.get<ProjectMember[]>(`/projects/${id}/members`, {
-    signal,
+  return fetchAllPages(async (page) => {
+    const response = await api.get<ProjectMember[]>(
+      `/projects/${id}/members`,
+      { params: page, signal },
+    );
+    return response.data;
   });
-  return response.data || [];
 };
 
 /**
@@ -234,32 +207,6 @@ export const removeProjectMember = async (
 };
 
 /**
- * Change the role assigned to a user on a specific project.
- *
- * Performs a PUT request to /projects/{projectId}/members/{userId} with the new
- * role and returns the updated ProjectMember record. This call updates
- * server-side membership data; callers should use the returned ProjectMember or
- * refresh local state. No client-side validation of the role is performed.
- *
- * @param projectId Numeric ID of the project containing the member.
- * @param userId Numeric ID of the user whose project role will be updated.
- * @param role New role string to assign to the project member.
- * @returns Promise<ProjectMember> — resolves to the updated ProjectMember
- *   object.
- */
-export const updateProjectMember = async (
-  projectId: number,
-  userId: number,
-  role: string,
-): Promise<ProjectMember> => {
-  const response = await api.put<ProjectMember>(
-    `/projects/${projectId}/members/${userId}`,
-    { role },
-  );
-  return response.data;
-};
-
-/**
  * Get subprojects for a project by ID from the API.
  *
  * Performs a GET request to /projects/{projectId}/subprojects and returns the
@@ -276,23 +223,13 @@ export const getSubprojects = async (
   projectId: number,
   signal?: AbortSignal,
 ): Promise<Project[]> => {
-  const response = await api.get<Project[]>(
-    `/projects/${projectId}/subprojects`,
-    { signal },
-  );
-  return response.data;
-};
-
-/**
- * Retrieve the total time recorded for a project from the API.
- *
- * @param projectId Numeric ID of the project to fetch spent time for
- */
-export const getProjectSpentTime = async (
-  projectId: number,
-): Promise<number> => {
-  const response = await api.get<number>(`/projects/${projectId}/spent-time`);
-  return response.data;
+  return fetchAllPages(async (page) => {
+    const response = await api.get<Project[]>(
+      `/projects/${projectId}/subprojects`,
+      { params: page, signal },
+    );
+    return response.data;
+  });
 };
 
 /**

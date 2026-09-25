@@ -2,7 +2,7 @@ import { SelectChangeEvent } from '@mui/material';
 import { Tag } from './tag';
 import { TimeLog, TimeLogCreate } from './timeLog';
 import { Comment } from './comment';
-import { TaskFile } from './file';
+import { TaskWatcher } from './watcher';
 import { ProjectMember } from './project';
 
 /**
@@ -241,19 +241,18 @@ export interface TaskDetailsContentProps {
   onEditEnd: () => void;
   onAddSubtaskClick: () => void;
   onTimeLogClick: () => void;
-  onCommentRefresh?: () => Promise<void>;
+  canLogTime?: boolean;
 }
 
 export interface TaskDetailsSidebarProps {
   id: string;
   projectId: number;
-  files: TaskFile[];
-  watchers: any[];
+  watchers: TaskWatcher[];
   watcherDialogOpen: boolean;
-  onFileUploaded: (file: TaskFile) => void;
-  onFileDeleted: (fileId: number) => Promise<void>;
-  onAddWatcher: (userId: number) => void;
-  onRemoveWatcher: (userId: number) => void;
+  canManageWatchers: boolean;
+  currentUserId?: number;
+  onAddWatcher: (userId: number) => void | Promise<void>;
+  onRemoveWatcher: (userId: number) => void | Promise<void>;
   onWatcherDialogClose: () => void;
   onManageWatchers: () => void;
 }
@@ -284,7 +283,7 @@ export interface AssigneeSelectionSectionProps {
 export type SimpleChangeEvent = {
   target: {
     name: string;
-    value: any;
+    value: unknown;
   };
 };
 
@@ -310,6 +309,7 @@ export interface ParentTaskSelectProps {
   projectTasks: Task[];
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   parentIdFromUrl?: string | null;
+  disabled?: boolean;
 }
 
 export interface UseTaskFormProps {

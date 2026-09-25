@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
@@ -29,31 +29,34 @@ export const useNavigation = () => {
     }
   }, [location.pathname]);
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    switch (newValue) {
-      case 0:
-        navigate('/');
-        break;
-      case 1:
-        navigate('/projects');
-        break;
-      case 2:
-        navigate('/tasks');
-        break;
-      case 3:
-        navigate('/users');
-        break;
-      case 4:
-        navigate('/settings');
-        break;
-      case 5:
-        navigate('/profile');
-        break;
-      default:
-        break;
-    }
-  };
+  const handleTabChange = useCallback(
+    (_event: React.SyntheticEvent, newValue: number) => {
+      setActiveTab(newValue);
+      switch (newValue) {
+        case 0:
+          navigate('/');
+          break;
+        case 1:
+          navigate('/projects');
+          break;
+        case 2:
+          navigate('/tasks');
+          break;
+        case 3:
+          navigate('/users');
+          break;
+        case 4:
+          navigate('/settings');
+          break;
+        case 5:
+          navigate('/profile');
+          break;
+        default:
+          break;
+      }
+    },
+    [navigate],
+  );
 
   return {
     activeTab,

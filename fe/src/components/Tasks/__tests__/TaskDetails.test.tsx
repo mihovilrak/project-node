@@ -1,11 +1,10 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import TaskDetails from '../TaskDetails';
 import * as TaskCore from '../../../hooks/task/useTaskCore';
 import * as TaskTimeLogs from '../../../hooks/task/useTaskTimeLogs';
 import * as TaskWatchers from '../../../hooks/task/useTaskWatchers';
-import * as TaskFiles from '../../../hooks/task/useTaskFiles';
 import * as TaskComments from '../../../hooks/task/useTaskComments';
 import * as TaskDetailsHandlers from '../../../hooks/task/useTaskDetailsHandlers';
 import { Task, TaskStatus } from '../../../types/task';
@@ -14,7 +13,6 @@ import { Task, TaskStatus } from '../../../types/task';
 jest.mock('../../../hooks/task/useTaskCore');
 jest.mock('../../../hooks/task/useTaskTimeLogs');
 jest.mock('../../../hooks/task/useTaskWatchers');
-jest.mock('../../../hooks/task/useTaskFiles');
 jest.mock('../../../hooks/task/useTaskComments');
 jest.mock('../../../hooks/task/useTaskDetailsHandlers');
 jest.mock('../../../context/AuthContext', () => ({
@@ -34,7 +32,11 @@ jest.mock('../TaskDetailsContent', () => ({
 
 jest.mock('../TaskDetailsSidebar', () => ({
   __esModule: true,
-  default: () => <div data-testid="task-details-sidebar" />,
+  default: ({ onAddWatcher }: { onAddWatcher: (userId: number) => void }) => (
+    <div data-testid="task-details-sidebar">
+      <button onClick={() => onAddWatcher(5)}>add watcher</button>
+    </div>
+  ),
 }));
 
 const mockTask: Task = {
@@ -94,7 +96,6 @@ describe('TaskDetails', () => {
       statuses: mockStatuses,
       loading: false,
       error: null,
-      handleStatusChange: jest.fn(),
       handleDelete: jest.fn(),
       setSubtasks: jest.fn(),
     });
@@ -110,13 +111,6 @@ describe('TaskDetails', () => {
       watchers: [],
       handleAddWatcher: jest.fn(),
       handleRemoveWatcher: jest.fn(),
-    });
-
-    (TaskFiles.useTaskFiles as jest.Mock).mockReturnValue({
-      files: [],
-      handleFileUpload: jest.fn(),
-      handleFileDelete: jest.fn(),
-      refreshFiles: jest.fn(),
     });
 
     (TaskComments.useTaskComments as jest.Mock).mockReturnValue({
@@ -136,10 +130,8 @@ describe('TaskDetails', () => {
       },
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: jest.fn(),
-      handleStatusChange: jest.fn(),
-      handleSaveComment: jest.fn(),
       handleEditStart: jest.fn(),
-      handleTimeLogSubmit: jest.fn(),
+      handleTimeLogCreate: jest.fn(),
       handleTimeLogEdit: jest.fn(),
       handleTimeLogDialogClose: jest.fn(),
       handleAddSubtaskClick: jest.fn(),
@@ -193,7 +185,7 @@ describe('TaskDetails', () => {
     expect(screen.getByTestId('task-details-sidebar')).toBeInTheDocument();
   });
 
-  test('fetches time logs on mount', () => {
+  test('does not refetch time logs on mount', () => {
     const mockFetchTimeLogs = jest.fn();
     (TaskTimeLogs.useTaskTimeLogs as jest.Mock).mockReturnValue({
       timeLogs: [],
@@ -203,7 +195,7 @@ describe('TaskDetails', () => {
     });
 
     renderTaskDetails();
-    expect(mockFetchTimeLogs).toHaveBeenCalled();
+    expect(mockFetchTimeLogs).not.toHaveBeenCalled();
   });
 
   test('handles status change correctly', async () => {
@@ -226,9 +218,8 @@ describe('TaskDetails', () => {
       handleStatusMenuClick: jest.fn(),
       handleStatusMenuClose: mockHandleStatusMenuClose,
       handleStatusChange: mockHandleStatusChange,
-      handleSaveComment: jest.fn(),
       handleEditStart: jest.fn(),
-      handleTimeLogSubmit: jest.fn(),
+      handleTimeLogCreate: jest.fn(),
       handleTimeLogEdit: jest.fn(),
       handleTimeLogDialogClose: jest.fn(),
       handleAddSubtaskClick: jest.fn(),
@@ -247,5 +238,36 @@ describe('TaskDetails', () => {
     });
   });
 
-  // Add more test cases as needed for other interactions
+  test('shows a watcher error instead of rejecting unhandled', async () => {
+    const setActionError = jest.fn();
+    const handleAddWatcher = jest
+      .fn()
+      .mockRejectedValue(new Error('Permission denied: Edit tasks required'));
+    (TaskCore.useTaskCore as jest.Mock).mockReturnValue({
+      task: mockTask,
+      subtasks: [],
+      statuses: mockStatuses,
+      loading: false,
+      error: null,
+      actionError: null,
+      setActionError,
+      handleDelete: jest.fn(),
+      setSubtasks: jest.fn(),
+    });
+    (TaskWatchers.useTaskWatchers as jest.Mock).mockReturnValue({
+      watchers: [],
+      handleAddWatcher,
+      handleRemoveWatcher: jest.fn(),
+    });
+
+    renderTaskDetails();
+    fireEvent.click(screen.getByText('add watcher'));
+
+    await waitFor(() => {
+      expect(setActionError).toHaveBeenLastCalledWith(
+        'Permission denied: Edit tasks required',
+      );
+    });
+    expect(handleAddWatcher).toHaveBeenCalledWith(5);
+  });
 });

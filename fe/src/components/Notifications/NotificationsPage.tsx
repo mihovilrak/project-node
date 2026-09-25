@@ -53,7 +53,6 @@ const NotificationsPage: React.FC = () => {
     handleNotificationClick,
     handleDeleteNotification,
     handleMarkAllAsRead,
-    fetchNotifications,
   } = useNotificationCenter(userId, 60000);
 
   const filteredNotifications = useMemo(() => {
@@ -71,7 +70,6 @@ const NotificationsPage: React.FC = () => {
     setMarkingAll(true);
     try {
       await handleMarkAllAsRead();
-      await fetchNotifications();
     } finally {
       setMarkingAll(false);
     }
@@ -136,7 +134,8 @@ const NotificationsPage: React.FC = () => {
           <Tab label="Unread" value="unread" data-testid="tab-unread" />
         </Tabs>
 
-        {loading ? (
+        {/* Background polls keep the list visible instead of flashing a spinner. */}
+        {loading && notifications.length === 0 ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress
               data-testid="loading-spinner"

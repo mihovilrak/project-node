@@ -19,6 +19,7 @@ import PermissionButton from '../common/PermissionButton';
 const WatcherList: React.FC<WatcherListProps> = ({
   watchers,
   canManageWatchers,
+  currentUserId,
   onRemoveWatcher,
   onManageWatchers,
 }) => {
@@ -92,7 +93,8 @@ const WatcherList: React.FC<WatcherListProps> = ({
                 }
                 secondary={watcher?.role || 'No role'}
               />
-              {canManageWatchers && (
+              {/* Anyone may unwatch themselves; removing others needs Edit tasks. */}
+              {(canManageWatchers || watcher.user_id === currentUserId) && (
                 <ListItemSecondaryAction>
                   <Tooltip title="Remove watcher">
                     <IconButton

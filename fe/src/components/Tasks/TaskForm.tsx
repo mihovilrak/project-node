@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import {
   Box,
@@ -41,6 +41,7 @@ const TaskForm: React.FC = () => {
     priorities,
     isEditing,
     isLoading,
+    loadError,
     handleChange,
     handleSubmit,
   } = useTaskForm({
@@ -50,25 +51,23 @@ const TaskForm: React.FC = () => {
     currentUserId: currentUser?.id,
   });
 
-  // Force project and parent task IDs from URL
-  React.useEffect(() => {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // handleChange ignores values equal to the current ones, so these are no-ops
+  // unless the URL actually changes the field.
+  useEffect(() => {
     if (projectIdFromQuery) {
       handleChange({
-        target: {
-          name: 'project_id',
-          value: parseInt(projectIdFromQuery, 10),
-        },
+        target: { name: 'project_id', value: parseInt(projectIdFromQuery, 10) },
       });
     }
   }, [projectIdFromQuery, handleChange]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (parentId) {
       handleChange({
-        target: {
-          name: 'parent_id',
-          value: parseInt(parentId, 10),
-        },
+        target: { name: 'parent_id', value: parseInt(parentId, 10) },
       });
     }
   }, [parentId, handleChange]);
@@ -86,8 +85,17 @@ const TaskForm: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleSubmit(e);
-    // Navigation is handled in handleSubmit
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await handleSubmit(e);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Failed to save task',
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,9 +103,23 @@ const TaskForm: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         {isLoading ? 'Loading...' : isEditing ? 'Edit Task' : 'Create Task'}
       </Typography>
+      {loadError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {loadError}
+        </Alert>
+      )}
       {selectError && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {selectError}
+        </Alert>
+      )}
+      {submitError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={() => setSubmitError(null)}
+        >
+          {submitError}
         </Alert>
       )}
       <form onSubmit={onSubmit} data-testid="task-form">
@@ -122,6 +144,7 @@ const TaskForm: React.FC = () => {
               formData={formData}
               handleChange={handleFormChange}
               projectIdFromQuery={projectIdFromQuery}
+              disabled={isEditing}
             />
           </Grid>
 
@@ -132,6 +155,7 @@ const TaskForm: React.FC = () => {
                 projectTasks={projectTasks}
                 handleChange={handleFormChange}
                 parentIdFromUrl={parentId}
+                disabled={isEditing}
               />
             </Grid>
           )}
@@ -256,7 +280,12 @@ const TaskForm: React.FC = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isLoading || submitting || Boolean(loadError)}
+              >
                 {isEditing ? 'Update Task' : 'Create Task'}
               </Button>
             </Box>

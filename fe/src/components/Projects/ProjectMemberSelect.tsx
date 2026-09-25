@@ -49,7 +49,7 @@ const ProjectMemberSelect: React.FC<ProjectMemberSelectProps> = ({
                     `${user?.name || ''} ${user?.surname || ''}`.trim() ||
                     'Unknown User'
                   }
-                  secondary={`Role: ${user?.role_name || 'No role'}`}
+                  secondary={user.login}
                 />
               </ListItem>
             );

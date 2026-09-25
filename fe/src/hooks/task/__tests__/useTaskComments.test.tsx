@@ -12,7 +12,7 @@ import { Comment } from '../../../types/comment';
 jest.mock('../../../api/comments');
 
 // Mock the auth context
-const mockCurrentUser = { id: 1, name: 'Test User' };
+const mockCurrentUser = { id: 1, name: 'Test', surname: 'User' };
 jest.mock('../../../context/AuthContext', () => ({
   useAuth: () => ({
     currentUser: mockCurrentUser,
@@ -81,7 +81,36 @@ describe('useTaskComments', () => {
     });
 
     expect(createComment).toHaveBeenCalledWith(1, { comment: 'New comment' });
-    expect(result.current.comments).toEqual([...mockComments, newComment]);
+    expect(result.current.comments).toEqual([newComment, ...mockComments]);
+  });
+
+  it('fills the author on a new comment without refetching', async () => {
+    const bareRow = {
+      id: 4,
+      task_id: 1,
+      user_id: 1,
+      comment: 'Bare row',
+      active: true,
+      created_on: '2024-01-26T00:00:00Z',
+      updated_on: null,
+    };
+    (createComment as jest.Mock).mockResolvedValue(bareRow);
+
+    const { result } = renderHook(() => useTaskComments('1'));
+    await waitFor(() => {
+      expect(result.current.comments).toEqual(mockComments);
+    });
+
+    await act(async () => {
+      await result.current.handleCommentSubmit('Bare row');
+    });
+
+    expect(createComment).toHaveBeenCalledTimes(1);
+    expect(getTaskComments).toHaveBeenCalledTimes(1);
+    expect(result.current.comments[0]).toEqual({
+      ...bareRow,
+      user_name: 'Test User',
+    });
   });
 
   it('should prevent duplicate comments', async () => {

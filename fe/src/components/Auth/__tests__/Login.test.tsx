@@ -18,6 +18,7 @@ jest.mock('../../../context/AuthContext', () => ({
 // Mock react-router-dom
 jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
+  useSearchParams: () => [new URLSearchParams()],
 }));
 
 describe('Login Component', () => {

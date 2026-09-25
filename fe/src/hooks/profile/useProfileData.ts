@@ -58,6 +58,7 @@ export const useProfileData = () => {
 
   const {
     data: { profile, recentTasks, recentProjects },
+    setData,
     loading,
     error,
     refetch: fetchData,
@@ -91,16 +92,16 @@ export const useProfileData = () => {
 
   const stats = useMemo(() => toStats(profile), [profile]);
 
+  // Rejections propagate so the edit dialog can show them and stay open.
   const handleProfileUpdate = async (updatedProfile: ProfileUpdateData) => {
-    try {
-      await updateProfile(updatedProfile);
-      await fetchData();
-      setEditDialogOpen(false);
-      setUpdateSuccess(true);
-      setTimeout(() => setUpdateSuccess(false), 3000);
-    } catch (err) {
-      logger.error('Failed to update profile:', err);
-    }
+    const saved = await updateProfile(updatedProfile);
+    setData((prev) => ({
+      ...prev,
+      profile: prev.profile ? { ...prev.profile, ...saved } : prev.profile,
+    }));
+    setEditDialogOpen(false);
+    setUpdateSuccess(true);
+    setTimeout(() => setUpdateSuccess(false), 3000);
   };
 
   const handleTaskClick = (taskId: number) => {

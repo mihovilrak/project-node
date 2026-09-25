@@ -16,10 +16,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Dayjs } from 'dayjs';
 import { TimeLogFormProps } from '../../types/timeLog';
+import { MAX_LOG_HOURS } from '../../hooks/timeLog/useTimeLogValidation';
 
 const STEP = 0.25;
 const MIN_HOURS = 0;
-const MAX_HOURS = 999.99;
+const MAX_HOURS = MAX_LOG_HOURS;
 
 const TimeLogForm: React.FC<TimeLogFormProps> = ({
   projects,

@@ -10,7 +10,12 @@ import {
   getPriorities,
   changeTaskStatus,
 } from '../../../api/tasks';
-import { getTaskTags, getTags } from '../../../api/tags';
+import {
+  addTaskTags,
+  getTaskTags,
+  getTags,
+  removeTaskTag,
+} from '../../../api/tags';
 import { Task, TaskStatus, TaskPriority } from '../../../types/task';
 import { Tag } from '../../../types/tag';
 import { ProjectMember } from '../../../types/project';
@@ -349,9 +354,9 @@ describe('useTaskForm', () => {
       { wrapper },
     );
 
-    // Wait for edit mode
+    expect(result.current.isEditing).toBe(true);
     await waitFor(() => {
-      expect(result.current.isEditing).toBe(true);
+      expect(result.current.isLoading).toBe(false);
     });
 
     act(() => {
@@ -375,12 +380,123 @@ describe('useTaskForm', () => {
     });
   });
 
-  it('should update task status immediately when editing', async () => {
-    const newStatus = 2;
-    const updatedTask = { ...mockTask, status_id: newStatus };
-    (changeTaskStatus as jest.Mock).mockResolvedValue(updatedTask);
-    (getTaskById as jest.Mock).mockResolvedValue(mockTask);
-    (getTaskTags as jest.Mock).mockResolvedValue([mockTags[0]]);
+  it('persists a status change only on submit', async () => {
+    (updateTask as jest.Mock).mockResolvedValue(mockTask);
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: 'status_id', value: 2 },
+      });
+    });
+
+    expect(result.current.formData.status_id).toBe(2);
+    expect(changeTaskStatus).not.toHaveBeenCalled();
+    expect(updateTask).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
+    });
+
+    expect(updateTask).toHaveBeenCalledTimes(1);
+    expect(updateTask).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ status_id: 2 }),
+    );
+    expect(changeTaskStatus).not.toHaveBeenCalled();
+    const updates = (updateTask as jest.Mock).mock.calls[0][1];
+    expect(updates).not.toHaveProperty('project_id');
+    expect(updates).not.toHaveProperty('parent_id');
+  });
+
+  it('syncs tag changes through the task tag endpoints', async () => {
+    (updateTask as jest.Mock).mockResolvedValue(mockTask);
+    (addTaskTags as jest.Mock).mockResolvedValue([mockTags[1]]);
+    (removeTaskTag as jest.Mock).mockResolvedValue(undefined);
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    act(() => {
+      result.current.handleChange({
+        target: { name: 'tags', value: [mockTags[1]] },
+      });
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
+    });
+
+    expect(updateTask).toHaveBeenCalledTimes(1);
+    expect((updateTask as jest.Mock).mock.calls[0][1]).not.toHaveProperty(
+      'tags',
+    );
+    expect(addTaskTags).toHaveBeenCalledTimes(1);
+    expect(addTaskTags).toHaveBeenCalledWith(1, [mockTags[1].id]);
+    expect(removeTaskTag).toHaveBeenCalledTimes(1);
+    expect(removeTaskTag).toHaveBeenCalledWith(1, mockTags[0].id);
+  });
+
+  it('skips tag calls when tags are unchanged', async () => {
+    (updateTask as jest.Mock).mockResolvedValue(mockTask);
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          taskId: '1',
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
+    });
+
+    expect(updateTask).toHaveBeenCalledTimes(1);
+    expect(addTaskTags).not.toHaveBeenCalled();
+    expect(removeTaskTag).not.toHaveBeenCalled();
+  });
+
+  it('keeps edit mode and blocks submit when loading fails', async () => {
+    (getTaskById as jest.Mock).mockRejectedValue({
+      response: { status: 404, data: { error: 'Task not found' } },
+    });
     const { result } = renderHook(
       () =>
         useTaskForm({
@@ -393,22 +509,55 @@ describe('useTaskForm', () => {
       { wrapper },
     );
 
-    // Wait for edit mode
     await waitFor(() => {
-      expect(result.current.isEditing).toBe(true);
+      expect(result.current.loadError).toBe('Task not found');
     });
+    expect(result.current.isEditing).toBe(true);
 
+    await expect(
+      result.current.handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent),
+    ).rejects.toThrow('Task not found');
+    expect(updateTask).not.toHaveBeenCalled();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it('keeps handleChange stable across renders', async () => {
+    const { result, rerender } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
+    const first = result.current.handleChange;
     act(() => {
-      result.current.handleChange({
-        target: { name: 'status_id', value: newStatus },
-      });
+      result.current.handleChange({ target: { name: 'name', value: 'A' } });
     });
+    rerender();
+    expect(result.current.handleChange).toBe(first);
+  });
+
+  it('loads statuses and priorities from the lookups', async () => {
+    const { result } = renderHook(
+      () =>
+        useTaskForm({
+          currentUserId,
+          projectId: undefined,
+          projectIdFromQuery: null,
+          parentTaskId: null,
+        }),
+      { wrapper },
+    );
 
     await waitFor(() => {
-      expect(changeTaskStatus).toHaveBeenCalledWith(1, newStatus);
+      expect(result.current.statuses).toEqual(mockStatuses);
+      expect(result.current.priorities).toEqual(mockPriorities);
     });
-    await waitFor(() => {
-      expect(result.current.formData.status_id).toBe(newStatus);
-    });
+    expect(getTags).not.toHaveBeenCalled();
   });
 });

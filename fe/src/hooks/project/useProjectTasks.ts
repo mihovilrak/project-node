@@ -1,48 +1,26 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Task } from '../../types/task';
 import { ProjectTasksHook } from '../../types/project';
 import { getProjectTasks } from '../../api/tasks';
-import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import { useAsyncResource } from '../common/useAsyncResource';
+
+const EMPTY_TASKS: Task[] = [];
 
 /**
- * Manage project tasks state and operations including loading, creation, and
- * error handling.
+ * Load the tasks of a project.
  *
  * @param projectId The project identifier to load tasks for
  */
 export const useProjectTasks = (projectId: string): ProjectTasksHook => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskFormOpen, setTaskFormOpen] = useState(false);
-  const [tasksError, setTasksError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { data, error, refetch } = useAsyncResource<Task[]>(
+    async (signal) =>
+      (await getProjectTasks(Number(projectId), {}, signal)) || [],
+    [projectId],
+    {
+      initialData: EMPTY_TASKS,
+      enabled: Boolean(projectId),
+      errorMessage: 'Failed to load project tasks',
+    },
+  );
 
-  const loadTasks = async () => {
-    if (projectId) {
-      try {
-        setTasksError(null);
-        const tasks = await getProjectTasks(Number(projectId));
-        setTasks(tasks || []);
-      } catch (err: unknown) {
-        logger.error('Failed to load tasks:', err);
-        setTasks([]);
-        setTasksError(getApiErrorMessage(err, 'Failed to load project tasks'));
-      }
-    }
-  };
-
-  const handleTaskCreate = async (task: Task): Promise<void> => {
-    navigate(`/tasks/new?projectId=${projectId}`);
-  };
-
-  return {
-    tasks,
-    setTasks,
-    tasksError,
-    taskFormOpen,
-    setTaskFormOpen,
-    handleTaskCreate,
-    loadTasks,
-  };
+  return { tasks: data, tasksError: error, loadTasks: refetch };
 };

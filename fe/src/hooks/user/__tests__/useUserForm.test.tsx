@@ -53,37 +53,29 @@ describe('useUserForm', () => {
       surname: '',
       email: '',
       password: '',
-      currentPassword: '',
       confirmPassword: '',
       role_id: 4,
     });
 
-    // Wait for roles to be fetched
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(getRoles).toHaveBeenCalled();
+    expect(getRoles).toHaveBeenCalledTimes(1);
     expect(result.current.roles).toEqual(mockRoles);
-    expect(result.current.loading).toBe(false);
   });
 
   it('should fetch user data when userId is provided', async () => {
     const { result } = renderHook(() => useUserForm({ userId: '1' }));
 
-    // Wait for user data to be fetched
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(getUserById).toHaveBeenCalledWith(1);
+    expect(getUserById).toHaveBeenCalledTimes(1);
+    expect(getUserById).toHaveBeenCalledWith(1, expect.any(AbortSignal));
     expect(result.current.formValues).toEqual({
       login: mockUser.login,
       name: mockUser.name,
       surname: mockUser.surname,
       email: mockUser.email,
       password: '',
-      currentPassword: '',
       confirmPassword: '',
       role_id: mockUser.role_id,
     });
@@ -162,9 +154,6 @@ describe('useUserForm', () => {
         target: { name: 'password', value: 'newpassword' },
       } as React.ChangeEvent<HTMLInputElement>);
       result.current.handleInputChange({
-        target: { name: 'currentPassword', value: 'oldpassword' },
-      } as React.ChangeEvent<HTMLInputElement>);
-      result.current.handleInputChange({
         target: { name: 'confirmPassword', value: 'newpassword' },
       } as React.ChangeEvent<HTMLInputElement>);
     });
@@ -186,9 +175,25 @@ describe('useUserForm', () => {
       email: mockUser.email,
       role_id: mockUser.role_id,
       password: 'newpassword',
-      currentPassword: 'oldpassword',
     });
+    expect(updateUser).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/users');
+  });
+
+  it('omits the password when editing without a new one', async () => {
+    const { result } = renderHook(() => useUserForm({ userId: '1' }));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        preventDefault: jest.fn(),
+      } as unknown as React.FormEvent);
+    });
+
+    expect(updateUser).toHaveBeenCalledTimes(1);
+    expect((updateUser as jest.Mock).mock.calls[0][1]).not.toHaveProperty(
+      'password',
+    );
   });
 
   it('should handle API errors', async () => {

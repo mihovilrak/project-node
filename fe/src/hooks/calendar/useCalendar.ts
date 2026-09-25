@@ -14,8 +14,11 @@ const getRange = (selectedDate: Date, view: CalendarView) => {
   const end = new Date(selectedDate);
 
   if (view === 'month') {
+    // Cover the whole 6-week grid, including the adjacent months' days.
     start.setDate(1);
-    end.setMonth(end.getMonth() + 1, 0);
+    start.setDate(1 - start.getDay());
+    end.setTime(start.getTime());
+    end.setDate(start.getDate() + 41);
   } else if (view === 'week') {
     start.setDate(start.getDate() - start.getDay());
     end.setDate(end.getDate() + (6 - end.getDay()));

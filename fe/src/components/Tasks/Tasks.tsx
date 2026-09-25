@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FixedSizeList as List } from 'react-window';
 import {
-  getTasks,
-  deleteTask,
-  getTaskStatuses,
-  getPriorities,
-} from '../../api/tasks';
+  FixedSizeList as List,
+  ListChildComponentProps,
+  areEqual,
+} from 'react-window';
+import { getTasks, deleteTask } from '../../api/tasks';
 import logger from '../../utils/logger';
 import { getProjects } from '../../api/projects';
-import { getUsers } from '../../api/users';
+import { useLookup } from '../../context/LookupsContext';
 import {
+  Alert,
   Button,
   Typography,
   Box,
@@ -20,6 +20,7 @@ import {
   SelectChangeEvent,
   Grid,
   IconButton,
+  Pagination,
   Tooltip,
 } from '@mui/material';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -33,127 +34,161 @@ import { idFilterParam, parseIdFilter } from '../../utils/taskUtils';
 import getApiErrorMessage from '../../utils/getApiErrorMessage';
 import TaskCard from './TaskCard';
 
+const GRID_PAGE_SIZE = 30;
+
+interface TaskRowData {
+  items: Array<{ task: Task; depth: number }>;
+  canEdit: boolean;
+  canDelete: boolean;
+  onEdit: (task: Task) => void;
+  onDelete: (task: Task) => void;
+}
+
+const TaskListRow = memo(
+  ({ index, style, data }: ListChildComponentProps<TaskRowData>) => {
+    const { task, depth } = data.items[index];
+    return (
+      <div style={style}>
+        <Box sx={{ py: 0.5, px: 0.5 }}>
+          <TaskCard
+            task={task}
+            depth={depth}
+            variant="list"
+            canEdit={data.canEdit}
+            canDelete={data.canDelete}
+            onEdit={data.onEdit}
+            onDelete={data.onDelete}
+          />
+        </Box>
+      </div>
+    );
+  },
+  areEqual,
+);
+TaskListRow.displayName = 'TaskListRow';
+
+const buildTaskParams = (f: FilterValues): TaskFilters => {
+  const params: TaskFilters = {};
+  const statusIdStr = f.status_id != null ? String(f.status_id) : '';
+  const statusId = statusIdStr !== '' ? Number(statusIdStr) : undefined;
+  if (statusId === -1) {
+    params.inactive_statuses_only = 1;
+  } else if (statusId === 0) {
+    params.active_statuses_only = 1;
+  } else if (statusIdStr.includes(',')) {
+    params.status_id = statusIdStr;
+  } else if (statusId !== undefined && !Number.isNaN(statusId)) {
+    params.status_id = statusId;
+  }
+  const priorityParam = idFilterParam(f.priority_id);
+  if (priorityParam !== undefined) params.priority_id = priorityParam;
+  const assigneeParam = idFilterParam(f.assignee_id);
+  if (assigneeParam !== undefined) params.assignee_id = assigneeParam;
+  const holderParam = idFilterParam(f.holder_id);
+  if (holderParam !== undefined) params.holder_id = holderParam;
+  const projectParam = idFilterParam(f.project_id);
+  if (projectParam !== undefined) params.project_id = projectParam;
+  const createdByParam = idFilterParam(f.created_by);
+  if (createdByParam !== undefined) params.created_by = createdByParam;
+  if (f.id != null && f.id !== '') params.id = Number(f.id);
+  if (f.parent_id != null && f.parent_id !== '')
+    params.parent_id = Number(f.parent_id);
+  if (f.due_date_from) params.due_date_from = String(f.due_date_from);
+  if (f.due_date_to) params.due_date_to = String(f.due_date_to);
+  if (f.start_date_from) params.start_date_from = String(f.start_date_from);
+  if (f.start_date_to) params.start_date_to = String(f.start_date_to);
+  if (f.created_from) params.created_from = String(f.created_from);
+  if (f.created_to) params.created_to = String(f.created_to);
+  if (f.estimated_time_min != null && f.estimated_time_min !== '')
+    params.estimated_time_min = Number(f.estimated_time_min);
+  if (f.estimated_time_max != null && f.estimated_time_max !== '')
+    params.estimated_time_max = Number(f.estimated_time_max);
+  return params;
+};
+
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>({ status_id: 0 });
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [statuses, setStatuses] = useState<FilterOption[]>([]);
-  const [priorities, setPriorities] = useState<FilterOption[]>([]);
   const [projects, setProjects] = useState<FilterOption[]>([]);
-  const [users, setUsers] = useState<FilterOption[]>([]);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { hasPermission: canEditTask } = usePermission('Edit tasks');
   const { hasPermission: canDeleteTask } = usePermission('Delete tasks');
+  const { data: statusList, error: statusesError } = useLookup('statuses');
+  const { data: priorities, error: prioritiesError } = useLookup('priorities');
+  const { data: userList, error: usersError } = useLookup('users');
+
+  const optionsError =
+    statusesError || prioritiesError || usersError || projectsError;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getProjects(undefined, controller.signal)
+      .then((data) => setProjects(data ?? []))
+      .catch((err: unknown) => {
+        if (controller.signal.aborted) return;
+        logger.error('Failed to fetch projects:', err);
+        setProjectsError(getApiErrorMessage(err, 'Failed to load projects'));
+      });
+    return () => controller.abort();
+  }, []);
 
   const fetchTasks = useCallback(
-    async (currentFilters?: FilterValues): Promise<void> => {
+    async (currentFilters: FilterValues, signal?: AbortSignal) => {
       try {
         setLoading(true);
         setError(null);
-
-        const f = currentFilters || {};
-        const statusIdRaw = f.status_id;
-        const statusIdStr = statusIdRaw != null ? String(statusIdRaw) : '';
-        const statusId = statusIdStr !== '' ? Number(statusIdStr) : undefined;
-        const hasFilters =
-          currentFilters && Object.keys(currentFilters).length > 0;
-        const params: TaskFilters = {};
-        if (hasFilters && currentFilters) {
-          if (statusId === -1) {
-            params.inactive_statuses_only = 1;
-          } else if (statusId === 0) {
-            params.active_statuses_only = 1;
-          } else if (statusIdStr.includes(',')) {
-            params.status_id = statusIdStr;
-          } else if (statusId !== undefined && !Number.isNaN(statusId)) {
-            params.status_id = statusId;
-          }
-          const priorityParam = idFilterParam(f.priority_id);
-          if (priorityParam !== undefined) params.priority_id = priorityParam;
-          const assigneeParam = idFilterParam(f.assignee_id);
-          if (assigneeParam !== undefined) params.assignee_id = assigneeParam;
-          const holderParam = idFilterParam(f.holder_id);
-          if (holderParam !== undefined) params.holder_id = holderParam;
-          const projectParam = idFilterParam(f.project_id);
-          if (projectParam !== undefined) params.project_id = projectParam;
-          const createdByParam = idFilterParam(f.created_by);
-          if (createdByParam !== undefined) params.created_by = createdByParam;
-          if (f.id != null && f.id !== '') params.id = Number(f.id);
-          if (f.parent_id != null && f.parent_id !== '')
-            params.parent_id = Number(f.parent_id);
-          if (f.due_date_from) params.due_date_from = String(f.due_date_from);
-          if (f.due_date_to) params.due_date_to = String(f.due_date_to);
-          if (f.start_date_from)
-            params.start_date_from = String(f.start_date_from);
-          if (f.start_date_to) params.start_date_to = String(f.start_date_to);
-          if (f.created_from) params.created_from = String(f.created_from);
-          if (f.created_to) params.created_to = String(f.created_to);
-          if (f.estimated_time_min != null && f.estimated_time_min !== '')
-            params.estimated_time_min = Number(f.estimated_time_min);
-          if (f.estimated_time_max != null && f.estimated_time_max !== '')
-            params.estimated_time_max = Number(f.estimated_time_max);
-        }
-        const taskList = await getTasks(hasFilters ? params : {});
+        const taskList = await getTasks(
+          buildTaskParams(currentFilters),
+          signal,
+        );
+        if (signal?.aborted) return;
         setTasks(taskList);
-      } catch (error) {
-        logger.error('Failed to fetch tasks', error);
-        setError('Failed to load tasks. Please try again later.');
+      } catch (err) {
+        if (signal?.aborted) return;
+        logger.error('Failed to fetch tasks', err);
+        setError(
+          getApiErrorMessage(
+            err,
+            'Failed to load tasks. Please try again later.',
+          ),
+        );
       } finally {
-        setLoading(false);
+        if (!signal?.aborted) setLoading(false);
       }
     },
     [],
   );
 
+  // Search is applied client-side, so typing must not refetch.
+  const { search: _search, ...serverFilters } = filters;
+  const serverFiltersKey = JSON.stringify(serverFilters);
+
   useEffect(() => {
-    fetchTasks(filters);
-    // Fetch filter options
-    const fetchFilterOptions = async () => {
-      try {
-        const [statusesData, prioritiesData, projectsData, usersData] =
-          await Promise.all([
-            getTaskStatuses().catch(() => []),
-            getPriorities().catch(() => []),
-            getProjects().catch(() => []),
-            getUsers().catch(() => []),
-          ]);
-        const activeInactive = [
-          { id: 0, name: 'Active' },
-          { id: -1, name: 'Inactive' },
-          ...statusesData,
-        ];
-        setStatuses(activeInactive);
-        setPriorities(prioritiesData);
-        setProjects(projectsData);
-        setUsers(
-          (usersData || []).map(
-            (u: { id: number; name?: string; login?: string }) => ({
-              id: u.id,
-              name: u.name
-                ? `${u.name} (${u.login || u.id})`
-                : String(u.login || u.id),
-            }),
-          ),
-        );
-      } catch (error) {
-        logger.error('Failed to fetch filter options:', error);
-      }
-    };
-    fetchFilterOptions();
-  }, [fetchTasks, filters]);
+    const controller = new AbortController();
+    fetchTasks(JSON.parse(serverFiltersKey), controller.signal);
+    return () => controller.abort();
+  }, [fetchTasks, serverFiltersKey]);
 
   const handleDeleteClick = useCallback((task: Task): void => {
     setTaskToDelete(task);
     setDeleteError(null);
     setDeleteDialogOpen(true);
   }, []);
+
+  const handleEdit = useCallback(
+    (task: Task) => navigate(`/tasks/${task?.id}/edit`),
+    [navigate],
+  );
 
   const handleDeleteConfirm = useCallback(async (): Promise<void> => {
     if (!taskToDelete) return;
@@ -162,7 +197,7 @@ const Tasks: React.FC = () => {
       setDeleting(true);
       setDeleteError(null);
       await deleteTask(taskToDelete.id);
-      await fetchTasks();
+      await fetchTasks(filters);
       setDeleteDialogOpen(false);
       setTaskToDelete(null);
     } catch (error: unknown) {
@@ -173,7 +208,7 @@ const Tasks: React.FC = () => {
     } finally {
       setDeleting(false);
     }
-  }, [taskToDelete, fetchTasks]);
+  }, [taskToDelete, fetchTasks, filters]);
 
   const handleDeleteCancel = useCallback((): void => {
     setDeleteDialogOpen(false);
@@ -183,6 +218,7 @@ const Tasks: React.FC = () => {
 
   const handleFilterChange = useCallback((newFilters: FilterValues) => {
     setFilters(newFilters);
+    setPage(1);
   }, []);
 
   const handleSortChange = useCallback(
@@ -190,6 +226,26 @@ const Tasks: React.FC = () => {
       setSortOrder(event.target.value as 'asc' | 'desc');
     },
     [],
+  );
+
+  const statuses = useMemo<FilterOption[]>(
+    () => [
+      { id: 0, name: 'Active' },
+      { id: -1, name: 'Inactive' },
+      ...statusList,
+    ],
+    [statusList],
+  );
+
+  const users = useMemo<FilterOption[]>(
+    () =>
+      userList.map((u) => ({
+        id: u.id,
+        name: u.name
+          ? `${u.name}${u.surname ? ` ${u.surname}` : ''} (${u.login})`
+          : u.login,
+      })),
+    [userList],
   );
 
   const filterOptions = useMemo(
@@ -258,7 +314,6 @@ const Tasks: React.FC = () => {
         return true;
       })
       .sort((a, b) => {
-        // Handle cases where name might be undefined or null
         const nameA = a?.name || '';
         const nameB = b?.name || '';
         return sortOrder === 'asc'
@@ -270,10 +325,11 @@ const Tasks: React.FC = () => {
   // Flat list in pre-order (parent then all descendants) with depth for indent; shows all levels
   const tasksInPreOrder = useMemo(() => {
     const list = filteredTasks || [];
+    const ids = new Set(list.map((t) => t.id));
     const childrenByParentId = new Map<number, Task[]>();
     list.forEach((t) => {
       const pid = t?.parent_id ?? null;
-      if (pid != null) {
+      if (pid != null && ids.has(pid)) {
         const arr = childrenByParentId.get(pid) ?? [];
         arr.push(t);
         childrenByParentId.set(pid, arr);
@@ -291,10 +347,44 @@ const Tasks: React.FC = () => {
       );
       children.forEach((c) => visit(c, depth + 1));
     };
-    const roots = list.filter((t) => t?.parent_id == null).sort(nameSort);
+    // Tasks whose parent was filtered out are shown as roots.
+    const roots = list
+      .filter((t) => t?.parent_id == null || !ids.has(t.parent_id))
+      .sort(nameSort);
     roots.forEach((r) => visit(r, 0));
     return result;
   }, [filteredTasks, sortOrder]);
+
+  const pageCount = Math.max(
+    1,
+    Math.ceil(tasksInPreOrder.length / GRID_PAGE_SIZE),
+  );
+  const currentPage = Math.min(page, pageCount);
+  const gridItems = useMemo(
+    () =>
+      tasksInPreOrder.slice(
+        (currentPage - 1) * GRID_PAGE_SIZE,
+        currentPage * GRID_PAGE_SIZE,
+      ),
+    [tasksInPreOrder, currentPage],
+  );
+
+  const rowData = useMemo<TaskRowData>(
+    () => ({
+      items: tasksInPreOrder,
+      canEdit: canEditTask,
+      canDelete: canDeleteTask,
+      onEdit: handleEdit,
+      onDelete: handleDeleteClick,
+    }),
+    [
+      tasksInPreOrder,
+      canEditTask,
+      canDeleteTask,
+      handleEdit,
+      handleDeleteClick,
+    ],
+  );
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
@@ -338,6 +428,12 @@ const Tasks: React.FC = () => {
           </Tooltip>
         </Box>
 
+        {optionsError && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {optionsError}
+          </Alert>
+        )}
+
         <FilterPanel
           type="tasks"
           filters={filters}
@@ -364,21 +460,33 @@ const Tasks: React.FC = () => {
         ) : tasksInPreOrder.length === 0 ? (
           <Typography>No tasks found.</Typography>
         ) : viewMode === 'grid' ? (
-          <Grid container spacing={2}>
-            {tasksInPreOrder.map(({ task, depth }) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
-                <TaskCard
-                  task={task}
-                  depth={depth}
-                  variant="grid"
-                  canEdit={canEditTask}
-                  canDelete={canDeleteTask}
-                  onEdit={(t) => navigate(`/tasks/${t?.id}/edit`)}
-                  onDelete={handleDeleteClick}
+          <>
+            <Grid container spacing={2}>
+              {gridItems.map(({ task, depth }) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={task?.id}>
+                  <TaskCard
+                    task={task}
+                    depth={depth}
+                    variant="grid"
+                    canEdit={canEditTask}
+                    canDelete={canDeleteTask}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteClick}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            {pageCount > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Pagination
+                  count={pageCount}
+                  page={currentPage}
+                  onChange={(_e, value) => setPage(value)}
+                  data-testid="tasks-pagination"
                 />
-              </Grid>
-            ))}
-          </Grid>
+              </Box>
+            )}
+          </>
         ) : (
           <Box sx={{ height: 600 }}>
             <List
@@ -386,26 +494,9 @@ const Tasks: React.FC = () => {
               itemCount={tasksInPreOrder.length}
               itemSize={220}
               width="100%"
-              itemData={tasksInPreOrder}
+              itemData={rowData}
             >
-              {({ index, style, data }) => {
-                const { task, depth } = data[index];
-                return (
-                  <div style={style}>
-                    <Box sx={{ py: 0.5, px: 0.5 }}>
-                      <TaskCard
-                        task={task}
-                        depth={depth}
-                        variant="list"
-                        canEdit={canEditTask}
-                        canDelete={canDeleteTask}
-                        onEdit={(t) => navigate(`/tasks/${t?.id}/edit`)}
-                        onDelete={handleDeleteClick}
-                      />
-                    </Box>
-                  </div>
-                );
-              }}
+              {TaskListRow}
             </List>
           </Box>
         )}

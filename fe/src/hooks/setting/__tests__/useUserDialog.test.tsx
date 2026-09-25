@@ -90,12 +90,12 @@ describe('useUserDialog', () => {
     );
 
     expect(result.current.rolesLoading).toBe(true);
-    expect(getRoles).toHaveBeenCalled();
 
     await waitFor(() => {
       expect(result.current.rolesLoading).toBe(false);
     });
 
+    expect(getRoles).toHaveBeenCalledTimes(1);
     expect(result.current.roles).toEqual(mockRoles);
   });
 

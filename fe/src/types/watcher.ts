@@ -12,6 +12,7 @@ export interface TaskWatcher {
 export interface WatcherListProps {
   watchers: TaskWatcher[];
   canManageWatchers: boolean;
+  currentUserId?: number;
   onRemoveWatcher: (userId: number) => void;
   onManageWatchers: () => void;
 }
@@ -21,6 +22,6 @@ export interface WatcherDialogProps {
   onClose: () => void;
   projectId: number;
   currentWatchers: TaskWatcher[];
-  onAddWatcher: (userId: number) => void;
-  onRemoveWatcher: (userId: number) => void;
+  onAddWatcher: (userId: number) => void | Promise<void>;
+  onRemoveWatcher: (userId: number) => void | Promise<void>;
 }

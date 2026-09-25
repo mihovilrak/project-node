@@ -44,6 +44,7 @@ export interface RoleFormProps {
   groupedPermissions: Record<string, Permission[]>;
   onChange: (field: string, value: string | boolean) => void;
   onPermissionToggle: (permission: Permission) => void;
+  isAdminRole?: boolean;
 }
 
 export interface RoleDialogProps {

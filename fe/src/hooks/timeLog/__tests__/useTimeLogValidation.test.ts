@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useTimeLogValidation } from '../useTimeLogValidation';
+import { MAX_LOG_HOURS, useTimeLogValidation } from '../useTimeLogValidation';
 
 describe('useTimeLogValidation', () => {
   it('should initialize with empty error', () => {
@@ -41,6 +41,26 @@ describe('useTimeLogValidation', () => {
           'Please enter a valid number of hours (e.g., 1, 1.5, 2)',
         );
       });
+    });
+  });
+
+  describe('maximum', () => {
+    it('accepts exactly MAX_LOG_HOURS and rejects more', () => {
+      const { result } = renderHook(() => useTimeLogValidation());
+      let formatted: number | null = null;
+
+      act(() => {
+        formatted = result.current.validateAndFormatTime(String(MAX_LOG_HOURS));
+      });
+      expect(formatted).toBe(MAX_LOG_HOURS);
+
+      act(() => {
+        formatted = result.current.validateAndFormatTime('24.5');
+      });
+      expect(formatted).toBeNull();
+      expect(result.current.timeError).toBe(
+        `Time spent cannot exceed ${MAX_LOG_HOURS} hours`,
+      );
     });
   });
 

@@ -141,27 +141,6 @@ export interface IconSelectorProps {
 }
 
 /**
- * Represent a user's locale and formatting preferences along with notification
- * settings and timestamps.
- */
-export interface UserSettings {
-  user_id: number;
-  timezone: string | null;
-  language: string | null;
-  date_format: string | null;
-  time_format: string | null;
-  notification_preferences: {
-    email_notifications: boolean;
-    push_notifications: boolean;
-    task_reminders: boolean;
-    project_updates: boolean;
-    team_mentions: boolean;
-  };
-  created_on: string;
-  updated_on: string | null;
-}
-
-/**
  * Define the fields required by a form to create or edit an activity type.
  */
 export interface ActivityTypeFormData {

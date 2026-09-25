@@ -2,38 +2,18 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EditMembersDialog from '../EditMembersDialog';
-import { getUsers } from '../../../api/users';
-import { User } from '../../../types/user';
+import { getUserOptions } from '../../../api/users';
+import { UserOption } from '../../../types/user';
 import { ProjectMember } from '../../../types/project';
 
 jest.mock('../../../api/users');
-const mockGetUsers = getUsers as jest.MockedFunction<typeof getUsers>;
+const mockGetUserOptions = getUserOptions as jest.MockedFunction<
+  typeof getUserOptions
+>;
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    login: 'user1',
-    name: 'John',
-    surname: 'Doe',
-    email: 'john@example.com',
-    role_id: 1,
-    status_id: 1,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-  },
-  {
-    id: 2,
-    login: 'user2',
-    name: 'Jane',
-    surname: 'Smith',
-    email: 'jane@example.com',
-    role_id: 1,
-    status_id: 1,
-    created_on: '2024-01-01',
-    updated_on: null,
-    last_login: null,
-  },
+const mockUsers: UserOption[] = [
+  { id: 1, login: 'user1', name: 'John', surname: 'Doe' },
+  { id: 2, login: 'user2', name: 'Jane', surname: 'Smith' },
 ];
 
 const mockCurrentMembers: ProjectMember[] = [
@@ -52,8 +32,8 @@ describe('EditMembersDialog', () => {
   const mockOnSave = jest.fn();
 
   beforeEach(() => {
-    mockGetUsers.mockResolvedValue(mockUsers);
     jest.clearAllMocks();
+    mockGetUserOptions.mockResolvedValue(mockUsers);
   });
 
   it('renders dialog with user list', async () => {
@@ -98,7 +78,7 @@ describe('EditMembersDialog', () => {
   });
 
   it('handles API error', async () => {
-    mockGetUsers.mockRejectedValueOnce(new Error('API Error'));
+    mockGetUserOptions.mockRejectedValueOnce(new Error('API Error'));
 
     render(
       <EditMembersDialog
@@ -142,6 +122,44 @@ describe('EditMembersDialog', () => {
       expect(mockOnSave).toHaveBeenCalledWith([1]);
       expect(mockOnClose).toHaveBeenCalled();
     });
+  });
+
+  it('keeps the dialog open and shows the error when saving fails', async () => {
+    mockOnSave.mockRejectedValue(new Error('Save failed'));
+    render(
+      <EditMembersDialog
+        open={true}
+        onClose={mockOnClose}
+        currentMembers={mockCurrentMembers}
+        onSave={mockOnSave}
+        projectId={1}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Save Changes'));
+
+    expect(await screen.findByText('Save failed')).toBeInTheDocument();
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('loads user options once', async () => {
+    render(
+      <EditMembersDialog
+        open={true}
+        onClose={mockOnClose}
+        currentMembers={mockCurrentMembers}
+        onSave={mockOnSave}
+        projectId={1}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    });
+    expect(mockGetUserOptions).toHaveBeenCalledTimes(1);
   });
 
   it('closes dialog on cancel', async () => {

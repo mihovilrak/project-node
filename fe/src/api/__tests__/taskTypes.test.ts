@@ -2,7 +2,6 @@ import { api } from '../api';
 import { TaskType } from '../../types/task';
 import {
   getTaskTypes,
-  getTaskTypeById,
   createTaskType,
   updateTaskType,
   deleteTaskType,
@@ -48,24 +47,6 @@ describe('Task Types API', () => {
       mockedApi.get.mockRejectedValueOnce(error);
 
       await expect(getTaskTypes()).rejects.toThrow(error);
-    });
-  });
-
-  describe('getTaskTypeById', () => {
-    it('should fetch task type by id successfully', async () => {
-      mockedApi.get.mockResolvedValueOnce({ data: mockTaskType });
-
-      const result = await getTaskTypeById(1);
-
-      expect(mockedApi.get).toHaveBeenCalledWith('/admin/task-types/1');
-      expect(result).toEqual(mockTaskType);
-    });
-
-    it('should throw error when fetch fails', async () => {
-      const error = new Error('Network error');
-      mockedApi.get.mockRejectedValueOnce(error);
-
-      await expect(getTaskTypeById(1)).rejects.toThrow(error);
     });
   });
 
