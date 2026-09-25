@@ -34,8 +34,13 @@ export const getRoles = async (signal?: AbortSignal): Promise<Role[]> => {
  * @returns Promise that resolves to the created Role object as returned by the
  *   API (including assigned id and timestamps).
  */
-export const createRole = async (roleData: Partial<Role>): Promise<Role> => {
-  const response = await api.post<Role>('/roles', roleData);
+export const createRole = async (
+  roleData: Partial<Role>,
+): Promise<{ message: string; id: number }> => {
+  const response = await api.post<{ message: string; id: number }>(
+    '/roles',
+    roleData,
+  );
   return response.data;
 };
 
