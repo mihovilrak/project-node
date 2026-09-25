@@ -164,5 +164,16 @@ describe('FileModel', () => {
         ['1'],
       );
     });
+
+    it('should scope the delete to owner and task when given', async () => {
+      (mockPool.query as jest.Mock).mockResolvedValue(mockQueryResult([]));
+
+      await fileModel.deleteFile(mockPool, '1', '2', '3');
+
+      expect(mockPool.query).toHaveBeenCalledWith(
+        expect.stringContaining('id = $1 AND user_id = $2 AND task_id = $3'),
+        ['1', '2', '3'],
+      );
+    });
   });
 });

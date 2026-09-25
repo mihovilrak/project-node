@@ -240,6 +240,21 @@ describe('fileController', () => {
       );
     });
 
+    it('should return 404 when the file belongs to another task', async () => {
+      (fileModel.getFileById as jest.Mock).mockResolvedValue(mockFile);
+      (fsSync.existsSync as jest.Mock).mockReturnValue(true);
+      (mockReq as any).taskId = '999';
+
+      await downloadFile(
+        mockReq as Request,
+        mockRes as Response,
+        mockPool as Pool,
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.download).not.toHaveBeenCalled();
+    });
+
     it('should handle file not found in database', async () => {
       (fileModel.getFileById as jest.Mock).mockResolvedValue(null);
 
@@ -332,7 +347,12 @@ describe('fileController', () => {
       );
 
       // Non-admin: the owner id is passed so the model can scope the delete.
-      expect(fileModel.deleteFile).toHaveBeenCalledWith(mockPool, '1', '1');
+      expect(fileModel.deleteFile).toHaveBeenCalledWith(
+        mockPool,
+        '1',
+        '1',
+        undefined,
+      );
       expect(fs.unlink).toHaveBeenCalledWith('/path/to/file');
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -404,6 +424,7 @@ describe('fileController', () => {
       expect(fileModel.deleteFile).toHaveBeenCalledWith(
         mockPool,
         '1',
+        undefined,
         undefined,
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);

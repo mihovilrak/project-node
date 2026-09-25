@@ -106,7 +106,7 @@ export const downloadFile = async (
   pool: Pool,
 ): Promise<void> => {
   const file = await fileModel.getFileById(pool, req.params.fileId as string);
-  if (!file) {
+  if (!file || (req.taskId && String(file.task_id) !== req.taskId)) {
     res.status(404).json({ error: 'File not found' });
     return;
   }
@@ -144,6 +144,7 @@ export const deleteFile = async (
     pool,
     req.params.fileId as string,
     isAdmin ? undefined : userId,
+    req.taskId,
   );
   if (!deleted) {
     if (isAdmin) {
