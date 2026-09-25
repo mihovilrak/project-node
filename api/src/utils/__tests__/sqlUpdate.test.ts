@@ -4,7 +4,7 @@ import { buildUpdateAssignments } from '../sqlUpdate';
 import { ALLOWED_PROJECT_UPDATE_KEYS } from '../../models/projectModel';
 import { ALLOWED_TASK_UPDATE_KEYS } from '../../models/taskModel';
 import { ALLOWED_TIME_LOG_UPDATE_KEYS } from '../../models/timeLogModel';
-import { ALLOWED_ACTIVITY_TYPE_UPDATE_KEYS } from '../../models/activityTypeModel';
+import { LOOKUP_TYPE_KEYS } from '../lookupType';
 
 describe('buildUpdateAssignments', () => {
   const allowed = ['name', 'description', 'color'] as const;
@@ -20,7 +20,10 @@ describe('buildUpdateAssignments', () => {
   });
 
   it('builds a numbered SET clause for the provided keys only', () => {
-    const result = buildUpdateAssignments({ color: '#ffffff', name: 'a' }, allowed);
+    const result = buildUpdateAssignments(
+      { color: '#ffffff', name: 'a' },
+      allowed,
+    );
 
     expect(result).toEqual({
       columns: ['name', 'color'],
@@ -66,11 +69,17 @@ describe('buildUpdateAssignments', () => {
     >;
     payload.color = '#000000';
 
-    expect(buildUpdateAssignments(payload, allowed)?.columns).toEqual(['color']);
+    expect(buildUpdateAssignments(payload, allowed)?.columns).toEqual([
+      'color',
+    ]);
   });
 
   it('offsets placeholders when startIndex is given', () => {
-    const result = buildUpdateAssignments({ name: 'n', color: 'c' }, allowed, 3);
+    const result = buildUpdateAssignments(
+      { name: 'n', color: 'c' },
+      allowed,
+      3,
+    );
 
     expect(result?.setClause).toBe('name = $3, color = $4');
     expect(result?.nextIndex).toBe(5);
@@ -115,7 +124,8 @@ describe('update whitelists match the actual table columns', () => {
     ['projects', ALLOWED_PROJECT_UPDATE_KEYS],
     ['tasks', ALLOWED_TASK_UPDATE_KEYS],
     ['time_logs', ALLOWED_TIME_LOG_UPDATE_KEYS],
-    ['activity_types', ALLOWED_ACTIVITY_TYPE_UPDATE_KEYS],
+    ['activity_types', LOOKUP_TYPE_KEYS],
+    ['task_types', LOOKUP_TYPE_KEYS],
   ];
 
   it.each(cases)('%s', (table, whitelist) => {

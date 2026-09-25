@@ -1,80 +1,55 @@
 import { Request, Response } from 'express';
 import { Pool } from 'pg';
 import * as activityTypeModel from '../models/activityTypeModel';
-import { CustomRequest } from '../types/express';
-import {
-  ActivityTypeCreateInput,
-  ActivityTypeUpdateInput,
-} from '../types/activityType';
-import { AVAILABLE_ICONS } from '../utils/iconConstants';
-import logger from '../utils/logger';
+import { parseLookupType } from '../utils/lookupType';
+
+export { getAvailableIcons } from '../utils/lookupType';
 
 /**
- * Fetch all active activity types and return them in a 200 response.
+ * Return all active activity types ordered by name.
  * @param req Express request object
- * @param res Express response object for sending the activity types or error
+ * @param res Express response object
  * @param pool Database connection pool
  */
 export const getActivityTypes = async (
   req: Request,
   res: Response,
   pool: Pool,
-): Promise<Response | void> => {
-  try {
-    const activityTypes = await activityTypeModel.getActivityTypes(pool);
-    res.status(200).json(activityTypes);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching activity types');
-    res.status(500).json({ error: 'Failed to fetch activity types' });
-  }
+): Promise<void> => {
+  res.status(200).json(await activityTypeModel.getActivityTypes(pool));
 };
 
 /**
- * Create a new activity type with a validated color and optional description and icon.
- *
- * Requires authenticated user session. Validates that the color matches hexadecimal format (#RRGGBB). Description and icon are optional. Returns the created activity type record with 201 status on success.
- * @param req Request object containing session user ID and ActivityTypeCreateInput body with name, description, color, and icon fields.
- * @param res Response object for sending the created activity type or error status.
- * @param pool Database connection pool for executing the create operation.
+ * Create an activity type. Name and a #RRGGBB color are required; the optional icon must be one of the available icons.
+ * @param req Request with the activity type fields in the body
+ * @param res Response object
+ * @param pool Database connection pool
  */
 export const createActivityType = async (
-  req: CustomRequest,
+  req: Request,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const { name, description, color, icon } =
-      req.body as ActivityTypeCreateInput;
-    const userId = req.session?.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    if (!color || !color.match(/^#[0-9A-Fa-f]{6}$/)) {
-      return res.status(400).json({ error: 'Invalid color format' });
-    }
-
-    const activityType = await activityTypeModel.createActivityType(
-      pool,
-      name,
-      description || null,
-      color,
-      icon || null,
-    );
-    res.status(201).json(activityType);
-  } catch (error) {
-    logger.error({ err: error }, 'Error creating activity type');
-    res.status(500).json({ error: 'Failed to create activity type' });
+  const parsed = parseLookupType(req.body, 'create');
+  if ('error' in parsed) {
+    return res.status(400).json({ error: parsed.error });
   }
+  const { values } = parsed;
+
+  const activityType = await activityTypeModel.createActivityType(pool, {
+    name: values.name as string,
+    description: (values.description as string | null | undefined) ?? null,
+    color: values.color as string,
+    icon: (values.icon as string | null | undefined) ?? null,
+    active: (values.active as boolean | undefined) ?? true,
+  });
+  res.status(201).json(activityType);
 };
 
 /**
- * Modify an activity type by applying partial field updates to an existing record.
- *
- * Accepts optional name, description, color, and icon fields. Color must be a valid hex code in #RRGGBB format if provided. Only supplied fields are updated to prevent unintended clearing of omitted properties. Returns 404 if the activity type does not exist.
+ * Update only the provided fields of an activity type. Returns 404 if it does not exist.
  * @param req Request with activity type id as route parameter and update fields in body
- * @param res Response to send the updated activity type or error status
+ * @param res Response object
  * @param pool Database connection pool
  */
 export const updateActivityType = async (
@@ -82,75 +57,39 @@ export const updateActivityType = async (
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const { id } = req.params;
-    const body = (req.body ?? {}) as ActivityTypeUpdateInput;
-
-    // Validate color format when provided (must be hex #RRGGBB for DB varchar(7))
-    if (
-      body.color != null &&
-      body.color !== '' &&
-      !body.color.match(/^#[0-9A-Fa-f]{6}$/)
-    ) {
-      return res.status(400).json({ error: 'Invalid color format' });
-    }
-
-    // Only forward the keys the client actually sent so a partial update never
-    // blanks the fields it left out.
-    const updates: ActivityTypeUpdateInput = {};
-    for (const key of ['name', 'description', 'color', 'icon'] as const) {
-      if (body[key] !== undefined) {
-        updates[key] = body[key];
-      }
-    }
-
-    const activityType = await activityTypeModel.updateActivityType(
-      pool,
-      id || '',
-      updates,
-    );
-
-    if (!activityType) {
-      return res.status(404).json({ error: 'Activity type not found' });
-    }
-
-    res.status(200).json(activityType);
-  } catch (error) {
-    logger.error({ err: error }, 'Error updating activity type');
-    res.status(500).json({ error: 'Failed to update activity type' });
+  const parsed = parseLookupType(req.body, 'update');
+  if ('error' in parsed) {
+    return res.status(400).json({ error: parsed.error });
   }
+
+  const activityType = await activityTypeModel.updateActivityType(
+    pool,
+    req.params.id,
+    parsed.values,
+  );
+  if (!activityType) {
+    return res.status(404).json({ error: 'Activity type not found' });
+  }
+  res.status(200).json(activityType);
 };
 
-// Delete an activity type
+/**
+ * Soft-delete an active activity type. Returns 404 if it does not exist or is already inactive.
+ * @param req Request with the activity type id in params
+ * @param res Response object
+ * @param pool Database connection pool
+ */
 export const deleteActivityType = async (
   req: Request,
   res: Response,
   pool: Pool,
 ): Promise<Response | void> => {
-  try {
-    const { id } = req.params;
-    const result = await activityTypeModel.deleteActivityType(pool, id);
-
-    if (!result) {
-      return res.status(404).json({ error: 'Activity type not found' });
-    }
-
-    res.status(200).json({ message: 'Activity type deleted successfully' });
-  } catch (error) {
-    logger.error({ err: error }, 'Error deleting activity type');
-    res.status(500).json({ error: 'Failed to delete activity type' });
+  const result = await activityTypeModel.deleteActivityType(
+    pool,
+    req.params.id,
+  );
+  if (!result) {
+    return res.status(404).json({ error: 'Activity type not found' });
   }
-};
-
-// Get available icons
-export const getAvailableIcons = async (
-  req: Request,
-  res: Response,
-): Promise<Response | void> => {
-  try {
-    res.status(200).json(AVAILABLE_ICONS);
-  } catch (error) {
-    logger.error({ err: error }, 'Error fetching icons');
-    res.status(500).json({ error: 'Failed to fetch icons' });
-  }
+  res.status(200).json({ message: 'Activity type deleted successfully' });
 };
