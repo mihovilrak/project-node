@@ -4,6 +4,8 @@ Administrators create accounts, assign roles and control what each role may do. 
 
 Everything on this page requires the **Admin** permission. The **Users** and **Settings** tabs in the app bar are shown only to administrators, and the API rejects these calls from anyone else.
 
+![User Management](/screenshots/users.png)
+
 ## Add a user
 
 1. Select **Users** in the app bar, then **Add New User**. You can also use **Create User** under **Settings** > **Users**.

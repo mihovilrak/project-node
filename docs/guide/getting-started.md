@@ -8,6 +8,8 @@ This page covers signing in, finding your way around the app, and managing your 
 2. Enter your **Username** and **Password**, then select **Login**.
 3. You land on **Home**.
 
+![The login form](/screenshots/login.png)
+
 Your session lasts one hour and is extended every time you use the app. After an hour of inactivity you are signed out and must log in again.
 
 ::: warning Failed logins
@@ -24,6 +26,8 @@ If your account is deactivated or deleted, you are signed out straight away on e
 
 1. The **welcome message**, if your administrator has set one (see [Settings](/admin/settings#welcome-message)).
 2. **My Active Tasks**, in two columns: **Tasks I hold** and **Tasks assigned to me**. Only tasks in an open status are listed. The **Edit** and **Delete** icons on a card show only if you have the **Edit tasks** or **Delete tasks** permission.
+
+![Home with the welcome message and My Active Tasks](/screenshots/dashboard.png)
 
 ## The app bar
 

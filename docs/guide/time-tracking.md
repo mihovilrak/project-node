@@ -15,6 +15,8 @@ Requires **Log time** and access to the task's project.
 
 Time is always logged against your own account.
 
+![A task's time logs](/screenshots/time-logs.png)
+
 ## Edit or delete a time log
 
 Editing requires **Edit log**. Deleting requires **Delete log**.

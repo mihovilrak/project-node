@@ -11,6 +11,8 @@ You see a project if you are a member or you created it. Administrators see ever
 3. Use the filter panel to narrow the list. Active projects are shown by default.
 4. Select a project to open it.
 
+![The Projects list in grid view](/screenshots/projects.png)
+
 ## Create a project
 
 Requires **Create projects**.
@@ -32,6 +34,8 @@ The project page has five tabs:
 | **Members** | Who is in the project. |
 | **Time Log** | Time logged against the project's tasks, and a **Log Time** button (needs **Log time**). |
 | **Gantt** | The project's tasks on a timeline. |
+
+![A project's Overview tab](/screenshots/project-details.png)
 
 ## Add a subproject
 

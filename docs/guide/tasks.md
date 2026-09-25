@@ -12,6 +12,8 @@ You see the tasks of every project you can see.
 
 Each card has **Edit** and **Delete** icons. They show only if you have **Edit tasks** or **Delete tasks**.
 
+![The Tasks list](/screenshots/tasks.png)
+
 ## Create a task
 
 Requires **Create tasks**.
@@ -31,6 +33,8 @@ The **holder** owns the task; the **assignee** does the work. The holder, the as
 | Priority | Low/Wont, Normal/Could, High/Should, Very high/Must, Urgent/ASAP |
 | Type | Task, Bug, Feature, Code Review, Documentation, Testing, Research, Work Package. Admins can [add more](/admin/settings#task-and-activity-types). |
 | Tags | Frontend, Backend, Database, UI/UX, API, Security, Performance, DevOps. Admins can [add more](/admin/settings#tags). |
+
+![A task page with its details, status and subtasks](/screenshots/task-details.png)
 
 ## Change the status
 
