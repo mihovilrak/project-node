@@ -190,7 +190,10 @@ export const useTaskForm = ({
       };
 
       if (isEditing) {
-        await updateTask(Number(taskId), taskData);
+        // Project and parent are fixed once a task exists.
+        const { project_id: _project, parent_id: _parent, ...updates } =
+          taskData;
+        await updateTask(Number(taskId), updates);
         navigate(`/tasks/${taskId}`);
       } else {
         const newTask = await createTask(taskData);

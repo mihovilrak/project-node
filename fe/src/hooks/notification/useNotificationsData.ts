@@ -7,7 +7,9 @@ import {
 import { Notification } from '../../types/notification';
 import { useAsyncResource } from '../common/useAsyncResource';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 
 const EMPTY_NOTIFICATIONS: Notification[] = [];
 
@@ -86,6 +88,11 @@ export const useNotificationsData = (
         await deleteNotification(id);
         await fetchNotifications();
       } catch (err: unknown) {
+        // Already gone (e.g. deleted in another tab): just resync the list.
+        if (getApiErrorStatus(err) === 404) {
+          await fetchNotifications();
+          return;
+        }
         logger.error('Failed to delete notification:', err);
         setError(getApiErrorMessage(err, 'Failed to delete notification'));
       }

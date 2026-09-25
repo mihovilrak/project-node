@@ -188,6 +188,7 @@ const TaskDetails: React.FC = () => {
         onEditEnd={() => handleEditStart(null)}
         onAddSubtaskClick={() => handleAddSubtaskClick(task, navigate)}
         onTimeLogClick={handleTimeLogCreate}
+        canLogTime={hasPermission('Log time')}
       />
 
       <TaskDetailsSidebar

@@ -144,6 +144,7 @@ const TaskForm: React.FC = () => {
               formData={formData}
               handleChange={handleFormChange}
               projectIdFromQuery={projectIdFromQuery}
+              disabled={isEditing}
             />
           </Grid>
 
@@ -154,6 +155,7 @@ const TaskForm: React.FC = () => {
                 projectTasks={projectTasks}
                 handleChange={handleFormChange}
                 parentIdFromUrl={parentId}
+                disabled={isEditing}
               />
             </Grid>
           )}

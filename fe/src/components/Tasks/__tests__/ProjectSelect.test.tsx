@@ -137,6 +137,20 @@ describe('ProjectSelect', () => {
     expect(selectElement).toHaveAttribute('disabled');
   });
 
+  test('is disabled when the disabled prop is set', () => {
+    const { container } = render(
+      <ProjectSelect
+        projects={mockProjects}
+        formData={mockFormData}
+        handleChange={mockHandleChange}
+        disabled
+      />,
+    );
+
+    const selectElement = container.querySelector('input[name="project_id"]');
+    expect(selectElement).toHaveAttribute('disabled');
+  });
+
   test('is enabled when projectIdFromQuery is null', () => {
     const { container } = renderProjectSelect(null);
 

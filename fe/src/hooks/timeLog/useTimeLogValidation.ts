@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+// The API rejects a single entry above one day.
+export const MAX_LOG_HOURS = 24;
+
 /**
  * Validate and format time entries as decimal hours with error messaging.
  */
@@ -11,7 +14,10 @@ export const useTimeLogValidation = () => {
 
     const decimalHours = parseFloat(timeStr);
     if (!isNaN(decimalHours) && decimalHours > 0) {
-      // Return hours as is, no conversion needed
+      if (decimalHours > MAX_LOG_HOURS) {
+        setTimeError(`Time spent cannot exceed ${MAX_LOG_HOURS} hours`);
+        return null;
+      }
       return decimalHours;
     }
 

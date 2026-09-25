@@ -50,6 +50,7 @@ describe('TimeLogs API', () => {
       const result = await getTaskTimeLogs(1);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/time-logs/tasks/1/logs', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(result).toEqual([mockTimeLog]);
@@ -71,7 +72,8 @@ describe('TimeLogs API', () => {
       const result = await getProjectTimeLogs(1, params);
 
       expect(mockedApi.get).toHaveBeenCalledWith('/time-logs/projects/1/logs', {
-        params,
+        params: { ...params, limit: 500, offset: 0 },
+        signal: undefined,
       });
       expect(result).toEqual([mockTimeLog]);
     });

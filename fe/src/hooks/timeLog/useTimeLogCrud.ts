@@ -7,7 +7,9 @@ import {
   deleteTimeLog as deleteTimeLogApi,
 } from '../../api/timeLogs';
 import logger from '../../utils/logger';
-import getApiErrorMessage from '../../utils/getApiErrorMessage';
+import getApiErrorMessage, {
+  getApiErrorStatus,
+} from '../../utils/getApiErrorMessage';
 
 const EMPTY_TIME_LOGS: TimeLog[] = [];
 
@@ -66,6 +68,11 @@ export const useTimeLogCrud = (
         await deleteTimeLogApi(timeLogId);
         await refetch();
       } catch (err: unknown) {
+        // Already deleted elsewhere: resync instead of reporting a failure.
+        if (getApiErrorStatus(err) === 404) {
+          await refetch();
+          return;
+        }
         logger.error('Failed to delete time log:', err);
         throw new Error(getApiErrorMessage(err, 'Failed to delete time log'));
       }

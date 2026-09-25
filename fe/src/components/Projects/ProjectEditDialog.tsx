@@ -13,7 +13,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { updateProject } from '../../api/projects';
+import { changeProjectStatus, updateProject } from '../../api/projects';
 import { ProjectEditDialogProps } from '../../types/project';
 import { useProjectEdit } from '../../hooks/project/useProjectEdit';
 import logger from '../../utils/logger';
@@ -46,7 +46,11 @@ const ProjectEditDialog: React.FC<ProjectEditDialogProps> = ({
         return;
       }
 
-      await updateProject(project.id, formData);
+      const { status_id: statusId, ...fields } = formData;
+      await updateProject(project.id, fields);
+      if (statusId && statusId !== project.status_id) {
+        await changeProjectStatus(project.id, statusId);
+      }
       onSaved({
         ...project,
         ...formData,

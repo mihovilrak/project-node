@@ -34,6 +34,7 @@ describe('Notifications API', () => {
       const notifications = await getNotifications();
 
       expect(mockedApi.get).toHaveBeenCalledWith('/notifications', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
       expect(notifications).toEqual([mockNotification]);
@@ -45,6 +46,7 @@ describe('Notifications API', () => {
 
       await expect(getNotifications()).rejects.toThrow(error);
       expect(mockedApi.get).toHaveBeenCalledWith('/notifications', {
+        params: { limit: 500, offset: 0 },
         signal: undefined,
       });
     });

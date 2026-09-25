@@ -219,6 +219,7 @@ export interface ProjectTabPanelsProps {
   members: ProjectMember[];
   timeLogs: TimeLog[];
   canManageMembers: boolean;
+  canLogTime?: boolean;
   onCreateTask: () => void;
   onManageMembers: () => void;
   onTimeLogCreate: (taskId?: number) => void;

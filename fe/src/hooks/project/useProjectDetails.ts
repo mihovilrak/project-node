@@ -102,6 +102,7 @@ export const useProjectDetails = (projectId: string) => {
   const canDelete = hasPermission('Delete projects');
   // The members endpoints are guarded by 'Edit projects' on the backend.
   const canManageMembers = canEdit;
+  const canLogTime = hasPermission('Log time');
 
   return {
     ...memberHooks,
@@ -125,5 +126,6 @@ export const useProjectDetails = (projectId: string) => {
     canEdit,
     canDelete,
     canManageMembers,
+    canLogTime,
   };
 };
