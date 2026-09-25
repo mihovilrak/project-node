@@ -4,7 +4,6 @@ import WatcherDialog from '../WatcherDialog';
 import { getProjectMembers } from '../../../api/projects';
 import { ProjectMember } from '../../../types/project';
 import { TaskWatcher } from '../../../types/watcher';
-import logger from '../../../utils/logger';
 
 // Mock the API call
 jest.mock('../../../api/projects');
@@ -65,19 +64,46 @@ describe('WatcherDialog', () => {
     });
   });
 
-  it('handles API error gracefully', async () => {
-    (getProjectMembers as jest.Mock).mockRejectedValueOnce(
-      new Error('API Error'),
-    );
+  it('shows the error when members fail to load', async () => {
+    (getProjectMembers as jest.Mock).mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 403, data: {} },
+    });
 
     render(<WatcherDialog {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(logger.error).toHaveBeenCalledWith(
-        'Failed to fetch project members:',
-        expect.any(Error),
-      );
+    expect(
+      await screen.findByText(
+        'You do not have permission to perform this action',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('No project members available'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('adds a watcher once per checkbox click and blocks repeats in flight', async () => {
+    (getProjectMembers as jest.Mock).mockResolvedValueOnce(mockProjectMembers);
+    let resolveAdd: () => void = () => {};
+    const onAddWatcher = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAdd = resolve;
+        }),
+    );
+    render(<WatcherDialog {...defaultProps} onAddWatcher={onAddWatcher} />);
+
+    const checkbox = await screen.findByRole('checkbox', {
+      name: 'Watch: Jane Smith',
     });
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByText('Jane Smith'));
+
+    expect(onAddWatcher).toHaveBeenCalledTimes(1);
+    expect(checkbox).toBeDisabled();
+
+    resolveAdd();
+    await waitFor(() => expect(checkbox).not.toBeDisabled());
   });
 
   it('calls onAddWatcher when adding a new watcher', async () => {
