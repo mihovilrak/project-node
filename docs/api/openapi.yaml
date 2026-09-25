@@ -314,12 +314,11 @@ paths:
               $ref: '#/components/schemas/ProjectUpdateInput'
       responses:
         '200':
-          description: Number of rows updated (always 1).
+          description: The updated project row.
           content:
             application/json:
               schema:
-                type: integer
-                examples: [1]
+                $ref: '#/components/schemas/Project'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -525,12 +524,11 @@ paths:
               $ref: '#/components/schemas/UserIdInput'
       responses:
         '200':
-          description: Number of memberships removed (always 1).
+          description: Confirmation, `Project member removed`.
           content:
             application/json:
               schema:
-                type: integer
-                examples: [1]
+                $ref: '#/components/schemas/Message'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -986,13 +984,11 @@ paths:
               $ref: '#/components/schemas/UserIdInput'
       responses:
         '201':
-          description: The watcher row, or `null` when the user already watches the task.
+          description: The watcher row with the same list fields as `getTaskWatchers`.
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/WatcherRow'
-                  - type: 'null'
+                $ref: '#/components/schemas/WatcherRow'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1001,6 +997,14 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          description: The user already watches the task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Resource already exists
 
   /api/tasks/{id}/watchers/{userId}:
     parameters:
@@ -1261,6 +1265,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
 
   /api/tasks/{id}/files/{fileId}/download:
     parameters:
@@ -1357,6 +1363,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
 
   /api/files/{fileId}/download:
     parameters:
@@ -1469,7 +1477,7 @@ paths:
               $ref: '#/components/schemas/RoleInput'
       responses:
         '200':
-          description: Role updated. `id` is returned as a string.
+          description: Role updated.
           content:
             application/json:
               schema:
@@ -1707,7 +1715,9 @@ paths:
       tags: [Users]
       operationId: changeUserStatus
       summary: Change a user's status
-      description: Callers cannot change their own status.
+      description: >-
+        Callers cannot change their own status (400). Any status other than
+        active ends the user's sessions. An unknown status id is a 404.
       x-required-permission: Admin
       parameters:
         - $ref: '#/components/parameters/CsrfHeader'
@@ -1818,6 +1828,8 @@ paths:
       tags: [Tags]
       operationId: getTags
       summary: List tags
+      parameters:
+        - $ref: '#/components/parameters/IncludeInactive'
       responses:
         '200':
           description: Tags.
@@ -1867,6 +1879,7 @@ paths:
       tags: [Tags]
       operationId: updateTag
       summary: Update a tag
+      description: Send `active` to retire or reactivate the tag.
       x-required-permission: Admin
       parameters:
         - $ref: '#/components/parameters/CsrfHeader'
@@ -1875,7 +1888,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TagInput'
+              allOf:
+                - $ref: '#/components/schemas/TagInput'
+                - type: object
+                  properties:
+                    active: { type: boolean }
       responses:
         '200':
           description: The updated tag.
@@ -1949,13 +1966,11 @@ paths:
                 surname: { type: string, maxLength: 255 }
       responses:
         '200':
-          description: The updated user, or the unchanged profile when nothing was given.
+          description: The profile in the same shape as `getProfile`.
           content:
             application/json:
               schema:
-                anyOf:
-                  - $ref: '#/components/schemas/User'
-                  - $ref: '#/components/schemas/Profile'
+                $ref: '#/components/schemas/Profile'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2134,6 +2149,8 @@ paths:
       tags: [Task Types]
       operationId: getTaskTypes
       summary: List task types
+      parameters:
+        - $ref: '#/components/parameters/IncludeInactive'
       responses:
         '200':
           description: Task types.
@@ -2266,6 +2283,8 @@ paths:
       tags: [Activity Types]
       operationId: getActivityTypes
       summary: List activity types
+      parameters:
+        - $ref: '#/components/parameters/IncludeInactive'
       responses:
         '200':
           description: Activity types.
@@ -2814,6 +2833,16 @@ components:
         minimum: 1
         maximum: 500
         default: 50
+    IncludeInactive:
+      name: include_inactive
+      in: query
+      description: >-
+        `true` also returns deactivated rows. Admin only; other callers get
+        active rows regardless.
+      schema:
+        type: string
+        enum: ['true', 'false']
+        default: 'false'
     Offset:
       name: offset
       in: query
@@ -2928,6 +2957,14 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: Resource already exists
+    PayloadTooLarge:
+      description: The file is larger than the 10 MB upload limit.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: File too large
     TooManyRequests:
       description: Too many attempts.
       headers:
@@ -3324,6 +3361,8 @@ components:
         user_id: { type: integer }
         task_id: { type: integer }
         created_on: { $ref: '#/components/schemas/Timestamp' }
+        user_name: { type: [string, 'null'] }
+        role: { type: [string, 'null'] }
 
     Permission:
       type: object
@@ -3356,7 +3395,7 @@ components:
       required: [message, id]
       properties:
         message: { type: string }
-        id: { type: [integer, string] }
+        id: { type: integer }
 
     User:
       type: object
@@ -3568,10 +3607,13 @@ components:
         updated_on: { $ref: '#/components/schemas/NullableTimestamp' }
     UserSettingsInput:
       type: object
+      description: Partial update; omitted fields keep their current value.
       properties:
         theme: { $ref: '#/components/schemas/Theme' }
         language: { type: string, pattern: '^[a-z]{2}(-[A-Z]{2})?$' }
-        notifications_enabled: { type: boolean }
+        notifications_enabled:
+          type: boolean
+          description: '`false` turns off both in-app and email notifications.'
         email_notifications_enabled: { type: boolean }
         email_notifications:
           type: boolean
@@ -3636,3 +3678,9 @@ components:
           description: Hours.
         description: { type: string }
         activity_type_id: { type: integer }
+        user_id:
+          type: integer
+          description: >-
+            Log on behalf of another user. Admin only (403 otherwise); the
+            target must be an active member of the task's project (400
+            otherwise). Defaults to the caller.
