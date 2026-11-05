@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Base images are pinned by digest; Dependabot bumps tag and digest together
 # (it can't follow a FROM ${ARG}, hence the named base stage).
-FROM node:24.21.0-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2 AS node-base
+FROM node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374 AS node-base
 
 # Build frontend
 FROM node-base AS frontend-builder
