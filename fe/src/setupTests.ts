@@ -122,6 +122,9 @@ afterEach(() => {
 });
 
 // Clean up after the tests are finished
-afterAll(() => {
+afterAll(async () => {
+  // Let in-flight XHRs settle; closing MSW under them rejects with an
+  // unhandled InvalidStateError that kills the Jest worker.
+  await new Promise((resolve) => setTimeout(resolve, 100));
   server.close();
 });
