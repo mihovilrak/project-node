@@ -358,6 +358,10 @@ export const handlers = [
   http.delete('/api/files/:id', () => HttpResponse.json({})),
 
   // Notifications endpoints
+  http.get('/api/notifications', () => HttpResponse.json([])),
+
+  http.patch('/api/notifications', () => HttpResponse.json({})),
+
   http.get('/api/notifications/:userId', () => HttpResponse.json([])),
 
   http.patch('/api/notifications/:userId', () => HttpResponse.json({})),

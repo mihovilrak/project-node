@@ -35,9 +35,11 @@ jest.mock('../../../context/AuthContext', () => ({
   ),
   useAuth: () => ({
     permissionsLoading: false,
-    user: { id: 1, name: 'First1', permissions: ['Admin'] },
-    permissions: ['Admin'],
+    currentUser: { id: 1, name: 'First1' },
+    userPermissions: [{ permission: 'Admin' }],
+    hasPermission: () => true,
   }),
+  useCurrentUser: () => ({ id: 1, name: 'First1' }),
 }));
 
 // Mock user data
