@@ -1,17 +1,12 @@
 name: CI
 
+# Runs only as part of Docker Build, which owns triggers and concurrency.
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_call:
+  workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   NODE_VERSION: '24.x'

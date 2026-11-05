@@ -177,7 +177,7 @@ jobs:
           # Rejected login proves the API reached the database: a dead pool
           # surfaces as 500 from the error handler instead of 401.
           echo "Testing API database connectivity..."
-          login_status=$(curl -s -o /tmp/login.json -w '%{http_code}' -X POST http://localhost:3000/api/login -H 'Content-Type: application/json' -d '{"login":"ci-smoke-test","password":"ci-smoke-test"}')
+          login_status=$(curl -s -o /tmp/login.json -w '%{http_code}' -X POST http://localhost:3000/api/login -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' -d '{"login":"ci-smoke-test","password":"ci-smoke-test"}')
           echo "POST /api/login -> $login_status"
           cat /tmp/login.json
           if [ "$login_status" != "401" ]; then
@@ -188,7 +188,7 @@ jobs:
           # The seeded admin's password came from secrets/admin_password.txt.
           echo "Testing admin login with the secret file..."
           jq -n --rawfile password secrets/admin_password.txt '{login: "admin", password: $password}' > /tmp/admin.json
-          admin_status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/login -H 'Content-Type: application/json' --data @/tmp/admin.json)
+          admin_status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/login -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' --data @/tmp/admin.json)
           rm -f /tmp/admin.json
           echo "POST /api/login (admin) -> $admin_status"
           if [ "$admin_status" != "200" ]; then
