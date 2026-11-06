@@ -3,6 +3,9 @@
 # (it can't follow a FROM ${ARG}, hence the named base stage).
 FROM node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374 AS node-base
 
+# Node 26 images no longer bundle yarn; pin the version older images shipped.
+RUN npm install -g --no-fund --no-audit yarn@1.22.22
+
 # Build frontend
 FROM node-base AS frontend-builder
 
@@ -68,6 +71,7 @@ COPY --from=backend-builder /usr/local/bin/node /usr/local/bin/node
 # itself doesn't get rebuilt for every alpine security patch.
 RUN apk upgrade --no-cache && \
     apk add --no-cache \
+    libatomic \
     libstdc++ \
     postgresql18-client && \
     mkdir -p api service uploads && \
