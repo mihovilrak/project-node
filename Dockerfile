@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Base images are pinned by digest; Dependabot bumps tag and digest together
 # (it can't follow a FROM ${ARG}, hence the named base stage).
-FROM node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374 AS node-base
+FROM node:26.13.1-alpine3.23@sha256:39d8c143e60e99ae98f014bebea1e72fc96d3c9bdf9504bc3a27af5c05bfa39f AS node-base
 
 # Node 26 images no longer bundle yarn; pin the version older images shipped.
 RUN npm install -g --no-fund --no-audit yarn@1.22.22
